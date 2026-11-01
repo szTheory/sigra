@@ -1,0 +1,50 @@
+{
+  "status": "awaiting_new_explicit_approval",
+  "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+  "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
+  "actions": {
+    "create_only_refs": 3,
+    "draft_prs": 2,
+    "automatic_ci_runs": 2,
+    "dispatches": 0,
+    "reruns": 0,
+    "merges": 0
+  },
+  "unallocated_ceilings": {
+    "publication_requests": 23,
+    "prs_requests": 120,
+    "seconds_each": 3600
+  },
+  "actual_publication_sequence_requests": 15,
+  "live_approval_template": {
+    "schema": "sigra.phase253.paired-approval/v1",
+    "decision": "approve",
+    "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+    "scope": "normal-and-docs-only",
+    "decision_text": "REPLACE_WITH_NEW_LITERAL_ANSWER",
+    "approved_at_epoch": null,
+    "expires_epoch": null
+  },
+  "prs_approval_template": {
+    "schema": "sigra.phase253.paired-approval/v1",
+    "decision": "approve",
+    "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+    "scope": "normal-and-docs-only",
+    "decision_text": "REPLACE_WITH_NEW_LITERAL_ANSWER",
+    "approved_at_epoch": null,
+    "expires_epoch": null,
+    "schema_version": "sigra.phase253.outward-action-approval/v1",
+    "section": "docs_and_prs",
+    "section_sha256": "5912c544cb856f1d1e8ef125a90f091c0bf0e9bb3738e9a5ddefdb29deeb078a"
+  },
+  "active_allocations": 0,
+  "approval_received": false,
+  "prior_approvals_consumed": true,
+  "execute_command": "python3 -B .planning/execution/253-plan172-persistent-ledger/run_pair.py --run",
+  "next_gsd_command": "$gsd-execute-phase 253 --gaps-only",
+  "phase_verified": false,
+  "execution_permission": "require_escalated: permanent Git recovery refs and objects must be writable",
+  "prior_closed_attempt": "afe01a308",
+  "prior_closed_requests": 1,
+  "combined_ceiling_including_prior_request": 144
+}

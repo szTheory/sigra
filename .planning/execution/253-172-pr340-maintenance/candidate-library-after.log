@@ -1,0 +1,877 @@
+Compiling 178 files (.ex)
+Generated sigra app
+
+21:06:27.918 [error] Postgrex.Protocol (#PID<0.1379.0> ("db_conn_7")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:27.918 [error] Postgrex.Protocol (#PID<0.1376.0> ("db_conn_4")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:27.918 [error] Postgrex.Protocol (#PID<0.1382.0> ("db_conn_10")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:27.918 [error] Postgrex.Protocol (#PID<0.1381.0> ("db_conn_9")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:27.918 [error] Postgrex.Protocol (#PID<0.1375.0> ("db_conn_3")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:27.918 [error] Postgrex.Protocol (#PID<0.1374.0> ("db_conn_2")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:27.918 [error] Postgrex.Protocol (#PID<0.1373.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:27.918 [error] Postgrex.Protocol (#PID<0.1378.0> ("db_conn_6")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:27.918 [error] Postgrex.Protocol (#PID<0.1380.0> ("db_conn_8")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:27.918 [error] Postgrex.Protocol (#PID<0.1377.0> ("db_conn_5")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:28.718 [error] Postgrex.Protocol (#PID<0.1405.0> ("db_conn_3")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:28.718 [error] Postgrex.Protocol (#PID<0.1403.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:28.718 [error] Postgrex.Protocol (#PID<0.1406.0> ("db_conn_4")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:28.718 [error] Postgrex.Protocol (#PID<0.1404.0> ("db_conn_2")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+    warning: redefining module Sigra.TestUserToken (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUserToken.beam)
+    │
+  1 │ defmodule Sigra.TestUserToken do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user_token.ex:1: Sigra.TestUserToken (module)
+
+    warning: redefining module Sigra.OrganizationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.OrganizationsFixtures.beam)
+    │
+  1 │ defmodule Sigra.OrganizationsFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/organizations_fixtures.ex:1: Sigra.OrganizationsFixtures (module)
+
+Running ExUnit with seed: 755487, max_cases: 36
+Excluding tags: [:scaffold, :upgrade]
+
+    warning: redefining module Sigra.Test.EmailFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.EmailFixtures.beam)
+    │
+  1 │ defmodule Sigra.Test.EmailFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/email_fixtures.ex:1: Sigra.Test.EmailFixtures (module)
+
+................................    warning: redefining module Sigra.Test.OAuthHelpers (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.OAuthHelpers.beam)
+    │
+  1 │ defmodule Sigra.Test.OAuthHelpers do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:1: Sigra.Test.OAuthHelpers (module)
+
+..............................................    warning: redefining module Sigra.Test.MockUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockUser.beam)
+    │
+ 32 │ defmodule Sigra.Test.MockUser do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:32: Sigra.Test.MockUser (module)
+
+.........................................................................    warning: redefining module Sigra.Test.MockIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockIdentity.beam)
+    │
+ 44 │ defmodule Sigra.Test.MockIdentity do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:44: Sigra.Test.MockIdentity (module)
+
+........    warning: redefining module Sigra.Test.PostgresCase (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresCase.beam)
+    │
+  2 │   defmodule Sigra.Test.PostgresCase do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/postgres_case.ex:2: Sigra.Test.PostgresCase (module)
+
+..........error: undefined variable "web_module"
+└─ nofile:1:15
+
+....error: undefined variable "web_module"
+└─ nofile:1:15
+
+.error: undefined variable "web_module"
+└─ nofile:1:15
+
+..error: undefined variable "web_module"
+└─ nofile:1:15
+
+.error: undefined variable "web_module"
+└─ nofile:1:15
+
+.error: undefined variable "web_module"
+└─ nofile:1:15
+
+.error: undefined variable "web_module"
+└─ nofile:1:15
+
+.error: undefined variable "web_module"
+└─ nofile:1:15
+
+.    warning: function build_user/0 is unused
+    │
+ 47 │   defp build_user do
+    │        ~
+    │
+    └─ test/sigra/plug/fetch_session_test.exs:47:8: Sigra.Plug.FetchSessionTest (module)
+
+..error: undefined variable "web_module"
+└─ nofile:1:15
+
+    warning: redefining module Sigra.Test.MockSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSession.beam)
+    │
+ 63 │ defmodule Sigra.Test.MockSession do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:63: Sigra.Test.MockSession (module)
+
+...............error: undefined variable "web_module"
+└─ nofile:1:15
+
+.error: undefined variable "web_module"
+└─ nofile:1:15
+
+.........................    warning: redefining module Sigra.Test.MockSessionStore (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockSessionStore.beam)
+    │
+ 66 │ defmodule Sigra.Test.MockSessionStore do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:66: Sigra.Test.MockSessionStore (module)
+
+.........    warning: redefining module Sigra.Test.AuditEvent (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditEvent.beam)
+    │
+  1 │ defmodule Sigra.Test.AuditEvent do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/audit_test_event.ex:1: Sigra.Test.AuditEvent (module)
+
+..............    warning: redefining module Sigra.Test.PlanningPaths (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PlanningPaths.beam)
+    │
+  1 │ defmodule Sigra.Test.PlanningPaths do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/planning_paths.ex:1: Sigra.Test.PlanningPaths (module)
+
+    warning: redefining module Sigra.Test.MockRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MockRepo.beam)
+    │
+ 70 │ defmodule Sigra.Test.MockRepo do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/oauth_helpers.ex:70: Sigra.Test.MockRepo (module)
+
+    warning: default values for the optional arguments in the private function build_membership/1 are never used
+    │
+ 94 │   defp build_membership(attrs \\ %{}),
+    │        ~
+    │
+    └─ test/sigra/live_view/organization_scope_test.exs:94:8: Sigra.LiveView.OrganizationScopeTest (module)
+
+
+
+  1) test the required generated-host job runs the confirmation Chromium target on pull requests (Sigra.Install.GeneratedConfirmationCIContractTest)
+     test/sigra/install/generated_confirmation_ci_contract_test.exs:6
+     ** (MatchError) no match of right hand side value:
+
+         {"fatal: not a git repository (or any of the parent directories): .git\n", 128}
+
+     code: workflow = committed_read(".github/workflows/ci.yml")
+     stacktrace:
+       test/sigra/install/generated_confirmation_ci_contract_test.exs:58: Sigra.Install.GeneratedConfirmationCIContractTest.committed_read/1
+       test/sigra/install/generated_confirmation_ci_contract_test.exs:7: (test)
+
+..............................
+21:06:29.263 [error] Postgrex.Protocol (#PID<0.1382.0> ("db_conn_10")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+..........     warning: redefining module Sigra.Test.CallbackRepo.ExistingIdentity (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.ExistingIdentity.beam)
+     │
+ 122 │ defmodule Sigra.Test.CallbackRepo.ExistingIdentity do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:122: Sigra.Test.CallbackRepo.ExistingIdentity (module)
+
+..................................................................................................................................................
+21:06:29.306 [error] Postgrex.Protocol (#PID<0.1375.0> ("db_conn_3")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+................................................     warning: redefining module Sigra.Test.CallbackRepo.EmailMismatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMismatch.beam)
+     │
+ 167 │ defmodule Sigra.Test.CallbackRepo.EmailMismatch do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:167: Sigra.Test.CallbackRepo.EmailMismatch (module)
+
+................    warning: redefining module Sigra.MockRepo.Behaviour (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.MockRepo.Behaviour.beam)
+    │
+  1 │ defmodule Sigra.MockRepo.Behaviour do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/mock_repo_behaviour.ex:1: Sigra.MockRepo.Behaviour (module)
+
+....    warning: redefining module Sigra.InvitationsFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.InvitationsFixtures.beam)
+    │
+  1 │ defmodule Sigra.InvitationsFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/fixtures/invitations_fixtures.ex:1: Sigra.InvitationsFixtures (module)
+
+....................................     warning: redefining module Sigra.Test.CallbackRepo.EmailMatch (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.EmailMatch.beam)
+     │
+ 196 │ defmodule Sigra.Test.CallbackRepo.EmailMatch do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:196: Sigra.Test.CallbackRepo.EmailMatch (module)
+
+........................................    warning: redefining module Sigra.TestUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.TestUser.beam)
+    │
+  1 │ defmodule Sigra.TestUser do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user.ex:1: Sigra.TestUser (module)
+
+........     warning: redefining module Sigra.Test.CallbackRepo.NewUser (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CallbackRepo.NewUser.beam)
+     │
+ 210 │ defmodule Sigra.Test.CallbackRepo.NewUser do
+     │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/support/oauth_helpers.ex:210: Sigra.Test.CallbackRepo.NewUser (module)
+
+...........................................................
+21:06:29.501 [info] The function passed as a handler with ID "test-event-#Reference<0.2913191778.660602881.27603>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+..........
+21:06:29.532 [info] The function passed as a handler with ID "test-span-#Reference<0.2913191778.660602882.43736>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+......    warning: redefining module Sigra.Test.MultiStub (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.MultiStub.beam)
+    │
+  1 │ defmodule Sigra.Test.MultiStub do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/multi_stub.ex:1: Sigra.Test.MultiStub (module)
+
+...
+21:06:29.541 [info] The function passed as a handler with ID "test-exception-#Reference<0.2913191778.660602885.12633>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+21:06:29.541 [info] The function passed as a handler with ID "test-event-defaults-#Reference<0.2913191778.660602883.22537>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+...........
+21:06:29.566 [error] Postgrex.Protocol (#PID<0.1381.0> ("db_conn_9")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+****.....
+21:06:29.580 [error] Postgrex.Protocol (#PID<0.1379.0> ("db_conn_7")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+[DX-02] getting-started.md reading estimate: 18.45 min total (2090 words / 10.45 min prose + 24 code blocks / 8.0 min skim)
+...............
+
+  2) test authenticated strict pass is reconciled exactly into FAST-01 and its residual (Sigra.Planning.Phase235Fast01SourceCompleteContractTest)
+     test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:169
+     ** (MatchError) no match of right hand side value:
+
+         {"sandbox-exec: sandbox_apply: Operation not permitted\n", 71}
+
+     code: {banner, 0} = System.cmd("bash", [@verifier], stderr_to_stdout: true)
+     stacktrace:
+       test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:170: (test)
+
+.................................................
+21:06:29.685 [error] OAuth callback for google: provider returned no email
+..
+21:06:29.686 [error] OAuth callback for google: provider returned no email
+.
+21:06:29.686 [error] OAuth UID/email mismatch: provider_uid provider_uid_123 maps to user 42 but email oauth@example.com belongs to user 99
+............................    warning: redefining module Sigra.Test.AuditQueryIndexScratchRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.AuditQueryIndexScratchRepo.beam)
+    │
+  2 │   defmodule Sigra.Test.AuditQueryIndexScratchRepo do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/audit_query_index_scratch_repo.ex:2: Sigra.Test.AuditQueryIndexScratchRepo (module)
+
+........................................................................................................................................................................
+
+  3) test semantic fixture parsing stays isolated from the authenticated default path (Sigra.Planning.Phase235Fast01SourceCompleteContractTest)
+     test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:143
+     match (=) failed
+     code:  assert {"source_complete_offline_attestation_verified\n", 0} =
+              System.cmd("bash", [@verifier], stderr_to_stdout: true)
+     left:  {"source_complete_offline_attestation_verified\n", 0}
+     right: {"sandbox-exec: sandbox_apply: Operation not permitted\n", 71}
+     stacktrace:
+       test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:149: (test)
+
+......................................................
+21:06:30.043 [error] Postgrex.Protocol (#PID<0.1373.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+.............................
+21:06:30.096 [error] Postgrex.Protocol (#PID<0.1377.0> ("db_conn_5")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:30.104 [error] Postgrex.Protocol (#PID<0.1380.0> ("db_conn_8")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+................................................
+21:06:30.165 [info] The function passed as a handler with ID "test-rate-limited" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.........................................................................................................................................................................................................................      warning: default values for the optional arguments in the private function build_session/1 are never used
+      │
+ 1213 │   defp build_session(overrides \\ %{}) do
+      │        ~
+      │
+      └─ test/sigra/auth_test.exs:1213:8: Sigra.AuthTest (module)
+
+...............................
+21:06:30.295 [error] OAuth callback for google: provider returned no email
+.....
+21:06:30.323 [error] Postgrex.Protocol (#PID<0.1374.0> ("db_conn_2")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+.........................................................................
+21:06:30.397 [error] OAuth authorize_url failed for failing: %{reason: :provider_error}
+..........................................................................********..
+21:06:30.543 [error] Postgrex.Protocol (#PID<0.1404.0> ("db_conn_2")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+.......................................................................................................................
+21:06:30.656 [error] Postgrex.Protocol (#PID<0.1378.0> ("db_conn_6")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+.............................................................................................................................................................................................................................................................................    warning: redefining module Sigra.Test.UserSession (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.UserSession.beam)
+    │
+  1 │ defmodule Sigra.Test.UserSession do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/test_user_session.ex:1: Sigra.Test.UserSession (module)
+
+.
+21:06:30.940 [debug] Tzdata polling for update.
+
+21:06:30.941 [error] Postgrex.Protocol (#PID<0.1406.0> ("db_conn_4")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+    warning: redefining module Sigra.Test.Support.PasskeyFixtures (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.Support.PasskeyFixtures.beam)
+    │
+  1 │ defmodule Sigra.Test.Support.PasskeyFixtures do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/passkey_fixtures.ex:1: Sigra.Test.Support.PasskeyFixtures (module)
+
+.............
+21:06:30.980 [info] The function passed as a handler with ID "test-oauth-register" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+21:06:30.981 [error] OAuth callback for google: provider returned no email
+.
+21:06:30.981 [info] The function passed as a handler with ID "test-oauth-login" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+................    warning: redefining module Sigra.Test.InstallFixture (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.InstallFixture.beam)
+    │
+  1 │ defmodule Sigra.Test.InstallFixture do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/install_fixture.ex:1: Sigra.Test.InstallFixture (module)
+
+.....    warning: redefining module Sigra.Test.CITimingFormatter (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.CITimingFormatter.beam)
+    │
+  1 │ defmodule Sigra.Test.CITimingFormatter do
+    │ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/ci_timing_formatter.ex:1: Sigra.Test.CITimingFormatter (module)
+
+..............................................................................................................................................................
+21:06:31.311 [warning] [Sigra.Workers.AuditForward] Forwarder Sigra.Audit.Forwarders.Noop does not export handle_event/4
+..
+21:06:31.314 [error] Postgrex.Protocol (#PID<0.1403.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+.............................................
+21:06:31.359 [error] Postgrex.Protocol (#PID<0.1405.0> ("db_conn_3")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+.....................    warning: redefining module Sigra.Test.PostgresRepo (current version loaded from _build/test/lib/sigra/ebin/Elixir.Sigra.Test.PostgresRepo.beam)
+    │
+  2 │   defmodule Sigra.Test.PostgresRepo do
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/support/postgres_test_repo.ex:2: Sigra.Test.PostgresRepo (module)
+
+...........    warning: default values for the optional arguments in the private function base_attrs/1 are never used
+    │
+ 11 │   defp base_attrs(overrides \\ %{}) do
+    │        ~
+    │
+    └─ test/sigra/audit/changeset_test.exs:11:8: Sigra.Audit.ChangesetTest (module)
+
+..    warning: the underscored variable "_key" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                  ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:34: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+    warning: the underscored variable "_window_ms" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                        ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:40: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+    warning: the underscored variable "_limit" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+    │
+ 11 │       send(self(), {:hammer_hit, _key, _window_ms, _limit})
+    │                                                    ~
+    │
+    └─ test/sigra/rate_limiters/hammer_test.exs:11:52: Sigra.RateLimiters.HammerTest.MockHammer.hit/3
+
+............................................................    warning: default values for the optional arguments in the private function test_config/1 are never used
+    │
+ 16 │   defp test_config(overrides \\ []) do
+    │        ~
+    │
+    └─ test/sigra/plug/fetch_bearer_test.exs:16:8: Sigra.Plug.FetchBearerTest (module)
+
+.......................................................................................................................warning: Sigra.Test.OrgsTemplateCompile6.Repo.get_by/2 is undefined or private
+└─ nofile:141:10: Sigra.Test.OrgsTemplateCompile6.Organizations.get_auth_policy/1
+└─ nofile:225:23: Sigra.Test.OrgsTemplateCompile6.Organizations.local_auth_policy_for/2
+
+warning: Sigra.Test.OrgsTemplateCompile6.Accounts.OrganizationAuthPolicy.changeset/2 is undefined or private. Did you mean:
+
+    * __changeset__/0
+
+└─ nofile:153:31: Sigra.Test.OrgsTemplateCompile6.Organizations.change_auth_policy/2
+
+warning: Sigra.Test.OrgsTemplateCompile6.Repo.insert_or_update/1 is undefined or private
+└─ nofile:162:13: Sigra.Test.OrgsTemplateCompile6.Organizations.save_auth_policy/2
+
+warning: Sigra.Test.OrgsTemplateCompile6.Repo.all/1 is undefined or private
+└─ nofile:179:13: Sigra.Test.OrgsTemplateCompile6.Organizations.list_auth_policy_exemptions/1
+└─ nofile:191:13: Sigra.Test.OrgsTemplateCompile6.Organizations.list_break_glass_candidates/1
+
+.warning: Sigra.Test.OrgsTemplateCompile6.Repo.transaction/1 is undefined or private
+└─ nofile:204:12: Sigra.Test.OrgsTemplateCompile6.Organizations.enable_sso_only/2
+
+warning: Sigra.Test.OrgsTemplateCompile6.Repo.rollback/1 is undefined or private
+└─ nofile:209:36: Sigra.Test.OrgsTemplateCompile6.Organizations.enable_sso_only/2
+
+warning: Sigra.Test.OrgsTemplateCompile6.Repo.delete_all/1 is undefined or private
+└─ nofile:281:15: Sigra.Test.OrgsTemplateCompile6.Organizations.replace_auth_policy_exemptions/2
+
+warning: Sigra.Test.OrgsTemplateCompile6.Accounts.OrganizationAuthPolicyExemption.changeset/2 is undefined or private. Did you mean:
+
+    * __changeset__/0
+
+└─ nofile:287:49: Sigra.Test.OrgsTemplateCompile6.Organizations.replace_auth_policy_exemptions/2
+
+warning: Sigra.Test.OrgsTemplateCompile6.Repo.insert/1 is undefined or private
+└─ nofile:288:22: Sigra.Test.OrgsTemplateCompile6.Organizations.replace_auth_policy_exemptions/2
+
+warning: Sigra.Test.OrgsTemplateCompile6.Repo.exists?/1 is undefined or private
+└─ nofile:302:10: Sigra.Test.OrgsTemplateCompile6.Organizations.break_glass_exempt?/2
+
+............................................................................
+21:06:31.696 [warning] [Sigra] Hammer rate limiter unavailable, failing open
+....................
+21:06:32.057 [error] Postgrex.Protocol (#PID<0.1381.0> ("db_conn_9")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+..............
+21:06:32.454 [debug] Tzdata polling shows the loaded tz database is up to date.
+..................
+21:06:32.718 [error] Postgrex.Protocol (#PID<0.7143.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:32.723 [error] :gen_statem #PID<0.7143.0> terminating
+** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+    (db_connection 2.10.2) lib/db_connection/connection.ex:121: DBConnection.Connection.handle_event/4
+    (stdlib 7.3) gen_statem.erl:3743: :gen_statem.loop_state_callback/11
+    (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+Process Label: "db_conn_1"
+Queue: [internal: {:connect, :init}]
+Postponed: []
+State: Postgrex.Protocol
+Callback mode: :handle_event_function, state_enter: false
+
+21:06:32.724 [error] Postgrex.Protocol (#PID<0.7147.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:32.724 [error] :gen_statem #PID<0.7147.0> terminating
+** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+    (db_connection 2.10.2) lib/db_connection/connection.ex:121: DBConnection.Connection.handle_event/4
+    (stdlib 7.3) gen_statem.erl:3743: :gen_statem.loop_state_callback/11
+    (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+Process Label: "db_conn_1"
+Queue: [internal: {:connect, :init}]
+Postponed: []
+State: Postgrex.Protocol
+Callback mode: :handle_event_function, state_enter: false
+
+21:06:32.725 [error] Postgrex.Protocol (#PID<0.7151.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:32.725 [error] :gen_statem #PID<0.7151.0> terminating
+** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+    (db_connection 2.10.2) lib/db_connection/connection.ex:121: DBConnection.Connection.handle_event/4
+    (stdlib 7.3) gen_statem.erl:3743: :gen_statem.loop_state_callback/11
+    (stdlib 7.3) proc_lib.erl:333: :proc_lib.init_p_do_apply/3
+Process Label: "db_conn_1"
+Queue: [internal: {:connect, :init}]
+Postponed: []
+State: Postgrex.Protocol
+Callback mode: :handle_event_function, state_enter: false
+?
+
+  3) Sigra.Audit.QueryIndexTest: failure on setup_all callback, all tests have been invalidated
+     ** (MatchError) no match of right hand side value:
+
+         {:error, "killed"}
+
+     stacktrace:
+       test/sigra/audit/query_index_test.exs:47: Sigra.Audit.QueryIndexTest.__ex_unit_setup_all_0/1
+       test/sigra/audit/query_index_test.exs:1: Sigra.Audit.QueryIndexTest.__ex_unit__/2
+
+.....
+21:06:32.777 [info] The function passed as a handler with ID "backfill-test-9296" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+........
+21:06:32.781 [info] The function passed as a handler with ID "backfill-done-9360" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+21:06:33.012 [error] Postgrex.Protocol (#PID<0.1379.0> ("db_conn_7")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:33.022 [error] Postgrex.Protocol (#PID<0.1375.0> ("db_conn_3")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:33.091 [error] Postgrex.Protocol (#PID<0.1382.0> ("db_conn_10")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:33.193 [error] Postgrex.Protocol (#PID<0.1376.0> ("db_conn_4")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:33.966 [error] Postgrex.Protocol (#PID<0.1373.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:34.109 [error] Postgrex.Protocol (#PID<0.1404.0> ("db_conn_2")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:34.458 [error] Postgrex.Protocol (#PID<0.1380.0> ("db_conn_8")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:34.666 [error] Postgrex.Protocol (#PID<0.1377.0> ("db_conn_5")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:35.228 [error] Postgrex.Protocol (#PID<0.1406.0> ("db_conn_4")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:36.751 [error] Postgrex.Protocol (#PID<0.1405.0> ("db_conn_3")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:36.783 [error] Postgrex.Protocol (#PID<0.1381.0> ("db_conn_9")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:36.957 [error] Postgrex.Protocol (#PID<0.1403.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:37.009 [error] Postgrex.Protocol (#PID<0.1382.0> ("db_conn_10")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:37.250 [error] Postgrex.Protocol (#PID<0.1374.0> ("db_conn_2")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:38.046 [error] Postgrex.Protocol (#PID<0.1378.0> ("db_conn_6")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+
+  4) test rollback on second audit emits zero telemetry events (Sigra.AuditMultiStepTest)
+     test/sigra/audit_multi_step_test.exs:115
+     ** (MatchError) no match of right hand side value:
+
+         {:error,
+          {%DBConnection.ConnectionError{
+             message: "[Elixir.Sigra.Test.PostgresRepo] connection not available and request was dropped from queue after 5934ms. This means requests are coming in and your connection pool cannot serve them fast enough. You can address this by:\n\n  1. Ensuring your database is available and that you can connect to it\n  2. Tracking down slow queries and making sure they are running fast enough\n  3. Increasing the pool_size (although this increases resource consumption)\n  4. Allowing requests to wait longer by increasing :queue_target and :queue_interval\n\nSee DBConnection.start_link/2 for more information\n",
+             severity: :error,
+             reason: :queue_timeout
+           },
+           [
+             {DBConnection.Ownership, :ownership_checkout, 2,
+              [
+                file: ~c"lib/db_connection/ownership.ex",
+                line: 108,
+                error_info: %{module: Exception}
+              ]},
+             {Ecto.Adapters.SQL.Sandbox, :checkout, 2,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 560]},
+             {Ecto.Adapters.SQL.Sandbox, :"-start_owner!/2-fun-0-", 3,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 455]},
+             {Agent.Server, :init, 1, [file: ~c"lib/agent/server.ex", line: 12]},
+             {:gen_server, :init_it, 2, [file: ~c"gen_server.erl", line: 2276]},
+             {:gen_server, :init_it, 6, [file: ~c"gen_server.erl", line: 2236]},
+             {:proc_lib, :init_p_do_apply, 3, [file: ~c"proc_lib.erl", line: 333]}
+           ]}}
+
+     stacktrace:
+       (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:451: Ecto.Adapters.SQL.Sandbox.start_owner!/2
+       (sigra 1.5.0) test/support/postgres_case.ex:24: Sigra.Test.PostgresCase.__ex_unit_setup_0/1
+       (sigra 1.5.0) test/support/postgres_case.ex:2: Sigra.Test.PostgresCase.__ex_unit__/2
+       test/sigra/audit_multi_step_test.exs:1: Sigra.AuditMultiStepTest.__ex_unit__/2
+
+
+21:06:39.553 [error] Postgrex.Protocol (#PID<0.1375.0> ("db_conn_3")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:39.622 [error] Postgrex.Protocol (#PID<0.1404.0> ("db_conn_2")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:41.190 [error] Postgrex.Protocol (#PID<0.1380.0> ("db_conn_8")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:41.766 [error] Postgrex.Protocol (#PID<0.1382.0> ("db_conn_10")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:41.978 [error] Postgrex.Protocol (#PID<0.1376.0> ("db_conn_4")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:42.341 [error] Postgrex.Protocol (#PID<0.1406.0> ("db_conn_4")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:42.542 [error] Postgrex.Protocol (#PID<0.1379.0> ("db_conn_7")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:42.542 [error] Postgrex.Protocol (#PID<0.1373.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+
+  5) test two log_multi_safe steps with distinct audit_multi_step insert two rows (Sigra.AuditMultiStepTest)
+     test/sigra/audit_multi_step_test.exs:46
+     ** (MatchError) no match of right hand side value:
+
+         {:error,
+          {%DBConnection.ConnectionError{
+             message: "[Elixir.Sigra.Test.PostgresRepo] connection not available and request was dropped from queue after 4000ms. This means requests are coming in and your connection pool cannot serve them fast enough. You can address this by:\n\n  1. Ensuring your database is available and that you can connect to it\n  2. Tracking down slow queries and making sure they are running fast enough\n  3. Increasing the pool_size (although this increases resource consumption)\n  4. Allowing requests to wait longer by increasing :queue_target and :queue_interval\n\nSee DBConnection.start_link/2 for more information\n",
+             severity: :error,
+             reason: :queue_timeout
+           },
+           [
+             {DBConnection.Ownership, :ownership_checkout, 2,
+              [
+                file: ~c"lib/db_connection/ownership.ex",
+                line: 108,
+                error_info: %{module: Exception}
+              ]},
+             {Ecto.Adapters.SQL.Sandbox, :checkout, 2,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 560]},
+             {Ecto.Adapters.SQL.Sandbox, :"-start_owner!/2-fun-0-", 3,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 455]},
+             {Agent.Server, :init, 1, [file: ~c"lib/agent/server.ex", line: 12]},
+             {:gen_server, :init_it, 2, [file: ~c"gen_server.erl", line: 2276]},
+             {:gen_server, :init_it, 6, [file: ~c"gen_server.erl", line: 2236]},
+             {:proc_lib, :init_p_do_apply, 3, [file: ~c"proc_lib.erl", line: 333]}
+           ]}}
+
+     stacktrace:
+       (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:451: Ecto.Adapters.SQL.Sandbox.start_owner!/2
+       (sigra 1.5.0) test/support/postgres_case.ex:24: Sigra.Test.PostgresCase.__ex_unit_setup_0/1
+       (sigra 1.5.0) test/support/postgres_case.ex:2: Sigra.Test.PostgresCase.__ex_unit__/2
+       test/sigra/audit_multi_step_test.exs:1: Sigra.AuditMultiStepTest.__ex_unit__/2
+
+
+21:06:44.012 [error] Postgrex.Protocol (#PID<0.1403.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:44.656 [error] Postgrex.Protocol (#PID<0.1381.0> ("db_conn_9")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:45.464 [error] Postgrex.Protocol (#PID<0.1377.0> ("db_conn_5")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:45.765 [error] Postgrex.Protocol (#PID<0.1378.0> ("db_conn_6")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+
+  6) test emit_telemetry_from_changes/2 emits once per step in order (Sigra.AuditMultiStepTest)
+     test/sigra/audit_multi_step_test.exs:75
+     ** (MatchError) no match of right hand side value:
+
+         {:error,
+          {%DBConnection.ConnectionError{
+             message: "[Elixir.Sigra.Test.PostgresRepo] connection not available and request was dropped from queue after 4000ms. This means requests are coming in and your connection pool cannot serve them fast enough. You can address this by:\n\n  1. Ensuring your database is available and that you can connect to it\n  2. Tracking down slow queries and making sure they are running fast enough\n  3. Increasing the pool_size (although this increases resource consumption)\n  4. Allowing requests to wait longer by increasing :queue_target and :queue_interval\n\nSee DBConnection.start_link/2 for more information\n",
+             severity: :error,
+             reason: :queue_timeout
+           },
+           [
+             {DBConnection.Ownership, :ownership_checkout, 2,
+              [
+                file: ~c"lib/db_connection/ownership.ex",
+                line: 108,
+                error_info: %{module: Exception}
+              ]},
+             {Ecto.Adapters.SQL.Sandbox, :checkout, 2,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 560]},
+             {Ecto.Adapters.SQL.Sandbox, :"-start_owner!/2-fun-0-", 3,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 455]},
+             {Agent.Server, :init, 1, [file: ~c"lib/agent/server.ex", line: 12]},
+             {:gen_server, :init_it, 2, [file: ~c"gen_server.erl", line: 2276]},
+             {:gen_server, :init_it, 6, [file: ~c"gen_server.erl", line: 2236]},
+             {:proc_lib, :init_p_do_apply, 3, [file: ~c"proc_lib.erl", line: 333]}
+           ]}}
+
+     stacktrace:
+       (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:451: Ecto.Adapters.SQL.Sandbox.start_owner!/2
+       (sigra 1.5.0) test/support/postgres_case.ex:24: Sigra.Test.PostgresCase.__ex_unit_setup_0/1
+       (sigra 1.5.0) test/support/postgres_case.ex:2: Sigra.Test.PostgresCase.__ex_unit__/2
+       test/sigra/audit_multi_step_test.exs:1: Sigra.AuditMultiStepTest.__ex_unit__/2
+
+......
+21:06:50.051 [error] Postgrex.Protocol (#PID<0.1375.0> ("db_conn_3")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:50.606 [error] Postgrex.Protocol (#PID<0.1405.0> ("db_conn_3")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+
+  7) test request_password_reset writes token and auth.password_reset_request audit atomically (Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest)
+     test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs:168
+     ** (MatchError) no match of right hand side value:
+
+         {:error,
+          {%DBConnection.ConnectionError{
+             message: "[Elixir.Sigra.Test.PostgresRepo] connection not available and request was dropped from queue after 4000ms. This means requests are coming in and your connection pool cannot serve them fast enough. You can address this by:\n\n  1. Ensuring your database is available and that you can connect to it\n  2. Tracking down slow queries and making sure they are running fast enough\n  3. Increasing the pool_size (although this increases resource consumption)\n  4. Allowing requests to wait longer by increasing :queue_target and :queue_interval\n\nSee DBConnection.start_link/2 for more information\n",
+             severity: :error,
+             reason: :queue_timeout
+           },
+           [
+             {DBConnection.Ownership, :ownership_checkout, 2,
+              [
+                file: ~c"lib/db_connection/ownership.ex",
+                line: 108,
+                error_info: %{module: Exception}
+              ]},
+             {Ecto.Adapters.SQL.Sandbox, :checkout, 2,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 560]},
+             {Ecto.Adapters.SQL.Sandbox, :"-start_owner!/2-fun-0-", 3,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 455]},
+             {Agent.Server, :init, 1, [file: ~c"lib/agent/server.ex", line: 12]},
+             {:gen_server, :init_it, 2, [file: ~c"gen_server.erl", line: 2276]},
+             {:gen_server, :init_it, 6, [file: ~c"gen_server.erl", line: 2236]},
+             {:proc_lib, :init_p_do_apply, 3, [file: ~c"proc_lib.erl", line: 333]}
+           ]}}
+
+     stacktrace:
+       (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:451: Ecto.Adapters.SQL.Sandbox.start_owner!/2
+       (sigra 1.5.0) test/support/postgres_case.ex:24: Sigra.Test.PostgresCase.__ex_unit_setup_0/1
+       (sigra 1.5.0) test/support/postgres_case.ex:2: Sigra.Test.PostgresCase.__ex_unit__/2
+       test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs:1: Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest.__ex_unit__/2
+
+
+21:06:51.949 [error] Postgrex.Protocol (#PID<0.1380.0> ("db_conn_8")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:52.076 [error] Postgrex.Protocol (#PID<0.1382.0> ("db_conn_10")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:53.520 [error] Postgrex.Protocol (#PID<0.1404.0> ("db_conn_2")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+
+  8) test request_magic_link writes token and auth.magic_link_request audit atomically (Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest)
+     test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs:113
+     ** (MatchError) no match of right hand side value:
+
+         {:error,
+          {%DBConnection.ConnectionError{
+             message: "[Elixir.Sigra.Test.PostgresRepo] connection not available and request was dropped from queue after 4000ms. This means requests are coming in and your connection pool cannot serve them fast enough. You can address this by:\n\n  1. Ensuring your database is available and that you can connect to it\n  2. Tracking down slow queries and making sure they are running fast enough\n  3. Increasing the pool_size (although this increases resource consumption)\n  4. Allowing requests to wait longer by increasing :queue_target and :queue_interval\n\nSee DBConnection.start_link/2 for more information\n",
+             severity: :error,
+             reason: :queue_timeout
+           },
+           [
+             {DBConnection.Ownership, :ownership_checkout, 2,
+              [
+                file: ~c"lib/db_connection/ownership.ex",
+                line: 108,
+                error_info: %{module: Exception}
+              ]},
+             {Ecto.Adapters.SQL.Sandbox, :checkout, 2,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 560]},
+             {Ecto.Adapters.SQL.Sandbox, :"-start_owner!/2-fun-0-", 3,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 455]},
+             {Agent.Server, :init, 1, [file: ~c"lib/agent/server.ex", line: 12]},
+             {:gen_server, :init_it, 2, [file: ~c"gen_server.erl", line: 2276]},
+             {:gen_server, :init_it, 6, [file: ~c"gen_server.erl", line: 2236]},
+             {:proc_lib, :init_p_do_apply, 3, [file: ~c"proc_lib.erl", line: 333]}
+           ]}}
+
+     stacktrace:
+       (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:451: Ecto.Adapters.SQL.Sandbox.start_owner!/2
+       (sigra 1.5.0) test/support/postgres_case.ex:24: Sigra.Test.PostgresCase.__ex_unit_setup_0/1
+       (sigra 1.5.0) test/support/postgres_case.ex:2: Sigra.Test.PostgresCase.__ex_unit__/2
+       test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs:1: Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest.__ex_unit__/2
+
+
+21:06:55.254 [error] Postgrex.Protocol (#PID<0.1379.0> ("db_conn_7")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:56.860 [error] Postgrex.Protocol (#PID<0.1381.0> ("db_conn_9")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:06:57.379 [error] Postgrex.Protocol (#PID<0.1374.0> ("db_conn_2")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+
+  9) test verify_magic_link writes auth.magic_link_verify.success when audit_schema enabled (Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest)
+     test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs:135
+     ** (MatchError) no match of right hand side value:
+
+         {:error,
+          {%DBConnection.ConnectionError{
+             message: "[Elixir.Sigra.Test.PostgresRepo] connection not available and request was dropped from queue after 4000ms. This means requests are coming in and your connection pool cannot serve them fast enough. You can address this by:\n\n  1. Ensuring your database is available and that you can connect to it\n  2. Tracking down slow queries and making sure they are running fast enough\n  3. Increasing the pool_size (although this increases resource consumption)\n  4. Allowing requests to wait longer by increasing :queue_target and :queue_interval\n\nSee DBConnection.start_link/2 for more information\n",
+             severity: :error,
+             reason: :queue_timeout
+           },
+           [
+             {DBConnection.Ownership, :ownership_checkout, 2,
+              [
+                file: ~c"lib/db_connection/ownership.ex",
+                line: 108,
+                error_info: %{module: Exception}
+              ]},
+             {Ecto.Adapters.SQL.Sandbox, :checkout, 2,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 560]},
+             {Ecto.Adapters.SQL.Sandbox, :"-start_owner!/2-fun-0-", 3,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 455]},
+             {Agent.Server, :init, 1, [file: ~c"lib/agent/server.ex", line: 12]},
+             {:gen_server, :init_it, 2, [file: ~c"gen_server.erl", line: 2276]},
+             {:gen_server, :init_it, 6, [file: ~c"gen_server.erl", line: 2236]},
+             {:proc_lib, :init_p_do_apply, 3, [file: ~c"proc_lib.erl", line: 333]}
+           ]}}
+
+     stacktrace:
+       (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:451: Ecto.Adapters.SQL.Sandbox.start_owner!/2
+       (sigra 1.5.0) test/support/postgres_case.ex:24: Sigra.Test.PostgresCase.__ex_unit_setup_0/1
+       (sigra 1.5.0) test/support/postgres_case.ex:2: Sigra.Test.PostgresCase.__ex_unit__/2
+       test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs:1: Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest.__ex_unit__/2
+
+
+21:07:01.583 [error] Postgrex.Protocol (#PID<0.1406.0> ("db_conn_4")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+
+ 10) test magic link request composition rolls back token and audit on forced Multi failure (Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest)
+     test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs:192
+     ** (MatchError) no match of right hand side value:
+
+         {:error,
+          {%DBConnection.ConnectionError{
+             message: "[Elixir.Sigra.Test.PostgresRepo] connection not available and request was dropped from queue after 4000ms. This means requests are coming in and your connection pool cannot serve them fast enough. You can address this by:\n\n  1. Ensuring your database is available and that you can connect to it\n  2. Tracking down slow queries and making sure they are running fast enough\n  3. Increasing the pool_size (although this increases resource consumption)\n  4. Allowing requests to wait longer by increasing :queue_target and :queue_interval\n\nSee DBConnection.start_link/2 for more information\n",
+             severity: :error,
+             reason: :queue_timeout
+           },
+           [
+             {DBConnection.Ownership, :ownership_checkout, 2,
+              [
+                file: ~c"lib/db_connection/ownership.ex",
+                line: 108,
+                error_info: %{module: Exception}
+              ]},
+             {Ecto.Adapters.SQL.Sandbox, :checkout, 2,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 560]},
+             {Ecto.Adapters.SQL.Sandbox, :"-start_owner!/2-fun-0-", 3,
+              [file: ~c"lib/ecto/adapters/sql/sandbox.ex", line: 455]},
+             {Agent.Server, :init, 1, [file: ~c"lib/agent/server.ex", line: 12]},
+             {:gen_server, :init_it, 2, [file: ~c"gen_server.erl", line: 2276]},
+             {:gen_server, :init_it, 6, [file: ~c"gen_server.erl", line: 2236]},
+             {:proc_lib, :init_p_do_apply, 3, [file: ~c"proc_lib.erl", line: 333]}
+           ]}}
+
+     stacktrace:
+       (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:451: Ecto.Adapters.SQL.Sandbox.start_owner!/2
+       (sigra 1.5.0) test/support/postgres_case.ex:24: Sigra.Test.PostgresCase.__ex_unit_setup_0/1
+       (sigra 1.5.0) test/support/postgres_case.ex:2: Sigra.Test.PostgresCase.__ex_unit__/2
+       test/sigra/auth/magic_link_and_reset_request_audit_atomicity_test.exs:1: Sigra.Auth.MagicLinkAndResetRequestAuditAtomicityTest.__ex_unit__/2
+
+...............................
+21:07:03.021 [error] Postgrex.Protocol (#PID<0.1373.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:07:03.741 [error] Postgrex.Protocol (#PID<0.1376.0> ("db_conn_4")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:07:04.453 [error] Postgrex.Protocol (#PID<0.1378.0> ("db_conn_6")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:07:04.520 [error] Postgrex.Protocol (#PID<0.1403.0> ("db_conn_1")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:07:05.029 [error] Postgrex.Protocol (#PID<0.1377.0> ("db_conn_5")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+???
+
+ 10) Sigra.Admin.UsersActionsTest: failure on setup_all callback, all tests have been invalidated
+     ** (DBConnection.ConnectionError) [Elixir.Sigra.Test.PostgresRepo] connection not available and request was dropped from queue after 3937ms. This means requests are coming in and your connection pool cannot serve them fast enough. You can address this by:
+
+       1. Ensuring your database is available and that you can connect to it
+       2. Tracking down slow queries and making sure they are running fast enough
+       3. Increasing the pool_size (although this increases resource consumption)
+       4. Allowing requests to wait longer by increasing :queue_target and :queue_interval
+
+     See DBConnection.start_link/2 for more information
+
+     stacktrace:
+       (db_connection 2.10.2) lib/db_connection/ownership.ex:108: DBConnection.Ownership.ownership_checkout/2
+       (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:560: Ecto.Adapters.SQL.Sandbox.checkout/2
+       (ecto_sql 3.14.0) lib/ecto/adapters/sql/sandbox.ex:627: Ecto.Adapters.SQL.Sandbox.unboxed_run/2
+       test/sigra/admin/users_actions_test.exs:91: Sigra.Admin.UsersActionsTest.__ex_unit_setup_all_1/1
+       test/sigra/admin/users_actions_test.exs:1: Sigra.Admin.UsersActionsTest.__ex_unit__/2
+
+.......
+21:07:06.757 [error] Postgrex.Protocol (#PID<0.1404.0> ("db_conn_2")) failed to connect: ** (DBConnection.ConnectionError) tcp connect (127.0.0.1:58624): connection refused - :econnrefused
+
+21:07:07.528 [notice] SIGTERM received - shutting down
+
+** (EXIT from #PID<0.94.0>) shutdown
+

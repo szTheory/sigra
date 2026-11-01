@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "23",
+  "purpose": "D-06 read-only planning preflight before creating a D-01 readiness-source repair gap plan",
+  "captured_at": "2026-10-01T00:44:08.874Z",
+  "status": "ready",
+  "scope": "Planning-only feasibility for repairing Plan 21 D-01 readiness identity. It authorizes no branch deletion, tracking-ref deletion, origin mutation, PR mutation, or historical evidence reconstruction.",
+  "checkout": {
+    "head": "a6ae9834f15f2f61366be473276d0e2762e6900e",
+    "state_json_head_blob": "c5f7e96987c2f2f4907e94198b4f1315dd214757",
+    "state_json_index_blob": "c5f7e96987c2f2f4907e94198b4f1315dd214757",
+    "state_json_worktree_blob": "b1c37266e9178f2daab739209fb66117024e20e6",
+    "state_json_dirty": true
+  },
+  "checks": {
+    "plan21_pinned_sources_verified": true,
+    "plan21_prior_preflight_was_ready": true,
+    "plan21_halted_at_d01": true,
+    "plan21_no_ref_operations_after_gate": true,
+    "plan21_d01_failure_is_state_json_identity_only": true,
+    "plan22_fetch_proof_passed_without_production_ref_operations": true,
+    "phase244_verification_passed": true,
+    "phase244_playwright_evidence_present": true,
+    "phase245_in_progress_and_phase244_complete": true,
+    "old_d01_readiness_is_diagnosed_as_stale": true,
+    "coordinator_verified": true,
+    "pinned_git_runtime_available": true,
+    "historical_gaps_remain_unresolved": true
+  },
+  "inputs": [
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-PLAN.md",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "48984761d18849ea1777ef5da5502df79b000949e58ed1dcc4f93d50a803db9a",
+      "git_status": "clean"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-EXEC-PREFLIGHT.json",
+      "exists": true,
+      "tracked": false,
+      "worktree_sha256": "8d40f3c83df365a9199ba2c2d515bbfebf89da5e61318e6908ad78084ac1df98",
+      "git_status": "?? .planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-EXEC-PREFLIGHT.json"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-RESULT.json",
+      "exists": true,
+      "tracked": false,
+      "worktree_sha256": "f0d7df1f370119a9bb4d7d42a8e3018665b1e3f5036a2c339c570c5f6f6fe6d9",
+      "git_status": "?? .planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-RESULT.json"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-SUMMARY.md",
+      "exists": true,
+      "tracked": false,
+      "worktree_sha256": "3d15fe40bf30a524135b24e80e2b34e461f968414cb22f7e8901754ba7c8fdc5",
+      "git_status": "?? .planning/phases/245-branch-prune-local-and-remote/245-21-SUMMARY.md"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-22-PLAN.md",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "cf125b0d25ca5df42a9f960bbab7834c0390225db26a23b353fef9870860f753",
+      "git_status": "clean"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-22-FETCH-PROOF.json",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "b1a444a9094f9f42c159ad317cc987fb6a60f08ae56f969437759126e0ddc489",
+      "git_status": "clean"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-22-SUMMARY.md",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "3ea5406c67f3677ba7335795f7eb05da5d568e85abbcb604c6ba5e351d0ad5ec",
+      "git_status": "clean"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-READINESS.json",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "4f89e215f966b89d961409f1dadf56eb095b24a30f798599088eecd808363e78",
+      "git_status": "clean"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-CONTEXT.md",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "4ba1146bf0f3650b86d85bfb5b62e6ae049c6864712b3449e13a0867451f1ba5",
+      "git_status": "M .planning/phases/245-branch-prune-local-and-remote/245-CONTEXT.md"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/continue.md",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "d8cc8501f21a8c38fa0affa1668fbbdc47840f2b4831c7603e084f078c35edd4",
+      "git_status": "M .planning/phases/245-branch-prune-local-and-remote/continue.md"
+    },
+    {
+      "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "70a65a708ea78a299d39d90883876009ec100bbf1851876533834625a2aa4c8f",
+      "git_status": "clean"
+    },
+    {
+      "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "284a0395f66030f783f1e44aa7f3854562eca48b40e4c80d03c8c3997b9ec0bb",
+      "git_status": "clean"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "adcd9be63ab6876884490c1000b59da467189e47b319444071374c391610e91d",
+      "git_status": "M .planning/STATE.md"
+    },
+    {
+      "path": ".planning/state.json",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "57a13dc92386d30579e26bbdce59821fb2c05e246c6b3eea6362432d80b1dd53",
+      "git_status": "M .planning/state.json"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "exists": true,
+      "tracked": true,
+      "worktree_sha256": "3ebda10c1665529cd6f4058ffd7bb66943cad7f83d94f29c05a362947288f567",
+      "git_status": "M .planning/ROADMAP.md"
+    }
+  ],
+  "pinned_plan21_sources": {
+    "count": 24,
+    "ready_count": 24,
+    "records": [
+      {
+        "commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+        "path": ".planning/state.json",
+        "expected_blob": "2306ec0bf980ed63bb35769b80b13947dc67ef27",
+        "expected_sha256": "bade6c96d763cd00c1ed530bb0234758bd0ea0fd90a6f53560941c52d6097e75",
+        "actual_blob": "2306ec0bf980ed63bb35769b80b13947dc67ef27",
+        "actual_sha256": "bade6c96d763cd00c1ed530bb0234758bd0ea0fd90a6f53560941c52d6097e75",
+        "status": "ready"
+      },
+      {
+        "commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+        "expected_blob": "5579ba64144b0b50136c4536183cf998ff75a0d3",
+        "expected_sha256": "70a65a708ea78a299d39d90883876009ec100bbf1851876533834625a2aa4c8f",
+        "actual_blob": "5579ba64144b0b50136c4536183cf998ff75a0d3",
+        "actual_sha256": "70a65a708ea78a299d39d90883876009ec100bbf1851876533834625a2aa4c8f",
+        "status": "ready"
+      },
+      {
+        "commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+        "expected_blob": "b868353af4151a39bccfd6c4a9e9a188789f4509",
+        "expected_sha256": "284a0395f66030f783f1e44aa7f3854562eca48b40e4c80d03c8c3997b9ec0bb",
+        "actual_blob": "b868353af4151a39bccfd6c4a9e9a188789f4509",
+        "actual_sha256": "284a0395f66030f783f1e44aa7f3854562eca48b40e4c80d03c8c3997b9ec0bb",
+        "status": "ready"
+      },
+      {
+        "commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md",
+        "expected_blob": "2feeedec49d410a99b3e2fa4a3226adade2d21f6",
+        "expected_sha256": "66118bac89fa687dbee6242ac87263fae53d792861003cbfb9f3799d92c422e9",
+        "actual_blob": "2feeedec49d410a99b3e2fa4a3226adade2d21f6",
+        "actual_sha256": "66118bac89fa687dbee6242ac87263fae53d792861003cbfb9f3799d92c422e9",
+        "status": "ready"
+      },
+      {
+        "commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+        "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md",
+        "expected_blob": "3f92f8d457c12a64b8af29f5e9649feee022f0d6",
+        "expected_sha256": "f3f0212dc094ef1acd2def2a00475f82301fcafc6236b5f1a78d9688418fe501",
+        "actual_blob": "3f92f8d457c12a64b8af29f5e9649feee022f0d6",
+        "actual_sha256": "f3f0212dc094ef1acd2def2a00475f82301fcafc6236b5f1a78d9688418fe501",
+        "status": "ready"
+      },
+      {
+        "commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+        "path": ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md",
+        "expected_blob": "e389bb0ce60fd4786b9291fe1c03f61ebb060ad7",
+        "expected_sha256": "8df140b0007b11d75c273f3c315415b036e44c365bc4cc7bffc265e00439c91c",
+        "actual_blob": "e389bb0ce60fd4786b9291fe1c03f61ebb060ad7",
+        "actual_sha256": "8df140b0007b11d75c273f3c315415b036e44c365bc4cc7bffc265e00439c91c",
+        "status": "ready"
+      },
+      {
+        "commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+        "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+        "expected_blob": "319f20c2321171831a7903137ad47754e270ec43",
+        "expected_sha256": "6217ddc0ff5383baf26e460b42fc3065ae5a319c42e8b453226a14a6b92224f0",
+        "actual_blob": "319f20c2321171831a7903137ad47754e270ec43",
+        "actual_sha256": "6217ddc0ff5383baf26e460b42fc3065ae5a319c42e8b453226a14a6b92224f0",
+        "status": "ready"
+      },
+      {
+        "commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+        "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-ESCALATED.log",
+        "expected_blob": "17d3de04aa878c6c5617c46cceaf46ae3518b339",
+        "expected_sha256": "547eee0ed365f29bad368ae523ea459c2607e4d85b8c655b7edf4d37b8d00471",
+        "actual_blob": "17d3de04aa878c6c5617c46cceaf46ae3518b339",
+        "actual_sha256": "547eee0ed365f29bad368ae523ea459c2607e4d85b8c655b7edf4d37b8d00471",
+        "status": "ready"
+      },
+      {
+        "commit": "0dd5d17954a5e824b86fde1038cd34b177867269",
+        "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md",
+        "expected_blob": "190144f09bf2f6adfdab40280e8887da00655f18",
+        "expected_sha256": "b16879dc931ebd1d8c15640ecc4401baae2fd19eb348cd730c3c731acf33b70d",
+        "actual_blob": "190144f09bf2f6adfdab40280e8887da00655f18",
+        "actual_sha256": "b16879dc931ebd1d8c15640ecc4401baae2fd19eb348cd730c3c731acf33b70d",
+        "status": "ready"
+      },
+      {
+        "commit": "d7243c193c40a30709edbe306d79038d2286e70e",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json",
+        "expected_blob": "87484ba00e2418ff705adeeb127dcf7e27f706d4",
+        "expected_sha256": "293c1e7c9610bb9c3ce26d25ecfe952d87be6f8c785be24530a460de55e69903",
+        "actual_blob": "87484ba00e2418ff705adeeb127dcf7e27f706d4",
+        "actual_sha256": "293c1e7c9610bb9c3ce26d25ecfe952d87be6f8c785be24530a460de55e69903",
+        "status": "ready"
+      },
+      {
+        "commit": "cb5a1290d2a27036676d42f5420453a393588310",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-SOURCE-PREFLIGHT.json",
+        "expected_blob": "1f9e14c17437b4566c06364363d14badbd102b84",
+        "expected_sha256": "7df8b355c7973489d27c485c4f4aee45b46b36087caf1556e9661f9c0a57f06c",
+        "actual_blob": "1f9e14c17437b4566c06364363d14badbd102b84",
+        "actual_sha256": "7df8b355c7973489d27c485c4f4aee45b46b36087caf1556e9661f9c0a57f06c",
+        "status": "ready"
+      },
+      {
+        "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv",
+        "expected_blob": "57275812af48b9b45f092680deea291609ff44ce",
+        "expected_sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456",
+        "actual_blob": "57275812af48b9b45f092680deea291609ff44ce",
+        "actual_sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456",
+        "status": "ready"
+      },
+      {
+        "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-ORIGIN-REFS.tsv",
+        "expected_blob": "82c31ff5df13d9696e5a34123d4e6b5d3356edf1",
+        "expected_sha256": "0531a7981fc75654a77bdbf0752707dd497d6c9ddaa1ab53dd278f4641150efa",
+        "actual_blob": "82c31ff5df13d9696e5a34123d4e6b5d3356edf1",
+        "actual_sha256": "0531a7981fc75654a77bdbf0752707dd497d6c9ddaa1ab53dd278f4641150efa",
+        "status": "ready"
+      },
+      {
+        "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-OPEN-PR-STATE.json",
+        "expected_blob": "4015ce71fa0f949d768a65fbe1f93ad92384682e",
+        "expected_sha256": "7290bedb254f9dd38543695bafb1d9e9b01643355ef9ab12220b66fe6098eab8",
+        "actual_blob": "4015ce71fa0f949d768a65fbe1f93ad92384682e",
+        "actual_sha256": "7290bedb254f9dd38543695bafb1d9e9b01643355ef9ab12220b66fe6098eab8",
+        "status": "ready"
+      },
+      {
+        "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+        "expected_blob": "f915228a4da2ad8555d5c2032248ce9618c04445",
+        "expected_sha256": "2e96192a7beb4ab53dd517a61f31d42ae1534735908eeea26f8d19b3277910d1",
+        "actual_blob": "f915228a4da2ad8555d5c2032248ce9618c04445",
+        "actual_sha256": "2e96192a7beb4ab53dd517a61f31d42ae1534735908eeea26f8d19b3277910d1",
+        "status": "ready"
+      },
+      {
+        "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv",
+        "expected_blob": "57275812af48b9b45f092680deea291609ff44ce",
+        "expected_sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456",
+        "actual_blob": "57275812af48b9b45f092680deea291609ff44ce",
+        "actual_sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456",
+        "status": "ready"
+      },
+      {
+        "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-ORIGIN-REFS.tsv",
+        "expected_blob": "82c31ff5df13d9696e5a34123d4e6b5d3356edf1",
+        "expected_sha256": "0531a7981fc75654a77bdbf0752707dd497d6c9ddaa1ab53dd278f4641150efa",
+        "actual_blob": "82c31ff5df13d9696e5a34123d4e6b5d3356edf1",
+        "actual_sha256": "0531a7981fc75654a77bdbf0752707dd497d6c9ddaa1ab53dd278f4641150efa",
+        "status": "ready"
+      },
+      {
+        "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-OPEN-PR-STATE.json",
+        "expected_blob": "4015ce71fa0f949d768a65fbe1f93ad92384682e",
+        "expected_sha256": "7290bedb254f9dd38543695bafb1d9e9b01643355ef9ab12220b66fe6098eab8",
+        "actual_blob": "4015ce71fa0f949d768a65fbe1f93ad92384682e",
+        "actual_sha256": "7290bedb254f9dd38543695bafb1d9e9b01643355ef9ab12220b66fe6098eab8",
+        "status": "ready"
+      },
+      {
+        "commit": "d7243c193c40a30709edbe306d79038d2286e70e",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-READINESS.json",
+        "expected_blob": "87484ba00e2418ff705adeeb127dcf7e27f706d4",
+        "expected_sha256": "293c1e7c9610bb9c3ce26d25ecfe952d87be6f8c785be24530a460de55e69903",
+        "actual_blob": "87484ba00e2418ff705adeeb127dcf7e27f706d4",
+        "actual_sha256": "293c1e7c9610bb9c3ce26d25ecfe952d87be6f8c785be24530a460de55e69903",
+        "status": "ready"
+      },
+      {
+        "commit": "cb5a1290d2a27036676d42f5420453a393588310",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-SOURCE-PREFLIGHT.json",
+        "expected_blob": "1f9e14c17437b4566c06364363d14badbd102b84",
+        "expected_sha256": "7df8b355c7973489d27c485c4f4aee45b46b36087caf1556e9661f9c0a57f06c",
+        "actual_blob": "1f9e14c17437b4566c06364363d14badbd102b84",
+        "actual_sha256": "7df8b355c7973489d27c485c4f4aee45b46b36087caf1556e9661f9c0a57f06c",
+        "status": "ready"
+      },
+      {
+        "commit": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-READINESS.json",
+        "expected_blob": "16490b1afca4b0b899b69c18b4ff3c532c483176",
+        "expected_sha256": "4f89e215f966b89d961409f1dadf56eb095b24a30f798599088eecd808363e78",
+        "actual_blob": "16490b1afca4b0b899b69c18b4ff3c532c483176",
+        "actual_sha256": "4f89e215f966b89d961409f1dadf56eb095b24a30f798599088eecd808363e78",
+        "status": "ready"
+      },
+      {
+        "commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CANDIDATES.json",
+        "expected_blob": "971bd497e0a7230ab8ab5b9b8730f12d2b116409",
+        "expected_sha256": "5bfb7e7611dccee1644e917c86d182e9ee20785961a1a9c4ce7ebc56100e3e50",
+        "actual_blob": "971bd497e0a7230ab8ab5b9b8730f12d2b116409",
+        "actual_sha256": "5bfb7e7611dccee1644e917c86d182e9ee20785961a1a9c4ce7ebc56100e3e50",
+        "status": "ready"
+      },
+      {
+        "commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
+        "expected_blob": "e8e8ac721785bb3018ddd766135fdefc4308e976",
+        "expected_sha256": "b9d6768fa73f6f095741ac04de6fe6363215d17d11d79ebaae4d3c12741cff29",
+        "actual_blob": "e8e8ac721785bb3018ddd766135fdefc4308e976",
+        "actual_sha256": "b9d6768fa73f6f095741ac04de6fe6363215d17d11d79ebaae4d3c12741cff29",
+        "status": "ready"
+      },
+      {
+        "commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json",
+        "expected_blob": "989c1437c3c046cf9db6071c604d57e2d09f6510",
+        "expected_sha256": "5321690171834d4915e013089410e7522022071d1dfdd997c9ecea763159fd0a",
+        "actual_blob": "989c1437c3c046cf9db6071c604d57e2d09f6510",
+        "actual_sha256": "5321690171834d4915e013089410e7522022071d1dfdd997c9ecea763159fd0a",
+        "status": "ready"
+      }
+    ]
+  },
+  "prior_plan21_failure": {
+    "failed_stage": "task2_d01_readiness_gate",
+    "blocked_reasons": [
+      {
+        "code": "source_stale_since_coherent_commit",
+        "source": ".planning/state.json",
+        "message": ".planning/state.json failed its committed identity check (source_stale_since_coherent_commit)."
+      },
+      {
+        "code": "source_index_dirty",
+        "source": ".planning/state.json",
+        "message": ".planning/state.json failed its committed identity check (source_index_dirty)."
+      },
+      {
+        "code": "source_worktree_dirty",
+        "source": ".planning/state.json",
+        "message": ".planning/state.json failed its committed identity check (source_worktree_dirty)."
+      }
+    ],
+    "production_ref_mutations": 0,
+    "ref_operations_after_failed_gate": 0,
+    "d01_readiness": {
+      "artifact_commit": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+      "artifact_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-READINESS.json",
+      "historical_artifact_status": "ready",
+      "fresh_verification_status": "blocked",
+      "verification_exit_code": 1,
+      "verification_reasons": [
+        {
+          "code": "source_stale_since_coherent_commit",
+          "source": ".planning/state.json",
+          "message": ".planning/state.json failed its committed identity check (source_stale_since_coherent_commit)."
+        },
+        {
+          "code": "source_index_dirty",
+          "source": ".planning/state.json",
+          "message": ".planning/state.json failed its committed identity check (source_index_dirty)."
+        },
+        {
+          "code": "source_worktree_dirty",
+          "source": ".planning/state.json",
+          "message": ".planning/state.json failed its committed identity check (source_worktree_dirty)."
+        }
+      ],
+      "state_json_blob_comparison": {
+        "path": ".planning/state.json",
+        "readiness_source_commit": "511acbbbc54e604b9fad4be9853636b3cb9d78e9",
+        "expected_blob": "c7ced743eb679caa88e04677d2425f332beb0eb5",
+        "current_head_blob": "c5f7e96987c2f2f4907e94198b4f1315dd214757",
+        "current_index_blob": "c5f7e96987c2f2f4907e94198b4f1315dd214757",
+        "current_worktree_blob": "c5f7e96987c2f2f4907e94198b4f1315dd214757",
+        "all_current_locations_match_readiness_source": false
+      }
+    }
+  },
+  "plan22_proof": {
+    "status": "passed",
+    "production_ref_operations": 0,
+    "sha256": "b1a444a9094f9f42c159ad317cc987fb6a60f08ae56f969437759126e0ddc489"
+  },
+  "runtime": {
+    "path": "/usr/bin/git",
+    "version": "git version 2.50.1 (Apple Git-155)",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "coordinator": {
+    "exit_code": 0,
+    "output": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\nPASS: shared branch/worktree coordinator hook and worktree paths verified."
+  },
+  "historical_audits": {
+    "missing_pre_phase_baseline": "unknown_unresolved",
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved",
+    "disposition": "D-07 excludes reconstructing or promoting these historical records in the readiness-source repair."
+  },
+  "production_ref_operations": 0,
+  "failures": [],
+  "assessment_history": [
+    {
+      "status": "blocked",
+      "reason": "Initial parser looked for an inline top-level gaps_remaining field; Phase 244 stores it under re_verification with YAML indentation.",
+      "corrected_check": "Top-level status: passed and nested re_verification.gaps_remaining: [] were verified from the source text."
+    }
+  ]
+}

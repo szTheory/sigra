@@ -1,0 +1,16 @@
+{
+  "classification": "broken_source_negative_control",
+  "command": "python3 scripts/ci/ci-hosted-gate-verify.test.py",
+  "source_changes_for_control": [
+    "temporarily removed the logical event/docs-only equality check",
+    "temporarily removed exact comparison against the result bytes extracted from the digest-checked ZIP"
+  ],
+  "exitCode": 1,
+  "tests": 8,
+  "passed": 6,
+  "failed": [
+    "test_rejects_honest_skip_verdict_for_a_different_logical_event",
+    "test_rejects_result_bytes_not_present_in_digest_checked_archive"
+  ],
+  "meaning": "Both tests fail when their corresponding verifier protections are deliberately removed. This is a negative control only; the tests were added after the protections existed and this report is not TDD RED evidence."
+}

@@ -1,0 +1,244 @@
+{
+  "schema_version": "sigra.phase254.rerun-preparation-result/v1",
+  "recorded_at": "2026-10-23T22:29:19.191405+00:00",
+  "status": "blocked_preparation_failed",
+  "implementation_status": "Plans01-07 implemented; post-preparation local repairs tested; hosted sources remain the failed fixed snapshots",
+  "phase_verification_status": "pending_not_run",
+  "CISPEED-01": "open",
+  "CISPEED-02": "open",
+  "authorization": ".planning/execution/254-RERUN-AUTHORIZATION.json",
+  "contract": ".planning/execution/254-rerun-preparation/CONTRACT.json",
+  "outcomes": [
+    {
+      "role": "before",
+      "run_id": 38317383419,
+      "run_attempt": 2,
+      "url": "https://github.com/szTheory/sigra/actions/runs/38317383419/attempts/2",
+      "conclusion": "failure",
+      "head_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "producer_merge_sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "tree_sha": "bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452",
+      "workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "run_started_at": "2026-10-23T22:07:33Z",
+      "created_at": "2026-10-23T22:07:34Z",
+      "source_and_tree_checks": "passed",
+      "raw_snapshot_hash_checks": "passed_no_diagnostics",
+      "source_bundle": ".planning/execution/254-rerun-preparation/RAW-before",
+      "accepted_artifacts_retained": 9,
+      "artifact_inventory_total": 10,
+      "unselected_auxiliary_artifacts": [
+        "generated-admin-report"
+      ],
+      "full_successful_workload": false,
+      "failed_jobs": [
+        {
+          "job_id": 120680756241,
+          "name": "Detect docs-only change",
+          "failed_steps": [
+            "Detect docs-only change"
+          ]
+        },
+        {
+          "job_id": 120680795153,
+          "name": "Library tests shard",
+          "failed_steps": [
+            "Initialize containers"
+          ]
+        },
+        {
+          "job_id": 120680795244,
+          "name": "Install golden + idempotency contract (subprocess harness)",
+          "failed_steps": [
+            "Initialize containers"
+          ]
+        },
+        {
+          "job_id": 120680829692,
+          "name": "Library tests (dep-off \u2014 Threadline absent)",
+          "failed_steps": [
+            "Initialize containers"
+          ]
+        },
+        {
+          "job_id": 120680829775,
+          "name": "Example Playwright shard (design_gallery)",
+          "failed_steps": [
+            "Initialize containers"
+          ]
+        },
+        {
+          "job_id": 120680829804,
+          "name": "Example Playwright shard (admin_checkpoints)",
+          "failed_steps": [
+            "Initialize containers"
+          ]
+        },
+        {
+          "job_id": 120680829829,
+          "name": "Example Playwright shard (demo_showcase)",
+          "failed_steps": [
+            "Initialize containers"
+          ]
+        },
+        {
+          "job_id": 120680829953,
+          "name": "Example Playwright shard (non_admin_smoke)",
+          "failed_steps": [
+            "Initialize containers"
+          ]
+        },
+        {
+          "job_id": 120681000740,
+          "name": "Library tests",
+          "failed_steps": [
+            "Require the library suite owner to pass"
+          ]
+        },
+        {
+          "job_id": 120681390446,
+          "name": "Example Playwright smoke (full lifecycle)",
+          "failed_steps": [
+            "Aggregate every Playwright shard result"
+          ]
+        },
+        {
+          "job_id": 120682049549,
+          "name": "ci-gate",
+          "failed_steps": [
+            "Honest-skip verdict (GATE-03)"
+          ]
+        }
+      ]
+    },
+    {
+      "role": "after",
+      "run_id": 40031597004,
+      "run_attempt": 1,
+      "url": "https://github.com/szTheory/sigra/actions/runs/40031597004/attempts/1",
+      "conclusion": "failure",
+      "head_sha": "536645d98a8b4ca18dce2cc2ea083fe0c7b75793",
+      "producer_merge_sha": "c6fe95ecdb88cbebabccd6dc0ac97fea3a0bb814",
+      "tree_sha": "d0c0d243839c1c8e7120d0dc916b89deac80d24b",
+      "workflow_sha256": "25c20412ff76cacc5276cb63bcf67e82f7b563b51d3522f44e9293887c4abb0e",
+      "run_started_at": "2026-10-23T22:07:59Z",
+      "created_at": "2026-10-23T22:07:59Z",
+      "source_and_tree_checks": "passed",
+      "raw_snapshot_hash_checks": "passed_no_diagnostics",
+      "source_bundle": ".planning/execution/254-rerun-preparation/RAW-after-capture-repair",
+      "accepted_artifacts_retained": 20,
+      "artifact_inventory_total": 21,
+      "unselected_auxiliary_artifacts": [
+        "generated-admin-report"
+      ],
+      "full_successful_workload": false,
+      "failed_jobs": [
+        {
+          "job_id": 120681033855,
+          "name": "Library tests shard",
+          "failed_steps": [
+            "Run contributor CI gate"
+          ]
+        },
+        {
+          "job_id": 120682166764,
+          "name": "Library tests",
+          "failed_steps": [
+            "Require the library suite owner to pass"
+          ]
+        },
+        {
+          "job_id": 120683147053,
+          "name": "ci-gate",
+          "failed_steps": [
+            "Honest-skip verdict (GATE-03)"
+          ]
+        }
+      ]
+    }
+  ],
+  "budget": {
+    "ledger": ".planning/execution/254-rerun-preparation/REQUEST-BUDGET.json",
+    "sha256": "194ff32dd4c13831590bb6ffe9036acaae104c465fa237d3047d1aadc370af28",
+    "clock_started_at_epoch": 1792793206,
+    "last_request_at_epoch": 1792794507,
+    "request_elapsed_seconds": 1301,
+    "maximum_seconds": 3600,
+    "actual_total_HTTP_requests": 186,
+    "maximum_requests": 600,
+    "invocations_started": 2,
+    "maximum_invocations": 2,
+    "CI_trigger_retries": 0,
+    "remaining_CI_trigger_retries": 0,
+    "original_clock_and_counts_never_reset": true,
+    "artifact_only_maintenance": ".planning/execution/254-rerun-preparation/ARTIFACT-CAPTURE-MAINTENANCE.json"
+  },
+  "comparison": {
+    "measured_samples": 0,
+    "measured_pairs": 0,
+    "48_hour_window_started": false,
+    "outcome": "not_started",
+    "speedup_claim": false,
+    "prior_Phase253_allowances": "unchanged_not_reused"
+  },
+  "blockers": [
+    {
+      "id": "baseline-history",
+      "item": "Original change detector fetches main with depth1, then fails git diff with no merge base and writes docs_only=true. Some successful job labels then contain skipped test steps.",
+      "evidence": ".planning/execution/254-rerun-preparation/BASELINE-CLASSIFIER-FAILURE.log",
+      "resolution": "Requires an explicitly amended baseline workflow; another unchanged rerun does not repair the shallow-fetch command."
+    },
+    {
+      "id": "baseline-registry",
+      "item": "PostgreSQL pull from public.ecr.aws/docker/library/postgres:15 failed three internal Docker attempts with toomanyrequests: Data limit exceeded. No cache hit or full native workload was established.",
+      "evidence": ".planning/execution/254-rerun-preparation/BASELINE-CONTAINER-FAILURE.log",
+      "resolution": "The proposed new baseline uses the same postgres:15 registry as the candidate, whose container setup succeeded."
+    },
+    {
+      "id": "candidate-library",
+      "item": "The candidate ran2659 library tests with one failure: a live workflow assertion expected separate Mix commands after preparation was combined.",
+      "evidence": ".planning/execution/254-rerun-preparation/CANDIDATE-LIBRARY-FAILURE.log",
+      "resolution": "Locally repaired and6 scoped tests pass; failed hosted candidate remains unchanged, with no retry."
+    }
+  ],
+  "capture_maintenance": {
+    "initial_candidate_source_bundle": ".planning/execution/254-rerun-preparation/RAW-after",
+    "initial_parser_diagnostic": "unexpected_archive_json on execution-record.json",
+    "fix": "Explicitly allow and hash the known browser execution record; add real CLI acquisition regression for all five owner records.",
+    "recollection": "Same completed candidate attempt; original600-request/60-minute pass only. No CI invocation or result replaced.",
+    "final_browser_execution_records": 5
+  },
+  "recovery": {
+    "initial_before_ref": "refs/evidence/phase254-preparation-before-attempt-2",
+    "initial_after_ref": "refs/evidence/phase254-preparation-after-attempt-1",
+    "final_record": ".planning/execution/254-rerun-preparation/FINAL-RECOVERY.json",
+    "prior_shared_state": ".planning/execution/254-rerun-preparation/STATE-BEFORE-CLOSEOUT.json"
+  },
+  "next_action": {
+    "requires_user_decision": true,
+    "proposal": ".planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json",
+    "patch": ".planning/execution/254-rerun-preparation/PROPOSED-BASELINE-REPAIR.patch",
+    "reason": "Replacing the frozen baseline and spending a separate preparation allowance exceed the approved two invocations and zero retries.",
+    "command_after_approval": "$gsd-execute-phase 254"
+  },
+  "original_frozen_baseline_and_halted_contracts": "unchanged",
+  "publication": {
+    "candidate_PR": "https://github.com/szTheory/sigra/pull/345",
+    "draft": true,
+    "merge_enabled": false,
+    "fixed_candidate_head_unchanged": true,
+    "main_changed": false,
+    "branch_rules_changed": false
+  },
+  "notification": {
+    "created": false,
+    "reason": "No scheduling capability was available; this task did not create a future notification."
+  },
+  "method_limitation": "Rerun method was approved after implementation; no measured sample was accepted. It cannot establish new-PR scheduling performance.",
+  "local_repairs_commit": "dd4e3b437f13ee374cacb39922dc04915f521257",
+  "local_repairs_include": [
+    "Shallow Git-history and erroneous docs-only skip fixed with5 local Git-history regressions",
+    "Live combined-Mix assertion corrected; reproduced failure, then6 tests passed",
+    "Known execution-record JSON captured and hash-bound;5 attempt integration tests and48 collector checks passed",
+    "Opaque historical failed captures and all original source/contract records retained"
+  ]
+}

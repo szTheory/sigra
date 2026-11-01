@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "recorded_at": "2026-10-20T23:39:21.142020+00:00",
+  "invocation": "$gsd-plan-phase 253 --gaps",
+  "capture_head": "9a091dd14949ef5afd1f3de8f651c8d381607b84",
+  "capture_status": "",
+  "plans": [
+    "253-183"
+  ],
+  "new_tasks": 3,
+  "new_waves": 1,
+  "research": "skipped_gap_mode",
+  "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK-04.json",
+  "checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLANNING-CHECKS.json",
+  "routing_checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-ROUTING-CHECKS.json",
+  "preservation": {
+    "ref": "refs/gsd/phase253-plan183-sdk-state",
+    "commit": "59876b699c7cd00e92b0b54131605015975d91bb",
+    "readback_verified": true,
+    "paths": [
+      {
+        "path": ".planning/STATE.md",
+        "bytes": 25634,
+        "sha256": "8201d26991f02b1a140f3227c8ae2e52ecad2f3c2a44121e51ea4ef51245695d",
+        "blob": "21435252a46c52ed80fcbd9b941234a3424b99e5",
+        "status": " M .planning/STATE.md\n"
+      },
+      {
+        "path": ".planning/state.json",
+        "bytes": 769,
+        "sha256": "c99e0ed80e8fbf7719fd666f7c5b5a02a6383b717d6549b8ca46f600e18e7dbc",
+        "blob": "02ced471da6578de23b65cc30397c0613ab6a752",
+        "status": " M .planning/state.json\n"
+      }
+    ]
+  },
+  "draft_preservations": [
+    {
+      "ref": "refs/gsd/phase253-plan183-review01-inputs",
+      "commit": "2629363e255349c2a1f96051c56931ad2fe5a6bf",
+      "readback_verified": true,
+      "paths": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN.md",
+          "bytes": 47738,
+          "sha256": "37f03d8006d98e1621e8ae249d3fa2af9f5f66e9bb67335f9c6e425ef00a037c",
+          "blob": "c846843c09ea18d91397000f49d1f2a275cd9cd7",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN.md\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-SOURCE-AUDIT.md",
+          "bytes": 18561,
+          "sha256": "fa5d72dab58567bfb79468233fe0540d306499e16010e48d2d8b1886f1106391",
+          "blob": "28ec7eb00f6b5506eccb1826f3f12351664e06de",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-SOURCE-AUDIT.md\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-DRAFT-01.md",
+          "bytes": 47738,
+          "sha256": "37f03d8006d98e1621e8ae249d3fa2af9f5f66e9bb67335f9c6e425ef00a037c",
+          "blob": "c846843c09ea18d91397000f49d1f2a275cd9cd7",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-DRAFT-01.md\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK.json",
+          "bytes": 4248,
+          "sha256": "dabf26747c4650b554ca2960655f00bac898abbad765065239f605b2418bd48c",
+          "blob": "b6f74f325aae6918037e81879b5c2106ca5c8909",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK.json\n"
+        }
+      ]
+    },
+    {
+      "ref": "refs/gsd/phase253-plan183-review02-inputs",
+      "commit": "9ddaa531951443b1a6ccec74db9d1e0b1db75c57",
+      "readback_verified": true,
+      "paths": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN.md",
+          "bytes": 67832,
+          "sha256": "b0d08fc6ce5a952538a2afdc8b287d79234b61c64aa43dc53f0701eae8ac926b",
+          "blob": "cb8557425c373afe92add58ed469ed4cd4133f63",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN.md\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-SOURCE-AUDIT.md",
+          "bytes": 22180,
+          "sha256": "ae20e1941e198fd9ef0c78dd5427f6a3c797db87d576d65f0451cfdd00bdf4b2",
+          "blob": "1d8b5c070d74e4f3d76f15c29cec1136226d64c6",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-SOURCE-AUDIT.md\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-DRAFT-01.md",
+          "bytes": 47738,
+          "sha256": "37f03d8006d98e1621e8ae249d3fa2af9f5f66e9bb67335f9c6e425ef00a037c",
+          "blob": "c846843c09ea18d91397000f49d1f2a275cd9cd7",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-DRAFT-01.md\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK.json",
+          "bytes": 4248,
+          "sha256": "dabf26747c4650b554ca2960655f00bac898abbad765065239f605b2418bd48c",
+          "blob": "b6f74f325aae6918037e81879b5c2106ca5c8909",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK.json\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK-02.json",
+          "bytes": 3342,
+          "sha256": "58e1347601e29e3a824bac3b054091f82e19de142927d5f99ca1fc8b8dabad85",
+          "blob": "c9ece0b1e10e6f444c178b29a6db79decd148bac",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK-02.json\n"
+        }
+      ]
+    },
+    {
+      "ref": "refs/gsd/phase253-plan183-review03-inputs",
+      "commit": "41dad91f96221dc4925e9634f37a5b1eec062447",
+      "readback_verified": true,
+      "paths": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN.md",
+          "bytes": 75375,
+          "sha256": "cb60401e52a7be079e0089d37ec7715c2c1a1e118ba9e9948b860d15a5aba619",
+          "blob": "13ddd8d6a4c7995e1a7e5dba205523cdc05b80d9",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN.md\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-SOURCE-AUDIT.md",
+          "bytes": 25577,
+          "sha256": "99863645b6e7a0a2f3e4125b635224035f4d3e359a4b765832f78b931fa36053",
+          "blob": "a6240bbff8e959a5dd783e43d77abcca34496505",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-SOURCE-AUDIT.md\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-DRAFT-01.md",
+          "bytes": 47738,
+          "sha256": "37f03d8006d98e1621e8ae249d3fa2af9f5f66e9bb67335f9c6e425ef00a037c",
+          "blob": "c846843c09ea18d91397000f49d1f2a275cd9cd7",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-DRAFT-01.md\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK.json",
+          "bytes": 4248,
+          "sha256": "dabf26747c4650b554ca2960655f00bac898abbad765065239f605b2418bd48c",
+          "blob": "b6f74f325aae6918037e81879b5c2106ca5c8909",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK.json\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK-02.json",
+          "bytes": 3342,
+          "sha256": "58e1347601e29e3a824bac3b054091f82e19de142927d5f99ca1fc8b8dabad85",
+          "blob": "c9ece0b1e10e6f444c178b29a6db79decd148bac",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK-02.json\n"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK-03.json",
+          "bytes": 3692,
+          "sha256": "2e5cf1cce5ac4a506987aa4ec79283c3c3087ad27e38a72c5c4d9935759b734c",
+          "blob": "c2a3e4550e9f8e789fdd26f1516378666afd027c",
+          "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-183-PLAN-CHECK-03.json\n"
+        }
+      ]
+    }
+  ],
+  "readiness": {
+    "plan_count": 183,
+    "completed_implementation_count": 75,
+    "halted_count": 27,
+    "without_summary": 81,
+    "incomplete_count": 81,
+    "runnable_count": 1,
+    "ready_plans": [
+      "253-183"
+    ]
+  },
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "implementation_status": "partial",
+  "phase_verification_status": "not_started",
+  "acceptance_attempts": 0,
+  "github_requests": 0,
+  "browser_invocations": 0,
+  "future_chain": [
+    "253-183",
+    "253-179",
+    "253-180",
+    "253-168",
+    "253-169",
+    "253-170",
+    "253-171",
+    "253-172"
+  ],
+  "review_note": "Three substantive findings repaired through independent revisions; scanner-only regex collision repaired automatically under AGENTS automation-first rule. No override."
+}

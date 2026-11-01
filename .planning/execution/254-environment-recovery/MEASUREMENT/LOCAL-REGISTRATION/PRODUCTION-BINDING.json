@@ -1,0 +1,11 @@
+{
+  "copied_at": "2026-10-24T02:20:52.042455+00:00",
+  "tracked_path": "test/example/priv/static/assets/js/app.js",
+  "tracked_sha256": "3b7730aec7be5ff88c3c69d534abda86e762a5fa43ac0ed34272509f40351ca2",
+  "archive_path": "/tmp/sigra254-baseline-registration-bk90_9ri/test/example/priv/static/assets/js/app.js",
+  "archive_sha256": "3b7730aec7be5ff88c3c69d534abda86e762a5fa43ac0ed34272509f40351ca2",
+  "served_sha256": "3b7730aec7be5ff88c3c69d534abda86e762a5fa43ac0ed34272509f40351ca2",
+  "previous_isolated_patch_sha256": "6f8e12ecd4906fd45160c15470571962842cc10fa27d2e45a3dd9d7ac8c40794",
+  "baseline_application_source": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "scope": "production client bundle on isolated archived baseline server; no frozen evidence source changed"
+}

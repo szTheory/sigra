@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: the config parse locates a `retries:` line at all (non-vacuity floor)
+ok 1 - the config parse locates a `retries:` line at all (non-vacuity floor)
+  ---
+  duration_ms: 0.615416
+  type: 'test'
+  ...
+# Subtest: the spec walk finds at least 10 tests/*.spec.ts files (non-vacuity floor)
+ok 2 - the spec walk finds at least 10 tests/*.spec.ts files (non-vacuity floor)
+  ---
+  duration_ms: 0.072208
+  type: 'test'
+  ...
+# Subtest: the config subject carries no retry wrapper
+ok 3 - the config subject carries no retry wrapper
+  ---
+  duration_ms: 0.227
+  type: 'test'
+  ...
+# Subtest: no tests/*.spec.ts file carries a retry wrapper
+ok 4 - no tests/*.spec.ts file carries a retry wrapper
+  ---
+  duration_ms: 0.594
+  type: 'test'
+  ...
+# Subtest: negative control: a fixture reintroducing a retry wrapper fails the guard
+ok 5 - negative control: a fixture reintroducing a retry wrapper fails the guard
+  ---
+  duration_ms: 0.051584
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 48.142291

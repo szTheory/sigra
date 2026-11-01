@@ -1,0 +1,13 @@
+{
+  "decision": "approve",
+  "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "bundle_sha256": "d5ea3bbfd2dddba4ba9af18f06247cafe694b5e5b4a326d51d0be278f671f4aa",
+  "decision_text": "yes i approve",
+  "approved_at_epoch": 1792613915,
+  "schema": "sigra.phase253.proof-bundle-approval/v1",
+  "sections": [
+    "canary",
+    "docs_and_prs"
+  ],
+  "expires_epoch": 1792700315
+}

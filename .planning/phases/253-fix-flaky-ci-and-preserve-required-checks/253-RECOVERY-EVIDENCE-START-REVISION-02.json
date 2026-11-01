@@ -1,0 +1,34 @@
+{
+  "schema_version": "sigra.phase253.registration-recovery-evidence/v1",
+  "status": "running",
+  "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json",
+  "freeze_sha256": "e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00",
+  "source": {
+    "checkout_head": "bad08bac460034530292390bad7db4f7ee3c08e3",
+    "blobs": {
+      "scripts/ci/ci-registration-repro.sh": "2da1ba66a7a56270a9c7e3d619edb0162aa6b91b",
+      "scripts/ci/ci-registration-recovery.mjs": "45732de66fe239344f9ba936c2ff69af472da7d9",
+      "scripts/ci/ci-registration-recovery.test.mjs": "ee404233c96106a84760eb144d30063850be9d66",
+      "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+      "test/example/priv/playwright/tests/admin-eval.spec.ts": "6540493e78121f134867445dffc7010afcd85815",
+      "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+      "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+      ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+    }
+  },
+  "historical": {
+    "original_evidence_sha256": "b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51",
+    "preceding_order": "unknown",
+    "order_reason": "The archived record names the failed project and selected test but has no preceding test order."
+  },
+  "started_at": "2026-10-13T14:56:50.594Z",
+  "attempts": [],
+  "limits": {
+    "browser_launches": 0,
+    "charged_duration_ms": 0,
+    "d19_charged_duration_ms": 0,
+    "retry_count": 0,
+    "max_launches": 19,
+    "max_charged_duration_ms": 3480000
+  }
+}

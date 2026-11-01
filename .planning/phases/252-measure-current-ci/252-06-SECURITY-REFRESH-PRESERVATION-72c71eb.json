@@ -1,0 +1,38 @@
+{
+  "schema_version": "sigra.phase252-evidence-preservation/v1",
+  "preserved_at_head": "72c71ebc005f60a69a4f8622b8cbbedfc70df64d",
+  "purpose": "Before refreshing source bundle, baseline, report, comparison contract and summary for audit repairs.",
+  "files": [
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+      "sha256": "e0e662a8e546c95386651a33407341b23046524d50083eb740d1b2689e37640a",
+      "bytes": 25984152,
+      "git_blob_sha": "c8ba677c8c86aefa41fc704ba58c798c97bf11fb"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-BASELINE.json",
+      "sha256": "a70f1f1dd41568d4977a9847c3908a9526bc593d6680f97e6079939da0b023e5",
+      "bytes": 3055726,
+      "git_blob_sha": "0399767c384d462634385b68553630eee3e283c7"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-BASELINE.md",
+      "sha256": "1dd28ed10fe7605cd52526cc5d1de0739530dd05d30693ef4ea9f5ed84b90a3d",
+      "bytes": 13201,
+      "git_blob_sha": "06de8d5094b775da132fc31b4a2ef8e89266708b"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json",
+      "sha256": "c485b54ace77d9bfa871261889e40b6c52ea0c21c0db7ef9e20b2ca468a9193f",
+      "bytes": 5406,
+      "git_blob_sha": "ea088cc83673eae91948f2f3c345c3f42349e3bc"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-06-SUMMARY.md",
+      "sha256": "2930e6c6d5249dece14a6cd1db4db5ecec23ec06ba0cf02639d6e4f83c364267",
+      "bytes": 22856,
+      "git_blob_sha": "dbbacc096faa258cc1864cdc01e73d0013a20b18"
+    }
+  ],
+  "byte_exact_git_readback": true
+}

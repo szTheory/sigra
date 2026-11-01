@@ -1,0 +1,74 @@
+{
+  "schema_version": "sigra.browser-local-native/v1",
+  "status": "passed",
+  "source_identity": {
+    "source_sha": "0e14c9a767ae614795ffdc5c41441ffd86b0ce81",
+    "source_ref": "phase-244-playwright-measurement",
+    "dirty_status": "M  .github/actions/example-playwright-boot/action.yml\nA  .planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-NATIVE-BLOCKER.json\nAD .planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-NATIVE.json\nM  scripts/ci/ci-browser-command.test.mjs\nM  scripts/ci/ci-browser-local.py\nM  scripts/ci/ci-browser-local.test.py\nM  scripts/ci/ci-measure-workflow.test.mjs\n?? .planning/phases/255-make-failures-reproducible-and-report-the-result/255-04-NATIVE-POSTCHECK-FAILED.json\n?? scripts/ci/__pycache__/"
+  },
+  "runtime": {
+    "node": "v20.19.5",
+    "playwright": "1.59.1",
+    "elixir": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
+    "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)",
+    "host_os": "darwin",
+    "browser_equivalence": "behavior only on macOS; Ubuntu 24.04 is required for font/pixel parity"
+  },
+  "safe_postgres_settings": {
+    "PGHOST": "localhost",
+    "PGPORT": "5432",
+    "PGUSER": "jon",
+    "PGDATABASE": "jon"
+  },
+  "unrelated_database": {
+    "name": "jon",
+    "fingerprint_before": "171292|jon|true|-1",
+    "fingerprint_after": "171292|jon|true|-1",
+    "unchanged": true
+  },
+  "unrelated_database_names_before": [],
+  "port_collision": {
+    "exit_code": 1,
+    "listener_preserved": true,
+    "diagnostic": "port 49390 is already bound; the existing listener was left untouched"
+  },
+  "native_command": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/jon/projects/sigra/scripts/ci/ci-browser-local.py",
+    "--seam",
+    "non_admin_smoke",
+    "--event",
+    "pull_request",
+    "--port",
+    "49391",
+    "--grep",
+    "full user lifecycle",
+    "--output-root",
+    "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra255-browser-native-trofddx8/owned-output"
+  ],
+  "native_exit_code": 0,
+  "selected_identities": [
+    "Selected: chromium golden-path.spec.ts :: golden-path.spec.ts › full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge [passed]",
+    "Selected: mobile golden-path.spec.ts :: golden-path.spec.ts › full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge [passed]"
+  ],
+  "selected_projects": [
+    "chromium",
+    "mobile"
+  ],
+  "execution_reports": [
+    "Executed report: non-admin-smoke.json (2 native identities)"
+  ],
+  "owned_database": {
+    "name": "sigra_repro_9628_f912b0493673",
+    "absent_after_cleanup": true
+  },
+  "owned_server": {
+    "pid": 21681,
+    "port": 49391,
+    "stopped": true
+  },
+  "owned_output_root_removed_after_success": true,
+  "unrelated_database_names_after": [],
+  "snapshot_changes": "",
+  "native_stdout": "Browser reproduction passed: non_admin_smoke (pull_request) on port 49391\nOwned database cleaned: sigra_repro_9628_f912b0493673\nOwned server stopped: pid 21681\nExecuted report: non-admin-smoke.json (2 native identities)\nSelected: chromium golden-path.spec.ts :: golden-path.spec.ts › full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge [passed]\nSelected: mobile golden-path.spec.ts :: golden-path.spec.ts › full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge [passed]\n"
+}

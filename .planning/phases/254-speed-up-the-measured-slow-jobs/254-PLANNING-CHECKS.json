@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "phase": 254,
+  "captured_at": "2026-10-23T16:29:07.618095+00:00",
+  "scope": "Planning only; implementation, hosted comparison and whole-phase verification are not started.",
+  "base_commit": "1aa7fdcaec836f44a389a0f4c610c3a9578cd86a",
+  "plan_count": 8,
+  "wave_count": 5,
+  "task_count": 19,
+  "plan_structure": [
+    {
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-01-PLAN.md",
+      "sha256": "2a36df39243e575b55fa1f5df8cf5d724eadf0a7cf12eaccf862c8f40d13abf5",
+      "valid": true,
+      "task_count": 2,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-02-PLAN.md",
+      "sha256": "5dba3c4a90fc995b0fcb8425929777ae110cac261268ba0a5a8d07b19e9da067",
+      "valid": true,
+      "task_count": 2,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-03-PLAN.md",
+      "sha256": "2be9f746f162f1101469398c8829c01528eecefb0126fd8ea655aef15005378b",
+      "valid": true,
+      "task_count": 2,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-04-PLAN.md",
+      "sha256": "323f207bc9a72a2323507b0e2eb071a2d8e70b6d11b0b054ef60f55316699283",
+      "valid": true,
+      "task_count": 2,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-05-PLAN.md",
+      "sha256": "a6566cc4b1573e1d090b384ea63ad3d3665a2b2991360cb5abb70b4b3490e88f",
+      "valid": true,
+      "task_count": 2,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-06-PLAN.md",
+      "sha256": "04b00fbbc172e8b6fb8ef9bd7da9d9321ba7dd47b451d3bd7dcd1fc2c0f16585",
+      "valid": true,
+      "task_count": 3,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-07-PLAN.md",
+      "sha256": "e27bd363fad8c48b65e9de42086dd13358d5b887e33274b00a6f2ce82f576e8c",
+      "valid": true,
+      "task_count": 3,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md",
+      "sha256": "bafbbf0dd1d9cf5e290b9abe80f9965560d129d600c2c67d3e3b8fd253c3c542",
+      "valid": true,
+      "task_count": 3,
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "requirements_coverage": {
+    "covered": [
+      "CISPEED-01",
+      "CISPEED-02"
+    ],
+    "total": 2
+  },
+  "decision_coverage": {
+    "passed": true,
+    "skipped": false,
+    "total": 21,
+    "covered": 21,
+    "uncovered": [],
+    "message": "All trackable CONTEXT.md decisions are covered by plans."
+  },
+  "post_planning_gap_counts": {
+    "total": 23,
+    "covered": 23,
+    "uncovered": 0
+  },
+  "deterministic_probes": {
+    "verify_command_paths": {
+      "status": "ok",
+      "counts": {
+        "blocker": 0,
+        "warning": 0,
+        "total": 19
+      },
+      "command_status_counts": {
+        "not_applicable": 17,
+        "ok": 2
+      },
+      "read_error": null
+    },
+    "failure_directions": {
+      "status": "ok",
+      "counts": {
+        "blocker": 0,
+        "warning": 0,
+        "total": 19
+      },
+      "command_status_counts": {
+        "ok": 19
+      },
+      "read_error": null
+    }
+  },
+  "independent_checker": {
+    "role": "gsd-plan-checker",
+    "task": "/root/checker_254",
+    "result": "VERIFICATION PASSED",
+    "blockers": 0,
+    "warnings": 0,
+    "advisories": 0
+  },
+  "unresolved_probe_assumptions": [
+    "CISPEED-01",
+    "CISPEED-02"
+  ],
+  "descriptorless_reporting_prohibitions": {
+    "count": 2,
+    "status": "flagged-unverified",
+    "plan": "254-08"
+  },
+  "implementation_tests_executed": false,
+  "hosted_runs_started": false,
+  "next_command": "$gsd-execute-phase 254",
+  "hosted_collection_prerequisites": [
+    "Prove a real PR event executes the exact frozen baseline application/workflow/producer source despite the main-only trigger and PR merge tree.",
+    "Establish exact warm cache access and compatible actual runner images for both fixed conditions.",
+    "Obtain a separate explicit budget only if extra preparation runs are required; no prior Phase 253 allowance is renewed.",
+    "Freeze the prepared candidate identities, twenty-pair schedule and one 48-hour window before collection."
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": "sigra.phase254.local-verification/v1",
+  "source_commit": "dd4e3b437f13ee374cacb39922dc04915f521257",
+  "status": "passed_scoped_local_checks_only",
+  "checks": {
+    "attempt": {
+      "path": ".planning/execution/254-rerun-preparation/LOCAL-attempt-tests.log",
+      "sha256": "6bfcc9f0aa17955c614c10367fe62d4315f928162d1f6e0a4fb9e718f825f83b",
+      "expected_summary": "Ran 5 tests"
+    },
+    "collector": {
+      "path": ".planning/execution/254-rerun-preparation/LOCAL-collector-tests.log",
+      "sha256": "723593cdfda9f92a26d72476d6671082aea28a34f54d106de7eae774346eade0",
+      "expected_summary": "48 passed, 0 failed"
+    },
+    "hosted_origin": {
+      "path": ".planning/execution/254-rerun-preparation/LOCAL-hosted-origin-tests.log",
+      "sha256": "342eed4856dd0bad32969729f9fff4a1a31f1009f6fb5d28cbb8b4c447e239f7",
+      "expected_summary": "Ran 154 tests"
+    },
+    "security": {
+      "path": ".planning/execution/254-rerun-preparation/LOCAL-security-tests.log",
+      "sha256": "db4a4bd754c1ae6f26f03f603adad2b473e2f997ad48746ec598c31bf30be912",
+      "expected_summary": "Ran 23 tests"
+    },
+    "docs_and_git_history": {
+      "path": ".planning/execution/254-rerun-preparation/LOCAL-docs-history-tests.log",
+      "sha256": "bbdc9bc9809aa1913bfe9fb34e2533986c9a66e143e4c822390406715bc15dc6",
+      "expected_summary": "Ran 5 tests"
+    },
+    "live_prelude_after": {
+      "path": ".planning/execution/254-rerun-preparation/LOCAL-prelude-after.log",
+      "sha256": "1780e3d7e921d82be17c5608a7af4e832b1bb07aa4faa9aea35fa4e72bd56e4d",
+      "expected_summary": "6 tests, 0 failures"
+    },
+    "workflow_profiles": {
+      "path": ".planning/execution/254-rerun-preparation/LOCAL-workflow-tests.log",
+      "sha256": "1dcb87196c3c00c952cac21010271ffe8f45b92b458b3a36e49d706e550022a1",
+      "expected_summary": "pass 19"
+    },
+    "proposed_baseline_fixture": {
+      "path": ".planning/execution/254-rerun-preparation/PROPOSED-BASELINE-LOCAL-TEST.log",
+      "sha256": "c12eb1585a8d5cbd6d2d4d85d1da612a0f1ea81d192cc30462551f88fae49ca7",
+      "expected_summary": "6 tests, 0 failures"
+    }
+  },
+  "actual_hosted_preparation_outcomes": "both failure; not overwritten by local results",
+  "phase_verification": "pending"
+}

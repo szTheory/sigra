@@ -1,0 +1,34 @@
+{
+  "purpose": "Exact current Phase 251 route/state bytes before recording final independent plan-check pass and execution route",
+  "captured_at": "2026-10-11T20:03:22Z",
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "git_status": "M .planning/HANDOFF.json",
+      "sha256": "5b9527ed635d2c5cf971bf8abbc4510b4e0e30198418faf34c7e478676091f3b",
+      "bytes": 78144,
+      "recovery_path": ".planning/recovery/phase251-checker-pass-route-prewrite-20261011T200322Z/.planning/HANDOFF.json"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "git_status": "M .planning/ROADMAP.md",
+      "sha256": "b097998e9025cca3a752ff31d90570b7581b729acad3378069e4e9ce2ca24fcb",
+      "bytes": 20703,
+      "recovery_path": ".planning/recovery/phase251-checker-pass-route-prewrite-20261011T200322Z/.planning/ROADMAP.md"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "git_status": "M .planning/STATE.md",
+      "sha256": "068b5fb8104acafa669d37567f2dc28af5828f6c76e63e1af7b5eb28320c8e90",
+      "bytes": 8785,
+      "recovery_path": ".planning/recovery/phase251-checker-pass-route-prewrite-20261011T200322Z/.planning/STATE.md"
+    },
+    {
+      "path": ".planning/state.json",
+      "git_status": "M .planning/state.json",
+      "sha256": "b8cb1263b971061273aed5efb4f7ff18cf78ba4666434ed1d068a7c28a4e1d5a",
+      "bytes": 1827,
+      "recovery_path": ".planning/recovery/phase251-checker-pass-route-prewrite-20261011T200322Z/.planning/state.json"
+    }
+  ]
+}

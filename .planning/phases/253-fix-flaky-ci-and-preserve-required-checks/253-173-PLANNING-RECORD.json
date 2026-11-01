@@ -1,0 +1,173 @@
+{
+  "schema": "sigra.phase253.execution-halt-gap-planning/v1",
+  "recorded_at": "2026-10-20T16:10:57.283643+00:00",
+  "command": "$gsd-plan-phase 253 --gaps",
+  "status": "planning_passed_ready_to_execute",
+  "branch": "phase-244-playwright-measurement",
+  "capture_head": "82d49646f7e1356ddaa34b87e15e283f4b0735df",
+  "capture_record": ".planning/recovery/phase253-gap-planning-20261020/capture.json",
+  "preservation_commit": "631e146dd79cbd2d2d6c92b7dac6db60db1a1347",
+  "exact_current_input_commit": "a868a40286540ed06bb500aa7f892b87b5312107",
+  "prior_reviewed_draft_commit": "8aefae4a05a8f200eb79df57d42dbe91ba6d2f17",
+  "shared_prior_bytes": [
+    {
+      "path": ".planning/STATE.md",
+      "prior_commit": "8aefae4a05a8f200eb79df57d42dbe91ba6d2f17",
+      "blob": "fbb5f3685d81edd4ecb7d47d4cfc6c923f64d3f2",
+      "sha256": "82b40e34ac4c992bd5ef5a5ea82d68799c8bb2c4fc8545105278454572728abc",
+      "bytes": 19379,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "prior_commit": "8aefae4a05a8f200eb79df57d42dbe91ba6d2f17",
+      "blob": "a452afa274a10b31983586d735f0c0c1e680dd75",
+      "sha256": "e45278c2cee0731752c60d20932c6a8e464befc0c10e5b682e4cc7b400a0e7a6",
+      "bytes": 70229,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "prior_commit": "8aefae4a05a8f200eb79df57d42dbe91ba6d2f17",
+      "blob": "4886f97668f9f6213712c6e0d32a3a10ab9a12cb",
+      "sha256": "3eec908cf6a6b04f159652ef38220f092d911b7ad2566ef56754909d2ed8ace9",
+      "bytes": 170653,
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "prior_commit": "8aefae4a05a8f200eb79df57d42dbe91ba6d2f17",
+      "blob": "c725c9d3e1794c7378ba4ca2fd4d5d333485f1ec",
+      "sha256": "316f249d3ce30ff58e1b6c6d2967901a436ad722d62bdfb4d3fea509ce3a4a81",
+      "bytes": 18997,
+      "readback_exact": true
+    }
+  ],
+  "gap_source": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-SUMMARY.md",
+  "whole_phase_report_exists": false,
+  "gap_kind": "execution_halt: Node executable variable overwritten by test count",
+  "new_plans": [
+    "253-173"
+  ],
+  "amended_unexecuted_plans": [
+    "253-168",
+    "253-169",
+    "253-170",
+    "253-171",
+    "253-172"
+  ],
+  "active_order": [
+    "253-173",
+    "253-168",
+    "253-169",
+    "253-170",
+    "253-171",
+    "253-172"
+  ],
+  "new_plan_count": 1,
+  "new_task_count": 2,
+  "active_plan_count": 6,
+  "active_task_count": 17,
+  "active_wave_count": 6,
+  "phase_plan_count": 173,
+  "phase_task_count": 456,
+  "implementation_summary_count": 75,
+  "halted_summary_count": 21,
+  "summary_status_detail": {
+    "complete": 74,
+    "legacy_status_unspecified": 1,
+    "halted": 21
+  },
+  "unsummarized_plan_count": 77,
+  "historical_unsummarized_blocked_count": 71,
+  "ready_plans": [
+    "253-173"
+  ],
+  "runnable_plan_count": 6,
+  "independent_review": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-CHECK-02.md",
+    "sha256": "dffc8c965cf52dd6964755a130a11ef7b24911ee8596be9e266144c27afd0a70",
+    "status": "passed",
+    "blockers": 0,
+    "warnings": 0
+  },
+  "checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLANNING-CHECKS.json",
+  "routing_checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-ROUTING-CHECKS.json",
+  "source_audit": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-SOURCE-AUDIT.md",
+  "revision": {
+    "attempts": 1,
+    "prior_findings": 2,
+    "remaining_blockers": 0,
+    "remaining_warnings": 0,
+    "changes": [
+      "Independent recovery entry with exact completed-input preconditions; active waves 1\u20136.",
+      "Projection maximum and cap checked against measured tree bodies."
+    ]
+  },
+  "coverage": {
+    "requirements": [
+      "CIREL-01",
+      "CIREL-02"
+    ],
+    "decisions": {
+      "covered": 24,
+      "total": 24
+    },
+    "combined": {
+      "covered": 26,
+      "total": 26
+    }
+  },
+  "path_probe_limitation": "Shell compound commands are not_applicable to the deterministic target resolver; no claim they were resolved or executed.",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "implementation_status": "partial",
+  "phase_verification_status": "not_started",
+  "remaining_work": [
+    "Plan 173 corrected full offline acceptance and separately checked result file.",
+    "Plan 168 final publication proposal and source freeze within existing caps.",
+    "Plan 169 R13 reconciliation contract retaining 21 halts and 71 unexecuted dispositions.",
+    "Plans 170/171 actual six-scenario canary and normal/docs-only PR required-check proof.",
+    "Plan 172 evidence-linked completion and historical dispositions; then unfiltered whole-phase verification.",
+    "CIREL-01 selected flake cause remains unreproduced; approved disposition reports partial only."
+  ],
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_action": "Start with Plan 173 corrected offline acceptance. Then execute Plans 168\u2013172 for the final freeze, reconciliation, real canary and PR proof, and completion records. Whole-phase verification remains separate.",
+  "whole_phase_verification_command": "$gsd-execute-phase 253",
+  "next_roadmap_phase": {
+    "number": 254,
+    "readiness_checked": true,
+    "status": "Pending",
+    "has_context": false,
+    "has_research": false,
+    "has_plans": false,
+    "started": false
+  },
+  "research": "skipped in gaps mode; existing research/patterns/validation retained",
+  "dispatch": {
+    "planner": {
+      "typed": true,
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "calls": 2
+    },
+    "checker": {
+      "typed": true,
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "calls": 2
+    }
+  },
+  "external_actions_this_planning_run": {
+    "github_requests": 0,
+    "native_browser_launches": 0,
+    "long_regression_suites": 0,
+    "branch_changes": 0
+  },
+  "auto_advance": false,
+  "human_actions_pending": [],
+  "async_jobs": []
+}

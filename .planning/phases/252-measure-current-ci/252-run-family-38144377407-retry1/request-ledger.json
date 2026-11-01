@@ -1,0 +1,16 @@
+{
+  "status": "complete",
+  "request_count": 7,
+  "stop_reason": null,
+  "reset_or_retry_at": "1791829704",
+  "unknown_inputs": [],
+  "requests": [
+    "rate_limit",
+    "/repos/szTheory/sigra/rules/branches/main",
+    "/repos/szTheory/sigra/branches/main/protection/required_status_checks",
+    "/repos/szTheory/sigra/rulesets?per_page=100",
+    "/repos/szTheory/sigra/actions/runs/38144377407",
+    "/repos/szTheory/sigra/actions/runs/38144377407/attempts/1/jobs?per_page=100",
+    "/repos/szTheory/sigra/commits/40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8/check-runs?per_page=100"
+  ]
+}

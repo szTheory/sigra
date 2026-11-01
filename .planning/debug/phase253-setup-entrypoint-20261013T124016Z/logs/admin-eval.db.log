@@ -1,0 +1,36 @@
+
+08:40:39.725 [info] Compiling file system watcher for Mac...
+
+08:40:40.121 [info] Done.
+==> file_system
+Compiling 7 files (.ex)
+Generated file_system app
+==> mime
+Compiling 1 file (.ex)
+Generated mime app
+==> x509
+Compiling 24 files (.ex)
+Generated x509 app
+==> nimble_options
+Compiling 3 files (.ex)
+Generated nimble_options app
+==> comeonin
+Compiling 3 files (.ex)
+Generated comeonin app
+==> plug_crypto
+Compiling 5 files (.ex)
+Generated plug_crypto app
+==> hpax
+Compiling 4 files (.ex)
+Generated hpax app
+==> jose
+Compiling 113 files (.erl)
+Compiling 8 files (.ex)
+
+== Compilation error in file lib/jose/jwt.ex ==
+** (RuntimeError) error parsing file /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-setup-7shKCY/build-admin-eval/lib/jose/include/jose_jwt.hrl, got: {:error, :enoent}
+    (elixir 1.19.5) lib/record/extractor.ex:88: Record.Extractor.read_file/2
+    (elixir 1.19.5) lib/record/extractor.ex:54: Record.Extractor.extract_record/2
+    lib/jose/jwt.ex:41: (module)
+    lib/jose/jwt.ex:3: (file)
+could not compile dependency :jose, "mix compile" failed. Errors may have been logged above. You can recompile this dependency with "mix deps.compile jose --force", update it with "mix deps.update jose" or clean it with "mix deps.clean jose"

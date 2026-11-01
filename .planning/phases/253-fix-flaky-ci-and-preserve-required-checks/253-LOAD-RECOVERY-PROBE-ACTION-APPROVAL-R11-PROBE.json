@@ -1,0 +1,27 @@
+{
+  "schema_version": "sigra.phase253.shape-probe-approval/v1",
+  "decision": "approve",
+  "decided_by": "Jon (operator), via AskUserQuestion collected by the execute-phase orchestrator at the 253-127 Task 1 checkpoint (2026-10-16T23:01:51Z); recorded by the 253-127 executor",
+  "decision_text": "Approve (Recommended)",
+  "note": "",
+  "section": "shape_probe",
+  "section_sha256": "375c5758b1029942883e45a1bdc215dc2d9f87d0bf00d3554d6f85f76b754301",
+  "requests_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PROBE-REQUESTS-R11-PROBE.json",
+  "authorizes": [
+    "GET /rate_limit",
+    "GET /repos/szTheory/sigra/actions/runs/38141825287 (a cancelled ci.yml run already recorded in 252-BASELINE.json)",
+    "GET /repos/szTheory/sigra/actions/runs/38141825287/jobs?per_page=100 (at most 2 pages)",
+    "GET /repos/szTheory/sigra/actions/jobs/117183276622/logs, hop 0 only (records where GitHub redirects a job log; the redirect is not followed)",
+    "GET /repos/szTheory/sigra/actions/runs/38963239851/logs, followed: hop 0 api.github.com, hop 1 results-receiver.actions.githubusercontent.com, and at most one hop 2 to an already-trusted blob/pipelines host; the token is sent to api.github.com only",
+    "caps: at most 8 measured requests and 600 s in window 253-127-probe-window-1; category table {preflight 1, cancelled_shape 3, job_log_shape 1, failure_logs 3}; max_hops 2; 4 MiB per response",
+    "run only by Jon through the committed runner 253-R11-PROBE-OPERATOR.sh"
+  ],
+  "excludes": [
+    "any POST, PUT, PATCH or DELETE request",
+    "any workflow dispatch, run cancel or rerun",
+    "any read, creation, move or deletion of a gsd/253-replan ref, including refs/heads/gsd/253-replan-r8-candidate, refs/heads/gsd/253-replan-r8-fixture, refs/heads/gsd/253-replan-r9-candidate, refs/heads/gsd/253-replan-r9-fixture, refs/heads/gsd/253-replan-r10-candidate and refs/heads/gsd/253-replan-r10-fixture",
+    "any push, PR, merge, rule or protection change, tag, release or main mutation",
+    "any canary or docs_and_prs action (each needs its own fresh approval)"
+  ],
+  "recorded_at": "2026-10-16T23:02:48Z"
+}

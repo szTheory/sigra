@@ -1,0 +1,312 @@
+{
+  "schema_version": "sigra.phase253.control-recovery-planning/v1",
+  "recorded_at": "2026-10-14T00:52:15.809811+00:00",
+  "status": "control_recovery_planned_ready_to_execute",
+  "invocation": "$gsd-plan-phase 253",
+  "mode": "standard_additive_recovery",
+  "prior_user_choice": "Add recovery plans for the remaining work (recommended)",
+  "source_head_before_closeout": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
+  "branch": "phase-244-playwright-measurement",
+  "capture": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PLANNING-CAPTURE.json",
+  "plans": [
+    "253-26",
+    "253-27",
+    "253-28",
+    "253-29",
+    "253-30",
+    "253-31",
+    "253-32",
+    "253-33",
+    "253-34",
+    "253-35"
+  ],
+  "plan_count": 10,
+  "task_count": 22,
+  "wave_count": 9,
+  "waves": {
+    "1": [
+      "253-26"
+    ],
+    "2": [
+      "253-27"
+    ],
+    "3": [
+      "253-28"
+    ],
+    "4": [
+      "253-29"
+    ],
+    "5": [
+      "253-30"
+    ],
+    "6": [
+      "253-31",
+      "253-32"
+    ],
+    "7": [
+      "253-33"
+    ],
+    "8": [
+      "253-34"
+    ],
+    "9": [
+      "253-35"
+    ]
+  },
+  "total_phase_plans": 35,
+  "total_phase_tasks": 76,
+  "completed_plan_count": 10,
+  "implementation_status": "partial_existing_work; new_recovery_not_started",
+  "phase_verification_status": "not_started",
+  "requirements": {
+    "CIREL-01": "unsatisfied",
+    "CIREL-02": "unsatisfied"
+  },
+  "ready_plans": [
+    "253-26"
+  ],
+  "old_halted_plans": [
+    "253-02",
+    "253-07",
+    "253-09",
+    "253-12",
+    "253-16"
+  ],
+  "old_blocked_plans": [
+    "253-08",
+    "253-10",
+    "253-13",
+    "253-14",
+    "253-17",
+    "253-21",
+    "253-22",
+    "253-23",
+    "253-24",
+    "253-25"
+  ],
+  "old_plans_01_25_unchanged": true,
+  "prior_native_evidence_unchanged": true,
+  "review": {
+    "status": "passed_with_informational_advisory",
+    "first_report": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PLAN-CHECK-01.md",
+    "first_blockers": 1,
+    "second_report": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PLAN-CHECK-02.md",
+    "second_marker": "ISSUES FOUND",
+    "blockers": 0,
+    "warnings": 0,
+    "info": 1,
+    "override": false,
+    "acceptance_rule": "The workflow accepts INFO-only findings without revision or override.",
+    "advisory": "The deterministic command-path probe returned not_applicable; it did not prove path resolution. Planned output commands must be verified when implemented."
+  },
+  "research": "reused_existing",
+  "patterns": "reused_existing",
+  "validation": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-VALIDATION.md",
+  "source_audit": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-SOURCE-AUDIT.md",
+  "source_audit_items": 48,
+  "budget_arithmetic": {
+    "schema_version": "sigra.phase253.control-recovery-budget-arithmetic/v1",
+    "status": "planning_contract_not_execution",
+    "components_ms": {
+      "historical_zero_launch": 3768,
+      "preparation": 3743,
+      "failed_desktop": 26373,
+      "retry_desktop": 46803,
+      "mobile": 40993,
+      "failed_dark": 121252,
+      "post_halt_cleanup": 112
+    },
+    "carried_ms": 243044,
+    "preparation_original_reservation_ms": 116232,
+    "preparation_spent_ms": 3743,
+    "preparation_remaining_ms": 112489,
+    "regular_remaining": {
+      "commands": 5,
+      "each_ms": 120000,
+      "total_ms": 600000
+    },
+    "d19": {
+      "spent_invocation_reservations": 5,
+      "total_invocation_reservations": 10,
+      "max_ms": 1200000,
+      "projected_ms": 955533
+    },
+    "d20": {
+      "conditional_browser_commands": 9,
+      "each_ms": 240000,
+      "total_ms": 2160000,
+      "shared_retry_available": 0
+    },
+    "launches": {
+      "unit": "playwright_cli_process",
+      "prior": 4,
+      "remaining_regular": 5,
+      "conditional_acceptance": 9,
+      "total": 18,
+      "cap": 18,
+      "engine_worker_facts_retained_separately": true
+    },
+    "projected_browser_preparation_ms": 3115533,
+    "optional_relevant_seed_checks": {
+      "count": 3,
+      "each_max_ms": 60000,
+      "total_max_ms": 180000,
+      "only_if_changed_exunit_contract": true
+    },
+    "projected_including_optional_seeds_ms": 3295533,
+    "shared_cap_ms": 3480000,
+    "outer_locked_cap_ms": 3600000,
+    "canary": {
+      "categories": [
+        8,
+        24,
+        7,
+        7,
+        7,
+        18,
+        7,
+        7,
+        12,
+        6,
+        1,
+        13
+      ],
+      "new_measured_max": 117,
+      "historical_known_command_reservations": 3,
+      "accounted_max": 120,
+      "historical_actual_http_proven": false,
+      "job_projection_with_retry_and_verifier": 43,
+      "job_cap": 45,
+      "max_minutes": 60
+    },
+    "production": {
+      "categories": [
+        8,
+        14,
+        2,
+        8,
+        4,
+        2,
+        27,
+        4,
+        4,
+        4,
+        20,
+        2,
+        21
+      ],
+      "measured_max": 120,
+      "max_minutes": 60,
+      "single_window_for_both_prs": true
+    },
+    "source_proposal_stale": true,
+    "runtime_acceptance": false,
+    "checks": {
+      "components_sum": true,
+      "prep_remaining": true,
+      "d19_fit": true,
+      "shared_fit": true,
+      "launch_fit": true,
+      "canary_sum": true,
+      "production_sum": true
+    }
+  },
+  "preservation": {
+    "capture_head": "ba2979ae8ef959f2464e7692158761adc9c96a88",
+    "shared_pre_sdk": "4f87b9650ffc54051ed9c4ab692a0283fede559c",
+    "exact_sdk_transition_commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
+    "pre_closeout_paths": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "sha256": "fc394daa3ec76dbaf84c24b04b64a443be4bc73abfc2e98198f500057a76f3bb",
+        "commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
+        "readback_exact": true,
+        "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "sha256": "8ab38a5fa7eaed620aa5d90b07d3509ed043f872a23dac1c9e5af94d62968dd4",
+        "commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
+        "readback_exact": true,
+        "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "sha256": "2fa1e35e42686b658e95fb95c8ed73828bd18b8565e54be9601d9526a6e11710",
+        "commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
+        "readback_exact": true,
+        "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "sha256": "3a1a1218606b299c3edefda2064c1672f09a5d70f6597499eeaab7c6e940fd01",
+        "commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
+        "readback_exact": true,
+        "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+        "status": "clean",
+        "sha256": "f6072c0146c81049d0fbf58e720cb392a973cf4ee31312bdafdb3531accaa375",
+        "commit": "c14e563aa9679922865de2fd08e3471cc7c6a67a",
+        "readback_exact": true,
+        "source_before_sdk_commit": "4f87b9650ffc54051ed9c4ab692a0283fede559c"
+      }
+    ],
+    "unrelated_config": {
+      "path": ".planning/config.json",
+      "status": " M",
+      "sha256": "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d",
+      "preservation_ref": "refs/gsd/phase253-recovery-execution-unrelated-config",
+      "blob": "ab8aa3007f17294e2f224d4ac8482522b79bda24",
+      "readback_exact": true,
+      "edit_or_stage": false
+    },
+    "first_draft_commit": "2ea9b0ab5ca92ae5036db6f6d61a7fc5a324cdc2",
+    "revision_commit": "4f87b9650",
+    "shared_record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-SHARED-PRESERVATION.json"
+  },
+  "dispatch": {
+    "runtime": "codex",
+    "typed_agents": true,
+    "planner": {
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh"
+    },
+    "checkers": {
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "count": 2
+    },
+    "revision_count": 1,
+    "foreground_terminal_results_observed": true,
+    "branch_changes": 0,
+    "worktrees": false,
+    "native_async_mailbox_wait": "Terminal agent returns used as completion; status/mtime read-only observations at five-minute intervals; no outputFile field available."
+  },
+  "remaining_missing_results": [
+    "Native dark/first/second readiness/state/trace results inside the remaining finite allocation.",
+    "Demonstrated selected cause/repair and fresh repeats, or adequately reviewed no-flake evidence; historical cause/order remains unknown.",
+    "Fresh source publication and six actual hosted outcomes plus a separate verifier.",
+    "Normal production and real docs-only PR required-check results, accepted-only historical dispositions and whole-phase verification."
+  ],
+  "planning_checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-PLANNING-GATES.json",
+  "final_checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-FINAL-CHECKS.json",
+  "routing_checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-ROUTING-CHECKS.json",
+  "native_launches": 0,
+  "github_requests": 0,
+  "remote_mutations": 0,
+  "new_plan_summaries": 0,
+  "phase_complete_invoked": false,
+  "full_phase_verifier_invoked": false,
+  "phase254_started": false,
+  "human_actions_pending": [],
+  "async_jobs": [],
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "resume_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_action": "Execute the ten new recovery plans, beginning with Plan 26 offline control diagnosis. Preserve the halted native record and spent retry. Stop on any new unexpected failure or budget overrun."
+}

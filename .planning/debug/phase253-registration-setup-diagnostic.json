@@ -1,0 +1,113 @@
+{
+  "schema_version": "sigra.phase253.registration-setup-diagnostic/v1",
+  "scope": "setup_only",
+  "status": "manual_setup_probes_passed",
+  "started_at": "2026-10-13T12:20:33Z",
+  "deadline_at": "2026-10-13T12:40:33Z",
+  "completed_at": "2026-10-13T12:28:37Z",
+  "duration_seconds": 484,
+  "limits": {
+    "max_project_launches": 3,
+    "max_duration_seconds": 1200,
+    "automatic_retries": 0,
+    "browser_invocations": 0
+  },
+  "project_launches": [
+    {
+      "project": "admin-eval",
+      "port": 25311,
+      "database": "sigra_253_setup_debug_121",
+      "app_pid": 37873,
+      "process_alive_at_probe": true,
+      "curl_exit_code": 0,
+      "http_status": 200,
+      "shutdown": "SIGTERM acknowledged",
+      "app_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/admin-eval.app.log",
+      "app_log_sha256": "555dda006991ccacdcd57b58d863110c8722a4d24acbc7c766eb2141e7d5e3a1",
+      "browser_invocations": 0
+    },
+    {
+      "project": "admin-eval-mobile",
+      "port": 25312,
+      "database": "sigra_253_setup_debug_mobile_121",
+      "setup_exit_code": 0,
+      "setup_log_sha256": "7ffb0fae4a4475eec9f9ff030a96cce2face4c23a364c6a30f4d51188f393476",
+      "app_pid": 41233,
+      "process_alive_at_probe": true,
+      "curl_exit_code": 0,
+      "http_status": 200,
+      "shutdown": "SIGTERM acknowledged",
+      "app_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/admin-eval-mobile.app.log",
+      "app_log_sha256": "fafa8587c914499f1ea0c375a0d4fa7fe25f788724076bcc821c53906dbc2240",
+      "browser_invocations": 0
+    },
+    {
+      "project": "admin-eval-dark",
+      "port": 25313,
+      "database": "sigra_253_setup_debug_dark_121",
+      "setup_exit_code": 0,
+      "setup_log_sha256": "841a1e4aa7f80949bf0c2d3c4a9ef166d6459d2d3f120076539b8dd334761f4e",
+      "app_pid": 42696,
+      "process_alive_at_probe": true,
+      "curl_exit_code": 0,
+      "http_status": 200,
+      "shutdown": "SIGTERM acknowledged",
+      "app_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/admin-eval-dark.app.log",
+      "app_log_sha256": "42efae226887df85f9bbc67648419604e6425c65168b6f9bbd2d50b9cd3de968",
+      "browser_invocations": 0
+    }
+  ],
+  "experiments": [
+    {
+      "kind": "jose_compile_existing_deps_fresh_build",
+      "status": "passed",
+      "exit_code": 0,
+      "log_path": "/private/tmp/sigra-253-jose.Zs4CQD/compile.log",
+      "log_sha256": "d1a9e25db1be1368fc28445f4b44125d8747405bfa4d9ce73b0c4273282b1721",
+      "browser_invocations": 0,
+      "project_launches": 0
+    },
+    {
+      "kind": "clean_clone_deps_restore_and_jose_compile",
+      "status": "passed",
+      "exit_code": 0,
+      "deps_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/deps.log",
+      "deps_log_sha256": "ee40e9ae3f91d46a4dab2c178493d639c5b57342800cc4438e5b89c45cfb434a",
+      "compile_log_path": "/private/tmp/sigra-253-clean.ZKJQW5/compile.log",
+      "compile_log_sha256": "d1a9e25db1be1368fc28445f4b44125d8747405bfa4d9ce73b0c4273282b1721",
+      "browser_invocations": 0,
+      "project_launches": 0
+    },
+    {
+      "kind": "clean_clone_ecto_setup_admin_eval",
+      "status": "passed",
+      "exit_code": 0,
+      "database": "sigra_253_setup_debug_121",
+      "port": 25311,
+      "log_path": "/private/tmp/sigra-253-clean.ZKJQW5/ecto-setup.log",
+      "log_sha256": "8dfe7f41cc51af794b6d33d5dbe0f238c5c42958b80144f9707e58d1ad935ec2",
+      "browser_invocations": 0,
+      "project_launches": 0
+    }
+  ],
+  "source_checkout_head": "ffb25ae928057560b9ab53c7f6ff3b35463f204c",
+  "preserved_log_dir": ".planning/debug/phase253-registration-setup-logs",
+  "cleanup": {
+    "database_drop_exit_codes": {
+      "admin-eval": 0,
+      "admin-eval-mobile": 0,
+      "admin-eval-dark": 0
+    }
+  },
+  "historical_registration_evidence_unchanged": true,
+  "historical_freeze_sha256": "9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994",
+  "historical_evidence_sha256": "b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51",
+  "runner_repair": {
+    "commit": "4ffa9dcb1",
+    "post_commit_test_command": "bash scripts/ci/ci-registration-repro.test.sh",
+    "post_commit_test_exit_code": 0,
+    "hermetic_setup_cases_passed": 4,
+    "real_new_entrypoint_invocation": "not_run_budget_exhausted",
+    "historical_jose_root_cause": "unknown"
+  }
+}

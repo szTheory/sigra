@@ -1,0 +1,74 @@
+{
+  "schema_version": "sigra.phase255.review-fix-evidence/v1",
+  "status": "passed",
+  "source_commit": "27cae3b6f05f7749b2983c5143aca98a0768d071",
+  "branch": "phase-244-playwright-measurement",
+  "verification_location": "main checkout (workflow.use_worktrees=false)",
+  "tracked_source_state": "clean at evidence capture",
+  "preexisting_untracked_preserved": [
+    "scripts/ci/__pycache__/"
+  ],
+  "fix_commits": {
+    "CR-01": "593d83438",
+    "CR-02": "35ffa421a",
+    "CR-03": "2e33f2721",
+    "CR-04": "264c2e368",
+    "WR-01": ["264c2e368", "27cae3b6f"]
+  },
+  "pre_fix_probes": [
+    {
+      "finding": "CR-02",
+      "result": "A real child self-SIGKILL left the recorder with exit 1 and traceback: signal.signal(SIGKILL, SIG_DFL) raised OSError [Errno 22]."
+    },
+    {
+      "finding": "CR-03",
+      "result": "Eight synchronized processes all reserved the single remaining request/invocation slot. A separate response-write race left the request count at 1 after a concurrent reservation should have made it 2."
+    },
+    {
+      "finding": "CR-04",
+      "result": "The new finished-archive regression failed before the fix: only 1 of 5 expected credential redactions was recorded for userinfo, camel-case JSON, query, and form data."
+    },
+    {
+      "finding": "WR-01",
+      "result": "The new finished-bundle regression failed before the fix with KeyError because bundle-manifest.json omitted missing_files."
+    }
+  ],
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/ci/ci-browser-local.test.py",
+      "result": "passed; 12 tests"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/ci/ci-command-record.test.py",
+      "result": "passed; 5 tests"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/ci/ci-diagnostics-canary.test.py",
+      "result": "passed; 18 tests, including two real multi-process freeze-file races"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/ci/ci-diagnostic-bundle.test.py",
+      "result": "passed; 14 tests, including finished archive redaction, missing-file tamper rejection, and legacy v1 compatibility"
+    },
+    {
+      "command": "PATH=\"$HOME/.asdf/installs/nodejs/20.19.5/bin:$PATH\" PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/ci/ci-browser-local.test.py --native-sigterm",
+      "result": "passed; 12 unit tests plus real outer-runner SIGTERM probe; exit 143, recorded signal 15, owned database/server/Playwright group removed, unrelated database and listener unchanged"
+    }
+  ],
+  "native_runtime": {
+    "host": "macOS (darwin)",
+    "node": "v20.19.5",
+    "playwright": "1.59.1",
+    "elixir": "1.19.5",
+    "erlang_otp": "28"
+  },
+  "external_actions": {
+    "github_http_requests": 0,
+    "workflow_dispatches": 0,
+    "pushes": 0,
+    "remote_fetches": 0,
+    "distribution_verification": "not run"
+  },
+  "historical_artifacts": "No frozen RESULTS, FREEZE, input package, measurement records, REVIEW.md, SECURITY.md, VALIDATION.md, parent planning state, or handoff files were changed.",
+  "hosted_source_claim": "These local revisions were not hosted-tested; this evidence does not change or replace the historical hosted producer source."
+}

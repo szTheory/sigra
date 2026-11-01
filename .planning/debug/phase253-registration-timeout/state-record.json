@@ -1,0 +1,45 @@
+{
+  "captured_at": "2026-10-22T22:47:56.764504+00:00",
+  "initial_capture_clean": true,
+  "prior_state": {
+    ".planning/STATE.md": {
+      "commit": "855897c1c28cc47e72a93a46bf9d78442af66608",
+      "sha256": "94342a6b416d939d396fb8084899f5cf48887bc9b8790bbd116a0fdb43ecde1b",
+      "readback_verified": true
+    },
+    ".planning/state.json": {
+      "commit": "855897c1c28cc47e72a93a46bf9d78442af66608",
+      "sha256": "99ced777ebb8ba3573e231fefeb7db71ad76ba40fbf0e451d9088e47281d7401",
+      "readback_verified": true
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "855897c1c28cc47e72a93a46bf9d78442af66608",
+      "sha256": "b037418510c7d55c01d768036000aee19cfa8ddc2fe3ed68eb56891d5454f6d1",
+      "readback_verified": true
+    },
+    ".planning/execution/253-CONTINUATION.json": {
+      "commit": "855897c1c28cc47e72a93a46bf9d78442af66608",
+      "sha256": "96a6d7c2783c0c3b5492b99bf3c2b4bb365964f8c10c419dbbea1379ed6958e1",
+      "readback_verified": true
+    },
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+      "commit": "855897c1c28cc47e72a93a46bf9d78442af66608",
+      "sha256": "d68da6df00506c6b1e7df133cff7a12e3b252a16b908fd9a1854c4cf65213744",
+      "readback_verified": true
+    }
+  },
+  "next_roadmap_readiness": {
+    "phase_number": "254",
+    "phase_status": "Pending",
+    "has_context": false,
+    "has_research": false,
+    "has_plans": false,
+    "plan_count": 0
+  },
+  "next_phase_started": false,
+  "forward_after_actual_253_completion": "Recheck readiness, then $gsd-discuss-phase 254",
+  "browser_invocations": 0,
+  "ci_launches": 0,
+  "network_requests": 0,
+  "product_fix_applied": false
+}

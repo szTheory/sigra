@@ -1,0 +1,13 @@
+{
+  "method": "GET",
+  "route_id": "run_artifacts",
+  "category": "artifact_metadata",
+  "family": "normal",
+  "params": {
+    "run_id": 39815188159
+  },
+  "query": {
+    "per_page": 100,
+    "page": 1
+  }
+}

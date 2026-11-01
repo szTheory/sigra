@@ -1,0 +1,107 @@
+{
+  "schema_version": "sigra.phase253.outward-action-approval/v1",
+  "decision": "approve",
+  "decided_by": "Jon, direct conversation reply to the prepared Plan 171 PR approval request; recorded by Codex executor",
+  "decision_text": "yes",
+  "note": "Authorizes Codex to run the prepared PR runner, including the single main fetch and both draft PR families, overriding the older Jon-only boundary for this exact scope.",
+  "section": "docs_and_prs",
+  "section_sha256": "7a059033966da717d7c4b8e635610bf1cca532558bc6a02abbd196880b1c16a9",
+  "freeze_sha256": "2a9b2415e4c9545252817ec3b299a66b76247ef4774b087be97faa4e0a578629",
+  "head_base_pairs": [
+    {
+      "family": "normal",
+      "head": "gsd/253-replan-r13-candidate",
+      "base": "main",
+      "draft": true
+    },
+    {
+      "family": "docs-only",
+      "head": "gsd/253-replan-docs-head",
+      "base": "gsd/253-replan-docs-base",
+      "draft": true
+    }
+  ],
+  "rerun": "expired",
+  "approved_pr_body": {
+    "body": "Draft proof pull request; never merged.",
+    "body_sha256": "576a778041112cdcbc69439ce7fc4240fbb037daf33a33098a415c2dd85c02b3",
+    "titles": {
+      "normal": "Phase 253 normal CI proof (draft, do not merge)",
+      "docs-only": "Phase 253 docs-only CI proof (draft, do not merge)"
+    },
+    "source": "scripts/ci/ci-pr-proof.sh collect() (frozen text, unchanged)"
+  },
+  "authorizes": [
+    {
+      "action": "publish_docs_objects",
+      "category": "docs_publication",
+      "docs_base_commit": "ac2aa18645607635032741118a8d4a9d074ed948",
+      "docs_head_commit": "afcbe210af6b2773e395e54c018070fce8cbadbb",
+      "max_requests": 14,
+      "refs": [
+        {
+          "ref": "refs/heads/gsd/253-replan-docs-base",
+          "sha": "ac2aa18645607635032741118a8d4a9d074ed948"
+        },
+        {
+          "ref": "refs/heads/gsd/253-replan-docs-head",
+          "sha": "afcbe210af6b2773e395e54c018070fce8cbadbb"
+        }
+      ]
+    },
+    {
+      "action": "pr_create",
+      "base": "main",
+      "draft": true,
+      "family": "normal",
+      "head": "gsd/253-replan-r13-candidate"
+    },
+    {
+      "action": "pr_create",
+      "base": "gsd/253-replan-docs-base",
+      "draft": true,
+      "family": "docs-only",
+      "head": "gsd/253-replan-docs-head"
+    },
+    "read-only collection within production window 253-171-pr-window-1",
+    "caps: 120 requests, 60 minutes, zero reruns"
+  ],
+  "excludes": [
+    "canary section",
+    "rerun",
+    "merge",
+    "auto_merge",
+    "ready_for_review",
+    "push",
+    "force_update",
+    "delete_ref",
+    "rule_change",
+    "release",
+    "tag",
+    "main mutation",
+    "unapproved PR bodies or head/base pairs"
+  ],
+  "recorded_at": "2026-10-21T18:15:15Z",
+  "approved_pr_bodies": [
+    {
+      "title": "Phase 253 normal CI proof (draft, do not merge)",
+      "head": "gsd/253-replan-r13-candidate",
+      "base": "main",
+      "body": "Draft proof pull request; never merged.",
+      "draft": true
+    },
+    {
+      "title": "Phase 253 docs-only CI proof (draft, do not merge)",
+      "head": "gsd/253-replan-docs-head",
+      "base": "gsd/253-replan-docs-base",
+      "body": "Draft proof pull request; never merged.",
+      "draft": true
+    }
+  ],
+  "step0_main_fetch": {
+    "command": "git fetch --no-tags origin main",
+    "once": true,
+    "before_clock": true,
+    "proceed_only_if": "fetched main has not been rewritten and the frozen candidate still merges cleanly; otherwise stop before API requests"
+  }
+}

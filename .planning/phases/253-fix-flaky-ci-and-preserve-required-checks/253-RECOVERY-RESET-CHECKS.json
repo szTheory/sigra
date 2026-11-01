@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "scope": "local maintenance and process reset; phase incomplete",
+  "source_tests": 26,
+  "source_hashes_match_full_pass": true,
+  "all_other_original_files_byte_identical": true,
+  "changed_original_files": [
+    ".planning/HANDOFF.json",
+    ".planning/ROADMAP.md",
+    ".planning/STATE.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+    ".planning/state.json",
+    "AGENTS.md"
+  ],
+  "raw_run_evidence_git_readbacks": 24,
+  "plans": 183,
+  "new_plans": 0,
+  "old183_still_halted": true,
+  "requirements_unchanged": true,
+  "route": "$gsd-progress",
+  "routes_consistent": true,
+  "next254_context_rechecked": true,
+  "reader_check": "Reset names the next action, actual open requirements, stopped acceptance path and retained budgets.",
+  "learnings_counts": {
+    "decisions": 3,
+    "lessons": 5,
+    "patterns": 3,
+    "surprises": 2
+  }
+}

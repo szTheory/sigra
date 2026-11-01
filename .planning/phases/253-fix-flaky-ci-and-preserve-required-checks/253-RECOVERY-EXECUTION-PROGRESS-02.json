@@ -1,0 +1,95 @@
+{
+  "status": "in_progress",
+  "updated_at": "2026-10-13T16:13:21.191470+00:00",
+  "current_plan": "253-12",
+  "plans": {
+    "253-09": "halted",
+    "253-10": "blocked_by_253-09",
+    "253-11": "local_complete_preflight_defects_found",
+    "253-12": "starting_with_local_preflight_repairs",
+    "253-13": "blocked_by_253-09",
+    "253-14": "blocked_by_253-09"
+  },
+  "completed_plan_count": 6,
+  "local_checks": {
+    "shell_canary_tests": "passed",
+    "hosted_verifier_python_tests": {
+      "tests": 16,
+      "passed": 16
+    },
+    "freeze_check_only": "passed"
+  },
+  "prehost_defects": [
+    {
+      "file": "scripts/ci/ci-gate-canary.sh",
+      "lines": [
+        374,
+        388
+      ],
+      "finding": "New recovery runs copy old-named preflight snapshots and reuse original phase253-07-canary-preflight ref; fresh snapshots/new ledger can conflict with immutable prior artifacts.",
+      "required_fix": "Distinct recovery preflight paths and scoped write-ahead refs; preserve original paths/ref and charge every fresh read-only preflight HTTP call."
+    },
+    {
+      "file": "scripts/ci/ci-gate-canary.sh",
+      "lines": [
+        177,
+        393,
+        431
+      ],
+      "finding": "Frozen candidate SHA is assigned unconditionally, so new evidence with absent file skips initialization gated on empty candidate SHA.",
+      "required_fix": "Initialize absent new evidence from exact sealed freeze, distinguishing evidence existence from identity existence; retain one fixed budget and real current preflight, no resets."
+    }
+  ],
+  "prehost_gate": "no external request or ref push until real-script mocked startup with frozen candidate + absent new evidence + preexisting historical snapshots/refs passes",
+  "fixture_identity": {
+    "candidate_helper_commit": "b8a3b128d8f2a6f6bc91f40622708d2a2cdd1d62",
+    "fixture_workflow_commit": "ce8e419f6ef409efae45181aa9d2eba903e57bd3",
+    "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+    "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T160622Z",
+    "fixture_ref_state": "verified-local-create-only-unpushed",
+    "original_failed_run_id": "38347679431",
+    "old_failed_run_id": "38347679431",
+    "old_failed_fixture_ref": "refs/heads/gsd/253-gate-canary-fixture-20261013T044113Z-67104",
+    "old_failed_fixture_commit": "19e66df3c7869cc52b4662ae8d0e3b0ee2ec3c6f",
+    "old_failed_fixture_blob": "077a89e438d5e054ee48799fe741cf1a49d2f85c"
+  },
+  "github_requests": 0,
+  "browser_launches": 0,
+  "registration_charge_ms": 3768,
+  "requirements_accepted": false,
+  "phase_verification": "not_started",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "prior_shared_bytes": [
+    {
+      "path": ".planning/STATE.md",
+      "ref": "7d0474bfa636e5edada26c164d989a41c20cbded",
+      "sha256": "4edd8c53cb3b46bf0ff8fe2c2b191821421e08eb402467e607b4ba300268afa0",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/state.json",
+      "ref": "7d0474bfa636e5edada26c164d989a41c20cbded",
+      "sha256": "749d4253c843db0835af862cc904586de4cd25e3d4ad25d392356f821821a630",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "ref": "7d0474bfa636e5edada26c164d989a41c20cbded",
+      "sha256": "bc5fd8484fb2f2db2547fd401fe900c7ccfe517f2a5eb93d79afa6587189b70b",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "ref": "7d0474bfa636e5edada26c164d989a41c20cbded",
+      "sha256": "2c988757b5f652eaf30138d3ef271ebd021a6dbc13a0fca41108657c0cabba58",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+      "ref": "7d0474bfa636e5edada26c164d989a41c20cbded",
+      "sha256": "f3c0a79072be15965a335aa41b069f36f59cb1390f0094ac111f62b67890a3c9",
+      "exact_readback": true
+    }
+  ],
+  "chronology_warning": "Plan11 real failing test file committed before GREEN, but JSON RED run record committed afterward; disclosed, no retroactive repair."
+}

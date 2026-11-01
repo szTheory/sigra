@@ -1,0 +1,9 @@
+{
+  "schema": "sigra.phase253.paired-approval/v1",
+  "decision": "approve",
+  "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+  "scope": "normal-and-docs-only",
+  "decision_text": "yes i approve",
+  "approved_at_epoch": 1792686840,
+  "expires_epoch": 1792773240
+}

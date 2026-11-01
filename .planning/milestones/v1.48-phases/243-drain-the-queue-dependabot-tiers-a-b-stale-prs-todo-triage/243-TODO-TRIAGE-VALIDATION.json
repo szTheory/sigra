@@ -1,0 +1,105 @@
+{
+  "schema": "sigra.phase-243-todo-triage-validation/1",
+  "captured_at": "2026-09-25T07:05:00Z",
+  "phase": 243,
+  "plan": "243-04",
+  "passed": true,
+  "pending_commit_scope_verification": false,
+  "inventory_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-TODO-INVENTORY.json",
+  "frozen_count": 66,
+  "unique_paths": 66,
+  "rows_with_one_allowed_disposition": 66,
+  "disposition_counts": {
+    "keep": 66,
+    "close": 0,
+    "defer": 0,
+    "earlier_phase_owned_kept": 13
+  },
+  "frozen_hashes_preserved": true,
+  "updated_frozen_records_preserve_start_hashes": true,
+  "todos_fixed_by_triage": 0,
+  "future_records": {
+    "FUT-01": {
+      "path": ".planning/todos/pending/2026-09-17-fut-01-template-example-parity-guard.md",
+      "exists": true,
+      "diagnosis_attached": true
+    },
+    "FUT-02": {
+      "path": ".planning/todos/pending/2026-09-25-fut-02-dependabot-groups-policy.md",
+      "exists": true,
+      "diagnosis_attached": true
+    },
+    "FUT-03": {
+      "path": ".planning/todos/pending/2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md",
+      "exists": true,
+      "diagnosis_attached": true
+    },
+    "FUT-04": {
+      "path": ".planning/todos/pending/2026-09-25-fut-04-launch-pack-contract-caller.md",
+      "exists": true,
+      "diagnosis_attached": true
+    },
+    "FUT-05": {
+      "path": ".planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md",
+      "exists": true,
+      "diagnosis_attached": true
+    }
+  },
+  "adjacent_gaps": {
+    "example_unit_smoke": {
+      "path": ".planning/todos/pending/2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md",
+      "verified_in_ci_yaml": true
+    },
+    "launch_pack_contract_no_workflow_caller": {
+      "path": ".planning/todos/pending/2026-09-25-fut-04-launch-pack-contract-caller.md",
+      "verified_by_workflow_search": true
+    }
+  },
+  "dependabot_groups": {
+    "path": ".planning/todos/pending/2026-09-25-fut-02-dependabot-groups-policy.md",
+    "filed_only": true,
+    "dependabot_yaml_modified": false
+  },
+  "hex_latest_version_record": {
+    "path": ".planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md",
+    "current_repo_version": "1.5.0",
+    "hex_versions_page": "https://hex.pm/packages/sigra/versions",
+    "verified_page_lists": "1.20.0 and 1.5.0"
+  },
+  "todo_only_paths_intended": [
+    ".planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md",
+    ".planning/todos/pending/2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md",
+    ".planning/todos/pending/2026-09-25-fut-02-dependabot-groups-policy.md",
+    ".planning/todos/pending/2026-09-25-fut-04-launch-pack-contract-caller.md"
+  ],
+  "triage_commit_sha": "8750c986d20200219c52702a8023692d9209de03",
+  "triage_commit_paths": [
+    ".planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md",
+    ".planning/todos/pending/2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md",
+    ".planning/todos/pending/2026-09-25-fut-02-dependabot-groups-policy.md",
+    ".planning/todos/pending/2026-09-25-fut-04-launch-pack-contract-caller.md"
+  ],
+  "notes": "All 66 frozen items are kept open because there is no direct owner completion evidence attached. Thirteen items with resolves_phase metadata remain with their owners; no closure is inferred from metadata or wording. Newly created FUT-02/FUT-04 records were not part of the execution-start inventory.",
+  "triage_commit_only_todo_paths": true,
+  "all_frozen_paths_still_pending": true,
+  "future_record_title_matches": {
+    "FUT-01": [
+      ".planning/todos/pending/2026-09-17-fut-01-template-example-parity-guard.md"
+    ],
+    "FUT-02": [
+      ".planning/todos/pending/2026-09-25-fut-02-dependabot-groups-policy.md"
+    ],
+    "FUT-03": [
+      ".planning/todos/pending/2026-07-29-example-unit-smoke-required-but-absent-from-ci-gate-needs.md"
+    ],
+    "FUT-04": [
+      ".planning/todos/pending/2026-09-25-fut-04-launch-pack-contract-caller.md"
+    ],
+    "FUT-05": [
+      ".planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md"
+    ]
+  },
+  "future_identities_unique": true,
+  "todo_commit_scope_sha": "8750c986d20200219c52702a8023692d9209de03",
+  "no_non_todo_paths_in_triage_commit": true
+}

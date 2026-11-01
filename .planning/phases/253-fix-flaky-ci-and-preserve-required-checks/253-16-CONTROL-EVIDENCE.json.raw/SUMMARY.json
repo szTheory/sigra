@@ -1,0 +1,57 @@
+{
+  "status": "halted",
+  "native_status": "halted",
+  "source_freeze_commit": "a2d9d4402",
+  "tdd_red_commit": "39ba8cfbd",
+  "implementation_commit": "35b493540",
+  "halt_receipt_commit": "a2eaf3b19",
+  "native_slot": "R-DIAG-CONTROL-DARK",
+  "project": "admin-eval-dark",
+  "charged_ms": 121252,
+  "slot_cap_ms": 120000,
+  "overrun_ms": 1252,
+  "cumulative_charged_ms": 242932,
+  "global_browser_launches": 4,
+  "used_native_slots": [
+    "R-DIAG-DESKTOP",
+    "R-INFRA-RETRY-DESKTOP",
+    "R-DIAG-MOBILE",
+    "R-DIAG-CONTROL-DARK"
+  ],
+  "remaining_plan16_slots": 5,
+  "retry_count_used": 1,
+  "retry_count_available": 0,
+  "d20_reserved_acceptance_slots": 9,
+  "d20_reserved_cap_ms": 2160000,
+  "setup_exit_code": 0,
+  "app_ready_http_status": 200,
+  "playwright_exit_code": null,
+  "database_drop_exit_code": null,
+  "report_present": false,
+  "build_directory_removed": true,
+  "verified_controls": false,
+  "reason": "native Playwright process exceeded its 120,000 ms slot; DB drop timed out; no report was produced. All further Plan 16 browser slots stopped by frozen stop conditions.",
+  "unit_tests": {
+    "command": "node --test --test-reporter=tap scripts/ci/ci-registration-recovery.test.mjs",
+    "exit_code": 0,
+    "total": 27,
+    "suites": 0,
+    "passed": 27,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "duration_ms": 3281.434834,
+    "tap_sha256": "045655235a0f8d824bb4d2a2a299d93f713a3372140fe8eb9dc65ed9147963e5"
+  },
+  "prerequisite_for_phase17": "A fresh authorized time allocation or plan restructure; do not use the consumed retry; inspect why the dark combined native command exceeded its cap and failed to drop its database.",
+  "recovery": {
+    "pre_scrub_setup_log_ref": "refs/gsd/phase253-plan16-setup-log-prescrub",
+    "blob_sha1": "536c903a675a8d3ae0b95a0a78894c463f04ae88",
+    "read_back_verified": true
+  },
+  "credential_review": {
+    "auto_review_initial_rejection": "The setup log contained the literal demo-credentials heading, though the credential block had already been redacted.",
+    "resolution": "Scrubbed the heading, verified no demo heading, plaintext secret_key_base, Set-Cookie, or authorization header remained, updated the evidence digest, and committed only the sanitized log."
+  }
+}

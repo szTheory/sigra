@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "plan": 40,
+  "recovery_id": "245-40-object-recovery-2026-10-04",
+  "outcome": "object_recovered",
+  "authorized_by": "User requested repair of the unreadable object blocker.",
+  "recorded_at": "2026-10-04T19:08:18Z",
+  "source": {
+    "repository": "szTheory/sigra",
+    "advertised_ref": "refs/heads/gh-pages",
+    "advertised_oid": "74e6bda47b3d4eb3354eeefc1adf33b67e82a23e",
+    "observation_command": ["git", "ls-remote", "--heads", "origin", "refs/heads/gh-pages"],
+    "fetch_command": ["git", "fetch", "--no-tags", "origin", "74e6bda47b3d4eb3354eeefc1adf33b67e82a23e"],
+    "fetch_exit_code": 0,
+    "fetch_destination": "FETCH_HEAD and the local object database; no branch refspec was supplied"
+  },
+  "verification": {
+    "blocking_oid": "74e6bda47b3d4eb3354eeefc1adf33b67e82a23e",
+    "git_cat_file_type": "commit",
+    "reachable_missing_object_count": 0,
+    "typed_identity_audit": {
+      "unique_oids_checked": 365,
+      "readable_at_declared_type": 365,
+      "failures": 0,
+      "inputs": [
+        "Plan 40 current-contract local and origin ref direct/peeled identities",
+        "Plan 40 open PR head/base commit identities",
+        "Plan 40 pinned evidence commit/blob identities"
+      ]
+    },
+    "head_before_and_after": "4f99df3db0d0a5a9cf801b02134ede0a15e2ddb2",
+    "local_origin_gh_pages_tracking_ref_before_and_after": "dd671004a276c24fafa8ece80e341706085a999e"
+  },
+  "scope": {
+    "branch_refs_updated": false,
+    "pull_requests_mutated": false,
+    "admission_created": false,
+    "approval_requested": false,
+    "production_ref_operations": 0,
+    "fresh_source_contract_created": false
+  },
+  "continuation": {
+    "plan_40_remains_terminally_halted": true,
+    "plan_40_contract_must_not_be_reused": true,
+    "fresh_current_source_capture_required": true,
+    "repo_04_remains_open": true,
+    "next_gsd_command": "$gsd-plan-phase 245 --gaps",
+    "reason": "Phase 245 is the final roadmap phase. Plan 40 is terminally halted and has no approval; a new gap plan must scope a fresh source capture and completion path. There is no Phase 246."
+  }
+}

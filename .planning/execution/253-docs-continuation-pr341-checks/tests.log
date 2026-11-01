@@ -1,0 +1,11 @@
+test_closed_or_capped_ledgers_cannot_continue (__main__.Guards.test_closed_or_capped_ledgers_cannot_continue) ... ok
+test_compare_boundaries_and_bad_inputs (__main__.Guards.test_compare_boundaries_and_bad_inputs) ... ok
+test_normal_dispatch_and_other_writes_refused (__main__.Guards.test_normal_dispatch_and_other_writes_refused) ... ok
+test_only_exact_docs_refs_and_draft_pr_allowed (__main__.Guards.test_only_exact_docs_refs_and_draft_pr_allowed) ... ok
+test_real_saved_normal_passes_corrected_verifier (__main__.Guards.test_real_saved_normal_passes_corrected_verifier) ... ok
+test_separate_windows_are_explicit_and_missing_evidence_never_passes (__main__.Guards.test_separate_windows_are_explicit_and_missing_evidence_never_passes) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.132s
+
+OK

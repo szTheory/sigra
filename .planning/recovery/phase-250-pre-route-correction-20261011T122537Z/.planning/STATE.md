@@ -1,0 +1,1137 @@
+---
+gsd_state_version: "1.0"
+milestone: v1.49
+milestone_name: RELEASE-1.6.0
+current_phase: 250
+current_phase_name: "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts"
+current_plan: 7
+status: authorized_250_07_packet_v8_run_in_progress
+stopped_at: Controller run 38137539834 is in progress under packet v8; one watcher is active
+last_updated: "2026-10-11T12:02:46Z"
+last_activity: 2026-10-11
+last_activity_desc: User authorized packet v8 for one no-publish canary on main 84ebcea60024c9e8caee405d55cad1c76b0e858a. Controller run 38137539834 is in progress after the fresh source-bound preflight passed. AUTO-02 still needs the hosted cancellation receipt.
+state_head: 13b4a6d0d306a152d86a8f957949f0b52c4df92a
+progress:
+  total_phases: 5
+  completed_phases: 4
+  total_plans: 43
+  completed_plans: 39
+  percent: 91
+verification_status: gaps_found
+next_command: null
+resume_command: "$gsd-execute-phase 250 --gaps-only"
+---
+
+# Project State
+
+## Project Reference
+
+See: `.planning/PROJECT.md` (updated 2026-10-06)
+
+**Core value:** Authentication that works out of the box with great DX on the happy path and on the rough edges.
+
+**Current focus:** Phase 250 — Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts
+
+## Current Position
+
+Phase: 250 — ACTIVE; Plan 250-07 is complete, and Plan 250-10 is the sole runnable gap plan.
+Current Plan: 10 (refresh public source, repair the exact current-main admin-eval failure, reconcile current PR/worktree evidence, and refresh the Phase 249 owner report).
+Total Plans in Phase: 12
+Plans summarized: 8 of 12 (Plans 250-01 through 250-07 are complete; Plan 250-08 is halted; 250-09, 250-11, and 250-12 remain blocked behind Plan 08).
+Status: Phase verification remains incomplete. The latest `init.execute-phase 250` result reports one runnable plan: `250-10-PLAN.md`. Plan 08 stays halted because its committed tuple packet has no eligible exact-source route.
+Last activity: 2026-10-11 — Plan 250-07 was manually closed after the exact failure and cancellation receipts were independently validated; the Phase 248 owner report now satisfies AUTO-01/AUTO-02. PR #327 fixes the controller's `gh api --output` downloader defect; its CI run 38138426620 is still in progress under one watcher.
+
+Progress: [█████████░] 91% (39/43 summary records; this is a project metric, not phase acceptance completion)
+
+Plain-language explanation: the canary controller itself failed while downloading the final receipt ZIP. The failure and cancellation source workflows had already produced artifacts. Both exact artifact ZIPs were downloaded and checked against current GitHub run, artifact, observer, and receipt metadata, so Phase 248 AUTO-02 now passes without claiming the controller passed.
+
+Plan 250-07 evidence: packet v8 SHA-256 `0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628`; the user's one-run authorization is recorded at `250-07-CANARY-AUTHORIZATION-DECISION-v8.json`. Preflight SHA-256 `3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953` targeted main `84ebcea60024c9e8caee405d55cad1c76b0e858a`. Controller run `38137539834` failed with `failure_receipt_digest_or_json_validation_failed`; failure run `38137550871` artifact `11701436633` and cancellation run `38137614523` artifact `11702216188` both validate. Observer run `38137756922` succeeded. The one-run authority is consumed; do not retry or dispatch another canary.
+
+Phase 248 owner snapshot `250-248-SOURCE-SNAPSHOT.json` reports AUTO-01 and AUTO-02 satisfied with zero blockers; `248-VERIFICATION.md` passes `--check-report`. The controller failure and exact independent reconciliation are documented in both artifacts. PR #327 (`https://github.com/szTheory/sigra/pull/327`) is the focused downloader repair. Its CI result will be used for the already-authorized conditional squash merge; it is not a canary retry.
+
+The requested CI/CD runtime and reliability optimization remains a separate future GSD item after Phase 250. No production release, publish, tag, or additional canary is part of current work.
+
+### v1.49 audit route
+
+Plan 250-06 is complete: PR #318 merged the dispatch/scenario/cancellation repair at main 34f7fd8e47c4b356ef97656f3213a2e749017f2a, with exact-head CI run 38080575187 passing. The scoped preflight-delivery repair PR #319 merged at 33fccd8b3afe8ad093a0e379578fdc29c8a44e95, with CI run 38082645367 passing. A replacement packet for that source was approved and its authority was consumed by controller run 38083752867; child 38083779742 failed source receipt identity validation because GitHub reports the dynamic workflow run-name. No cancellation, observer, or publish occurred.
+
+The scoped source identity repair is complete: PR #320 merged to protected main 9cb1c48ec233d909784b4070a2e6ecd795522291, and exact-head CI run 38084430351 passed including ci-gate. The helper now validates the exact dynamic scenario/probe run name while preserving static workflow-object identity and every other source/run gate. Local canary (59), receipt (16), observer (22), standalone ExUnit (8), and actionlint checks passed. The standard Mix wrapper remains blocked by the existing Phoenix dependency-lock mismatch; dependencies were not changed.
+
+Plan 250-07 Task 1 has same-source read-only preflight refreshed at 2026-10-10T21:21:47Z on main 9cb1c48ec233d909784b4070a2e6ecd795522291; preflight file SHA-256 9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539, compact controller payload SHA-256 a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e (825 bytes). The user approved the reviewed packet SHA-256 56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68 at 2026-10-10T21:21:22Z. Its explicitly allowed same-source timestamp/digest refresh is recorded in the effective packet SHA-256 f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960; source identity and all other preflight fields are unchanged. The one no-publish controller dispatch completed and its authority is consumed. It produced a schema-valid failure receipt and exact canary cancellation, but no observer run or cancellation receipt; AUTO-02 remains unsatisfied. No retry or publish is authorized. PR #320 is already squash-merged with green CI run 38084430351. Earlier packet v1 for main 34f7fd8 was superseded before dispatch, and packet v2 for 33fccd8 was consumed by failed run 38083752867.
+
+Plan 250-08 remains halted on its durable zero-eligible-tuple packet. The parent browser artifact is recoverable but used the rejected old spec; the corrected child has no own authenticated dry-run/readiness record. The later PR head also lacks the necessary joins, and current PR dispositions are incomplete. No tuple approval was requested. Plan 250-09 remains blocked until a new immutable route proves the required joins; do not repeat identical recovery work.
+
+Separate release observation: Sigra 1.7.0 is published at GitHub Releases and Hex. Evidence is in `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json` (squash merge ff96768; release-commit CI 38097941299 green; Release Please run 38097941302 and Hex publish job 114351805835 successful). This is separate from the v1.49 Phase 249 target and does not change its owner verification.
+
+The latest Phase 250 verifier remains gaps_found at 8/14 and the strict audit remains 5/9 with 31 blockers; neither was rerun after these scoped repairs. Six plans are complete and two are halted; plan summaries do not establish completed phase verification. Run-specific blocked evidence includes `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json`. Requirements and original ownership are unchanged. Keep v1.49 unarchived.
+
+Controller run 38087516844 failed at exact_cancellation_observer_run_was_not_found. Failure receipt and exact source cancellation are recorded, but AUTO-02 remains unsatisfied and the single-run authority is consumed. Diagnose/fix the observer path; any further hosted run requires a fresh explicit packet decision. init.execute-phase 250 earlier reported six incomplete plans and no duplicate threat IDs. No later roadmap phase is defined.
+
+Execution evidence: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json`; the Plan 07/08 halted summaries and `250-SAFE-RESUME-RECONCILIATION.json` preserve exact plan commits, packet identities, and pre-write hashes. The initial dirty gap-planning draft remains recoverable at refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z, commit 15c1afd319f7d59012cd9173195e0833b8135c77. Earlier STATE/HANDOFF revisions are recorded in the checkpoint; historical HANDOFF loss remains accepted-with-recorded-loss.
+
+### Manual closeout route — 2026-10-11
+
+Write-ahead snapshot for the resumed-turn starting bytes: `.planning/recovery/phase-250-approved-packet-boundary-20261011T111218Z/REF.json` (manifest SHA-256 `387120b1af2f4ad273214fcca07bedc26e79cb7917103463b9afcaaa1c54a452`). It records exact statuses and hashes for HANDOFF, ROADMAP, STATE, packet v7, and the refreshed preflight; each stored file was read back and hash-verified.
+
+The phrase “new immutable source-bound evidence” means a fresh test result tied to the exact commit and helper files that ran it. The current-main files and local tests are now checked, and CI is green at that exact commit; this is new evidence, but it does not include the hosted failure/cancellation receipts needed to close AUTO-02. The planner returned `PLANNING INCONCLUSIVE` because Plan 07 already covers the next test; no new plan is needed.
+
+The earlier packet was for older main `e0c66d61211ddb461c049ca6422350308b420126`. The current packet targets main `ff96768bc2843ef1a89926d238690b1145bfd514` and is authorized for exactly one bounded run. The user authorized this exact packet at 2026-10-11T11:11:18Z; it permits one controlled test (one deliberate failure, cancel only that exact test run, then one read-only observer; 35 minutes maximum). No release, publish, merge, tag, unrelated cancellation, or retry is included. The refreshed preflight and exact starting-file recovery snapshot are recorded. Controller 38135003478 failed, cancellation run 38135076285 is cancelled, and observer 38135205117 failed before receipt upload. Evidence is in `250-07-CANARY-ARTIFACT-RETRIEVAL-38135003478.json`; the packet is consumed.
+
+The observer helper read the dynamic run title as the static workflow name. Local repair commit `3b7a94f8c` fixes the metadata source and passes shell suites (23/61/15). The targeted Mix tests remain blocked by the pre-existing Phoenix lock mismatch.
+
+**Immediate action:** carry only repair commit `3b7a94f8c` onto a clean branch from live current main, run CI, and squash merge if green under the user's earlier authorization. A new canary attempt needs a new packet and explicit approval. The user separately requested a longer-term CI/CD duration/reliability effort after Phase 250 closeout; keep it separate.
+
+### v1.49 phase map
+
+| Phase | Outcome | Requirements |
+|-------|---------|--------------|
+| 246 | Generated confirmation recovery | CONF-01..03 |
+| 247 | Release candidate and repository readiness | READY-01..02 |
+| 248 | Exact-source release gate | AUTO-01..02 |
+| 249 | Publish and prove Sigra 1.6.0 | REL-01..02 |
+| 250 | v1.49 audit gap closure | READY-01..02, AUTO-01..02, REL-01..02 |
+
+The package target is the existing Release Please PR #224 proposing 1.6.0; the GSD milestone remains v1.49. Phase 245's historical evidence gaps, Hex 1.20.0 resolver ranking, and remaining SEED-011 findings are deferred outside this roadmap. Phase 246 planning readiness was checked on 2026-10-06: three plans are runnable, all nine locked decisions and all three phase requirements are covered, and there is no prerequisite blocker. Phase 245's stale historical verification remains separate from this forward route.
+
+### v1.48 closeout outcome
+
+- Internal planning closeout only; no 1.5.1 Hex release and no v1.48 git tag.
+- Requirements: 21/27 satisfied; GREEN-04, GREEN-05, REL-05, and SURF-01 partial; REL-06 and REPO-04 unsatisfied.
+- Live verification readiness: Phases 239 and 240 passed; 236–238 and 241–244 stale; Phase 245 `gaps_found`.
+- Phase 245 is terminal with no runnable plans. Its 11 historical PR-base rows and 30 cleanup-history pairs remain unresolved; do not repeat the same negative-proof plans without a source change.
+- The pre-close manual inventory found 69 pending todo files, one unfinished quick task, three open seeds, four deferred items, one dormant seed, and two implemented seeds. No items were acknowledged or suppressed because `audit-open` is deprecated and unreliable for this repository. These remain visible debt.
+- The 175-path pre-close worktree inventory was preserved. Phase directories moved intact to `milestones/v1.48-phases/`; unrelated product/CI changes remain separate from the closeout checkpoint.
+- At the v1.48 closeout, no Phase 246 was defined; v1.49 now begins at Phase 246.
+
+### v1.48 phase map
+
+| Phase | Name | Requirements |
+|-------|------|--------------|
+| 236 | Flake Root Cause — Reproduce, Name, Fix | GREEN-01, GREEN-02 |
+| 237 | Clean Working Tree, Green Pages, Clean `lib/` Docs Surface | GREEN-03, REPO-01, REPO-02, REPO-03, SURF-02 |
+| 238 | Tag Guard, Then Tag Deletion | REL-01, REL-02 |
+| 239 | `priv/templates/` Sweep + One Batched Re-bless | SURF-01, SURF-03 |
+| 240 | Green-Main Evidence + Honest Pages Script | GREEN-04, GREEN-05 |
+| 241 | Retire v1.47's Dishonest Debt + Adopter-Leakage Guard | DEBT-01..04, SURF-04 |
+| 242 | Safety Closeout for Phantom Release Adoption | REL-03..06 (superseded/safety-closeout) |
+| 243 | Drain the Queue — Dependabot A/B, Stale PRs, Todo Triage | QUEUE-01, QUEUE-03, QUEUE-04 |
+| 244 | `@playwright/test` 1.59.1 → 1.62.1, Alone | QUEUE-02 |
+| 245 | Branch Prune — Local and Remote | REPO-04 |
+
+**Parallel from day one:** 236, 237, 238 (one pre-resolved file collision — `lib/sigra/admin/live/audit_index_live.ex` belongs to 236; 237 skips it).
+**Forced spine:** 236 → 239 → 241; 236 + 237 → 240; 238 + 239 + 240 → 242 → 243 → 244 → 245.
+
+### v1.48 standing constraints (historical phase contract)
+
+- One live-external observation per phase (GitHub API / Hex API / freshly generated app / built tarball / captured CI run). Count-only acceptance is rejected.
+- Evidence captured at the final committed HEAD on a clean tree.
+- `mix ci`, never root `mix test`, before every push.
+- Found-while-cleaning → a new todo file, never an in-phase fix. **One pre-authorized exception:** if Phase 236's root cause is a genuine product race in `lib/`, fixing it is in scope.
+- New prohibition guards go in `scripts/ci/prohibitions/*.test.mjs` — never into `mix ci` (changing the alias re-opens the v1.47 wound this milestone closes).
+- A guard never observed RED does not count.
+- The `REQUIREMENTS.md` Out of Scope table binds every phase.
+
+## Readiness Notes
+
+- Phase 246 is complete: exact source `90ec16f72a71d33224c0816ad77762e2e7262c76` passed required run [37676348766](https://github.com/szTheory/sigra/actions/runs/37676348766), and phase verification passed 10/10. Earlier local CI failures remain historical diagnostics only.
+- Phase 247 Plan 01 is complete. Its refreshed ledger preserves the original entry snapshot, records scoped PR #288 promotion, and validates the clean candidate worktree at protected main `590eb4ed3323db11dd74326cbee00c9c7973e529`; exact main CI run [37686980115](https://github.com/szTheory/sigra/actions/runs/37686980115) passed on attempt 2.
+- The earlier example `mix precommit` `/dev/mailbox` warning remains a readiness item to check against the selected candidate in Plan 04; it did not fail the selected main's required CI gate.
+- Phase 248 has protected-environment and exact-source success evidence for AUTO-01. AUTO-02 remains unsatisfied because hosted failure/cancellation receipts are absent. Phase 250 now has all five summaries and a gaps_found verifier; use the current gap-planning route above. Do not repeat `$gsd-validate-phase 248` without new hosted evidence.
+
+## Accumulated Context
+
+### Decisions
+
+- Source material for v1.35 was intentionally repo evidence plus the supplied pressure-test prompt; no external AI-generated brand book was available in the repository.
+- Process correction: the original v1.35 closeout was premature because it skipped human logo direction review. Phase 167 repaired that gap and ratified Option A Core Rails.
+- Brand artifacts are self-contained under `brandbook/` to avoid churn in runtime code, generated templates, README, HexDocs, or existing docs.
+- Asset policy is text/SVG-first: Markdown, HTML, JSON, CSS, and SVG are committed; PNG/PDF/raster exports are generated only for concrete distribution targets.
+- The brand concept is "protected core framed by visible host-code rails", mapping directly to Sigra's library-owned security core plus generated host-owned Phoenix code.
+- The existing README/launch/security posture remains the voice source of truth: boundary-first, technically exact, low hype.
+- `brandbook/tokens.json` and `brandbook/tokens.css` are the brand collateral token source; they do not mutate admin/generated UI tokens by themselves.
+- Phase 167 plan 01 generated five logo options and an options review page; Phase 167 plan 02 finalized Option A Core Rails after human selection.
+- Human logo decision: Option A Core Rails is the ratified Sigra logo direction.
+- v1.36 scope decision: admin UI only; do not polish non-admin demo/auth/organization screens unless required for admin evidence.
+- v1.36 theme decision: expose Light, Dark, and System as an explicit shell control with local persistence and system fallback.
+- v1.36 architecture decision: preserve the hand-authored `sg-*` BEM/cascade-layer CSS system and route reusable markup through `Sigra.Admin.Components` or the shell seam.
+- v1.36 theme decision: use a namespaced `data-sg-admin-theme` root carrier plus `.sg-admin-shell[data-theme]`; do not set global DaisyUI `data-theme` from the admin switch.
+- v1.36 visual-baseline decision: refreshed checkpoint PNGs are limited to `global-overview`, `org-overview`, `user-detail`, and `user-audit`.
+- v1.37 architecture decision: auth branding is a structured token profile, not raw runtime CSS by default.
+- v1.37 styling decision: generated auth defaults live in host-owned `SigraAuthComponents` and scoped `.sigra-auth` CSS, preserving full custom control without taking over the app design system.
+- v1.37 theme decision: auth surfaces support Light, Dark, and System independently from the admin shell theme control.
+- v1.37 persistence decision: global admin branding uses `sigra_brand_profiles` in the configured auth schema prefix and falls back to code/config defaults when the table or repo is unavailable.
+- v1.37 email decision: transactional emails share the same branding profile as auth forms so product identity stays coherent across the auth journey.
+- v1.37 generated-host fix: avoid Elixir boolean `not` against nullable assigns in templates; use `!` truthiness guards for generated HEEx conditions.
+- v1.37 generated-host fix: runtime branding prefix detection must handle generated user schemas that need `Code.ensure_loaded?/1` before `__schema__(:prefix)`.
+- [Phase ?]: opentype.parse(readFileSync(path).buffer) is the correct Node.js API for opentype.js v2.0 in ESM scripts; loadSync is deprecated and returns undefined
+- [Phase ?]: playwright-core is reused from test/example/priv/playwright/ in critique-render.mjs to avoid duplicate install
+- [Phase 179]: A3 crossbar-s reworked to rail-g after failing the render gate twice; B2 s-substitute is a serpentine rail-switchback; C1 mark set into line-1 negative space — Render-critique loop verdicts: planned geometries fought the chosen fonts' anatomy; reworked designs pass all rubric rows
+- [Phase 179]: outline-wordmark.mjs: variation coords require font as 5th getPath arg; toPathData must use flipY:false on getPath output — Two latent Plan 01 toolchain bugs caught by visually reading renders; fixed before candidate work
+- [Phase 180]: Human gate ratified **D4 Linked Rail** (round-4 refinement of A1 Rail-i): Space Grotesk v2.0 wght 700, ember rail-block tittle + g tail extended to x=557 aligning under the tittle as one bracketing rail system; favicon is the abstract rail glyph (no letter — round-3 "ig" crop read as Instagram and is retired). Palette fine-tuning allowed within hue 15–40° in Phase 181; light-surface favicon accent is ember-700. One budgeted round-4 loop used; decision recorded in brandbook/logo-options/round-3/README.md.
+- [Phase 181]: Built 8 D4 production SVGs at brandbook/ (logo-primary{,-dark,-subtitle}, logo-mark, logo-monochrome, favicon, social-card{,-dark}); palette UNCHANGED from ratified (#c2410c / #fdba74 — 16px kill test passed on ratified values, no micro-tuning). 6 v1 Rail Accent assets archived to brandbook/logo-options/archive-v1/ (read from live tree before overwrite; deprecation README). Verified 4/4.
+- [Phase 182]: index.html v2 (expanded #logo multi-lockup + typemark anatomy + clearspace/misuse; new #suite szTheory 7-lib section; #scorecard). tokens.json PATCH-bumped 1.0.0→1.0.1 + meta.changed; tokens.css provenance header (values unchanged); Token Change Policy section in README. Stale v1 staggered-bars mark (path M17 14v14) replaced with D4 geometry in examples/landing-hero.svg + readme-header.svg. Committed axe gate at scripts/brand/axe-brandbook.mjs (serves brandbook/ on :7743, AxeBuilder wcag2a/wcag2aa) — ZERO violations. Verified 4/4.
+- [Phase 183]: D4 logo propagated to installer (priv/templates/sigra.install/admin/sigra-logo-primary{,-dark}.svg) + example (test/example/priv/static/images/) as a PURE viewBox reframe (viewBox="20 220 2361 1000", path-only, "Space Grotesk v2.0" provenance) — installer==example byte-identical. Companion rail-accent-mark{,-dark}.svg swapped to D4 abstract mark. Guard-test reality: the "parity" tests pinned v1 content (viewBox 20 12 188 54 + "Inter Display Black v4.1.") so 2 assertion strings/file were updated to D4 + the install golden fixture's 2 logo SVGs regenerated (documented SC1 deviation — invariant preserved). Token parity VERIFIED UNCHANGED (#c2410c/#fdba74). 21 admin Playwright baselines recaptured (7 slugs×3 projects) via snapshot-recapture-gate.sh on :4011; impersonation-banner canary untouched; allowlist reset to empty. 3 stale playwright spec selectors fixed (pre-existing UI drift). Verified 4/4 passed-with-notes.
+- [RESOLVED 2026-06-13]: The two "pre-existing core-template failures" (auth.ex `app_name` binding + count 52 vs 49) were branch regressions, fixed in `232b4e35` (see `.planning/seeds/preexisting-core-template-failures.md`). The later red CI was a separate issue — upstream `phx_new` 1.8.8 dropping `type` from `<.button>` — fixed by pinning `phx_new 1.8.7` (forward-compat in `SEED-004`). All gates green; nothing outstanding.
+- [Phase 183]: Recaptured 7 non-canary admin Playwright baselines for D4 logo; canary restored; allowlist returned to empty steady-state on main 2026-06-13.
+- [Phase 188]: Kept Phase 186 token values unchanged; this plan hardened evidence only. — Phase 188 D-15/D-16 scoped the folded work to test-harness robustness and explicitly excluded token-value changes.
+- [Phase 188]: Documented token completeness is enforced by ExUnit rather than manual review. — The admin-token-reference guard extracts canonical :root --sg-* token names and fails when a documented row is missing.
+- [Phase 188]: Panel rhythm for sg-filter-panel and sg-detail-panel moved with the group selectors so generated hosts keep the same internal spacing. — Those panels are the L2 group surfaces; leaving their padding in app.css would keep generated-host evidence masked by the example layer.
+- [Phase 188]: No --sg-* token declarations were changed; this was a selector migration and mirror sync only. — Phase 188 D-03 through D-05 required canonical shipped CSS migration without Phase 186 token retuning.
+- [Phase 188]: MG-3 and MG-5 use unframed board wrappers where group content contains sg-card children. — This preserves the Phase 188 no card-in-card scoring rule while still rendering real task-card and mobile-card examples.
+- [Phase 188]: MG-11 confirmation overlays are inline-scoped in the gallery so static evidence does not cover the full page. — The gallery must render all boards simultaneously; literal fixed overlays would obscure unrelated evidence.
+- [Phase 188]: UserShowLive MG-11 confirmation state carries title, copy, confirm label, and cancel label while preserving revocation events. — The production destructive confirmation needed action-specific copy without changing existing session revocation flow.
+- [Phase 188]: UserShowLive uses sg-confirm-overlay/sg-confirm-dialog instead of DaisyUI modal markup. — Phase 188 D-13/D-14 required production MG-11 evidence to match the Sigra-owned group contract.
+- [Phase 188]: GROUP_BOARDS is the single 11-item catalog used by admin-design screenshots, responsive checks, and group assertions. — The L2 scorecard needs one source of truth for MG-1 through MG-11 across browser evidence.
+- [Phase 188]: Only MG-1 through MG-11 design snapshot deltas remain after recapture; L1 churn and board-notice canary changes were restored. — Phase 188 required deliberate L2 visual evidence without broad baseline churn.
+- [Phase 188]: Phase 188 L2 ledger remains Tier 1 for MG-1 through MG-11 rather than claiming award-grade Tier 2. — The phase established ratified executable evidence and visual baselines, but did not run a separate award-grade polish review.
+- [Phase 188]: Phase 188 validation is ratified from passing ExUnit, admin-design, ledger, canary, allowlist, and example precommit gates. — The validation document should reflect reproducible command evidence rather than intent-only status.
+- [Phase ?]: Phase 190 L4 tier rationale: weakest-link bounded by L3 Tier 1 constituents; flow-only criteria passing confirms Tier 1 = Ratified
+- [Phase ?]: DOM-marker anchoring for branding_live.ex carve-out in glossary_test.exs (D-09)
+- [Phase ?]: admin-glossary.md enforced by ExUnit test; ships with library so adopters inherit drift guard (D-07)
+- [Phase ?]: account not in automated banned_terms (too many legitimate uses); handled per-line in Wave 2 (Pitfall 1)
+- [Phase ?]: Auth-replica carve-out preserved: branding_live.ex lines 580-610 untouched
+- [Phase ?]: COPY-03: chip_label deleted clause added for Deletion scheduled coherence
+- [Phase ?]: WR-04 fixed: inspect(reason) replaced with generic error message
+- [Phase ?]: branding-live L3 row appended at Tier 1 — compliance, not award-grade
+- [Phase ?]: Quality ledger update
+- [Phase 191]: admin-design MG-5/6 content-equivalence test failure is pre-existing data-state issue from Phase 188 (requires 25+ audit events for pagination fixture); not a Phase 191 regression
+- [Phase 191]: SIGRA_EXAMPLE_URL=http://localhost:4011 must be set for local Playwright runs; default 4000 collides with Rulestead Docker
+- [Phase ?]: D-07: Widened axe withTags from wcag2a/wcag2aa to full WCAG 2.1/2.2 AA five-element array in both admin Playwright helpers
+- [Phase ?]: D-09: best_practice tag-group excluded from both withTags calls; region exclusion rationale preserved
+- [Phase ?]: GATE-01: all 6 admin Playwright projects pass
+- [Phase ?]: GATE-01: all 6 admin Playwright projects pass compare-mode; target-size suppressed per D-08 for intentionally dense admin controls
+- [Phase ?]: GATE-02: Generated admin Playwright smoke CI = success for origin/main SHA 07e15ca9; blocking suite green with quarantine (0 failures, 3 excluded)
+- [Phase ?]: GATE-03: monotonic guard exits 0; ~35 ledger cells locked at Tier 1 in terminal ratification note (Phase 192 2026-06-18)
+- [Phase ?]: Unicode curly-quote bug in 192-01 axe widening fixed (Edit tool artifact); target-size D-08 suppression applied
+- [Phase ?]: [Phase 193-02]: Tolerance widened to ±10 for remember-checkbox color assertion
+- [Phase ?]: [Phase 193-02]: afterBackgroundColor exact check left untouched — not evidenced as flaky by the FLAKE-01 todo (only backgroundColor was cited)
+- [Phase ?]: Drop library_tests edge from example_playwright_smoke.needs — verified gratuitous; keeps release_ref_guard; lane stays required in ci-gate.needs (CRIT-01)
+- [Phase ?]: Add id: deps_cache/example_deps_cache to cache steps + GITHUB_STEP_SUMMARY observability (resolved versions, cache-hit, slowest tests) to library_tests job (BASE-03)
+- [Phase ?]: D-11/D-14: 6 guards folded into fast_checks; ci-gate rewired
+- [Phase ?]: D-12: release_ref_guard kept standalone no-checkout DAG gate (intentional D-12 exclusion)
+- [Phase ?]: D-15: MAINTAINING.md stale required-check string swept from both locations; 5 live names + ci-gate aggregator note confirmed
+- [Phase ?]: [Phase 195-02]: Option (a) chosen for shard test command: keep --slowest 10. A/B measured ~47% speedup without --slowest on async-only files, but subprocess serial tail bounds shard walltime. D-01 default keeps per-test timing observability.
+- [Phase ?]: [Phase 195-02]: mix docs relocated to library_tests_dep_off (already compiled, non-shard, zero overhead). fast_checks alternative rejected: would add toolchain prelude overhead (2-3m).
+- [Phase ?]: [Phase 195-02]: Ruleset 14941512 confirmed at execution time: required check string is byte-identical 'Library tests' — aggregator job id library_tests + name Library tests is safe.
+- [Phase ?]: Kept discrete CI steps, changed only final test command to --only threadline_guard (D-10/D-11/D-14)
+- [Phase ?]: CACHE-03: no larger runners adopted; measurement-gate runbook shipped in guides/recipes/local-development.md (D-21/D-22/D-23)
+- [Phase ?]: Job-level if: github.event_name != 'pull_request' used for 5 moved jobs (196-01 D-02)
+- [Phase ?]: ci-gate skip-tolerant: result != success && result != skipped tolerates PR-skipped needs without weakening real-failure detection (196-01 D-09)
+- [Phase ?]: Live ruleset 14941512 confirmed at execution: 5 required-check contexts, enforcement active, no 6th/renamed context (196-01 D-12)
+- [Phase ?]: ADD-only doc discipline: CI cadence subsection appended to MAINTAINING.md without touching the already-correct required-check section (5 lane names, ci-gate NOT required)
+- [Phase ?]: D-13 correction: CRIT-03 phrasing (single stable required check ci-gate) is stale; live ruleset 14941512 enforces 5 lane name strings; ci-gate is internal aggregator; correction recorded in 196-VERIFICATION.md only
+- [Phase 197]: Used let link closure variable inside expect.poll callback to capture invitation URL — idiomatic TypeScript approach for async side-effect capture — TypeScript type narrowing requires the link variable to be declared in outer scope; closure assignment inside poll keeps the logic self-contained
+- [Phase 197]: Intervals [250, 500, 1000] with timeout 30_000 replaces prior 30x1s fixed budget — Graduated backoff resolves faster on CI while keeping same worst-case budget; follows passkeys-hooks.spec.ts expect.poll precedent
+- [Phase ?]: PW-01 criterion 1a: all 5 Playwright seams in example_playwright_smoke run independently under !cancelled() guards; aggregator re-fails job on any seam failure
+- [Phase ?]: Staging step guard corrected from success() to steps.admin_checkpoints.outcome == 'success' (Pitfall 4 fix)
+- [Phase ?]: webkit cannot be dropped (D-04): iPhone 13 mobile projects need webkit; criterion 1b is reliability win not time reduction
+- [Phase ?]: .planning/phases/197-playwright-lanes-design-gallery-re-gate/197-03-SUMMARY.md
+- [Phase ?]: OQ1: board-notice canary re-established as 'added' via pre-delete before --update-snapshots=all + restore canary/unchanged slugs; notice/1 wraps slot in <p>
+- [Phase ?]: OQ2: recaptured PNGs committed to ci/recapture-admin-design branch + gh pr create for human review (not silent push to main)
+- [Phase ?]: OQ3: bounded compare-and-report scope -- sibling lanes compared only; drift deferred to tracked todo with per-lane recapture path
+- [Phase ?]: D-10 re-gate: continue-on-error removed from design gallery step; gallery now hard-gates via the Plan 02 aggregator; inline in example_playwright_smoke (not nightly)
+- [Phase ?]: D-07 operator-truth: SEED-006 false webfont-load premise corrected; real cause was OS system-ui font-metric delta; SEED-006 marked addressed/folded by Phase 197
+- [Phase ?]: D-06: design_gallery hard re-gated in ci.yml — continue-on-error removed, aggregator entry restored (commit 32d43bb5)
+- [Phase ?]: D-07: Phase51 stale todo and design-gallery deferral todo closed to .planning/todos/resolved/ (commit 8d3b1e3c)
+- [Phase ?]: GATE-01 met: PR-path -16.5m wall-clock (-43%)
+- [Phase ?]: 198-ACCEPTANCE.md committed: 5 required-check names byte-stable (ruleset 14941512), 0 flakes, SEED-004 phx_new 1.8.7 confirmed, D-06 hard-gate verified
+- [Phase ?]: MAINTAINING.md ADD-only pointer to 198-ACCEPTANCE.md added; all 5 required-check name strings intact (D-05)
+- [Phase ?]: Tier-2 proxies encoded as prose/bullets in fractal scorecard — no new columns or machine-parseable proxy files
+- [Phase ?]: 4 automated gates mapped (axe-while-open, APG, content-equivalence, glossary) + 3 documented-as-manual proxies (motion, density, target-size) per D-02
+- [Phase ?]: Ledger Tier-2 assertion convention: bare integer 2 + Evidence expansion; decorators forbidden to protect awk guard parse (D-03)
+- [Phase ?]: Terminal-ratification prose reconciled — Tier 2 now objectively earnable via Phase 199 proxy contract; ratcheting starts Phases 200-204 (D-06)
+- [Phase ?]: D-04 confirmed: guard logic unchanged; D-05 delivered: hermetic bash self-test proves 2→1 decrease is caught; D-07 confirmed: --base wiring byte-unchanged
+- [Phase ?]: Filter /admin/users with ?q= to deterministically target >=25-event seeded admin; avoids inserted_at DESC ordering pollution by harness login user
+- [Phase 200]: Plan 200-01: Confirm copy uses UI-SPEC verbatim on new UserSessionsLive surface (Cancel/Revoke + consequence+reversibility confirm body) rather than user_show_live.ex legacy phrasing — New surface authored award-grade from start per D-04; UI-SPEC Copywriting Contract is authoritative
+- [Phase ?]: Danger Zone 'Revoke all sessions' button removed — session revocation deferred entirely to UserSessionsLive per D-04
+- [Phase ?]: Applied chips consolidated inside GET form as navigation-only a tags; GET form contract preserved (D-01/D-02)
+- [Phase ?]: status_pills/1 reduced to Unconfirmed/No MFA (warn)/Locked/Deletion scheduled; Confirmed and 4-way security cond dropped (D-04)
+- [Phase ?]: DRY per-row presentation via user_name_stack/1 and user_status_cluster/1 field-slice components for both desktop td and mobile article (D-05)
+- [Phase ?]: Used binary 'Example badge' for extra_list_badges and %{label: Region, value: us-east} for extra_list_columns — matches badge_text/1 binary clause and column_text/2 label+value map clause; closes D-07 host-seam blind spot (INDEX-03)
+- [Phase ?]: D-02: GET-form contract proven by real form submission
+- [Phase ?]: D-06: td:nth-child(3)/(4) selectors confirmed targeting Organizations/Activity post-201-01 recompose; no selector change needed (column order frozen)
+- [Phase ?]: D-09: users-index-live ratcheted to bare Tier 2; overlay-axe + APG gates marked N/A (no modal dialog); monotonic guard passes 36 cells vs origin/main
+- [Phase ?]: D-12: List Archetype block in admin-design-contract.md rewritten to search-first elevated composition (Phase 201); stale sg-page-copy/metric-strip-first/detached-chip claims removed
+- [Phase ?]: 201-04: Unfiltered /admin/users for list-scale pagination proof; getByRole Next page assertion; mg-6 not recaptured (markup unchanged)
+- [Phase ?]: audit_table_row/1 uses format_timestamp/1 with-seconds for byte-coherent timestamps
+- [Phase ?]: audit_table_row/1 places both code.sg-code nodes inside Event <td> <details> — keeps 4-column positional contract frozen and D-06 equivalence intact
+- [Phase ?]: multi_page?/1 moved to components.ex as private helper owned by audit_pagination_nav/1; pre-built prev_href/next_href pass-in keeps per-page routing divergence in each LiveView
+- [Phase ?]: [Phase 202-02]: Converged per-user from/to date inputs to type=date (Open Question 1 resolution — coherence with audit_index_live)
+- [Phase ?]: [Phase 202-02]: Deleted private audit_tone/1, multi_page?/1, format_timestamp/1 from audit_user_live.ex — all now owned by components.ex shared helpers
+- [Phase ?]: Deleted private audit_tone/1, multi_page?/1, format_timestamp/1 from audit_index_live.ex — all now owned by components.ex shared helpers
+- [Phase ?]: [Phase 202-03]: Global audit filter form wrapped in <details> disclosure; summary text 'More filters' matches per-user page byte-for-byte
+- [Phase ?]: [Phase 202-04]: Playwright guard scoped to tbody tr:first-child — count === 2 per-row works for gallery and live pages
+- [Phase ?]: [Phase 202-04]: Absent-case pagination proof uses unique action= filter (1 result) instead of 25-event actor= filter — avoids log_in_user session.create contamination
+- [Phase ?]: audit-index-live and audit-user-live ratcheted to bare Tier 2 with N/A overlay-axe + APG proxies (neither page owns a modal dialog)
+- [Phase ?]: D-02: always-on Confirmed/ok pill removed from org roster — decision-bearing pills only
+- [Phase ?]: D-03: Authentication coverage summary_chip removed from global overview dl
+- [Phase ?]: 203-03: branding route is /admin/auth-branding not /admin/branding
+- [Phase ?]: 203-03: aria-labelledby asserts restore-defaults-title (not user-session-confirm-title) per Pitfall 4
+- [Phase ?]: no-change
+- [Phase ?]: 203-04: Overview archetype block does not enumerate dropped Confirmed pill or coverage chip; no contract change needed
+- [Phase ?]: D-08: Ratcheted index-live, organization-live, branding-live from bare 1 to bare 2; monotonic guard passes forward-only (36 cells)
+- [Phase ?]: D-09: PAGE-04 branding-scoring todo folded into branding-live row; resolved (no new ledger row)
+- [Phase ?]: D-10: global-overview + org-overview baselines idempotent; both allowlists empty at phase close
+- [Phase ?]: 204-01: extract_disclosure_region targets Event codes summary specifically to skip More filters details earlier on page
+- [Phase ?]: 204-01: page_size=25 query param used in boundary tests for deterministic 25/26 threshold independent of default config
+- [Phase ?]: 204-02: Delete phase_192_known_failure_contract_test.exs — all 3 Phase192 known failures resolved, test.skip() quarantine already lifted in Phase 197 D-11b
+- [Phase ?]: 204-02: Update phase148 example README assertion to 'Tasklane is a fictional project/work tracker' — matches actual post-rename README; stronger Tasklane identity lock than old 'Vaultr is the runnable local companion' string
+- [Phase ?]: 204-03: color-mix ratio lowered from 62%/64% to 45% for .vt-status-pill and .vt-status-pill--ok — clears WCAG AA 4.5:1 on both light and dark themes; axe gate passes on impersonation-banner mobile
+- [Phase ?]: 204-03: org-scoped-admin mobile baseline included in D-05 commit as additional stale baseline from Phase 203 pill-drop on org roster; mobile lane was aborting before reaching this checkpoint
+- [Phase ?]: 204-03: recapture gate --require-all is a pre-commit check only; post-commit zero-drift proven by --base HEAD canary guard showing 0 changed slugs; admin-design 1px failures are pre-existing CI-only rendering artifacts
+- [Phase 204-04]: Install-golden byte-diff green against phx_new 1.8.7; admin-acceptance-smoke exit 0 on fresh generated host; RATIFY-01 generated-host parity closed
+- [Phase 204-04]: Stale sigra_admin_smoke_dev DB on system Postgres (port 5432) from prior partial run caused first smoke attempt to fail ecto.migrate; dropped manually; second run clean
+- [Phase ?]: audit-user-live evidence corrected to admin_audit_user_live_test.exs; citation-accuracy only, tier digit unchanged
+- [Phase ?]: v1.41 audit: tech_debt status — 18/18 reqs satisfied, 4 Low-severity deferred items, no blockers; verdict: accept debt, complete milestone
+- [Phase ?]: Rubric positioned as complementary to fractal scorecard: scorecard grades visual/technical quality; rubric grades UX fitness-for-purpose via keep/tighten/kill per 3 lenses
+- [Phase ?]: Three admin lenses bound by entry-point + intent: platform-admin (/admin triage), support-investigator (/admin/users/:id investigate), org-admin (/admin/organizations/:slug bound)
+- [Phase ?]: D-07 anti-collision enforced: rubric uses keep/tighten/kill vocab; no bare 0/1/2 integer in table column-4 to prevent false-matching the ledger awk guard
+- [Phase ?]: IN-04 resolved: stale Phases 200-204 forward reference replaced with dated completion note (v1.41 completed 2026-06-27) + ROADMAP pointer
+- [Phase ?]: D-12 implemented: advisory IA diagnostic committed to .planning/ root as planning artifact; Phase 209 is the single binding gate (D-13 double-gate avoidance)
+- [Phase ?]: D-14 disposition table uses High/Med/Low + P1/P2/P3; kill-from-any-lens auto-promotion applied; org-admin kill on Overview/Branding categorized as correct 403 gate, not surface flaw
+- [Phase ?]: No board in design gallery renders .sg-btn--danger.is-armed; zero boards visually affected by Plan 02 CSS fix; full darwin recapture done for rendering drift
+- [Phase ?]: admin-fractal-scorecard.md D-07: scorecard proxy prose updated to cite --sg-motion-* and --sg-ease / --sg-ease-* tokens (removed duplicate artifact)
+- [Phase ?]: applied_chip remove control cited as ~22×22 CSS px (near-threshold; D-08 precedent)
+- [Phase ?]: All 8 L1 ledger rows flipped to bare tier 2 with accurate per-component evidence strings from 206-02 audit; monotonic guard exits 0 (36 cells)
+- [Phase ?]: CSS edited: no (Plan 02) — snapshot recapture is a no-op; compare-mode proves zero drift
+- [Phase ?]: Token Conformance section added to admin-token-reference.md citing admin-token-completeness.sh (100/100) + admin-css-conformance.sh CHECK 2 + CHECK 3 (PATH A)
+- [Phase ?]: CSS edited: no — zero genuine sg-* gaps found in 11 board-mg-* groups + 4 board-cfg-* composites; cite-and-flip confirmed (Phase 208-01)
+- [Phase ?]: MG-7/MG-8 are isolated-board-only by design; no board-cfg-org composite exists or should be authored (D-06, Phase 208-01)
+- [Phase ?]: mg-3 uses deliberate state-N/A note pattern (mg-3-zero-note / mg-3-loading-note); mg-9 and mg-11 render real states not N/A notes (D-08, Phase 208-01)
+- [Phase ?]: Fix TEST count to 6 for board-mg-1 .sg-metric — cite-and-flip audit never counted actual DOM nodes (208.1-01)
+- [Phase ?]: board-cfg-audit responsive fix mirrors MG-5/MG-6: sg-show-desktop table + sg-show-mobile audit_row cards (208.1-01)
+- [Phase 208.1-02]: admin-user-operations 'No active sessions': getByText(exact:true) prevents substring match on inner slot text triggering strict-mode 2-element resolution
+- [Phase 208.1-02]: admin-modal-interaction Phase 200 D-04 routing: navigate to sessions page via 'Manage sessions' before asserting 'Revoke session' button
+- [Phase 208.1-02]: Sudo heading reconciled to 'Re-enter your password' across installer template + impersonation.spec.ts + admin-generated.spec.ts
+- [Phase 208.1-02]: admin-audit: open 'More filters' disclosure + scope to desktop results pane + assert 'Session Create' pill not hidden event code inside closed details disclosure
+- [Phase ?]: Boot prelude cloned verbatim from admin_design_recapture for checkpoint recapture job — no divergence between design and checkpoint lane boot sequences (Phase 209-01)
+- [Phase ?]: D-10 part 2: delete impersonation-banner-admin-checkpoints-*.png before recapture so canary re-establishes as 'added' not 'modified' — preserves WCAG contrast fix (Phase 204-03) without allowlisting the canary (Phase 209-01)
+- [Phase ?]: [Phase 209-02]: All 8 admin surfaces scored actionable in persona-JTBD panel (no kill/blocked); all findings tighten remediable in-place
+- [Phase ?]: [Phase 209-02]: audit-user-live Effective-user absence is documented defensible asymmetry — waiver-track, not kill; per-user audit is already subject-scoped
+- [Phase ?]: [Phase 209-02]: Panel roll-up kill/tighten counts as none/xN notation — prevents false-matching quality-ledger monotonic guard column-4 awk pattern
+- [Phase ?]: Replace 'All clear' with 'No flagged accounts' on both Overview pages for cross-page coherence
+- [Phase ?]: Remove Total-users summary chip from Global Overview; Users-List strip is the single owner (Plan 03 dedup)
+- [Phase ?]: Waiver for org members action-link: admin overview is read-only, no admin invite route per D-06/OQ-1
+- [Phase ?]: Remove sessions count from user-detail header dl; sessions count kept in Sessions card sub-heading only (209-04)
+- [Phase ?]: Raise Manage sessions to sg-btn--primary; no confirm overlay added to user-detail page (stays on UserSessionsLive per UI-SPEC) (209-04)
+- [Phase ?]: User Sessions kicker changed to Sessions; H1 now interpolates entity name matching user_show_live/audit_user_live siblings (209-04)
+- [Phase ?]: Revoke copy: reassurance clause removed; security-remediation framing conveys consequence + reversibility per T-209-04-01 (209-04)
+- [Phase ?]: scope_copy/1 added to branding_live as single-clause always-global helper; resolves NEW-2 architectural inconsistency (209-04)
+- [Phase ?]: canary re-designation: impersonation-banner 'modified' vs origin/main due to Phase 204-03 WCAG fix; Plan-01 CI job resolves post-merge; WCAG fix preserved, canary not allowlisted (209-06)
+- [Phase ?]: user-sessions content-equivalence is N/A (scope-safe control table, not desktop-table to mobile-card pattern per D-03)
+- [Phase ?]: flow-* L4 citation resolves to v1.42-PERSONA-JTBD-PANEL.md roll-up plus per-surface docs for each lens entry-point; no net-new per-flow doc needed (D-04)
+- [Phase ?]: Folded 208-03 mg-* L2 group flip: all 11 rows at bare Tier 2 with rich evidence; SC-4 achieved — whole L0-L4 fractal at Tier 2
+- [Phase ?]: D-02a mechanism (ii) confirmed: prove snapshot/canary idempotency vs HEAD in-phase; origin/main canary reconciliation (5 stale checkpoint slugs + WCAG-fixed impersonation-banner) is integration-merge (PR #63) hand-off
+- [Phase ?]: phx_new 1.8.7 pin (SEED-004) corrected before GATE-02 lane; do NOT regenerate golden fixture to absorb 1.8.8 diff
+- [Phase ?]: GATE-02 smoke requires explicit PGPORT=5432 when tmp/db.env exports PGPORT=58915; generated host uses system Homebrew Postgres (5432), not Docker test Postgres (58915)
+- [Phase ?]: No installer-template drift found in Phase 211-02 GATE-02 smoke; priv/templates/sigra.install/ byte-stable vs test/example/
+- [Phase ?]: NoopTest flake is a parallel-shard log-capture race (not a regression): lean documented-known per Claude's Discretion (D-05); no determinism fix applied
+- [Phase ?]: Full-suite terminal gate: 2403 tests, 2 Sigra.UpgradeIntegrationTest env-DB failures in D-05 accepted set; no new regression
+- [Phase ?]: phase_192_known_failure_contract_test.exs correctly absent (deleted in 204-02); phase_148 4 tests re-confirmed green (D-08 re-confirm only)
+- [Phase ?]: phx.new 1.8.8 is the pin target for Phase 213 (confirmed current latest via mix hex.info phx_new at execution)
+- [Phase ?]: COMPAT-01 satisfied with zero code changes: fresh phx.new 1.8.8 host compiles clean under --warnings-as-errors (D-02 verified)
+- [Phase ?]: Golden fixture delta under phx_new 1.8.8: 3 files changed (config.exs root_tag_attribute block + HexDocs URL format in application.ex and layouts.ex); D-05 guard NOT triggered
+- [Phase ?]: Pin target for phx_new archive is concrete 1.8.8 (D-07)
+- [Phase ?]: D-06 rebless_golden --check drift-detector wired in install_golden_contract as a hard gate
+- [Phase ?]: COMPAT-03 satisfied: generated host admin Playwright chrome slice passes (1/1) against phx_new 1.8.8
+- [Phase ?]: [Phase 214-01]: Process.register(dummy, Oban) pattern used in deletion_test.exs to simulate Oban supervision for the enqueue test
+- [Phase ?]: D-08: user_id guard in delete_session/3 protects all callers at library layer without changing @callback delete/2 signature
+- [Phase ?]: D-11: session_type/activity_value/relative_activity/pluralize promoted to Sigra.Admin.Components; scope_copy/1 kept as defp (context-specific copy text)
+- [Phase ?]: DEBT-05: app.css orphaned sg-* value fragments deleted from :root; CI guard (app-css-corruption-check.sh) wired into fast_checks; browser-parse verified with Playwright (334 rules, --vt-color-ink resolved)
+- [Phase ?]: Config-DB approach (D-18): Chimeway.Repo configured in config/test.exs using SIGRA_TEST_PG_* env vars
+- [Phase ?]: Conditional :upgrade exclusion (D-19/D-20): phx_new_ok? check before ExUnit.start() in test_helper.exs
+- [Phase ?]: DEBT-02 D-05: panel-schema-check.sh retired in-place with RETIRED banner; inputs are frozen v1.42 milestone deliverables that cannot be corrupted by future development
+- [Phase ?]: DEBT-04 D-13: git tag v1.20.0 deleted local and remote; contract.md line 9 corrected to 1.1.0
+- [Phase ?]: DEBT-04 D-14: mix hex.retire sigra 1.20.0 is a manual runbook step for Jon - documented in 214-05-SUMMARY.md
+- [v1.44 INVARIANT]: The merge-blocking forward-only signal stays 100% deterministic (monotonic ledger guard, snapshot-canary, axe, token/contrast gates). The LLM panel is an issue-finder + judge-of-taste only — never a CI gate, never flips a ledger cell.
+- [v1.44 INVARIANT]: Cite-and-flip is impossible by construction — evaluator receives only render bundles; finding anchor must exist in captured DOM.
+- [v1.44 DECISION]: Forward gradient = verify-then-climb: harness first re-verifies existing Tier-2 claims against rendered output, then climbs via a new finer-grained award sub-score above the Tier-2 ceiling.
+- [v1.44 DECISION]: Auto-fix scope = provably-safe mechanical classes only (copy / token-swap / component-swap); per-fix auto-revert on regression; judgment fixes route to human queue.
+- [Phase ?]: 216-01 dep legitimacy gate
+- [Phase ?]: 216-01 dep legitimacy gate
+- [Phase ?]: 216-01 D-10 base-ref fix
+- [Phase ?]: test decision
+- [Phase ?]: Award band floor A0 on all axes at phase 216-02 start; climbing happens only against fresh render in Plan 07
+- [Phase ?]: render_sha256 and open_findings consolidated in admin-render-sha.json as single authoritative source per D-21 (216-02)
+- [Phase ?]: finding_id = sha256(surface NUL class NUL anchor) locked as 216 substrate key; Phase 217 AUTOFIX-01 must match — seam flagged UNRESOLVED per D-22 (216-02)
+- [Phase ?]: Tier column-4 grammar frozen; award data in JSON sibling admin-award-ledger.json only; no 5th column, no decorator per D-19 (216-02)
+- [Phase ?]: Allowlist canonicalization: KEEP_ATTRS plus class-sorted plus href-fingerprint-stripped; id always dropped
+- [Phase ?]: Geometry excluded from renderSha256 entirely (not bucketed) - stored in bundle.facts only per D-06/D-11
+- [Phase ?]: quality-findings-monotonic.sh uses node -e to parse admin-render-sha.json — avoids jq dep, keeps bash-guard idiom (216-04)
+- [Phase ?]: skip-on-empty-base divergence (D-08/D-21): skip ONLY when ledger file absent; increase from 0 IS a regression (216-04)
+- [Phase ?]: evidence-anchor-check.mjs resolves cheerio via createRequire from playwright subproject — no duplicate install (216-04)
+- [Phase ?]: isStructuralAnchor rejects prose before cheerio: starts with ./#/[/: or single lowercase tag not followed by uppercase prose (216-04)
+- [Phase ?]: eval-probe-ids.mjs is the single source of the nine canonical probe ids shared by award-guard and Plan 06 probes.ts (D-12 anti-drift)
+- [Phase ?]: award-guard recomputes band=min(axes) — never trusts the typed band; FAILs on climb-without-render, band!=min, unresolved-evidence, and axis-decrease (D-20)
+- [Phase ?]: resolveEvidenceRef defers test: and conformance: to prefix-only validation until Plans 06/07 populate those registries (intentional seam)
+- [Phase ?]: probes.ts reads live --sg-* via getPropertyValue, never duplicated constant table
+- [Phase ?]: admin-eval.spec.ts uses __dirname not bundle.ts import.meta.url for CJS/ESM Playwright compat
+- [Phase ?]: stale-render-guard absence=FAIL (not skip), git plumbing only never mtime D-07/D-08
+- [Phase ?]: board-scoped probes fix Gap 1; D-22 finding enrichment; W1 anchor-check fix
+- [Phase ?]: .planning/phases/216-harness-foundation-award-gradient/216-09-SUMMARY.md
+- [Phase ?]: .planning/phases/216-harness-foundation-award-gradient/216-09-SUMMARY.md
+- [Phase ?]: 217-04
+- [Phase 217]: fix-queue-build.mjs is sole open_findings writer in admin-render-sha.json (D-12 — eliminates two-producer drift)
+- [Phase 217]: Systemic collapse: same (class,anchor) on >=2 board surfaces collapses to ONE high-priority parent in fix-queue.json
+- [Phase ?]: Use grep -c not grep -q in bash CI scripts to avoid SIGPIPE under pipefail
+- [Phase ?]: panel-forced-floor-check.mjs reads JSON only; self-tests attach to fast_checks, checker not wired over live panel output
+- [Phase ?]: excerpt.mjs retains ALL class tokens for full anchor validation coverage
+- [Phase ?]: Token-swap +/-1.0px band: tighter than probe detection, ties/far downgrade to judgment
+- [Phase ?]: Copy-swap is text-node-only from fixed copy-rules.json; semantic judgment refused
+- [Phase ?]: git revert --no-edit HEAD creates new commit on any rail trip; SC-4 proves reflog clean
+- [Phase ?]: eval/autofix-state.json gitignored; admin-autofix-loop.sh never wired into CI (panel-ci-isolation proves it)
+- [Phase ?]: admin-panel.sh degrades to exit 0 on missing ANTHROPIC_API_KEY — structural JUDGE-CI-01 guarantee
+- [Phase ?]: SC-2/SC-4 live verifications deferred to human checkpoint — require real ANTHROPIC_API_KEY
+- [Phase ?]: [218-01]: D-08 path: deep-equal drift check via readFileSync parse of eval-probe-ids.mjs
+- [Phase ?]: [218-01]: L3 proxy mapping: index-live=mg-1, organization=mg-7, user-sessions=mg-11, audit-index/user=mg-6, branding=mg-4
+- [Phase ?]: [218-01]: proxy:true structural skip in fix-queue-build.mjs step (j) — Plan 02 can safely run the builder
+- [Phase ?]: vt-modal authored as dialog.vt-modal with sg-*/vt-* tokens; native dialog::backdrop uses color-mix overlay; phx-hook=DialogModal preserved
+- [Phase ?]: mfa_challenge_controller.ex + mfa_challenge_html.ex confirmed dead code (router wires /users/mfa to MFAChallengeLive only); both removed
+- [Phase ?]: [218-02]: verified_at_sha updated to 1f54de17 for all 32 cells; users-index-live A2 and user-show-live A1 HOLD (admin source unchanged since eeb6bf14)
+- [Phase ?]: [218-02]: All new L1/L2 board award cells set at A0 rendered:false — honest floor; server not available for fresh render; raises deferred to Plan 06 after Plan 219 harness re-run
+- [Phase ?]: verified_at_sha updated to 221f5615 for all 8 L3 cells; admin source unchanged between 1f54de17 and HEAD; all cells HOLD without correction
+- [Phase ?]: No L3 award sub-score raised in 218-03; all raises deferred to Plan 06 after Plan 219 delivers clean-tree HEAD eval bundles (D-05 honesty-first)
+- [Phase ?]: 218-06: Operator decision (verify-hold, 0 raises, panel deferred to Phase 219) resolved Task 1; PR #70 (elevate-03-wave-v144-pr -> main) assembled via gsd-pr-branch covering the full unshipped v1.44 elevation wave (216-218), 120 commits, 0 transient .planning leakage
+- [Phase ?]: 218-07: Systemic-parent rep selection is lowest finding_id (localeCompare-minimum), not entries[0] — removes readdirSync order dependence (CR-01)
+- [Phase ?]: 218-07: Also sorted walkFindings readdirSync walks (sha/surface/cell) as belt-and-suspenders alongside the rep fix
+- [Phase ?]: 218-07: Did NOT regenerate guides/reference/fix-queue.json — eval bundle source dir is gitignored; determinism proof is hermetic-only, forward-only fix applied at next full-harness regen (Phase 219)
+- [Phase ?]: Placed probeIdsDriftCheck() in a module-level test.beforeAll (outside test.describe) so the guard runs before the describe/beforeEach and needs no page fixture or live server.
+- [Phase ?]: Substituted the plan's tsc --noEmit verify command with npx playwright test --list plus a path-resolution check because test/example/priv/playwright has no tsconfig.json or typescript install and no CI job runs tsc against it.
+- [Phase ?]: 218-09: WR-01/WR-02/WR-03 mirrored byte-identically into installer templates (verified via diff/grep) so generated hosts do not ship the same crash/silent-no-op bugs; WR-04/WR-07 stay example-only (templates use Tailwind/daisyUI, not vt-* tokens)
+- [Phase ?]: 218-09: WR-03 uses a flash-on-miss fallback instead of a new Organizations.get_member-by-id context function, to avoid widening library surface; the by-id scoped fetch is recorded as a follow-up
+- [Phase ?]: 218-10: Ran two separate docker ps -a invocations (one per proxy-host label) combined with sort -u, mirroring the proxy_host_claimants precedent, since Docker CLI --filter ANDs multiple label filters within one query
+- [Phase 219]: Fixed the durable/recurrence-proof way (:global attr + {@rest} spread on icon/1) per D-02, instead of stripping the inline style= from the two mfa_settings_live.ex call sites.
+- [Phase 219-02]: D-04 recapture_branch relaxation checked BEFORE the refs/tags/v* case in release_ref_guard — recapture-only, tag path unchanged for every other dispatch
+- [Phase 219-02]: D-03.1 demo-showcase recapture folded into admin_checkpoint_recapture (cheapest — already boots :4000), no canary/allowlist choreography needed
+- [Phase 219-02]: D-03.2/D-05 checkpoint job converted from human-visual-review-only to self-gated snapshot-canary-guard.sh commit step, mirroring the design job, after impersonation-banner delete-rebirth
+- [Phase 219-02]: D-06 canary-never-allowlistable assertion checked unconditionally right after ALLOWED map population in snapshot-canary-guard.sh, independent of whether the canary changed this run
+- [Phase ?]: No file changes required for 219-04 — allowlists already at D-07 empty steady-state from 219-02/03; runtime --allow flags used for recapture, not committed entries
+- [Phase ?]: Used the existing workflow_dispatch recapture run (29051223765) as the sole authoritative source for both SC-3 halves rather than dispatching a new CI run
+- [Phase ?]: Did not rebless the install-golden fixture — job concluded success with no drift
+- [Phase ?]: D-10: relocate the runtime cheerio require to after the no-bundles guard, rather than reordering the ci.yml npm-ci step or adding cheerio to a root package.json
+- [Phase 220]: D-04: exactly three additive notes landed in one commit — no existing runbook section rewritten (D-03)
+- [Phase 220]: Cited quality-ledger-monotonic.sh's 36-cell compare (not award-guard's skip-path exit-0) as the substantive SC-1 proof, per PI-1 — award-guard.mjs exits 0 against origin/main via a skip path because main predates the net-new award ledger; the guard did not compare anything at the merge-base boundary
+- [Phase 220]: Recorded the local guard run explicitly as a PREVIEW, deferring the authoritative committed-HEAD proof to the terminal PR's fast_checks job per the 216 SC-5 trap — A green self-test/local run at a pre-PR sha is not valid evidence of a committed-HEAD guarantee; the binding proof is the same guards running in fast_checks against the real merge-base, confirmed via gh pr checks
+- [Phase 220]: 220-04: Quarantine-PR draft scopes exactly the 3 impersonation-banner PNGs (D-05/D-08); required Example Playwright smoke green + PAT-push footgun note captured
+- [Phase 220]: 220-04: Close-readiness record (D-13) maps SC-1..SC-4 to observable signals and captures affirmative panel-absence evidence (panel-ci-isolation.test.sh PASS 3/3 + zero-match ci.yml run: grep) for SC-4's panel half
+- [Phase 220]: 220-04: Phase 220 complete (4/4 plans); does NOT self-merge any PR or archive the milestone — deferred ship sequence handed to operator/gsd-ship/gsd-complete-milestone
+- [Phase ?]: 221-01: Mirrored only the Elixir semantics (scope: kwarg, impersonation_forbidden clause, dedupe copy) from the example twin into the installer template, not its vt-* markup; re-blessed the install golden fixture via the generator task
+- [Phase 221]: up.sh --help window widened to 2,26p (not 2,30p) — stays inside the comment block, no code leak
+- [Phase 221]: app-css-corruption-check.sh awk state machine resets last_was_prop=0 on complete single-line ;-terminated declarations, only =1 for genuine multi-line openers, closing the orphan-after-; false negative; proven by a net-new committed fixture + bash driver wired into CI (D-09/D-10)
+- [Phase 221]: Pin value 1.3.0 matches Option 4a / D-13; scope discipline verified via git diff (single env line, no algorithm change); gate-green explicitly deferred to Plan 05 (push-to-main, after Plan 04 publish)
+- [Phase 222]: Used a bash array (IFS=',' read -ra) instead of unquoted word-splitting for SIGRA_UPGRADE_SMOKE_EXCLUDE_VERSIONS to keep grep -vxF -f <(...) shellcheck-clean
+- [Phase 222]: Exact-line fixed-string exclusion (grep -vxF, SIGRA_UPGRADE_SMOKE_EXCLUDE_VERSIONS default 1.20.0) replaces the D-03 retired-filter mechanism which RESEARCH proved matches zero live Hex rows
+- [Phase ?]: [Phase 222-02]: One shared scripts/ci/notify-failure-issue.sh (D-07) is invoked from both ci.yml and release-please.yml instead of a composite action -- no new SHA-pinned third-party dependency.
+- [Phase ?]: [Phase 222-02]: notify_release_lane_rot is deliberately absent from ci-gate.needs and is not a required check, mirroring nightly_probe's standalone posture, to avoid stranding PR merges under ruleset 14941512.
+- [Phase ?]: [Phase 222-02]: GitHub context values (run id/sha/tag/version/job results) are passed to run: shell blocks only via the step env: mapping and referenced as shell variables, never inlined directly as ${{ github.* }} in shell text -- closes context-string injection threat T-222-02-02.
+- [Phase 222]: 222-03: Treated the orchestrator's already-dispatched hex-publish.yml dry_run=true run (29132375168) against v1.3.0 as the authoritative HARD-02 readiness evidence rather than re-dispatching.
+- [Phase 222]: 222-03: Inserted the MAINTAINING.md release-lane rot runbook subsection immediately after the Recovery / one-off publish line, mirroring the D-14 forced-failure-probe style, cross-referencing docs/release-runbook-v1-0.md without duplicating the release matrix.
+- [Phase ?]: D-21 satisfied: ci-run-metrics.sh + hermetic self-test committed and wired into fast_checks before any Phase 230 measurement is taken
+- [Phase ?]: Duration math uses jq fromdate (not shell date -d/-j) for macOS-dev/ubuntu-CI portability
+- [Phase ?]: 230-02: Collapsed ~84 per-board axe scans to one full-page WCAG 2.1/2.2 AA scan per design project (D-01) rather than a literal pixels-only split -- every board test reached axe in an identical page state and the registration cost that must stay on PR lives in beforeEach
+- [Phase ?]: 230-02: Tagged via Playwright's details-object form test(title, { tag: '@snapshot' }, fn) (D-02), never embedding the tag in titles, so all 28 board PNG baseline filenames stay byte-identical
+- [Phase ?]: Filtering is CLI-only on both gallery steps (D-03); playwright.config.ts stays byte-unchanged
+- [Phase ?]: design_gallery_snapshots stays inside example_playwright_smoke (not a new job) because the job name is a ruleset-14941512 required context (D-04)
+- [Phase ?]: design_gallery_snapshots wired into the seam-outcome aggregator's hard-coded outcome list (D-05 hard-fail boundary)
+- [Phase ?]: 230-04: admin_eval_render demoted to non-PR events (if: github.event_name != 'pull_request'); continue-on-error retained byte-unchanged pending GATE-04 in Phase 231
+- [Phase ?]: 230-04: concurrency group keys non-PR events on github.run_id (never queued/cancelled) instead of SEED-005's github.ref + conditional cancel-in-progress, avoiding queueing risk against the release lane's 30-minute gate-ci-green ceiling
+- [Phase ?]: FAST-05: docs-only classification rule extracted into a standalone hermetically self-tested script (not inlined) because the docs_only=true branch is unobservable on any pre-merge PR
+- [Phase ?]: FAST-05: every job-level condition added by plan 230-05 uses !cancelled() never always(), so FAST-04's cancel-in-progress genuinely stops a superseded run
+- [Phase ?]: 230-06: Playwright browser cache key encodes browser set (chromium-webkit) + literal version (1.59.1) per D-15..D-18; guard script cross-checks version against lockfile with grep/sed only, no jq/YAML dep
+- [Phase ?]: 230-07: example_playwright_smoke timeout set to 45 (not tighter) because its 41.7m historical maximum would be truncated by a value closer to its 28.5m measured duration; tightening deferred to Phase 235 (D-20)
+- [Phase ?]: 230-07: generated_admin_playwright_smoke timeout corrected 60->15 and moved to canonical post-runs-on slot; adjacent stale ship/v1.42-ci-gate-remediation head-ref condition left untouched (GATE-02, Phase 231 scope)
+- [Phase ?]: 230-07: ExUnit completeness contract counts timeout-minutes per job-block (not file-wide) so declarations concentrated in one job cannot vacuously satisfy the assertion
+- [Phase ?]: 230-08: MAINTAINING.md now carries the durable post-Phase-230 honest-skip set (three tiers) and the two accepted residuals this phase creates, verified against shipped ci.yml — the artifact Phase 231's GATE-03/GATE-05 will audit against.
+- [Phase ?]: AFTER-PR-WARM's warm commit is a one-line provenance comment in scripts/ci/playwright-cache-key-guard.sh recording the AFTER-PR run ID as the cache-seeding run
+- [Phase ?]: Task 2's dispatch precondition (recapture_branch empty) cannot succeed on a branch-ref workflow_dispatch; re-dispatched with recapture_branch set to the phase branch (D-04 relaxation)
+- [Phase ?]: FAST-06's honest net is recorded as a cache-mechanism proof, not a wall-clock saving figure -- the Install Playwright browsers step showed no net time saving on the captured pair, recorded as an open discrepancy
+- [Phase ?]: D-20/D-21 (231-01): extracted release-please.yml's inline ci-gate poll loop into scripts/ci/wait-for-ci-gate.sh, raised max-attempts 60->120 (60m ceiling) with explicit timeout-minutes: 75, and proved it live against run 30466318240 (exit 0, attempts=1).
+- [Phase ?]: 231-01: added a Rule-3 actions/checkout step to gate-ci-green (not in the plan text) because the extracted script requires the repo checked out on the runner, unlike the prior inline shell.
+- [Phase ?]: GATE-02: H1 (stale-viewport false-green) killed by direct instrumented-run evidence; H2 operative per RESEARCH's literal criteria; structural CSS containment fix (min-width: 0) shipped to installer template + example twin + golden fixture, confirmed green on dispatched run 30501223643
+- [Phase ?]: release_ref_guard blocks a bare workflow_dispatch on a branch (requires refs/tags/v* or the recapture_branch input) -- a gap the plan's read_first missed; use recapture_branch as the sanctioned dispatch escape hatch for later 231 plans needing branch CI runs
+- [Phase ?]: D-22/D-23: notify-failure-issue.sh self-heals a missing release-lane-rot label, fail-soft; issue #118 cited as already-observed D-23 evidence, no new probe staged
+- [Phase ?]: 231-04: admin_eval_render now installs chromium+webkit (was chromium-only), matching admin-eval-mobile's iPhone-13/WebKit project; browser cache key re-tokened -v1 -> -v2 with C-6 guard generalization
+- [Phase ?]: 231-04: probes.ts ember-class check derives from classList instead of className (SVGAnimatedString crash fix); p14 prohibition guard added, proven fail-first
+- [Phase ?]: 231-05: b1-b6 proven executing and passing in CI for the first time (run 30512523387, PASS -- all phases green); required 3 probe-vs-ratified-design-decision reconciliations (D-08 chip-remove, pill/code sub-scale tokens selector-scoped, gallery-frame card-nesting suppression), a fix-queue-lint.sh proxy exemption, a CI-native ledger rebase (33642->38016 open_findings), and a new sanctioned floor-rebase declaration mechanism in quality-findings-monotonic.sh -- all outside the plan's original file fence, operator-reviewed and authorized. GATE-04 NOT marked complete (231-06 owns removing continue-on-error). Found and characterized (not fixed) a genuine cross-run intermittent in Generated admin Playwright smoke, GATE-02's own lane.
+- [Phase ?]: GATE-04's literal REQUIREMENTS.md text is satisfied by two independent green admin_eval_render observations (231-05's run 30512523387, 231-06's run 30514238789), but the lane remains outside ci-gate.needs and never runs on pull_request -- the row is left Pending, not marked Complete, per the plan's own instruction.
+- [Phase ?]: admin_eval_render's job name, its skip-manifest row, and MAINTAINING.md's tier-B description were corrected (coordinator-directed) to stop calling the now-hard-signal lane 'evidence only, not a merge gate'.
+- [Phase ?]: Generated admin Playwright smoke's cross-run intermittent (320px reflow, admin-generated.spec.ts:79) recurred a third time (~60% failure rate across 5 observed runs) -- flagged as a blocking risk for 231-07, not fixed in this plan.
+- [Phase ?]: GATE-02 marked Complete: stale head_ref gate deleted outright, confirmed executing (non-skipped) on two independent pull_request-event CI runs, confirmed in ci-gate.needs (merge-blocking). GATE-03 left Pending: p10 gained gate-column parity + rotted-gate-string assertions (a necessary static precondition) but ci-gate's own runtime skip-legitimacy verdict (honest-skip-verdict.sh) is not yet built.
+- [Phase ?]: Found and fixed a same-defect-class bug mid-plan: scripts/ci/ci-demotion-observer.test.sh's EVAL_NAME fixture carried admin_eval_render's pre-231-06 display name, silently drifting from the real manifest after 231-06's rename. Fixed as a strengthening (recorded truth now matches reality), not a widening.
+- [Phase ?]: 231-08: GATE-03 verdict logic (scripts/ci/honest-skip-verdict.sh) shipped hermetically with 19/19 self-test in fast_checks; GATE-03 stays Pending until 231-09 wires it into ci-gate and proves SC-3 with two live runs
+- [Phase ?]: GATE-03 marked Complete: ci-gate genuinely fails on an illegitimate skip and passes on a legitimate one, proven on 3 live runs (30526744204, 30526771018, 30526727106) across 2 event types at commit d7f75397
+- [Phase ?]: 231-10: D-17 fixed (Pages publisher seeds before boot, guarded by p15); D-19 fixed (schedule-lane leniency deleted from ci-observe.yml, guarded by p16); D-18 diagnosed and filed as a standing/backstop obligation (self-heal structurally unobservable pre-merge, github.ref==main gate); GATE-01 left Pending, owned to closure by 231-11's nightly observation.
+- [Phase 231]: GATE-01 closed on the required real event: scheduled run 30607570671 succeeded on PR #125's merge SHA with all executing lanes green; no proxy or fallback was used.
+- [Phase 231]: The Pages publisher's post-merge run 30613728531 proved seeds and publication green, then narrowed D-18 to a default-GITHUB_TOKEN `PUT /pages` 403; repo admin owns the manual Pages-source change.
+- [Phase ?]: 231-11: Corrected 231-CONTEXT.md D-16's baseline count (25 jobs, 23 green) against a live re-capture of run 30425416933 — the accurate figure is 22 success / 3 non-success, matching 231-RESEARCH.md's live-verified table
+- [Phase ?]: Each design project owns a matching UI setup project and test-results/.auth storageState file.
+- [Phase ?]: Design beforeEach retains only navigation and deterministic LiveView/font readiness.
+- [Phase ?]: Keep ExUnit.CLIFormatter and add a deterministic receipt formatter in the same parallel mix test invocation.
+- [Phase ?]: Restrict timing writes to fixed CI-owned /tmp paths and fail closed when the receipt is absent.
+- [Phase ?]: Use PR #175 run 30666977944 as the retry-free timing probe because it exactly matches the pull_request event and head SHA.
+- [Phase ?]: Preserve timing artifact names and SHA-256 digests while committing deterministic per-file aggregates rather than volatile raw receipts.
+- [Phase ?]: Use an unconditional scaffold receiver and exact-success Library tests aggregation for all six InstallFixture-heavy modules.
+- [Phase ?]: Library shard manifests now fail closed against the live Mix-filtered ordinary test universe; discovery validates receipt-derived assignment without rebalancing it.
+- [Phase ?]: library_tests_shard is the sole full-suite owner and invokes literal MIX_ENV=test mix ci once.
+- [Phase ?]: Generated install-golden tree bytes are outside formatter ownership; CSS and prohibition fixtures remain covered.
+- [Phase 234]: Scope immutable-action enforcement to release-please and manual Hex-publish workflows.
+- [Phase 234]: Reject the annotated v5 tag object explicitly despite its 40-character SHA shape.
+- [Phase ?]: Dependabot coverage remains three independent weekly entries; no grouping, registries, ignores, or packages added.
+- [Phase ?]: DX-03 uses fail-closed local structural proof; GitHub update-job evidence remains service-owned.
+- [Phase ?]: Native Mix formatter output is authoritative for bounded D-04 cleanup; generated install-golden bytes remain outside formatter ownership.
+- [Phase ?]: 234-03: Native mix format output is authoritative for bounded D-04 layout-only normalization.
+- [Phase ?]: 234-03: Exact formatter checks plus example warnings-as-errors compilation resolve the DX-01 formatting edge without inferred textual ordering.
+- [Phase ?]: Use native mix format output as the sole source for D-04 layout normalization; retain test names, tags, selectors, expected values, and assertions.
+- [Phase ?]: Use the documented disposable PostgreSQL setup for focused database-backed formatting proof instead of accepting invalidated tests.
+- [Phase ?]: Playwright inventory uses exact live-spec reconciliation with literal workflow/config seams for Phase 235 GATE-05.
+- [Phase ?]: Both useful orphan specs run in the existing admin_behavior Chromium shard with explicit retry-zero evidence.
+- [Phase ?]: D-04 formatter cleanup uses two explicit reversible source batches while excluding generated install-golden tree bytes.
+- [Phase ?]: Plan 234-12 used native Mix formatting only on eight persistence-sensitive example paths and proved warnings-clean compilation.
+- [Phase ?]: D-04 uses exact bounded formatter batches, focused ExUnit execution, and an empty install-golden-tree diff to preserve test meaning.
+- [Phase ?]: Native mix format closes D-04 only with repository-wide formatting plus empty generated-golden diff and focused golden tests.
+- [Phase ?]: Release Please receipt is bound to post-merge main; no-release downstream skips are explicit.
+- [Phase ?]: Dependabot remains unresolved until authenticated GitHub job logs exist for all three ecosystems.
+- [Phase ?]: SEED-006 is closed by the successful 126-test gallery receipt; admin_eval_render remains a separate non-gating diagnostic.
+- [Phase ?]: Phase 234 validation remains draft until Dependabot receipts and golden fixture verification are green.
+- [Phase ?]: Verified phx_new 1.8.8 regeneration was byte-identical to the committed dev-config golden; restored phx_new 1.8.9 after proof.
+- [Phase ?]: Dependabot service processing evidence requires exactly three authenticated, sanitized receipt rows; a no-update result is valid only when the successful job summary proves it.
+- [Phase ?]: Dependabot receipt validation anchors to the current default-branch SHA at collection time while preserving the decoded configuration hash.
+- [Phase ?]: DX-01 evidence uses a detached Plan 15 worktree with exact lock/status hashes and sanitized log digests.
+- [Phase ?]: Completion authorization accepts only the shared exact five-command receipt inventory.
+- [Phase ?]: Phase 234 ratification consumes immutable DX-02, DX-04, and DX-06 evidence without reopening implementation.
+- [Phase ?]: Direct Playwright inventory rows derive and require their exact workflow spec marker.
+- [Phase ?]: Only admin-eval and admin-generated may use allowlisted harness-to-spec ownership mappings.
+- [Phase ?]: Phase 234 validation receipts bind every command to one reviewed SHA and a 30-minute UTC window.
+- [Phase ?]: Phase 234 completion accepts only the exact six evidence receipt keys; schema_version remains metadata.
+- [Phase ?]: Installer golden fixture tracks the pinned phx_new 1.8.8 scaffold rather than preserving stale 1.8.7 bytes.
+- [Phase ?]: Phase 235 Plan 01 pins terminal ownership to the Phase 234 inventory hash and leaves measurement verdicts explicitly pending.
+- [Phase ?]: FAST-01 measured miss: 19 retained PR runs produced a 772-second p50, which is not strictly less than the 720-second target.
+- [Phase ?]: Plan 02 sealed same-window PR/push/schedule receipts; Plan 03 alone reconciles records.
+- [Phase ?]: FAST-01 remains unmet: 19 retained PR runs produced a 772-second p50, which is not strictly less than 720 seconds.
+- [Phase ?]: GATE-05 is reconciled only after one focused contract validates the contributor topology and both closeout records against the terminal ledger.
+- [Phase ?]: FAST-01 remains unmet: receipt-bound recomputation confirms 19 PR runs with a 772-second p50, above the strict 720-second threshold.
+- [Phase ?]: GATE-05 ownership is closed under exact 93-key equality from the Phase 234 inventory and declared non-Playwright families.
+- [Phase ?]: FAST-01 remains an honest miss at 19 retained PR runs and 772 seconds p50.
+- [Phase ?]: Phase 235 ownership evidence is source-bound to Phase 234 inventory, ci.yml, and retained event receipts.
+- [Phase ?]: Protected Phase 235 evidence is main-only and GitHub-attested; pagination proof retains terminal empty pages.
+- [Phase ?]: Combined Sigstore and GitHub trusted roots verify the accepted protected receipt offline.
+- [Phase ?]: GATE-05 closes on 93 protected ownership rows; FAST-01 remains the 772-second miss.
+- [Phase 235]: Plan 235-16: scripts/ci/ci-run-metrics.sh wall mode remains sole terminal authority; offline source replay is comparison-only.
+- [Phase 235]: Plan 235-16: use a repository-only dev/test Hackney 4 override until Threadline publishes a compatible optional constraint.
+- [Phase 235]: Plan 235-16: protected squash merge is proven by seven exact blob matches against main SHA 158aca14; no FAST evidence dispatch occurred.
+- [Phase 235]: Plan 235-16: FAST-01 remains open for Plan 17 source-complete measurement; GATE-05 remains unchanged.
+- [Phase 235]: Plan 235-17 Task 2: user selected authorize-once for exactly one immediate protected-main evidence dispatch from the unchanged sealed preflight.
+- [Phase 235]: Plan 235-17: retained scripts/ci/ci-run-metrics.sh wall mode as terminal authority; signed raw pages independently reproduced n=52, p50=469s, max=1331s, verdict=pass.
+- [Phase 235]: Plan 235-17 left FAST-01 reconciliation to Plan 18 and preserved GATE-05 unchanged.
+- [Phase 235]: FAST-01 completes only from protected run 34350618761's authenticated source-complete n=52, p50=469-second wall result.
+- [Phase 235]: The rejected derived-only n=43/p50=466 candidate and all prior miss/remediation measurements remain immutable historical context.
+- [Phase 235]: GATE-05 remains Complete with its protected receipts, 93-row ownership ledger, verifier, and contributor topology unchanged.
+- [Phase 235]: [Phase 235-19]: Preserve terminal conclusions literally with ci-run-metrics.sh group_by/map/from_entries semantics and compare one complete statistics object at both retained locations.
+- [Phase 235]: [Phase 235-19]: Keep --semantic-fixture explicit and provenance-free while sharing validate_source_first_semantics with the authenticated default path.
+- [Phase 236]: D-05 branch call: (a) product race — actor= absent from URL entirely, confirmed by real CI failure (run 35004420339) and local reproduction; plan 236-02 proceeds as written
+- [Phase 236]: TDD RED/GREEN split into two commits (6bbab6c8, e3b61df6) per phase dispatch's tdd.md instruction, overriding the plan's literal one-commit suggestion; both owned files still land exactly where the plan scoped them
+- [Phase 236]: 236-03: p17 no-playwright-retry-wrapper guard added, observed RED against a committed known-bad fixture and GREEN against the real config; dead PLAYWRIGHT_RETRIES env key deleted from ci.yml. — ROADMAP SC-4/GREEN-02: retry-wrapping the flake into silence is prohibited; the guard makes that mechanical instead of prose-only.
+- [Phase 236]: Phase 236 plan 04: SC-3 GREEN evidence captured — 5 sequential pull_request CI runs all pass Generated admin Playwright smoke, and the 236-01 repro re-run unchanged against the fix produced 50/50 passes (was 41/50 pre-fix).
+- [Phase 237]: D-06 gitignore negation uses /doc/* + !/doc/llms.txt; verified with git check-ignore --no-index expecting exit 1
+- [Phase 237]: D-05 doc/llms.txt regenerated and committed so mix docs is idempotent on a fresh clone
+- [Phase 237]: 237-02: GitHub Pages repointed main -> gh-pages (D-07); prior setting committed as a literal revert value before the PUT
+- [Phase 237]: D-04 applied literally: SC-5's check subject is the regex class security|CSRF|enumeration|timing|scope|impersonation, never the dead # SECURITY: literal (zero occurrences repo-wide) — A guard on a zero-occurrence literal is a green gate that verifies nothing; the check is demonstrated RED on a committed fixture before being trusted
+- [Phase 237]: D-01 scope held to exactly 4 named dead .planning/ references in lib/ doc attributes; the other ~344 benign phase-mention hits are handed to Phase 241's p18 ratchet with a recorded 52-line baseline — A phase that rewrites 259 doc sites is verified only by counting, and count-only acceptance is rejected in this repo
+- [Phase 237]: D-03 applied: fixed 3 dead .planning/ links in upgrade guides before removing the 2 skip entries they justified (9->7), earning the reduction rather than declaring it — Remove-and-retest proved the 7 survivors load-bearing and the 4 dead-link warnings absent from the emptied-list capture
+- [Phase 237]: D-09 (inherited): SC-3 stash-archival half abandoned — all 6 stashes stay local, nothing pushed to public origin — 4/6 stashes carry ~2,018 lines of home-directory paths; push to public origin is irreversible with respect to content
+- [Phase 237]: git worktree prune alone only retired 3/5 stale worktrees; used git worktree remove (git-native, non-destructive) for the 2 live-but-unwanted checkouts — 2 entries had live valid checkout dirs not reachable by prune; plain remove for the clean one, --force for the unborn-branch one; no branch/commit lost
+- [Phase 237]: Phase 237 closed honestly: one evidence ledger re-observes all five requirements at final committed HEAD, the ratchet baseline (337/254/69) hands Phase 241 a starting number, and MIX_ENV=test mix ci is proven green only after diagnosing a real dep-off recompile bug (not by retrying blindly).
+- [Phase 238]: Tier 2 (fnmatch-excluded `creation` rule) selected over Tier 1 (`tag_name_pattern`) by observation, not preference — Tier 1 is enterprise-gated and was rejected live with `HTTP 422 Validation Failed` on this Free-tier repo. What shipped is a shape guard, not a SemVer validator: `v1.2.3.4`, `v1.a.b` and `v...` all carry two dots and fall in `exclude: refs/tags/v*.*.*`. REL-01 recorded as a dated supersession with the original wording left visible, not quietly narrowed.
+- [Phase 238]: The tag guard is deliberately paired and asymmetric — `p19` asserts the committed snapshot offline on every PR (no network on the merge-gating lane), while the live-vs-committed drift read runs only on the post-merge `workflow_run` observer lane. The drift job's jq projection omits `bypass_actors` on purpose: GitHub returns that field only to callers with write access, so asserting it at CI-token permission level would compare an absent value and always report drift. The bypass check moves to a documented operator step.
+- [Phase 238]: Deletion is allowlist-driven and reporting-by-default — one literal tag name per invocation from `.planning/decisions/003-tag-delete-list.tsv`, never a glob or prefix; `--apply` is required to mutate; every row carries a `pre_delete_sha`. **No `git gc`, `reflog expire` or `prune` may be run** — those SHAs are Phase 245's forward-feed and the deleted objects must stay reachable.
+- [Phase 238]: A green `CI (observe)` RUN is not proof that the drift job ran. Its guard is `github.event.workflow_run.event != 'pull_request'`, so observe runs triggered by PR-event CI runs skip the job while still reporting green — two such runs sat at this phase's head SHA during UAT. Only the run triggered by the `push` CI executes it; verification must read the JOB's conclusion and its stdout line.
+- [Phase 239]: Wave-0 SC-3 instrument built before any template edit: expected-removed-set containment classifier replaces the unfireable syntactic comment-only test, checked against a frozen 141-record pre-sweep expected set (139 union-token lines + 2 anchored merge-site neighbours, never a blanket radius).
+- [Phase 239]: Extended Task 1's scope to fully clear its three exclusive files (auth.ex, reset_password_controller.ex, organization_switch_controller.ex) rather than leaving union-token residue no later task would visit.
+- [Phase 239]: Accepted one unavoidable 237-security-comment-diff-check.sh false positive on core/auth.ex:530 (IN-03 token format not in its tolerance regex) rather than editing the checker script, per D-16.
+- [Phase 239]: Resolved plan's temporal-ordering tension via a trailing evidence-recording commit (mirroring 239-01/239-02 precedent), keeping the mirror commit itself entirely test/example/-scoped — A commit cannot honestly record its own not-yet-created child commit's sha or not-yet-run mix ci results
+- [Phase 239]: Diagnosed the first mix ci run's 6 spurious Threadline failures as a cold-_build Code.ensure_compiled/1 ordering race, resolved via mix compile --force, not a lib/ regression — git log a1bb08c6..HEAD -- lib/ is empty; confirmed no source cause
+- [Phase ?]: 239-05: V2 bookkeeping regex adds six alternations (the verifier's five plus `\b[Ww]ave [0-9]`); V1 certified priv/templates and the golden tree clean at 0 while V2 measures 5 and 4 — the instrument gap is a measured delta, not an assertion
+- [Phase ?]: 239-05: all three tasks land as ONE path-scoped commit per the plan's D-19 commit topology, overriding the executor's per-task commit default
+- [Phase ?]: 239-05: SURF-02 is marked [x] Complete in REQUIREMENTS.md but does not hold at HEAD (account.ex:16, audit.ex:7-14, put_active_organization.ex:9) — filed as a todo for the milestone owner, fix belongs to Phase 241's SURF-04 ratchet
+- [Phase ?]: 239-06: a third sigra_auth.css CI-evidence comment block (:705) cleaned alongside the two enumerated blocks — V2 could never flag it
+- [Phase ?]: 239-06: residual V2 on priv/templates recorded as the measured 2 (pre-dispositioned FALSE-POSITIVE SVG geometry), not rounded to 0
+- [Phase ?]: 239-07: the generated golden tree is the wording authority for a mirrored comment — never a third, freshly invented wording
+- [Phase ?]: 239-07: a confirmed no-edit disposition is recorded in the mirror ledger instead of a phantom edit (mfa_settings_live.ex, organization_invitation.ex)
+- [Phase ?]: D-26 amendment applied: SC-3 and SURF-03 now read 'one batched re-bless per batch of template edits'
+- [Phase ?]: Round-2 expected-removed set frozen and committed BEFORE the re-bless, so the ordering is provable by git merge-base --is-ancestor rather than by prose
+- [Phase ?]: floor_files parameterized to GOLDEN_MIN_FILES (set to 7, the exact expected-path count) rather than disabled
+- [Phase 239]: D-30 (239-09): the V3 instrument's detection width and the criterion's asserted surface are separate — V3 stays maximally wide; the criterion asserts hits_outside_allowlist = 0 over pre-committed tier file lists, raw total always printed
+- [Phase 239]: D-28 (239-09): the widening ships as a measurement instrument only — Phase 241's SURF-04 p18 guard inherits V3 as its spec; Phase 239 builds no guard
+- [Phase 239]: D-27 (239-10): SC-2 narrowed to the tarball's lib/+priv/ — the claim narrows, the packaged docs surface (58 .planning/ occurrences) is routed to Phase 241 SURF-04 plus a todo, not cleaned and not dropped
+- [Phase 239]: D-29 (239-10): the D-26 unbounded-re-bless residue is bounded by a per-batch evidence obligation in 239-EVIDENCE.md § BATCH-JUSTIFICATION, without re-amending SC-3 or SURF-03 prose
+- [Phase 239]: D-28 amendment (239-10): SC-1 now names V3 as the definition its 'planning bookkeeping' half is measured under — a widening, since V3 strictly contains the V2 regex the failed pass used
+- [Phase 239]: Plan 239-12 ran the re-bless twice (capture, restore path-scoped, commit) — SC-3/D-26 counts commits not runs; the two captures are byte-identical
+- [Phase 239]: GOLDEN_MIN_FILES=2 (expected-set distinct-path count) on the real round-3 classification; 1 only for the single-hunk RED demonstration — both numbers recorded together
+- [Phase 239]: Phase 239 reopened for a batch-4 closure (239-13 halted on a false adopter-shipped claim)
+- [Phase 239]: D-31 (239): the WR-01 moduledoc claim that mix sigra.install generates no tests is RETRACTED as false on the bytes — admin.ex:38-39 ships test/<otp_app>/sigra_admin_policy_test.exs into every adopter project
+- [Phase 239]: D-32 (239): the generated-app V3 claim is scoped to files mix sigra.install CREATED OR MODIFIED (injected files in scope), a rule borrowed from install_fixture.ex and frozen before the measurement it governs
+- [Phase ?]: 239-15: batch-4 re-bless 5f7ae9d7 carries the WR-01 retraction into the golden fixture; both classifier non-vacuity floors were zero this round and are disclosed with four compensating proofs rather than manufactured
+- [Phase 239]: D-33: generated-app V3 criterion matches allowlist records by (basename, literal)
+- [Phase 239]: 239-13: SURF-03 re-checked to [x] only after every closure criterion was re-observed live at final HEAD — three tiers clean under V3 with live controls, generated-app fixed-string proof 0/0/0, tarball 0 under lib+priv, mix ci green, SC-5 at two bases
+- [Phase 239]: 239-13: T-239-12-03 discharged on a real generated app (5 _test.exs, sigra_admin_policy_test.exs by name, *.exs control 6) rather than transferred
+- [Phase ?]: Pages script branches on the gh api -i status line; PUT-403 is the only tolerated non-2xx (D-19), everything else exits 1
+- [Phase ?]: p20 step-parity guard enforces D-02 byte-faithfulness mechanically rather than by comment
+- [Phase ?]: Artifact-name normalisation is scoped to upload-step BODIES (with.name:), not step names — the step names are byte-identical on both sides
+- [Phase ?]: GREEN-04 requirement deliberately NOT marked complete by plan 02: it is shared with plans 03 and 04, and the n>=20 capture has not happened yet
+- [Phase ?]: 240-03: bare-name detection uses an anchored regex, not `.name ==`, so the collector has zero byte-equality job selectors anywhere
+- [Phase ?]: 240-03: filter=latest reaches both /jobs endpoints via the JOBS_FILTER constant — one source of truth, explicitly chosen (D-11)
+- [Phase ?]: 240-03: the collector self-test is intentionally unwired from CI, matching both existing operator-invoked collectors
+- [Phase ?]: 240-04: main window bounds 2026-09-16T03:29:55Z..2026-09-18T18:11:54Z chosen from the run list (oldest main ci.yml run at/after the 236 flake fix), recorded verbatim in the ledger
+- [Phase ?]: 240-04: the ledger flip is a post-evidence documentation commit — the receipt records head_sha abec92c4 + clean_tree at capture, so HEAD advancing afterwards does not invalidate the window (D-13)
+- [Phase ?]: 240-04: local mix ci Threadline failures waived as exogenous by operator decision; CI library-test jobs green at base, PR #246 and main run 35377012499
+- [Phase ?]: Phase 240 GREEN-05: issue #231 closed against a BOUNDED evidence window (runs 35377050754 + 8 main-window ids, 2026-09-16T03:29:55Z..2026-09-18T18:11:54Z), never a permanence claim; notify_release_lane_rot may correctly re-file the same title (D-27).
+- [Phase ?]: Todos are closed against CORRECTED coordinates (D-26): the 2026-07-30 actor-filter todo cited a nonexistent audit_live.ex and stale :454-458; closure prose carries audit_index_live.ex and admin-generated.spec.ts:459 from Phase 236 CONTEXT D-06/D-07.
+- [Phase 241]: ADR 004 records TEST-01/TEST-02 supersession: the mix ci topology has exactly one full-library-suite owner, while all ten historical timing-path consumer refs are explicitly recorded.
+- [Phase 241]: p21 owns MAINTAINING.md parity only; p10 remains the single owner of ci.yml id, parent, and display-name legs.
+- [Phase 241]: Gate expressions and ci-gate.needs membership remain deliberately unasserted to avoid false scope expansion.
+- [Phase 241]: The inaccurate example_playwright_smoke step-gate manifest row is recorded as a pending todo, not silently changed.
+- [Phase 241]: D-18: Keep release workflows exactly two entries and discover composite action manifests through a separate glob.
+- [Phase 241]: D-19: Optional-dash uses regex plus two committed fixtures proves bare and dashed action pins independently.
+- [Phase 241]: D-20/D-21: Fixture subject indirection preserves the live action file; no stash-based mutation evidence.
+- [Phase 241]: D-23: p18 planning paths use a literal .planning/ detector, not V3.
+- [Phase 241]: D-26: p18 allowlists the SVG coordinate false positive by (path, literal).
+- [Phase 241]: D-29 remains declined for p18: V3 is ported verbatim without widenings.
+- [Phase 241]: DEBT-02 resolves SIGRA_CONTRACT_SUBJECT at runtime so fixture injection cannot be stale after compilation.
+- [Phase 241]: DEBT-02 retains the archived FAST-01 JSON for its live cutoff-SHA readers while retiring the stale phase_233 self-digest assertions.
+- [Phase 241]: R1, R2, and R3 remain independent non-increase counters; no fused total can offset a regression.
+- [Phase 241]: D-29 declines v1.48 case-folding (R2 220→221) and block-aware widening; pending todo remains partially folded.
+- [Phase 242]: Phase 242 Plan 01: remediation is dispatch-only and fixed to sigra 1.20.0; public evidence is sanitized and resolver homes are isolated.
+- [Phase 244]: Pin Ubuntu ImageMagick 8:6.9.12.98+dfsg1-5.2build2 and fail closed when the installed package identity differs.
+- [Phase 244]: Keep @playwright/test 1.62.1 isolated to the example Playwright tooling candidate and update all existing browser cache keys.
+- [Phase 244]: Proceed past the package legitimacy gate only after npm tarball integrity, attestation provenance, and Microsoft release identity agree.
+- [Phase 245]: Keep production local apply fail-closed until Plan 19 proves exact Git runtime and repository-wide shared-coordinator coverage; Phase 244 readiness is now source-pinned.
+- [Phase 245]: Treat the current-state D-07 contract separately from unresolved historical PR and cleanup audits; REPO-04 remains open.
+- [Phase 245]: Phase 245 Plan 20 separates cumulative operation readback from final result-child verification and binds declared removals to committed allowlist dispositions.
+- [Phase 245]: Plan 245-22 proved exact-object acquisition with an empty ref map in two disposable mapped-origin fixtures. — The exact object became readable while the old tracking ref, complete ref inventory, symbolic HEAD, and FETCH_HEAD remained unchanged, establishing a safe prerequisite for Plan 21.
+- [Phase 245]: Plan 245-23 keeps schema 1 strict and adds explicit schema 2 for immutable evidence pins plus independent route observations.
+- [Phase 245]: Plan 245-24 must consume the new readiness receipt, reissue only Plan 21 Tasks 2-3, and leave REPO-04 open until remaining evidence is complete.
+- [Phase 245]: No deterministic operator defect was proven in a bounded disposable fixture; keep live admission blocked and leave REPO-04 open.
+- [Phase 245]: Skip Task 2 unless Task 1 proves a deterministic defect with a passing regression and exact fixture readback.
+- [Phase 245]: Plan 46 measured synthetic source latency but Plan 44 has no production-stage trace; live admission remains blocked and REPO-04 open.
+- [Phase 245]: Plan 48 keeps all 11 historical PR-base rows unresolved because the pinned baseline remains unavailable in the recorded D-06 preflight.
+- [Phase 245]: Keep 30 Phase 236-245 cleanup-history pairs unknown until complete signed command history and an independent recorder trust root pass a fresh D-06 gate.
+- [Phase 245]: Plan 47's blocked Plan 46 diagnostic forbids a current contract and live tracking operation; retain REPO-04 open with zero attempts.
+- [Phase 246]: Keep confirmation LiveViews in an optional current-scope session so signed-in visitors retain identity while the token owner is confirmed.
+- [Phase 246]: Bind confirmation-code lookup to both the hashed code and the current user's ID.
+- [Phase 246]: Use generated confirmation-code queries or a 48-hour user-scoped fallback before mutation.
+- [Phase 246]: Validate pasted codes by removing only ASCII spaces and requiring six ASCII digits on explicit submit.
+- [Phase 247]: Keep the immutable entry inventory and refresh a separate current snapshot before making source decisions.
+- [Phase 247]: Promote only the four Phase 246 files whose blobs match the tested source and whose scoped PR passed review and CI; exclude other inherited work and open PRs.
+- [Phase 247]: Pin the candidate to protected main only after its own required CI passes.
+- [Phase 247]: Accept exact-source PR #288 squash promotion through pinned identities, four allowlisted blob matches, and exact-source CI receipts; do not describe it as ancestry.
+- [Phase 247]: Accept exact-updated-head CI documentation build as local equivalent only because the candidate lacks exact locked dependencies and installation is prohibited.
+- [Phase 247]: Keep package version constraints separate from the CI-tested toolchain and generated-host smoke cases.
+- [Phase 247]: Use the exact-head CI docs build when the isolated candidate lacks locked dependencies; do not install packages.
+- [Phase 247]: Treat generated confirmation LiveView changes as host-owned adoption work; no migration or upgrade task is needed solely for this release.
+- [Phase 247]: Bind the existing workflow and baseline to Plan 06 candidate SHA 6f8028658f0bdd7f26e13c3fe4d45437880c341b and reviewed base e3883b72fb1df5ad6356ef10dbde408f18bbc3be.
+- [Phase 247]: Use clean isolated clones under /private/tmp and preserve the shared checkout work.
+- [Phase 248]: Validate each source-backed claim against an independent versioned changelog entry and bind ledger CI evidence to the exact release PR head.
+- [Phase 248]: Require can_admins_bypass=false in addition to the exact-main deployment policy.
+- [Phase 248]: Keep repository-level secret copies until target environment secret names are confirmed.
+- [Phase 248]: Canonical release receipts require a complete source identity; unresolved manual recovery inputs receive a failure-only rejection record.
+- [Phase 248]: Capture workflow timestamps with runner steps and persist receipts before supplementary issue notification.
+- [Phase 248]: The cancellation observer re-queries the source run and validates authoritative identity before retaining a receipt.
+- [Phase 248]: Missing or mismatched tag resolution remains diagnostic cancellation evidence, never publication success.
+- [Phase 249]: Compare the complete generated doc/llms.txt bytes against the Git index after ExDoc builds. — This validates the committed candidate artifact without rewriting tracked output and catches title or navigation drift.
+- [Phase 249]: Run library_tests_dep_off and its index check on docs-only pull requests. — The required drift gate must execute for the exact change class that can make the generated index stale; ci-gate continues to require the lane.
+- [Phase 249]: Capture one same-repository pending Release Please PR on the fixed branch and require its full identity to remain stable across reads. — A two-read identity check prevents an ambiguous or advancing candidate from reaching docs generation or writeback.
+- [Phase 249]: Keep candidate documentation builds outside the release-automation environment with persisted checkout credentials disabled. — Candidate Mix and documentation code is untrusted, so it must never run with release write authority.
+- [Phase 249]: Give the release token only to the final writer step; reject artifacts outside the single UTF-8 doc/llms.txt path or above 5 MB. — The downloaded artifact is data at a privilege boundary; a fixed path, regular-file validation, UTF-8 check, and size cap bound the writer input.
+- [Phase 249]: Use a non-force push and require ordinary CI registration for the exact new SHA; leave merge decisions to the existing exact-head workflow. — The event-capable token triggers the required push workflow while the existing merger retains sole merge authority.
+- [Phase 250]: Keep AUTO-02 unsatisfied after the one authorized retry failed to upload its failure receipt; require new explicit approval before any further dispatch.
+- [Phase 250]: Do not select a candidate from recency or the pending proposal; preserve proposal, saved-readiness, and live tuples independently.
+- [Phase 250]: Keep READY-01 and READY-02 unsatisfied until one approved tuple joins exact-source CI, matching dry-run, and complete fresh dispositions.
+- [Phase 250]: AUTO-01 is satisfied from current protected-environment scope and exact-source success evidence.
+- [Phase 250]: AUTO-02 remains unsatisfied until both hosted failure and cancellation artifacts are retrieved and validated.
+- [Phase 250]: Plan 04 keeps REL-01 public release proof separate from REL-02 current-main and inventory proof; current workflow failure and stale PR identities leave REL-02 unsatisfied.
+- [Phase 250]: The historical HANDOFF loss remains accepted-with-recorded-loss under the exact user authorization; those bytes were neither recovered nor preserved.
+- [Phase 250]: Keep the historical blocked canary attempts as blocked evidence; no hosted canary dispatch or cancellation was authorized for this plan.
+- [Phase 250]: Deliver only the reviewed repair through PR #318 and verify the merged source blobs against the successful exact-head CI run.
+
+### Pending Todos
+
+- `2026-07-03-hex-retire-stray-1-20-0` — retire stray Hex `1.20.0` (operator/interactive step). Deferred indefinitely 2026-07-11 (Jon: no time, no adopters). Blocks Phase 223 completion. Low priority.
+
+### Blockers/Concerns
+
+- **[Phase 238] The `tag_ruleset_drift` observer is trustworthy but noisy, and nothing asserts it ran.** Three tracked items in `.planning/todos/pending/2026-09-17-tag-ruleset-drift-observer-*`: (1) `set -euo pipefail` aborts at `ID=$(…)` before the job's own named `ABSENT` diagnostic can print, so the 404 it was written for surfaces as a raw non-zero exit; (2) the ruleset list is unpaginated (harmless at 2 rulesets, a false alarm past 30); (3) no assertion that the job executed rather than skipped. All three fail **closed** — false red or unlabelled red, never false green — so a deleted ruleset is still caught. Trust-and-noise, not a security hole. Unblocked now that the lane has executed once.
+- **Phase 223 PAUSED** — blocked on the deferred operator retire of stray Hex `1.20.0`. While `latest_stable_version=1.20.0` outranks the real GA `1.3.0`, PUB-05 (adopter resolution) and PROOF-01 (currency trust bundle) are literally unsatisfiable, so plans 223-02/223-03 are not run. Non-urgent: no adopters, and the CI gate is unaffected (`SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` pin). Root cause + guardrails: ADR 003.
+- [RESOLVED 2026-07-30] 231-05's earlier blocker (admin_eval_render phase (a) HARD-GATE finding on `.sg-applied-chip__remove`) is resolved — see 231-05-SUMMARY.md. The admin-eval harness now runs to full completion in CI with all six b1-b6 banners plus `PASS — all phases green` (first time in this repo's history; run `30512523387`, job `90775422130`). 231-06 may proceed. GATE-04 is still NOT complete — 231-06 owns removing `ci.yml:2450`'s `continue-on-error`, which is required for GATE-04's own completion.
+- **Genuine intermittent found in `Generated admin Playwright smoke` during 231-05** (GATE-02's own lane): red at `18c2720a` (run `30509363963`, test `admin-generated.spec.ts:397` audit presets), red at `be970b50` (run `30511228553`, test `admin-generated.spec.ts:79` — the 320px reflow assertion 231-02/D-09 instrumented), green at `af1b192c` (run `30512523387`). Same lane, different specific test failing each red run, sticky-within-run both times (attempt + retry identical). Not caused by 231-05 (neither commit touched anything that lane loads). Not fixed here — flagged as a follow-up needing its own diagnosis; see 231-05-SUMMARY.md for full evidence.
+- Phase 234 Nyquist validation blocked: Dependabot job logs lack authenticated browser capture and golden/idempotency verification fails for config/dev.exs fixture drift.
+- 234-17: GitHub CLI auth and REST core headroom are available, but the deterministic browser has no authenticated GitHub session; Dependabot job receipts remain failed until maintainer browser authentication.
+- [RESOLVED 2026-09-09] **Phase 235 FAST-01 evidence gap:** Plan 235-15's derived-only candidate remains rejected, but Plan 235-17 retained a source-complete protected population (`n=52`, `p50=469s`, `pass`) and verified it offline. Plan 235-18 owns requirement and closeout reconciliation.
+- [RESOLVED 2026-09-08] Plan 235-16's required-CI blocker was cleared by the explicitly authorized Hackney 4 migration; PR #232 passed run `34298307012` and merged at `158aca14` with no evidence dispatch.
+- Plan 245-27 is blocked at its scoped Task 1 commit: the coordinator refused admission twice with `coordinator_admission_gate_busy_or_stale`. Read-only checks later showed a free lock and zero leases, but this shell cannot confirm concurrent external processes. The named regression and public readiness passed; the latest operator/test changes remain staged, the committed D-06 receipt is stale for them, Tasks 2–3 did not start, and no production refs changed. See `245-27-RESULT.json`; do not remove coordinator gate files or retry blindly.
+- Phase 245 Plan 28 Task 1 blocked: its one coordinator admission returned coordinator_admission_gate_busy_or_stale. Follow-up read-only status found verified coordinator, free lock, zero leases, and no gate directory. The staged two-file source delta remained unchanged; 245-28-RECOVERY.json records the refusal. Task 2 did not start.
+- Phase 245 Plan 31 used one approved coordinator admission and created source commit b3e7d8e and evidence commit 08ac346 with exact planned path sets. Post-commit validation failed because committed 245-27-SUMMARY.md lacks `requirements-completed: []`. The worktree 245-31-RECOVERY.json records outcome blocked; 245-31-SUMMARY.md is halted to prevent replay. No production refs or PRs changed; Plans 29 and 30 are blocked by Plan 31.
+- Phase 245 Plan 29 D-06 preflight is durably blocked: required commit c39e423cb023b60aefbda3e848b0a89395ff22d3 for origin refs/heads/gh-pages is unreadable; Plan 30 must remain untouched until a fresh ready preflight.
+- Phase 245 Plan 33 remains an immutable blocked historical attempt. Plan 34 later recovered its separately approved exact OID c39e423cb023b60aefbda3e848b0a89395ff22d3. Plan 30 then stopped on four newer missing live origin OIDs; see committed 245-30-EXEC-PREFLIGHT.json and 245-30-RESULT.json.
+- Plan 48: 11 historical PR-base rows remain unresolved; pinned commit and two blobs unavailable from local Git and GitHub in recorded D-06 preflight.
+- Plan 246-03 local MIX_ENV=test mix ci failed (2623 tests, 17 failures) on unrelated Phase 232/234/235/236/242 planning contracts; recurring required CI was not dispatched. Durable detail: .planning/phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md
+- Phase 247 Plan 04: final readiness remains blocked because mix hex.publish --dry-run --yes cannot run without the candidate locked dependencies; dependency installation is prohibited for this task.
+- Phase 247 Plan 05 checkpoint history: after evidence PR #289 merged, Release Please changed PR #224 from fixed candidate 563f411bc2659bb9ac1652d552ce58ffb0c876b1 to 166ba84d7a25369f052aed3bded9ac68f376b6b5; this was superseded by a later Release Please head.
+- Phase 247 Plan 05 current blocker: PR #224 is open at head 77dd1126436a9e83c04283433e5f60c71ee98287 on base/main e3883b72fb1df5ad6356ef10dbde408f18bbc3be. Its 1.6.0 CHANGELOG section is raw generated history with internal phase IDs and no curated adopter summary (D-03); README still routes existing adopters to upgrading-to-v1.0.md and guides/introduction/upgrading-to-v1.6.md is absent at the exact head (D-05/D-06). Exact-head CI run 37713178478 is watched only by the parent. Do not retarget the fixed-source workflow, inspect credential metadata, dispatch Hex workflow, create tags, publish, or merge PR #224. See `.planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md`.
+- 250-01 Task 3 is blocked: canary workflow is not visible on main, so Actions identity/permissions/retention and hosted receipt retrieval are unproven; default-branch rollout and dispatch remain unauthorized. See .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json and 250-CANARY-PROOF.json.
+- Phase 250-01 Task 3 is blocked after the single authorized controller run 38054862873 failed before any canary source dispatch: the controller checkout was shallow and its local ancestry check could not see the preflight target 04e7a13dbd9394b453c132d2a168ce6642c98e37. GitHub compare confirms current main 5059581954960548c7fe5c4811b7a7f81dd16aa3 is a direct descendant. Durable diagnostic: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json committed as eebf552f4; controller artifact 11670154191 SHA256 ecbe27bc7d736cde8bef48bf78105256d293653bdda5fb85746597a15e762889. A code fix and new explicit authorization are required before another controller dispatch; no second dispatch is authorized.
+
+Phase 250-01 recovery update 2026-10-10T14:10:46Z: PR #313 merged commit c13bedb392d653871df45e4a12c7007470dae6d8 after exact-head CI run 38055794383 passed; it sets `fetch-depth: 0` only on the manually dispatched controller, preserving the ancestry and source-blob checks. PR #314 merged commit b95bb44b6a780837d33e0309136d24bd459bbe5e after exact-head CI run 38056811805 passed; it permits only the exact `credential_values_recorded: false` proof metadata while rejecting credential-shaped fields and true flags. PR #315 merged commit f606ac15d3beaaf87a285e908674ebadff2866f3 after exact-head CI run 38057655905 passed; it records the fresh live Actions snapshot and exact first blocked proof. Current main is f606ac15d3beaaf87a285e908674ebadff2866f3. Live preflight was ready at capture (Actions enabled, default workflow permission read, 90-day retention, controller authority `actions:write; contents:read`) and source validation passed against current main; it expired at 2026-10-10T14:08:41Z, so recapture before any retry. The prior controller dispatched zero canary source or observer runs. One new controller dispatch requires fresh explicit user authorization. The current local canary sources are synced to main at c8f4758e4 and `scripts/ci/release-canary.test.sh` passes 30/30. The prior planning bytes are preserved and read-verified under `refs/codex/preservations/phase-250-checkpoint-20261010` at commit `1b4df4b4d204bc905d438839887a409e56a81bd0`; manifest: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CHECKPOINT-PRESERVATION.json`. Next after authorization: `$gsd-execute-phase 250` at Task 3 only; no plan summary or phase verification exists yet.
+- Phase 247 READY-01/02 remain unsatisfied: authorization pending, live PR/main and readiness tuples diverged, the dry-run is parent-bound, and fresh dispositions are incomplete. See .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json.
+
+### Roadmap Evolution
+
+- Phase 250 added 2026-10-10 after Phase 249: Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts. This closure phase reconciles the missing/stale phase verifiers and proves hosted release failure/cancellation receipts; next run `$gsd-discuss-phase 250`.
+
+- v1.49 RELEASE-1.6.0 roadmap created 2026-10-06: 4 phases (246–249), 9/9 requirements mapped. Phase 246 closes SEED-011 generated confirmation findings A/B/D; Phase 247 readies the existing 1.6.0 candidate and clean source; Phase 248 proves and hardens the exact-source release gate; Phase 249 publishes and checks Hex, versioned HexDocs, protected-main CI, PR dispositions, and clean worktrees. The user delegated the package-version decision to the existing Release Please PR #224; this is a package 1.6.0 release under GSD milestone v1.49.
+- Phase 208.1 inserted after Phase 208: v1.42 CI-Gate Remediation: fix ~15 never-CI-validated admin Playwright failures blocking the backlog ship + Phase 208 completion (URGENT)
+- Phase 212 added (2026-07-01): v1.42 integration merge — closes the three gaps from the `/gsd-audit-milestone` aggregate audit (status `gaps_found`): GATE-01 snapshot-canary red vs origin/main (needs human canary decision), FLOW-01 persona-flow specs run in no CI gate, GATE-02 generated-host smoke CI-skipped. Drives PR #63 green + merged; only then ROADMAP v1.42 → shipped. See `.planning/v1.42-MILESTONE-AUDIT.md`.
+- v1.43 STABILIZE roadmap created 2026-07-02: 3 phases (213-215), 13 requirements fully mapped. Phase 213 = Latest-Phoenix Compatibility (COMPAT-01/02/03); Phase 214 = Debt & Robustness Clear (DEBT-01..05, HEALTH-03); Phase 215 = Terminal Ratification (HEALTH-01/02/04, RATIFY-01).
+- v1.44 ADMIN-UX-RATCHET roadmap created 2026-07-03: 5 phases (216-220), 14 requirements fully mapped. Phase 216 = Harness Foundation + Award Gradient (HARNESS-01/02/03, RATCHET-01/02); Phase 217 = Adversarial Panel + Auto-Fix Safety Rails (PANEL-01/02, AUTOFIX-01/02); Phase 218 = Elevation Wave + Nit Cleanup (ELEVATE-01/02/03); Phase 219 = Baseline Recapture + Canary Reconciliation (RECAP-01); Phase 220 = Terminal Ratification (RATIFY-01).
+- v1.45 RELEASE-CURRENCY roadmap created 2026-07-10: 3 phases (221-223), 11 requirements fully mapped (fine granularity compressed to natural land-fixes-green → harden → publish-and-prove boundaries). Phase 221 = Unblock the Gate + Ship-Honest Generated-Host Debt (PUB-01, SHIP-01/02/03); Phase 222 = Release-Lane Hardening — No Silent Rot (HARD-01/02); Phase 223 = Get Current on Hex + Terminal Currency Proof (PUB-02/03/04/05, PROOF-01). Human-gated operator steps (interactive Hex write-auth) in Phase 223: `mix hex.retire sigra 1.20.0` + v1.2.0/v1.3.0 publish dispatch — runbook steps, not agent automation.
+- v1.47 CI-EFFICIENCY roadmap created 2026-07-28: 6 phases (230-235), 24 requirements fully mapped, owner-approved two-tier shape. Tier 1 = stop the bleeding: Phase 230 = Tier-1 Critical-Path Reclamation (FAST-02..07 bundled deliberately in ONE phase — independently revertible YAML that together deliver the ~29.5m → ~12m drop in one verifiable step; do not split), Phase 231 = Gate Honesty + Nightly Revival (GATE-01..04, DX-05). Tier 2 = execute the orphaned SEED-005 audit phases: Phase 232 = Playwright Economics (PW-01..03, storageState strictly BEFORE parallelization — per-shard-DB sharding is bottlenecked by the same 734s gallery leg), Phase 233 = Library Suite Economics (TEST-01..03), Phase 234 = Hygiene/Supply Chain/DX (DX-01..04, DX-06), Phase 235 = Terminal Ratification — Measured, Not Read (FAST-01, GATE-05). The audit's own Phase 198→203 sequence was orphaned when v1.41 reused numbers 199-204; 230-235 executes it.
+
+## Quick Tasks Completed
+
+| Quick ID | Task | Status | Date |
+| --- | --- | --- | --- |
+| 260613-f1p | Pin phx_new to 1.8.7 in CI workflows (fix PR #52 red CI from phx_new 1.8.8 `<.button type>` drop). Verified: vault_promotion + golden_diff pass locally; SEED-004 filed for forward-compat. | complete ✓ | 2026-06-13 |
+| 260618-fch | Fix vault_promotion_test.exs known failure — strip unsupported `type` attr from `<.button>` across 7 installer templates (durable fix vs phx_new button `:rest` allowlist) + sync example/golden mirrors + lift known_failure quarantine. Verified: 1 test, 0 failures. | complete ✓ | 2026-06-18 |
+| 260618-gdf | Resolve golden_diff_test.exs known failure — root cause was local phx_new 1.8.8 vs CI-pinned 1.8.7 (spurious config.exs `root_tag_attribute` byte-diff), NOT a stale fixture. Installed 1.8.7, lifted known_failure tag (no fixture change), documented phx_new 1.8.7 dev prereq in CLAUDE.md. Verified: 2 tests, 0 failures. | complete ✓ | 2026-06-18 |
+| 260618-gly | Harden phase-186 D-11 parity test extractors — WR-02 (structural `extract_css_block/2` for auth dark block, replacing `Enum.take(30)`) + WR-03 (`extract_token_value/2` scoped to correct CSS block via optional selector). WR-01/IN-02 already resolved by prior pass; IN-03 optional CI guard deferred to new todo. Verified: 27 tests, 0 failures. | complete ✓ | 2026-06-18 |
+| 260618-grh | Narrow glossary drift-guard `action=` strip (phase 191 WR-01) — strip `action={…}` expressions but scan `action="…"` copy literals for banned terms; added regression test for the false-negative gap. Verified: 2 tests, 0 failures. | complete ✓ | 2026-06-18 |
+| 189-verify | Close phase-189 ConfirmDialog review todo — WR-01/02/03/04 found already fixed in source (admin_hooks.js + branding_live.ex); fixed the dormant PAGE-03 verification spec (stale `/cancel/i` → `[data-sg-confirm-cancel]`) and wired admin-modal-interaction.spec.ts into the chromium CI lane. Verified green locally: 7/7 APG gates. | complete ✓ | 2026-06-18 |
+| 260619-l1b | Demo/admin-UI Docker DX overhaul — `scripts/uat/up.sh` (no flags) now defaults to the shared-Traefik proxy path WITH live reload, health-gates the URL, auto-opens `/demo/credentials`. | complete ✓ | 2026-06-19 |
+| 260621-in8 | Fix `scripts/uat/up.sh --dev` Phoenix `validate_compile_env` boot failure. | complete ✓ | 2026-06-21 |
+| 260621-in8b | Follow-up regression fix to in8 — removed bogus `--no-validate-compile-env` flags; added `sync_host_compile_env_port()` self-heal. Verified LIVE all 3 paths. | complete ✓ | 2026-06-21 |
+| 260621-nov | Night Ops brand-lab preset recolored teal→indigo/violet. | complete ✓ | 2026-06-21 |
+| 260621-vlk | Real login locked to Vaultr; brand-lab → homepage preview only. | complete ✓ | 2026-06-21 |
+| 260622-i0e | Vaultr demo: real account screens + full vt-* brand coherence + sudo fix + product identity. | complete ✓ | 2026-06-22 |
+| 260622-gy0 | Vaultr authenticated account-home hub (`/app`). | complete ✓ | 2026-06-22 |
+| 260622-jfr | Demo app rebranded Vaultr → Tasklane (project/work tracker), framing-only. | complete ✓ | 2026-06-22 |
+| 260622-nft | Fixed email-change confirmation always failing — a real shipped bug in every generated host app. | complete ✓ | 2026-06-22 |
+| 260623-j59 | Fixed session-invalidation crashes in password-change + account-deletion. | complete ✓ | 2026-06-23 |
+| 260624-vin | Wired `check_account_active` into example `:require_authenticated` pipeline (loop-safe) + template parity. | complete ✓ | 2026-06-24 |
+| 260624-vqv | Fixed `scripts/ci/snapshot-recapture-gate.sh` single-lane recapture (185-REVIEW WR-02). | complete ✓ | 2026-06-24 |
+| 260621-o1q | Vaultr demo polish — kicker spacing + click-to-copy credentials. | complete ✓ | 2026-06-21 |
+| 260621-vbr | Vaultr demo mini-brand typography + fixed pre-existing app.css comment corruption (opening `/*` lost). | complete ✓ | 2026-06-21 |
+| 260718-eml | Fix settings email-change pending banner rendering blank (missing new email) + banner margin — request/cancel handlers now refresh `current_scope.user` with the updated user (example + installer template + byte-synced golden); scoped `.vt-panel .vt-alert` top margin; regression test. Shipped bug in every generated host. Live-verified (request + cancel) as alice. | complete ✓ | 2026-07-18 |
+| 260718-i1m | Demo front-door get-started affordance + copy-scope fix — vt-code copy decoupled to opt-in (routes→links); home re-sequenced to orient→get-started(5-persona picker, `?demo={key}`)→showcase→reference; real login prefill + dev-gated password Fill + `/demo/use/:persona` fast-switch (distinct from impersonation); planted SEED-008 (generated-host first-admin bootstrap gap). Live-verified on running demo; caught+fixed Fill-button `user_password`→`name="user[password]"` selector no-op. | complete ✓ | 2026-07-18 |
+| 260718-n3h | Lift the dev-only demo "Fill password" affordance out of the login card into a distinct full-width demo bar — relocated the `vt-demo-hint` block from inside `.vt-auth__panel` to a `.vt-demo-switch vt-demo-switch--login` band above the auth `<section>` (mirrors the authed demo-switch chrome: DEMO pill + accent tint); deleted dead `.vt-demo-hint` CSS. Example-only, dev-gated; zero JS/test/installer/golden change (tokens preserved verbatim). Verified: compile clean, session_controller_test 13/0, and live on running demo (band full-width at top, card clean, Fill password fills `AliceDemoPass1!`, bare login shows no band). Worktree forked stale origin/main → re-dispatched sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-npn | Home front-door polish — (1) added `#get-started { margin-top: var(--sg-space-5) }` so the "Choose an evaluator persona" section no longer butts the hero (matches `.vt-brand-lab` rhythm); (2) converted the obtuse "One login, two jobs" operator aside (prose + `admin@…/morgan@…` code-chip list) into two one-click `vt-btn--block` pickers ("Sign in as Admin"→`?demo=admin`, "Sign in as Morgan"→`?demo=morgan`) routing through the real prefilled login; route hints are non-copyable `.vt-code`. Kept "One login, two jobs." kicker + `home-shared-login-copy` testid verbatim → `page_controller_test` 3/0 green unchanged. Example-only, no installer/golden. Live-verified (20px gap, two picker buttons, non-copyable hints, zero aside credential chips). Ran sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-t7o | Bring MFA settings page to Tasklane brand standard (2 commits) — ROOT fix: demo core `<.button>` default was daisyUI `btn btn-primary btn-soft` (purple, from leftover `default.css`) → now `vt-btn vt-btn--primary` (teal), fixing the "Set up two-factor" purple button + every bare `<.button>` demo-wide; explicit `class=` still overrides. MFA polish: `render_enrollment_start` → `vt-panel` + `vt-panel__header` (symmetric with Passkeys card); passkey empty-state → new reusable `.vt-empty-state` (was oversized serif `vt-panel__title` in an alert). Bounded review of bare-button sites: only org-settings "Validate" demoted to `vt-btn--ghost`. Example-only (installer ships own core_components; no golden re-bless). Planted SEED-010 (systemic auth-page daisyUI un-branding + installer product decision). Verified: compile clean, 13/0, live (teal button in panel, clean empty-state). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-ssq | Unify demo bar into ONE shared component (4 commits) — new `ExampleWeb.Components.DemoBar.demo_bar/1` renders the SAME bar in all 3 contexts (authed app layout, login, sudo): DEMO pill + identity (name + muted `feature_map` description + copyable email) + always-present persona `<select>` + contextual Fill-password (login/sudo only). Centralized `Personas.by_key/1` + `by_email/1` + `options/0` + private `enrich/1` (kills 3 inlined Enum.finds). Unified the switch target — dropdown navigates via `/demo/use/<key>` everywhere (logout→prefilled real login). Dev-gating preserved per context (whole bar compiled out under mix test); 3 test refutes collapsed to unified `data-testid="demo-bar"`. Example-only, no installer/golden. Verified: compile clean, 17/0, live all 3 contexts (authed Alice identity+dropdown no-Fill; login Morgan identity+Fill fills user[password]+dropdown; /demo/use switch navigates). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-sar | Demo-chrome coherence + admin reorder (3 commits) — (A) moved the dev-only demo-persona-switch bar ABOVE the app header in `layouts.ex` (impersonation banner left below, kept distinct); (B) added dev-gated demo Fill-password band to the sudo page (`sudo_controller` `demo_persona_for/1` + `sudo_html` `demo-sudo-hint` band, current user's password, no switcher), broadened `installDemoPasswordFill` selector to also match `input[name="sudo[password]"]` in both admin_hooks.js + app.js, + fixed latent `create/2` failure re-render missing `form:` (wrong-password crash); (C) reordered admin `/admin/users` so User health sits above Find users (`lib/sigra/admin/live/users_index_live.ex` sibling swap under symmetric `sg-stack--6` gap — spacing preserved) + matched the design-gallery twin `board-cfg-users-list`. Verified: compile clean, 14/0 (session+sudo+admin-filters), diff scoped (no priv/templates, no fixtures, no *.png), live (demo bar top:0 above header; sudo band fills `sudo[password]`; User health above Find users). CI FOLLOW-THROUGH: Part C shifts `global-user-index` + `board-cfg-users-list` PNG baselines → CI recapture gate regenerates (not hand-recaptured on darwin). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-qxg | Home polish — (1) `margin-block: var(--sg-space-4)` around the aside's "View all 10 personas" button (was cramped); (2) microcopy `Audit rows`→`Audit events` (value 15+ unchanged); (3) seeded-evidence "Sigra Admin" + "Org admin" items → persona-picker "Sign in as Admin/Morgan" buttons (real prefilled login), routes kept as non-copyable context, raw `morgan@` prose removed. Example-only. Verified compile clean, page_controller_test 3/0 (dropped stale morgan@ assert), live (audit label, 16px view-all margins, seed buttons demo=admin/morgan, no morgan@ prose). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-oa1 | Consolidate demo front-door (3 commits) — (A) deleted the home "Choose an evaluator persona" card, moved `id="get-started"` onto the operator aside, added "View all 10 personas →" above the two pickers, dropped `featured_credentials`; (B) `/demo/credentials` table Email/Password columns → one "Sign in as X" button column (`?demo=<key>`), header/testids/DEV badge kept, footer reworded; (C) added a dev-only low-noise persona-switcher `<select data-demo-persona-switch>` to the login demo band (band now renders on bare `/users/log_in` in dev; credential/Fill stay `:if={@demo_persona_hint}`), delegated `installDemoPersonaSwitch()` in BOTH admin_hooks.js + served app.js, `.vt-demo-switch__select` CSS. Example-only, no installer/golden (demo JS absent from priv/templates). Verified: compile clean, 18/0 across page/credentials/session tests (dev-gated band compiled out under mix test), diff scoped to test/example. Live-verified all 3 surfaces (home main-2, credentials 10 buttons, login switcher bare+preselect+switch-to-morgan navigates). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-pdd | Persona switch `<select>` short descriptions — bare persona names ("Admin (operator)", "Alice"…) are meaningless to demo visitors, so every dropdown option now reads `Name — <descriptor>`. Added a public `Personas.taglines/0` short map (≤4-word account descriptor per persona, distinct from the LONG `feature_map/0` that drives the identity block/credential cards) + enriched `options/0` with `:tagline`; demo_bar `<option>` renders `{[p.display_name, p.tagline && " — #{p.tagline}"]}` (omits gracefully if nil). Confirmed `options/0` consumed only by the 3 demo-bar call sites → adding a key is safe; `feature_map`/`featured_keys`/home get-started picker untouched. Example-only, dev-gated. Verified: compile clean, 17/0 (session+sudo+app-live refutes hold), live on running demo (all 10 options `Name — descriptor`, placeholder intact). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-svg | Sessions self-revoke guard — lit up the ALREADY-CODED-BUT-DEAD "This device" badge + revoke-current confirm ("This is your current session. Revoking it will log you out.") on `/users/sessions`. Root cause: `mount/3` read `get_connect_params(socket)["_sigra_token"]` which nothing ever set → `current_token` always nil → neither branch rendered. Fix: read the Plug `session` map server-side (`session["user_token"]`), decode + hash to compare against each row's `hashed_token` (no JS, works on dead+connected render, drops trust in a spoofable client param). Applied identically to demo + installer template + re-blessed golden (all 3 synced copies; approved scope). SHIP-BUG CAUGHT AT LIVE-VERIFY: first pass hashed the raw `user_token` string directly, but it's Base64URL-encoded (padding: false) — the auth lookup `get_user_and_session_by_token/1` decodes before hashing, so the encoded-string hash matched nothing (0 badges even after a fresh real login). Fixed to `Base.url_decode64(raw, padding: false)` then `Sigra.Token.hash_token/1`, mirroring the lookup (commit 49a5de8f). Verified: golden diff clean (1 file), golden_diff+session_templates 53/0, live as a fresh real alice login (exactly 1 row badged "This device" + revoke_current confirm; 8 seeded fakes stay plain revoke). NOTE: demo seeds 8 synthetic sessions/persona (fake hashes) — the badge only appears on a REAL current session, so verify via an actual login, not a stale/pre-seeded one. No demo test covers the user-facing SessionLive (only the admin one). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-mba | MFA enrolled-state backup-code alert polish — the `vt-alert vt-alert--danger` "All backup codes used…" (and its `--warning` sibling) each led with `<.icon name="hero-exclamation-triangle">`, an icon with NO backing CSS in the build-free example (default.css defines only 10 hero classes, not this one) → rendered as an empty ~1rem box that shoved the text right, reading off-brand; and the enrolled panel had no rhythm below the alert (`.vt-panel__header` self-spaces via margin-bottom, but the panel isn't a stack). Fix: removed the dead icon from BOTH alert branches (matching every other icon-free vt-alert in the demo) + added a reusable `.vt-stack { display:grid; gap:var(--sg-space-4) }` (with `.vt-stack > .vt-panel__header { margin-bottom:0 }` to avoid double-gap) applied to the enrolled panel + the backup-status inner div → even spacing header→backup→trust and alert→"Regenerate codes". Kept all copy verbatim + the "Disable" `vt-btn--danger` button. Example-only (installer MFA template is daisyUI by design, deferred SEED-010). Follow-up to t7o (unenrolled state). Verified: compile clean, 13/0 (mfa_totp+passkey), diff scoped to 2 test/example files, source confirmed (no hero-exclamation-triangle left, `.vt-stack` served). Live enrolled-DANGER-state view not seed-reachable (personas keep full backup codes; page also sits behind TOTP login + sudo) → verified structurally, not the exact red-alert render. Sequential on main. | complete ✓ | 2026-07-18 |
+| 260718-dst | Remove low-value home domain strip — the `vt-domain-strip` "Cohort @demo.tasklane.test / Local host http://sigra.localhost" band below the home header conveyed nothing useful (Jon: "just remove it"). Deleted the block from `home.html.heex` + the two dead CSS rules (`.vt-domain-strip` / `__label`). Kept the `@demo_domain`/`@local_origin` controller assigns — still referenced in the get-started + footer copy (home L45/49/278). Example-only; no test asserts the strip (`home-domain-context` had 0 hits); no installer/golden. Verified: compile clean, page_controller_test 3/0, diff scoped (2 files, deletions only), live on running demo (strip gone, header ends at brand link, hero spacing clean, `@demo.tasklane.test` refs elsewhere intact). Sequential on main. | complete ✓ | 2026-07-18 |
+| 260719-iwr | Add the Sigra architecture guide and source walkthrough — boundary-first system model, 15 source-honest excerpts, strict integrity-pinned Mermaid rendering, discovery wiring, and focused drift contracts. Verified: 10 focused tests, docs warnings-as-errors, 2,418-test full suite, package exclusions, and light/dark/navigation/fallback browser review. | complete ✓ | 2026-07-19 |
+| 260719-lhs | Brand Sigra ExDoc and fix dark diagrams — wired the existing theme-aware Rail Accent favicon and changed Mermaid rendering to follow ExDoc's live default/dark theme with serialized in-place rerenders, navigation idempotence, and source/last-good fallbacks. Verified: 11 focused tests, docs warnings-as-errors, byte-identical generated favicon, light/dark/navigation/failure browser review, and visible Chrome tabs. | complete ✓ | 2026-07-19 |
+| 260727-v15 | Disambiguate the duplicate "Email" label on the generated login page (Phase 229 PROOF-03 visual-acceptance finding). Once the "Other ways to sign in" disclosure is expanded, the magic-link field and `password_form/1`'s field both rendered the visible label "Email" in the same column. Changed the magic-link field at `login_html.ex:85` to `dgettext("sigra", "Email for sign-in link")` — the string already existed at line 68 (passkey-primary branch), so no new gettext msgid; `password_form/1` (line 111) left alone since it sits under the "or use a password" divider. Mirrored into the golden fixture `session_html.ex:85`. Propagation surface proved to be exactly 2 files: no ExUnit test asserted the label (only button copy), and no Playwright spec needed editing — `admin-generated.spec.ts:71`'s `getByLabel("Email", {exact: true})` is scoped to `#login_form`, which IS `password_form/1` (unchanged). Verified: compile warnings-as-errors clean; `mix sigra.fixture.rebless_golden --check` exit 0 (template→generator→fixture agreement, no full rebless needed); golden_diff + idempotency + auth_ui_contract 10/0. Diff is 2 files, 1 line each, `label=` value only. Observations left out of scope: the passkey-primary branch has the same duplicate shape (template L44/L111), and the example demo twin has its own plain `label="Email"` duplicate. | complete ✓ | 2026-07-27 |
+| 260728-glj | Fold the hand-written "Unreleased" block in CHANGELOG.md into the release-please-generated 1.4.0 section, so the v1.46 adopter-experience content shipped INSIDE the 1.4.0 Hex release instead of remaining under a heading reading "Unreleased" inside an already-released package; added a maintainer warning comment above the changelog header to prevent recurrence. Row written late deliberately: the work ran on the release-please branch, which forked from 743864c0 — before the v1.46 close-out commit e6f7a413 — so that branch's STATE.md was 47 lines behind main, and editing it there risked reverting close-out content at merge. Main now contains both, so the row is safe to add here. | complete ✓ | 2026-07-28 |
+| 260728-ivl | Post-release bookkeeping for the 1.4.0 Hex publish: filed two high-severity release-lane defect todos exposed by that release, and recorded the 260728-glj row above. (1) `gate-ci-green` in release-please.yml waits for `ci-gate` on the release SHA with a hard 30-minute ceiling (`max_attempts=60` × `wait_seconds=30`), which is BELOW the expected duration of a push-to-`main` ci.yml run — that run is strictly heavier than the `pull_request` run gating the Release PR because jobs like "Recapture admin-design baselines (in-CI)" are skipped on `pull_request`. On v1.4.0 it timed out at 17:16:37Z on a run that concluded **success** ~1 min later, so `publish-hex` was skipped and the tag/GitHub Release existed with nothing on Hex. (2) The HARD-02 "no silent rot" notifier has never worked: `notify-failure-issue.sh:33` calls `gh issue create --label release-lane-rot`, that label did not exist, so the job died with `could not add label: 'release-lane-rot' not found` and created **zero** issues — the loud signal was silent on its first real firing, and the same shared script backs ci.yml's red-ci-gate notifier. Label created as an immediate mitigation; durable self-healing fix left as a recommendation. | complete ✓ | 2026-07-28 |
+| 260728-kub | Captured the CI-efficiency fan-out investigation in-repo: refreshed SEED-005 with a 2026-07-28 re-measured baseline and filed two high-severity CI defects. **Headline finding: the CI/CD audit is already done and was orphaned** — `.planning/research/SEED-005-CICD-AUDIT-2026-06-20.md` carries a prioritized Phase 198→203 sequence, but only 198 partially ran because v1.41 reused phase numbers 199-204 for unrelated work. The audit is still accurate (it named `design_gallery` at ~700s; re-measured 734s) and its #1 win — a `storageState` refactor of `admin-design.spec.ts:250-255`, −6 to −7.5 min at Low risk with zero coverage loss — was never implemented. Baseline: PR mean 29.5m / p50 27.3m (~56 runner-min for a 25.6m wall), push 30.5m (~92 runner-min), nightly **0 pass / 9 fail**. New todos: (1) `admin_eval_render` burns ~17m per PR for a red nobody reads — its mobile project uses a WebKit device preset while the job installs chromium only, and an `SVGAnimatedString` probe bug compounds it; because the harness aborts under `set -euo pipefail`, guards b1-b6 have never executed in CI. (2) `generated_admin_playwright_smoke` is gated on a long-merged branch name, so it is skipped on every PR while `ci-gate` counts skipped as pass — generated-host parity is verified on no PR at all. Scoped as milestone v1.47 CI-EFFICIENCY, phases 230-235, targeting the `<12m` PR wall-clock v1.40 missed. Seed edit verified non-destructive (74 insertions, **0 deletions**; verbatim playbook byte-identical). | complete ✓ | 2026-07-28 |
+| 260915-h3b | Recover Phase 235 closure from stranded branch `ci/phase-235-16-source-complete` (6496cada) onto a clean branch off origin/main, leaving the 469 later 235.1 commits behind. One commit `01748c9c`, 28 paths (25 planning + 3 non-planning), all 28 blobs byte-identical to 6496cada; branding/chimeway work from #236/#237/#238 preserved, zero deletions. Verified: 6/6 acceptance gates pass. | complete ✓ | 2026-09-15 |
+| 260915-vcq | Fixed the ROOT CAUSE of the 3 stale phase-235 FAST-01/GATE-05 contract-test failures blocking `mix ci`: `Sigra.Test.PlanningPaths.requirements/0` only fell back to the milestone archive when the live `.planning/REQUIREMENTS.md` was MISSING, but the v1.48 rollover REPLACED it wholesale rather than deleting it, so the fallback never fired. Added `requirements_for/1` (milestone-scoped resolver, `requirements/0` byte-unchanged) and repointed both contract test files at `requirements_for("v1.47")` — 24 tests, 0 failures, same count as before (no assertion dropped). Resolved the pending todo (option 2: repoint at archive, not retire). Reported, not fixed: 6 pre-existing `Sigra.Audit.Forwarders.ThreadlineTest` failures in the `sigra-dep-off` lane (stale optional-dep compile artifact, unrelated to this diff, recurred after the documented remediation attempt). | complete ✓ | 2026-09-16 |
+| 260918-lfq | Closed the three Phase 240 GREEN-04 collector follow-up todos as one change — collector now fails closed on a zero-match SC-2 job selector (`sc2_job_not_found`), a matched job with a null conclusion (`sc2_job_conclusion_null`, a deliberately distinct token), a `main` window below the run floor (`insufficient_main_runs`, default 5, overridable only via an explicit `--min-main-runs` recorded in the receipt), and a window not containing the dispatch run (`main_window_excludes_dispatch_run`); wired `capture-green-04-evidence.test.sh` into `ci.yml` `fast_checks`. Non-vacuity proven by mutation — neutering each of the 5 guards drives the suite red. Verified: self-test 62 pass / 0 fail (was 36/0), prohibitions 93/0, receipt strictly additive at `schema_version` v1. PR #248 (b9f2c4b5). | complete ✓ | 2026-09-18 |
+
+## Deferred Items
+
+### v1.48 closeout inventory (2026-10-05; unsuppressed)
+
+The manual, grep-driven closeout inventory is summarized above. No rows are added to the acknowledged-items ledger because no acknowledgement was performed. Keep the todos, quick task, seeds, and deferred items open until their own state is reconciled.
+
+### Acknowledged at v1.46 close (2026-07-27)
+
+13 open artifacts were acknowledged and deferred, making this an `override_closeout`.
+
+**Audit findings (8)** — all from `.planning/milestones/v1.46-MILESTONE-AUDIT.md`, each
+filed with full diagnosis at `todos/pending/2026-07-28-w{1..8}-*`:
+
+| ID | Severity | Item |
+| --- | --- | --- |
+| W-1 | high | Duplicate `Email` label in the passkey-primary login branch; plus a pre-existing four-input `id="user_email"` cluster. A verified fix plan exists at `quick/260728-d9h-*/260728-d9h-PLAN.md`, deliberately not executed |
+| W-2 | medium | Example `sigra_auth.css` stale (12,281 B vs 27,914 B canonical); no parity gate exists, though one does for `sigra_admin.css` |
+| W-3 | medium | Generated auth has browser coverage on exactly one surface (login, no-passkeys) — **the substantive finding** |
+| W-4 | medium | No axe run touches any `sigra-auth-*` surface |
+| W-5 | low | `export_auth_data/2` impersonation guard has no caller |
+| W-6 | low | Generated `sigra_admin_policy_test.exs` outside golden fixture coverage |
+| W-7 | low | `sigra-auth-preview-form` is a dead class |
+| W-8 | low | Per-user audit presets have no E2E assertion |
+
+**Quick tasks (5)** — 4 pre-existing from the 2026-07-18 demo-DX burst
+(`260718-dst`, `260718-mba`, `260718-pdd`, `260718-svg`), plus `260728-d9h` (the W-1 fix,
+planned and deliberately deferred).
+
+**Seeds (3)** — SEED-004 (phx.new `<.button>` forward-compat), SEED-005 (CI/CD performance
+audit), SEED-006 (admin-design gallery CI baseline recapture). All dormant.
+
+**Structural note on the closeout type:** phases 224–228 carry no `*-VERIFICATION.md`
+because Phase 229 is the milestone's Terminal Ratification phase and its verification table
+spans all 15 requirements. The readiness projection therefore reports five phases as
+`verification: missing`, which forces `override_closeout` even though coverage is complete.
+This is a recurring artifact of the terminal-ratification pattern, not a v1.46 defect.
+
+### Acknowledged at v1.47 close (2026-09-15)
+
+46 open artifacts were acknowledged and deferred, making this an `override_closeout`.
+**Known verification overrides: 46 newly acknowledged, 0 carried forward.** All six
+milestone phases (230-235) are `phase_complete: true` with `verification_status: passed`,
+and all 24 v1.47 requirements are Complete — none of the 46 items below is a v1.47 gap.
+
+**Closed during this close-out, NOT acknowledged:**
+
+| Seed | Disposition |
+| --- | --- |
+| SEED-005 (CI/CD pipeline performance audit) | **DELIVERED by this milestone.** v1.47 Phases 230-235 *are* the execution of this seed. Phase 235 measured PR wall-clock at p50 469s (7m49s) over n=52 authenticated runs against the p50 27.3m baseline. Marked `status: implemented` |
+| SEED-006 (admin-design gallery CI baseline recapture) | **DELIVERED by Phase 197 (Plans 03-05).** The seed body already recorded ADDRESSED/DELIVERED while its header lagged at OPEN; header and frontmatter corrected, marked `status: implemented` |
+
+Also corrected, not deferred: eight REQUIREMENTS.md traceability rows (TEST-01..03,
+DX-01..04, DX-06) still read `Gaps Found` from the first verification pass. Phases 233 and
+234 both re-verified to `passed` with `gaps_remaining: []` (16/16 and 7/7 must-haves), so
+the rows were stale, not open. Corrected before archival so the milestone archive does not
+permanently record closed gaps as open.
+
+**Debug sessions (1)** — `knowledge-base` (status unknown, no hypothesis recorded). Stale;
+not v1.47 scope.
+
+**Quick tasks (5)** — the same set carried at the v1.46 close: 4 from the 2026-07-18
+demo-DX burst (`260718-dst`, `260718-mba`, `260718-pdd`, `260718-svg`) plus `260728-d9h`
+(the W-1 passkey label fix, planned and deliberately deferred).
+
+**UAT gaps (1)** — Phase 202 `202-UAT.md` (archived v1.41), status deferred, 0 pending
+scenarios. Carried, not blocking.
+
+**Seeds (1)** — SEED-004 (phx.new ≥ 1.8.8 `<.button>` forward-compat). Still dormant and
+genuinely open.
+
+**Deferred items (2)** — Phase 222 (archived v1.45): 5 pre-existing actionlint/shellcheck
+warnings in `ci.yml` at `run:` blocks unrelated to that plan, confirmed present on `main`
+beforehand. Phase 27 (archived v1.2): `installer_drift_test` fix #9 failing outside Phase 27
+ownership (`confirmation_live.ex` missing the `current_scope.user` marker).
+
+**Pending todos (36)** — the full `.planning/todos/pending/` backlog, none v1.47 gaps.
+Notable groupings: the 8 W-1..W-8 findings from the v1.46 audit; the release-ops set
+(Hex `1.20.0` retire, `release-please` Unreleased orphaning, `release-lane-rot` label,
+`gate-ci-green` timeout); the v2 feature set (FEAT-01/02/03 config, installer, email
+white-label); and 4 filed during this milestone's tail — the three 2026-09-15 branding
+todos from PR #238 and `2026-09-15-gap-closure-verifier-exit-trap-flaw` (PR #240), the
+latent EXIT-trap twin of the verifier bug fixed in `535876b0`.
+
+**Structural note on the closeout type:** the acknowledgement path forces
+`override_closeout` by construction. It does not reflect unverified work here —
+`ALL_PHASES_VERIFIED` computed `true` from the readiness projection before any item was
+acknowledged. Acknowledgement is verdict-preserving and self-invalidating: each suppression
+lapses the moment the artifact's own state changes, so every item above resurfaces at the
+next audit if touched.
+
+### Carried forward from earlier milestones
+
+| Category | Item | Status | Deferred At |
+| --- | --- | --- | --- |
+| Release-ops | Retire stray Hex `1.20.0` (PUB-04) + PUB-05 adopter-resolution proof + PROOF-01 currency bundle (all Phase 223) | Deferred indefinitely — operator/interactive Hex retire, no adopters. Resume `/gsd-execute-phase 223` after retire. Root cause: ADR 003. Tracked `todos/pending/2026-07-03-hex-retire-stray-1-20-0.md` | v1.45 (override_closeout) |
+| Release-ops | Push local `main` (v1.45 work + close-out commits) via close-out PR | Deferred — ruleset blocks direct push to `main`; needs a close-out PR | v1.45 |
+| Brand exports | PNG/PDF exports for social/platform use | Deferred until a concrete platform target requires raster | v1.35 |
+| Public docs | README/HexDocs visual adoption | Deferred to a separate focused change to avoid brand churn | v1.35 |
+| Automation | Visual regression for `brandbook/index.html` | Nice-to-have | v1.35 |
+| Playwright | `Phoenix.Ecto.SQL.Sandbox` for browser acceptance tests | Deferred | v1.33 |
+
+### Acknowledged at v1.43 close (2026-07-03)
+
+v1.43-pulled ledger entries all RESOLVED (reconciled by Phase 215 RATIFY-01, cross-checked in 215-03-SUMMARY): oban-enqueue (DEBT-01), phase209/phase200 code-review (DEBT-02/03), app-css-comment-corruption (DEBT-05), v142-integration-snapshot-canary-drift + stale-known-failure-contract-tests (HEALTH-03), all under `.planning/todos/resolved/`. SEED-004 phx-new-button-forward-compat RESOLVED via COMPAT-01/02/03 (Phase 213).
+
+Items folded INTO v1.44 (will be resolved in Phase 218):
+
+| Category | Item | Resolution |
+| --- | --- | --- |
+| todo | 2026-06-19-uat-demo-dx-polish-nits | UI-01 → Phase 218 (elevation wave nit cleanup) |
+| todo | 2026-06-22-vaultr-authed-rebrand-residuals | UI-02 → Phase 218 (elevation wave nit cleanup) |
+
+Items deferred beyond v1.44 (feature milestone or later) — NOT unreconciled debt:
+
+| Category | Item | Status |
+| --- | --- | --- |
+| todo | 2026-06-20-runtime-auth-prefix-override | tracked — config feature (FEAT-01, v2) |
+| todo | 2026-06-20-mix-sigra-migrate-schema-helper | tracked — installer feature (FEAT-02, v2) |
+| todo | 2026-06-22-white-label-auth-email-theming | tracked — auth/email white-label (FEAT-03, v2) |
+| todo | 2026-06-20-playwright-parallelization-per-shard-db | tracked — CI perf (SEED-005, v2) |
+| todo | 2026-07-02-app-css-corruption-guard-blind-spot | accepted low-severity DEBT-05 follow-up (live app.css clean + browser-verified; regression-guard hardening gap only) |
+| seed | SEED-005-ci-cd-pipeline-performance-audit | dormant — CI/CD perf audit (next-milestone candidate) |
+| seed | SEED-006-admin-design-gallery-ci-baseline-recapture | dormant — deterministic CI fonts + in-CI baseline recapture |
+
+### Acknowledged at v1.44 close (2026-07-10)
+
+override_closeout — `audit-open` reported ~20 open items, all acknowledged-deferred at milestone close:
+
+- **10 quick-tasks** (`260618-fch…`, `260618-gly…`, `260618-grh…`, `260619-l1b…`, etc.) — the **known false-flag**: completed quick-tasks that glob as "open" (same pattern acknowledged at v1.42/v1.43 close). No action.
+- **1 debug session** `pr37-phantom-sigra-web` (investigating, 2026-05-02) — stale, from the phase-88 era; not v1.44 scope. (Its stray untracked copy — left by a bad stash pop during the v1.44 ship — was cleaned; the session record is preserved in stash `chore/phase-88-uat-evidence`.)
+- **1 UAT gap** — carried; not blocking (v1.44 verification was gate-driven via Phase 220 + live CI).
+- **5 todos / 3 seeds** — carried forward as tracked debt, notably the **new deferred-Hex TODO** `2026-07-10-upgrade-smoke-button-type-hex-publish` (fix upgrade-smoke `<.button type>` → publish v1.2.0/v1.3.0 to Hex), the Jon-manual Hex `1.20.0` retire, the v2 FEAT-01/02/03 config/installer features, and SEED-005/006 (dormant CI-perf / gallery-recapture). None are unreconciled blocking debt.
+
+## Session Continuity
+
+Last session: 2026-10-11T12:24:59Z
+Stopped at: Plan 250-07 complete; Plan 250-10 is the sole runnable gap plan. Plan 250-10 is being dispatched now.
+Resume file: `.planning/HANDOFF.json`
+
+## Operator Next Steps
+
+- **Next GSD command:** `$gsd-execute-phase 250 --gaps-only`. `init.execute-phase 250` reported Plan 250-10 as the sole runnable plan after Plan 250-07 was summarized complete.
+- **Evidence:** `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md`, `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json`, `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json`, and `.planning/phases/248-exact-source-release-gate/248-VERIFICATION.md`. Plan 250-08 remains halted on zero eligible tuples; Plans 250-09, 250-11, and 250-12 remain blocked by that route.
+- **Remaining canary authority:** The single packet-v8 run is consumed. Do not dispatch or cancel another run without a newly reviewed packet and explicit user authorization. The owner report records controller failure while validating both source artifacts independently.
+- **Current CI:** PR #327 run 38138426620 is running under the existing one-minute watcher. Only merge it if the full run is green, per the user's authorization.
+- **Future work:** CI/CD run-time and reliability optimization is separate follow-up work after Phase 250.
+- **Preservation:** Recovery manifest `.planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/REF.json` records the exact pre-closeout state, handoff, verifier, report, snapshot, and prior proof bytes. The historical HANDOFF accepted-loss status remains unchanged; those bytes were not recovered.
+
+## Performance Metrics
+
+| Phase | Plan | Duration | Notes |
+|-------|------|----------|-------|
+| Phase 196 P04 | 4min | 2 tasks | 3 files |
+| Phase 197 P02 | 2min | - tasks | - files |
+| Phase 197 P02 | 2min | 2 tasks | 1 files |
+| Phase 197 P03 | 2min | 4 tasks | 4 files |
+| Phase 197 P04 | 5min | 3 tasks | 1 files |
+| Phase 197 P05 | 2m | 2 tasks | 2 files |
+| Phase 198 P02 | 4m | - tasks | - files |
+| Phase 198 P03 | 383s | 3 tasks | 2 files |
+| Phase 199 P01 | 131s | 2 tasks | 2 files |
+| Phase 199 P02 | 5 minutes | 2 tasks | 2 files |
+| Phase 199 P03 | 6min | 4 tasks | 2 files |
+| Phase 199-foundation-tier-2-scorecard-stress-fixtures P04 | 25min | 4 tasks | 1 files |
+| Phase 200 P01 | 236 | 3 tasks | 5 files |
+| Phase 200 P02 | 304s | 3 tasks | 1 files |
+| Phase 200 P03 | 600 | 3 tasks | 6 files |
+| Phase 201 P01 | 274 | 3 tasks | 1 files |
+| Phase 201 P02 | 34s | 1 tasks | 1 files |
+| Phase 201 P03 | 185s | - tasks | - files |
+| Phase 202 P01 | 136s | 3 tasks | 1 files |
+| Phase 202 P02 | 156s | 2 tasks | 1 files |
+| Phase 202 P03 | 116s | 2 tasks | 1 files |
+| Phase 202 P04 | 1318s | 2 tasks | 2 files |
+| Phase 202 P05 | 843 | 3 tasks | 6 files |
+| Phase 203 P01 | 69s | 3 tasks | 2 files |
+| Phase 203 P03 | 216s | 1 tasks | 1 files |
+| Phase 203 P04 | 156s | - tasks | - files |
+| Phase 203 P05 | 490s | 2 tasks | 2 files |
+| Phase 204 P01 | 129s | - tasks | - files |
+| Phase 204 P02 | 157s | 2 tasks | 4 files |
+| Phase 204 P03 | 93min | 2 tasks | 3 files |
+| Phase 204 P04 | 5min | 2 tasks | 0 files |
+| Phase 204 P05 | 440s | 3 tasks | 4 files |
+| Phase 205-foundation P01 | 3 | 2 tasks | 3 files |
+| Phase 205 P02 | 35 | 3 tasks | 4 files |
+| Phase 205 P04 | 4 | 1 tasks | 1 files |
+| Phase 206 P03 | 33m | 2 tasks | 70 files |
+| Phase 206 P04 | ~4m | 2 tasks | 1 files |
+| Phase 207 P03 | ~31 minutes | 2 tasks | 1 files |
+| Phase 208 P01 | 1m | 2 tasks | 0 files |
+| Phase 208.1-v1-42-ci-gate-remediation P01 | 13min | 3 tasks | 2 files |
+| Phase 208.1 P03 | 38m | 3 tasks | 5 files |
+| Phase 209 P01 | 4 | 1 tasks | 1 files |
+| Phase 209 P02 | 522 | 3 tasks | 10 files |
+| Phase 209 P03 | 2 | 2 tasks | 4 files |
+| Phase 209 P04 | 5 minutes | 3 tasks | 6 files |
+| Phase 209 P06 | 3min | 3 tasks | 1 files |
+| Phase 210 P01 | 119 | 3 tasks | 1 files |
+| Phase 210 P02 | 236 | - tasks | - files |
+| Phase 210 P02 | 236 | 2 tasks | 1 files |
+| Phase 211 P01 | 8min | 3 tasks | 0 files |
+| Phase 211 P02 | 9min | 2 tasks | 0 files |
+| Phase 211 P03 | 19min | 3 tasks | 0 files |
+| Phase 213 P01 | 4min | 2 tasks | 3 files |
+| Phase 213 P02 | 723 | 3 tasks | 10 files |
+| Phase 214 P01 | 149 | 2 tasks | 5 files |
+| Phase 214 P02 | 20 minutes | 2 tasks | 7 files |
+| Phase 214 P03 | 6 | 3 tasks | 3 files |
+| Phase 214 P04 | 89s | 2 tasks | 2 files |
+| Phase 214 P05 | 170s | 2 tasks | 3 files |
+| Phase 216 P01 | 144s | 3 tasks | 4 files |
+| Phase 216 P04 | ~15min | 3 tasks | 6 files |
+| Phase 216 P05 | 4min | 3 tasks | 3 files |
+| Phase 216 P06 | 17min | 3 tasks | 5 files |
+| Phase 216-harness-foundation-award-gradient P07 | 45m | 5 tasks | 6 files |
+| Phase 216 P08 | 611 | 3 tasks | 4 files |
+| Phase 216 P09 | 95 | - tasks | - files |
+| Phase 217 P01 | 374 | 4 tasks | 7 files |
+| Phase 217 P04 | 176 | 1 tasks | 1 files |
+| Phase 217 P02 | 13m30s | 3 tasks | 7 files |
+| Phase 217 P03 | 14m 38s | 3 tasks | 4 files |
+| Phase 217 P05 | 621 | 4 tasks | 8 files |
+| Phase 217 P06 | 914 | 3 tasks | 6 files |
+| Phase 217 P07 | 3m37s | 2 tasks | 2 files |
+| Phase 218 P01 | 707s | - tasks | - files |
+| Phase 218 P04 | 235 | 2 tasks | 1 files |
+| Phase 218 P05 | 311s | 2 tasks | 5 files |
+| Phase 218 P02 | 1845s | 2 tasks | 1 files |
+| Phase 218 P03 | 268s | 2 tasks | 1 files |
+| Phase 218 P06 | 90min | 1 tasks | 2 files |
+| Phase 218 P07 | 12min | 2 tasks | 2 files |
+| Phase 218 P08 | 12min | 2 tasks | 2 files |
+| Phase 218 P09 | 12min | 3 tasks | 8 files |
+| Phase 218 P10 | 3min | 1 tasks | 1 files |
+| Phase 219 P01 | 5min | 1 tasks | 1 files |
+| Phase 219 P02 | 4min | 3 tasks | 2 files |
+| Phase 219 P04 | 5min | 2 tasks | 0 files |
+| Phase 219 P05 | 4min | 2 tasks | 0 files |
+| Phase 220 P01 | 6min | 2 tasks | 2 files |
+| Phase 220 P02 | 8min | 1 tasks | 1 files |
+| Phase 220 P03 | 6min | 1 tasks | 1 files |
+| Phase 220 P04 | 8min | 2 tasks | 2 files |
+| Phase 221 P01 | 20min | 3 tasks | 2 files |
+| Phase 221 P02 | 6min | 3 tasks | 5 files |
+| Phase 221 P03 | 8min | 2 tasks | 1 files |
+| Phase 222 P01 | 9min | 2 tasks | 6 files |
+| Phase 222 P02 | 20min | 3 tasks | 5 files |
+| Phase 222 P03 | 15min | 2 tasks | 2 files |
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 230 P01 | 13min | 3 tasks | 4 files |
+| Phase 230 P02 | 10min | 2 tasks | 2 files |
+| Phase 230 P03 | ~20min | 3 tasks | 2 files |
+| Phase 230 P04 | 12min | 2 tasks | 1 files |
+| Phase 230 P05 | 20min | 3 tasks | 3 files |
+| Phase 230 P06 | 4min | 3 tasks | 3 files |
+| Phase 230 P07 | 25min | 2 tasks | 2 files |
+| Phase 230 P08 | ~15min | 2 tasks | 1 files |
+| Phase 230 P09 | 1h34m | 3 tasks | 3 files |
+| Phase 231 P01 | 3min | 2 tasks | 4 files |
+| Phase 231 P02 | 56min | 3 tasks | 5 files |
+| Phase 231 P03 | 8min | 2 tasks | 2 files |
+| Phase 231 P04 | 22min | 2 tasks | 5 files |
+| Phase 231 P05 | 4h | 9 tasks | 9 files |
+| Phase 231 P06 | 45min | 2 tasks | 4 files |
+| Phase 231 P07 | 1h9min | 2 tasks | 5 files |
+| Phase 231 P08 | ~35min | 2 tasks | 3 files |
+| Phase 231 P09 | ~50min | 3 tasks | 4 files |
+| Phase 231 P10 | ~37min | 3 tasks | 7 files |
+| Phase 231 P11 | 50min | 3 tasks | 1 files |
+| Phase 232 P01 | 8min | 2 tasks | 6 files |
+| Phase 233-library-suite-economics P01 | 15min | 2 tasks | 5 files |
+| Phase 233-library-suite-economics P02 | 18m | 2 tasks | 3 files |
+| Phase 233-library-suite-economics P03 | 5m | 2 tasks | 8 files |
+| Phase 233-library-suite-economics P06 | 5m | 2 tasks | 3 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P01 | 7m | 2 tasks | 6 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P06 | 3min | 2 tasks | 2 files |
+| Phase 234 P07 | 3min | 2 tasks | 2 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P02 | 1m | 2 tasks | 7 files |
+| Phase 234 P03 | 1m | 2 tasks | 7 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P04 | 187s | 2 tasks | 7 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P08 | 5m | 2 tasks | 4 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P11 | 6m | 2 tasks | 8 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P12 | 3 min | 2 tasks | 8 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P13 | 4min | 2 tasks | 8 files |
+| Phase 234 P05 | 3m | 2 tasks | 6 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P10 | 2h | 3 tasks | 6 files |
+| Phase 234 P14 | 8min | 1 tasks | 2 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P15 | 10 minutes | 2 tasks | 5 files |
+| Phase 234 P17 | 31m | 2 tasks | 4 files |
+| Phase 234 P16 | 10 minutes | 1 tasks | 3 files |
+| Phase 234 P18 | 6 minutes | 2 tasks | 2 files |
+| Phase 234 P19 | 6min | 2 tasks | 2 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P20 | 14m | 2 tasks | 3 files |
+| Phase 234-hygiene-supply-chain-and-contributor-dx P21 | 22m | 1 tasks | 3 files |
+| Phase 235 P01 | 6min | 2 tasks | 2 files |
+| Phase 235-terminal-ratification-measured-not-read P02 | 9min | 2 tasks | 2 files |
+| Phase 235 P03 | 5min | 2 tasks | 6 files |
+| Phase 235-terminal-ratification-measured-not-read P04 | 10min | 3 tasks | 3 files |
+| Phase 235 P06 | 12m | 3 tasks | 2 files |
+| Phase 235-terminal-ratification-measured-not-read P07 | 20min | 2 tasks | 5 files |
+| Phase 235 P08 | unknown | 3 tasks | 7 files |
+| Phase 235 P15 | 20 min | 2 tasks | 10 files |
+| Phase 235 P16 | 72m | 2 tasks | 13 files |
+| Phase 235 P17 | 10m 03s | 3 tasks | 6 files |
+| Phase 235 P18 | 1h 5m | 2 tasks | 6 files |
+| Phase 235 P19 | 7min | 2 tasks | 2 files |
+| Phase 236 P01 | 2h 15min | 3 tasks | 3 files |
+| Phase 236 P02 | 35min | 3 tasks | 3 files |
+| Phase 236 P03 | 55min | 3 tasks | 7 files |
+| Phase 236 P04 | 50 min | 3 tasks | 4 files |
+| Phase 237 P01 | 20m | 2 tasks | 2 files |
+| Phase 237 P02 | 20m | 2 tasks | 2 files |
+| Phase 237 P04 | 20 min | 3 tasks | 7 files |
+| Phase 237 P05 | 25 min | 3 tasks | 3 files |
+| Phase 237 P03 | 8min | 2 tasks | 2 files |
+| Phase 237 P06 | ~2h | 3 tasks | 7 files |
+| Phase 238 P06 | 41 min | 3 tasks | 5 files |
+| Phase 239 P01 | 25min | 3 tasks | 6 files |
+| Phase 239 P02 | 70min | 3 tasks | 47 files |
+| Phase 239 P03 | 95min | 3 tasks | 31 files |
+| Phase 239 P05 | 35m | 3 tasks | 4 files |
+| Phase 239 P06 | 30m | 3 tasks | 8 files |
+| Phase 239 P07 | ~25m | 3 tasks | 8 files |
+| Phase 239 P08 | ~75m | 4 tasks | 12 files |
+| Phase 239 P09 | 34min | 2 tasks | 6 files |
+| Phase 239 P10 | 22 | 3 tasks | 7 files |
+| Phase 239 P11 | 25m | 2 tasks | 6 files |
+| Phase 239 P12 | ~35m | 2 tasks | 5 files |
+| Phase 239 P14 | ~35m | 4 tasks | 6 files |
+| Phase 239 P15 | ~25m | 2 tasks | 4 files |
+| Phase 239 P16 | ~38m | 2 tasks | 3 files |
+| Phase 239 P13 | 55m | 3 tasks | 2 files |
+| Phase 240 P01 | 50m | 3 tasks | 4 files |
+| Phase 240 P02 | 35m | 3 tasks | 3 files |
+| Phase 240 P03 | ~50m | 3 tasks | 4 files |
+| Phase 240 P04 | 25m | 3 tasks | 2 files |
+| Phase 240 P05 | ~35m | 4 tasks | 5 files |
+| Phase 241 P01 | 3min | 3 tasks | 4 files |
+| Phase 241 P03 | 12min | 3 tasks | 7 files |
+| Phase 241 P04 | 12min | 3 tasks | 6 files |
+| Phase 241 P05 | 8m | 3 tasks | 7 files |
+| Phase 241 P02 | 5min | 3 tasks | 3 files |
+| Phase 241 P06 | 24m | 3 tasks | 10 files |
+| Phase 242 P01 | 40min | 2 tasks | 7 files |
+| Phase 244 P02 | 31min | 3 tasks | 10 files |
+| Phase 245 P17 | 88min | 3 tasks | 13 files |
+| Phase 245 P20 | 19min | 2 tasks | 3 files |
+| Phase 245 P22 | 21min | 2 tasks | 5 files |
+| Phase 245 P23 | 51min | 2 tasks | 6 files |
+| Phase 245 P29 | 45min | 3 tasks | 6 files |
+| Phase 245 P45 | 33min | 2 tasks | 3 files |
+| Phase 245 P46 | 10min observed closeout | 2 tasks | 2 files |
+| Phase 245 P48 | 4min | 2 tasks | 3 files |
+| Phase 245 P49 | 4min | 2 tasks | 3 files |
+| Phase 245 P47 | 2min | 1 tasks | 2 files |
+| Phase 246 P1 | 44min | 2 tasks | 9 files |
+| Phase 246 P02 | 28min | 2 tasks | 6 files |
+| Phase 246 P03 | 45min | 2 tasks | 10 files |
+| Phase 247 P01 | 167m | 2 tasks | 4 files |
+| Phase 247 P2 | 37min | 2 tasks | 5 files |
+| Phase 247 P03 | 34min | 1 tasks | 4 files |
+| Phase 247 P04 | 7min | 1 tasks | 3 files |
+| Phase 247 P07 | 16min | 2 tasks | 5 files |
+| Phase 248 P02 | 50m | 2 tasks | 4 files |
+| Phase 248 P03 | 157 min | 3 tasks | 8 files |
+| Phase 248 P04 | 45min | 2 tasks | 5 files |
+| Phase 248 P05 | 32min | 2 tasks | 4 files |
+| Phase 249 P01 | 16 min | 1 tasks | 4 files |
+| Phase 249 P2 | 13min | 2 tasks | 7 files |
+| Phase 249 P03 | 16min | 2 tasks | 6 files |
+| Phase 250 P01 | 2h 42m | 3 tasks | 20 files |
+| Phase 250 P02 | 14min | 2 tasks | 5 files |
+| Phase 250 P03 | 12min | 2 tasks | 6 files |
+| Phase 250 P04 | 37m | 2 tasks | 6 files |
+| Phase 250 P05 | 18m | 3 tasks | 7 files |
+| Phase 250 P06 | 4h25m | 2 tasks | 4 files |
+
+Plan 250-07 observer-delivery repair: the missing `workflow_run` observer was consistent with GitHub suppressing workflow events caused by `GITHUB_TOKEN`; PR #321 added an explicit observer `workflow_dispatch` bound to the exact canceled canary source and authoritative metadata/receipt checks. PR #321 merged at 1b420936e5135727f4a1b6dfcfd9c3d1ca050a04; PR CI 38088968210 and exact-main CI 38089444484 passed, including ci-gate and admin eval. Fresh preflight `250-CANARY-PREFLIGHT-1b420936.json` is ready on that SHA (file SHA-256 c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e; compact payload SHA-256 cbaef01e342ee3636992c21489e75f9fe2b1bb64b21c7d1aa15724dcd7647366). Packet v4 reviewed SHA-256 5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922 was explicitly approved at 2026-10-10T22:31:25Z and the approval is recorded. A same-source preflight refresh at 2026-10-10T22:31:59Z is committed (file SHA-256 9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9; payload SHA-256 5f860516539e6df2e287b744fa7688dac8a39ab504b6ac79e68d6913f724ba89). The single controller workflow_dispatch returned HTTP 204 at 22:34:49Z. Exact run 38091955379 matches workflow 380517406, workflow_dispatch, main, and authorized SHA; one 60-second watcher is active in session 71992. V3 remains preserved and consumed; AUTO-02 remains unsatisfied. Separate Release Please run 38089444492 failed its post-push candidate identity assertion after writing generated docs commit 4015070b to open PR #302; both Hex publish and release CI gate jobs were skipped, and no release was published. See `250-07-OBSERVER-DISPATCH-REPAIR.json`.
+
+
+Controller run 38135003478 dispatch record: `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-38135003478.json`. The run completed as blocked: the failure receipt exists, the exact canary child was canceled, and observer 38135205117 failed before uploading its cancellation receipt. Its one-run authority is consumed.
+
+### Current route after PR #325 — 2026-10-11
+
+PR #325 (`https://github.com/szTheory/sigra/pull/325`) is squash-merged at `84ebcea60024c9e8caee405d55cad1c76b0e858a`. CI run 38135909462 passed, and the merge tree is identical to its tested head. On the exact merged-main worktree, canary tests (59), canary self-test, observer tests (24), receipt tests (16), and actionlint all passed. Read-only preflight is ready for main `84ebcea` with workflow IDs and retention recorded; it contains no credential values.
+
+The new packet is `.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json` (SHA-256 `0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628`). Its preflight is `250-07-CANARY-PREFLIGHT-84ebcea-20261011T114545Z.json` (SHA-256 `044e8b4050b7602e6b39fd7d40764690257278900c3c73ddddc2ffcdc41e9ede`); its source identity record is `250-07-SOURCE-IDENTITY-84ebcea-20261011T114701Z.json` (SHA-256 `de02a0d9cb888214792b52d847755b4615a168e8eb3e0604aa924c70d9b791c3`). The refreshed preflight and compact controller input passed validation. The user authorized packet v8; its one controller dispatch is run `38137539834`, currently in progress. The prior packet approval cannot be reused.
+
+The GSD planner found no distinct new plan: Plan 250-07 already covers this exact receipt proof, while Plan 250-08 still has zero eligible READY tuples. `init.execute-phase 250` reports zero runnable plans. The accepted dispatch is run `38137539834`; continue its existing watcher. After the run, retrieve and validate the exact hosted proof, manually reconcile Plan 250-07, then run `init.execute-phase 250` before selecting the next GSD command. The requested CI/CD duration and reliability optimization remains separate follow-up work after Phase 250.

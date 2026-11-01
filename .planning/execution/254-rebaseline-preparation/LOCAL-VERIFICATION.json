@@ -1,0 +1,32 @@
+{
+  "verified_at": "2026-10-23T23:38:51.564739+00:00",
+  "code_commit": "fef59a0af7a888c1efeb229d793d9808ef00131c",
+  "checks": [
+    {
+      "command": "python3 scripts/ci/ci-run-metrics-attempt.test.py",
+      "exit_code": 0,
+      "tests": 10,
+      "log": "LOCAL-attempt-protocol-tests.log"
+    },
+    {
+      "command": "bash scripts/ci/ci-run-metrics.test.sh",
+      "exit_code": 0,
+      "tests": 48,
+      "log": "LOCAL-metrics-tests.log"
+    },
+    {
+      "command": "python3 scripts/ci/ci-metrics-security.test.py",
+      "exit_code": 0,
+      "tests": 23
+    },
+    {
+      "command": "bash -n scripts/ci/ci-run-metrics.sh",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check -- scripts/ci/ci-run-metrics.sh scripts/ci/ci_metrics_security.py scripts/ci/ci-run-metrics-attempt.test.py",
+      "exit_code": 0
+    }
+  ],
+  "scope": "Local collector maintenance only; no claim of successful measured comparison"
+}

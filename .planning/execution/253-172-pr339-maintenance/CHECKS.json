@@ -1,0 +1,28 @@
+{
+  "status": "passed_offline",
+  "browser_report_checks": 35,
+  "candidate_prohibition_checks": 118,
+  "operator_request_checks": 3,
+  "total": 156,
+  "negative_control": {
+    "rejected": true,
+    "failures": 2
+  },
+  "actual_hosted_canary": {
+    "status": "canary_verified",
+    "requests": 93,
+    "jobs": 37
+  },
+  "new_network_requests": 0,
+  "new_ci_launches": 0,
+  "logs": {
+    "browser-retention-before.log": "134d7163745bcbab294238f445eba12f68a5c35f109b1adbec67adeada008ea4",
+    "candidate-prohibitions-before.log": "29ec75bbb77cf357e58393d54a3856d75399806544d56a0666f77ea71a598653",
+    "pr-verifier-before.log": "530daa2ddd926654a71f39bd2f9708c926931a47dfda6eb6ef78ba81b01bee65",
+    "browser-verified.log": "d70bae9301e406a18dcaf83893f7035ae5ffc3bc0d5e0e6335b8e6d4ef03ef47",
+    "candidate-prohibitions-after.log": "52a258bef34bbf7d0bc4b7f67303528e41f1e51e2c0616999941a789c7a87b2e",
+    "operator-after.log": "199ba496f288116d36c62f29346d4fbf0bd75745a1c893abfcbdaa4c6d5b1033",
+    "p12-negative-control.log": "da47c234f437536d35f217cf2b3f618a6bed0b4abe1508d6023fe5f2bfce8f52",
+    "actual-canary-verified.json": "389f67f1121d70c8dac97a587657d37736de34e40c01bd44b3693d11aadff71e"
+  }
+}

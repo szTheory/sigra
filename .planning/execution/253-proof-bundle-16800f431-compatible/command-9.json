@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "bash",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/runtime/ci-gate-canary.sh",
+    "--scenario",
+    "full-pass",
+    "--revision-freeze",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-freeze.json",
+    "--action-approval",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-approval.json",
+    "--http-allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-allocation.json",
+    "--requests",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-ledger.json",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-evidence.json",
+    "--publication-receipt",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/publication-receipt.json"
+  ],
+  "exit": 0,
+  "stdout": "{\n  \"checks\": {\n    \"names\": [\n      \"Library tests\",\n      \"Example unit smoke (ExUnit + ConnTest)\",\n      \"Install smoke (fresh phx.new + sigra.install)\",\n      \"Example HTTP smoke (boot + curl critical routes)\",\n      \"Example Playwright smoke (full lifecycle)\"\n    ],\n    \"status\": \"effective_checks_verified\"\n  },\n  \"status\": \"preflight_verified\",\n  \"transport\": {\n    \"requests\": 32,\n    \"status\": \"transport_verified\",\n    \"window_id\": \"253-replan-proof-16800f431-canary-1\"\n  }\n}\n{\n  \"checks\": {\n    \"names\": [\n      \"Library tests\",\n      \"Example unit smoke (ExUnit + ConnTest)\",\n      \"Install smoke (fresh phx.new + sigra.install)\",\n      \"Example HTTP smoke (boot + curl critical routes)\",\n      \"Example Playwright smoke (full lifecycle)\"\n    ],\n    \"status\": \"effective_checks_verified\"\n  },\n  \"scenario\": {\n    \"artifact_digest\": \"sha256:81d507dbc1b4063952c262be7bc1c5abb5d8fa515e76bb933b789667e19edf88\",\n    \"artifact_id\": 12389896836,\n    \"conclusion\": \"success\",\n    \"run_id\": \"39693536541\",\n    \"scenario\": \"full-pass\",\n    \"status\": \"verified\",\n    \"synthetic\": true\n  },\n  \"status\": \"canary_scenario_verified\",\n  \"transport\": {\n    \"requests\": 41,\n    \"status\": \"transport_verified\",\n    \"window_id\": \"253-replan-proof-16800f431-canary-1\"\n  }\n}\nci-gate-canary: retained evidence at /Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-evidence.json (requests=41/117; job ceiling=45; time ceiling=60m)\n",
+  "stderr": ""
+}

@@ -1,0 +1,262 @@
+{
+  "schema": "sigra.phase253.execution-bundle/v1",
+  "status": "prepared_offline_requires_explicit_hosted_approval",
+  "entry_commit": "0da925d9fe27ac61c969b5d79e3e793054eebf2d",
+  "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "product_tree": "1a44d3909ef0811e91a43d85f54e795680691cf3",
+  "parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "original_proposal": ".planning/execution/253-hosted-proof-16800f431/proposal.json",
+  "original_proposal_sha256": "96c9df687447271d7aa254b8b7a763a0af6a622424f29137be2d9348ae76c5fe",
+  "execution_plan": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+    "sha256": "e9c1d392ec0ff3b1ccdecdcc713de658965aa4e4148cb71d2b9e901264620976"
+  },
+  "refs": [
+    "refs/heads/gsd/253-replan-proof-16800f431-candidate",
+    "refs/heads/gsd/253-replan-proof-16800f431-fixture",
+    "refs/heads/gsd/253-replan-proof-16800f431-docs-base",
+    "refs/heads/gsd/253-replan-proof-16800f431-docs-head"
+  ],
+  "object_identities": {
+    "candidate_helper_commit": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+    "candidate_tree_sha": "28924e64262e3a2acb8bc41278acd5f7b0102abc",
+    "fixture_workflow_commit": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+    "fixture_workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+    "fixture_tree_sha": "4b03073118eddf30b7b299c44446a524dfb2a73c",
+    "server_parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "docs_base_commit": "541150e4cb993e42700c7cb84166b33aec78f8e6",
+    "docs_head_commit": "303326e4ff74444259873a51751daa8e4f5310ac",
+    "candidate_ref": "refs/heads/gsd/253-replan-proof-16800f431-candidate",
+    "fixture_ref": "refs/heads/gsd/253-replan-proof-16800f431-fixture",
+    "workflow_path": ".github/workflows/ci.yml",
+    "old_failed_run_id": "38347679431",
+    "old_failed_epoch": 1791909792,
+    "old_failed_halt_seconds": 34,
+    "old_known_commands": 3
+  },
+  "limits": {
+    "canary_requests": 117,
+    "pr_requests": 120,
+    "seconds_per_window": 3600,
+    "jobs": 45,
+    "reruns": 0,
+    "publication_requests": 24,
+    "docs_publication_requests": 14
+  },
+  "outward_actions": {
+    "canary": {
+      "max_requests": 117,
+      "reruns": 0,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "actions": [
+        {
+          "action": "publish_git_objects",
+          "category": "publication",
+          "max_requests": 24,
+          "candidate_commit": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+          "fixture_commit": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+          "manifest": "bound_documents.publication_manifest"
+        },
+        {
+          "action": "create_ref",
+          "ref": "refs/heads/gsd/253-replan-proof-16800f431-candidate",
+          "sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa"
+        },
+        {
+          "action": "create_ref",
+          "ref": "refs/heads/gsd/253-replan-proof-16800f431-fixture",
+          "sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145"
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-replan-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "full-pass",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-replan-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "docs-only",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-replan-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "actual-failure",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-replan-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "missing-seam",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-replan-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "unexpected-skip",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-replan-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "cancelled",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "cancel_run",
+          "scenario": "cancelled",
+          "max": 1,
+          "run_identity": {
+            "workflow_id": 259268962,
+            "event": "workflow_dispatch",
+            "head_branch": "gsd/253-replan-proof-16800f431-fixture",
+            "head_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "display_title_prefix": "Phase 253 Gate Canary / cancelled /"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-replan-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "verifier",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "matrix_evidence": "compact gzip+base64 receipts of the six verified sources; digest recorded at dispatch"
+          }
+        }
+      ]
+    },
+    "docs_and_prs": {
+      "max_requests": 120,
+      "reruns": 0,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "actions": [
+        {
+          "action": "publish_docs_objects",
+          "category": "docs_publication",
+          "max_requests": 14,
+          "docs_base_commit": "541150e4cb993e42700c7cb84166b33aec78f8e6",
+          "docs_head_commit": "303326e4ff74444259873a51751daa8e4f5310ac",
+          "refs": [
+            {
+              "ref": "refs/heads/gsd/253-replan-proof-16800f431-docs-base",
+              "sha": "541150e4cb993e42700c7cb84166b33aec78f8e6"
+            },
+            {
+              "ref": "refs/heads/gsd/253-replan-proof-16800f431-docs-head",
+              "sha": "303326e4ff74444259873a51751daa8e4f5310ac"
+            }
+          ]
+        },
+        {
+          "action": "pr_create",
+          "family": "normal",
+          "head": "gsd/253-replan-proof-16800f431-candidate",
+          "base": "main",
+          "draft": true
+        },
+        {
+          "action": "pr_create",
+          "family": "docs-only",
+          "head": "gsd/253-replan-proof-16800f431-docs-head",
+          "base": "gsd/253-replan-proof-16800f431-docs-base",
+          "draft": true
+        }
+      ]
+    }
+  },
+  "outward_actions_sha256": {
+    "canary": "db37fb5762f1d5ed2791a460ecca37a9c9b2cbd421ddfc2cef3ba56bca5175e2",
+    "docs_and_prs": "a9813b9aeab3a781aee2760e8c0f49f1adf3cb6bbd4ff2d168770631c60d82ae"
+  },
+  "unallocated": true,
+  "approval_received": false,
+  "network_requests": 0,
+  "ci_launches": 0,
+  "artifacts": {
+    "APPROVAL.md": "0b46270d8e55dbada1e0321e7f2012c653b09b16a8ab4f7da205a62b0754d176",
+    "README.md": "0671c4ce4f0a9057ca838eb8685f42b561b343b71a078ed5863e9fd84a001c65",
+    "adapter.diff": "98c6571d96312c01fb6b7d17ee26ce9ed4a53094c3eeb79b0a672075e1bef248",
+    "allocation-templates.json": "7bcfd0f81cad96f2aeed166a300366d8a2049717f2c5afc3bf21bf0c23b7ed2a",
+    "approval-template.json": "c2bc1eb7dd116ec39bc973eb9604a0ef392781280919658059dd65cf16e9a758",
+    "canary-freeze.json": "96131237816cbc64a4fa86111264ad67a8fc9b7de125b84372c6dbb8b13996e9",
+    "helper-origins.json": "4bc1e9bbecfce5bee12f7c1b0af1336d773cc14e57169e7d3760c06d95e5a36e",
+    "object-recipe.json": "0e7bbd763516c7dfe46146e7e20089ad7cca14666272005d9c74ae7dd81b5969",
+    "objects.pack": "3f783aa7918e2529ef0ac08071c5275eb104160c56f552c984275adb9b32427e",
+    "operator.py": "23340bd49bc99cf2a9271250fe13eaf3a94775beb25d8ce0d3a808b60dba8035",
+    "plan172-current.md": "e9c1d392ec0ff3b1ccdecdcc713de658965aa4e4148cb71d2b9e901264620976",
+    "plan172-prior.json": "ae2afe6c2b70aee6b85ee90afb5a5a9904d739c1faad0e8f718ca21ac4294f16",
+    "prepare.py": "2c42451bcc33694adf5cb712f4b822e56229593646d817c52ee156ef0ecc27b1",
+    "preservation.json": "0eb3d088f6a5490f320c6502a29321375725a5056f6404fe9bc703d8e703d24c",
+    "publication.json": "f9458909dae5688c0932d79cd81ff54d1352ae2f399afe7aaf951f1e80d795c8",
+    "runtime/ci-browser-records.mjs": "1aadce3c1c34be7193bc191fd6e733c4d7e329d135389dc2143b923e720e890e",
+    "runtime/ci-gate-canary.sh": "a59b518cc50e99fe22cb1e0dbd99fddcfc8e82c86379261575b5c86805f4cd0d",
+    "runtime/ci-git-publication.py": "b19cb83065d803f2479c7efd7b99b99ab88bd777befa371e8d9ff783974feb6a",
+    "runtime/ci-hosted-gate-verify.py": "f2e05ea1d34c3282437ada3ae65d7d247bbc385008ddd8ae4e8f872470d134f0",
+    "runtime/ci-hosted-transport.py": "5f89ab7b1ed623cf2f883bd0eeb8b71c639c80375308a39b9ea41208c669c7df",
+    "runtime/ci-playwright-report.mjs": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+    "runtime/ci-pr-proof.sh": "fb95f0cf02894f8de70f901edaa709b214991ef949afb978701435f3f9e3a38f",
+    "runtime/ci-registration-recovery.mjs": "28d3efc23515a2b44447c89c444e2adfe087826132d4436dcdfd8dd36c51a1e2",
+    "runtime/execution_guard.py": "9172ce95c58e40cc8acaf7339a89a3fb8639d83cf5b71f43a2da3af433adba74",
+    "runtime/receipt_bridge.py": "eda565711a2f0f7d24b64ee06fdb7058f5b566229cd8b676ba410586b2b69a45",
+    "sdk-readiness.json": "7c8c1762438ef0d5181fa86fae35c1e1c4a08bc096e03aac2c6ba4901f3d982c",
+    "test_bundle.py": "1ad8171f4392ddea7fe7fe7eae305300f99616745e36e215d53101f2714791dd",
+    "test_namespace_boundary.py": "dc5c2bb5c9fecac49dbe60f60f962377bb8a4fb6982162f8425a89aa5ecc7a3e",
+    "test_receipt_boundary.py": "c7996b1d731040dcd28ab35a6fb1d94f013253c8966d26b84ae6bb370cb4f16f"
+  },
+  "normal_workflow_next_command": "$gsd-execute-phase 253 --gaps-only",
+  "normal_workflow_route": "After explicit approval: execute this once-only bundle as the current hosted continuation; preserve171 halt, then connect actual new results to172 and perform phase verification. No new quick, progress scan,179 replay, or numbered repair plan."
+}

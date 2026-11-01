@@ -1,0 +1,8 @@
+{
+  "path": "setup-output/setup.log",
+  "new_owned_log_only": true,
+  "blocks": 1,
+  "before_sha256": "1d6c16df7ceaa9fa795da71eb0898fa5ce5452997d76fee62a5edeaa1105d666",
+  "after_sha256": "237441ac27f6d155b5b2f036f31af8098a157a51b71c0d36cb5698790f6d61bc",
+  "historical_logs_modified": false
+}

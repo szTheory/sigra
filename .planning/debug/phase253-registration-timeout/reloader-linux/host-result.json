@@ -1,0 +1,17 @@
+{
+  "kind": "offline_unit_experiment",
+  "script_sha256": "7d7318c1a865ba5a4b4e1843e89aefc23d393e9df97080ea65ed748c7147a073",
+  "browser_invocations": 0,
+  "ci_launches": 0,
+  "network_requests": 0,
+  "consolidate_protocols": true,
+  "source_change": "implementation",
+  "rounds": 5,
+  "container_name": "sigra253-reloader-unit-1792711759541812000",
+  "image_id": "sha256:e5272f11689c8740c02789ca6bf3e3fc955c4550f25ac53f738e7807205c9836",
+  "network": "none",
+  "entrypoint": "/opt/elixir/bin/elixir",
+  "exit_code": 0,
+  "cleanup_complete": true,
+  "duration_seconds": 1.6941162919974886
+}

@@ -1,0 +1,16 @@
+{
+  "phase_found": true,
+  "phase_number": "254",
+  "phase_name": "Speed Up the Measured Slow Jobs",
+  "phase_status": "Pending",
+  "has_context": false,
+  "has_research": false,
+  "has_plans": false,
+  "plan_count": 0,
+  "auto_advance": false,
+  "auto_chain_active": false,
+  "checked_at": "2026-10-23T15:17:23.454208+00:00",
+  "prerequisite_blocker_reported": false,
+  "next_command": "$gsd-discuss-phase 254",
+  "historical_verification_is_forward_blocker": false
+}

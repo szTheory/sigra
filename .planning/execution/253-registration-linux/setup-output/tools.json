@@ -1,0 +1,11 @@
+{
+  "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "uname": "Linux 8ef0534192b1 6.12.76-linuxkit #1 SMP Wed May 13 14:27:18 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+  "os_release": "PRETTY_NAME=\"Ubuntu 24.04.4 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.4 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n",
+  "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:8:4] [ds:8:4:10] [async-threads:1] [jit:ns]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)\n",
+  "node": "v20.20.2",
+  "otp": "28.5",
+  "playwright": "1.59.1",
+  "browser_invocations": 0,
+  "erl_aflags": "+JMsingle true"
+}

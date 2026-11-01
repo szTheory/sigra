@@ -1,0 +1,52 @@
+{
+  "schema_version": "sigra.ci-run-metrics/family-v1",
+  "repository": "szTheory/sigra",
+  "workflow": "ci.yml",
+  "event": "pull_request",
+  "branch": "phase250/admin-eval-registration-diagnostics",
+  "run_id": 38144377407,
+  "attempt": 1,
+  "attempts_collected": 1,
+  "source_sha": "40e0a7b9fa6c31953e4c1dc3e2cced41f77071d8",
+  "run_url": "https://github.com/szTheory/sigra/actions/runs/38144377407",
+  "literal_conclusion": "success",
+  "required_contexts": [
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Library tests"
+  ],
+  "approved_contexts": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "active_rulesets": [
+    {
+      "id": 14941512,
+      "name": "main",
+      "target": "branch",
+      "enforcement": "active"
+    },
+    {
+      "id": 23574716,
+      "name": "tag-namespace",
+      "target": "tag",
+      "enforcement": "active"
+    }
+  ],
+  "required_rules_changed": false,
+  "raw_sha256": {
+    "jobs_attempt_1": "b84c68e31cfc4502124e3fb9f8707b4b413f441f679a659c87e21485a190db89",
+    "run": "2898f2f5bcb03fab05ffc6908619ce97e0d42399367673acb84c7c1afa9f2a60",
+    "jobs": "ccd25de7f5dca21a51db5743ff0e72934b0dd2baa20a8b147861bfe4607f2bbf",
+    "check_runs": "7bbf5c9dec96f3f70847802a083b8d905bf1cb50e36c9853b2d383e587b7f46b",
+    "effective_rules": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+    "branch_protection": "864a6ec6c19c75db324922603f4c3dd98cff17f9a90dd6cbb4282023bbc2b153",
+    "rulesets": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9",
+    "rate_limit": "dde1f90cf8f3a55ed41ea1a49ae760fae33f250e0c52e3472c271f8b9b510fa3"
+  }
+}

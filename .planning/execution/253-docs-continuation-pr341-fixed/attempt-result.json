@@ -1,0 +1,19 @@
+{
+  "state": {
+    "status": "halted",
+    "stage": "closed",
+    "started_epoch": 1792636289,
+    "bundle_sha256": "8ce91280fbf7f89b7a665903d28d0cf97495994f3d9fe733ae94d238271e97f5",
+    "approval_sha256": "118141e82f3d2436d5a859980ced52982b2febc12f2f6fde6573caae7814fc81",
+    "allocation_sha256": "2e2dd4dfeee5140eed3ca38aa89f0bed9088dd2749da7617a479a865f0616c2e",
+    "stop": "command 3 failed; inspect saved output",
+    "completed_epoch": 1792637050
+  },
+  "artifacts": {
+    "docs-publication-receipt.json": "295e1c7709d815c5d02812a91f8faca19f811bb3c2407dda7a9abf6c804f6516",
+    "docs-only-evidence.json": "aa13b15ee527f34b2daa3928574f33bf998f669dd88dc19d910211066afe2f6a",
+    "allocation.json": "2e2dd4dfeee5140eed3ca38aa89f0bed9088dd2749da7617a479a865f0616c2e",
+    "ledger.json": "d43cd9ad74a3a236bb9cee3030f78625cfee2ad324548829b5ab1e1fc5c102cf"
+  },
+  "reruns": 0
+}

@@ -1,0 +1,15 @@
+{
+  "status": "passed_offline",
+  "tests": 32,
+  "failures": 0,
+  "actual_halt_preserved": true,
+  "original_receipt_hashes_verified": true,
+  "logs": {
+    "reproduce.log": "71b7f55a32a44ca384d78444033dd44c3317171f5299daaac4035a1a74ca260e",
+    "tests.log": "3384b32321bd1e4132e48041f151a85fa8d67201cfbf722e5705c6cd1dc848fe",
+    "boundary-tests.log": "e3e288b7c22d70e7dce5704a070e2ea7bd0008e43a975da746242f654c0351e9",
+    "bundle-tests.log": "33dfbe58326448d2c1e32779c5505fbda18e7b4a9ad159381b0b229e0b498496"
+  },
+  "next_bundle_sha256": "75b5fd26c059a6083257e0aa68377561ec1ebc62a26c80e1e305849404c95c06",
+  "network_requests_in_maintenance": 0
+}

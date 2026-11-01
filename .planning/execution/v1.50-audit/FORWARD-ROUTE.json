@@ -1,0 +1,184 @@
+{
+  "roadmap": {
+    "milestones": [
+      {
+        "heading": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
+        "version": "v1.50"
+      }
+    ],
+    "phases": [
+      {
+        "number": "252",
+        "name": "Measure Current CI",
+        "goal": "Contributors and maintainers can identify today's CI waiting time, failure patterns, and largest runtime costs before choosing fixes.",
+        "mode": null,
+        "depends_on": "Nothing \u2014 first phase of v1.50; prior release-record gaps are not prerequisites.",
+        "plan_count": 6,
+        "summary_count": 6,
+        "has_context": true,
+        "has_research": true,
+        "disk_status": "executed",
+        "roadmap_complete": true,
+        "context_read_error": null,
+        "context_scope": "complete"
+      },
+      {
+        "number": "253",
+        "name": "Fix Flaky CI and Preserve Required Checks",
+        "goal": "Selected flaky CI failures are reproducible and fixed, while real failures still prevent the required checks from passing.",
+        "mode": null,
+        "depends_on": "Phase 252",
+        "plan_count": 110,
+        "summary_count": 110,
+        "has_context": true,
+        "has_research": true,
+        "disk_status": "executed",
+        "roadmap_complete": true,
+        "context_read_error": null,
+        "context_scope": "complete"
+      },
+      {
+        "number": "254",
+        "name": "Speed Up the Measured Slow Jobs",
+        "goal": "Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.",
+        "mode": null,
+        "depends_on": "Phase 253",
+        "plan_count": 8,
+        "summary_count": 8,
+        "has_context": true,
+        "has_research": true,
+        "disk_status": "executed",
+        "roadmap_complete": false,
+        "context_read_error": null,
+        "context_scope": "complete"
+      },
+      {
+        "number": "255",
+        "name": "Make Failures Reproducible and Report the Result",
+        "goal": "Contributors can reproduce updated CI checks locally and maintainers can independently replay the final speed and reliability comparison.",
+        "mode": null,
+        "depends_on": "Phase 254",
+        "plan_count": 7,
+        "summary_count": 7,
+        "has_context": true,
+        "has_research": true,
+        "disk_status": "complete",
+        "roadmap_complete": true,
+        "context_read_error": null,
+        "context_scope": "complete"
+      }
+    ],
+    "phase_count": 4,
+    "completed_phases": 1,
+    "total_plans": 131,
+    "total_summaries": 131,
+    "progress_percent": 100,
+    "progress_scope": "complete",
+    "current_phase": "252",
+    "next_phase": null,
+    "checkbox_conflict": [
+      {
+        "number": "252",
+        "roadmap_complete": true,
+        "disk_status": "executed",
+        "plan_count": 6,
+        "summary_count": 6
+      },
+      {
+        "number": "253",
+        "roadmap_complete": true,
+        "disk_status": "executed",
+        "plan_count": 110,
+        "summary_count": 110
+      }
+    ],
+    "missing_phase_details": null,
+    "scope": "complete"
+  },
+  "earlier_phase254_readiness": {
+    "executor_model": "gpt-6-luna",
+    "verifier_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "commit_docs": true,
+    "sub_repos": [],
+    "parallelization": true,
+    "context_window": 200000,
+    "branching_strategy": "none",
+    "phase_branch_template": "gsd/phase-{phase}-{slug}",
+    "milestone_branch_template": "gsd/{milestone}-{slug}",
+    "verifier_enabled": true,
+    "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/254-speed-up-the-measured-slow-jobs",
+    "phase_number": "254",
+    "padded_phase": "254",
+    "phase_name": "Speed Up the Measured Slow Jobs",
+    "phase_slug": "speed-up-the-measured-slow-jobs",
+    "phase_req_ids": "CISPEED-01, CISPEED-02",
+    "plans": [
+      "254-01-PLAN.md",
+      "254-02-PLAN.md",
+      "254-03-PLAN.md",
+      "254-04-PLAN.md",
+      "254-05-PLAN.md",
+      "254-06-PLAN.md",
+      "254-07-PLAN.md",
+      "254-08-PLAN.md"
+    ],
+    "summaries": [
+      "254-01-SUMMARY.md",
+      "254-02-SUMMARY.md",
+      "254-03-SUMMARY.md",
+      "254-04-SUMMARY.md",
+      "254-05-SUMMARY.md",
+      "254-06-SUMMARY.md",
+      "254-07-SUMMARY.md",
+      "254-08-SUMMARY.md"
+    ],
+    "incomplete_plans": [],
+    "plan_count": 8,
+    "incomplete_count": 0,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "halted_plans": [
+      "254-08-PLAN.md"
+    ],
+    "blocked_by": {},
+    "runnable_plans": [],
+    "runnable_count": 0,
+    "branch_name": null,
+    "milestone_version": "v1.50",
+    "milestone_name": "CI-SPEED-AND-RELIABILITY",
+    "milestone_slug": "ci-speed-and-reliability",
+    "state_exists": true,
+    "roadmap_exists": true,
+    "config_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "section_manifest": {
+      "workflow": "execute-phase",
+      "included": [
+        "regression-gate"
+      ],
+      "excluded": [
+        "partial-wave",
+        "gap-closure-artifacts"
+      ],
+      "read": [
+        "gsd-core/workflows/execute-phase/steps/regression-gate.md"
+      ]
+    },
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "next_roadmap_phase": null,
+  "recommended_command": "$gsd-phase --insert 255 \"Close gap: CISPEED-01/CISPEED-02 - prove CI performance targets\"",
+  "new_phase_created": false,
+  "prior_collection_may_resume": false,
+  "reason": "No roadmap phase follows255. Phase254 has no runnable plans; its original comparison is closed with0 comparable pairs. A separately scoped performance closure needs discussion before any new collection; metadata repair alone needs no new phase."
+}

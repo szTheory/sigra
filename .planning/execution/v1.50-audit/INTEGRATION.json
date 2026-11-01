@@ -1,0 +1,94 @@
+{
+  "schema_version": "sigra.v1.50-integration-audit/v1",
+  "scope": {
+    "phases": [252, 253, 254, 255],
+    "source_basis": "current checkout source inspection plus preserved phase/replay evidence",
+    "network_or_acceptance_actions": false,
+    "historical_verification_is_current_source_proof": false
+  },
+  "summary": {
+    "expected_connections": 17,
+    "connections_wired": 17,
+    "connections_broken": 0,
+    "e2e_flows": 7,
+    "e2e_flows_implementation_wired": 7,
+    "e2e_flows_acceptance_complete": 6,
+    "e2e_flows_acceptance_open": 1,
+    "e2e_flows_broken": 0,
+    "api_routes_expected": 0,
+    "api_routes_applicable": 0,
+    "auth_areas_expected": 0,
+    "auth_areas_applicable": 0,
+    "blockers": 0,
+    "warnings": 2
+  },
+  "warnings": [
+    {
+      "id": "PERFORMANCE_ACCEPTANCE_OPEN",
+      "requirements": ["CISPEED-01", "CISPEED-02"],
+      "classification": "missing acceptance evidence, not broken software wiring",
+      "details": "The measurement/replay path is connected, but the fixed comparison has zero comparable successful pairs and null median/p95. Phase 254 Plan 08 halted before preparations or comparison families because the frozen baseline cannot run through the current required PR path."
+    },
+    {
+      "id": "SUMMARY_REQUIREMENT_METADATA_OMISSION",
+      "requirements": ["CIMEAS-01", "CIMEAS-02", "CIDX-01"],
+      "classification": "summary metadata gap",
+      "details": "SUMMARIES.json lacks these three IDs in requirements_completed. No historical summary was rewritten; requirements and live source paths were independently traced."
+    }
+  ],
+  "connections": [
+    {"id": 1, "requirements": ["CIMEAS-01", "CIMEAS-02"], "from": ".github/workflows/ci.yml", "to": "scripts/ci/ci-run-metrics.sh and saved baseline/report", "status": "WIRED", "evidence": [".github/workflows/ci.yml:669-745", ".planning/phases/252-measure-current-ci/252-VERIFICATION.md:173-178"]},
+    {"id": 2, "requirements": ["CIMEAS-02"], "from": "CI timing environment", "to": "ExUnit formatter JSON and artifact", "status": "WIRED", "evidence": [".github/workflows/ci.yml:613-635", "test/test_helper.exs", "test/support/ci_timing_formatter.ex:10-27,101-142"]},
+    {"id": 3, "requirements": ["CIMEAS-02"], "from": "Playwright native JSON", "to": "normalized browser measurement records", "status": "WIRED", "evidence": ["test/example/priv/playwright/playwright.config.ts:55-93", "scripts/ci/ci-playwright-report.mjs", "scripts/ci/ci-browser-records.mjs:1-8"]},
+    {"id": 4, "requirements": ["CIREL-01"], "from": "Phase 252 measurement/failure diagnosis", "to": "Phase 253 selected reproduction and repair", "status": "WIRED", "evidence": [".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md:361,415", ".planning/execution/255-replay/REPORT.json:reliability_fixes"], "limitation": "Original hosted initiating event remains unknown; downstream controlled race mechanism is evidenced."},
+    {"id": 5, "requirements": ["CIREL-01"], "from": "Phase 253 repair", "to": "Playwright configuration and regression checks", "status": "WIRED", "evidence": ["test/example/priv/playwright/playwright.config.ts:96-102", ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md:361"]},
+    {"id": 6, "requirements": ["CIREL-02"], "from": "Shared five-seam browser selector", "to": "workflow browser owners and required aggregate", "status": "WIRED", "evidence": ["scripts/ci/ci-browser-command.mjs:44-88", ".github/workflows/ci.yml", ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md:382-385"]},
+    {"id": 7, "requirements": ["CISPEED-01", "CISPEED-02"], "from": "Phase 253 preserved workload/gate", "to": "Phase 254 candidate comparison contract", "status": "WIRED", "evidence": [".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-SUMMARY.md", ".planning/execution/255-replay/REPORT.json:measured_sources,observations"]},
+    {"id": 8, "requirements": ["CIMEAS-03"], "from": "Phase 254 saved receipts/package", "to": "Phase 255 pinned offline replay", "status": "WIRED", "evidence": ["scripts/ci/ci-comparison-replay.py:162-189", ".planning/execution/255-replay/REPORT.json:evidence_paths,replay_distribution"]},
+    {"id": 9, "requirements": ["CIMEAS-03"], "from": "Replay evaluator", "to": "REPORT.md/REPORT.json and contributor docs", "status": "WIRED", "evidence": [".planning/execution/255-replay/REPORT.json", ".planning/execution/255-replay/REPORT.md", "CONTRIBUTING.md:105"]},
+    {"id": 10, "requirements": ["CIDX-01"], "from": "mix ci alias", "to": "seven receiver legs and library CI job", "status": "WIRED", "evidence": ["mix.exs:143-170", ".github/workflows/ci.yml:613-626", "CONTRIBUTING.md:11-25,117-120"]},
+    {"id": 11, "requirements": ["CIDX-02"], "from": "Native Mix receiver", "to": "command identity, outputs, seeds, and final receiver evidence", "status": "WIRED", "evidence": ["mix.exs:149-170", "scripts/ci/ci-command-record.py:51-89,101-120", ".planning/execution/255-replay/REPORT.json:final_native_mix"]},
+    {"id": 12, "requirements": ["CIDX-01", "CIDX-02"], "from": "Shared browser selector", "to": "CI and local reproduction commands", "status": "WIRED", "evidence": ["scripts/ci/ci-browser-command.mjs:44-88", "scripts/ci/ci-browser-records.mjs", "CONTRIBUTING.md:123-133"]},
+    {"id": 13, "requirements": ["CIDX-02"], "from": "CI/local browser invocation", "to": "trace/report collection and bounded upload artifact", "status": "WIRED", "evidence": [".github/workflows/ci.yml:1562-1603", "test/example/priv/playwright/playwright.config.ts:55-93,121-126", ".github/actions/ci-diagnostic-upload/action.yml", ".planning/execution/255-replay/REPORT.json:phase255_diagnostics"]},
+    {"id": 14, "requirements": ["CIDX-01", "CIDX-02", "CIMEAS-03"], "from": "Contributor/maintainer docs", "to": "actual mix/browser/replay helpers", "status": "WIRED", "evidence": ["CONTRIBUTING.md:11-25,117-148", "MAINTAINING.md:742-747", ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md:218-220"]},
+    {"id": 15, "requirements": ["CIMEAS-01", "CIMEAS-02"], "from": "measurement producers", "to": "baseline and ranked report consumers", "status": "WIRED", "evidence": [".github/workflows/ci.yml:613-745", "scripts/ci/ci-run-metrics.sh", ".planning/phases/252-measure-current-ci/252-VERIFICATION.md:173-178,214-215"]},
+    {"id": 16, "requirements": ["CIREL-01", "CIREL-02"], "from": "reliability behavior and workflow owners", "to": "required gate verdict and diagnostic evidence", "status": "WIRED", "evidence": [".github/workflows/ci.yml", "scripts/ci/honest-skip-verdict.sh", ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-VERIFICATION.md:361-385"]},
+    {"id": 17, "requirements": ["CIMEAS-03", "CIDX-01", "CIDX-02"], "from": "Phase 255 outputs", "to": "contributor/maintainer consumption", "status": "WIRED", "evidence": [".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md:210-216,250-252", "CONTRIBUTING.md", "MAINTAINING.md"]}
+  ],
+  "flows": [
+    {"name": "Current baseline and ranked cost inspection", "requirements": ["CIMEAS-01", "CIMEAS-02"], "status": "WIRED", "steps": ["workflow captures run/check/cache/timing facts", "collector validates and replays saved facts", "baseline report presents separated outcomes and rankings"], "limitation": "Historical Phase 252 verifier is not current-source fingerprint proof."},
+    {"name": "Selected flaky browser reproduction and repair", "requirements": ["CIREL-01"], "status": "WIRED", "steps": ["measurement diagnosis", "controlled reproduction", "source/config fix", "no-retry regression checks"], "limitation": "Original hosted initiating event remains unknown."},
+    {"name": "Required gate blocks failure/missing/skip/cancel", "requirements": ["CIREL-02"], "status": "WIRED", "steps": ["five named owners", "aggregate verdict", "failure/missing/skip/cancel evidence"], "limitation": "Canary evidence is historical and source-bound."},
+    {"name": "Local contributor mix ci", "requirements": ["CIDX-01"], "status": "WIRED", "steps": ["CONTRIBUTING command", "mix ci alias", "seven legs", "native receiver records"], "limitation": null},
+    {"name": "Failure diagnosis and reproduction", "requirements": ["CIDX-02"], "status": "WIRED", "steps": ["wrapper captures command identity and streams", "Playwright records report/trace where available", "bounded artifacts and docs support retrieval"], "limitation": "Some failures cannot create traces; cancelled artifact omits final-output.log and final-trace.zip, expressly recorded."},
+    {"name": "Replay final comparison", "requirements": ["CIMEAS-03"], "status": "WIRED", "steps": ["saved package and hashes", "offline pinned evaluator", "unchanged-input result", "REPORT.md/JSON"], "limitation": "Honest result is insufficient_data."},
+    {"name": "Prove PR speed and runner cost acceptance", "requirements": ["CISPEED-01", "CISPEED-02"], "status": "WIRED_FOR_MEASUREMENT / ACCEPTANCE_OPEN", "steps": ["fixed baseline/candidate workloads", "matched successful pairs", "median, p95 and runner cost"], "limitation": "0 comparable successful pairs; median and p95 null; Phase 254 stopped before preparation/collection. This is missing acceptance, not broken software wiring."}
+  ],
+  "requirements": [
+    {"id": "CIMEAS-01", "integration_path": "workflow records -> Phase 252 collector/replay -> separated baseline", "status": "WIRED", "issue": "historical source boundary; SUMMARYS metadata omits ID"},
+    {"id": "CIMEAS-02", "integration_path": "ExUnit/Playwright timing plus job/setup/cache facts -> normalizers/collector -> ranked report", "status": "WIRED", "issue": "historical source boundary; SUMMARYS metadata omits ID"},
+    {"id": "CIMEAS-03", "integration_path": "Phase 254 saved inputs -> pinned offline replay -> report", "status": "WIRED", "issue": "result insufficient_data"},
+    {"id": "CISPEED-01", "integration_path": "fixed PR workloads -> comparable durations -> median", "status": "WIRED_ACCEPTANCE_OPEN", "issue": "zero comparable successful pairs; no median"},
+    {"id": "CISPEED-02", "integration_path": "same workload pairs -> p95 wait and runner cost", "status": "WIRED_ACCEPTANCE_OPEN", "issue": "no valid sample; p95 null"},
+    {"id": "CIREL-01", "integration_path": "measurement -> reproduction/fix -> no-retry checks", "status": "WIRED", "issue": "original hosted trigger unknown"},
+    {"id": "CIREL-02", "integration_path": "workflow owners -> gate aggregation -> bad/missing/skip/cancel verdict", "status": "WIRED", "issue": "historical canary evidence"},
+    {"id": "CIDX-01", "integration_path": "CONTRIBUTING commands -> shared selectors and mix ci executor", "status": "WIRED", "issue": "SUMMARYS metadata omits ID"},
+    {"id": "CIDX-02", "integration_path": "command/browser invocation -> identity/output/seed/trace -> artifact and docs", "status": "WIRED", "issue": "trace availability and cancellation gaps disclosed"}
+  ],
+  "orphaned_exports": [],
+  "broken_connections": [],
+  "unprotected_routes": [],
+  "requirements_without_cross_phase_wiring": [],
+  "metadata_limitations": {
+    "summary_metadata_missing_requirements": ["CIMEAS-01", "CIMEAS-02", "CIDX-01"],
+    "phase254_verification_report": "absent; 254-08 summary states whole-phase verification pending",
+    "do_not_treat_historical_passes_as_current_fingerprint": true
+  },
+  "audit_actions": {
+    "performed": ["read-only source and evidence tracing", "line-number extraction"],
+    "tests_run": false,
+    "network_or_github_requests": false,
+    "CI_dispatch_or_watch": false,
+    "application_database_browser_native_acceptance": false
+  }
+}

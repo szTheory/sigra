@@ -1,0 +1,109 @@
+{
+  "diagnostics": [
+    {
+      "reason": "before_source_identity_mismatch"
+    },
+    {
+      "reason": "before_workflow_identity_mismatch"
+    },
+    {
+      "reason": "before_workload_identity_mismatch"
+    },
+    {
+      "reason": "comparison_family_reservation_incomplete"
+    },
+    {
+      "reason": "comparison_registration_set_incomplete"
+    },
+    {
+      "detail": "native_comparison_count:0",
+      "reason": "native_coverage_parity_unverified"
+    },
+    {
+      "reason": "before_family_inputs_missing"
+    },
+    {
+      "detail": 1,
+      "reason": "after_family_count"
+    },
+    {
+      "detail": 1,
+      "reason": "after_unique_family_count"
+    },
+    {
+      "reason": "pair_identity_mismatch"
+    },
+    {
+      "detail": 0,
+      "reason": "insufficient_equivalent_successful_pairs"
+    },
+    {
+      "detail": {
+        "actual": {},
+        "expected": {
+          "warm": 20
+        }
+      },
+      "reason": "cache_stratum_allocation_mismatch"
+    }
+  ],
+  "metrics": {
+    "baseline_median_seconds": null,
+    "baseline_p95_seconds": null,
+    "baseline_runner_known_subtotal_seconds": 2046.0,
+    "baseline_runner_seconds": 2046.0,
+    "candidate_median_seconds": null,
+    "candidate_p95_seconds": null,
+    "candidate_runner_known_subtotal_seconds": 1589.0,
+    "candidate_runner_seconds": 1589.0,
+    "comparable_successful_pairs": 0,
+    "family_attempt_costs": [
+      {
+        "attempts": [
+          {
+            "attempt": 2,
+            "known_subtotal_seconds": 1589.0
+          }
+        ],
+        "conclusion": "success",
+        "cost_status": "complete",
+        "family_role": "after",
+        "known_subtotal_seconds": 1589.0,
+        "pair_id": "pair-01",
+        "run_attempt": 2,
+        "run_id": 40047078287,
+        "runner_seconds": 1589.0,
+        "unknown_jobs": []
+      },
+      {
+        "attempts": [
+          {
+            "attempt": 2,
+            "known_subtotal_seconds": 2046.0
+          }
+        ],
+        "conclusion": "failure",
+        "cost_status": "complete",
+        "family_role": "before",
+        "known_subtotal_seconds": 2046.0,
+        "pair_id": "pair-01",
+        "run_attempt": 2,
+        "run_id": 40046955449,
+        "runner_seconds": 2046.0,
+        "unknown_jobs": []
+      }
+    ],
+    "native_parity": {
+      "comparisons": [],
+      "diagnostic": "native_comparison_count:0",
+      "origin_status": "passed",
+      "origins_verified": 1,
+      "status": "insufficient_data"
+    },
+    "overhead_disclosure": null,
+    "p95_method": "nearest-rank ceil(0.95*n); for n=20 this is sorted value 19",
+    "pair_count": 0
+  },
+  "performance_verdict": "insufficient_data",
+  "status": "insufficient_data"
+}

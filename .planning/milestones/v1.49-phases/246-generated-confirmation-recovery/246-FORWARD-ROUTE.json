@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-06T19:58:14.802194Z",
+  "current_phase": "246",
+  "current_phase_complete": false,
+  "completed_plans": [
+    "246-01",
+    "246-02"
+  ],
+  "remaining_plan": "246-03",
+  "remaining_evidence": "Required current-source CI run and final phase verification",
+  "next_command": "$gsd-discuss-phase 247",
+  "next_phase": "247",
+  "next_phase_name": "Release Candidate and Repository Readiness",
+  "readiness_query": "init.plan-phase 247",
+  "planning_blocker_reported": false,
+  "has_context": false,
+  "has_research": false,
+  "has_plans": false,
+  "reason": "Repository AGENTS.md forward-routing rule selects discussion for a pending next phase without context or a reported planning prerequisite blocker. Discussion can prepare repository readiness while Phase 246 required CI remains explicitly open.",
+  "execution_dependency_preserved": "Do not mark Phase 246 complete or claim Phase 247 execution prerequisites passed. Capture actual required CI and finish Phase 246 verification before dependent execution.",
+  "evidence": [
+    "246-03-SUMMARY.md",
+    "246-CI-EVIDENCE.json",
+    "246-MIX-CI-FAILURES.json",
+    "246-REVIEW.md"
+  ],
+  "historical_verification": "Archived Phase 245 gaps and historical windows remain separate; no waiver or completion status was changed."
+}

@@ -1,0 +1,32 @@
+{
+  "created_at": "2026-10-13T21:33:29.525776+00:00",
+  "authorization": "User answered Sanitize the original logs (recommended) to scoped exception question",
+  "scope": "Replace two originals with committed sanitized copies; no prior mobile plaintext credential preservation; existing local commits unchanged",
+  "auto_review_rejection_resolved_by": "Explicit user exception plus existing committed sanitized copies; no retry of denied plaintext Git object preservation",
+  "before_after": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-EVIDENCE-REVISION-03.json.raw/R-INFRA-RETRY-DESKTOP/attempt-01/setup-log.log",
+      "before_sha256": "64258cd6b8f43b8f71249bf664277219abdb3fe934c53d8e24be6c816929de51",
+      "after_sha256": "806d620cb756e2f0edb72df062411520794bf4d7add38a6c71077b8210abad15",
+      "before_bytes": 135739,
+      "after_bytes": 134342,
+      "sanitized_source": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json.raw/R-INFRA-RETRY-DESKTOP/attempt-01/setup-log.log"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-MOBILE-CONTINUATION-EVIDENCE.json.raw/R-DIAG-MOBILE/attempt-01/setup-log.log",
+      "before_sha256": "3d0da2f6e7cf7fb9896506948de2ef48ef87ad9a30467a358357da660bbbd9f4",
+      "after_sha256": "a6e6ba1bb1bb74fe6621a74f5fc2a682ae14ae9b16173b75c0acdc93be3fc6bc",
+      "before_bytes": 135739,
+      "after_bytes": 134342,
+      "sanitized_source": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json.raw/R-DIAG-MOBILE/attempt-01/setup-log.log"
+    }
+  ],
+  "unchanged_native_files_verified": 8,
+  "prior_commit": "4776c89e5",
+  "historical_primary_failed_attempt_unchanged": true,
+  "native_results_unchanged": true,
+  "source_evidence_old_digests_remain_historical": true,
+  "accepted_receipt": "253-15-VERIFIED-REGISTRATION-EVIDENCE.json",
+  "no_new_native_commands": true,
+  "config_ref_exact": true
+}

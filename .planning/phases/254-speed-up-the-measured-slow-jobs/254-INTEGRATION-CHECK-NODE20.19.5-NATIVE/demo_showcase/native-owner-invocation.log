@@ -1,0 +1,9 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 [demo-showcase-chromium] › tests/demo-showcase.spec.ts:202:7 › demo-showcase › the real login is locked to Tasklane — server-rendered, ignores the brand cookie (416ms)
+  ✓  2 [demo-showcase-chromium] › tests/demo-showcase.spec.ts:307:7 › demo-showcase › home page orients evaluators before login (1.3s)
+  ✓  3 [demo-showcase-chromium] › tests/demo-showcase.spec.ts:847:7 › demo-showcase › documented evaluator path reaches authenticated flow within ten minutes (314ms)
+  ✓  4 [demo-showcase-chromium] › tests/demo-showcase.spec.ts:881:7 › demo-showcase › demo personas structural assertions and evaluator screenshots (783ms)
+
+  4 passed (3.1s)

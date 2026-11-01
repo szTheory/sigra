@@ -1,0 +1,41 @@
+{
+  "prior_commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+      "sha256": "6d6546240a81ecefb1c2d12eec446624fc8a864e045448ecc36676f8a959954c",
+      "exact_readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+      "sha256": "f058c3ecf4e00e6e391aa390a0c6911a475a063abaaf24618bfde377d55f65ec",
+      "exact_readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+      "sha256": "6b1f9d68b1d61c35740135f64cc8b17c3a945bf5e565f0d6ebbf3b9bb8934099",
+      "exact_readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+      "sha256": "af3776fb0217e913dbde0823e1e6d8ff3013ca02aefdb6e5afb0b57f7e205c1b",
+      "exact_readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-172-EXECUTION.json",
+      "commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+      "sha256": "63ca4eb4d64d465afcad3044093154b6312518f096d611049792e18ce42af631",
+      "exact_readback_verified": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+      "commit": "63feb218d603b3192402fb6698e4b3713566f0ac",
+      "sha256": "5dc706af7de088731d25eafc57f30627fa10567910b918b6e20fa58f7445ba21",
+      "exact_readback_verified": true
+    }
+  ]
+}

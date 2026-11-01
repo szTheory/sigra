@@ -1,0 +1,166 @@
+{
+  "schema": "sigra.phase253.pr343-remaining-evidence-proposal/v2",
+  "repository": "szTheory/sigra",
+  "source_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
+  "candidate_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+  "existing_normal_pr": {
+    "number": 343,
+    "run_id": 39815188159,
+    "attempt": 1,
+    "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+    "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "tested_merge_sha": "d6024255ed139f7c19bd44e68c10a85cc9ecca3b",
+    "base_ref": "main",
+    "head_ref": "gsd/253-replan-proof-5e13621e5-candidate",
+    "conclusion": "success",
+    "recovery_window_closed": true
+  },
+  "browser_artifacts": [
+    {
+      "id": 12443085302,
+      "name": "browser-execution-demo_showcase-39815188159-1",
+      "size_in_bytes": 422268,
+      "digest": "sha256:429f01b3570bed17f1a9a192dc4c54f050ef61c5506081767f76fa02adf8c231",
+      "run_id": 39815188159,
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "attempt": 1
+    },
+    {
+      "id": 12443080507,
+      "name": "browser-execution-non_admin_smoke-39815188159-1",
+      "size_in_bytes": 424388,
+      "digest": "sha256:0ac960835c4a4970b29918594a97b4d3ddb3cae94d193c99b7eecd5495fdbb3a",
+      "run_id": 39815188159,
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "attempt": 1
+    },
+    {
+      "id": 12442691704,
+      "name": "browser-execution-admin_checkpoints-39815188159-1",
+      "size_in_bytes": 423433,
+      "digest": "sha256:981bc9ae4b1b8a36a493131b12a30eff359464c168ee4bf0dcc8d1dac19d1fd4",
+      "run_id": 39815188159,
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "attempt": 1
+    },
+    {
+      "id": 12441982171,
+      "name": "browser-execution-design_gallery-39815188159-1",
+      "size_in_bytes": 425889,
+      "digest": "sha256:dfecd8d8e1345267de0907f548e318966143146d473219e075e569a565fd7ab2",
+      "run_id": 39815188159,
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "attempt": 1
+    },
+    {
+      "id": 12441922987,
+      "name": "browser-execution-admin_behavior-39815188159-1",
+      "size_in_bytes": 430048,
+      "digest": "sha256:eff5a92b6c2aff76bcca96b2280d022b4164a17fc78980a9480f08b5a325a9fc",
+      "run_id": 39815188159,
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "attempt": 1
+    }
+  ],
+  "docs_only_pr": {
+    "head_ref": "gsd/253-replan-proof-5e13621e5-docs-head",
+    "head_sha": "a4c2b64119fa89ada8a6dbbe1f729a24fb6bfc21",
+    "base_ref": "gsd/253-replan-proof-5e13621e5-docs-base",
+    "base_sha": "4524f17e1b791dd4d2c2ae597c053a8e37e8095e",
+    "candidate_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+    "candidate_tree": "6cda96349b9ae7e79527b3af2db101003a5bfaca",
+    "docs_base_tree": "1682cfc4ad3474612f104515c71ae17bccfdab4e",
+    "docs_head_tree": "96c36b1c1e64bccaa962da9f49a4ddbf0366f517",
+    "workflow_blob": "5b3814b4eb6d650ca3a9f8a189d1243126ccca50",
+    "docs_blob": "044d83e90bbdd1a8c7cb8102505fb5d289b4dc65",
+    "changed_paths": [
+      "guides/reference/phase253-docs-only-proof.md"
+    ],
+    "base_changed_paths": [
+      ".github/workflows/ci.yml"
+    ],
+    "required_check_names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "draft_only": true,
+    "reruns": 0,
+    "dispatches": 0,
+    "merge": false
+  },
+  "source_freeze": {
+    "pr_freeze_sha256": "f4f88d28c7e26cb90839a78ee4f6bcf1925ffe93f6c1235fd4ee00c92265b117",
+    "freeze_claimed_sha256": "517e77358987ec0379728329be165fea17d07273ccf6bc49fa0687325fe48ac3",
+    "actions_sha256": "0394e2fa2d1c79ffc8ad7f7727076d32206efde398c622334a489fe391183e3f",
+    "docs_and_prs_section_sha256": "5912c544cb856f1d1e8ef125a90f091c0bf0e9bb3738e9a5ddefdb29deeb078a"
+  },
+  "request_budget": {
+    "allocation_kind": "production",
+    "window_id": "gsd/253-pr343-remaining-evidence-proposed-1",
+    "max_requests": 120,
+    "category_limits": {
+      "preflight": 8,
+      "docs_publication": 14,
+      "pr_create": 2,
+      "pr_identity": 8,
+      "run_discovery": 4,
+      "pre_watch_rate": 2,
+      "terminal_polls": 27,
+      "attempt_jobs": 4,
+      "native_checks": 4,
+      "artifact_metadata": 4,
+      "artifact_downloads": 20,
+      "failure_logs": 2,
+      "infrastructure_rerun": 21
+    },
+    "permitted_request_maxima": {
+      "preflight": 6,
+      "docs_publication": 14,
+      "pr_create": 1,
+      "pr_identity": 5,
+      "run_discovery": 2,
+      "pre_watch_rate": 1,
+      "terminal_polls": 12,
+      "attempt_jobs": 4,
+      "native_checks": 1,
+      "artifact_metadata": 4,
+      "artifact_downloads": 20,
+      "failure_logs": 0,
+      "infrastructure_rerun": 0
+    },
+    "max_elapsed_seconds": 3600,
+    "max_hops": 2,
+    "rate_limit_floor_core": 250,
+    "retries": 0,
+    "normal_pr_reruns": 0,
+    "normal_pr_mutations": 0,
+    "docs_pr_creations": 1,
+    "workflow_dispatches": 0,
+    "merges": 0
+  },
+  "allowed_actions": [
+    "download the five exact PR343 artifacts",
+    "create only the docs-only refs and one draft PR named in the frozen actions section",
+    "collect the exact docs-only pull_request run and required-check evidence"
+  ],
+  "prohibited_actions": [
+    "rerun or mutate PR343",
+    "create or mutate a normal PR",
+    "workflow_dispatch",
+    "merge",
+    "auto-merge",
+    "delete or force-update refs",
+    "retry after 401/403/429 or any terminal transport stop"
+  ],
+  "approval_required": {
+    "schema": "sigra.phase253.pr343-remaining-evidence-approval/v1",
+    "scope": "pr343-five-artifacts-and-frozen-docs-only-pr",
+    "proposal_sha256": "exact final file hash required",
+    "literal_decision": "approve",
+    "expires_within_seconds": 86400
+  },
+  "normal_candidate_ref": "gsd/253-replan-proof-5e13621e5-candidate"
+}

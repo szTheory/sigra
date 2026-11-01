@@ -1,0 +1,285 @@
+{
+  "schema_version": "sigra.phase254.source-readiness/v1",
+  "captured_at": "2026-10-23T16:40:36.220Z",
+  "status": "ready",
+  "synthetic": false,
+  "source_identities": [
+    {
+      "identity": "application_sha",
+      "sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "retained_ref": "refs/gsd/phase254/baseline-application"
+    },
+    {
+      "identity": "producer_source_sha",
+      "sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "retained_ref": "refs/gsd/phase254/baseline-producer"
+    }
+  ],
+  "paths": {
+    "root": "/Users/jon/projects/sigra",
+    "contract": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json",
+    "bundle": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz"
+  },
+  "sources": [
+    {
+      "identity": "application_sha",
+      "sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "ref": "refs/gsd/phase254/baseline-application",
+      "commit_matches": true,
+      "retained_ref_value": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "actual_commit": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "tree": "bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452",
+      "tree_matches": true,
+      "workload_files": [
+        {
+          "path": "scripts/ci/ci-playwright-report.mjs",
+          "expected": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+          "actual": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+          "matches": true
+        },
+        {
+          "path": "test/example/priv/playwright/package-lock.json",
+          "expected": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+          "actual": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+          "matches": true
+        },
+        {
+          "path": "test/example/priv/playwright/playwright.config.ts",
+          "expected": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+          "actual": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+          "matches": true
+        },
+        {
+          "path": "test/sigra/planning/ci_timing_formatter_test.exs",
+          "expected": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33",
+          "actual": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33",
+          "matches": true
+        },
+        {
+          "path": "test/support/ci_timing_formatter.ex",
+          "expected": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+          "actual": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+          "matches": true
+        },
+        {
+          "path": "test/test_helper.exs",
+          "expected": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+          "actual": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+          "matches": true
+        }
+      ],
+      "workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "workflow_matches": true
+    },
+    {
+      "identity": "producer_source_sha",
+      "sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "ref": "refs/gsd/phase254/baseline-producer",
+      "commit_matches": true,
+      "retained_ref_value": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "actual_commit": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "tree": "bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452",
+      "tree_matches": true,
+      "workload_files": [
+        {
+          "path": "scripts/ci/ci-playwright-report.mjs",
+          "expected": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+          "actual": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+          "matches": true
+        },
+        {
+          "path": "test/example/priv/playwright/package-lock.json",
+          "expected": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+          "actual": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+          "matches": true
+        },
+        {
+          "path": "test/example/priv/playwright/playwright.config.ts",
+          "expected": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+          "actual": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+          "matches": true
+        },
+        {
+          "path": "test/sigra/planning/ci_timing_formatter_test.exs",
+          "expected": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33",
+          "actual": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33",
+          "matches": true
+        },
+        {
+          "path": "test/support/ci_timing_formatter.ex",
+          "expected": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+          "actual": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+          "matches": true
+        },
+        {
+          "path": "test/test_helper.exs",
+          "expected": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+          "actual": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+          "matches": true
+        }
+      ],
+      "workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "workflow_matches": true
+    }
+  ],
+  "checks": [
+    {
+      "id": "source_bundle_sha256",
+      "expected": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+      "actual": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+      "matches": true
+    },
+    {
+      "id": "contract_bundle_sha256",
+      "expected": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+      "actual": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+      "matches": true
+    },
+    {
+      "id": "application_sha.commit",
+      "expected": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "actual": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "matches": true
+    },
+    {
+      "id": "application_sha.retained_ref",
+      "expected": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "actual": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "matches": true
+    },
+    {
+      "id": "application_sha.tree",
+      "expected": "bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452",
+      "actual": "bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452",
+      "matches": true
+    },
+    {
+      "id": "application_sha.workflow_sha256",
+      "expected": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "actual": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "matches": true
+    },
+    {
+      "id": "application_sha.blob:scripts/ci/ci-playwright-report.mjs",
+      "expected": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+      "actual": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+      "matches": true
+    },
+    {
+      "id": "application_sha.blob:test/example/priv/playwright/package-lock.json",
+      "expected": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+      "actual": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+      "matches": true
+    },
+    {
+      "id": "application_sha.blob:test/example/priv/playwright/playwright.config.ts",
+      "expected": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+      "actual": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+      "matches": true
+    },
+    {
+      "id": "application_sha.blob:test/sigra/planning/ci_timing_formatter_test.exs",
+      "expected": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33",
+      "actual": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33",
+      "matches": true
+    },
+    {
+      "id": "application_sha.blob:test/support/ci_timing_formatter.ex",
+      "expected": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+      "actual": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+      "matches": true
+    },
+    {
+      "id": "application_sha.blob:test/test_helper.exs",
+      "expected": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+      "actual": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+      "matches": true
+    },
+    {
+      "id": "producer_source_sha.commit",
+      "expected": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "actual": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "matches": true
+    },
+    {
+      "id": "producer_source_sha.retained_ref",
+      "expected": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "actual": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "matches": true
+    },
+    {
+      "id": "producer_source_sha.tree",
+      "expected": "bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452",
+      "actual": "bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452",
+      "matches": true
+    },
+    {
+      "id": "producer_source_sha.workflow_sha256",
+      "expected": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "actual": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "matches": true
+    },
+    {
+      "id": "producer_source_sha.blob:scripts/ci/ci-playwright-report.mjs",
+      "expected": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+      "actual": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+      "matches": true
+    },
+    {
+      "id": "producer_source_sha.blob:test/example/priv/playwright/package-lock.json",
+      "expected": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+      "actual": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+      "matches": true
+    },
+    {
+      "id": "producer_source_sha.blob:test/example/priv/playwright/playwright.config.ts",
+      "expected": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+      "actual": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+      "matches": true
+    },
+    {
+      "id": "producer_source_sha.blob:test/sigra/planning/ci_timing_formatter_test.exs",
+      "expected": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33",
+      "actual": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33",
+      "matches": true
+    },
+    {
+      "id": "producer_source_sha.blob:test/support/ci_timing_formatter.ex",
+      "expected": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+      "actual": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+      "matches": true
+    },
+    {
+      "id": "producer_source_sha.blob:test/test_helper.exs",
+      "expected": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+      "actual": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+      "matches": true
+    },
+    {
+      "id": "contract_application_sha",
+      "expected": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "actual": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "matches": true
+    },
+    {
+      "id": "contract_producer_sha",
+      "expected": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "actual": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "matches": true
+    },
+    {
+      "id": "contract_workflow_sha256",
+      "expected": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "actual": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "matches": true
+    },
+    {
+      "id": "archive_verifier",
+      "expected": "ready",
+      "actual": "ready",
+      "matches": true
+    }
+  ],
+  "acceptance_status": "not_started",
+  "hosted_cache_or_image_readiness": "not_inferred"
+}

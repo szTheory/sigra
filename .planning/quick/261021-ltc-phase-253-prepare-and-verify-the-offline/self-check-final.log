@@ -1,0 +1,2 @@
+ci-gate-canary: local fixture contract passed
+{"status": "offline_bundle_verified", "bundle_sha256": "d5ea3bbfd2dddba4ba9af18f06247cafe694b5e5b4a326d51d0be278f671f4aa", "source": "16800f4319cdd0e2554938071d4ebc48caa969ac", "approval_received": false, "network_requests": 0}

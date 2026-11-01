@@ -1,0 +1,4 @@
+[
+  {"id":"CIREL-01","text":"The flaky failures selected from current measurements are reproduced and fixed with deterministic regression checks and repeat runs, without increasing blanket retries or replacing readiness with sleeps."},
+  {"id":"CIREL-02","text":"Useful test coverage and required-check names remain intact; injected failures, cancellations, missing expected jobs, and unexpected skips still prevent a green required gate. Any proposed redundant-check removal needs a recorded coverage comparison before it is accepted."}
+]

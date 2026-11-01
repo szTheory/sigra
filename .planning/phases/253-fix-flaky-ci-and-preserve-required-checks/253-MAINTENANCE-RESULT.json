@@ -1,0 +1,338 @@
+{
+  "schema": "sigra.phase253.local-maintenance/v1",
+  "status": "passed",
+  "scope": "User-authorized process reset and local checker maintenance after halted183; not a replay, phase acceptance or budget renewal",
+  "generated_at": "2026-10-21T00:35:22.639872+00:00",
+  "initial_head": "f276cca61b8f45ed591b619775170d4d4be9565d",
+  "source_sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "63451346f34750ec2c20c0df6a22e5cef743fd266c4376dcc827f891fb32732c"
+  },
+  "final_tests": 26,
+  "final_run": "full-02",
+  "runs": [
+    {
+      "name": "full-01",
+      "argv": [
+        "python3",
+        "-B",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py"
+      ],
+      "exit_code": 1,
+      "duration_seconds": 274.3287734579935,
+      "before": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "c432f12f71be59122c1f82a5a40a20fae51f2e33588c6c9e266385f84c5a6ee3"
+      },
+      "after": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "c432f12f71be59122c1f82a5a40a20fae51f2e33588c6c9e266385f84c5a6ee3"
+      },
+      "source_unchanged": true,
+      "kind": "development_maintenance_not_phase_acceptance",
+      "native_tests": 26,
+      "evidence": {
+        "before.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/full-01/before.json",
+          "blob": "2e8c16918af0f835da9fb2946949934250dee3f0",
+          "bytes": 605,
+          "sha256": "d927a87bff3c567018acdaf6075e534d0bb67e00fc562202fb0250cb27866c5e"
+        },
+        "result.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/full-01/result.json",
+          "blob": "4c768c51fee95eeb4096dbdc6ad70e88a88579c3",
+          "bytes": 990,
+          "sha256": "b49ba5f9d995eb5dfadfa1cff22267e8699eae72540f8cd23db4664a4ff1a93b"
+        },
+        "stdout.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/full-01/stdout.bin",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/full-01/stderr.bin",
+          "blob": "be26fc0757ecf18493a22f47c6bcdb853feef2b7",
+          "bytes": 33663,
+          "sha256": "5378eeb66b4a63000cd3529e53e1abf01b74dc11959968f24b6a9e6c4ce87575"
+        }
+      }
+    },
+    {
+      "name": "full-02",
+      "argv": [
+        "python3",
+        "-B",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 466.66370779200224,
+      "before": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "63451346f34750ec2c20c0df6a22e5cef743fd266c4376dcc827f891fb32732c"
+      },
+      "after": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "63451346f34750ec2c20c0df6a22e5cef743fd266c4376dcc827f891fb32732c"
+      },
+      "source_unchanged": true,
+      "kind": "development_maintenance_not_phase_acceptance",
+      "native_tests": 26,
+      "evidence": {
+        "before.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/full-02/before.json",
+          "blob": "0478889b616acfd1d60f2853012c317bb18e0c6e",
+          "bytes": 605,
+          "sha256": "7d7ce275b45254c0e60eb7d1a8c053609a45a33f083b0b55830c02f3b69b39d0"
+        },
+        "result.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/full-02/result.json",
+          "blob": "4a3fd679a3b6f0334a6c8fc10b92cc24938cb139",
+          "bytes": 991,
+          "sha256": "1ea6c10c74d28f6005691b287a37074f9b060be480ab89fd0c084d5ee402f23e"
+        },
+        "stdout.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/full-02/stdout.bin",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/full-02/stderr.bin",
+          "blob": "c84ca1fc39f448e058e31bc367e85ad0e5945df3",
+          "bytes": 4530,
+          "sha256": "3c2be2f47f39d9c54969335da0a934bd2402dccd929ad7dd1bb0ca97ba27e999"
+        }
+      }
+    },
+    {
+      "name": "targeted-01",
+      "argv": [
+        "python3",
+        "-B",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+        "SuccessorContractTests.test_lifecycle_183_preserves_181_182_halts_and_reuses_179_180",
+        "SuccessorContractTests.test_validate_review183_requires_direct_runs_and_source_commits",
+        "SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route"
+      ],
+      "exit_code": 1,
+      "duration_seconds": 54.36046299998998,
+      "before": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "b7daac443a92729565f7359ea1098f845778a90950997bd41caa71761ee04133"
+      },
+      "after": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "b7daac443a92729565f7359ea1098f845778a90950997bd41caa71761ee04133"
+      },
+      "source_unchanged": true,
+      "kind": "development_maintenance_not_phase_acceptance",
+      "native_tests": 3,
+      "evidence": {
+        "before.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-01/before.json",
+          "blob": "a1000d09e6d13b5449ceca2f00e2931bd006bbcc",
+          "bytes": 884,
+          "sha256": "fe21d7d4db5186d2925775e90351cf2d2411dc82bcd6908413d492b629535f07"
+        },
+        "result.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-01/result.json",
+          "blob": "7f07ba541a8d4cb772e99baeece6cdcc08323fe8",
+          "bytes": 1269,
+          "sha256": "8225675d9d3206cf512a47a97da1d7c7befc07460db8e9b40ea27ae05da43514"
+        },
+        "stdout.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-01/stdout.bin",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-01/stderr.bin",
+          "blob": "f7630fb69b193bc1bea59d4ae46f01d013ba8a65",
+          "bytes": 2267,
+          "sha256": "c837b7508bff3c08c05851bf0e42fc2eb34b1d0e3573ea089d8ce2ef6c23220d"
+        }
+      }
+    },
+    {
+      "name": "targeted-02",
+      "argv": [
+        "python3",
+        "-B",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+        "SuccessorContractTests.test_lifecycle_183_preserves_181_182_halts_and_reuses_179_180",
+        "SuccessorContractTests.test_validate_review183_requires_direct_runs_and_source_commits",
+        "SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route",
+        "SuccessorContractTests.test_capture_snapshot_retains_test_only_edits_without_inventing_commits"
+      ],
+      "exit_code": 1,
+      "duration_seconds": 76.170192125006,
+      "before": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "a9638a92a7b3ff8c0b22db0c239e8dd510118563b86d7138f83c67dca7a4182b"
+      },
+      "after": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "a9638a92a7b3ff8c0b22db0c239e8dd510118563b86d7138f83c67dca7a4182b"
+      },
+      "source_unchanged": true,
+      "kind": "development_maintenance_not_phase_acceptance",
+      "native_tests": 4,
+      "evidence": {
+        "before.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-02/before.json",
+          "blob": "417bed9c9ff7d2321c95bbd15a3468a6a3ef53e1",
+          "bytes": 986,
+          "sha256": "99b65bebaa10dcae54c336d4f1b56599671c5133b9ddb87b8adbc3d495a61f64"
+        },
+        "result.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-02/result.json",
+          "blob": "a5f52310257358114965a861a8408c99bdf41dbd",
+          "bytes": 1369,
+          "sha256": "b63f6bbbc42e55979b957e7c76863b4cbd2e709b592a674f8f48c9f06d97abe9"
+        },
+        "stdout.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-02/stdout.bin",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-02/stderr.bin",
+          "blob": "1935a834d48ce5e68b34997c2a73f5e0bf97d86c",
+          "bytes": 1819,
+          "sha256": "caed3a2bac65a8c0c9ea3ad9f8d55b368921e5607789fad4d66a6f0a82780aa5"
+        }
+      }
+    },
+    {
+      "name": "targeted-03",
+      "argv": [
+        "python3",
+        "-B",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+        "SuccessorContractTests.test_capture_snapshot_retains_test_only_edits_without_inventing_commits"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 0.2735658330057049,
+      "before": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "c432f12f71be59122c1f82a5a40a20fae51f2e33588c6c9e266385f84c5a6ee3"
+      },
+      "after": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "c432f12f71be59122c1f82a5a40a20fae51f2e33588c6c9e266385f84c5a6ee3"
+      },
+      "source_unchanged": true,
+      "kind": "development_maintenance_not_phase_acceptance",
+      "native_tests": 1,
+      "evidence": {
+        "before.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-03/before.json",
+          "blob": "079e659f2a5ebf2c29e94d70baccea49f0da6e62",
+          "bytes": 707,
+          "sha256": "60b7e5ceaac62a27c73a214a698be96a1f1a0e99e5427322a41f78c56a333d26"
+        },
+        "result.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-03/result.json",
+          "blob": "fcb0eb01e0252ace47022e7ce092278687cf60c1",
+          "bytes": 1093,
+          "sha256": "85e35fa7d0ca02106052f80e0f13177ae0137307a3d062a2063217868ad83fbc"
+        },
+        "stdout.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-03/stdout.bin",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-03/stderr.bin",
+          "blob": "029f9d58c623bd6683cf3586d226937851916c83",
+          "bytes": 282,
+          "sha256": "13660df96fdb47f450f645d550bf022c0e0cc9db0e5851d1fa26df3cd1e8a84d"
+        }
+      }
+    },
+    {
+      "name": "targeted-04",
+      "argv": [
+        "python3",
+        "-B",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+        "SuccessorContractTests.test_bridge_accepts_exact_five_plan_amendment_fixture",
+        "SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits",
+        "SuccessorContractTests.test_complete_bridge_rejects_hosted_link_edits_at_complete_stage",
+        "SuccessorContractTests.test_consumer168_uses_entry_bridge_without_repeating_sdk_queries",
+        "SuccessorContractTests.test_nested_173_review_requires_original_location_schema_and_findings",
+        "SuccessorContractTests.test_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 222.36542579199886,
+      "before": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "63451346f34750ec2c20c0df6a22e5cef743fd266c4376dcc827f891fb32732c"
+      },
+      "after": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "78cc1fff15620978146dfe6410833fb9e54af8113047b7a72b1598cfd2a01f28",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "63451346f34750ec2c20c0df6a22e5cef743fd266c4376dcc827f891fb32732c"
+      },
+      "source_unchanged": true,
+      "kind": "development_maintenance_not_phase_acceptance",
+      "native_tests": 6,
+      "evidence": {
+        "before.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-04/before.json",
+          "blob": "6c985cce2c28132a91eafde8fc06750dd5b9190b",
+          "bytes": 1188,
+          "sha256": "91bd7eaff0f263965f1f41f96f2037e65fa94233ea5bf81b259f9bb1e66a7673"
+        },
+        "result.json": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-04/result.json",
+          "blob": "52026fb5bc66c4ef1c233a093c136741ca9435f6",
+          "bytes": 1574,
+          "sha256": "fdb766aa4616c16094ba96e0b764f16f19e56fdef73db61ea3b3051e2bdfa2df"
+        },
+        "stdout.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-04/stdout.bin",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr.bin": {
+          "path": ".planning/diagnostics/phase253-maintenance/targeted-04/stderr.bin",
+          "blob": "1ac74281d03106b50f7be7b053eb700af4109731",
+          "bytes": 1152,
+          "sha256": "56581f8c0186e1acbd717903d91502e8402b28ebfbbc0444cfddc13a4565eb3d"
+        }
+      }
+    }
+  ],
+  "diagnostic_ref": "refs/gsd/phase253-maintenance-final",
+  "diagnostic_commit": "010746a1084bfd9651c9abd6d0cffa661a42b4af",
+  "preservation_readbacks_verified": true,
+  "lessons": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LEARNINGS.md",
+  "reset": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md",
+  "no_new_numbered_plan": true,
+  "historical183_status": "halted",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "phase_verification_status": "not_started",
+  "acceptance_attempts": 0,
+  "github_requests": 0,
+  "browser_launches": 0,
+  "next_command": "$gsd-progress",
+  "next_action": "Read reset; review actual CIREL gaps directly, without automatic gap planning or permission to run179",
+  "calibration": {
+    "factor": 0.7193,
+    "applied": true,
+    "sample_count": 6,
+    "confidence": "high",
+    "clamped": false,
+    "min_samples": 3,
+    "written": true,
+    "write_error": null
+  }
+}

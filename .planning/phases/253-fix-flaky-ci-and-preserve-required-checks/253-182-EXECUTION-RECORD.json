@@ -1,0 +1,113 @@
+{
+  "schema": "sigra.phase253.execution182/v1",
+  "status": "halted",
+  "recorded_at": "2026-10-20T23:10:42.364796+00:00",
+  "invocation": "$gsd-execute-phase 253 --gaps-only",
+  "candidate_commit": "cd0019dfeb9ccba86e94967eba9cf76de5c8e378",
+  "diagnostic_ref": "refs/gsd/phase253-execution182-diagnostics",
+  "preservation": {
+    "ref": "refs/gsd/phase253-repair182-inputs",
+    "commit": "26f9266ed439b9834e7b675c001aad38d224e9cc",
+    "capture": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-EXECUTION-CAPTURE.json",
+    "exact_readbacks": 42,
+    "rechecked_before_closeout": true
+  },
+  "task_status": {
+    "1": "halted",
+    "2": "not_started",
+    "3": "not_started"
+  },
+  "completed_tasks": 0,
+  "findings": [
+    {
+      "id": "182-PROCESS-01",
+      "severity": "blocking",
+      "finding": "Test edited before required baseline failure; no pre-edit RED or per-invocation source binding exists."
+    },
+    {
+      "id": "182-TEST-01",
+      "severity": "blocking",
+      "finding": "Two focused invocations failed. Final 22-halt check expects 25 halt set but validator says stale count. No passing named two-test group exists."
+    },
+    {
+      "id": "182-TEST-02",
+      "severity": "blocking",
+      "finding": "Hosted-link negative checks wrong entry-stage scope, missing finally restoration/neighboring positives; historical frozen25 test and remaining Task1 requirements unimplemented."
+    },
+    {
+      "id": "182-EVIDENCE-01",
+      "severity": "blocking",
+      "finding": "Failed outputs retained only as labeled transcript reconstructions, not direct process captures."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "sha256": "161768f0490d0d1a629d13d7a23e49ea33219ecf724235a6d9aa0f455b1c553d",
+      "bytes": 98080,
+      "commit": "cd0019dfeb9ccba86e94967eba9cf76de5c8e378"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-TASK1-DIAGNOSTICS.json",
+      "sha256": "5f0c913c68c14c6dee9f58a9c4f6845bee2ba724897c4ed0a889fca6c1d5cfd7",
+      "bytes": 2906,
+      "commit": "cd0019dfeb9ccba86e94967eba9cf76de5c8e378"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-TASK1-FAILED-01.log",
+      "sha256": "d26ffe593541061be6250c39a8c4763f20022b329904362dd848a4120cccbfb6",
+      "bytes": 4497,
+      "commit": "cd0019dfeb9ccba86e94967eba9cf76de5c8e378"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-182-TASK1-FAILED-02.log",
+      "sha256": "9080bd875d3658345775b2088d64192246e02e5691dc7e5d6d2fd313208a95f3",
+      "bytes": 2142,
+      "commit": "cd0019dfeb9ccba86e94967eba9cf76de5c8e378"
+    }
+  ],
+  "runs": [
+    {
+      "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits",
+      "exit_code": 1,
+      "tests_run": 1,
+      "failures": 3,
+      "transcript": "253-182-TASK1-FAILED-01.log",
+      "direct_process_capture": false,
+      "source_sha256_at_invocation": null,
+      "observed": [
+        "The 25-to-22 mutation reached the validator and was refused, but expected reason 25 halt set did not match actual stale-count refusal.",
+        "The pin mutation was refused by the exact original-derived owner contract, but the expected reason was too narrow.",
+        "The hosted-link mutation was checked through an entry-stage fixture and refused because that fixture required exactly two amended plans; it did not reach the intended hosted-link semantic refusal."
+      ]
+    },
+    {
+      "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits",
+      "exit_code": 1,
+      "tests_run": 1,
+      "failures": 1,
+      "transcript": "253-182-TASK1-FAILED-02.log",
+      "direct_process_capture": false,
+      "source_sha256_at_invocation": null,
+      "observed": [
+        "The remaining 22-halt assertion expected 25 halt set; actual refusal was 169 executable reconciliation assertion has a stale count."
+      ]
+    }
+  ],
+  "fresh_closeout_checks": {
+    "candidate_git_readback": true,
+    "original_other_41_readbacks": true,
+    "candidate_python_syntax": true,
+    "test_suite_rerun": false,
+    "reason_no_rerun": "Finite test attempts exhausted; no success inferred."
+  },
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "phase_verification_status": "not_started",
+  "real_acceptance_attempts": 0,
+  "github_requests": 0,
+  "browser_launches": 0,
+  "next_command": "$gsd-plan-phase 253 --gaps"
+}

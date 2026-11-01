@@ -1,0 +1,137 @@
+{
+  "schema": "sigra.phase253.execution-record/v1",
+  "phase": "253",
+  "plan": "178",
+  "status": "halted",
+  "entry": {
+    "commit": "e22874ea687fadd72347ca539470287d1abc9475",
+    "preservation_ref": "refs/gsd/phase253-execution178-entry",
+    "readback_record": "/tmp/sigra-phase253-execution178-entry.json",
+    "shared_state_was_clean": true
+  },
+  "candidate": {
+    "commit": "d0a2433f1aae2894819dda270de2a60974c928e5",
+    "subject": "chore(253-178): preserve halted lifecycle repair candidate",
+    "files": [
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py"
+    ],
+    "source_repairs_after_final_review": 0
+  },
+  "durable_diagnostics": {
+    "ref": "refs/gsd/phase253-execution178-diagnostics",
+    "commit": "9ca5fedd70f90e442976857ce1d45858a6693808",
+    "mapping_path": "/tmp/sigra-253-178-diagnostics-preservation.json",
+    "mapping_sha256": "fdde8c14eae25954cf7e3a2e33b132445566edbe5283e201f36cc6857c98b77c",
+    "readback": "root verified exact source bytes against Git blobs",
+    "files": {
+      "diagnostics/sigra-253-178-closeout-planner-readiness.json": {"blob": "d6bcd85cbe09251578a0613f441488cbe94a8844", "bytes": 23939, "sha256": "add278b26dcac0d6dbce3c68837e9b9ee3177abe36a7049cdd5faf09a127bdc5"},
+      "diagnostics/sigra-253-178-fabricated-sdk-report.json": {"blob": "22a14015bc86011eaee3a3ccabcfe58016314a81", "bytes": 1923, "sha256": "4c5736cb6e4e07845c4c38d198c1dbb4fef024afe178b003c885c6d6f683ee2e"},
+      "diagnostics/sigra-253-178-review-168-probe.json": {"blob": "ca6e4450b5b9ff8dcfe2efe852bf73d939ec894a", "bytes": 145, "sha256": "edc0ec77c0538e36e6b6bf52a5dfd4dbed56eb44a2136eedbe3ca94dc5b2c0dd"},
+      "diagnostics/sigra-253-178-review-sdk-probe.json": {"blob": "2360785bc2d52e810f06d33308bd67189021d7a5", "bytes": 266, "sha256": "1c3ed377477be5a8968eea37921b3e5352bf375a9c6445626f081295ec3d184e"},
+      "diagnostics/sigra-253-178-task1-focused.log": {"blob": "ad9bb89788c1607031a7a5f851a97afbebf20bd3", "bytes": 477, "sha256": "f78d71433cf75d1ca8a92305a6c0dd965239021863cc5acd5c0e8342b89043ed"},
+      "diagnostics/sigra-253-178-task1-green.log": {"blob": "86712dec34317b0fab2ae3bc4a03b3a3baea71dd", "bytes": 857, "sha256": "afa59a9095ecb4b326f620fcf1e008a4a0066c81f0b112005ee2661072bb09fa"},
+      "diagnostics/sigra-253-178-task1-positive.log": {"blob": "a76b49a1e65c73f828fbd5ad33d8577daa4b063e", "bytes": 246, "sha256": "d940c0c745056d0dafe568b65e647bbb614e14d859867453a8e50abe23bf0716"},
+      "diagnostics/sigra-253-178-task1-red-helper.log": {"blob": "41c362c21d0230aa93dc02e13800157096a7b59f", "bytes": 327, "sha256": "4a06a67ee0731cdd06c7baca7031d52815944bd83ea01766968d272069fc78a0"},
+      "diagnostics/sigra-253-178-task1-red.log": {"blob": "ff01e56f62d25b6fa0ba3d8c767ddf7d5f7e2dc3", "bytes": 1199, "sha256": "97fc0699521bc645b799cc44e0afc38f4d0f1fc33d4cc1f4e096a2768e45bab7"},
+      "diagnostics/sigra-253-178-task1-required.log": {"blob": "49916e42ee8a1199e3257ec52a881812851ba75e", "bytes": 5523, "sha256": "b51b067cd41ecab535dc03f49b70fe6da4c748774e8af3c7b2e7f084022fe923"},
+      "diagnostics/sigra-253-178-task2-full-suite.log": {"blob": "4a0e9197608f6c655ab73147fa96cdb3b795d695", "bytes": 4372, "sha256": "6b7bec430ae10a1e7c113a9ed2118af96f05cc3f47c6010241cf5a06a6de64a6"},
+      "diagnostics/sigra-phase253-178-consumer-sdk-copy-report.json": {"blob": "477afc8ea7c1d85752d54f8a215a9418c92c116f", "bytes": 500280, "sha256": "14c30f7910ac3fc4bf88c4f0c7bc9e1dd765cb1b31a3b4dbaf747a279e0a0a3a"},
+      "diagnostics/sigra-phase253-178-sdk-copy-report.json": {"blob": "a64f84d71e78f87edb6bff5d0ecc36aa1f7d6ec8", "bytes": 500186, "sha256": "053b11981745c7015f229370ea1d03f83ce1307857cc9a734a8fe6e501289382"},
+      "diagnostics/sigra-phase253-execution178-entry.json": {"blob": "f278214526be06cf91ef64c72e7336ebdbfcbf7e", "bytes": 1152, "sha256": "8957e35b2af77190f6ff1fd713e486dcd8748b6cef243df00e884efc3e2d8314"},
+      "diagnostics/sigra-phase253-execution178-index.json": {"blob": "823cf3d1eafe5dd92ba5152a7d2fad07ca08150d", "bytes": 237310, "sha256": "0a8a07e5565c659928678627cb68c1e5fd69fd4de13aac87111094e59c8b88c4"}
+    }
+  },
+  "result": {
+    "status": "halted",
+    "reason": "Independent review found three deterministic high-severity implementation gaps; the required full finite suite also ended with one error.",
+    "plan_175": "halted and preserved",
+    "plans_176_177": "unexecuted; no summaries or success receipts",
+    "acceptance_179": "not run",
+    "requirements": {"CIREL-01": "partial_not_reproduced", "CIREL-02": "unaccepted"},
+    "phase_verification_status": "not_started",
+    "acceptance_attempts": 0,
+    "github_requests": 0,
+    "native_browser_launches": 0
+  },
+  "findings": [
+    {
+      "id": "178-REVIEW-01",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "location": "expected_plan_amendment, around line 885",
+      "proof": {"automated_bodies": 2, "receipt_consumer_occurrences": [1, 0], "required_each_body": true},
+      "probe_path": "/tmp/sigra-253-178-review-168-probe.json",
+      "probe_sha256": "edc0ec77c0538e36e6b6bf52a5dfd4dbed56eb44a2136eedbe3ca94dc5b2c0dd"
+    },
+    {
+      "id": "178-REVIEW-02",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "location": "validate_sdk_copy_report, around line 1157",
+      "proof": {
+        "fabricated_report_accepted": true,
+        "all_sdk_stdout": "not JSON",
+        "all_sdk_arguments": ["bogus"],
+        "sdk_identity": {},
+        "immutable_copy_input_sha256": "fake"
+      },
+      "probe_path": "/tmp/sigra-253-178-review-sdk-probe.json",
+      "probe_sha256": "1c3ed377477be5a8968eea37921b3e5352bf375a9c6445626f081295ec3d184e",
+      "fabricated_report_path": "/tmp/sigra-253-178-fabricated-sdk-report.json",
+      "fabricated_report_sha256": "4c5736cb6e4e07845c4c38d198c1dbb4fef024afe178b003c885c6d6f683ee2e"
+    },
+    {
+      "id": "178-REVIEW-03",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "location": "run_sdk_copy, around line 1069",
+      "proof": "Source review: final counts are checked but exact 180 unique plan IDs are not asserted before simulation.",
+      "runtime_probe": false
+    },
+    {
+      "id": "178-TEST-01",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "location": "test_nested_173_review_requires_original_location_schema_and_findings",
+      "proof": "Fixture has no Git repository; its call to check_historical_inputs fails at git show for the frozen 175 plan.",
+      "suite_result": "16 tests run; 15 passed; 1 error; exit 1"
+    }
+  ],
+  "verification": {
+    "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+    "exit": 1,
+    "tests_run": 16,
+    "passed": 15,
+    "errors": 1,
+    "duration_seconds": 167.106,
+    "failed_test": "test_nested_173_review_requires_original_location_schema_and_findings",
+    "error": "git show 25f9707641eb4f39838286d49867071c69281191:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-PLAN.md failed (128): fatal: not a git repository (or any of the parent directories): .git",
+    "complete_native_log": {"path": "/tmp/sigra-253-178-task2-full-suite.log", "sha256": "6b7bec430ae10a1e7c113a9ed2118af96f05cc3f47c6010241cf5a06a6de64a6"},
+    "positive_sdk_copy_reports": [
+      {"scope": "temporary planning copy", "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-phase253-178-sdk-copy-report.json", "sha256": "053b11981745c7015f229370ea1d03f83ce1307857cc9a734a8fe6e501289382"},
+      {"scope": "temporary planning copy and receipt consumer", "path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-phase253-178-consumer-sdk-copy-report.json", "sha256": "14c30f7910ac3fc4bf88c4f0c7bc9e1dd765cb1b31a3b4dbaf747a279e0a0a3a"}
+    ]
+  },
+  "historical_evidence": {
+    "175_plan_sha256": "8cb8b78ed8283860c1daff28c689ef9c556311f6c46826b0dbc6820b3292ae65",
+    "175_plan_producing_commit": "6b8bccad1a51a3455ab27d88360064d7ac8d30c8",
+    "175_summary_sha256": "74059b7ca4e1730dde91d21b5bf260090332aef7be20cc8ab258c41437482098",
+    "175_review_sha256": "dc9a7ed14f881a2f8d7428d9e4121a89f7b49a9a9144a544f1e8bc545511b603",
+    "175_execution_record_sha256": "a6e068c80db579e093ac5c374fb57db471c207a01be46ac77a10ee1b388f8c00",
+    "175_review_status": "halted",
+    "176_177_summaries_or_receipts_created": false,
+    "nested_173_review_sha256": "30cb16fd6ee27ff440512767d113b61b859da059de61571ac87f9da649201e48"
+  },
+  "commits": [
+    "b90d8132e253176313a6b13b6bcd44792c5faaad",
+    "ff50b2f2132487d15ec35463d17d4f666cf5a007",
+    "d0a2433f1aae2894819dda270de2a60974c928e5"
+  ],
+  "next_route": {
+    "readiness_checked": "/tmp/sigra-253-178-final-readiness.json",
+    "readiness_sha256": "9191c1c25dc4db93a55b6f38168552470d4a706b98849c0174b6fa426410b371",
+    "phase_253": "180 plans; 80 incomplete; 25 halted including178; runnable_plans empty",
+    "plan_178": "halted",
+    "plans_179_180": "blocked_by 178",
+    "phase_254": "pending; no context, research or plans",
+    "command": "$gsd-plan-phase 253 --gaps",
+    "guard": "Do not run179 while these findings remain unresolved."
+  }
+}

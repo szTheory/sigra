@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T11:58:32Z",
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": " M .planning/HANDOFF.json ",
+      "sha256": "4be8ae5eea11e4230597fa9a1b55ab8c66d42513360cfdb7d1383fafc7da3ccc",
+      "preserved_copy": ".planning/recovery/phase-250-v8-pre-dispatch-state-20261011T115832Z/HANDOFF.json"
+    },
+    {
+      "path": ".planning/state.json",
+      "status": " M .planning/state.json ",
+      "sha256": "d21074e3e80efaaf12ef14e1663623f7a49726facd07d7cbab674aaa8b9a5965",
+      "preserved_copy": ".planning/recovery/phase-250-v8-pre-dispatch-state-20261011T115832Z/state.json"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status": " M .planning/STATE.md ",
+      "sha256": "824210d817050fdbf4eee5d23c4c267a92fe3ce7c6afb1242e54c7e0337ae24d",
+      "preserved_copy": ".planning/recovery/phase-250-v8-pre-dispatch-state-20261011T115832Z/STATE.md"
+    }
+  ]
+}

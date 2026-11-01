@@ -1,0 +1,8 @@
+[33mYour authentication session has expired and could not be refreshed. Continuing without credentials; requests for private resources will fail or prompt for authentication. Run `mix hex.user auth` to re-authenticate or run `mix hex.user deauth` to deauthorize the user on the local machine.[0m
+Found packages with security advisories, see above for details
+** (exit) 1
+    (mix 1.19.5) lib/mix/tasks/cmd.ex:135: Mix.Tasks.Cmd.run/1
+    (mix 1.19.5) lib/mix/task.ex:499: anonymous fn/3 in Mix.Task.run_task/5
+    (mix 1.19.5) lib/mix/task.ex:573: Mix.Task.run_alias/6
+    (mix 1.19.5) lib/mix/cli.ex:129: Mix.CLI.run_task/2
+    /Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/mix:7: (file)

@@ -1,0 +1,42 @@
+Running ExUnit with seed: 134257, max_cases: 36
+
+
+
+  1) test fixed-source CI servers disable hot code reloading and retain development routes (Sigra.Planning.Phase253CIStaticRuntimeTest)
+     test/sigra/planning/phase_253_ci_static_runtime_test.exs:21
+     ** (File.Error) could not read file "/Users/jon/projects/sigra/example/config/dev.exs": no such file or directory
+     code: for flag <- ["true", "1"] do
+     stacktrace:
+       (elixir 1.19.5) lib/file.ex:435: File.read!/1
+       (elixir 1.19.5) lib/config/reader.ex:102: Config.Reader.read!/2
+       test/sigra/planning/phase_253_ci_static_runtime_test.exs:23: anonymous fn/2 in Sigra.Planning.Phase253CIStaticRuntimeTest."test fixed-source CI servers disable hot code reloading and retain development routes"/1
+       (elixir 1.19.5) lib/enum.ex:2520: Enum."-reduce/3-lists^foldl/2-0-"/3
+       test/sigra/planning/phase_253_ci_static_runtime_test.exs:22: (test)
+
+
+
+  2) test the CI setting changes only the reloader configuration (Sigra.Planning.Phase253CIStaticRuntimeTest)
+     test/sigra/planning/phase_253_ci_static_runtime_test.exs:36
+     ** (File.Error) could not read file "/Users/jon/projects/sigra/example/config/dev.exs": no such file or directory
+     code: local = read_config(nil)
+     stacktrace:
+       (elixir 1.19.5) lib/file.ex:435: File.read!/1
+       (elixir 1.19.5) lib/config/reader.ex:102: Config.Reader.read!/2
+       test/sigra/planning/phase_253_ci_static_runtime_test.exs:37: (test)
+
+
+
+  3) test ordinary development retains hot code reloading (Sigra.Planning.Phase253CIStaticRuntimeTest)
+     test/sigra/planning/phase_253_ci_static_runtime_test.exs:30
+     ** (File.Error) could not read file "/Users/jon/projects/sigra/example/config/dev.exs": no such file or directory
+     code: for flag <- [nil, "", "false", "0"] do
+     stacktrace:
+       (elixir 1.19.5) lib/file.ex:435: File.read!/1
+       (elixir 1.19.5) lib/config/reader.ex:102: Config.Reader.read!/2
+       test/sigra/planning/phase_253_ci_static_runtime_test.exs:32: anonymous fn/2 in Sigra.Planning.Phase253CIStaticRuntimeTest."test ordinary development retains hot code reloading"/1
+       (elixir 1.19.5) lib/enum.ex:2520: Enum."-reduce/3-lists^foldl/2-0-"/3
+       test/sigra/planning/phase_253_ci_static_runtime_test.exs:31: (test)
+
+
+Finished in 0.09 seconds (0.09s on load, 0.00s async, 0.00s sync)
+3 tests, 3 failures

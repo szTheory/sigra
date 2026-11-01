@@ -1,0 +1,29 @@
+{
+  "status": "diagnosis_complete_transport_repair_locally_verified",
+  "hosted_probe": 40041742541,
+  "hosted_probe_conclusion": "success",
+  "http_requests": 30,
+  "request_elapsed_seconds": 570,
+  "new_full_CI_invocations": 0,
+  "rate_cap_found": false,
+  "observed_no_cap_override_needed": true,
+  "same_package_all_four_paths_sha256": "367f1d0da5cd38759a0515eafc27aa133b2d7bf99308cac34831df0212e96b75",
+  "hosted_official_https_bytes_per_second": 4476971.0,
+  "hosted_image_file_and_environment_agree": true,
+  "hosted_image_version": "20261012.334.1",
+  "historical_image_conflict_remains_unresolved": true,
+  "causality": "No persistent cap was found. This probe did not reproduce the old slowdown. A transient archive delivery problem is plausible, not proven. Use bounded authenticated official HTTPS transport and retain all outcomes.",
+  "local_linux_installer": {
+    "status": "passed",
+    "architecture": "amd64 under emulation",
+    "base_image_digest": "sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac",
+    "acquisition_attempts": 1,
+    "downloaded_mb": 210,
+    "download_seconds": 42.027,
+    "install_seconds": 46.861,
+    "not_a_hosted_acceptance_sample": true
+  },
+  "measured_samples": 0,
+  "window_started": false,
+  "source_patch": "same browser/package prerequisites; transport and early image proof only"
+}

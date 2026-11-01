@@ -1,0 +1,24 @@
+{
+  "schema_version": "sigra.phase255.regression-gate/v1",
+  "status": "passed",
+  "watch_mode": false,
+  "timeout_seconds_per_command": 600,
+  "aborted": false,
+  "selection": "Current milestone252/253/254 verifications plus full Mix suite and all changed diagnostic seams. Elixir project: actual mix ci used instead of generic language-sniff fallback true.",
+  "fast_groups": 13,
+  "prior_phase_groups": 3,
+  "records": [
+    "FINAL-REGRESSION.json",
+    "PRIOR-PHASE-REGRESSION.json",
+    "FINAL-MIX-RECEIVERS-AFTER-REPAIR.json",
+    "MIX-CAPTURE.json"
+  ],
+  "mix_elapsed_seconds": 381.237,
+  "receiver_counts": {
+    "ordinary": 2695,
+    "scaffold": 22,
+    "threadline_guard": 65
+  },
+  "original_failure_preserved": "FINAL-MIX-RECEIVERS.json",
+  "development_checks_are_acceptance_samples": false
+}

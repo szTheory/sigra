@@ -1,0 +1,1 @@
+compiled_CI_endpoint: %{reloader_calls: [], live_reload_socket: false, liveview_socket_retained: true}

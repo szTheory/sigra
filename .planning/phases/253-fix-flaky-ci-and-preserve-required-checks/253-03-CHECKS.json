@@ -1,0 +1,10 @@
+{
+  "plan": "253-03",
+  "source_head": "b0ab759baad55aafc04c3753487747e841dc6a09",
+  "command": "bash scripts/ci/honest-skip-verdict.test.sh",
+  "exit_code": 0,
+  "observed": "21 passed, 0 failed; 3 unit contracts OK",
+  "log_sha256": "d8336231767830ebd89e98abb572e23cb0f78d4dc0bf800a0c565a36d17bcf9c",
+  "requirements_complete": false,
+  "required_names_changed": false
+}

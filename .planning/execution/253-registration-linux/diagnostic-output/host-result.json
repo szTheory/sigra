@@ -1,0 +1,21 @@
+{
+  "kind": "diagnostic",
+  "acceptance": false,
+  "browser_invocations": 1,
+  "github_requests": 0,
+  "ci_launches": 0,
+  "old_slots_reopened": 0,
+  "status": "container_finished",
+  "container_names": [
+    "sigra253-linux-1792704901190313000-pg",
+    "sigra253-linux-1792704901190313000-app"
+  ],
+  "cleanup_complete": true,
+  "image_id": "sha256:e5272f11689c8740c02789ca6bf3e3fc955c4550f25ac53f738e7807205c9836",
+  "postgres_image": "docker.io/library/postgres@sha256:c961aa287d8698297cb26cdfadfbe9fd2cbaf77e53cfffe9636e8d8a1e4d842c",
+  "postgres_version": "postgres (PostgreSQL) 15.19 (Debian 15.19-1.pgdg13+2)",
+  "container_exit": 0,
+  "duration_seconds": 1622.1794726669905,
+  "native_verdict": "not_reproduced",
+  "within_limit": true
+}

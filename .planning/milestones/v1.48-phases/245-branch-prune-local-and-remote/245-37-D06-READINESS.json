@@ -1,0 +1,44 @@
+{
+  "approved_source_oid_count": 5,
+  "approved_source_oids_still_advertised_and_tree_pinned": true,
+  "captured_at": "2026-10-03T17:53:12.337703+00:00",
+  "checks": {
+    "all_approved_commit_and_tree_ids_readable": true,
+    "all_required_objects_readable": true,
+    "approval_digest_bound": true,
+    "historical_audits_unresolved": true,
+    "no_ref_or_pr_delta": true,
+    "plan23_readiness_passed": true,
+    "plan37_preflight_ready": true,
+    "recovery_passed_once": true
+  },
+  "current_known_unreadable_extra_oids": [],
+  "current_source_ref_count": 362,
+  "current_source_ref_sha256": "58a06c4d91f8be15b9e6256a6f8ba7667784983d7cffe3e3514e7d2ce31ec65e",
+  "failed_predicates": [],
+  "historical_audits": {
+    "cleanup_30_rows": "unresolved",
+    "pr_11_rows": "unresolved"
+  },
+  "phase": 245,
+  "plan": 37,
+  "preflight_path": ".planning/phases/245-branch-prune-local-and-remote/245-37-EXEC-PREFLIGHT.json",
+  "preflight_readable_typed_objects": 359,
+  "preflight_sha256": "0ca66f936b2c0464df7ec9ed95233a5543f6dea9d344164ec563723dc4e9936c",
+  "preflight_unreadable_oids": [
+    "5c414c4cec975fcf2755664f6ee294a4760fbe93",
+    "8ec669774d33eee30d7b92149808adf835bbd963",
+    "c1df96499fed86602a7c6f27d18d9394582809f1",
+    "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+    "d4e206693aa765c0078a89e24963590257d1daf1"
+  ],
+  "preflight_unreadable_typed_objects": 5,
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "recovery_receipt": "245-37-OBJECT-RECOVERY.json",
+  "recovery_receipt_sha256": "b9232e4c758ff4a85fd379e86079ffb92f18ac270d6cf2146d6ad9b220267fe6",
+  "repository": "szTheory/sigra",
+  "required_typed_objects": 364,
+  "schema_version": 1,
+  "verdict": "ready"
+}

@@ -1,0 +1,8 @@
+test_current_instructions_override_old_174_and_inventory_assumptions (__main__.CallerTests.test_current_instructions_override_old_174_and_inventory_assumptions) ... ok
+test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure (__main__.CallerTests.test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure) ... ok
+test_plan172_other_work_is_unchanged (__main__.CallerTests.test_plan172_other_work_is_unchanged) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.011s
+
+OK

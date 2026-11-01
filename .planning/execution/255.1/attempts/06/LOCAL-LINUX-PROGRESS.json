@@ -1,0 +1,70 @@
+{
+  "schema_version": "sigra.local-linux-parity-progress/v1",
+  "captured_at": "2026-10-25T00:40:24.004804+00:00",
+  "status": "running_snapshot",
+  "local_only": true,
+  "hosted_status": "blocked",
+  "acceptance_samples": 0,
+  "sources": {
+    "control": "ada01b374c92da790857d9b826cf633a799e654a",
+    "candidate": "60058d465e171183aa6ea86f247cd6644337ebcb"
+  },
+  "execution_evaluator": "9958a1867",
+  "validator_commit": "3e8e6af7d",
+  "wrapper_sha256": "43a30bce36472b6c7c57713b0d2c4d78c5c7c9ef200842e7d8a93b1257cff49b",
+  "image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+  "postgres_image_id": "sha256:5cfa4f22776adcca8436859d21c0769b0b6b479ba14a9d12c2a2383f4b4da5f9",
+  "platform": "Ubuntu24.04 amd64 emulated on macOS arm64; PostgreSQL15 arm64",
+  "library_parity": ".planning/execution/255.1/attempts/04/LIBRARY-PARITY.json",
+  "completed": [
+    {
+      "role": "control",
+      "owner": "admin_behavior",
+      "cases": 43,
+      "status": "passed",
+      "revalidated": ".gsd/255.1-linux-parity/evaluator/.gsd/linux-parity/control-admin_behavior-06/REVALIDATED.json"
+    }
+  ],
+  "active": [
+    {
+      "role": "candidate",
+      "owner": "admin_behavior",
+      "session_id": 73739,
+      "container": "sigra-2551-linux-candidate-admin-behavior"
+    },
+    {
+      "role": "control",
+      "owner": "admin_checkpoints",
+      "session_id": 70936,
+      "container": "sigra-2551-linux-control-admin-checkpoints"
+    },
+    {
+      "role": "control",
+      "owner": "design_gallery",
+      "session_id": 93880,
+      "container": "sigra-2551-linux-control-design-gallery"
+    }
+  ],
+  "scratch": ".gsd/255.1-linux-parity/evaluator/.gsd/linux-parity",
+  "database_container": "sigra-2551-linux-parity-db",
+  "prior_tracking": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "43953f7d88e4bdded76c6a41611a29dd58c26663feec196a478c57e679c08f03",
+      "recovery_commit": "f6699d26666ddb22be87a89d3f759360b7738071",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "2b3c5faeb7e3d0bccf076494205ef51346d30293fda89719b6f11518a4b1ec1e",
+      "recovery_commit": "f6699d26666ddb22be87a89d3f759360b7738071",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "29fdaa2f13b180feb8254f3ea8ca9b9aa8754d6db3cfe4ee2077936c970a014a",
+      "recovery_commit": "f6699d26666ddb22be87a89d3f759360b7738071",
+      "read_back_equal": true
+    }
+  ]
+}

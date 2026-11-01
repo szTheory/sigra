@@ -1,0 +1,127 @@
+Running ExUnit with seed: 284378, max_cases: 36
+Excluding tags: [:scaffold]
+
+...........................................................................................
+12:35:29.476 [warning] [Sigra] Hammer rate limiter unavailable, failing open
+.............................................................................................********...................................................................................................
+12:35:29.658 [error] OAuth callback for google: provider returned no email
+.............
+12:35:29.680 [error] OAuth UID/email mismatch: provider_uid provider_uid_123 maps to user 42 but email oauth@example.com belongs to user 99
+.
+12:35:29.680 [error] OAuth callback for google: provider returned no email
+.............................................
+12:35:29.742 [error] OAuth callback for google: provider returned no email
+...................................................................................
+12:35:29.894 [info] The function passed as a handler with ID "test-oauth-register" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+...
+12:35:29.921 [info] The function passed as a handler with ID "test-oauth-login" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+......
+12:35:29.929 [warning] [Sigra.Workers.AuditForward] Forwarder Sigra.Audit.Forwarders.Noop does not export handle_event/4
+......................................................................................................................................................................................................................................
+12:35:30.103 [error] OAuth callback for google: provider returned no email
+...................................................................................................................................................................................................................
+12:35:30.360 [error] OAuth authorize_url failed for failing: %{reason: :provider_error}
+...................................................****..............................
+[DX-02] getting-started.md reading estimate: 18.45 min total (2090 words / 10.45 min prose + 24 code blocks / 8.0 min skim)
+.................................................................................................................
+12:35:30.630 [info] The function passed as a handler with ID "test-exception-#Reference<0.1921594709.981991431.38088>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.........
+12:35:30.641 [info] The function passed as a handler with ID "test-event-defaults-#Reference<0.1921594709.981991429.20351>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+12:35:30.641 [info] The function passed as a handler with ID "test-span-#Reference<0.1921594709.981991429.20366>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+...............................................................
+12:35:30.664 [info] The function passed as a handler with ID "test-event-#Reference<0.1921594709.981991426.51348>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.......................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+12:35:31.765 [info] The function passed as a handler with ID "test-rate-limited" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+..........................................................................................................................................................................................................................................................................................
+12:35:33.391 [info] The function passed as a handler with ID "audit-ms-25859" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+..
+12:35:33.528 [info] The function passed as a handler with ID "audit-ms-rollback-25923" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+12:35:33.730 [info] The function passed as a handler with ID {Sigra.AuditTelemetryTest, #Reference<0.1921594709.981991428.25599>} is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+12:35:33.730 [info] The function passed as a handler with ID {Sigra.AuditTelemetryTest, #Reference<0.1921594709.981991426.59996>} is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.............................................................................................................................
+12:35:35.945 [info] The function passed as a handler with ID "test-forward-error-2" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+12:35:35.948 [warning] [Sigra.Audit.Forwarders.Threadline] Rescued RuntimeError: injected failure
+.
+12:35:35.949 [info] The function passed as a handler with ID "test-forward-error-4" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+12:35:35.949 [warning] [Sigra.Audit.Forwarders.Threadline] Caught throw: :nope
+.
+12:35:35.951 [info] The function passed as a handler with ID "test-forward-ok-1" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+12:35:35.952 [info] The function passed as a handler with ID "test-forward-ok-6" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+12:35:35.954 [info] The function passed as a handler with ID "test-forward-error-3" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+12:35:35.954 [warning] [Sigra.Audit.Forwarders.Threadline] Caught exit: :boom
+.
+12:35:35.957 [info] The function passed as a handler with ID "test-forward-error-5" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+12:35:35.957 [warning] [Sigra.Audit.Forwarders.Threadline] Rescued RuntimeError: forced Threadline failure
+......................
+12:35:35.985 [info] The function passed as a handler with ID "backfill-test-20486" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+..
+12:35:35.988 [info] The function passed as a handler with ID "backfill-done-30723" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+......................................................
+Finished in 6.9 seconds (3.4s async, 3.5s sync)
+33 doctests, 3 properties, 2659 tests, 0 failures, 12 skipped (22 excluded)

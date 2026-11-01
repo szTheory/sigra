@@ -1,0 +1,111 @@
+{
+  "schema": "sigra.phase253.remaining-evidence-checkpoint/v1",
+  "recorded_at": "2026-10-22T19:02:23.288100+00:00",
+  "plan": "253-172",
+  "wave": 8,
+  "status": "offline_preparation_complete_awaiting_exact_approval",
+  "implementation_commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
+  "proposal": ".planning/execution/253-pr343-remaining-evidence/proposal.json",
+  "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+  "approval": {
+    "status": "pending_exact_proposal_approval",
+    "approval_received": false,
+    "proposal": ".planning/execution/253-pr343-remaining-evidence/proposal.json",
+    "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+    "manifest_sha256": "6c87fc47f711885b85a121ba137ef7606c0392f20c31d5097f01d7d8524186fe",
+    "scope": "pr343-five-artifacts-and-frozen-docs-only-pr",
+    "question": "Approve collecting the five PR343 artifacts and creating one frozen docs-only draft PR/CI run, within 70 HTTP requests and 60 minutes?",
+    "new_ci_authorized": false
+  },
+  "verification": {
+    "offline_tests": 20,
+    "result": "passed",
+    "log": ".planning/execution/253-pr343-remaining-evidence/tests.log",
+    "log_sha256": "c2be5b5bea13bf58be2a346dbe4c4ae2e6463413aef5ef6f7b15cc8a8487cba2",
+    "offline_entrypoint": ".planning/execution/253-pr343-remaining-evidence/offline-result.json",
+    "network_requests": 0,
+    "github_writes": 0,
+    "downloads": 0,
+    "ci_launches": 0,
+    "hosted_acceptance": false,
+    "phase_verification": "not_started"
+  },
+  "missing": [
+    "Five actual pinned PR343 archives and accepted browser records",
+    "Actual docs-only PR/CI run with independently accepted required-check evidence",
+    "Original selected registration failure reproduction"
+  ],
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_command_conditional": true,
+  "next_action": "Plan172 offline continuation is committed at f75e6a88b026b2c5a26f829a8a0bfce1c244eb47. All 20 offline tests pass. Fresh approval is required to download the five pinned PR343 browser archives and create the frozen docs-only refs and one draft PR/automatic CI run. Maximum 70 measured HTTP requests within 60 minutes, shared 20 download-request cap, no retries/reruns/dispatches/merges. Proposal SHA-256 88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d. No live action was performed. Original registration reproduction and Phase253 verification remain unfinished.",
+  "preservation": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
+      "ref": "refs/gsd/phase253-plan172-before-remaining-checkpoint",
+      "sha256": "af049eafc607ce31035eca67e82f96b40a44857e84513b96fbfb6696c390f3de",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
+      "ref": "refs/gsd/phase253-plan172-before-remaining-checkpoint",
+      "sha256": "864f58447db9fd7d135f187b0a060227afd5a29fa3c861beef9a2e613abfda4e",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
+      "ref": "refs/gsd/phase253-plan172-before-remaining-checkpoint",
+      "sha256": "e13c9c690a3839130db25e1569ce76369d7581232380debd00fc6c8d8e0283d2",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "status": "clean",
+      "commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
+      "ref": "refs/gsd/phase253-plan172-before-remaining-checkpoint",
+      "sha256": "9bec81fc5e670e21a77b7afea2100d7e4d392b51872845e5f58e0fc57ac7fefe",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-172-EXECUTION.json",
+      "status": "clean",
+      "commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
+      "ref": "refs/gsd/phase253-plan172-before-remaining-checkpoint",
+      "sha256": "02c48b235f0cbe234233144f988fcae2abf0ce5febb0b71f270072f86e022b02",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+      "status": "clean",
+      "commit": "f75e6a88b026b2c5a26f829a8a0bfce1c244eb47",
+      "ref": "refs/gsd/phase253-plan172-before-remaining-checkpoint",
+      "sha256": "ab5e19d5e20b0c6c6d2ae37d1f3e1b811f9ba17639409713a9a35216fa085990",
+      "readback_verified": true
+    }
+  ],
+  "readiness": {
+    "253": {
+      "runnable_plans": [
+        "253-172-PLAN.md"
+      ],
+      "plan_count": 183,
+      "completed_implementation": 80,
+      "halted": 29,
+      "without_summary": 74
+    },
+    "254": {
+      "has_context": false,
+      "has_research": false,
+      "has_plans": false,
+      "not_started": true
+    }
+  },
+  "historical_outcomes_modified": false,
+  "budgets_renewed": false,
+  "acceptance179_reruns": 0
+}

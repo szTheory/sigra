@@ -1,0 +1,1626 @@
+{
+  "status": "native_inputs_ready",
+  "role": "before",
+  "run_id": 40046955449,
+  "run_attempt": 1,
+  "application_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "producer_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+  "tree_sha": "4207b705356619ddc7fdc20edf7190fc7330c117",
+  "workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+  "source_checks": "passed",
+  "origin_checks": "passed",
+  "raw_hash_checks": "passed",
+  "current_reports": "actual authenticated preparation artifact bytes",
+  "selection_inventories": "retained original inventory; full Playwright tree and explicit workflow amendment checked",
+  "owners": {
+    "admin_behavior": {
+      "coverage-source.json": "b9245efae8b16dd0821df9baa6b2d43740faf2e21533246600d7cd3689f1c165",
+      "report.json": "9e283466dec73caad39898ed9d7a2802bfa9a5e208aa40854a6e72cf9a622b80",
+      "selection.json": "1d0a467a778ab627d394cb2742fad61d809c861cd1aa10ddc3641ba9d88b2111"
+    },
+    "admin_checkpoints": {
+      "coverage-source.json": "9c505dfa6f92c8fe2981c5ef4b39acfa9d3942c3177f29551c4c334e89791e9d",
+      "report.json": "3e71b72a8ee7d705844994d9e6b0c6770a0564f173ae51251e582ce48a554e80",
+      "selection.json": "c398bddfdf7419aa3f33a0c49e2ce010f3e9e4c5f761cb323c4e4c4ce02c84e0"
+    },
+    "design_gallery": {
+      "coverage-source.json": "93b9d9bf6fcd40a2efa6d952ad9376110cc09eeb9a0c98c1e940e9c1629ac54e",
+      "report.json": "6ecfaa02fab3d24b48918604e4b94027df954c61eb3436f4beb3af6b31017eff",
+      "selection.json": "6f10b564ad79cd02605b4b70e07a5046e5655bfb906d064c43703dfcba5c0921"
+    },
+    "non_admin_smoke": {
+      "coverage-source.json": "e7a0b4cb02f97534db86419d2e7fd049bd028028c2dc2a129b81ac5bd072445c",
+      "report.json": "aeedfae5dbafeebd354437114dcba7af2d402c2fe999c67e5e9a648b37a47ddd",
+      "selection.json": "212014664f4041a9c593d22b23e57cbdf51402d11f2d50be96b6c103706bfd5c"
+    },
+    "demo_showcase": {
+      "coverage-source.json": "5327e08c8878354c155d5825f272c945c94a95a18ce0730567c9a09057aa868b",
+      "report.json": "ccbd938d786cf07406d33d950736f84ea3aac4a5ed7d707a414352ba9d0da856",
+      "selection.json": "5974502b1a7d115dfdae367b407d8f41b37f176a0a26445221dc60be3a5c8ac7"
+    }
+  },
+  "metadata": [
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40046955449",
+      "run_attempt": "1",
+      "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "event": "pull_request",
+      "matrix_seam": "admin_checkpoints",
+      "job_name": "Example Playwright shard",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "source_proof": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "captured_at": "2026-10-24T00:51:08.825Z",
+          "status": "verified",
+          "image_file": {
+            "path": "/imagegeneration/imagedata.json",
+            "sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+            "base64": "WwogIHsKICAgICJncm91cCI6ICJPcGVyYXRpbmcgU3lzdGVtIiwKICAgICJkZXRhaWwiOiAiVWJ1bnR1XG4yNC4wNC41XG5MVFMiCiAgfSwKICB7CiAgICAiZ3JvdXAiOiAiUnVubmVyIEltYWdlIiwKICAgICJkZXRhaWwiOiAiSW1hZ2U6IHVidW50dS0yNC4wNFxuVmVyc2lvbjogMjAyNjEwMTIuMzM0LjFcbkluY2x1ZGVkIFNvZnR3YXJlOiBodHRwczovL2dpdGh1Yi5jb20vYWN0aW9ucy9ydW5uZXItaW1hZ2VzL2Jsb2IvdWJ1bnR1MjQvMjAyNjEwMTIuMzM0L2ltYWdlcy91YnVudHUvVWJ1bnR1MjQwNC1SZWFkbWUubWRcbkltYWdlIFJlbGVhc2U6IGh0dHBzOi8vZ2l0aHViLmNvbS9hY3Rpb25zL3J1bm5lci1pbWFnZXMvcmVsZWFzZXMvdGFnL3VidW50dTI0JTJGMjAyNjEwMTIuMzM0IgogIH0KXQo="
+          },
+          "os_release_file": {
+            "path": "/etc/os-release",
+            "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+            "base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg=="
+          },
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_playwright_shard",
+            "matrix_seam": "admin_checkpoints"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "file_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "os_release": {
+            "id": "ubuntu",
+            "version_id": "24.04"
+          }
+        },
+        "verification": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "status": "verified",
+          "captured_at": "2026-10-24T00:51:08.825Z",
+          "verified_at": "2026-10-24T00:54:16.611Z",
+          "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+          "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_playwright_shard",
+            "matrix_seam": "admin_checkpoints"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "early_environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_changed": false
+        }
+      },
+      "cache_outcome": {
+        "example_deps": "hit",
+        "browser_binaries": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": "20",
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": "v20.20.2",
+        "playwright": "Version 1.59.1"
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": null,
+        "playwright": null
+      },
+      "os_dependencies": {
+        "schema_version": "sigra.playwright-os-deps/v1",
+        "status": "passed",
+        "browsers": [
+          "chromium",
+          "webkit"
+        ],
+        "phases": [
+          {
+            "phase": "package-plan",
+            "attempt": 0,
+            "exit_code": 0,
+            "elapsed_seconds": 0.188,
+            "log": "/home/runner/work/_temp/playwright-os-deps.0.package-plan.log",
+            "log_sha256": "8004d7da331bfea1e43b855e680dbc15b28cd3af44e361c727cfc00c43608d5e"
+          },
+          {
+            "phase": "update",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 12.108,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.update.log",
+            "log_sha256": "871ec57d8e3fc4179dc195cdc8887d3aa918153acbc882e244388cea2f4274de"
+          },
+          {
+            "phase": "download",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 19.448,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.download.log",
+            "log_sha256": "c00f8c65907bf96e0e3a6d6d843cd024043ee1c8845223312627709df55e300a"
+          },
+          {
+            "phase": "install",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 19.832,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.install.log",
+            "log_sha256": "cf7661523c889b4ff0f0f5c3d98905245cbb6e62255957129630c50936a7657e"
+          }
+        ],
+        "maximum_acquisition_attempts": 2,
+        "package_configuration_retried": false,
+        "retry_policy": "one fresh connection to the official HTTPS sources",
+        "packages": [
+          "libasound2t64",
+          "libatk-bridge2.0-0t64",
+          "libatk1.0-0t64",
+          "libatspi2.0-0t64",
+          "libcairo2",
+          "libcups2t64",
+          "libdbus-1-3",
+          "libdrm2",
+          "libgbm1",
+          "libglib2.0-0t64",
+          "libnspr4",
+          "libnss3",
+          "libpango-1.0-0",
+          "libx11-6",
+          "libxcb1",
+          "libxcomposite1",
+          "libxdamage1",
+          "libxext6",
+          "libxfixes3",
+          "libxkbcommon0",
+          "libxrandr2",
+          "xvfb",
+          "fonts-noto-color-emoji",
+          "fonts-unifont",
+          "libfontconfig1",
+          "libfreetype6",
+          "xfonts-cyrillic",
+          "xfonts-scalable",
+          "fonts-liberation",
+          "fonts-ipafont-gothic",
+          "fonts-wqy-zenhei",
+          "fonts-tlwg-loma-otf",
+          "fonts-freefont-ttf",
+          "gstreamer1.0-libav",
+          "gstreamer1.0-plugins-bad",
+          "gstreamer1.0-plugins-base",
+          "gstreamer1.0-plugins-good",
+          "libicu74",
+          "libatomic1",
+          "libcairo-gobject2",
+          "libenchant-2-2",
+          "libepoxy0",
+          "libevent-2.1-7t64",
+          "libflite1",
+          "libgdk-pixbuf-2.0-0",
+          "libgles2",
+          "libgstreamer-gl1.0-0",
+          "libgstreamer-plugins-bad1.0-0",
+          "libgstreamer-plugins-base1.0-0",
+          "libgstreamer1.0-0",
+          "libgtk-4-1",
+          "libharfbuzz-icu0",
+          "libharfbuzz0b",
+          "libhyphen0",
+          "libjpeg-turbo8",
+          "liblcms2-2",
+          "libmanette-0.2-0",
+          "libopus0",
+          "libpangocairo-1.0-0",
+          "libpng16-16t64",
+          "libsecret-1-0",
+          "libvpx9",
+          "libwayland-client0",
+          "libwayland-egl1",
+          "libwayland-server0",
+          "libwebp7",
+          "libwebpdemux2",
+          "libwoff1",
+          "libxml2",
+          "libxslt1.1",
+          "libx264-164",
+          "libavif16"
+        ],
+        "original_sources_sha256": "4508181e0dd5578c33d1247db48ab4847910b25da85e0789c8e7b3140d1fb289",
+        "successful_acquisition_attempt": 1
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40046955449",
+      "run_attempt": "1",
+      "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "event": "pull_request",
+      "matrix_seam": "design_gallery",
+      "job_name": "Example Playwright shard",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "source_proof": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "captured_at": "2026-10-24T00:51:08.170Z",
+          "status": "verified",
+          "image_file": {
+            "path": "/imagegeneration/imagedata.json",
+            "sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+            "base64": "WwogIHsKICAgICJncm91cCI6ICJPcGVyYXRpbmcgU3lzdGVtIiwKICAgICJkZXRhaWwiOiAiVWJ1bnR1XG4yNC4wNC41XG5MVFMiCiAgfSwKICB7CiAgICAiZ3JvdXAiOiAiUnVubmVyIEltYWdlIiwKICAgICJkZXRhaWwiOiAiSW1hZ2U6IHVidW50dS0yNC4wNFxuVmVyc2lvbjogMjAyNjEwMTIuMzM0LjFcbkluY2x1ZGVkIFNvZnR3YXJlOiBodHRwczovL2dpdGh1Yi5jb20vYWN0aW9ucy9ydW5uZXItaW1hZ2VzL2Jsb2IvdWJ1bnR1MjQvMjAyNjEwMTIuMzM0L2ltYWdlcy91YnVudHUvVWJ1bnR1MjQwNC1SZWFkbWUubWRcbkltYWdlIFJlbGVhc2U6IGh0dHBzOi8vZ2l0aHViLmNvbS9hY3Rpb25zL3J1bm5lci1pbWFnZXMvcmVsZWFzZXMvdGFnL3VidW50dTI0JTJGMjAyNjEwMTIuMzM0IgogIH0KXQo="
+          },
+          "os_release_file": {
+            "path": "/etc/os-release",
+            "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+            "base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg=="
+          },
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_playwright_shard",
+            "matrix_seam": "design_gallery"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "file_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "os_release": {
+            "id": "ubuntu",
+            "version_id": "24.04"
+          }
+        },
+        "verification": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "status": "verified",
+          "captured_at": "2026-10-24T00:51:08.170Z",
+          "verified_at": "2026-10-24T00:53:50.465Z",
+          "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+          "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_playwright_shard",
+            "matrix_seam": "design_gallery"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "early_environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_changed": false
+        }
+      },
+      "cache_outcome": {
+        "example_deps": "hit",
+        "browser_binaries": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": "20",
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": "v20.20.2",
+        "playwright": "Version 1.59.1"
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": null,
+        "playwright": null
+      },
+      "os_dependencies": {
+        "schema_version": "sigra.playwright-os-deps/v1",
+        "status": "passed",
+        "browsers": [
+          "chromium",
+          "webkit"
+        ],
+        "phases": [
+          {
+            "phase": "package-plan",
+            "attempt": 0,
+            "exit_code": 0,
+            "elapsed_seconds": 0.158,
+            "log": "/home/runner/work/_temp/playwright-os-deps.0.package-plan.log",
+            "log_sha256": "8004d7da331bfea1e43b855e680dbc15b28cd3af44e361c727cfc00c43608d5e"
+          },
+          {
+            "phase": "update",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 11.616,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.update.log",
+            "log_sha256": "a303b7b8ac602733b5b48fcbc7e7f024ea6a683dd87aa05b88b64062b77e9a59"
+          },
+          {
+            "phase": "download",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 29.072,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.download.log",
+            "log_sha256": "643c54db747c3bc8177f1c58a3fe41a42a6ca35cf82778097d3a3968615dcdfc"
+          },
+          {
+            "phase": "install",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 12.243,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.install.log",
+            "log_sha256": "cf7661523c889b4ff0f0f5c3d98905245cbb6e62255957129630c50936a7657e"
+          }
+        ],
+        "maximum_acquisition_attempts": 2,
+        "package_configuration_retried": false,
+        "retry_policy": "one fresh connection to the official HTTPS sources",
+        "packages": [
+          "libasound2t64",
+          "libatk-bridge2.0-0t64",
+          "libatk1.0-0t64",
+          "libatspi2.0-0t64",
+          "libcairo2",
+          "libcups2t64",
+          "libdbus-1-3",
+          "libdrm2",
+          "libgbm1",
+          "libglib2.0-0t64",
+          "libnspr4",
+          "libnss3",
+          "libpango-1.0-0",
+          "libx11-6",
+          "libxcb1",
+          "libxcomposite1",
+          "libxdamage1",
+          "libxext6",
+          "libxfixes3",
+          "libxkbcommon0",
+          "libxrandr2",
+          "xvfb",
+          "fonts-noto-color-emoji",
+          "fonts-unifont",
+          "libfontconfig1",
+          "libfreetype6",
+          "xfonts-cyrillic",
+          "xfonts-scalable",
+          "fonts-liberation",
+          "fonts-ipafont-gothic",
+          "fonts-wqy-zenhei",
+          "fonts-tlwg-loma-otf",
+          "fonts-freefont-ttf",
+          "gstreamer1.0-libav",
+          "gstreamer1.0-plugins-bad",
+          "gstreamer1.0-plugins-base",
+          "gstreamer1.0-plugins-good",
+          "libicu74",
+          "libatomic1",
+          "libcairo-gobject2",
+          "libenchant-2-2",
+          "libepoxy0",
+          "libevent-2.1-7t64",
+          "libflite1",
+          "libgdk-pixbuf-2.0-0",
+          "libgles2",
+          "libgstreamer-gl1.0-0",
+          "libgstreamer-plugins-bad1.0-0",
+          "libgstreamer-plugins-base1.0-0",
+          "libgstreamer1.0-0",
+          "libgtk-4-1",
+          "libharfbuzz-icu0",
+          "libharfbuzz0b",
+          "libhyphen0",
+          "libjpeg-turbo8",
+          "liblcms2-2",
+          "libmanette-0.2-0",
+          "libopus0",
+          "libpangocairo-1.0-0",
+          "libpng16-16t64",
+          "libsecret-1-0",
+          "libvpx9",
+          "libwayland-client0",
+          "libwayland-egl1",
+          "libwayland-server0",
+          "libwebp7",
+          "libwebpdemux2",
+          "libwoff1",
+          "libxml2",
+          "libxslt1.1",
+          "libx264-164",
+          "libavif16"
+        ],
+        "original_sources_sha256": "4508181e0dd5578c33d1247db48ab4847910b25da85e0789c8e7b3140d1fb289",
+        "successful_acquisition_attempt": 1
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40046955449",
+      "run_attempt": "1",
+      "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "event": "pull_request",
+      "matrix_seam": "demo_showcase",
+      "job_name": "Example Playwright shard",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "source_proof": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "captured_at": "2026-10-24T00:51:11.213Z",
+          "status": "verified",
+          "image_file": {
+            "path": "/imagegeneration/imagedata.json",
+            "sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+            "base64": "WwogIHsKICAgICJncm91cCI6ICJPcGVyYXRpbmcgU3lzdGVtIiwKICAgICJkZXRhaWwiOiAiVWJ1bnR1XG4yNC4wNC41XG5MVFMiCiAgfSwKICB7CiAgICAiZ3JvdXAiOiAiUnVubmVyIEltYWdlIiwKICAgICJkZXRhaWwiOiAiSW1hZ2U6IHVidW50dS0yNC4wNFxuVmVyc2lvbjogMjAyNjEwMTIuMzM0LjFcbkluY2x1ZGVkIFNvZnR3YXJlOiBodHRwczovL2dpdGh1Yi5jb20vYWN0aW9ucy9ydW5uZXItaW1hZ2VzL2Jsb2IvdWJ1bnR1MjQvMjAyNjEwMTIuMzM0L2ltYWdlcy91YnVudHUvVWJ1bnR1MjQwNC1SZWFkbWUubWRcbkltYWdlIFJlbGVhc2U6IGh0dHBzOi8vZ2l0aHViLmNvbS9hY3Rpb25zL3J1bm5lci1pbWFnZXMvcmVsZWFzZXMvdGFnL3VidW50dTI0JTJGMjAyNjEwMTIuMzM0IgogIH0KXQo="
+          },
+          "os_release_file": {
+            "path": "/etc/os-release",
+            "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+            "base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg=="
+          },
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_playwright_shard",
+            "matrix_seam": "demo_showcase"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_agrees": true,
+          "file_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "diagnostics": [],
+          "os_release": {
+            "id": "ubuntu",
+            "version_id": "24.04"
+          }
+        },
+        "verification": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "status": "verified",
+          "captured_at": "2026-10-24T00:51:11.213Z",
+          "verified_at": "2026-10-24T00:52:38.429Z",
+          "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+          "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_playwright_shard",
+            "matrix_seam": "demo_showcase"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_agrees": true,
+          "diagnostics": [],
+          "early_environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_changed": false
+        }
+      },
+      "cache_outcome": {
+        "example_deps": "hit",
+        "browser_binaries": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": "20",
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": "v20.20.2",
+        "playwright": "Version 1.59.1"
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": null,
+        "playwright": null
+      },
+      "os_dependencies": {
+        "schema_version": "sigra.playwright-os-deps/v1",
+        "status": "passed",
+        "browsers": [
+          "chromium"
+        ],
+        "phases": [
+          {
+            "phase": "package-plan",
+            "attempt": 0,
+            "exit_code": 0,
+            "elapsed_seconds": 0.275,
+            "log": "/home/runner/work/_temp/playwright-os-deps.0.package-plan.log",
+            "log_sha256": "a69f8b78ffd13e2f7521a7e58b1c94a3dfa2304c7a74354b636c5ad8534136b1"
+          },
+          {
+            "phase": "update",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 9.303,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.update.log",
+            "log_sha256": "14a43c1786ea2c98ffb6c45197a827ae93135fcfb506fdaa131db8f797ceb30f"
+          },
+          {
+            "phase": "download",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 6.149,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.download.log",
+            "log_sha256": "e9e689f7f04924aef32d2bcba8e545da68b9fa71b39cdc2d1406fb983dbaef6f"
+          },
+          {
+            "phase": "install",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 9.12,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.install.log",
+            "log_sha256": "7c28b173a1688cce0a6e48e66556a5014e10baa4687f6c4f3a749daa9e6d767e"
+          }
+        ],
+        "maximum_acquisition_attempts": 2,
+        "package_configuration_retried": false,
+        "retry_policy": "one fresh connection to the official HTTPS sources",
+        "packages": [
+          "libasound2t64",
+          "libatk-bridge2.0-0t64",
+          "libatk1.0-0t64",
+          "libatspi2.0-0t64",
+          "libcairo2",
+          "libcups2t64",
+          "libdbus-1-3",
+          "libdrm2",
+          "libgbm1",
+          "libglib2.0-0t64",
+          "libnspr4",
+          "libnss3",
+          "libpango-1.0-0",
+          "libx11-6",
+          "libxcb1",
+          "libxcomposite1",
+          "libxdamage1",
+          "libxext6",
+          "libxfixes3",
+          "libxkbcommon0",
+          "libxrandr2",
+          "xvfb",
+          "fonts-noto-color-emoji",
+          "fonts-unifont",
+          "libfontconfig1",
+          "libfreetype6",
+          "xfonts-cyrillic",
+          "xfonts-scalable",
+          "fonts-liberation",
+          "fonts-ipafont-gothic",
+          "fonts-wqy-zenhei",
+          "fonts-tlwg-loma-otf",
+          "fonts-freefont-ttf"
+        ],
+        "original_sources_sha256": "4508181e0dd5578c33d1247db48ab4847910b25da85e0789c8e7b3140d1fb289",
+        "successful_acquisition_attempt": 1
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40046955449",
+      "run_attempt": "1",
+      "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "event": "pull_request",
+      "matrix_seam": null,
+      "job_name": "Example unit smoke (ExUnit + ConnTest)",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "source_proof": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "captured_at": "2026-10-24T00:51:08.204Z",
+          "status": "verified",
+          "image_file": {
+            "path": "/imagegeneration/imagedata.json",
+            "sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+            "base64": "WwogIHsKICAgICJncm91cCI6ICJPcGVyYXRpbmcgU3lzdGVtIiwKICAgICJkZXRhaWwiOiAiVWJ1bnR1XG4yNC4wNC41XG5MVFMiCiAgfSwKICB7CiAgICAiZ3JvdXAiOiAiUnVubmVyIEltYWdlIiwKICAgICJkZXRhaWwiOiAiSW1hZ2U6IHVidW50dS0yNC4wNFxuVmVyc2lvbjogMjAyNjEwMTIuMzM0LjFcbkluY2x1ZGVkIFNvZnR3YXJlOiBodHRwczovL2dpdGh1Yi5jb20vYWN0aW9ucy9ydW5uZXItaW1hZ2VzL2Jsb2IvdWJ1bnR1MjQvMjAyNjEwMTIuMzM0L2ltYWdlcy91YnVudHUvVWJ1bnR1MjQwNC1SZWFkbWUubWRcbkltYWdlIFJlbGVhc2U6IGh0dHBzOi8vZ2l0aHViLmNvbS9hY3Rpb25zL3J1bm5lci1pbWFnZXMvcmVsZWFzZXMvdGFnL3VidW50dTI0JTJGMjAyNjEwMTIuMzM0IgogIH0KXQo="
+          },
+          "os_release_file": {
+            "path": "/etc/os-release",
+            "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+            "base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg=="
+          },
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_unit_smoke",
+            "matrix_seam": null
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "file_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "os_release": {
+            "id": "ubuntu",
+            "version_id": "24.04"
+          }
+        },
+        "verification": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "status": "verified",
+          "captured_at": "2026-10-24T00:51:08.204Z",
+          "verified_at": "2026-10-24T00:51:32.039Z",
+          "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+          "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_unit_smoke",
+            "matrix_seam": null
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "early_environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_changed": false
+        }
+      },
+      "cache_outcome": {
+        "example_deps": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": null,
+        "playwright": null
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": null,
+        "playwright": null
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": "not_applicable",
+        "playwright": "not_applicable"
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40046955449",
+      "run_attempt": "1",
+      "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "event": "pull_request",
+      "matrix_seam": null,
+      "job_name": "Example HTTP smoke (boot + curl critical routes)",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "source_proof": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "captured_at": "2026-10-24T00:51:13.659Z",
+          "status": "verified",
+          "image_file": {
+            "path": "/imagegeneration/imagedata.json",
+            "sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+            "base64": "WwogIHsKICAgICJncm91cCI6ICJPcGVyYXRpbmcgU3lzdGVtIiwKICAgICJkZXRhaWwiOiAiVWJ1bnR1XG4yNC4wNC41XG5MVFMiCiAgfSwKICB7CiAgICAiZ3JvdXAiOiAiUnVubmVyIEltYWdlIiwKICAgICJkZXRhaWwiOiAiSW1hZ2U6IHVidW50dS0yNC4wNFxuVmVyc2lvbjogMjAyNjEwMTIuMzM0LjFcbkluY2x1ZGVkIFNvZnR3YXJlOiBodHRwczovL2dpdGh1Yi5jb20vYWN0aW9ucy9ydW5uZXItaW1hZ2VzL2Jsb2IvdWJ1bnR1MjQvMjAyNjEwMTIuMzM0L2ltYWdlcy91YnVudHUvVWJ1bnR1MjQwNC1SZWFkbWUubWRcbkltYWdlIFJlbGVhc2U6IGh0dHBzOi8vZ2l0aHViLmNvbS9hY3Rpb25zL3J1bm5lci1pbWFnZXMvcmVsZWFzZXMvdGFnL3VidW50dTI0JTJGMjAyNjEwMTIuMzM0IgogIH0KXQo="
+          },
+          "os_release_file": {
+            "path": "/etc/os-release",
+            "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+            "base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg=="
+          },
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_http_smoke",
+            "matrix_seam": null
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_agrees": true,
+          "file_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "diagnostics": [],
+          "os_release": {
+            "id": "ubuntu",
+            "version_id": "24.04"
+          }
+        },
+        "verification": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "status": "verified",
+          "captured_at": "2026-10-24T00:51:13.659Z",
+          "verified_at": "2026-10-24T00:51:37.328Z",
+          "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+          "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_http_smoke",
+            "matrix_seam": null
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_agrees": true,
+          "diagnostics": [],
+          "early_environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_changed": false
+        }
+      },
+      "cache_outcome": {
+        "example_deps": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": null,
+        "playwright": null
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": null,
+        "playwright": null
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": "not_applicable",
+        "playwright": "not_applicable"
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40046955449",
+      "run_attempt": "1",
+      "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "event": "pull_request",
+      "matrix_seam": "non_admin_smoke",
+      "job_name": "Example Playwright shard",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "source_proof": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "captured_at": "2026-10-24T00:51:08.752Z",
+          "status": "verified",
+          "image_file": {
+            "path": "/imagegeneration/imagedata.json",
+            "sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+            "base64": "WwogIHsKICAgICJncm91cCI6ICJPcGVyYXRpbmcgU3lzdGVtIiwKICAgICJkZXRhaWwiOiAiVWJ1bnR1XG4yNC4wNC41XG5MVFMiCiAgfSwKICB7CiAgICAiZ3JvdXAiOiAiUnVubmVyIEltYWdlIiwKICAgICJkZXRhaWwiOiAiSW1hZ2U6IHVidW50dS0yNC4wNFxuVmVyc2lvbjogMjAyNjEwMTIuMzM0LjFcbkluY2x1ZGVkIFNvZnR3YXJlOiBodHRwczovL2dpdGh1Yi5jb20vYWN0aW9ucy9ydW5uZXItaW1hZ2VzL2Jsb2IvdWJ1bnR1MjQvMjAyNjEwMTIuMzM0L2ltYWdlcy91YnVudHUvVWJ1bnR1MjQwNC1SZWFkbWUubWRcbkltYWdlIFJlbGVhc2U6IGh0dHBzOi8vZ2l0aHViLmNvbS9hY3Rpb25zL3J1bm5lci1pbWFnZXMvcmVsZWFzZXMvdGFnL3VidW50dTI0JTJGMjAyNjEwMTIuMzM0IgogIH0KXQo="
+          },
+          "os_release_file": {
+            "path": "/etc/os-release",
+            "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+            "base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg=="
+          },
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_playwright_shard",
+            "matrix_seam": "non_admin_smoke"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "file_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "os_release": {
+            "id": "ubuntu",
+            "version_id": "24.04"
+          }
+        },
+        "verification": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "status": "verified",
+          "captured_at": "2026-10-24T00:51:08.752Z",
+          "verified_at": "2026-10-24T00:54:57.621Z",
+          "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+          "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_playwright_shard",
+            "matrix_seam": "non_admin_smoke"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "early_environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_changed": false
+        }
+      },
+      "cache_outcome": {
+        "example_deps": "hit",
+        "browser_binaries": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": "20",
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": "v20.20.2",
+        "playwright": "Version 1.59.1"
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": null,
+        "playwright": null
+      },
+      "os_dependencies": {
+        "schema_version": "sigra.playwright-os-deps/v1",
+        "status": "passed",
+        "browsers": [
+          "chromium",
+          "webkit"
+        ],
+        "phases": [
+          {
+            "phase": "package-plan",
+            "attempt": 0,
+            "exit_code": 0,
+            "elapsed_seconds": 0.177,
+            "log": "/home/runner/work/_temp/playwright-os-deps.0.package-plan.log",
+            "log_sha256": "8004d7da331bfea1e43b855e680dbc15b28cd3af44e361c727cfc00c43608d5e"
+          },
+          {
+            "phase": "update",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 13.877,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.update.log",
+            "log_sha256": "f8ef83b62f8c489581e83b966f4f03a155649da07e8ebebd351475d9623292b4"
+          },
+          {
+            "phase": "download",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 26.333,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.download.log",
+            "log_sha256": "ef8b806fb67f996bb8cf5d56878133cd06104f99cc820906ec25f0e074fc1f8b"
+          },
+          {
+            "phase": "install",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 13.368,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.install.log",
+            "log_sha256": "cf7661523c889b4ff0f0f5c3d98905245cbb6e62255957129630c50936a7657e"
+          }
+        ],
+        "maximum_acquisition_attempts": 2,
+        "package_configuration_retried": false,
+        "retry_policy": "one fresh connection to the official HTTPS sources",
+        "packages": [
+          "libasound2t64",
+          "libatk-bridge2.0-0t64",
+          "libatk1.0-0t64",
+          "libatspi2.0-0t64",
+          "libcairo2",
+          "libcups2t64",
+          "libdbus-1-3",
+          "libdrm2",
+          "libgbm1",
+          "libglib2.0-0t64",
+          "libnspr4",
+          "libnss3",
+          "libpango-1.0-0",
+          "libx11-6",
+          "libxcb1",
+          "libxcomposite1",
+          "libxdamage1",
+          "libxext6",
+          "libxfixes3",
+          "libxkbcommon0",
+          "libxrandr2",
+          "xvfb",
+          "fonts-noto-color-emoji",
+          "fonts-unifont",
+          "libfontconfig1",
+          "libfreetype6",
+          "xfonts-cyrillic",
+          "xfonts-scalable",
+          "fonts-liberation",
+          "fonts-ipafont-gothic",
+          "fonts-wqy-zenhei",
+          "fonts-tlwg-loma-otf",
+          "fonts-freefont-ttf",
+          "gstreamer1.0-libav",
+          "gstreamer1.0-plugins-bad",
+          "gstreamer1.0-plugins-base",
+          "gstreamer1.0-plugins-good",
+          "libicu74",
+          "libatomic1",
+          "libcairo-gobject2",
+          "libenchant-2-2",
+          "libepoxy0",
+          "libevent-2.1-7t64",
+          "libflite1",
+          "libgdk-pixbuf-2.0-0",
+          "libgles2",
+          "libgstreamer-gl1.0-0",
+          "libgstreamer-plugins-bad1.0-0",
+          "libgstreamer-plugins-base1.0-0",
+          "libgstreamer1.0-0",
+          "libgtk-4-1",
+          "libharfbuzz-icu0",
+          "libharfbuzz0b",
+          "libhyphen0",
+          "libjpeg-turbo8",
+          "liblcms2-2",
+          "libmanette-0.2-0",
+          "libopus0",
+          "libpangocairo-1.0-0",
+          "libpng16-16t64",
+          "libsecret-1-0",
+          "libvpx9",
+          "libwayland-client0",
+          "libwayland-egl1",
+          "libwayland-server0",
+          "libwebp7",
+          "libwebpdemux2",
+          "libwoff1",
+          "libxml2",
+          "libxslt1.1",
+          "libx264-164",
+          "libavif16"
+        ],
+        "original_sources_sha256": "4508181e0dd5578c33d1247db48ab4847910b25da85e0789c8e7b3140d1fb289",
+        "successful_acquisition_attempt": 1
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40046955449",
+      "run_attempt": "1",
+      "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "event": "pull_request",
+      "matrix_seam": "admin_behavior",
+      "job_name": "Example Playwright shard",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "source_proof": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "captured_at": "2026-10-24T00:51:05.922Z",
+          "status": "verified",
+          "image_file": {
+            "path": "/imagegeneration/imagedata.json",
+            "sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+            "base64": "WwogIHsKICAgICJncm91cCI6ICJPcGVyYXRpbmcgU3lzdGVtIiwKICAgICJkZXRhaWwiOiAiVWJ1bnR1XG4yNC4wNC41XG5MVFMiCiAgfSwKICB7CiAgICAiZ3JvdXAiOiAiUnVubmVyIEltYWdlIiwKICAgICJkZXRhaWwiOiAiSW1hZ2U6IHVidW50dS0yNC4wNFxuVmVyc2lvbjogMjAyNjEwMTIuMzM0LjFcbkluY2x1ZGVkIFNvZnR3YXJlOiBodHRwczovL2dpdGh1Yi5jb20vYWN0aW9ucy9ydW5uZXItaW1hZ2VzL2Jsb2IvdWJ1bnR1MjQvMjAyNjEwMTIuMzM0L2ltYWdlcy91YnVudHUvVWJ1bnR1MjQwNC1SZWFkbWUubWRcbkltYWdlIFJlbGVhc2U6IGh0dHBzOi8vZ2l0aHViLmNvbS9hY3Rpb25zL3J1bm5lci1pbWFnZXMvcmVsZWFzZXMvdGFnL3VidW50dTI0JTJGMjAyNjEwMTIuMzM0IgogIH0KXQo="
+          },
+          "os_release_file": {
+            "path": "/etc/os-release",
+            "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+            "base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg=="
+          },
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_playwright_shard",
+            "matrix_seam": "admin_behavior"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "file_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "os_release": {
+            "id": "ubuntu",
+            "version_id": "24.04"
+          }
+        },
+        "verification": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "status": "verified",
+          "captured_at": "2026-10-24T00:51:05.922Z",
+          "verified_at": "2026-10-24T00:57:48.106Z",
+          "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+          "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "example_playwright_shard",
+            "matrix_seam": "admin_behavior"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "early_environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_changed": false
+        }
+      },
+      "cache_outcome": {
+        "example_deps": "hit",
+        "browser_binaries": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": "20",
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": "v20.20.2",
+        "playwright": "Version 1.59.1"
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": null,
+        "playwright": null
+      },
+      "os_dependencies": {
+        "schema_version": "sigra.playwright-os-deps/v1",
+        "status": "passed",
+        "browsers": [
+          "chromium"
+        ],
+        "phases": [
+          {
+            "phase": "package-plan",
+            "attempt": 0,
+            "exit_code": 0,
+            "elapsed_seconds": 0.274,
+            "log": "/home/runner/work/_temp/playwright-os-deps.0.package-plan.log",
+            "log_sha256": "a69f8b78ffd13e2f7521a7e58b1c94a3dfa2304c7a74354b636c5ad8534136b1"
+          },
+          {
+            "phase": "update",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 4.289,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.update.log",
+            "log_sha256": "0c0760c9a248188a8639bc6645c9f4166f42b49a49ab757011ce6ce58702c650"
+          },
+          {
+            "phase": "download",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 4.783,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.download.log",
+            "log_sha256": "59d66a6bebe7d46132a100de5fac414eb79f7a7116961f91a7a62ef5e3b77a45"
+          },
+          {
+            "phase": "install",
+            "attempt": 1,
+            "exit_code": 0,
+            "elapsed_seconds": 6.553,
+            "log": "/home/runner/work/_temp/playwright-os-deps.1.install.log",
+            "log_sha256": "7c28b173a1688cce0a6e48e66556a5014e10baa4687f6c4f3a749daa9e6d767e"
+          }
+        ],
+        "maximum_acquisition_attempts": 2,
+        "package_configuration_retried": false,
+        "retry_policy": "one fresh connection to the official HTTPS sources",
+        "packages": [
+          "libasound2t64",
+          "libatk-bridge2.0-0t64",
+          "libatk1.0-0t64",
+          "libatspi2.0-0t64",
+          "libcairo2",
+          "libcups2t64",
+          "libdbus-1-3",
+          "libdrm2",
+          "libgbm1",
+          "libglib2.0-0t64",
+          "libnspr4",
+          "libnss3",
+          "libpango-1.0-0",
+          "libx11-6",
+          "libxcb1",
+          "libxcomposite1",
+          "libxdamage1",
+          "libxext6",
+          "libxfixes3",
+          "libxkbcommon0",
+          "libxrandr2",
+          "xvfb",
+          "fonts-noto-color-emoji",
+          "fonts-unifont",
+          "libfontconfig1",
+          "libfreetype6",
+          "xfonts-cyrillic",
+          "xfonts-scalable",
+          "fonts-liberation",
+          "fonts-ipafont-gothic",
+          "fonts-wqy-zenhei",
+          "fonts-tlwg-loma-otf",
+          "fonts-freefont-ttf"
+        ],
+        "original_sources_sha256": "4508181e0dd5578c33d1247db48ab4847910b25da85e0789c8e7b3140d1fb289",
+        "successful_acquisition_attempt": 1
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40046955449",
+      "run_attempt": "1",
+      "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "event": "pull_request",
+      "matrix_seam": null,
+      "job_name": "Install smoke (fresh phx.new + sigra.install)",
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "source_proof": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "captured_at": "2026-10-24T00:51:11.100Z",
+          "status": "verified",
+          "image_file": {
+            "path": "/imagegeneration/imagedata.json",
+            "sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+            "base64": "WwogIHsKICAgICJncm91cCI6ICJPcGVyYXRpbmcgU3lzdGVtIiwKICAgICJkZXRhaWwiOiAiVWJ1bnR1XG4yNC4wNC41XG5MVFMiCiAgfSwKICB7CiAgICAiZ3JvdXAiOiAiUnVubmVyIEltYWdlIiwKICAgICJkZXRhaWwiOiAiSW1hZ2U6IHVidW50dS0yNC4wNFxuVmVyc2lvbjogMjAyNjEwMTIuMzM0LjFcbkluY2x1ZGVkIFNvZnR3YXJlOiBodHRwczovL2dpdGh1Yi5jb20vYWN0aW9ucy9ydW5uZXItaW1hZ2VzL2Jsb2IvdWJ1bnR1MjQvMjAyNjEwMTIuMzM0L2ltYWdlcy91YnVudHUvVWJ1bnR1MjQwNC1SZWFkbWUubWRcbkltYWdlIFJlbGVhc2U6IGh0dHBzOi8vZ2l0aHViLmNvbS9hY3Rpb25zL3J1bm5lci1pbWFnZXMvcmVsZWFzZXMvdGFnL3VidW50dTI0JTJGMjAyNjEwMTIuMzM0IgogIH0KXQo="
+          },
+          "os_release_file": {
+            "path": "/etc/os-release",
+            "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+            "base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg=="
+          },
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "install_smoke",
+            "matrix_seam": null
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "file_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "os_release": {
+            "id": "ubuntu",
+            "version_id": "24.04"
+          }
+        },
+        "verification": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "status": "verified",
+          "captured_at": "2026-10-24T00:51:11.100Z",
+          "verified_at": "2026-10-24T00:53:33.119Z",
+          "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+          "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "install_smoke",
+            "matrix_seam": null
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_agrees": false,
+          "diagnostics": [
+            "runner_file_and_environment_disagree"
+          ],
+          "early_environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261023.334.3"
+          },
+          "environment_changed": false
+        }
+      },
+      "cache_outcome": {
+        "library_deps": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": null,
+        "playwright": null
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": null,
+        "playwright": null
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": "not_applicable",
+        "playwright": "not_applicable"
+      }
+    },
+    {
+      "schema_version": "sigra.ci-measurement-metadata/v1",
+      "repository": "szTheory/sigra",
+      "run_id": "40046955449",
+      "run_attempt": "1",
+      "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "event": "pull_request",
+      "matrix_seam": null,
+      "job_name": "Library tests shard",
+      "timing_artifact_name": "library-test-timing-40046955449-1",
+      "exunit_reports": [
+        {
+          "invocation": "main",
+          "path": "ci-exunit-timing-main.json"
+        },
+        {
+          "invocation": "threadline_guard",
+          "path": "ci-exunit-timing-threadline-guard.json"
+        }
+      ],
+      "runner_os": "Linux",
+      "runner_arch": "X64",
+      "runner_image": {
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1",
+        "source_proof": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "captured_at": "2026-10-24T00:50:59.647Z",
+          "status": "verified",
+          "image_file": {
+            "path": "/imagegeneration/imagedata.json",
+            "sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+            "base64": "WwogIHsKICAgICJncm91cCI6ICJPcGVyYXRpbmcgU3lzdGVtIiwKICAgICJkZXRhaWwiOiAiVWJ1bnR1XG4yNC4wNC41XG5MVFMiCiAgfSwKICB7CiAgICAiZ3JvdXAiOiAiUnVubmVyIEltYWdlIiwKICAgICJkZXRhaWwiOiAiSW1hZ2U6IHVidW50dS0yNC4wNFxuVmVyc2lvbjogMjAyNjEwMTIuMzM0LjFcbkluY2x1ZGVkIFNvZnR3YXJlOiBodHRwczovL2dpdGh1Yi5jb20vYWN0aW9ucy9ydW5uZXItaW1hZ2VzL2Jsb2IvdWJ1bnR1MjQvMjAyNjEwMTIuMzM0L2ltYWdlcy91YnVudHUvVWJ1bnR1MjQwNC1SZWFkbWUubWRcbkltYWdlIFJlbGVhc2U6IGh0dHBzOi8vZ2l0aHViLmNvbS9hY3Rpb25zL3J1bm5lci1pbWFnZXMvcmVsZWFzZXMvdGFnL3VidW50dTI0JTJGMjAyNjEwMTIuMzM0IgogIH0KXQo="
+          },
+          "os_release_file": {
+            "path": "/etc/os-release",
+            "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+            "base64": "UFJFVFRZX05BTUU9IlVidW50dSAyNC4wNC41IExUUyIKTkFNRT0iVWJ1bnR1IgpWRVJTSU9OX0lEPSIyNC4wNCIKVkVSU0lPTj0iMjQuMDQuNSBMVFMgKE5vYmxlIE51bWJhdCkiClZFUlNJT05fQ09ERU5BTUU9bm9ibGUKSUQ9dWJ1bnR1CklEX0xJS0U9ZGViaWFuCkhPTUVfVVJMPSJodHRwczovL3d3dy51YnVudHUuY29tLyIKU1VQUE9SVF9VUkw9Imh0dHBzOi8vaGVscC51YnVudHUuY29tLyIKQlVHX1JFUE9SVF9VUkw9Imh0dHBzOi8vYnVncy5sYXVuY2hwYWQubmV0L3VidW50dS8iClBSSVZBQ1lfUE9MSUNZX1VSTD0iaHR0cHM6Ly93d3cudWJ1bnR1LmNvbS9sZWdhbC90ZXJtcy1hbmQtcG9saWNpZXMvcHJpdmFjeS1wb2xpY3kiClVCVU5UVV9DT0RFTkFNRT1ub2JsZQpMT0dPPXVidW50dS1sb2dvCg=="
+          },
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "library_tests_shard",
+            "matrix_seam": null
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_agrees": true,
+          "file_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "diagnostics": [],
+          "os_release": {
+            "id": "ubuntu",
+            "version_id": "24.04"
+          }
+        },
+        "verification": {
+          "schema_version": "sigra.ci-runner-image/v2",
+          "identity_authority": "runner_native_image_file",
+          "status": "verified",
+          "captured_at": "2026-10-24T00:50:59.647Z",
+          "verified_at": "2026-10-24T00:52:02.303Z",
+          "image_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe",
+          "os_release_sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+          "machine": "x86_64",
+          "identity": {
+            "repository": "szTheory/sigra",
+            "run_id": "40046955449",
+            "run_attempt": "1",
+            "source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+            "job": "library_tests_shard",
+            "matrix_seam": null
+          },
+          "runner_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_agrees": true,
+          "diagnostics": [],
+          "early_environment_image": {
+            "image_os": "ubuntu24",
+            "image_version": "20261012.334.1"
+          },
+          "environment_changed": false
+        }
+      },
+      "cache_outcome": {
+        "library_deps": "hit"
+      },
+      "configured_versions": {
+        "erlang": "28.5",
+        "elixir": "1.19.5-otp-28",
+        "node": null,
+        "playwright": "1.59.1"
+      },
+      "observed_versions": {
+        "erlang": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]",
+        "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+        "node": null,
+        "playwright": null
+      },
+      "version_unavailable": {
+        "erlang": null,
+        "elixir": null,
+        "node": "not_applicable",
+        "playwright": "not_applicable"
+      }
+    }
+  ]
+}

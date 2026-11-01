@@ -1,0 +1,12 @@
+{
+  "schema_version": "sigra.phase255.final-browser-capture/v1",
+  "native_report": ".planning/execution/255-verification/BROWSER-DIAGNOSTICS-AFTER-REVIEW.json",
+  "native_report_sha256": "cd3b4c0ef877699bca503157fdbbd8bcf38b4c942c8cbe57119c3711081e0e0c",
+  "raw_local_root": ".gsd/temp/phase255-final",
+  "shared_sanitized_bundle": ".planning/execution/255-verification/browser-diagnostics-after-review.zip",
+  "bundle_sha256": "3ff29adc46025a253835e9a8a9c05aacb4e13cdb09c956947a0d1b45a26163c9",
+  "cases": 7,
+  "traces": 3,
+  "status": "passed",
+  "hosted_budget_reused": false
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "sigra.phase253.proof-run/v1",
+  "status": "halted",
+  "stage": "closed",
+  "source_sha": "4734916eeca6ce4b5726c740ac468264338cb300",
+  "bundle_sha256": "774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0",
+  "approval_sha256": "3949d4ce100ff93f7ba47ff4517c89d7cf39817b9dc282ea67a2883ef0aaf846",
+  "expected_parent": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "started_epoch": 1792629670,
+  "command_count": 17,
+  "parent_verified": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "merge_preflight": {
+    "head": "5dac827209184e5899fd99a25ceee2d3dee399d0",
+    "base": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "exit": 0,
+    "clean": true,
+    "conflicts": []
+  },
+  "canary_allocation_sha256": "9778056b6ec62e6a27a3fd4cc9980b59f4b91fc542c9074e518427cea7f93ad8",
+  "canary_started_epoch": 1792629671,
+  "canary_verified": true,
+  "prs_allocation_sha256": "cbc43d6c68a89bae0b4db662337cf2164446880728e41f7a45c97d296f32326d",
+  "prs_started_epoch": 1792630476,
+  "stop": "command failed with exit 1: /opt/homebrew/opt/python@3.14/bin/python3.14 [PosixPath('/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/runtime/ci-hosted-gate-verify.py'), '--mode']",
+  "completed_epoch": 1792630981
+}

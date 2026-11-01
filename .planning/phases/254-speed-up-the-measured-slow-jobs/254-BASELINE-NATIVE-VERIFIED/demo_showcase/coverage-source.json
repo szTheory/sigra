@@ -1,0 +1,86 @@
+{
+  "schema_version": "sigra.browser-coverage-source/v1",
+  "source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+  "workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+  "configuration_sha256": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+  "lock_sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+  "event": "pull_request",
+  "seam": "demo_showcase",
+  "owner": "demo_showcase",
+  "project_inventory": [
+    "demo-showcase-chromium"
+  ],
+  "selected_inventory": [
+    {
+      "id": "[\"demo-showcase-chromium\",\"demo-showcase.spec.ts\",[\"demo-showcase.spec.ts\",\"demo-showcase\"],\"c2c7980c8a7e3a808966-012f1be973724f3d8286\",\"demo personas structural assertions and evaluator screenshots\"]",
+      "project": "demo-showcase-chromium",
+      "spec": "demo-showcase.spec.ts",
+      "title_path": [
+        "demo-showcase.spec.ts",
+        "demo-showcase"
+      ],
+      "native_spec_id": "c2c7980c8a7e3a808966-012f1be973724f3d8286",
+      "title": "demo personas structural assertions and evaluator screenshots",
+      "owner": "demo_showcase",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"demo-showcase-chromium\",\"demo-showcase.spec.ts\",[\"demo-showcase.spec.ts\",\"demo-showcase\"],\"c2c7980c8a7e3a808966-6466938f51bee0b9c2bb\",\"documented evaluator path reaches authenticated flow within ten minutes\"]",
+      "project": "demo-showcase-chromium",
+      "spec": "demo-showcase.spec.ts",
+      "title_path": [
+        "demo-showcase.spec.ts",
+        "demo-showcase"
+      ],
+      "native_spec_id": "c2c7980c8a7e3a808966-6466938f51bee0b9c2bb",
+      "title": "documented evaluator path reaches authenticated flow within ten minutes",
+      "owner": "demo_showcase",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"demo-showcase-chromium\",\"demo-showcase.spec.ts\",[\"demo-showcase.spec.ts\",\"demo-showcase\"],\"c2c7980c8a7e3a808966-b3743f9620ed832f6cf1\",\"home page orients evaluators before login\"]",
+      "project": "demo-showcase-chromium",
+      "spec": "demo-showcase.spec.ts",
+      "title_path": [
+        "demo-showcase.spec.ts",
+        "demo-showcase"
+      ],
+      "native_spec_id": "c2c7980c8a7e3a808966-b3743f9620ed832f6cf1",
+      "title": "home page orients evaluators before login",
+      "owner": "demo_showcase",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"demo-showcase-chromium\",\"demo-showcase.spec.ts\",[\"demo-showcase.spec.ts\",\"demo-showcase\"],\"c2c7980c8a7e3a808966-cb55f468e55a5b38cf4b\",\"the real login is locked to Tasklane — server-rendered, ignores the brand cookie\"]",
+      "project": "demo-showcase-chromium",
+      "spec": "demo-showcase.spec.ts",
+      "title_path": [
+        "demo-showcase.spec.ts",
+        "demo-showcase"
+      ],
+      "native_spec_id": "c2c7980c8a7e3a808966-cb55f468e55a5b38cf4b",
+      "title": "the real login is locked to Tasklane — server-rendered, ignores the brand cookie",
+      "owner": "demo_showcase",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    }
+  ],
+  "excluded_inventory": [],
+  "skip_policies": [],
+  "reports": [
+    {
+      "path": "demo-showcase.json",
+      "selection_path": "demo-showcase.selection.json",
+      "sha256": "30a4a7e77b375dd51d25ed9508e3cead987bcef8e1f3357ac307552bf0ee2a57",
+      "selection_sha256": "5974502b1a7d115dfdae367b407d8f41b37f176a0a26445221dc60be3a5c8ac7",
+      "source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+    }
+  ]
+}

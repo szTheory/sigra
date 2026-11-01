@@ -1,0 +1,29 @@
+[
+  {
+    "seed": 101,
+    "exit_code": 0,
+    "command": [
+      "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir",
+      "-e",
+      "ExUnit.start(seed: 101); Code.require_file(\"test/sigra/planning/phase_253_ci_static_runtime_test.exs\")"
+    ]
+  },
+  {
+    "seed": 202,
+    "exit_code": 0,
+    "command": [
+      "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir",
+      "-e",
+      "ExUnit.start(seed: 202); Code.require_file(\"test/sigra/planning/phase_253_ci_static_runtime_test.exs\")"
+    ]
+  },
+  {
+    "seed": 303,
+    "exit_code": 0,
+    "command": [
+      "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir",
+      "-e",
+      "ExUnit.start(seed: 303); Code.require_file(\"test/sigra/planning/phase_253_ci_static_runtime_test.exs\")"
+    ]
+  }
+]

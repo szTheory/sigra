@@ -1,0 +1,3 @@
+snapshot manifest: /Users/jon/projects/sigra/.planning/execution/254-rerun-preparation/RAW-after/manifest.json
+status: complete; requests: 57
+hosted-gate-verify: FAIL: required check did not succeed: Library tests

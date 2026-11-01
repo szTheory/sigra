@@ -1,0 +1,60 @@
+✔ a selected full browser seam requires its complete native report (98.140333ms)
+✔ exactly five browser producers and all native selections are required (74.504375ms)
+▶ adversarial record identity, shape, outcome and report controls fail closed
+  ✔ null record (33.492791ms)
+  ✔ empty record (31.786791ms)
+  ✔ unknown seam (34.769958ms)
+  ✔ case variant (35.516792ms)
+  ✔ space variant (31.636459ms)
+  ✔ unicode variant (31.832375ms)
+  ✔ wrong run (33.8975ms)
+  ✔ wrong attempt (31.864667ms)
+  ✔ wrong source (33.762125ms)
+  ✔ wrong workflow (32.951792ms)
+  ✔ wrong event (34.666667ms)
+  ✔ no selected body (32.293166ms)
+  ✔ duplicate selected body (33.500792ms)
+  ✔ unexpected skip (33.545125ms)
+  ✔ cancelled body (33.254958ms)
+  ✔ masked failed body (34.79175ms)
+  ✔ missing reports (34.337542ms)
+  ✔ wrong hash (34.4745ms)
+  ✔ traversal (33.684917ms)
+✔ adversarial record identity, shape, outcome and report controls fail closed (637.728208ms)
+✔ only a successful actual PR classifier exempts all five selected bodies (220.254125ms)
+✔ missing unknown duplicate and symlink producers cannot pass (169.307917ms)
+✔ native reports cannot lose tests, fail, retry, truncate or change project selection (238.701208ms)
+✔ the producer records actual selected outcomes and copies only native report files (62.936791ms)
+✔ HTML reporting preserves the separately collected selection JSON (813.978125ms)
+file:///Users/jon/projects/sigra/scripts/ci/ci-playwright-report.test.mjs:18
+  assert.match(config, /\['html',\s*\{\s*open:\s*'never',\s*outputFolder:\s*'playwright-report/html'\s*\}\]/);
+                       ^
+
+SyntaxError: Invalid regular expression flags
+    at compileSourceTextModule (node:internal/modules/esm/utils:355:16)
+    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:93:18)
+    at #translate (node:internal/modules/esm/loader:441:20)
+    at afterLoad (node:internal/modules/esm/loader:509:29)
+    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:514:12)
+    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:567:36)
+    at afterResolve (node:internal/modules/esm/loader:614:52)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:620:12)
+    at node:internal/modules/esm/loader:639:32
+    at TracingChannel.tracePromise (node:diagnostics_channel:551:22)
+
+Node.js v26.10.0
+✖ scripts/ci/ci-playwright-report.test.mjs (23.376959ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 27
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1546.637833
+
+✖ failing tests:
+
+test at scripts/ci/ci-playwright-report.test.mjs:1:1
+✖ scripts/ci/ci-playwright-report.test.mjs (23.376959ms)
+  'test failed'

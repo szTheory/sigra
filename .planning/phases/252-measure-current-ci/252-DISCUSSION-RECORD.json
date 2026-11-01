@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "phase": 252,
+  "phase_name": "Measure Current CI",
+  "milestone": "v1.50",
+  "status": "discussion_confirmed_context_ready_for_planning",
+  "recorded_at": "2026-10-12T16:10:14.895868+00:00",
+  "capture": {
+    "capture_head": "ea118b029fe38adfa8b4b99a552829c69332cd66",
+    "status_hex": "",
+    "paths": [
+      {
+        "path": ".planning/STATE.md",
+        "status": "clean",
+        "sha256": "52df302dbd742eb84374245b88f20ce57cfa57f8a7a97e763ca10f1d7b4ac9f5",
+        "bytes": 4942,
+        "recoverable_ref": "ea118b029fe38adfa8b4b99a552829c69332cd66",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/state.json",
+        "status": "clean",
+        "sha256": "be19a061fe7c6cd0c6e7b0c126a6d8bbdea5c8be8b362a2afd72a08310804dc6",
+        "bytes": 2561,
+        "recoverable_ref": "ea118b029fe38adfa8b4b99a552829c69332cd66",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "status": "clean",
+        "sha256": "c4a19b1a3e87af163b70eff11c0c5f98d9ba110208f6caabc59c8ff111087777",
+        "bytes": 11055,
+        "recoverable_ref": "ea118b029fe38adfa8b4b99a552829c69332cd66",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/PROJECT.md",
+        "status": "clean",
+        "sha256": "67c0c3fdf67f7512e846fcd3ffd4d4a9985b2ccbc6626f4a37cacb994e1c6e4b",
+        "bytes": 197364,
+        "recoverable_ref": "ea118b029fe38adfa8b4b99a552829c69332cd66",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "status": "clean",
+        "sha256": "d1408ba38a3b773eb0a492fa5dac030a6152bf71e776f769477e94066986c5fa",
+        "bytes": 9847,
+        "recoverable_ref": "ea118b029fe38adfa8b4b99a552829c69332cd66",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/v1.50-START.json",
+        "status": "clean",
+        "sha256": "dd30064c7dee146590ab16140692ee2fadb15ad95cbac09674257e6b4c9672d3",
+        "bytes": 11802,
+        "recoverable_ref": "ea118b029fe38adfa8b4b99a552829c69332cd66",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/REQUIREMENTS.md",
+        "status": "clean",
+        "sha256": "a54db141fae57cdaede7de6d6702fab34dd2d1fb5e96d36171adf3fb6a374622",
+        "bytes": 5874,
+        "recoverable_ref": "ea118b029fe38adfa8b4b99a552829c69332cd66",
+        "git_readback_exact": true
+      },
+      {
+        "path": ".planning/config.json",
+        "status": "clean",
+        "sha256": "c4edd866d9ca58f698740210c77b7064b29e955b0c165a3f0461cdc9788aa386",
+        "bytes": 1797,
+        "recoverable_ref": "ea118b029fe38adfa8b4b99a552829c69332cd66",
+        "git_readback_exact": true
+      }
+    ]
+  },
+  "approval": {
+    "raw_answer": "1",
+    "choice": "Accept these recommendations — save and commit Phase 252 context",
+    "source": "user reply following the recommendation set and full decision-packet link",
+    "auto_selected": false,
+    "corrections": []
+  },
+  "workflow": {
+    "mode": "assumptions",
+    "text_confirmation": true,
+    "explicit_user_subagent_request": true,
+    "subagents": [
+      "phase252_assumptions",
+      "phase252_measurement_method",
+      "phase252_elixir_test_timings",
+      "phase252_live_feasibility"
+    ],
+    "all_subagents_terminal": true,
+    "auto_advance": false,
+    "auto_chain_active": false
+  },
+  "decision_packet": ".planning/phases/252-measure-current-ci/discussion-sources/DECISION-PACKET.md",
+  "decision_packet_sha256": "2bba79ffc62fee94dd106f57ad37fc2474d942a62b91c9112f45fb6e439ea356",
+  "context_path": ".planning/phases/252-measure-current-ci/252-CONTEXT.md",
+  "discussion_log_path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-LOG.md",
+  "source_manifest": ".planning/phases/252-measure-current-ci/discussion-sources/manifest.json",
+  "approved_collection": {
+    "events": [
+      "pull_request",
+      "push_main",
+      "schedule"
+    ],
+    "max_runs_per_event": 100,
+    "lookback_days": 30,
+    "max_http_requests_per_pass": 600,
+    "max_minutes_per_pass": 60,
+    "minimum_core_remaining_to_collect": 251
+  },
+  "approved_comparison": {
+    "matched_pairs": 20,
+    "primary_invocation_families": 40,
+    "comparison_window_hours": 48,
+    "median_improvement_percent": 20,
+    "p95_method": "nearest rank ceil(0.95*n)",
+    "no_increase_p95_wait": true,
+    "no_increase_total_runner_time": true,
+    "replacement_pairs": false,
+    "test_retries": 0,
+    "sample_tail_limitations_required": true
+  },
+  "approved_failure_diagnostics": {
+    "max_failed_families_per_event": 4,
+    "max_failed_families_total": 12,
+    "max_current_signature_shortlist": 3
+  },
+  "discovery": {
+    "fixed_cutoff": "2026-09-12T00:00:00Z",
+    "counts": {
+      "pull_request": {
+        "returned": 100,
+        "latest_outcomes": {
+          "success": 68,
+          "failure": 13,
+          "cancelled": 19
+        },
+        "attempt_gt_one": 1,
+        "earliest_created_at": "2026-10-09T03:42:59Z",
+        "latest_created_at": "2026-10-11T13:44:28Z"
+      },
+      "push_main": {
+        "returned": 81,
+        "latest_outcomes": {
+          "success": 58,
+          "failure": 19,
+          "cancelled": 4
+        },
+        "attempt_gt_one": 2,
+        "earliest_created_at": "2026-09-13T18:34:18Z",
+        "latest_created_at": "2026-10-11T14:13:32Z"
+      },
+      "schedule": {
+        "returned": 31,
+        "latest_outcomes": {
+          "failure": 9,
+          "success": 22
+        },
+        "attempt_gt_one": 0,
+        "earliest_created_at": "2026-09-12T04:35:15Z",
+        "latest_created_at": "2026-10-12T04:51:45Z"
+      }
+    },
+    "pr_api_total_count": 264,
+    "required_contexts": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "complete_phase_baseline": false,
+    "current_flake_proved": false,
+    "failed_logs_collected": false,
+    "pure_queue_duration_proved": false,
+    "cache_strata_proved": false,
+    "test_costs_proved": false,
+    "rate_limit_initial_core_remaining": 5000,
+    "http_request_count": {
+      "value": 14,
+      "exact": false
+    },
+    "top_level_gh_invocations": 13,
+    "rate_limit_responses_403_or_429": false,
+    "request_method_diagnostic_corrected": true
+  },
+  "implementation_started": false,
+  "phase_verification_status": "not_started",
+  "requirements_complete": 0,
+  "new_dependencies": 0,
+  "new_todos_promoted": 0,
+  "app_tests_run": false,
+  "ci_dispatched": false,
+  "external_mutations": false,
+  "next_command": "$gsd-plan-phase 252",
+  "historical_verification_is_forward_blocker": false,
+  "context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
+  "session_commit": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+  "routing": {
+    "updated_at": "2026-10-12T16:13:46.589917+00:00",
+    "next_command": "$gsd-plan-phase 252",
+    "readiness": {
+      "phase_found": true,
+      "phase_number": "252",
+      "phase_name": "measure-current-ci",
+      "phase_status": "Pending",
+      "has_context": true,
+      "has_research": false,
+      "has_plans": false,
+      "plan_count": 0,
+      "prior_verify_commands": []
+    },
+    "before_session_write": {
+      "capture_head": "96611810e2674a7c6318f48f36ae488a35d33c99",
+      "paths": [
+        {
+          "path": ".planning/STATE.md",
+          "sha256": "52df302dbd742eb84374245b88f20ce57cfa57f8a7a97e763ca10f1d7b4ac9f5",
+          "bytes": 4942,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/state.json",
+          "sha256": "be19a061fe7c6cd0c6e7b0c126a6d8bbdea5c8be8b362a2afd72a08310804dc6",
+          "bytes": 2561,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "sha256": "c4a19b1a3e87af163b70eff11c0c5f98d9ba110208f6caabc59c8ff111087777",
+          "bytes": 11055,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/PROJECT.md",
+          "sha256": "67c0c3fdf67f7512e846fcd3ffd4d4a9985b2ccbc6626f4a37cacb994e1c6e4b",
+          "bytes": 197364,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/ROADMAP.md",
+          "sha256": "d1408ba38a3b773eb0a492fa5dac030a6152bf71e776f769477e94066986c5fa",
+          "bytes": 9847,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/v1.50-START.json",
+          "sha256": "dd30064c7dee146590ab16140692ee2fadb15ad95cbac09674257e6b4c9672d3",
+          "bytes": 11802,
+          "status": "clean",
+          "recoverable_ref": "96611810e2674a7c6318f48f36ae488a35d33c99",
+          "git_readback_exact": true
+        }
+      ]
+    },
+    "before_route_write": {
+      "ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+      "paths": [
+        {
+          "path": ".planning/STATE.md",
+          "status": "clean",
+          "bytes": 5119,
+          "sha256": "931981a0eb7e8072053646074968362405ef86958acb70cdf9c014db1134c3ec",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/state.json",
+          "status": "clean",
+          "bytes": 2561,
+          "sha256": "be19a061fe7c6cd0c6e7b0c126a6d8bbdea5c8be8b362a2afd72a08310804dc6",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "status": "clean",
+          "bytes": 11055,
+          "sha256": "c4a19b1a3e87af163b70eff11c0c5f98d9ba110208f6caabc59c8ff111087777",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/PROJECT.md",
+          "status": "clean",
+          "bytes": 197364,
+          "sha256": "67c0c3fdf67f7512e846fcd3ffd4d4a9985b2ccbc6626f4a37cacb994e1c6e4b",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/ROADMAP.md",
+          "status": "clean",
+          "bytes": 9847,
+          "sha256": "d1408ba38a3b773eb0a492fa5dac030a6152bf71e776f769477e94066986c5fa",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/v1.50-START.json",
+          "status": "clean",
+          "bytes": 11802,
+          "sha256": "dd30064c7dee146590ab16140692ee2fadb15ad95cbac09674257e6b4c9672d3",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
+          "status": "clean",
+          "bytes": 6792,
+          "sha256": "370355c97b0f59c2015e39efe973d4a9ce5e5a191353200088a13dabf47ff02e",
+          "recoverable_ref": "4faed92f6883005a29ced4e5f94d58eb12f0559b",
+          "git_readback_exact": true
+        }
+      ],
+      "read_back_verified": true,
+      "source_status_and_hashes_rechecked": true
+    },
+    "auto_advance": false,
+    "implementation_started": false,
+    "phase_verification_status": "not_started"
+  }
+}

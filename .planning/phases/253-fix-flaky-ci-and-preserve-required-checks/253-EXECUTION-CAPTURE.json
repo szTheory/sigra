@@ -1,0 +1,49 @@
+{
+  "schema_version": "sigra.phase253.execution-capture/v1",
+  "captured_at": "2026-10-13T03:12:38.252496+00:00",
+  "head": "f2d785d1f636140bf11190c46b08c3195d8895ec",
+  "branch": "phase-244-playwright-measurement",
+  "status": "",
+  "identity": {
+    ".planning/STATE.md": {
+      "sha256": "45cbb2271876c3657503f2502515559ce66f81f3404b6bacdb8c2b6f5fec9562",
+      "recoverable_commit": "f2d785d1f636140bf11190c46b08c3195d8895ec",
+      "read_back_equal": true
+    },
+    ".planning/state.json": {
+      "sha256": "7569e9e459a73a35b9857994bf481a82a1d0103a27bbc86b59ad5e0f39155efd",
+      "recoverable_commit": "f2d785d1f636140bf11190c46b08c3195d8895ec",
+      "read_back_equal": true
+    },
+    ".planning/HANDOFF.json": {
+      "sha256": "a0130080d05034b642f588225907ae46d676d48e4f1b1ca53235cab356ab4cfa",
+      "recoverable_commit": "f2d785d1f636140bf11190c46b08c3195d8895ec",
+      "read_back_equal": true
+    },
+    ".planning/ROADMAP.md": {
+      "sha256": "61008d99d6381067780c0dea36e18f185effda38b4ae8bc26fad2f939ec1a7b0",
+      "recoverable_commit": "f2d785d1f636140bf11190c46b08c3195d8895ec",
+      "read_back_equal": true
+    },
+    ".planning/REQUIREMENTS.md": {
+      "sha256": "5f3c20567c4c59ecb451a8d6b9f00139d96112e085314c6d184e7df6d58fd863",
+      "recoverable_commit": "f2d785d1f636140bf11190c46b08c3195d8895ec",
+      "read_back_equal": true
+    },
+    ".planning/phases/252-measure-current-ci/252-BASELINE.json": {
+      "sha256": "f397a4624c1a18e5418795b00b3e7510fab34bd858f9540f2f76f2c386319843",
+      "recoverable_commit": "f2d785d1f636140bf11190c46b08c3195d8895ec",
+      "read_back_equal": true
+    },
+    ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz": {
+      "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+      "recoverable_commit": "f2d785d1f636140bf11190c46b08c3195d8895ec",
+      "read_back_equal": true
+    }
+  },
+  "phase_complete": false,
+  "implementation_complete": false,
+  "verification_complete": false,
+  "isolation": "none",
+  "worktrees_disabled": true
+}

@@ -1,0 +1,52 @@
+{
+  "status": "passed",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "readiness": {
+    "plan_count": 183,
+    "incomplete_count": 81,
+    "runnable_count": 1,
+    "runnable_plans": [
+      "253-183-PLAN.md"
+    ],
+    "halted_plans": [
+      "253-02-PLAN.md",
+      "253-07-PLAN.md",
+      "253-09-PLAN.md",
+      "253-104-PLAN.md",
+      "253-113-PLAN.md",
+      "253-12-PLAN.md",
+      "253-122-PLAN.md",
+      "253-134-PLAN.md",
+      "253-143-PLAN.md",
+      "253-146-PLAN.md",
+      "253-155-PLAN.md",
+      "253-16-PLAN.md",
+      "253-167-PLAN.md",
+      "253-173-PLAN.md",
+      "253-174-PLAN.md",
+      "253-175-PLAN.md",
+      "253-178-PLAN.md",
+      "253-181-PLAN.md",
+      "253-182-PLAN.md",
+      "253-27-PLAN.md",
+      "253-40-PLAN.md",
+      "253-51-PLAN.md",
+      "253-63-PLAN.md",
+      "253-73-PLAN.md",
+      "253-84-PLAN.md",
+      "253-92-PLAN.md",
+      "253-97-PLAN.md"
+    ]
+  },
+  "state_and_handoff_aligned": true,
+  "phase_verification_status": "not_started",
+  "next_roadmap_phase": {
+    "phase": 254,
+    "context": false,
+    "research": false,
+    "plans": false,
+    "started": false,
+    "after_actual_phase253_completion": "$gsd-discuss-phase 254",
+    "readiness_recheck_required": true
+  }
+}

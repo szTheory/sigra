@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-33",
+  "captured_at": "2026-10-02T19:18:34.883Z",
+  "verdict": "blocked",
+  "exact_oid": "c39e423cb023b60aefbda3e848b0a89395ff22d3",
+  "github_tree": "37c54be6a87aa7ded8ac5be5a9ed9f4e5388a533",
+  "human_approval": {
+    "decision": "Approve exact object",
+    "exact_oid": "c39e423cb023b60aefbda3e848b0a89395ff22d3",
+    "preflight_path": ".planning/phases/245-branch-prune-local-and-remote/245-33-EXEC-PREFLIGHT.json",
+    "preflight_sha256": "dbe9b40dada538c99fd2f7ad4793b12b423353459828bee2be7d8a359d29f838",
+    "approved_preflight_sha256": "dbe9b40dada538c99fd2f7ad4793b12b423353459828bee2be7d8a359d29f838",
+    "digest_match": true
+  },
+  "typed_objects": {
+    "required": 362,
+    "readable": 361,
+    "missing": 1,
+    "all_required_readable": false
+  },
+  "checks": {
+    "approved_digest_bound": true,
+    "preflight_sources_unchanged": true,
+    "single_exact_fetch_attempt": true,
+    "exact_commit_and_tree_match": false,
+    "all_362_typed_objects_readable": false,
+    "local_refs_unchanged": true,
+    "symbolic_head_unchanged": true,
+    "fetch_head_unchanged": true,
+    "worktree_registry_unchanged": true,
+    "index_worktree_unchanged": true,
+    "origin_refs_unchanged": true,
+    "open_pr_identities_unchanged": true,
+    "zero_production_ref_operations": true,
+    "zero_pr_mutations": true,
+    "plan23_readiness_passed": true,
+    "fetch_write_denied_by_sandbox": true,
+    "no_retry_after_failed_invocation": true
+  },
+  "recovery_receipt_sha256": "fd15fcba048b3cf01ae0b6d53b686dffdec0fcfae4b69a07ebb0eb4322252442",
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "failed_predicates": [
+    "exact_or_362_object_proof_failed",
+    "single_fetch_failed_no_retry"
+  ]
+}

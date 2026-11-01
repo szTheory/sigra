@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "status": "blocked",
+  "captured_at": "2026-10-10T20:27:57Z",
+  "reason": "failure_source_workflow_name_mismatch_deterministic_no_receipt",
+  "dispatch_attempted": true,
+  "controller_run": {
+    "id": 38083752867,
+    "attempt": 1,
+    "workflow_id": 380517406,
+    "workflow_name": "Release Receipt Canary Controller",
+    "workflow_path": ".github/workflows/release-receipt-canary-controller.yml",
+    "event": "workflow_dispatch",
+    "ref": "refs/heads/main",
+    "sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "conclusion": "failure",
+    "created_at": "2026-10-10T20:26:27Z",
+    "updated_at": "2026-10-10T20:27:57Z",
+    "url": "https://github.com/szTheory/sigra/actions/runs/38083752867",
+    "artifact": {
+      "id": 11680699592,
+      "name": "release-canary-controller-38083752867-1",
+      "digest": "sha256:4cc36337ea4968d214969a4898d2c8981e59c2846e12965dca3420d6fdb1f4d1",
+      "proof_sha256": "60fbcafa3d8663babb08cda6c989d0e192ffb9ec8031c8e4096d9dd86ce5a216",
+      "expires_at": "2026-11-09T20:27:53Z"
+    }
+  },
+  "preflight_snapshot": {
+    "schema_version": 1,
+    "status": "ready",
+    "captured_at": "2026-10-10T20:20:35Z",
+    "repository": "szTheory/sigra",
+    "default_branch": "main",
+    "target_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "actions_enabled": true,
+    "artifact_retention_days": 90,
+    "artifact_retention_maximum_days": 90,
+    "required_retention_days": 30,
+    "workflows": {
+      "canary": {
+        "id": 380517407,
+        "path": ".github/workflows/release-receipt-canary.yml"
+      },
+      "controller": {
+        "id": 380517406,
+        "path": ".github/workflows/release-receipt-canary-controller.yml"
+      },
+      "observer": {
+        "id": 379162190,
+        "path": ".github/workflows/release-run-observer.yml"
+      }
+    },
+    "default_workflow_permissions": "read",
+    "controller_authority": "actions:write; contents:read",
+    "source_authority": "actions:read; contents:read",
+    "observer_authority": "actions:read; contents:read",
+    "credential_values_recorded": false,
+    "dispatch_attempted": false
+  },
+  "child_canary_dispatch_attempted": true,
+  "source_failure": {
+    "id": 38083779742,
+    "attempt": 1,
+    "workflow_id": 380517407,
+    "workflow_name": "release-receipt-canary-failure-cf8b7cefb92de3eddb07013cd61691cf",
+    "workflow_path": ".github/workflows/release-receipt-canary.yml",
+    "event": "workflow_dispatch",
+    "ref": "refs/heads/main",
+    "sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+    "display_title": "release-receipt-canary-failure-cf8b7cefb92de3eddb07013cd61691cf",
+    "conclusion": "failure",
+    "created_at": "2026-10-10T20:26:51Z",
+    "updated_at": "2026-10-10T20:28:06Z",
+    "controlled_failure_step_conclusion": "failure",
+    "receipt_job_conclusion": "failure",
+    "receipt_builder_error": "source workflow identity mismatch: Actions run name is dynamic run-name, but validator requires static workflow name Release Receipt Canary",
+    "receipt_artifact": {
+      "status": "not_uploaded",
+      "artifact_count": 0
+    }
+  },
+  "source_cancellation": {
+    "dispatch_attempted": false,
+    "run_id": null,
+    "artifact": null,
+    "reason": "controller halted after deterministic failure source workflow identity mismatch; no cancellation child was dispatched"
+  },
+  "controller_proof": {
+    "schema_version": 1,
+    "status": "blocked",
+    "captured_at": "2026-10-10T20:27:53Z",
+    "preflight": {
+      "schema_version": 1,
+      "status": "ready",
+      "captured_at": "2026-10-10T20:20:35Z",
+      "repository": "szTheory/sigra",
+      "default_branch": "main",
+      "target_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+      "actions_enabled": true,
+      "artifact_retention_days": 90,
+      "artifact_retention_maximum_days": 90,
+      "required_retention_days": 30,
+      "workflows": {
+        "canary": {
+          "id": 380517407,
+          "path": ".github/workflows/release-receipt-canary.yml"
+        },
+        "controller": {
+          "id": 380517406,
+          "path": ".github/workflows/release-receipt-canary-controller.yml"
+        },
+        "observer": {
+          "id": 379162190,
+          "path": ".github/workflows/release-run-observer.yml"
+        }
+      },
+      "default_workflow_permissions": "read",
+      "controller_authority": "actions:write; contents:read",
+      "source_authority": "actions:read; contents:read",
+      "observer_authority": "actions:read; contents:read",
+      "credential_values_recorded": false,
+      "dispatch_attempted": false
+    },
+    "reason": "failure_probe_dispatch_correlation_failed_zero_ambiguous_or_mismatched_source_identity",
+    "dispatch_attempted": true,
+    "receipts": [],
+    "credential_values_recorded": false
+  },
+  "controller_proof_file": "250-CANARY-CONTROLLER-PROOF-38083752867.json",
+  "diagnosis": {
+    "root_causes": [
+      {
+        "cause": "source identity validator compares Actions run name against the static workflow name",
+        "confidence": "confirmed",
+        "evidence": "Run 38083779742 is exact workflow ID 380517407, exact path .github/workflows/release-receipt-canary.yml, workflow_dispatch on main at 33fccd8b3afe8ad093a0e379578fdc29c8a44e95 and matching failure title, but Actions API name is dynamic run-name release-receipt-canary-failure-cf8b7cefb92de3eddb07013cd61691cf; controller log says exact-title run source identity mismatch and failure probe dispatch correlation failed."
+      }
+    ],
+    "resolution": "No retry is authorized. Repair source identity validation against authoritative workflow ID/path rather than the dynamic Actions run name, then prepare a new packet and obtain fresh explicit authority before any hosted attempt."
+  },
+  "previous_blocked_attempt": {
+    "controller_run_id": 38054862873,
+    "proof_file": "250-CANARY-PROOF-ATTEMPT-38054862873.json",
+    "proof_sha256": "5d80dd349b3e7c5b42c40a64d9e133daa8819536f59f5e1e9315caf1ec356348",
+    "previous_main_commit": "f606ac15d3beaaf87a285e908674ebadff2866f3"
+  },
+  "credential_values_recorded": false,
+  "local_verification": {
+    "canary_contracts": {
+      "status": "pass",
+      "passed": 32,
+      "failed": 0
+    },
+    "shell_syntax": "pass",
+    "diff_check": "pass"
+  }
+}

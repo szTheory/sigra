@@ -1,0 +1,6 @@
+{
+  "docs_workflow_sha256": "dea1a61c167174bc256f96920bee42fbb5d12a2116fff4daa2e3354c1dc8ce64",
+  "normal_workflow_sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+  "relation": "exact single pull_request branch allowance",
+  "status": "passed"
+}

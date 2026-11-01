@@ -1,0 +1,44 @@
+{
+  "contract": "sigra.exunit_timing.v1",
+  "observed_at_utc": "2026-10-12T18:28:24Z",
+  "runtime": {
+    "elixir": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]  Elixir 1.19.5 (compiled with Erlang/OTP 28) ",
+    "mix": "Mix 1.19.5 (compiled with Erlang/OTP 28)"
+  },
+  "focused_suite": "MIX_ENV=test mix test test/sigra/planning/ci_timing_formatter_test.exs",
+  "samples": {
+    "without_timing_us": [
+      2306533,
+      2594711,
+      2571032,
+      2185510,
+      1633661
+    ],
+    "with_timing_us": [
+      2245986,
+      2426922,
+      2969988,
+      1529507,
+      1676819
+    ],
+    "paired_delta_us": [
+      -60547,
+      -167789,
+      398956,
+      -656003,
+      43158
+    ]
+  },
+  "instrumentation_overhead_us": -60547,
+  "overhead_method": "median of five paired whole-mix-process elapsed-time differences (instrumented minus uninstrumented)",
+  "process_contract": {
+    "passing_process_exit": 0,
+    "opt_out_process_exit": 0,
+    "passing_process_with_unavailable_output_exit": 0,
+    "failing_process_with_output_exit": 2,
+    "failing_process_with_unavailable_output_exit": 2,
+    "unavailable_output_diagnostic": "SIGRA_EXUNIT_TIMING_JSON JSON object with complete=false and diagnostic=write_failed",
+    "unavailable_output_is_measurement": false
+  },
+  "complete": true
+}

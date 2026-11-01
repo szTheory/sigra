@@ -1,0 +1,17 @@
+{
+  "schema_version": "sigra.phase253.load-recovery-budget-approval/v2",
+  "decision": "approve",
+  "decided_by": "Jon (operator), recorded by executor from checkpoint response",
+  "decision_text": "approve - Jon, 2026-10-14, via orchestrator: \"Approve with retry (Recommended)\" - D19-R3 cap 3060682 ms, max 12 launches, one 240000 ms infrastructure retry usable only after a diagnosed infrastructure halt",
+  "budget_sha256": "dabbcf59bab20a432d7fd328c2555180561b0beae02736476408e28196bed78c",
+  "freeze_sha256": "effaef5139fff83a0b3cda6a2d7d9f36f4fac5888942f9dd151ed101b2216284",
+  "caps": {
+    "new_allowance_ms": 910000,
+    "d19_cap_ms": 3060682,
+    "d19_launch_max": 12,
+    "shared_cap_ms": 5400682,
+    "physical_cli_max": 21
+  },
+  "retry_granted": 1,
+  "recorded_at": "2026-10-14T17:25:03.195Z"
+}

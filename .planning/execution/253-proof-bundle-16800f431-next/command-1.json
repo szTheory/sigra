@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "git",
+    "fetch",
+    "--no-tags",
+    "origin",
+    "main"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "From https://github.com/szTheory/sigra\n * branch                main       -> FETCH_HEAD\n"
+}

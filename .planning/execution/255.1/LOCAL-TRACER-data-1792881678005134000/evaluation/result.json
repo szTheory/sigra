@@ -1,0 +1,77 @@
+{
+  "diagnostics": [
+    {
+      "detail": "local_only",
+      "reason": "contract_not_ready"
+    },
+    {
+      "reason": "baseline_source_bundle_identity_missing"
+    },
+    {
+      "reason": "candidate_identity_not_predeclared"
+    },
+    {
+      "reason": "comparison_window_not_predeclared"
+    },
+    {
+      "reason": "comparison_reservation_set_incomplete"
+    },
+    {
+      "reason": "comparison_registration_set_incomplete"
+    },
+    {
+      "reason": "comparison_window_not_predeclared"
+    },
+    {
+      "reason": "comparison_registrations_missing_for_origin_verification"
+    },
+    {
+      "detail": "unsupported operand type(s) for /: 'PosixPath' and 'NoneType'",
+      "reason": "native_coverage_parity_unverified"
+    },
+    {
+      "reason": "before_snapshot_incomplete"
+    },
+    {
+      "reason": "before_family_inputs_missing"
+    },
+    {
+      "reason": "after_snapshot_incomplete"
+    },
+    {
+      "reason": "after_family_inputs_missing"
+    },
+    {
+      "reason": "pair_identity_mismatch"
+    },
+    {
+      "detail": 0,
+      "reason": "insufficient_equivalent_successful_pairs"
+    },
+    {
+      "reason": "cache_stratum_allocation_missing"
+    }
+  ],
+  "metrics": {
+    "baseline_median_seconds": null,
+    "baseline_p95_seconds": null,
+    "baseline_runner_known_subtotal_seconds": 0,
+    "baseline_runner_seconds": 0,
+    "candidate_median_seconds": null,
+    "candidate_p95_seconds": null,
+    "candidate_runner_known_subtotal_seconds": 0,
+    "candidate_runner_seconds": 0,
+    "comparable_successful_pairs": 0,
+    "family_attempt_costs": [],
+    "native_parity": {
+      "comparisons": [],
+      "diagnostic": "unsupported operand type(s) for /: 'PosixPath' and 'NoneType'",
+      "status": "insufficient_data"
+    },
+    "overhead_disclosure": null,
+    "p95_method": "nearest-rank ceil(0.95*n); for n=20 this is sorted value 19",
+    "pair_count": 0
+  },
+  "performance_verdict": "insufficient_data",
+  "status": "insufficient_data"
+}

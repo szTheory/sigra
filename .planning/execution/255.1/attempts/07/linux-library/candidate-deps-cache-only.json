@@ -1,0 +1,14 @@
+{
+  "acceptance_samples": 0,
+  "command": "MIX_ENV=test mix deps.get (HEX_OFFLINE=1, no network)",
+  "result": {
+    "error": "Hex is running in offline mode and the registry entry for package chimeway is not cached locally",
+    "exit_code": 1,
+    "mix_lock_sha256": "d5e1ffd653afde7a70fb13fc9756156a10d4a3b0a726d9b79becd4c50afd2b6a",
+    "source_and_lock_unchanged": true
+  },
+  "schema_version": "sigra.phase255.1.local-linux-library-attempt/1",
+  "source_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+  "source_tree": "a084992034c541a51df797e0a12eaa09edc7799a",
+  "status": "blocked_by_offline_hex_registry_cache"
+}

@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-11T02:38:42Z",
+  "source_head": "7883d651e44ed4f8564703ec21e58c1bc91f68b1",
+  "phase": "250",
+  "status": "planning_inconclusive_no_runnable_gap_plan",
+  "planner_command": "$gsd-plan-phase 250 --gaps",
+  "planner_result": "PLANNING INCONCLUSIVE",
+  "readiness": {
+    "context_present": true,
+    "research_present": true,
+    "plan_count": 12,
+    "summary_count": 8,
+    "completed_plans": [
+      "250-01",
+      "250-02",
+      "250-03",
+      "250-04",
+      "250-05",
+      "250-06"
+    ],
+    "halted_plans": [
+      "250-07",
+      "250-08"
+    ],
+    "blocked_plans": {
+      "250-09": [
+        "250-08"
+      ],
+      "250-10": [
+        "250-07"
+      ],
+      "250-11": [
+        "250-07",
+        "250-08"
+      ],
+      "250-12": [
+        "250-07",
+        "250-08"
+      ]
+    },
+    "runnable_plans": [],
+    "phase_verification": "gaps_found"
+  },
+  "reason": "The existing plans already cover the known gaps. 250-07 and 250-08 were manually halted on stale/no-authority and zero-eligible-tuple evidence; 250-09 through 250-12 depend on those plans. No new immutable source-bound evidence or acceptance decision was available to support a distinct replacement plan.",
+  "read_only_preflight": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T023636Z.json",
+    "sha256": "dab2c900dffac98aac07e9767f27496d16a4a4fa69777d993ceece86142746c5",
+    "target_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
+    "reported_status": "ready",
+    "source_blob_identity": "not_verified: local Git tree lookup did not resolve the target workflow path; no GitHub blob comparison was made",
+    "can_authorize_dispatch": false,
+    "dispatch_attempted": false
+  },
+  "local_checks_observed": [
+    {
+      "command": "bash scripts/ci/release-canary.test.sh",
+      "result": "61 passed, 0 failed"
+    },
+    {
+      "command": "bash scripts/ci/release-canary.sh --self-test",
+      "result": "passed"
+    },
+    {
+      "command": "actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml",
+      "result": "passed"
+    },
+    {
+      "command": "bash scripts/ci/release-observer.test.sh",
+      "result": "22 passed, 0 failed"
+    },
+    {
+      "command": "bash scripts/ci/release-receipt.test.sh",
+      "result": "15 passed, 0 failed"
+    }
+  ],
+  "external_actions": {
+    "workflow_dispatch": false,
+    "canary_dispatch": false,
+    "cancellation": false,
+    "observer_dispatch": false,
+    "ci_dispatch_or_poll": false,
+    "merge_or_publish": false
+  },
+  "routing": {
+    "immediate_gsd_command": null,
+    "resume_when": "New immutable source-bound READY/AUTO/REL evidence exists, or the user changes the acceptance decision; then re-evaluate the remaining gap plans.",
+    "resume_command": "$gsd-plan-phase 250 --gaps",
+    "phase_250_complete": false,
+    "requirements_completed_by_closeout": [],
+    "next_roadmap_phase": null
+  }
+}

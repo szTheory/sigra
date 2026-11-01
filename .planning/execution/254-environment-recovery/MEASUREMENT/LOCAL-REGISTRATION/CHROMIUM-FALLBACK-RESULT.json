@@ -1,0 +1,103 @@
+{
+  "scope": "controlled local transport fault; not evidence of original failure cause",
+  "source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "platform": "darwin",
+  "results": [
+    {
+      "mode": "drop_primary_replies",
+      "passed": false,
+      "error": "page.waitForSelector: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-phx-session].phx-connected')\u001b[22m\n",
+      "state": {
+        "readyState": "complete",
+        "connected": 0,
+        "socketConnected": false,
+        "transport": "g"
+      },
+      "events": [
+        {
+          "ms": 114,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 405,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 411,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 661,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "liveview",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 661,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "phoenix",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 3161,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 9334,
+          "type": "console",
+          "message": "phx-GOFVO_8qDwHCDgwD join: encountered 0 consecutive reloads -  undefined"
+        },
+        {
+          "ms": 9334,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 9550,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 9552,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 9760,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "liveview",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 9760,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "phoenix",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 12259,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        }
+      ]
+    }
+  ]
+}

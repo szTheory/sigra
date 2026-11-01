@@ -1,0 +1,31 @@
+{
+  "ref": "refs/evidence/phase254-before-environment-recovery-state",
+  "commit": "a2674e7ed3f21ff29dc3721da8a44bf840163b1b",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "82b1a8c8c6aca2da80843fa9d413b3bb2b035f1a022b45a902036eb634da63da",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "5c90b1ea9ed21b1af4457452fab248ec96198439df69be5684fb99e2156ba12f",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "0e72e8ecbec5d93c91bb25ce3bcd84ec185be068f3744698896e126a64fb628d",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/254-CONTINUATION.json",
+      "status": "clean",
+      "sha256": "d58a2d4ebf7e4294852e2df8f5caf804a3df4e2ae0b5f1994767526c52adb1d6",
+      "readback_verified": true
+    }
+  ],
+  "readback_verified": true
+}

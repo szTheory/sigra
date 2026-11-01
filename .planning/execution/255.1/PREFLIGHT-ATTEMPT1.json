@@ -1,0 +1,25 @@
+{
+  "status": "failed",
+  "stage": "local_control_object_preservation",
+  "command": [
+    "python3",
+    "-B",
+    "scripts/ci/ci-repaired-comparison.py",
+    "preflight",
+    "--source",
+    "HEAD",
+    "--output",
+    ".planning/execution/255.1/FEASIBILITY.json"
+  ],
+  "exit_code": 1,
+  "cause": "Sandbox denied local Git object/ref write during local-path fetch (exit 255); no network source was used.",
+  "retained_partial_files": [
+    {
+      "path": "sources-1792881945420064000/treatment.patch",
+      "sha256": "a5dbca90d7737d394fdb793e27e4707fc410ea0d84404a8f818f8ec6bbbadcee"
+    }
+  ],
+  "retry": "Use the approved Git filesystem escalation for the same local operation; preserve this attempt.",
+  "remote_requests": 0,
+  "remote_mutations": 0
+}

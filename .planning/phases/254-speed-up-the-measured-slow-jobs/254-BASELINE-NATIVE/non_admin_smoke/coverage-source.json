@@ -1,0 +1,257 @@
+{
+  "schema_version": "sigra.browser-coverage-source/v1",
+  "source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+  "workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+  "configuration_sha256": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+  "lock_sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+  "event": "pull_request",
+  "seam": "non_admin_smoke",
+  "owner": "non_admin_smoke",
+  "project_inventory": [
+    "chromium",
+    "mobile"
+  ],
+  "selected_inventory": [
+    {
+      "id": "[\"chromium\",\"ga-uat-shift-left.spec.ts\",[\"ga-uat-shift-left.spec.ts\",\"GA UAT shift-left (SEED-6 / SEED-7)\"],\"f2bcd157030f6f91f659-60437f9bb68f1e1e6d6a\",\"SEED-6: invitation signup rejects tampered email with locked-address error\"]",
+      "project": "chromium",
+      "spec": "ga-uat-shift-left.spec.ts",
+      "title_path": [
+        "ga-uat-shift-left.spec.ts",
+        "GA UAT shift-left (SEED-6 / SEED-7)"
+      ],
+      "native_spec_id": "f2bcd157030f6f91f659-60437f9bb68f1e1e6d6a",
+      "title": "SEED-6: invitation signup rejects tampered email with locked-address error",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"ga-uat-shift-left.spec.ts\",[\"ga-uat-shift-left.spec.ts\",\"GA UAT shift-left (SEED-6 / SEED-7)\"],\"f2bcd157030f6f91f659-6365b1d09508b3aa305e\",\"SEED-7: MFA regenerate confirmation surface is reachable after enrollment\"]",
+      "project": "chromium",
+      "spec": "ga-uat-shift-left.spec.ts",
+      "title_path": [
+        "ga-uat-shift-left.spec.ts",
+        "GA UAT shift-left (SEED-6 / SEED-7)"
+      ],
+      "native_spec_id": "f2bcd157030f6f91f659-6365b1d09508b3aa305e",
+      "title": "SEED-7: MFA regenerate confirmation surface is reachable after enrollment",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"golden-path.spec.ts\",[\"golden-path.spec.ts\"],\"d6dd496e245cb9874cb8-52c3db116eda0a288a0f\",\"full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge\"]",
+      "project": "chromium",
+      "spec": "golden-path.spec.ts",
+      "title_path": [
+        "golden-path.spec.ts"
+      ],
+      "native_spec_id": "d6dd496e245cb9874cb8-52c3db116eda0a288a0f",
+      "title": "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"organizations.spec.ts\",[\"organizations.spec.ts\"],\"e73cfbd0adf242785189-41a684d7d28369cab2d7\",\"organization invitations: signed-in matching user accepts through the mailbox link\"]",
+      "project": "chromium",
+      "spec": "organizations.spec.ts",
+      "title_path": [
+        "organizations.spec.ts"
+      ],
+      "native_spec_id": "e73cfbd0adf242785189-41a684d7d28369cab2d7",
+      "title": "organization invitations: signed-in matching user accepts through the mailbox link",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"organizations.spec.ts\",[\"organizations.spec.ts\"],\"e73cfbd0adf242785189-6b33e2c786ab25b9ac22\",\"organization invitations: new user accepts through the mailbox signup path\"]",
+      "project": "chromium",
+      "spec": "organizations.spec.ts",
+      "title_path": [
+        "organizations.spec.ts"
+      ],
+      "native_spec_id": "e73cfbd0adf242785189-6b33e2c786ab25b9ac22",
+      "title": "organization invitations: new user accepts through the mailbox signup path",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"organizations.spec.ts\",[\"organizations.spec.ts\"],\"e73cfbd0adf242785189-ed723503d33da298936f\",\"phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch\"]",
+      "project": "chromium",
+      "spec": "organizations.spec.ts",
+      "title_path": [
+        "organizations.spec.ts"
+      ],
+      "native_spec_id": "e73cfbd0adf242785189-ed723503d33da298936f",
+      "title": "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"passkey-login.spec.ts\",[\"passkey-login.spec.ts\",\"passkey-primary login fallback smoke\"],\"da0286b6e7fb3c32d2e7-37f8e7b5ef41b2de3a38\",\"keeps identifier, password, and magic-link fallback visible on the real login page\"]",
+      "project": "chromium",
+      "spec": "passkey-login.spec.ts",
+      "title_path": [
+        "passkey-login.spec.ts",
+        "passkey-primary login fallback smoke"
+      ],
+      "native_spec_id": "da0286b6e7fb3c32d2e7-37f8e7b5ef41b2de3a38",
+      "title": "keeps identifier, password, and magic-link fallback visible on the real login page",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"passkey-login.spec.ts\",[\"passkey-login.spec.ts\",\"passkey-primary login fallback smoke\"],\"da0286b6e7fb3c32d2e7-d2ff097ca3211e1f4766\",\"clicking passkey login requests real options path without leaking browser errors\"]",
+      "project": "chromium",
+      "spec": "passkey-login.spec.ts",
+      "title_path": [
+        "passkey-login.spec.ts",
+        "passkey-primary login fallback smoke"
+      ],
+      "native_spec_id": "da0286b6e7fb3c32d2e7-d2ff097ca3211e1f4766",
+      "title": "clicking passkey login requests real options path without leaking browser errors",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"passkey-options.spec.ts\",[\"passkey-options.spec.ts\"],\"8d3aabca64552d7e3f48-fc0b21f69b19221d2738\",\"enrollment requests real passkey options from the served MFA settings page\"]",
+      "project": "chromium",
+      "spec": "passkey-options.spec.ts",
+      "title_path": [
+        "passkey-options.spec.ts"
+      ],
+      "native_spec_id": "8d3aabca64552d7e3f48-fc0b21f69b19221d2738",
+      "title": "enrollment requests real passkey options from the served MFA settings page",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"chromium\",\"passkeys-hooks.spec.ts\",[\"passkeys-hooks.spec.ts\"],\"ba06a96a340fa970f999-bc3e6670038c5caf57bc\",\"generated passkey hooks complete real browser registration and authentication with a virtual authenticator\"]",
+      "project": "chromium",
+      "spec": "passkeys-hooks.spec.ts",
+      "title_path": [
+        "passkeys-hooks.spec.ts"
+      ],
+      "native_spec_id": "ba06a96a340fa970f999-bc3e6670038c5caf57bc",
+      "title": "generated passkey hooks complete real browser registration and authentication with a virtual authenticator",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"mobile\",\"ga-uat-shift-left.spec.ts\",[\"ga-uat-shift-left.spec.ts\",\"GA UAT shift-left (SEED-6 / SEED-7)\"],\"f2bcd157030f6f91f659-b64bef47e1918d114dba\",\"SEED-7: MFA regenerate confirmation surface is reachable after enrollment\"]",
+      "project": "mobile",
+      "spec": "ga-uat-shift-left.spec.ts",
+      "title_path": [
+        "ga-uat-shift-left.spec.ts",
+        "GA UAT shift-left (SEED-6 / SEED-7)"
+      ],
+      "native_spec_id": "f2bcd157030f6f91f659-b64bef47e1918d114dba",
+      "title": "SEED-7: MFA regenerate confirmation surface is reachable after enrollment",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"mobile\",\"ga-uat-shift-left.spec.ts\",[\"ga-uat-shift-left.spec.ts\",\"GA UAT shift-left (SEED-6 / SEED-7)\"],\"f2bcd157030f6f91f659-fd996995d225a159e009\",\"SEED-6: invitation signup rejects tampered email with locked-address error\"]",
+      "project": "mobile",
+      "spec": "ga-uat-shift-left.spec.ts",
+      "title_path": [
+        "ga-uat-shift-left.spec.ts",
+        "GA UAT shift-left (SEED-6 / SEED-7)"
+      ],
+      "native_spec_id": "f2bcd157030f6f91f659-fd996995d225a159e009",
+      "title": "SEED-6: invitation signup rejects tampered email with locked-address error",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"mobile\",\"golden-path.spec.ts\",[\"golden-path.spec.ts\"],\"d6dd496e245cb9874cb8-8bea12a12a6752dbbcfe\",\"full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge\"]",
+      "project": "mobile",
+      "spec": "golden-path.spec.ts",
+      "title_path": [
+        "golden-path.spec.ts"
+      ],
+      "native_spec_id": "d6dd496e245cb9874cb8-8bea12a12a6752dbbcfe",
+      "title": "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"mobile\",\"organizations.spec.ts\",[\"organizations.spec.ts\"],\"e73cfbd0adf242785189-0fc39f37615c7294300c\",\"organization invitations: new user accepts through the mailbox signup path\"]",
+      "project": "mobile",
+      "spec": "organizations.spec.ts",
+      "title_path": [
+        "organizations.spec.ts"
+      ],
+      "native_spec_id": "e73cfbd0adf242785189-0fc39f37615c7294300c",
+      "title": "organization invitations: new user accepts through the mailbox signup path",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"mobile\",\"organizations.spec.ts\",[\"organizations.spec.ts\"],\"e73cfbd0adf242785189-745aec0a619d2982ac0f\",\"phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch\"]",
+      "project": "mobile",
+      "spec": "organizations.spec.ts",
+      "title_path": [
+        "organizations.spec.ts"
+      ],
+      "native_spec_id": "e73cfbd0adf242785189-745aec0a619d2982ac0f",
+      "title": "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    },
+    {
+      "id": "[\"mobile\",\"organizations.spec.ts\",[\"organizations.spec.ts\"],\"e73cfbd0adf242785189-ec29658e03fdf7d92d95\",\"organization invitations: signed-in matching user accepts through the mailbox link\"]",
+      "project": "mobile",
+      "spec": "organizations.spec.ts",
+      "title_path": [
+        "organizations.spec.ts"
+      ],
+      "native_spec_id": "e73cfbd0adf242785189-ec29658e03fdf7d92d95",
+      "title": "organization invitations: signed-in matching user accepts through the mailbox link",
+      "owner": "non_admin_smoke",
+      "classification": "product",
+      "expected_status": "passed",
+      "actual_result": "passed"
+    }
+  ],
+  "excluded_inventory": [],
+  "skip_policies": [],
+  "reports": [
+    {
+      "path": "non-admin-smoke.json",
+      "selection_path": "non-admin-smoke.selection.json",
+      "sha256": "f6941d037d0f01bddc2187f54c90447c3bb3db4a10c87e726b2e9068bad847c3",
+      "selection_sha256": "9030fad90189207f9e211306d25455c72e963dedd53407f7a02f2687feb6aef4",
+      "source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+    }
+  ]
+}

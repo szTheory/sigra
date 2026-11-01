@@ -1,0 +1,11 @@
+{
+  "kind": "offline_controlled_interleaving",
+  "script_sha256": "dab951edbb6c87cb5bb6b21946c8e4677714bea9ae35cafa145e7d046d06a6ef",
+  "reloader_script_sha256": "f0691dfb1ded1b0e68893406e5880429442c5fb73231811161749f83981b70f5",
+  "browser_invocations": 0,
+  "ci_launches": 0,
+  "network_requests": 0,
+  "exit_code": -9,
+  "error": "unit experiment30second deadline",
+  "duration_seconds": 30.696894874999998
+}

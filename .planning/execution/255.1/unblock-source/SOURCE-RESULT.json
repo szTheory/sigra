@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "status": "local_source_unblocked",
+  "captured_at": "2026-10-24T23:18:38.018675+00:00",
+  "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+  "source_tree": "5de8edaba20ff7c6d3954bf79ded4c8f4e6f8572",
+  "main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "main_is_ancestor": true,
+  "source_rows": [
+    {
+      "role": "candidate",
+      "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+      "tree_sha": "5de8edaba20ff7c6d3954bf79ded4c8f4e6f8572",
+      "merge_tree_equal": true,
+      "archive_sha256": "ec2c5b6feabb3863e39daa338bf77551a49d8822cd7ed49a1b1afbd443d462d2"
+    },
+    {
+      "role": "control",
+      "source_sha": "f6e645e6a7961233812bebe68a594278f7d6e509",
+      "tree_sha": "1915fa853241d6d1c76d85b18677686678734dbd",
+      "merge_tree_equal": true,
+      "archive_sha256": "cc12b29b7251046e375a3caf57a3c00a8cd100c081d6f8d57cfb2ee5df8c1e51"
+    }
+  ],
+  "local_status": "ready",
+  "hosted_status": "blocked",
+  "acceptance_samples": 0,
+  "hosted_invocations": 0,
+  "collection_authorized": false,
+  "preparation_authorized": false,
+  "next_local_plan": "255.1-02",
+  "native_tracer": ".planning/execution/255.1/unblock-source/LOCAL-TRACER.json",
+  "native_test_count": 52,
+  "native_seed": 637948,
+  "prior_revisions": [
+    {
+      "path": ".planning/execution/255.1/SOURCES.json",
+      "sha256": "3d513318bd09ca230083dc36598fe0bd9428655417548c9a26200e1d41b8495d",
+      "recovery_commit": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/execution/255.1/FEASIBILITY.json",
+      "sha256": "1ed1c73727885b213ef4e573c071ee7234765931da97c26356ae6fa3e9fc9d59",
+      "recovery_commit": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-SUMMARY.md",
+      "sha256": "5150a28bf44c409ca8a15d80d7a6c17be6ffc940de942843e753f7d9fd7a7671",
+      "recovery_commit": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+      "read_back_equal": true
+    }
+  ],
+  "full_native_validation": "in_progress; prior sandbox-denied run retained separately",
+  "prompt": "prompts/fan-out-prompt.txt",
+  "raw_local_logs": "/private/tmp/sigra-2551-reconcile/"
+}

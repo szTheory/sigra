@@ -1,0 +1,25 @@
+{
+  "schema_version": "sigra.phase255.forward-route/v1",
+  "checked_at": "2026-10-24T20:38:45.370950+00:00",
+  "command": "$gsd-audit-milestone",
+  "next_roadmap_phase": null,
+  "roadmap_phase_numbers": [
+    "252",
+    "253",
+    "254",
+    "255"
+  ],
+  "roadmap_query": "query roadmap.analyze",
+  "roadmap_reported_next_phase": null,
+  "completion_tool_selected_earlier_phase": "254",
+  "earlier_phase_readiness": {
+    "query": "query init.execute-phase 254",
+    "plan_count": 8,
+    "incomplete_count": 0,
+    "runnable_count": 0,
+    "blocked_by": {}
+  },
+  "reason": "Phase255 is the last roadmap phase. Phase254 implementation is complete and its comparison is terminal insufficient_data; its two speed requirements and verification remain open. Audit the milestone before deciding how to handle that debt. No successor phase is created and no comparison allowance is reopened.",
+  "other_active_workstreams": [],
+  "auto_advance": false
+}

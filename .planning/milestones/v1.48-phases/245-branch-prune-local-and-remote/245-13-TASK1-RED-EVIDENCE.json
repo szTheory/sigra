@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task": "245-13-task-1",
+  "result": "red_reproduced",
+  "test": "direct symbolic HEAD update bypasses the coordinator on unsupported Git before runtime capability probing exists",
+  "fixture": {
+    "path": "/private/tmp/phase245-task1-red.42njL5",
+    "repository": "disposable main plus linked peer worktree",
+    "git_executable": "/opt/homebrew/bin/git",
+    "git_version": "git version 2.41.0",
+    "coordinator_source_commit": "9002e6ce5c3e28efc3893530954794694198b18f"
+  },
+  "command": "coordinator run --repo <fixture-main> --operation plan13-red-proof -- env -u SIGRA_BRANCH_WORKTREE_COORDINATOR_TOKEN /opt/homebrew/bin/git -C <fixture-peer> symbolic-ref HEAD refs/heads/main",
+  "exit_code": 0,
+  "before_head": "refs/heads/peer",
+  "after_head": "refs/heads/main",
+  "expected": "the linked worktree HEAD remains unchanged and the unsupported executable is rejected before coordinator installation",
+  "actual": "the old coordinator installed successfully and the direct symbolic-ref changed the linked worktree HEAD while the lock was held",
+  "production_repository_mutated": false
+}

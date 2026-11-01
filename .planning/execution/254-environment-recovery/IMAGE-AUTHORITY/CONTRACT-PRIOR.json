@@ -1,0 +1,8 @@
+{
+  "path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/CONTRACT.json",
+  "commit": "9b0d037e60f4b87068e7b472e252e9eb8abc0220",
+  "ref": "refs/heads/phase-244-playwright-measurement",
+  "sha256": "cf32063d9b030506da74e2095dd59b55e13ad7279a5a2b6a3c6bcf32506bc7fb",
+  "readback_verified": true,
+  "reason": "Use counted non-forcing REST ref updates after publishing commit objects on inert staging branches; same two source updates and frozen heads."
+}

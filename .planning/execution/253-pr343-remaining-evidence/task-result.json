@@ -1,0 +1,87 @@
+{
+  "approval": {
+    "bind_to_proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+    "present": false,
+    "required_before": "run.py --run",
+    "required_scope": "pr343-five-artifacts-and-frozen-docs-only-pr"
+  },
+  "attempt": 1,
+  "blocker": "No fresh approval exists for this exact proposal. The tested offline continuation and synthetic fixtures do not supply the five original archives or docs-only hosted evidence. Plan 253-172 remains incomplete.",
+  "candidate_head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+  "ci_launch_status": "not_started_offline",
+  "docs_pr": {
+    "base_ref": "gsd/253-replan-proof-5e13621e5-docs-base",
+    "base_sha": "4524f17e1b791dd4d2c2ae597c053a8e37e8095e",
+    "candidate_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+    "head_ref": "gsd/253-replan-proof-5e13621e5-docs-head",
+    "head_sha": "a4c2b64119fa89ada8a6dbbe1f729a24fb6bfc21",
+    "source_commit": "5e13621e50e646c63e135035080d2e6e46fbc955"
+  },
+  "docs_pr_creation_count": 0,
+  "downloads": 0,
+  "github_writes": 0,
+  "hosted_acceptance": false,
+  "network_requests": 0,
+  "normal_pr": 343,
+  "phase_verified": false,
+  "plan": "253-172",
+  "proposal_path": ".planning/execution/253-pr343-remaining-evidence/proposal.json",
+  "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+  "remaining_actual_evidence": [
+    "the five original PR343 browser ZIP archives with matching raw SHA-256 digests, safe ZIP contents, and semantically accepted execution-record.json records for run 39815188159 attempt 1",
+    "a docs-only PR created from the exact frozen refs, plus its actual run, terminal job inventory, native required checks, artifacts, source blobs, measured transport evidence, and a passing independent docs-only verifier result"
+  ],
+  "request_budget": {
+    "canonical_transport_maximum": 120,
+    "category_limits_sum": 120,
+    "duration_seconds": 3600,
+    "max_redirect_hops_per_download": 2,
+    "merges": 0,
+    "normal_pr_mutations": 0,
+    "normal_pr_reruns": 0,
+    "permitted_request_maxima": {
+      "artifact_downloads": 20,
+      "artifact_metadata": 4,
+      "attempt_jobs": 4,
+      "docs_publication": 14,
+      "failure_logs": 0,
+      "infrastructure_rerun": 0,
+      "native_checks": 1,
+      "pr_create": 1,
+      "pr_identity": 5,
+      "pre_watch_rate": 1,
+      "preflight": 6,
+      "run_discovery": 2,
+      "terminal_polls": 12
+    },
+    "permitted_request_maxima_sum": 70,
+    "rate_limit_floor_core": 250,
+    "retries": 0,
+    "workflow_dispatches": 0
+  },
+  "run_id": 39815188159,
+  "schema": "sigra.phase253.pr343-remaining-evidence-offline-result/v3",
+  "source_commit": "5e13621e50e646c63e135035080d2e6e46fbc955",
+  "status": "offline_continuation_ready_live_approval_not_granted",
+  "tested_merge_sha": "d6024255ed139f7c19bd44e68c10a85cc9ecca3b",
+  "tests": {
+    "collector_freeze_check": {
+      "command": "bash .planning/execution/253-pr343-remaining-evidence/runtime/ci-pr-proof.sh --check-only --freeze .planning/execution/253-pr343-remaining-evidence/pr-freeze.json --allocation <temporary exact 120-request allocation>",
+      "result": "exit 0; freeze and allocation valid; network_requests 0"
+    },
+    "offline_entrypoint": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B .planning/execution/253-pr343-remaining-evidence/run.py",
+      "result": "exit 0; retained successful run and exact artifact inventory verified; network_requests 0"
+    },
+    "python": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B -m unittest discover -s .planning/execution/253-pr343-remaining-evidence -p 'test_*.py' -v",
+      "result": "20 passed; synthetic offline fixtures only"
+    }
+  },
+  "workflow_run_discoveries": 0,
+  "review_repairs": [
+    "Strict commit-check fallback after an empty workflow listing; direct run identity and attempt1 independently checked",
+    "Exact docs publication writes; aggregate70 request cap; truthful CI accounting",
+    "Pinned normal workflow before requests; real archive-policy integration and synthetic activation"
+  ]
+}

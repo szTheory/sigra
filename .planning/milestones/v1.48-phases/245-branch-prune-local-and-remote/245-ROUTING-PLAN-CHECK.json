@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "iteration": 2,
+  "verdict": "passed",
+  "scope": "Focused recheck of revised 245-38-PLAN.md against the prior complete-census REPO-04 blocker, with regression check of live 245-37 to 245-38 routing; historical terminal plans were not reopened.",
+  "prior_blocker_resolution": {
+    "status": "resolved",
+    "evidence": [
+      "Plan 38 Task 1 requires one committed candidate_dispositions row for every captured local head, exact origin head, and non-symbolic origin tracking ref, with no extras or duplicates.",
+      "Task 1 automated Node predicate compares that array to the committed contract, rejects any disposition other than keep or delete, requires source-backed proof fields, and equates delete identities to the committed allowlist before Task 2 approval.",
+      "Task 3 automated Node predicate reruns the committed census, requires a passed RESULT, and equates the admitted deletion identities to the actual applied deletion identities; failed or unresolved routes retain REPO-04 open."
+    ]
+  },
+  "checks": {
+    "requirement": "REPO-04 claimed by both live plans and covered by exact source recovery, full branch dispositions, guarded deletion, and post-state checks",
+    "context_decisions": "D-01 through D-07 preserved; fresh five-object Plan 37 approval and distinct exact-row Plan 38 approval; historical 11/30 audits unresolved",
+    "route": "Only incomplete 37 and 38; 37 wave 3 depends on completed 34, 38 wave 4 depends on ready committed 37 D-06 receipt; 35/36 blocked receipts remain terminal",
+    "plan_structure": "245-38 verify.plan-structure valid with zero errors and warnings; 3 tasks",
+    "verify_paths_probe": "Authoritative /tmp/sigra-245-verify-paths.json: zero blockers and warnings; live-plan commands not_applicable under probe rules",
+    "failing_directions_probe": "Authoritative /tmp/sigra-245-failure-directions.json: all four live-plan runnable tasks ok; zero blockers and warnings",
+    "production": "Blocked at planning time: five exact current-origin commits remain locally unreadable; no Plan 37 recovery approval, fetch, Plan 38 approval, or prune is claimed"
+  },
+  "issues": [],
+  "live_routing": {
+    "next": "245-37-PLAN.md",
+    "wave": 3,
+    "then": "245-38-PLAN.md",
+    "then_wave": 4,
+    "gate": "Plan 37 committed ready D-06 receipt, followed by a separate Plan 38 exact-row decision",
+    "repo_04": "open"
+  },
+  "final_validation": {
+    "captured_at": "2026-10-03T15:29:51.762822+00:00",
+    "phase_complete": false,
+    "production_ready": false,
+    "route": {
+      "next": "$gsd-execute-phase 245 --gaps-only --wave 3",
+      "following": "$gsd-execute-phase 245 --gaps-only --wave 4",
+      "incomplete": [
+        "245-37",
+        "245-38"
+      ],
+      "ready": [
+        "245-37"
+      ],
+      "active_plan_count": 35
+    },
+    "plan_structure": {
+      "37": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Capture and commit the fresh five-object source preflight",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Approve or stop the new exact five-object recovery",
+            "type": "checkpoint:decision",
+            "hasFiles": false,
+            "hasAction": false,
+            "hasVerify": false,
+            "hasDone": false
+          },
+          {
+            "name": "Task 3: Recover the five objects once and prove ready D-06",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "gap_closure",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "38": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "Task 1: Capture and admit one complete current-source prune path",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Approve or stop the new exact production deletion rows",
+            "type": "checkpoint:decision",
+            "hasFiles": false,
+            "hasAction": false,
+            "hasVerify": false,
+            "hasDone": false
+          },
+          {
+            "name": "Task 3: Apply only approved rows and prove independent post-state",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "gap_closure",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    "coverage": {
+      "requirements": 1,
+      "decisions": 7,
+      "total": 8,
+      "uncovered": 0
+    },
+    "blocked_history_unchanged": [
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-PLAN-CHECK.json",
+        "sha256": "f063c9d20acfd03c9becdb7ab4cdcfc69a0f8f9baec4b9bd73c31c32997ffe6f"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-SUMMARY.md",
+        "sha256": "ff8c9b8dbc764d0d4676edf8ef6d55a03143e221f88849ca356da50c75fd71bd"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-PLANNING-PREFLIGHT.json",
+        "sha256": "f68ce504c407be5b0408d21a53283e24cd297c332297e013c4dbfed92042988b"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-OBJECT-RECOVERY.json",
+        "sha256": "5ca6d9c52468a5e8a546500d4f63f3a6af76ebdd0155e34b8c26bf89091ceef2"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-EXEC-PREFLIGHT.json",
+        "sha256": "5fc848c5a21c0dfe160079e237d587f9f383f8c5a5c8ffd31001f99372efe829"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-35-D06-READINESS.json",
+        "sha256": "fae2ed2991d072968d51ebf9f97d79078b50912624c15ed133d36c5437a604c6"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-36-RESULT.json",
+        "sha256": "f18de4958d2dfbce489f36da582e588bb24a32cabeefa04c81b305c2a86f4028"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-36-SUMMARY.md",
+        "sha256": "d09277ef167b842010b88b1d1407889aaf5489234d19f399f19d60955e2f3b68"
+      },
+      {
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-36-EXEC-PREFLIGHT.json",
+        "sha256": "6ce1a12a606e77a22361ff6485eba6c7f096b20ac4d9c78f2b53d9ece1d6e396"
+      }
+    ],
+    "plan_sha256": {
+      ".planning/phases/245-branch-prune-local-and-remote/245-35-PLAN.md": "5f663dff1294d52108277de9e307591af7f2383e1484738297eda64c2d69ffdf",
+      ".planning/phases/245-branch-prune-local-and-remote/245-36-PLAN.md": "5f55133ec0347afb1b74dd4b528e60a818ffaedf49186926915908f84cbeb85e",
+      ".planning/phases/245-branch-prune-local-and-remote/245-37-PLAN.md": "81b269d504580b6c508c10df12f67425013df40a8773fbf8f3e84856626d2aed",
+      ".planning/phases/245-branch-prune-local-and-remote/245-38-PLAN.md": "82f4aebb044494a249fcbc5bc023ae3a2bd837703c3b25439de46d83979e852b"
+    },
+    "probes": {
+      "verify-paths": {
+        "status": "not_applicable",
+        "live_commands": [
+          {
+            "command": "jq -e '.verdict == \"ready_for_approval\" and (.missing_objects | length) == 5 and (.failed_predicates | length) == 0 and .checks.complete_current_sources_agree == true and .checks.all_other_typed_objects_readable == true and .production_ref_operations == 0 and .pull_request_mutations == 0' .planning/phases/245-branch-prune-local-and-remote/245-37-EXEC-PREFLIGHT.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "245-37-PLAN.md",
+            "task": "Task 1: Capture and commit the fresh five-object source preflight"
+          },
+          {
+            "command": "jq -e '.outcome == \"passed\" and .attempt_count == 1 and .approval.bound_preflight_sha256 == .preflight_sha256 and .production_ref_operations == 0 and .pull_request_mutations == 0 and .checks.all_required_objects_readable == true and .checks.no_ref_or_pr_delta == true' .planning/phases/245-branch-prune-local-and-remote/245-37-OBJECT-RECOVERY.json && jq -e '.verdict == \"ready\" and .historical_audits.pr_11_rows == \"unresolved\" and .historical_audits.cleanup_30_rows == \"unresolved\" and (.failed_predicates | length) == 0' .planning/phases/245-branch-prune-local-and-remote/245-37-D06-READINESS.json && for oid in 5c414c4cec975fcf2755664f6ee294a4760fbe93 8ec669774d33eee30d7b92149808adf835bbd963 c1df96499fed86602a7c6f27d18d9394582809f1 d4e206693aa765c0078a89e24963590257d1daf1 d2358eebe1cb4411d73552ec2359e54d8a4c98b4; do /usr/bin/git cat-file -e \"$oid^{commit}\" || exit 1; done",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "245-37-PLAN.md",
+            "task": "Task 3: Recover the five objects once and prove ready D-06"
+          },
+          {
+            "command": "node -e 'const fs=require(\"node:fs\"),cp=require(\"node:child_process\"),crypto=require(\"node:crypto\");const d=\".planning/phases/245-branch-prune-local-and-remote/\",post=process.argv.includes(\"--post\");const g=cp.spawnSync(\"/usr/bin/git\",[\"log\",\"-1\",\"--format=%H\",\"--\",d+\"245-38-CURRENT-CONTRACT.json\"],{encoding:\"utf8\"});if(g.status!==0||!g.stdout.trim())throw Error(\"contract_commit_missing\");const read=f=>cp.execFileSync(\"/usr/bin/git\",[\"show\",g.stdout.trim()+\":\"+d+f],{encoding:\"utf8\"});const c=JSON.parse(read(\"245-38-CURRENT-CONTRACT.json\")),ar=read(\"245-38-ADMISSION.json\"),a=JSON.parse(ar),pin=c.evidence_transition?.precommit_artifacts?.[d+\"245-38-ADMISSION.json\"];if(!pin||pin.sha256!==crypto.createHash(\"sha256\").update(ar).digest(\"hex\")||a.status!==\"admitted\")throw Error(\"admission_not_pinned_or_admitted\");const raw=read(\"245-38-BRANCH-DELETE-ALLOWLIST.tsv\").replace(/\\n$/,\"\").split(\"\\n\");if(raw.shift()!==\"side\\tref\\toid\\ttype\\treason\")throw Error(\"allowlist_header\");const key=x=>x.side+\"\\t\"+x.ref,expected=[...c.local_refs.filter(x=>x.ref.startsWith(\"refs/heads/\")).map(x=>({...x,side:\"local\"})),...c.origin_refs.filter(x=>x.ref.startsWith(\"refs/heads/\")).map(x=>({...x,side:\"remote\"})),...c.local_refs.filter(x=>x.ref.startsWith(\"refs/remotes/origin/\")&&!x.symref).map(x=>({...x,side:\"tracking\"}))],e=new Map(expected.map(x=>[key(x),x])),sourceKeys=new Set([...c.local_refs.map(x=>\"local\\t\"+x.ref+\"\\t\"+x.oid+\"\\t\"+x.type),...c.origin_refs.map(x=>\"remote\\t\"+x.ref+\"\\t\"+x.oid+\"\\t\"+x.type),...c.open_prs.map(x=>\"pr\\t\"+x.number+\"\\t\"+x.headRefName+\"\\t\"+x.baseRefName)]),seen=new Set(),deletes=new Set(),allow=new Set();if(e.size!==expected.length||!Array.isArray(a.candidate_dispositions)||a.candidate_dispositions.length!==expected.length)throw Error(\"candidate_census_incomplete\");for(const x of a.candidate_dispositions){const k=key(x),source=e.get(k);if(!source||seen.has(k)||x.oid!==source.oid||x.type!==source.type)throw Error(\"candidate_identity_or_duplicate:\"+k);seen.add(k);if(![\"keep\",\"delete\"].includes(x.disposition))throw Error(\"unresolved_or_invalid_candidate:\"+k);if(typeof x.reason!==\"string\"||!x.reason.trim()||x.proof?.status!==\"passed\"||typeof x.proof.predicate!==\"string\"||!x.proof.predicate.trim()||x.proof.command_exit!==0||!Array.isArray(x.proof.source_rows)||!x.proof.source_rows.length||!x.proof.source_rows.every(y=>typeof y===\"string\"&&sourceKeys.has(y))||!Array.isArray(x.proof.command)||!x.proof.command.length||typeof x.proof.readback!==\"string\"||!x.proof.readback.trim())throw Error(\"candidate_proof_missing_or_unpinned:\"+k);if(x.disposition===\"delete\")deletes.add(k)}for(const line of raw){const v=line.split(\"\\t\");if(v.length!==5||!v[4])throw Error(\"allowlist_row_invalid\");if(v[0]===\"safety-publish\")continue;const k=v[0]+\"\\t\"+v[1],source=e.get(k);if(!source||allow.has(k)||source.oid!==v[2]||source.type!==v[3])throw Error(\"allowlist_identity_or_duplicate:\"+k);allow.add(k)}if(!deletes.size||deletes.size!==allow.size||[...deletes].some(x=>!allow.has(x)))throw Error(\"delete_disposition_allowlist_mismatch\");if(post){const r=JSON.parse(fs.readFileSync(d+\"245-38-RESULT.json\"));if(r.outcome!==\"passed\"||r.candidate_disposition_check!==\"passed\")throw Error(\"result_census_not_passed\");const applied=new Set();for(const [field,side] of [[\"local_ref_deletions\",\"local\"],[\"remote_ref_deletions\",\"remote\"],[\"tracking_ref_deletions\",\"tracking\"]]){if(!Array.isArray(r.mutations?.[field]))throw Error(\"mutation_array_missing:\"+field);for(const x of r.mutations[field]){const k=side+\"\\t\"+x.ref;if(applied.has(k))throw Error(\"duplicate_applied:\"+k);applied.add(k)}}if(applied.size!==deletes.size||[...deletes].some(x=>!applied.has(x)))throw Error(\"applied_dispositions_mismatch\")}' && node scripts/maintainers/prune-stale-branches-current.mjs verify --repo . --stage before --contract .planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json --contract-commit \"$(/usr/bin/git log -1 --format=%H -- .planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json)\" --allowlist-commit \"$(/usr/bin/git log -1 --format=%H -- .planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json)\" --allowlist .planning/phases/245-branch-prune-local-and-remote/245-38-BRANCH-DELETE-ALLOWLIST.tsv && jq -e '.verdict == \"ready\" and .checks.plan37_ready_receipt == true and .production_ref_operations == 0 and (.failed_predicates | length) == 0' .planning/phases/245-branch-prune-local-and-remote/245-38-EXEC-PREFLIGHT.json && jq -e '.status == \"admitted\" and (.rows | length) > 0 and .plan_19_admitted_local_deleted_count == 1 and .historical_audits.pr_11_rows == \"unresolved\" and .historical_audits.cleanup_30_rows == \"unresolved\"' .planning/phases/245-branch-prune-local-and-remote/245-38-ADMISSION.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "245-38-PLAN.md",
+            "task": "Task 1: Capture and admit one complete current-source prune path"
+          },
+          {
+            "command": "node -e 'const fs=require(\"node:fs\"),cp=require(\"node:child_process\"),crypto=require(\"node:crypto\");const d=\".planning/phases/245-branch-prune-local-and-remote/\",post=process.argv.includes(\"--post\");const g=cp.spawnSync(\"/usr/bin/git\",[\"log\",\"-1\",\"--format=%H\",\"--\",d+\"245-38-CURRENT-CONTRACT.json\"],{encoding:\"utf8\"});if(g.status!==0||!g.stdout.trim())throw Error(\"contract_commit_missing\");const read=f=>cp.execFileSync(\"/usr/bin/git\",[\"show\",g.stdout.trim()+\":\"+d+f],{encoding:\"utf8\"});const c=JSON.parse(read(\"245-38-CURRENT-CONTRACT.json\")),ar=read(\"245-38-ADMISSION.json\"),a=JSON.parse(ar),pin=c.evidence_transition?.precommit_artifacts?.[d+\"245-38-ADMISSION.json\"];if(!pin||pin.sha256!==crypto.createHash(\"sha256\").update(ar).digest(\"hex\")||a.status!==\"admitted\")throw Error(\"admission_not_pinned_or_admitted\");const raw=read(\"245-38-BRANCH-DELETE-ALLOWLIST.tsv\").replace(/\\n$/,\"\").split(\"\\n\");if(raw.shift()!==\"side\\tref\\toid\\ttype\\treason\")throw Error(\"allowlist_header\");const key=x=>x.side+\"\\t\"+x.ref,expected=[...c.local_refs.filter(x=>x.ref.startsWith(\"refs/heads/\")).map(x=>({...x,side:\"local\"})),...c.origin_refs.filter(x=>x.ref.startsWith(\"refs/heads/\")).map(x=>({...x,side:\"remote\"})),...c.local_refs.filter(x=>x.ref.startsWith(\"refs/remotes/origin/\")&&!x.symref).map(x=>({...x,side:\"tracking\"}))],e=new Map(expected.map(x=>[key(x),x])),sourceKeys=new Set([...c.local_refs.map(x=>\"local\\t\"+x.ref+\"\\t\"+x.oid+\"\\t\"+x.type),...c.origin_refs.map(x=>\"remote\\t\"+x.ref+\"\\t\"+x.oid+\"\\t\"+x.type),...c.open_prs.map(x=>\"pr\\t\"+x.number+\"\\t\"+x.headRefName+\"\\t\"+x.baseRefName)]),seen=new Set(),deletes=new Set(),allow=new Set();if(e.size!==expected.length||!Array.isArray(a.candidate_dispositions)||a.candidate_dispositions.length!==expected.length)throw Error(\"candidate_census_incomplete\");for(const x of a.candidate_dispositions){const k=key(x),source=e.get(k);if(!source||seen.has(k)||x.oid!==source.oid||x.type!==source.type)throw Error(\"candidate_identity_or_duplicate:\"+k);seen.add(k);if(![\"keep\",\"delete\"].includes(x.disposition))throw Error(\"unresolved_or_invalid_candidate:\"+k);if(typeof x.reason!==\"string\"||!x.reason.trim()||x.proof?.status!==\"passed\"||typeof x.proof.predicate!==\"string\"||!x.proof.predicate.trim()||x.proof.command_exit!==0||!Array.isArray(x.proof.source_rows)||!x.proof.source_rows.length||!x.proof.source_rows.every(y=>typeof y===\"string\"&&sourceKeys.has(y))||!Array.isArray(x.proof.command)||!x.proof.command.length||typeof x.proof.readback!==\"string\"||!x.proof.readback.trim())throw Error(\"candidate_proof_missing_or_unpinned:\"+k);if(x.disposition===\"delete\")deletes.add(k)}for(const line of raw){const v=line.split(\"\\t\");if(v.length!==5||!v[4])throw Error(\"allowlist_row_invalid\");if(v[0]===\"safety-publish\")continue;const k=v[0]+\"\\t\"+v[1],source=e.get(k);if(!source||allow.has(k)||source.oid!==v[2]||source.type!==v[3])throw Error(\"allowlist_identity_or_duplicate:\"+k);allow.add(k)}if(!deletes.size||deletes.size!==allow.size||[...deletes].some(x=>!allow.has(x)))throw Error(\"delete_disposition_allowlist_mismatch\");if(post){const r=JSON.parse(fs.readFileSync(d+\"245-38-RESULT.json\"));if(r.outcome!==\"passed\"||r.candidate_disposition_check!==\"passed\")throw Error(\"result_census_not_passed\");const applied=new Set();for(const [field,side] of [[\"local_ref_deletions\",\"local\"],[\"remote_ref_deletions\",\"remote\"],[\"tracking_ref_deletions\",\"tracking\"]]){if(!Array.isArray(r.mutations?.[field]))throw Error(\"mutation_array_missing:\"+field);for(const x of r.mutations[field]){const k=side+\"\\t\"+x.ref;if(applied.has(k))throw Error(\"duplicate_applied:\"+k);applied.add(k)}}if(applied.size!==deletes.size||[...deletes].some(x=>!applied.has(x)))throw Error(\"applied_dispositions_mismatch\")}' -- --post && node -e 'const fs=require(\"node:fs\"),cp=require(\"node:child_process\");const d=\".planning/phases/245-branch-prune-local-and-remote/\",r=JSON.parse(fs.readFileSync(d+\"245-38-RESULT.json\"));if(r.outcome!==\"passed\")process.exit(1);const c=cp.spawnSync(\"/usr/bin/git\",[\"log\",\"-1\",\"--format=%H\",\"--\",d+\"245-38-CURRENT-CONTRACT.json\"],{encoding:\"utf8\"});if(c.status!==0)process.exit(1);const a=[\"scripts/maintainers/prune-stale-branches-current.mjs\",\"verify\",\"--repo\",\".\",\"--stage\",\"after\",\"--contract\",d+\"245-38-CURRENT-CONTRACT.json\",\"--contract-commit\",c.stdout.trim(),\"--allowlist-commit\",c.stdout.trim(),\"--allowlist\",d+\"245-38-BRANCH-DELETE-ALLOWLIST.tsv\"];for(const k of [\"local_ref_deletions\",\"remote_ref_deletions\",\"tracking_ref_deletions\",\"safety_ref_publications\"]){if(!Array.isArray(r.mutations?.[k]))process.exit(1);for(const x of r.mutations[k]){if(!x.ref||k===\"safety_ref_publications\"&&x.readback!==\"present\")process.exit(1);a.push(\"--applied-ref\",x.ref)}}if(cp.spawnSync(\"node\",a,{stdio:\"inherit\"}).status!==0)process.exit(1);for(const f of [\"245-18-CURRENT-CONTRACT.json\",\"245-38-CURRENT-CONTRACT.json\"]){const q=JSON.parse(fs.readFileSync(d+f));for(const id of [...q.local_refs,...q.origin_refs].flatMap(x=>[x.oid,x.peeled_oid].filter(Boolean)))if(cp.spawnSync(\"/usr/bin/git\",[\"cat-file\",\"-e\",id]).status!==0)process.exit(1)}' && jq -e '.outcome == \"passed\" and .plan_19_admitted_local_deleted_count == 1 and .readiness_check == \"passed\" and .current_pr_check == \"passed\" and .safety_check == \"passed\" and .object_check == \"passed\" and .exact_ref_check == \"passed\" and .coordinator_check == \"passed\" and .post_readback_check == \"passed\" and .historical_audits.pr_11_rows == \"unresolved\" and .historical_audits.cleanup_30_rows == \"unresolved\"' .planning/phases/245-branch-prune-local-and-remote/245-38-RESULT.json && jq -e '.schema_version == 1 and ([.local_refs,.origin_refs,.open_prs] | all(.status == \"complete\" and (.rows | type == \"array\") and .count == (.rows | length) and .source.exit_code == 0))' .planning/phases/245-branch-prune-local-and-remote/245-38-POST-STATE.json",
+            "status": "not_applicable",
+            "severity": "none",
+            "reason": null,
+            "form": null,
+            "rawTarget": null,
+            "target": null,
+            "manifest": null,
+            "script": null,
+            "sentinel": false,
+            "base": "/Users/jon/projects/sigra",
+            "plan": "245-38-PLAN.md",
+            "task": "Task 3: Apply only approved rows and prove independent post-state"
+          }
+        ]
+      },
+      "failure-directions": {
+        "status": "ok",
+        "live_commands": [
+          {
+            "command": "jq -e '.verdict == \"ready_for_approval\" and (.missing_objects | length) == 5 and (.failed_predicates | length) == 0 and .checks.complete_current_sources_agree == true and .checks.all_other_typed_objects_readable == true and .production_ref_operations == 0 and .pull_request_mutations == 0' .planning/phases/245-branch-prune-local-and-remote/245-37-EXEC-PREFLIGHT.json",
+            "statement": "Any of the five OIDs/tree IDs/ref advertisements changes, another required typed object is unreadable, the complete PR/origin inventory disagrees, a pinned receipt changes, rate limit stops reads, or a zero-operation assertion fails. A blocked preflight never reaches Task 2.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "245-37-PLAN.md",
+            "task": "Task 1: Capture and commit the fresh five-object source preflight"
+          },
+          {
+            "command": "jq -e '.outcome == \"passed\" and .attempt_count == 1 and .approval.bound_preflight_sha256 == .preflight_sha256 and .production_ref_operations == 0 and .pull_request_mutations == 0 and .checks.all_required_objects_readable == true and .checks.no_ref_or_pr_delta == true' .planning/phases/245-branch-prune-local-and-remote/245-37-OBJECT-RECOVERY.json && jq -e '.verdict == \"ready\" and .historical_audits.pr_11_rows == \"unresolved\" and .historical_audits.cleanup_30_rows == \"unresolved\" and (.failed_predicates | length) == 0' .planning/phases/245-branch-prune-local-and-remote/245-37-D06-READINESS.json && for oid in 5c414c4cec975fcf2755664f6ee294a4760fbe93 8ec669774d33eee30d7b92149808adf835bbd963 c1df96499fed86602a7c6f27d18d9394582809f1 d4e206693aa765c0078a89e24963590257d1daf1 d2358eebe1cb4411d73552ec2359e54d8a4c98b4; do /usr/bin/git cat-file -e \"$oid^{commit}\" || exit 1; done",
+            "statement": "Approval, digest, exact source identity, coordinator admission or fetch changes; any required object/tree is unreadable; any local/origin/PR/HEAD/FETCH_HEAD/worktree/index/stash identity changes; or the historical audits are promoted. A blocked result leaves Plan 38 gated.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "245-37-PLAN.md",
+            "task": "Task 3: Recover the five objects once and prove ready D-06"
+          },
+          {
+            "command": "node -e 'const fs=require(\"node:fs\"),cp=require(\"node:child_process\"),crypto=require(\"node:crypto\");const d=\".planning/phases/245-branch-prune-local-and-remote/\",post=process.argv.includes(\"--post\");const g=cp.spawnSync(\"/usr/bin/git\",[\"log\",\"-1\",\"--format=%H\",\"--\",d+\"245-38-CURRENT-CONTRACT.json\"],{encoding:\"utf8\"});if(g.status!==0||!g.stdout.trim())throw Error(\"contract_commit_missing\");const read=f=>cp.execFileSync(\"/usr/bin/git\",[\"show\",g.stdout.trim()+\":\"+d+f],{encoding:\"utf8\"});const c=JSON.parse(read(\"245-38-CURRENT-CONTRACT.json\")),ar=read(\"245-38-ADMISSION.json\"),a=JSON.parse(ar),pin=c.evidence_transition?.precommit_artifacts?.[d+\"245-38-ADMISSION.json\"];if(!pin||pin.sha256!==crypto.createHash(\"sha256\").update(ar).digest(\"hex\")||a.status!==\"admitted\")throw Error(\"admission_not_pinned_or_admitted\");const raw=read(\"245-38-BRANCH-DELETE-ALLOWLIST.tsv\").replace(/\\n$/,\"\").split(\"\\n\");if(raw.shift()!==\"side\\tref\\toid\\ttype\\treason\")throw Error(\"allowlist_header\");const key=x=>x.side+\"\\t\"+x.ref,expected=[...c.local_refs.filter(x=>x.ref.startsWith(\"refs/heads/\")).map(x=>({...x,side:\"local\"})),...c.origin_refs.filter(x=>x.ref.startsWith(\"refs/heads/\")).map(x=>({...x,side:\"remote\"})),...c.local_refs.filter(x=>x.ref.startsWith(\"refs/remotes/origin/\")&&!x.symref).map(x=>({...x,side:\"tracking\"}))],e=new Map(expected.map(x=>[key(x),x])),sourceKeys=new Set([...c.local_refs.map(x=>\"local\\t\"+x.ref+\"\\t\"+x.oid+\"\\t\"+x.type),...c.origin_refs.map(x=>\"remote\\t\"+x.ref+\"\\t\"+x.oid+\"\\t\"+x.type),...c.open_prs.map(x=>\"pr\\t\"+x.number+\"\\t\"+x.headRefName+\"\\t\"+x.baseRefName)]),seen=new Set(),deletes=new Set(),allow=new Set();if(e.size!==expected.length||!Array.isArray(a.candidate_dispositions)||a.candidate_dispositions.length!==expected.length)throw Error(\"candidate_census_incomplete\");for(const x of a.candidate_dispositions){const k=key(x),source=e.get(k);if(!source||seen.has(k)||x.oid!==source.oid||x.type!==source.type)throw Error(\"candidate_identity_or_duplicate:\"+k);seen.add(k);if(![\"keep\",\"delete\"].includes(x.disposition))throw Error(\"unresolved_or_invalid_candidate:\"+k);if(typeof x.reason!==\"string\"||!x.reason.trim()||x.proof?.status!==\"passed\"||typeof x.proof.predicate!==\"string\"||!x.proof.predicate.trim()||x.proof.command_exit!==0||!Array.isArray(x.proof.source_rows)||!x.proof.source_rows.length||!x.proof.source_rows.every(y=>typeof y===\"string\"&&sourceKeys.has(y))||!Array.isArray(x.proof.command)||!x.proof.command.length||typeof x.proof.readback!==\"string\"||!x.proof.readback.trim())throw Error(\"candidate_proof_missing_or_unpinned:\"+k);if(x.disposition===\"delete\")deletes.add(k)}for(const line of raw){const v=line.split(\"\\t\");if(v.length!==5||!v[4])throw Error(\"allowlist_row_invalid\");if(v[0]===\"safety-publish\")continue;const k=v[0]+\"\\t\"+v[1],source=e.get(k);if(!source||allow.has(k)||source.oid!==v[2]||source.type!==v[3])throw Error(\"allowlist_identity_or_duplicate:\"+k);allow.add(k)}if(!deletes.size||deletes.size!==allow.size||[...deletes].some(x=>!allow.has(x)))throw Error(\"delete_disposition_allowlist_mismatch\");if(post){const r=JSON.parse(fs.readFileSync(d+\"245-38-RESULT.json\"));if(r.outcome!==\"passed\"||r.candidate_disposition_check!==\"passed\")throw Error(\"result_census_not_passed\");const applied=new Set();for(const [field,side] of [[\"local_ref_deletions\",\"local\"],[\"remote_ref_deletions\",\"remote\"],[\"tracking_ref_deletions\",\"tracking\"]]){if(!Array.isArray(r.mutations?.[field]))throw Error(\"mutation_array_missing:\"+field);for(const x of r.mutations[field]){const k=side+\"\\t\"+x.ref;if(applied.has(k))throw Error(\"duplicate_applied:\"+k);applied.add(k)}}if(applied.size!==deletes.size||[...deletes].some(x=>!applied.has(x)))throw Error(\"applied_dispositions_mismatch\")}' && node scripts/maintainers/prune-stale-branches-current.mjs verify --repo . --stage before --contract .planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json --contract-commit \"$(/usr/bin/git log -1 --format=%H -- .planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json)\" --allowlist-commit \"$(/usr/bin/git log -1 --format=%H -- .planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json)\" --allowlist .planning/phases/245-branch-prune-local-and-remote/245-38-BRANCH-DELETE-ALLOWLIST.tsv && jq -e '.verdict == \"ready\" and .checks.plan37_ready_receipt == true and .production_ref_operations == 0 and (.failed_predicates | length) == 0' .planning/phases/245-branch-prune-local-and-remote/245-38-EXEC-PREFLIGHT.json && jq -e '.status == \"admitted\" and (.rows | length) > 0 and .plan_19_admitted_local_deleted_count == 1 and .historical_audits.pr_11_rows == \"unresolved\" and .historical_audits.cleanup_30_rows == \"unresolved\"' .planning/phases/245-branch-prune-local-and-remote/245-38-ADMISSION.json",
+            "statement": "Plan 37 readiness or any pinned blob is missing/changed; live origin/PR census is incomplete; an object is unreadable; a protected identity, coordinator, edge predicate or exact row is unproved; or a ref changes before the before-stage pass. A blocked route does not reach Task 2.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "245-38-PLAN.md",
+            "task": "Task 1: Capture and admit one complete current-source prune path"
+          },
+          {
+            "command": "node -e 'const fs=require(\"node:fs\"),cp=require(\"node:child_process\"),crypto=require(\"node:crypto\");const d=\".planning/phases/245-branch-prune-local-and-remote/\",post=process.argv.includes(\"--post\");const g=cp.spawnSync(\"/usr/bin/git\",[\"log\",\"-1\",\"--format=%H\",\"--\",d+\"245-38-CURRENT-CONTRACT.json\"],{encoding:\"utf8\"});if(g.status!==0||!g.stdout.trim())throw Error(\"contract_commit_missing\");const read=f=>cp.execFileSync(\"/usr/bin/git\",[\"show\",g.stdout.trim()+\":\"+d+f],{encoding:\"utf8\"});const c=JSON.parse(read(\"245-38-CURRENT-CONTRACT.json\")),ar=read(\"245-38-ADMISSION.json\"),a=JSON.parse(ar),pin=c.evidence_transition?.precommit_artifacts?.[d+\"245-38-ADMISSION.json\"];if(!pin||pin.sha256!==crypto.createHash(\"sha256\").update(ar).digest(\"hex\")||a.status!==\"admitted\")throw Error(\"admission_not_pinned_or_admitted\");const raw=read(\"245-38-BRANCH-DELETE-ALLOWLIST.tsv\").replace(/\\n$/,\"\").split(\"\\n\");if(raw.shift()!==\"side\\tref\\toid\\ttype\\treason\")throw Error(\"allowlist_header\");const key=x=>x.side+\"\\t\"+x.ref,expected=[...c.local_refs.filter(x=>x.ref.startsWith(\"refs/heads/\")).map(x=>({...x,side:\"local\"})),...c.origin_refs.filter(x=>x.ref.startsWith(\"refs/heads/\")).map(x=>({...x,side:\"remote\"})),...c.local_refs.filter(x=>x.ref.startsWith(\"refs/remotes/origin/\")&&!x.symref).map(x=>({...x,side:\"tracking\"}))],e=new Map(expected.map(x=>[key(x),x])),sourceKeys=new Set([...c.local_refs.map(x=>\"local\\t\"+x.ref+\"\\t\"+x.oid+\"\\t\"+x.type),...c.origin_refs.map(x=>\"remote\\t\"+x.ref+\"\\t\"+x.oid+\"\\t\"+x.type),...c.open_prs.map(x=>\"pr\\t\"+x.number+\"\\t\"+x.headRefName+\"\\t\"+x.baseRefName)]),seen=new Set(),deletes=new Set(),allow=new Set();if(e.size!==expected.length||!Array.isArray(a.candidate_dispositions)||a.candidate_dispositions.length!==expected.length)throw Error(\"candidate_census_incomplete\");for(const x of a.candidate_dispositions){const k=key(x),source=e.get(k);if(!source||seen.has(k)||x.oid!==source.oid||x.type!==source.type)throw Error(\"candidate_identity_or_duplicate:\"+k);seen.add(k);if(![\"keep\",\"delete\"].includes(x.disposition))throw Error(\"unresolved_or_invalid_candidate:\"+k);if(typeof x.reason!==\"string\"||!x.reason.trim()||x.proof?.status!==\"passed\"||typeof x.proof.predicate!==\"string\"||!x.proof.predicate.trim()||x.proof.command_exit!==0||!Array.isArray(x.proof.source_rows)||!x.proof.source_rows.length||!x.proof.source_rows.every(y=>typeof y===\"string\"&&sourceKeys.has(y))||!Array.isArray(x.proof.command)||!x.proof.command.length||typeof x.proof.readback!==\"string\"||!x.proof.readback.trim())throw Error(\"candidate_proof_missing_or_unpinned:\"+k);if(x.disposition===\"delete\")deletes.add(k)}for(const line of raw){const v=line.split(\"\\t\");if(v.length!==5||!v[4])throw Error(\"allowlist_row_invalid\");if(v[0]===\"safety-publish\")continue;const k=v[0]+\"\\t\"+v[1],source=e.get(k);if(!source||allow.has(k)||source.oid!==v[2]||source.type!==v[3])throw Error(\"allowlist_identity_or_duplicate:\"+k);allow.add(k)}if(!deletes.size||deletes.size!==allow.size||[...deletes].some(x=>!allow.has(x)))throw Error(\"delete_disposition_allowlist_mismatch\");if(post){const r=JSON.parse(fs.readFileSync(d+\"245-38-RESULT.json\"));if(r.outcome!==\"passed\"||r.candidate_disposition_check!==\"passed\")throw Error(\"result_census_not_passed\");const applied=new Set();for(const [field,side] of [[\"local_ref_deletions\",\"local\"],[\"remote_ref_deletions\",\"remote\"],[\"tracking_ref_deletions\",\"tracking\"]]){if(!Array.isArray(r.mutations?.[field]))throw Error(\"mutation_array_missing:\"+field);for(const x of r.mutations[field]){const k=side+\"\\t\"+x.ref;if(applied.has(k))throw Error(\"duplicate_applied:\"+k);applied.add(k)}}if(applied.size!==deletes.size||[...deletes].some(x=>!applied.has(x)))throw Error(\"applied_dispositions_mismatch\")}' -- --post && node -e 'const fs=require(\"node:fs\"),cp=require(\"node:child_process\");const d=\".planning/phases/245-branch-prune-local-and-remote/\",r=JSON.parse(fs.readFileSync(d+\"245-38-RESULT.json\"));if(r.outcome!==\"passed\")process.exit(1);const c=cp.spawnSync(\"/usr/bin/git\",[\"log\",\"-1\",\"--format=%H\",\"--\",d+\"245-38-CURRENT-CONTRACT.json\"],{encoding:\"utf8\"});if(c.status!==0)process.exit(1);const a=[\"scripts/maintainers/prune-stale-branches-current.mjs\",\"verify\",\"--repo\",\".\",\"--stage\",\"after\",\"--contract\",d+\"245-38-CURRENT-CONTRACT.json\",\"--contract-commit\",c.stdout.trim(),\"--allowlist-commit\",c.stdout.trim(),\"--allowlist\",d+\"245-38-BRANCH-DELETE-ALLOWLIST.tsv\"];for(const k of [\"local_ref_deletions\",\"remote_ref_deletions\",\"tracking_ref_deletions\",\"safety_ref_publications\"]){if(!Array.isArray(r.mutations?.[k]))process.exit(1);for(const x of r.mutations[k]){if(!x.ref||k===\"safety_ref_publications\"&&x.readback!==\"present\")process.exit(1);a.push(\"--applied-ref\",x.ref)}}if(cp.spawnSync(\"node\",a,{stdio:\"inherit\"}).status!==0)process.exit(1);for(const f of [\"245-18-CURRENT-CONTRACT.json\",\"245-38-CURRENT-CONTRACT.json\"]){const q=JSON.parse(fs.readFileSync(d+f));for(const id of [...q.local_refs,...q.origin_refs].flatMap(x=>[x.oid,x.peeled_oid].filter(Boolean)))if(cp.spawnSync(\"/usr/bin/git\",[\"cat-file\",\"-e\",id]).status!==0)process.exit(1)}' && jq -e '.outcome == \"passed\" and .plan_19_admitted_local_deleted_count == 1 and .readiness_check == \"passed\" and .current_pr_check == \"passed\" and .safety_check == \"passed\" and .object_check == \"passed\" and .exact_ref_check == \"passed\" and .coordinator_check == \"passed\" and .post_readback_check == \"passed\" and .historical_audits.pr_11_rows == \"unresolved\" and .historical_audits.cleanup_30_rows == \"unresolved\"' .planning/phases/245-branch-prune-local-and-remote/245-38-RESULT.json && jq -e '.schema_version == 1 and ([.local_refs,.origin_refs,.open_prs] | all(.status == \"complete\" and (.rows | type == \"array\") and .count == (.rows | length) and .source.exit_code == 0))' .planning/phases/245-branch-prune-local-and-remote/245-38-POST-STATE.json",
+            "statement": "The approved commit/rows, coordinator, lease, live PR/safety/default identity, object readback, independent post-state or final direct-child verifier differs; a blocked or partial result claims success; the rejected child remains foreign/tag reachable; or historical unknowns are promoted. Any failure stops further mutation and keeps REPO-04 open.",
+            "status": "ok",
+            "severity": "none",
+            "plan": "245-38-PLAN.md",
+            "task": "Task 3: Apply only approved rows and prove independent post-state"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "method": "symmetric_environment_transport_recovery",
+  "approval": {
+    "source": "Current user instruction to resolve and automatically follow the coherent recovery recommendations",
+    "scope": "Ordinary correction to the active evidence-workflow copy and its live command markers. Keep the parity guard strict and historical fixtures intact; verify the same existing PR sources after the locally reproduced failure is fixed."
+  },
+  "proposal_path": ".planning/execution/254-environment-recovery/PARITY-FIX/PROPOSAL.json",
+  "proposal_sha256": "a84c996b9e4d87da861a11bcfc011d93daa1d5914b1f1222e0370ee9205db718",
+  "budget": {
+    "source_updates": 2,
+    "source_update_retries": 0,
+    "maximum_elapsed_minutes": 60,
+    "maximum_HTTP_requests": 600
+  },
+  "prior_preparation_invocations": 8,
+  "all_prior_budgets_spent_and_unchanged": true,
+  "measured_samples": 0,
+  "window_started": false
+}

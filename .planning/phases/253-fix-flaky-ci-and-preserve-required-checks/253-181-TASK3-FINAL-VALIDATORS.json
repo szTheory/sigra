@@ -1,0 +1,75 @@
+{
+  "cwd": "/Users/jon/projects/sigra",
+  "node_path": "/Users/jon/.asdf/installs/nodejs/20.18.1/bin/node",
+  "node_sha256": "b4ccefa930e8a436b611b7cf4c73ef4c1905662197e3a243cb66fc49cd008adf",
+  "plans": {
+    "253-179": {
+      "frontmatter": {
+        "argv": [
+          "/Users/jon/.asdf/installs/nodejs/20.18.1/bin/node",
+          "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+          "query",
+          "frontmatter.validate",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md",
+          "--schema",
+          "plan-gap-closure"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+        "stdout_sha256": "1dc7d083392efc52ce8392b3b1fd133485cf575e309731f1a04a86f741621be1"
+      },
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md",
+      "plan_sha256": "ce2d5dda8b8b1d893eab99eaa78301048104eb0fdb5e8d4569f792008a1da52a",
+      "structure": {
+        "argv": [
+          "/Users/jon/.asdf/installs/nodejs/20.18.1/bin/node",
+          "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+          "query",
+          "verify.plan-structure",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [],\n  \"task_count\": 2,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: Execute the new179 acceptance once in the exact root elevated process\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 2: Produce and independently reopen the actual179 local success receipt\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+        "stdout_sha256": "93728a163d452c68096efea02ebf8fe1fc81e4333d25955c34a5c4bd552009dd"
+      }
+    },
+    "253-180": {
+      "frontmatter": {
+        "argv": [
+          "/Users/jon/.asdf/installs/nodejs/20.18.1/bin/node",
+          "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+          "query",
+          "frontmatter.validate",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md",
+          "--schema",
+          "plan-gap-closure"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+        "stdout_sha256": "1dc7d083392efc52ce8392b3b1fd133485cf575e309731f1a04a86f741621be1"
+      },
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md",
+      "plan_sha256": "d7a2ccce92d6091fcc5d9ab665f8e3de64d9a91046565e2912e3a679c9e7cf65",
+      "structure": {
+        "argv": [
+          "/Users/jon/.asdf/installs/nodejs/20.18.1/bin/node",
+          "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+          "query",
+          "verify.plan-structure",
+          ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md"
+        ],
+        "exit_code": 0,
+        "stderr": "",
+        "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [],\n  \"task_count\": 2,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: Preserve seven originals and repair the actual freeze/reconciliation entry\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 2: Preserve hosted contracts, correct the actual completion bundle check and prove SDK routing\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+        "stdout_sha256": "c40815efe6025bbf447bb3aaa298ab8b13b17b3c112ec647e1bbd7044a4df102"
+      }
+    }
+  },
+  "schema": "sigra.phase253.halted181-plan-validator-diagnostics/v1",
+  "sdk_path": "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+  "sdk_sha256": "e9320c26f7052b888bd020a6148d7fc167b24f2ca3b6132c832bf320fd9fe2cb",
+  "status": "not_a_phase_review"
+}

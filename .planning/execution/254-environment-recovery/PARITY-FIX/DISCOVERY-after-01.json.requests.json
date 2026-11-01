@@ -1,0 +1,11 @@
+{
+  "status": "complete",
+  "request_count": 2,
+  "stop_reason": null,
+  "reset_or_retry_at": "1792805215",
+  "unknown_inputs": [],
+  "requests": [
+    "rate_limit",
+    "/repos/szTheory/sigra/actions/workflows/ci.yml/runs?event=pull_request&head_sha=ebb1d3ef0207d64f5f22f409032cf6125abab941&per_page=5"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": "sigra.phase252-plan06-acquisition-attempts/v1",
+  "captured_at_utc": "2026-10-12T23:32:01Z",
+  "attempts": [
+    {
+      "attempt_id": "security-window-20261012-01",
+      "kind": "bounded_hosted_population",
+      "source_path": "/private/tmp/phase252-06-security-refresh-20261012",
+      "durable_ledger_path": "acquisition-attempts/security-window-20261012-01.json",
+      "cutoff_utc": "2026-10-12T00:00:00Z",
+      "captured_at_utc": "2026-10-12T23:28:08Z",
+      "status": "incomplete",
+      "stop_reason": "download_unavailable",
+      "request_count": 68,
+      "request_ledger_sha256": "e71e1c18c611eafa2e8defa8646e50c46e62cddbd2bee51fcae0f2ba9e13cb54",
+      "manifest_sha256": "dd71bbffe05a996de89ed58c02acfeb5e77a43380b01730304170fdd87b5cd42"
+    },
+    {
+      "attempt_id": "security-window-20261012-02",
+      "kind": "bounded_hosted_population",
+      "source_path": "/private/tmp/phase252-06-security-refresh-20261012-attempt2",
+      "durable_ledger_path": "acquisition-attempts/security-window-20261012-02.json",
+      "cutoff_utc": "2026-10-12T00:00:00Z",
+      "captured_at_utc": "2026-10-12T23:32:01Z",
+      "status": "complete",
+      "request_count": 97,
+      "request_ledger_sha256": "04a70bc53d0ca09c0b65319fed83afd78aef450d2508125b5a72796b098b7d46",
+      "manifest_sha256": "f540ccd523bd90accba35f6d1a033bc56fa056aa909cc3dbbf88ded307fea5d4",
+      "population_counts": {
+        "pull_request_api_runs": 264,
+        "pull_request_selected": 100,
+        "manual_records": 10,
+        "release_push_records": 38
+      },
+      "instrumented_full_pr": {
+        "complete": false,
+        "diagnostics": ["artifact_evidence_hash_mismatch"],
+        "run_id": null
+      }
+    },
+    {
+      "attempt_id": "producer-source-run-38317383419",
+      "kind": "independent_producer_source_binding",
+      "source_path": "/private/tmp/phase252-06-producer-source-38317383419",
+      "durable_ledger_path": "acquisition-attempts/producer-source-run-38317383419.json",
+      "status": "validated",
+      "run_id": 38317383419,
+      "pull_request": 331,
+      "producer_merge_sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "application_head_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "base_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+      "request_count": 5,
+      "request_ledger_sha256": "da7aebbcc6ff75518bf5f76097d77230d09ba2133b810516f59994752c3d061e",
+      "manifest_sha256": "58c81d691a1bb3744defbad523184946ffea26fb9e21b0c8f79dff24c49da775"
+    }
+  ],
+  "accepted_baseline_source": {
+    "source_bundle_sha256": "e0e662a8e546c95386651a33407341b23046524d50083eb740d1b2689e37640a",
+    "replay_status": "complete",
+    "full_pr_run_id": 38317383419,
+    "fresh_independent_producer_source_binding": true,
+    "reason": "The fresh population acquisition had no eligible instrumented artifact proof. The retained current-window source bundle was independently replayed after binding the producer merge checkout to authenticated GitHub run, PR, commit, tree, and workflow-blob responses and validating every accepted artifact ZIP and JSON member."
+  }
+}

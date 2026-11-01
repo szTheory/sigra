@@ -1,0 +1,115 @@
+{
+  "schema": "sigra.phase253.control-recovery-execution-preflight/v1",
+  "created_at": "2026-10-14T00:59:55.456536+00:00",
+  "capture_commit": "7915aa826af81402956d7a08635352f2add4ca20",
+  "runtime": {
+    "packageName": "@opengsd/gsd-core",
+    "version": "1.16.0",
+    "path": "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs"
+  },
+  "typed_schema_fields": [
+    "agent_type",
+    "model",
+    "reasoning_effort",
+    "task_name",
+    "fork_turns"
+  ],
+  "executor_model": "gpt-6-luna",
+  "executor_effort": "high",
+  "model_resolution": "explicit inline dispatch overrides stale baked model config without editing config",
+  "isolation": "none",
+  "use_worktrees": false,
+  "chain_flag_already_false_no_write": true,
+  "plan_count": 35,
+  "ready_plans": [
+    "253-26"
+  ],
+  "halted_plans": [
+    "253-02",
+    "253-07",
+    "253-09",
+    "253-12",
+    "253-16"
+  ],
+  "blocked_plans": [
+    "253-08",
+    "253-10",
+    "253-13",
+    "253-14",
+    "253-17",
+    "253-21",
+    "253-22",
+    "253-23",
+    "253-24",
+    "253-25"
+  ],
+  "phase_verification": "not_started",
+  "safe_resume": {
+    "plan": "253-26",
+    "evaluation_scope": "resolved",
+    "matching_commits": [],
+    "summary_exists": false
+  },
+  "continue_handoff_exists": false,
+  "tdd_applicable": true,
+  "execution_context": {
+    "path": "/private/tmp/sigra253-control-exec-context.txt",
+    "sha256": "47ee6faceeec0cd31c780bb446488763f147ede8e8fc99de00ad446fa481cc4e",
+    "sources": [
+      "workflows/execute-plan.md",
+      "templates/summary.md",
+      "references/checkpoints.md",
+      "references/tdd.md",
+      "references/worktree-path-safety.md",
+      "references/executor-examples.md"
+    ]
+  },
+  "hooks": {
+    "pre": {
+      "point": "execute:pre",
+      "activeHooks": [],
+      "rendered": "_No active hooks at execute:pre._"
+    },
+    "wave-pre": {
+      "point": "execute:wave:pre",
+      "activeHooks": [],
+      "rendered": "_No active hooks at execute:wave:pre._"
+    },
+    "wave-post": {
+      "point": "execute:wave:post",
+      "activeHooks": [
+        {
+          "capId": "drift",
+          "kind": "gate",
+          "when": "workflow.schema_drift_gate",
+          "check": {
+            "query": "verify.schema-drift"
+          },
+          "blocking": true,
+          "onError": "skip"
+        },
+        {
+          "capId": "drift",
+          "kind": "gate",
+          "when": "workflow.schema_drift_gate",
+          "check": {
+            "query": "verify.codebase-drift"
+          },
+          "blocking": false,
+          "onError": "skip"
+        },
+        {
+          "capId": "ui",
+          "kind": "gate",
+          "when": "workflow.ui_safety_gate",
+          "check": {
+            "query": "ui.safety-gate"
+          },
+          "blocking": true,
+          "onError": "halt"
+        }
+      ],
+      "rendered": "**Gate** (drift): check={\"query\":\"verify.schema-drift\"}, blocking=true, onError=skip\n- when: `workflow.schema_drift_gate`\n\n**Gate** (drift): check={\"query\":\"verify.codebase-drift\"}, blocking=false, onError=skip\n- when: `workflow.schema_drift_gate`\n\n**Gate** (ui): check={\"query\":\"ui.safety-gate\"}, blocking=true, onError=halt\n- when: `workflow.ui_safety_gate`"
+    }
+  }
+}

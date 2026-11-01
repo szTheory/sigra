@@ -1,0 +1,19 @@
+{
+  "fetchResult": {
+    "httpStatus": 200,
+    "keys": [
+      "messages",
+      "status",
+      "token"
+    ]
+  },
+  "xhrResult": {
+    "httpStatus": 200,
+    "states": [
+      2,
+      3,
+      4
+    ],
+    "status": 410
+  }
+}

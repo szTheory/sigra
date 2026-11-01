@@ -1,0 +1,479 @@
+{
+  "schema": "sigra.phase253.git-permission-planner-checks/v1",
+  "captured_head": "4f4647983673423fb6d57cfa1a71790350949098",
+  "acceptance_executed": false,
+  "git_writing_probe_executed": false,
+  "plan_checks": [
+    {
+      "plan": "253-168",
+      "check": "frontmatter",
+      "exit": 0,
+      "valid": true,
+      "missing": [],
+      "present": [
+        "phase",
+        "plan",
+        "type",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "must_haves",
+        "gap_closure"
+      ],
+      "invalidValue": [],
+      "schema": "plan-gap-closure"
+    },
+    {
+      "plan": "253-168",
+      "check": "structure",
+      "exit": 0,
+      "valid": true,
+      "errors": [],
+      "warnings": [
+        "[plan-criteria R4] A fallible `git` in a non-final pipeline stage is swallowed — the pipeline reports the last stage's status, so a broken command reads as clean. Capture the status first."
+      ],
+      "task_count": 2,
+      "tasks": [
+        {
+          "name": "Task 1: Derive PUBLICATION-R13 and FREEZE-R13 on the fetched main, offline, with the parent, identity, approval and ledger controls",
+          "type": "tracer",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 2: Rehearse both offline gates on the committed FREEZE-R13 and run the frozen-state regression",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        }
+      ],
+      "frontmatter_fields": [
+        "phase",
+        "plan",
+        "type",
+        "gap_closure",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "requirements",
+        "tags",
+        "estimate",
+        "must_haves"
+      ]
+    },
+    {
+      "plan": "253-169",
+      "check": "frontmatter",
+      "exit": 0,
+      "valid": true,
+      "missing": [],
+      "present": [
+        "phase",
+        "plan",
+        "type",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "must_haves",
+        "gap_closure"
+      ],
+      "invalidValue": [],
+      "schema": "plan-gap-closure"
+    },
+    {
+      "plan": "253-169",
+      "check": "structure",
+      "exit": 0,
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "task_count": 3,
+      "tasks": [
+        {
+          "name": "Task 1: R13 revision skeleton end to end: constants, builder partition over 01-167 plus 173, dispositioned gating and CLI --check-only on a copy",
+          "type": "tracer",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 2: R13 mapping, frozen receipts, pins and the real-SDK pairing proof on a copy",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 3: Generate and commit the R13 contract",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        }
+      ],
+      "frontmatter_fields": [
+        "phase",
+        "plan",
+        "type",
+        "gap_closure",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "requirements",
+        "tags",
+        "estimate",
+        "must_haves"
+      ]
+    },
+    {
+      "plan": "253-170",
+      "check": "frontmatter",
+      "exit": 0,
+      "valid": true,
+      "missing": [],
+      "present": [
+        "phase",
+        "plan",
+        "type",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "must_haves",
+        "gap_closure"
+      ],
+      "invalidValue": [],
+      "schema": "plan-gap-closure"
+    },
+    {
+      "plan": "253-170",
+      "check": "structure",
+      "exit": 0,
+      "valid": true,
+      "errors": [],
+      "warnings": [
+        "[plan-criteria R4] A fallible `git` in a non-final pipeline stage is swallowed — the pipeline reports the last stage's status, so a broken command reads as clean. Capture the status first."
+      ],
+      "task_count": 4,
+      "tasks": [
+        {
+          "name": "Task 1: Both offline gates on FREEZE-R13, then Jon approves the R13 enumerated canary actions before any request",
+          "type": "checkpoint:decision",
+          "hasFiles": false,
+          "hasAction": false,
+          "hasVerify": true,
+          "hasDone": false
+        },
+        {
+          "name": "Task 2: Record the approval, build the allocation, and commit a self-contained operator runner whose offline self-check passes end to end",
+          "type": "tracer",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 3: Jon runs the operator runner (main step, then remaining)",
+          "type": "checkpoint:human-action",
+          "hasFiles": false,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": false
+        },
+        {
+          "name": "Task 4: Verify the committed records offline, with the restated multi-page preflight rule, and write the SUMMARY (halted if anything failed)",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        }
+      ],
+      "frontmatter_fields": [
+        "phase",
+        "plan",
+        "type",
+        "gap_closure",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "requirements",
+        "tags",
+        "estimate",
+        "must_haves"
+      ]
+    },
+    {
+      "plan": "253-171",
+      "check": "frontmatter",
+      "exit": 0,
+      "valid": true,
+      "missing": [],
+      "present": [
+        "phase",
+        "plan",
+        "type",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "must_haves",
+        "gap_closure"
+      ],
+      "invalidValue": [],
+      "schema": "plan-gap-closure"
+    },
+    {
+      "plan": "253-171",
+      "check": "structure",
+      "exit": 0,
+      "valid": true,
+      "errors": [],
+      "warnings": [
+        "[plan-criteria R4] A fallible `git` in a non-final pipeline stage is swallowed — the pipeline reports the last stage's status, so a broken command reads as clean. Capture the status first."
+      ],
+      "task_count": 4,
+      "tasks": [
+        {
+          "name": "Task 1: Jon approves the docs_and_prs section and the step-0 fetch on their own before any PR request",
+          "type": "checkpoint:decision",
+          "hasFiles": false,
+          "hasAction": false,
+          "hasVerify": true,
+          "hasDone": false
+        },
+        {
+          "name": "Task 2: Record the approval, prepare the PR freeze on the main record, build the allocation and commit a self-contained PR operator runner whose offline self-check passes",
+          "type": "tracer",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 3: Jon runs the PR operator runner (step 0 and the normal family, then remaining)",
+          "type": "checkpoint:human-action",
+          "hasFiles": false,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": false
+        },
+        {
+          "name": "Task 4: Verify the preflight, both family documents and the pair offline and write the SUMMARY (halted if anything failed)",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        }
+      ],
+      "frontmatter_fields": [
+        "phase",
+        "plan",
+        "type",
+        "gap_closure",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "requirements",
+        "tags",
+        "estimate",
+        "must_haves"
+      ]
+    },
+    {
+      "plan": "253-172",
+      "check": "frontmatter",
+      "exit": 0,
+      "valid": true,
+      "missing": [],
+      "present": [
+        "phase",
+        "plan",
+        "type",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "must_haves",
+        "gap_closure"
+      ],
+      "invalidValue": [],
+      "schema": "plan-gap-closure"
+    },
+    {
+      "plan": "253-172",
+      "check": "structure",
+      "exit": 0,
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "task_count": 2,
+      "tasks": [
+        {
+          "name": "Task 1: Reopen one complete end-to-end requirement chain on the R13 records with literal CIREL statuses",
+          "type": "tracer",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 2: Prepare the exact dispositioned-only 71-summary R13 bundle (253-144, 253-145, 253-147..154 and 253-156..163 superseded) and the full-verification route",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        }
+      ],
+      "frontmatter_fields": [
+        "phase",
+        "plan",
+        "type",
+        "gap_closure",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "requirements",
+        "tags",
+        "estimate",
+        "must_haves"
+      ]
+    },
+    {
+      "plan": "253-174",
+      "check": "frontmatter",
+      "exit": 0,
+      "valid": true,
+      "missing": [],
+      "present": [
+        "phase",
+        "plan",
+        "type",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "must_haves",
+        "gap_closure"
+      ],
+      "invalidValue": [],
+      "schema": "plan-gap-closure"
+    },
+    {
+      "plan": "253-174",
+      "check": "structure",
+      "exit": 0,
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "task_count": 2,
+      "tasks": [
+        {
+          "name": "Task 1: Prove Git write permission and the full offline path in one new elevated attempt",
+          "type": "tracer",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 2: Bind the successful new attempt and verify the exact receipt consumed by 168",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        }
+      ],
+      "frontmatter_fields": [
+        "phase",
+        "plan",
+        "type",
+        "gap_closure",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "requirements",
+        "tags",
+        "estimate",
+        "must_haves"
+      ]
+    }
+  ],
+  "syntax_and_originals": {
+    "capture_readbacks": 15,
+    "protected_current_exact": 10,
+    "automated_bodies_bash_syntax": 17,
+    "new_plan_python_snippets_compile": 3,
+    "acceptance_or_git_write_probe_executed": false
+  },
+  "api_probe": {
+    "exit": 1,
+    "detected": false,
+    "signals": [],
+    "terms": {
+      "verbs": [
+        "integrate",
+        "integrates",
+        "integrating",
+        "integration",
+        "wrap",
+        "wraps",
+        "wrapping",
+        "connect",
+        "connects",
+        "connecting",
+        "consume",
+        "consumes",
+        "consuming",
+        "wire",
+        "wires",
+        "wiring",
+        "onboard",
+        "onboarding",
+        "adopt",
+        "adopts",
+        "adopting"
+      ],
+      "nouns": [
+        "api",
+        "apis",
+        "sdk",
+        "sdks",
+        "rest",
+        "graphql",
+        "grpc",
+        "endpoint",
+        "endpoints",
+        "oauth",
+        "oauth2",
+        "webhook",
+        "webhooks",
+        "mcp"
+      ]
+    }
+  },
+  "edge_probe_output": "{\"key\":\"edges\",\"present\":false,\"dataRows\":0,\"supplied\":false}\n{\"key\":\"prohibitions\",\"present\":false,\"dataRows\":0,\"supplied\":false}\n{\n  \"items\": [\n    {\n      \"requirement_id\": \"CIREL-01\",\n      \"category\": \"unclassified\",\n      \"status\": \"unresolved\",\n      \"verification\": null,\n      \"resolution\": null,\n      \"reason\": null,\n      \"probe\": \"unclassified — review manually\"\n    },\n    {\n      \"requirement_id\": \"CIREL-02\",\n      \"category\": \"empty\",\n      \"status\": \"unresolved\",\n      \"verification\": null,\n      \"resolution\": null,\n      \"reason\": null,\n      \"probe\": \"What is the result for empty, single-element, or null input?\"\n    },\n    {\n      \"requirement_id\": \"CIREL-02\",\n      \"category\": \"encoding\",\n      \"status\": \"unresolved\",\n      \"verification\": null,\n      \"resolution\": null,\n      \"reason\": null,\n      \"probe\": \"Whose definition of length/equality applies — bytes, code points, grapheme clusters, or normalized form?\"\n    }\n  ],\n  \"coverage\": {\n    \"applicable\": 3,\n    \"resolved\": 0,\n    \"unresolved\": 3,\n    \"unclassified\": 1,\n    \"byVerification\": {\n      \"explicit\": 0,\n      \"backstop\": 0\n    }\n  }\n}\n",
+  "notes": [
+    "All 17 automated bodies passed bash -n; 3 new Python snippets compiled without execution.",
+    "174 is SDK-ready; 168-172 wait on active dependencies; no inherited halted blocker.",
+    "No commit made; root owns independent review, shared files and final commit."
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "purpose": "discussion input discovery, not phase acceptance baseline",
+  "discovery_environment_date": "2026-10-12",
+  "exact_discovery_wall_clock_known": false,
+  "preserved_at": "2026-10-12T16:10:14.895868+00:00",
+  "files": [
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/effective-rules-main.json",
+      "source_path": "/private/tmp/sigra-phase252-discuss-live/effective-rules-main.json",
+      "bytes": 1180,
+      "sha256": "1af709ea7d16e1150534c89e598a7a06415f2c7c0deb7e8265f3136d7e12ed5a",
+      "copied_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-pull_request.json",
+      "source_path": "/private/tmp/sigra-phase252-discuss-live/runs-pull_request.json",
+      "bytes": 46145,
+      "sha256": "075899712dced9c6c3115cd6dc4f70481cc2d32557ce00f611143c6adb52fb1e",
+      "copied_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-push-main.json",
+      "source_path": "/private/tmp/sigra-phase252-discuss-live/runs-push-main.json",
+      "bytes": 33975,
+      "sha256": "ee90cda380016de86d28bb82711c2aac3b6f129f84d07bbea44b84145789454b",
+      "copied_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/runs-schedule.json",
+      "source_path": "/private/tmp/sigra-phase252-discuss-live/runs-schedule.json",
+      "bytes": 13119,
+      "sha256": "3ddd9defd398479cc30f9b5e4b26291437bb1055cc3ee2726bb1161616c73acf",
+      "copied_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/representative-pr-jobs.json",
+      "source_path": "/private/tmp/sigra-phase252-discuss-live/representative-pr-jobs.json",
+      "bytes": 53969,
+      "sha256": "041335638f31ebacf709c51b5b45c0de72c694bbb6f1872aab931c52966b98d4",
+      "copied_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request-get.json",
+      "source_path": "/private/tmp/sigra-phase252-discuss-live/api-runs-pull_request-get.json",
+      "bytes": 12002,
+      "sha256": "8d819d8067067041e3ea58f57ca19dbf93afe3befb0b5cbcbe2567c9ddd9c7f7",
+      "copied_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/api-runs-pull_request.json",
+      "source_path": "/private/tmp/sigra-phase252-discuss-live/api-runs-pull_request.json",
+      "bytes": 106,
+      "sha256": "edbd0367cec893df36f67acb56c3aa23810be28850977c35e0fedaf64aad286b",
+      "copied_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/workflows.json",
+      "source_path": "/private/tmp/sigra-phase252-discuss-live/workflows.json",
+      "bytes": 106,
+      "sha256": "edbd0367cec893df36f67acb56c3aa23810be28850977c35e0fedaf64aad286b",
+      "copied_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/API-ACCESS-NOTES.txt",
+      "source_path": "/private/tmp/sigra-phase252-discuss-live/API-ACCESS-NOTES.txt",
+      "bytes": 2128,
+      "sha256": "10499444f2c80269c79966efd92658de5ac09c35c48b00eb853bba1ef61efc65",
+      "copied_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/discussion-sources/DECISION-PACKET.md",
+      "source_path": "/private/tmp/sigra-phase252-discuss-live/DECISION-PACKET.md",
+      "bytes": 12729,
+      "sha256": "2bba79ffc62fee94dd106f57ad37fc2474d942a62b91c9112f45fb6e439ea356",
+      "copied_exact": true
+    }
+  ],
+  "discovery_http_requests_approximate": 14,
+  "discovery_top_level_gh_invocations": 13,
+  "complete_phase_baseline": false,
+  "ci_dispatched": false,
+  "literal_parameterized_404s_do_not_prove_get_blocked": true
+}

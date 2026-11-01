@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "phase": 251,
+  "status": "passed_closeout_checks",
+  "phase_verification": "gaps_found",
+  "score": "9/10",
+  "phase_complete": false,
+  "milestone_complete": false,
+  "next_command": "$gsd-plan-phase 251 --gaps",
+  "route_consistency": true,
+  "prior_tracking_readback_verified": 4,
+  "owner_report_direct_hash_readbacks_verified": 3,
+  "current_evidence_hashes_verified": true,
+  "requirements": {
+    "READY-01": "unchecked_unsatisfied",
+    "READY-02": "checked_satisfied"
+  },
+  "validation_rows_passed": 12,
+  "review_findings_open": 0,
+  "security_threats_open": 0,
+  "regression": {
+    "node_passed": 213,
+    "elixir_passed": 250
+  },
+  "timestamp": "2026-10-12T01:32:58.591996+00:00",
+  "tracking_files": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "d3bd32fff1c9ed25ea74bf3c726313459f8a8d18d39352d5178b516f9d3e4128"
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "00ec9a2d85eb87c071cf48a4fddc7859702b2c07c9589f5121b21f700ed17957"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "398ddd30e18d56046683852a854723e6fcf18d98483291b842d6382ad79140a5"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "sha256": "77e0fdbb69b943e22aff90f0191a9b1b06fcbfc58defa5f8c67c73ca4edabf49"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json",
+      "sha256": "0e482a6b372e5e144d11f6b9be59296a83ec663a8d0d7a94b74d5977b946f56d"
+    }
+  ]
+}

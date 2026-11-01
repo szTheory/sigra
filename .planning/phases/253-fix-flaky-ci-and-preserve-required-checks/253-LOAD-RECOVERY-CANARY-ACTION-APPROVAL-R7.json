@@ -1,0 +1,25 @@
+{
+  "schema_version": "sigra.phase253.outward-action-approval/v1",
+  "decision": "approve",
+  "decided_by": "Jon (operator), recorded by executor from the orchestrator-relayed checkpoint response",
+  "decision_text": "Approve exactly this list",
+  "note": "",
+  "section": "canary",
+  "section_sha256": "9059971bd427cf05cd49a26a8b06bb4176f4b65c266b8fa4e555399aeaf1c67d",
+  "freeze_sha256": "f608a445dcdd00fc0d3d2a529e50d445f9f831813c32f41140af00544736110c",
+  "authorizes": [
+    "publish_git_objects (max 24 requests)",
+    "create_ref refs/heads/gsd/253-replan-candidate -> ce89eb7319c20596850a0c8a0b6e5661e197c86a (create-only)",
+    "create_ref refs/heads/gsd/253-replan-fixture -> 12cc2ded39301724b7234a4ee9a7a0d79609cc45 (create-only)",
+    "workflow_dispatch x6 in order: full-pass, docs-only, actual-failure, missing-seam, unexpected-skip, cancelled",
+    "cancel_run x1 (cancelled scenario run)",
+    "one separate verifier dispatch",
+    "caps: 117 requests, 45 jobs, 60 minutes, no reruns"
+  ],
+  "excludes": [
+    "docs_and_prs section (docs object publication, draft PR creates): requires 253-98 approval",
+    "any rerun",
+    "any push, merge, ref deletion, force update, rule change, tag, release or main mutation"
+  ],
+  "recorded_at": "2026-10-15T02:44:30Z"
+}

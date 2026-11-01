@@ -1,0 +1,29 @@
+{
+  "schema": "sigra.phase253.control-recovery-execution-route/v1",
+  "recorded_at": "2026-10-14T01:30:01.883389+00:00",
+  "next_command": "$gsd-plan-phase 253",
+  "resume_command": "$gsd-plan-phase 253",
+  "reason": "No ready/runnable plans. Canonicalize cannot load parse5 under the frozen Node20 runner. Plan a correction and the missing portable contracts using only remaining allocations.",
+  "execute_readiness": {
+    "runnable_count": 0,
+    "ready_plans": [],
+    "blocked_count": 18,
+    "halted_count": 6,
+    "complete_implementation_count": 11
+  },
+  "plan_readiness": {
+    "phase": 253,
+    "phase_found": true,
+    "status": "In Progress",
+    "has_context": true,
+    "has_research": true,
+    "plan_count": 35
+  },
+  "phase_verification": "not_started",
+  "requirements_open": [
+    "CIREL-01",
+    "CIREL-02"
+  ],
+  "phase254_started": false,
+  "historical_verification_is_forward_blocker": false
+}

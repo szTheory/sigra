@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "phase": "255.1",
+  "recorded_at": "2026-10-24T22:05:29.442563+00:00",
+  "status": "approved_for_context_and_planning",
+  "mode": "assumptions",
+  "user_response": "1",
+  "selected_option": "Amend CISPEED-01/02 to permit a newly declared repaired-control comparison",
+  "original_CISPEED_01": "Contributors receive the required PR CI result at least 20% faster by median elapsed time than the newly captured baseline, using a comparison method fixed before optimization.",
+  "amended_claim": "The final candidate delivers the required PR CI result at least 20% sooner by ordinary median than a newly declared repaired control, with no increase in empirical nearest-rank p95 wait or actual runner time per comparable PR. Necessary correctness/environment repairs are common; only declared speed treatments differ. Freeze method and identities before new collection.",
+  "original_comparison_status": "insufficient_data",
+  "original_comparable_successful_pairs": 0,
+  "original_contract_unchanged": true,
+  "original_allowances_reusable": false,
+  "requirements_status": {
+    "CISPEED-01": "open",
+    "CISPEED-02": "open"
+  },
+  "collection_authorized": false,
+  "hosted_preparation_authorized": false,
+  "external_publication_authorized": false,
+  "proposed_limits_not_authorization": {
+    "preparation_invocations": 4,
+    "preparation_hours": 2,
+    "primary_PR_families": 40,
+    "required_successful_pairs": 20,
+    "measurement_hours": 48,
+    "cache": "all_warm_requires_actual_feasibility_proof",
+    "infrastructure_retries_total": 1,
+    "product_test_retries": 0,
+    "replacement_families": 0,
+    "window_extensions": 0
+  },
+  "preservation": {
+    "ref": "refs/evidence/phase255-1-discussion/capture-56db18eda3a6",
+    "commit": "56db18eda3a6033e820605ac1934c2bda52fa313",
+    "record": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/PRESERVATION.json",
+    "read_back_equal": true
+  },
+  "next_command": "$gsd-plan-phase 255.1"
+}

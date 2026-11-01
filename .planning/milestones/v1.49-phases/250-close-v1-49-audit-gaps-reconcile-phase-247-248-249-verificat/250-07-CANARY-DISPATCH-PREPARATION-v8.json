@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T11:58:32Z",
+  "dispatch_attempted": false,
+  "authorization": {
+    "packet_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json",
+    "packet_sha256": "0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628",
+    "decision_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORIZATION-DECISION-v8.json",
+    "decision_sha256": "3929673c2fae1f9d783ce00c15ec1229646576c165d125f70c9d3bbe5f562c8b"
+  },
+  "source": {
+    "ref": "refs/heads/main",
+    "sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a"
+  },
+  "preflight": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T115503Z.json",
+    "file_sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+    "payload_sha256": "fdcd2f9515befe0115480c7cb0f9212c570393cf1570e36ab3b03a1edc482cf1",
+    "validation_status": "passed",
+    "freshness_limit_seconds": 900
+  },
+  "live_check": {
+    "controller": {
+      "id": 380517406,
+      "path": ".github/workflows/release-receipt-canary-controller.yml",
+      "name": "Release Receipt Canary Controller",
+      "state": "active"
+    },
+    "observer": {
+      "id": 379162190,
+      "path": ".github/workflows/release-run-observer.yml",
+      "name": "Release Run Observer",
+      "state": "active"
+    },
+    "core_api_remaining": 5000,
+    "active_controller_runs": 0,
+    "baseline_controller_run_ids": [
+      38135003478,
+      38091955379,
+      38087516844,
+      38083752867,
+      38059620443,
+      38054862873
+    ]
+  },
+  "state_write_ahead": {
+    "recovery_dir": ".planning/recovery/phase-250-v8-pre-dispatch-state-20261011T115832Z",
+    "handoff_sha256": "4be8ae5eea11e4230597fa9a1b55ab8c66d42513360cfdb7d1383fafc7da3ccc",
+    "state_json_sha256": "d21074e3e80efaaf12ef14e1663623f7a49726facd07d7cbab674aaa8b9a5965",
+    "state_md_sha256": "824210d817050fdbf4eee5d23c4c267a92fe3ce7c6afb1242e54c7e0337ae24d"
+  }
+}

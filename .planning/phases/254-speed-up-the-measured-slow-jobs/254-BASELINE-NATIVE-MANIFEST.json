@@ -1,0 +1,41 @@
+{
+  "schema_version": "sigra.phase254.baseline-native-reports/v1",
+  "bundle_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+  "owners": [
+    {
+      "owner": "admin_behavior",
+      "archive_path": "./raw/families/38317383419/artifacts/11777497973/admin-behavior.json",
+      "report_file": "254-BASELINE-NATIVE/admin_behavior/admin-behavior.json",
+      "sha256": "875206deb659ce271b635af6663c362210fc4090049e7ac4615f69f7b46d1137",
+      "status": "retained_archive_report"
+    },
+    {
+      "owner": "admin_checkpoints",
+      "archive_path": "./raw/families/38317383419/artifacts/11777971463/admin-checkpoints.json",
+      "report_file": "254-BASELINE-NATIVE/admin_checkpoints/admin-checkpoints.json",
+      "sha256": "77b16b60c57a3dd9b18fedef20f4f103f6367e84e014af05ba5ad9f16511fbea",
+      "status": "retained_archive_report"
+    },
+    {
+      "owner": "demo_showcase",
+      "archive_path": "./raw/families/38317383419/artifacts/11777107112/demo-showcase.json",
+      "report_file": "254-BASELINE-NATIVE/demo_showcase/demo-showcase.json",
+      "sha256": "30a4a7e77b375dd51d25ed9508e3cead987bcef8e1f3357ac307552bf0ee2a57",
+      "status": "retained_archive_report"
+    },
+    {
+      "owner": "design_gallery",
+      "archive_path": "./raw/families/38317383419/artifacts/11777457629/design-gallery-pr-behavior.json",
+      "report_file": "254-BASELINE-NATIVE/design_gallery/design-gallery-pr-behavior.json",
+      "sha256": "7b8b028f87424530c203770711dd6ee0e2ab219b518593ee2b71743335a04859",
+      "status": "retained_archive_report"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "archive_path": "./raw/families/38317383419/artifacts/11777387978/non-admin-smoke.json",
+      "report_file": "254-BASELINE-NATIVE/non_admin_smoke/non-admin-smoke.json",
+      "sha256": "f6941d037d0f01bddc2187f54c90447c3bb3db4a10c87e726b2e9068bad847c3",
+      "status": "retained_archive_report"
+    }
+  ]
+}

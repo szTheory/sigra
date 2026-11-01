@@ -1,0 +1,41 @@
+{
+  "purpose": "Exact current Phase 251 dirty planning state before completing validation-map and route preservation references",
+  "captured_at": "2026-10-11T19:58:04.321641+00:00",
+  "files": [
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "git_status": " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "sha256": "7ad88bd1b7d1252aef74be944eb1c66138abb41fe9cf1efce068e2723fc1418a",
+      "bytes": 43894,
+      "recovery_path": ".planning/recovery/phase251-checker-finish-prewrite-20261011T195800Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "git_status": " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "sha256": "a52de22d4802319ec6ecedff1e1787bda166737f43b581909cc9eb9ea4a3e006",
+      "bytes": 13839,
+      "recovery_path": ".planning/recovery/phase251-checker-finish-prewrite-20261011T195800Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "git_status": " M .planning/STATE.md",
+      "sha256": "348ef8dd80fc9db58e5964604075cfa76c2c30a23f05c87020966041587a5515",
+      "bytes": 9108,
+      "recovery_path": ".planning/recovery/phase251-checker-finish-prewrite-20261011T195800Z/.planning/STATE.md"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "git_status": " M .planning/HANDOFF.json",
+      "sha256": "1e50faba5b929a1c72b0e4c86bfd3484e10f5c58972d84dd3bf57246ae916144",
+      "bytes": 78015,
+      "recovery_path": ".planning/recovery/phase251-checker-finish-prewrite-20261011T195800Z/.planning/HANDOFF.json"
+    },
+    {
+      "path": ".planning/state.json",
+      "git_status": " M .planning/state.json",
+      "sha256": "aef2610d74914e76092f18f59c3f9c6ee6f791dfa831863023056912257e4920",
+      "bytes": 1679,
+      "recovery_path": ".planning/recovery/phase251-checker-finish-prewrite-20261011T195800Z/.planning/state.json"
+    }
+  ]
+}

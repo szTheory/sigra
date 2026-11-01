@@ -1,0 +1,32 @@
+{
+  "schema_version": "sigra.phase254.rebaseline-authorization/v1",
+  "status": "approved",
+  "recorded_at": "2026-10-23T22:41:50.212262+00:00",
+  "approval": {
+    "verbatim": "yes i approve",
+    "scope": "Latest user approval of the baseline amendment and separate two-invocation preparation allowance, following the previous failed-preparation report."
+  },
+  "proposal_path": ".planning/execution/254-rerun-preparation/REBASELINE-PROPOSAL.json",
+  "proposal_sha256": "cf49af6fe6c803c8b53c0d0366ef482e3be9e56e559524ff325f1083fa23bf2f",
+  "approved_patch_sha256": "6a7aada92dc0d4ea50b76c44aa6fec172fee577065476c330cd5fbfcbeeef873",
+  "prior_preparation_result": ".planning/execution/254-rerun-preparation/RESULT.json",
+  "prior_preparation_invocations": "Two failed; remain spent, unchanged and un-retried",
+  "new_preparation_allowance": {
+    "new_full_CI_invocations": 2,
+    "recipe": [
+      "One initial real-PR run of the explicitly amended baseline",
+      "One initial real-PR run of the locally corrected candidate"
+    ],
+    "trigger_retries": 0,
+    "minutes": 60,
+    "total_HTTP_requests": 600,
+    "rest_core_stop_remaining": 250,
+    "hard_403_429_stop": true
+  },
+  "measured_comparison": "Same unspent20 pairs/40 fixed-source full-workflow attempts and one future48-hour window; no replacements; all original thresholds/cache/image/native controls remain.",
+  "disclosure": "This changes the reference baseline after implementation. Retain the Phase252 baseline as history and label all new results as using the explicitly amended baseline, never the original frozen baseline unchanged.",
+  "prior_state": ".planning/execution/254-rebaseline-preparation/PRIOR-STATE.json",
+  "current_stage": "offline_source_and_tooling_preflight",
+  "new_hosted_actions_started": 0,
+  "measurement_window_started": false
+}

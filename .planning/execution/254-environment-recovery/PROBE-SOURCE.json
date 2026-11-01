@@ -1,0 +1,13 @@
+{
+  "branch": "evidence/phase254-apt-probe-20261023",
+  "commit": "c5890cb992800c19eb86263f45108400dd815edc",
+  "tree": "0558ca9f90d9f378443e1a9782f7762206014156",
+  "parent": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "invocations": 1,
+  "full_CI_invocations": 0,
+  "measured_samples": 0,
+  "files": {
+    ".github/workflows/phase254-apt-probe.yml": "e1b05fd84c18e2ca723237507ac6c47a0894921a8054e44f2b09d9ffa20dd817",
+    "scripts/ci/ci-apt-transfer-probe.sh": "c7dd3fe6e0602a50b52f8685dbd288d3a648323733b0fdbc06e7fbafcfeff021"
+  }
+}

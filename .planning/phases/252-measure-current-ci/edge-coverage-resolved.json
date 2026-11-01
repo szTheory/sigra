@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "requirement_id": "CIMEAS-01",
+      "category": "concurrency",
+      "status": "resolved",
+      "verification": "explicit",
+      "resolution": "Interrupted acquisition retains a durable request/selection ledger and incomplete status; a second collector cannot mutate the same snapshot directory concurrently. Offline replay never performs a network request.",
+      "reason": "Approved honesty/identity/budget decisions plus routine deterministic collector behavior; verified with contract fixtures.",
+      "probe": "If interrupted or run in parallel, what is guaranteed?"
+    },
+    {
+      "requirement_id": "CIMEAS-02",
+      "category": "adjacency",
+      "status": "resolved",
+      "verification": "explicit",
+      "resolution": "Distinct test/job/attempt identities remain separate even when names or durations match; tied costs do not merge independent records.",
+      "reason": "Approved honesty/identity/budget decisions plus routine deterministic collector behavior; verified with contract fixtures.",
+      "probe": "When two things are exactly equal or just touch, do they merge, collide, or separate?"
+    },
+    {
+      "requirement_id": "CIMEAS-02",
+      "category": "empty",
+      "status": "resolved",
+      "verification": "explicit",
+      "resolution": "Empty, missing or invalid eligible measurements produce an explicit unknown/insufficient-data result, never zero-cost or successful comparison; a single valid observation is reported with n=1 and its limits.",
+      "reason": "Approved honesty/identity/budget decisions plus routine deterministic collector behavior; verified with contract fixtures.",
+      "probe": "What is the result for empty, single-element, or null input?"
+    },
+    {
+      "requirement_id": "CIMEAS-02",
+      "category": "ordering",
+      "status": "resolved",
+      "verification": "explicit",
+      "resolution": "Repeated replay of the same input produces identical ranking order with a documented deterministic identity-based tie breaker.",
+      "reason": "Approved honesty/identity/budget decisions plus routine deterministic collector behavior; verified with contract fixtures.",
+      "probe": "When elements compare equal, is output order specified and stable?"
+    }
+  ],
+  "coverage": {
+    "applicable": 4,
+    "resolved": 4,
+    "unresolved": 0,
+    "unclassified": 0,
+    "byVerification": {
+      "explicit": 4,
+      "backstop": 0
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "purpose": "Write-ahead copy before correcting completed phase count to match fresh GSD milestone init output.",
+  "captured_at": "2026-10-11T17:10:51Z",
+  "source_path": ".planning/STATE.md",
+  "source_git_status": "M .planning/STATE.md",
+  "source_sha256": "b4c653cf8768364b9fc5a4470a06035ceec226e3382bf6c101b88749c1d02979",
+  "recovery_copy": "STATE.md",
+  "recovery_copy_sha256": "b4c653cf8768364b9fc5a4470a06035ceec226e3382bf6c101b88749c1d02979",
+  "readback_verified": true
+}

@@ -1,0 +1,1176 @@
+WINDOW LEFT 3398 RESERVED 1860 (deadline 2026-10-21T18:43:36Z)
+== remaining scenarios + separate verifier 2026-10-21T17:46:58Z
+ci-gate-canary: retained preflight re-verified offline (no preflight request)
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "scenario": {
+    "artifact_digest": "sha256:7b59aa6f7b224abeba8d0fa9ee5d0251d73211ab2a4cd4be89fd1d0f508e5f9a",
+    "artifact_id": 12366603883,
+    "conclusion": "success",
+    "run_id": "39646864198",
+    "scenario": "docs-only",
+    "status": "verified",
+    "synthetic": true
+  },
+  "status": "canary_scenario_verified",
+  "transport": {
+    "requests": 42,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "scenario": {
+    "artifact_digest": "sha256:c07ce2fe5e71d3daf21c44797f90ee32204e3cb6b2b0736aabcebfa64433f998",
+    "artifact_id": 12367936572,
+    "conclusion": "failure",
+    "run_id": "39647090310",
+    "scenario": "actual-failure",
+    "status": "verified_non_green",
+    "synthetic": true
+  },
+  "status": "canary_scenario_verified",
+  "transport": {
+    "requests": 52,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "scenario": {
+    "artifact_digest": "sha256:f7a921d454884bf3da1b48e48e61720c18d3f91d79d12802eb06a5f1dfc6fa95",
+    "artifact_id": 12366953915,
+    "conclusion": "failure",
+    "run_id": "39647319381",
+    "scenario": "missing-seam",
+    "status": "verified_non_green",
+    "synthetic": true
+  },
+  "status": "canary_scenario_verified",
+  "transport": {
+    "requests": 62,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "scenario": {
+    "artifact_digest": "sha256:87237df582388fe8b46620c867857887c2cc2e922d1b4a1c20384ebf7fea47b4",
+    "artifact_id": 12367802179,
+    "conclusion": "failure",
+    "run_id": "39647556494",
+    "scenario": "unexpected-skip",
+    "status": "verified_non_green",
+    "synthetic": true
+  },
+  "status": "canary_scenario_verified",
+  "transport": {
+    "requests": 72,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "scenario": {
+    "artifacts": 0,
+    "conclusion": "cancelled",
+    "run_id": "39647788924",
+    "scenario": "cancelled",
+    "status": "verified_non_green"
+  },
+  "status": "canary_scenario_verified",
+  "transport": {
+    "requests": 80,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "executed_jobs": 36,
+  "scenarios": [
+    {
+      "artifact_digest": "sha256:df4077d9d8ab93d833ae5c827bc8ce631277528367b1e2ae4daeb6371ef0cffa",
+      "artifact_id": 12368250609,
+      "conclusion": "success",
+      "run_id": "39646563957",
+      "scenario": "full-pass",
+      "status": "verified",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:7b59aa6f7b224abeba8d0fa9ee5d0251d73211ab2a4cd4be89fd1d0f508e5f9a",
+      "artifact_id": 12366603883,
+      "conclusion": "success",
+      "run_id": "39646864198",
+      "scenario": "docs-only",
+      "status": "verified",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:c07ce2fe5e71d3daf21c44797f90ee32204e3cb6b2b0736aabcebfa64433f998",
+      "artifact_id": 12367936572,
+      "conclusion": "failure",
+      "run_id": "39647090310",
+      "scenario": "actual-failure",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:f7a921d454884bf3da1b48e48e61720c18d3f91d79d12802eb06a5f1dfc6fa95",
+      "artifact_id": 12366953915,
+      "conclusion": "failure",
+      "run_id": "39647319381",
+      "scenario": "missing-seam",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:87237df582388fe8b46620c867857887c2cc2e922d1b4a1c20384ebf7fea47b4",
+      "artifact_id": 12367802179,
+      "conclusion": "failure",
+      "run_id": "39647556494",
+      "scenario": "unexpected-skip",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifacts": 0,
+      "conclusion": "cancelled",
+      "run_id": "39647788924",
+      "scenario": "cancelled",
+      "status": "verified_non_green"
+    }
+  ],
+  "status": "sources_verified",
+  "transport": {
+    "requests": 80,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "executed_jobs": 37,
+  "scenarios": [
+    {
+      "artifact_digest": "sha256:df4077d9d8ab93d833ae5c827bc8ce631277528367b1e2ae4daeb6371ef0cffa",
+      "artifact_id": 12368250609,
+      "conclusion": "success",
+      "run_id": "39646563957",
+      "scenario": "full-pass",
+      "status": "verified",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:7b59aa6f7b224abeba8d0fa9ee5d0251d73211ab2a4cd4be89fd1d0f508e5f9a",
+      "artifact_id": 12366603883,
+      "conclusion": "success",
+      "run_id": "39646864198",
+      "scenario": "docs-only",
+      "status": "verified",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:c07ce2fe5e71d3daf21c44797f90ee32204e3cb6b2b0736aabcebfa64433f998",
+      "artifact_id": 12367936572,
+      "conclusion": "failure",
+      "run_id": "39647090310",
+      "scenario": "actual-failure",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:f7a921d454884bf3da1b48e48e61720c18d3f91d79d12802eb06a5f1dfc6fa95",
+      "artifact_id": 12366953915,
+      "conclusion": "failure",
+      "run_id": "39647319381",
+      "scenario": "missing-seam",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:87237df582388fe8b46620c867857887c2cc2e922d1b4a1c20384ebf7fea47b4",
+      "artifact_id": 12367802179,
+      "conclusion": "failure",
+      "run_id": "39647556494",
+      "scenario": "unexpected-skip",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifacts": 0,
+      "conclusion": "cancelled",
+      "run_id": "39647788924",
+      "scenario": "cancelled",
+      "status": "verified_non_green"
+    }
+  ],
+  "separate_verifier": {
+    "job_conclusion": "success",
+    "jobs": {
+      "jobs": [
+        {
+          "check_run_url": "https://api.github.com/repos/szTheory/sigra/check-runs/119389185482",
+          "completed_at": "2026-10-21T17:56:09Z",
+          "conclusion": "success",
+          "created_at": "2026-10-21T17:56:01Z",
+          "head_branch": "gsd/253-replan-r13-fixture",
+          "head_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "html_url": "https://github.com/szTheory/sigra/actions/runs/39648174669/job/119389185482",
+          "id": 119389185482,
+          "labels": [
+            "ubuntu-latest"
+          ],
+          "name": "verifier",
+          "node_id": "CR_kwDOR_jMxM8AAAAbzCZlyg",
+          "run_attempt": 1,
+          "run_id": 39648174669,
+          "run_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669",
+          "runner_group_id": 0,
+          "runner_group_name": "GitHub Actions",
+          "runner_id": 1000185245,
+          "runner_name": "GitHub Actions 1000185245",
+          "started_at": "2026-10-21T17:56:03Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completed_at": "2026-10-21T17:56:04Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "started_at": "2026-10-21T17:56:03Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:06Z",
+              "conclusion": "success",
+              "name": "Checkout candidate verifier by pinned commit",
+              "number": 2,
+              "started_at": "2026-10-21T17:56:04Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:06Z",
+              "conclusion": "success",
+              "name": "Verify immutable candidate verifier checkout",
+              "number": 3,
+              "started_at": "2026-10-21T17:56:06Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:06Z",
+              "conclusion": "success",
+              "name": "Verify retained source matrix independently",
+              "number": 4,
+              "started_at": "2026-10-21T17:56:06Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:07Z",
+              "conclusion": "success",
+              "name": "Retain separate verifier result",
+              "number": 5,
+              "started_at": "2026-10-21T17:56:06Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:07Z",
+              "conclusion": "success",
+              "name": "Post Checkout candidate verifier by pinned commit",
+              "number": 10,
+              "started_at": "2026-10-21T17:56:07Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:07Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 11,
+              "started_at": "2026-10-21T17:56:07Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://api.github.com/repos/szTheory/sigra/actions/jobs/119389185482",
+          "workflow_name": "Phase 253 Gate Canary / verifier / 39648174669-1"
+        },
+        {
+          "check_run_url": "https://api.github.com/repos/szTheory/sigra/check-runs/119389187746",
+          "completed_at": "2026-10-21T17:56:01Z",
+          "conclusion": "skipped",
+          "created_at": "2026-10-21T17:56:01Z",
+          "head_branch": "gsd/253-replan-r13-fixture",
+          "head_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "html_url": "https://github.com/szTheory/sigra/actions/runs/39648174669/job/119389187746",
+          "id": 119389187746,
+          "labels": [
+            "ubuntu-latest"
+          ],
+          "name": "producer (${{ matrix.seam }})",
+          "node_id": "CR_kwDOR_jMxM8AAAAbzCZuog",
+          "run_attempt": 1,
+          "run_id": 39648174669,
+          "run_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669",
+          "runner_group_id": null,
+          "runner_group_name": null,
+          "runner_id": null,
+          "runner_name": null,
+          "started_at": "2026-10-21T17:56:01Z",
+          "status": "completed",
+          "steps": [],
+          "url": "https://api.github.com/repos/szTheory/sigra/actions/jobs/119389187746",
+          "workflow_name": "Phase 253 Gate Canary / verifier / 39648174669-1"
+        },
+        {
+          "check_run_url": "https://api.github.com/repos/szTheory/sigra/check-runs/119389188325",
+          "completed_at": "2026-10-21T17:56:01Z",
+          "conclusion": "skipped",
+          "created_at": "2026-10-21T17:56:01Z",
+          "head_branch": "gsd/253-replan-r13-fixture",
+          "head_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "html_url": "https://github.com/szTheory/sigra/actions/runs/39648174669/job/119389188325",
+          "id": 119389188325,
+          "labels": [
+            "ubuntu-latest"
+          ],
+          "name": "Browser verdict",
+          "node_id": "CR_kwDOR_jMxM8AAAAbzCZw5Q",
+          "run_attempt": 1,
+          "run_id": 39648174669,
+          "run_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669",
+          "runner_group_id": null,
+          "runner_group_name": null,
+          "runner_id": null,
+          "runner_name": null,
+          "started_at": "2026-10-21T17:56:01Z",
+          "status": "completed",
+          "steps": [],
+          "url": "https://api.github.com/repos/szTheory/sigra/actions/jobs/119389188325",
+          "workflow_name": "Phase 253 Gate Canary / verifier / 39648174669-1"
+        }
+      ],
+      "total_count": 3
+    },
+    "run": {
+      "actor": {
+        "avatar_url": "https://avatars.githubusercontent.com/u/28652?[REDACTED]",
+        "events_url": "https://api.github.com/users/szTheory/events{/privacy}",
+        "followers_url": "https://api.github.com/users/szTheory/followers",
+        "following_url": "https://api.github.com/users/szTheory/following{/other_user}",
+        "gists_url": "https://api.github.com/users/szTheory/gists{/gist_id}",
+        "gravatar_id": "",
+        "html_url": "https://github.com/szTheory",
+        "id": 28652,
+        "login": "szTheory",
+        "node_id": "MDQ6VXNlcjI4NjUy",
+        "organizations_url": "https://api.github.com/users/szTheory/orgs",
+        "received_events_url": "https://api.github.com/users/szTheory/received_events",
+        "repos_url": "https://api.github.com/users/szTheory/repos",
+        "site_admin": false,
+        "starred_url": "https://api.github.com/users/szTheory/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/szTheory/subscriptions",
+        "type": "User",
+        "url": "https://api.github.com/users/szTheory",
+        "user_view_type": "public"
+      },
+      "artifacts_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669/artifacts",
+      "cancel_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669/cancel",
+      "check_suite_id": 107450123045,
+      "check_suite_node_id": "CS_kwDOR_jMxM8AAAAZBIbDJQ",
+      "check_suite_url": "https://api.github.com/repos/szTheory/sigra/check-suites/107450123045",
+      "conclusion": "success",
+      "created_at": "2026-10-21T17:55:59Z",
+      "display_title": "Phase 253 Gate Canary / verifier / 39648174669-1",
+      "event": "workflow_dispatch",
+      "head_branch": "gsd/253-replan-r13-fixture",
+      "head_commit": {
+        "author": {
+          "email": "sigra-publication@users.noreply.github.com",
+          "name": "Sigra Publication Bot"
+        },
+        "committer": {
+          "email": "sigra-publication@users.noreply.github.com",
+          "name": "Sigra Publication Bot"
+        },
+        "id": "212a52365a6d0d413f9026678718610782ff50a9",
+        "message": "Phase 253 isolated gate canary fixture",
+        "timestamp": "2026-10-21T16:52:44Z",
+        "tree_id": "6f2198146ef5cc684775f08244001ee5132f0710"
+      },
+      "head_repository": {
+        "archive_url": "https://api.github.com/repos/szTheory/sigra/{archive_format}{/ref}",
+        "assignees_url": "https://api.github.com/repos/szTheory/sigra/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/szTheory/sigra/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/szTheory/sigra/branches{/branch}",
+        "collaborators_url": "https://api.github.com/repos/szTheory/sigra/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/szTheory/sigra/comments{/number}",
+        "commits_url": "https://api.github.com/repos/szTheory/sigra/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/szTheory/sigra/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/szTheory/sigra/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/szTheory/sigra/contributors",
+        "deployments_url": "https://api.github.com/repos/szTheory/sigra/deployments",
+        "description": "Batteries-included authentication for Phoenix (admin UI, MFA, OAuth, passkeys)",
+        "downloads_url": "https://api.github.com/repos/szTheory/sigra/downloads",
+        "events_url": "https://api.github.com/repos/szTheory/sigra/events",
+        "fork": false,
+        "forks_url": "https://api.github.com/repos/szTheory/sigra/forks",
+        "full_name": "szTheory/sigra",
+        "git_commits_url": "https://api.github.com/repos/szTheory/sigra/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/szTheory/sigra/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/szTheory/sigra/git/tags{/sha}",
+        "hooks_url": "https://api.github.com/repos/szTheory/sigra/hooks",
+        "html_url": "https://github.com/szTheory/sigra",
+        "id": 1207487684,
+        "issue_comment_url": "https://api.github.com/repos/szTheory/sigra/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/szTheory/sigra/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/szTheory/sigra/issues{/number}",
+        "keys_url": "https://api.github.com/repos/szTheory/sigra/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/szTheory/sigra/labels{/name}",
+        "languages_url": "https://api.github.com/repos/szTheory/sigra/languages",
+        "merges_url": "https://api.github.com/repos/szTheory/sigra/merges",
+        "milestones_url": "https://api.github.com/repos/szTheory/sigra/milestones{/number}",
+        "name": "sigra",
+        "node_id": "R_kgDOR_jMxA",
+        "notifications_url": "https://api.github.com/repos/szTheory/sigra/notifications{?[REDACTED]",
+        "owner": {
+          "avatar_url": "https://avatars.githubusercontent.com/u/28652?[REDACTED]",
+          "events_url": "https://api.github.com/users/szTheory/events{/privacy}",
+          "followers_url": "https://api.github.com/users/szTheory/followers",
+          "following_url": "https://api.github.com/users/szTheory/following{/other_user}",
+          "gists_url": "https://api.github.com/users/szTheory/gists{/gist_id}",
+          "gravatar_id": "",
+          "html_url": "https://github.com/szTheory",
+          "id": 28652,
+          "login": "szTheory",
+          "node_id": "MDQ6VXNlcjI4NjUy",
+          "organizations_url": "https://api.github.com/users/szTheory/orgs",
+          "received_events_url": "https://api.github.com/users/szTheory/received_events",
+          "repos_url": "https://api.github.com/users/szTheory/repos",
+          "site_admin": false,
+          "starred_url": "https://api.github.com/users/szTheory/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/szTheory/subscriptions",
+          "type": "User",
+          "url": "https://api.github.com/users/szTheory",
+          "user_view_type": "public"
+        },
+        "private": false,
+        "pulls_url": "https://api.github.com/repos/szTheory/sigra/pulls{/number}",
+        "releases_url": "https://api.github.com/repos/szTheory/sigra/releases{/id}",
+        "stargazers_url": "https://api.github.com/repos/szTheory/sigra/stargazers",
+        "statuses_url": "https://api.github.com/repos/szTheory/sigra/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/szTheory/sigra/subscribers",
+        "subscription_url": "https://api.github.com/repos/szTheory/sigra/subscription",
+        "tags_url": "https://api.github.com/repos/szTheory/sigra/tags",
+        "teams_url": "https://api.github.com/repos/szTheory/sigra/teams",
+        "trees_url": "https://api.github.com/repos/szTheory/sigra/git/trees{/sha}",
+        "url": "https://api.github.com/repos/szTheory/sigra"
+      },
+      "head_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+      "html_url": "https://github.com/szTheory/sigra/actions/runs/39648174669",
+      "id": 39648174669,
+      "jobs_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669/jobs",
+      "logs_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669/logs",
+      "name": "Phase 253 Gate Canary / verifier / 39648174669-1",
+      "node_id": "WFR_kwLOR_jMxM8AAAAJOzciTQ",
+      "path": ".github/workflows/ci.yml",
+      "previous_attempt_url": null,
+      "pull_requests": [],
+      "referenced_workflows": [],
+      "repository": {
+        "archive_url": "https://api.github.com/repos/szTheory/sigra/{archive_format}{/ref}",
+        "assignees_url": "https://api.github.com/repos/szTheory/sigra/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/szTheory/sigra/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/szTheory/sigra/branches{/branch}",
+        "collaborators_url": "https://api.github.com/repos/szTheory/sigra/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/szTheory/sigra/comments{/number}",
+        "commits_url": "https://api.github.com/repos/szTheory/sigra/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/szTheory/sigra/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/szTheory/sigra/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/szTheory/sigra/contributors",
+        "deployments_url": "https://api.github.com/repos/szTheory/sigra/deployments",
+        "description": "Batteries-included authentication for Phoenix (admin UI, MFA, OAuth, passkeys)",
+        "downloads_url": "https://api.github.com/repos/szTheory/sigra/downloads",
+        "events_url": "https://api.github.com/repos/szTheory/sigra/events",
+        "fork": false,
+        "forks_url": "https://api.github.com/repos/szTheory/sigra/forks",
+        "full_name": "szTheory/sigra",
+        "git_commits_url": "https://api.github.com/repos/szTheory/sigra/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/szTheory/sigra/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/szTheory/sigra/git/tags{/sha}",
+        "hooks_url": "https://api.github.com/repos/szTheory/sigra/hooks",
+        "html_url": "https://github.com/szTheory/sigra",
+        "id": 1207487684,
+        "issue_comment_url": "https://api.github.com/repos/szTheory/sigra/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/szTheory/sigra/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/szTheory/sigra/issues{/number}",
+        "keys_url": "https://api.github.com/repos/szTheory/sigra/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/szTheory/sigra/labels{/name}",
+        "languages_url": "https://api.github.com/repos/szTheory/sigra/languages",
+        "merges_url": "https://api.github.com/repos/szTheory/sigra/merges",
+        "milestones_url": "https://api.github.com/repos/szTheory/sigra/milestones{/number}",
+        "name": "sigra",
+        "node_id": "R_kgDOR_jMxA",
+        "notifications_url": "https://api.github.com/repos/szTheory/sigra/notifications{?[REDACTED]",
+        "owner": {
+          "avatar_url": "https://avatars.githubusercontent.com/u/28652?[REDACTED]",
+          "events_url": "https://api.github.com/users/szTheory/events{/privacy}",
+          "followers_url": "https://api.github.com/users/szTheory/followers",
+          "following_url": "https://api.github.com/users/szTheory/following{/other_user}",
+          "gists_url": "https://api.github.com/users/szTheory/gists{/gist_id}",
+          "gravatar_id": "",
+          "html_url": "https://github.com/szTheory",
+          "id": 28652,
+          "login": "szTheory",
+          "node_id": "MDQ6VXNlcjI4NjUy",
+          "organizations_url": "https://api.github.com/users/szTheory/orgs",
+          "received_events_url": "https://api.github.com/users/szTheory/received_events",
+          "repos_url": "https://api.github.com/users/szTheory/repos",
+          "site_admin": false,
+          "starred_url": "https://api.github.com/users/szTheory/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/szTheory/subscriptions",
+          "type": "User",
+          "url": "https://api.github.com/users/szTheory",
+          "user_view_type": "public"
+        },
+        "private": false,
+        "pulls_url": "https://api.github.com/repos/szTheory/sigra/pulls{/number}",
+        "releases_url": "https://api.github.com/repos/szTheory/sigra/releases{/id}",
+        "stargazers_url": "https://api.github.com/repos/szTheory/sigra/stargazers",
+        "statuses_url": "https://api.github.com/repos/szTheory/sigra/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/szTheory/sigra/subscribers",
+        "subscription_url": "https://api.github.com/repos/szTheory/sigra/subscription",
+        "tags_url": "https://api.github.com/repos/szTheory/sigra/tags",
+        "teams_url": "https://api.github.com/repos/szTheory/sigra/teams",
+        "trees_url": "https://api.github.com/repos/szTheory/sigra/git/trees{/sha}",
+        "url": "https://api.github.com/repos/szTheory/sigra"
+      },
+      "rerun_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669/rerun",
+      "run_attempt": 1,
+      "run_number": 1208,
+      "run_started_at": "2026-10-21T17:55:59Z",
+      "status": "completed",
+      "triggering_actor": {
+        "avatar_url": "https://avatars.githubusercontent.com/u/28652?[REDACTED]",
+        "events_url": "https://api.github.com/users/szTheory/events{/privacy}",
+        "followers_url": "https://api.github.com/users/szTheory/followers",
+        "following_url": "https://api.github.com/users/szTheory/following{/other_user}",
+        "gists_url": "https://api.github.com/users/szTheory/gists{/gist_id}",
+        "gravatar_id": "",
+        "html_url": "https://github.com/szTheory",
+        "id": 28652,
+        "login": "szTheory",
+        "node_id": "MDQ6VXNlcjI4NjUy",
+        "organizations_url": "https://api.github.com/users/szTheory/orgs",
+        "received_events_url": "https://api.github.com/users/szTheory/received_events",
+        "repos_url": "https://api.github.com/users/szTheory/repos",
+        "site_admin": false,
+        "starred_url": "https://api.github.com/users/szTheory/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/szTheory/subscriptions",
+        "type": "User",
+        "url": "https://api.github.com/users/szTheory",
+        "user_view_type": "public"
+      },
+      "updated_at": "2026-10-21T17:56:09Z",
+      "url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669",
+      "workflow_id": 259268962,
+      "workflow_url": "https://api.github.com/repos/szTheory/sigra/actions/workflows/259268962"
+    },
+    "run_id": "39648174669",
+    "status": "passed"
+  },
+  "status": "canary_verified",
+  "transport": {
+    "requests": 85,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+ci-gate-canary: retained evidence at /Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R13.json (requests=85/117; job ceiling=45; time ceiling=60m)
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "executed_jobs": 36,
+  "scenarios": [
+    {
+      "artifact_digest": "sha256:df4077d9d8ab93d833ae5c827bc8ce631277528367b1e2ae4daeb6371ef0cffa",
+      "artifact_id": 12368250609,
+      "conclusion": "success",
+      "run_id": "39646563957",
+      "scenario": "full-pass",
+      "status": "verified",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:7b59aa6f7b224abeba8d0fa9ee5d0251d73211ab2a4cd4be89fd1d0f508e5f9a",
+      "artifact_id": 12366603883,
+      "conclusion": "success",
+      "run_id": "39646864198",
+      "scenario": "docs-only",
+      "status": "verified",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:c07ce2fe5e71d3daf21c44797f90ee32204e3cb6b2b0736aabcebfa64433f998",
+      "artifact_id": 12367936572,
+      "conclusion": "failure",
+      "run_id": "39647090310",
+      "scenario": "actual-failure",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:f7a921d454884bf3da1b48e48e61720c18d3f91d79d12802eb06a5f1dfc6fa95",
+      "artifact_id": 12366953915,
+      "conclusion": "failure",
+      "run_id": "39647319381",
+      "scenario": "missing-seam",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:87237df582388fe8b46620c867857887c2cc2e922d1b4a1c20384ebf7fea47b4",
+      "artifact_id": 12367802179,
+      "conclusion": "failure",
+      "run_id": "39647556494",
+      "scenario": "unexpected-skip",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifacts": 0,
+      "conclusion": "cancelled",
+      "run_id": "39647788924",
+      "scenario": "cancelled",
+      "status": "verified_non_green"
+    }
+  ],
+  "status": "sources_verified",
+  "transport": {
+    "requests": 85,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+{
+  "checks": {
+    "names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "status": "effective_checks_verified"
+  },
+  "executed_jobs": 37,
+  "scenarios": [
+    {
+      "artifact_digest": "sha256:df4077d9d8ab93d833ae5c827bc8ce631277528367b1e2ae4daeb6371ef0cffa",
+      "artifact_id": 12368250609,
+      "conclusion": "success",
+      "run_id": "39646563957",
+      "scenario": "full-pass",
+      "status": "verified",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:7b59aa6f7b224abeba8d0fa9ee5d0251d73211ab2a4cd4be89fd1d0f508e5f9a",
+      "artifact_id": 12366603883,
+      "conclusion": "success",
+      "run_id": "39646864198",
+      "scenario": "docs-only",
+      "status": "verified",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:c07ce2fe5e71d3daf21c44797f90ee32204e3cb6b2b0736aabcebfa64433f998",
+      "artifact_id": 12367936572,
+      "conclusion": "failure",
+      "run_id": "39647090310",
+      "scenario": "actual-failure",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:f7a921d454884bf3da1b48e48e61720c18d3f91d79d12802eb06a5f1dfc6fa95",
+      "artifact_id": 12366953915,
+      "conclusion": "failure",
+      "run_id": "39647319381",
+      "scenario": "missing-seam",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifact_digest": "sha256:87237df582388fe8b46620c867857887c2cc2e922d1b4a1c20384ebf7fea47b4",
+      "artifact_id": 12367802179,
+      "conclusion": "failure",
+      "run_id": "39647556494",
+      "scenario": "unexpected-skip",
+      "status": "verified_non_green",
+      "synthetic": true
+    },
+    {
+      "artifacts": 0,
+      "conclusion": "cancelled",
+      "run_id": "39647788924",
+      "scenario": "cancelled",
+      "status": "verified_non_green"
+    }
+  ],
+  "separate_verifier": {
+    "job_conclusion": "success",
+    "jobs": {
+      "jobs": [
+        {
+          "check_run_url": "https://api.github.com/repos/szTheory/sigra/check-runs/119389185482",
+          "completed_at": "2026-10-21T17:56:09Z",
+          "conclusion": "success",
+          "created_at": "2026-10-21T17:56:01Z",
+          "head_branch": "gsd/253-replan-r13-fixture",
+          "head_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "html_url": "https://github.com/szTheory/sigra/actions/runs/39648174669/job/119389185482",
+          "id": 119389185482,
+          "labels": [
+            "ubuntu-latest"
+          ],
+          "name": "verifier",
+          "node_id": "CR_kwDOR_jMxM8AAAAbzCZlyg",
+          "run_attempt": 1,
+          "run_id": 39648174669,
+          "run_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669",
+          "runner_group_id": 0,
+          "runner_group_name": "GitHub Actions",
+          "runner_id": 1000185245,
+          "runner_name": "GitHub Actions 1000185245",
+          "started_at": "2026-10-21T17:56:03Z",
+          "status": "completed",
+          "steps": [
+            {
+              "completed_at": "2026-10-21T17:56:04Z",
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "started_at": "2026-10-21T17:56:03Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:06Z",
+              "conclusion": "success",
+              "name": "Checkout candidate verifier by pinned commit",
+              "number": 2,
+              "started_at": "2026-10-21T17:56:04Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:06Z",
+              "conclusion": "success",
+              "name": "Verify immutable candidate verifier checkout",
+              "number": 3,
+              "started_at": "2026-10-21T17:56:06Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:06Z",
+              "conclusion": "success",
+              "name": "Verify retained source matrix independently",
+              "number": 4,
+              "started_at": "2026-10-21T17:56:06Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:07Z",
+              "conclusion": "success",
+              "name": "Retain separate verifier result",
+              "number": 5,
+              "started_at": "2026-10-21T17:56:06Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:07Z",
+              "conclusion": "success",
+              "name": "Post Checkout candidate verifier by pinned commit",
+              "number": 10,
+              "started_at": "2026-10-21T17:56:07Z",
+              "status": "completed"
+            },
+            {
+              "completed_at": "2026-10-21T17:56:07Z",
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 11,
+              "started_at": "2026-10-21T17:56:07Z",
+              "status": "completed"
+            }
+          ],
+          "url": "https://api.github.com/repos/szTheory/sigra/actions/jobs/119389185482",
+          "workflow_name": "Phase 253 Gate Canary / verifier / 39648174669-1"
+        },
+        {
+          "check_run_url": "https://api.github.com/repos/szTheory/sigra/check-runs/119389187746",
+          "completed_at": "2026-10-21T17:56:01Z",
+          "conclusion": "skipped",
+          "created_at": "2026-10-21T17:56:01Z",
+          "head_branch": "gsd/253-replan-r13-fixture",
+          "head_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "html_url": "https://github.com/szTheory/sigra/actions/runs/39648174669/job/119389187746",
+          "id": 119389187746,
+          "labels": [
+            "ubuntu-latest"
+          ],
+          "name": "producer (${{ matrix.seam }})",
+          "node_id": "CR_kwDOR_jMxM8AAAAbzCZuog",
+          "run_attempt": 1,
+          "run_id": 39648174669,
+          "run_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669",
+          "runner_group_id": null,
+          "runner_group_name": null,
+          "runner_id": null,
+          "runner_name": null,
+          "started_at": "2026-10-21T17:56:01Z",
+          "status": "completed",
+          "steps": [],
+          "url": "https://api.github.com/repos/szTheory/sigra/actions/jobs/119389187746",
+          "workflow_name": "Phase 253 Gate Canary / verifier / 39648174669-1"
+        },
+        {
+          "check_run_url": "https://api.github.com/repos/szTheory/sigra/check-runs/119389188325",
+          "completed_at": "2026-10-21T17:56:01Z",
+          "conclusion": "skipped",
+          "created_at": "2026-10-21T17:56:01Z",
+          "head_branch": "gsd/253-replan-r13-fixture",
+          "head_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+          "html_url": "https://github.com/szTheory/sigra/actions/runs/39648174669/job/119389188325",
+          "id": 119389188325,
+          "labels": [
+            "ubuntu-latest"
+          ],
+          "name": "Browser verdict",
+          "node_id": "CR_kwDOR_jMxM8AAAAbzCZw5Q",
+          "run_attempt": 1,
+          "run_id": 39648174669,
+          "run_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669",
+          "runner_group_id": null,
+          "runner_group_name": null,
+          "runner_id": null,
+          "runner_name": null,
+          "started_at": "2026-10-21T17:56:01Z",
+          "status": "completed",
+          "steps": [],
+          "url": "https://api.github.com/repos/szTheory/sigra/actions/jobs/119389188325",
+          "workflow_name": "Phase 253 Gate Canary / verifier / 39648174669-1"
+        }
+      ],
+      "total_count": 3
+    },
+    "run": {
+      "actor": {
+        "avatar_url": "https://avatars.githubusercontent.com/u/28652?[REDACTED]",
+        "events_url": "https://api.github.com/users/szTheory/events{/privacy}",
+        "followers_url": "https://api.github.com/users/szTheory/followers",
+        "following_url": "https://api.github.com/users/szTheory/following{/other_user}",
+        "gists_url": "https://api.github.com/users/szTheory/gists{/gist_id}",
+        "gravatar_id": "",
+        "html_url": "https://github.com/szTheory",
+        "id": 28652,
+        "login": "szTheory",
+        "node_id": "MDQ6VXNlcjI4NjUy",
+        "organizations_url": "https://api.github.com/users/szTheory/orgs",
+        "received_events_url": "https://api.github.com/users/szTheory/received_events",
+        "repos_url": "https://api.github.com/users/szTheory/repos",
+        "site_admin": false,
+        "starred_url": "https://api.github.com/users/szTheory/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/szTheory/subscriptions",
+        "type": "User",
+        "url": "https://api.github.com/users/szTheory",
+        "user_view_type": "public"
+      },
+      "artifacts_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669/artifacts",
+      "cancel_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669/cancel",
+      "check_suite_id": 107450123045,
+      "check_suite_node_id": "CS_kwDOR_jMxM8AAAAZBIbDJQ",
+      "check_suite_url": "https://api.github.com/repos/szTheory/sigra/check-suites/107450123045",
+      "conclusion": "success",
+      "created_at": "2026-10-21T17:55:59Z",
+      "display_title": "Phase 253 Gate Canary / verifier / 39648174669-1",
+      "event": "workflow_dispatch",
+      "head_branch": "gsd/253-replan-r13-fixture",
+      "head_commit": {
+        "author": {
+          "email": "sigra-publication@users.noreply.github.com",
+          "name": "Sigra Publication Bot"
+        },
+        "committer": {
+          "email": "sigra-publication@users.noreply.github.com",
+          "name": "Sigra Publication Bot"
+        },
+        "id": "212a52365a6d0d413f9026678718610782ff50a9",
+        "message": "Phase 253 isolated gate canary fixture",
+        "timestamp": "2026-10-21T16:52:44Z",
+        "tree_id": "6f2198146ef5cc684775f08244001ee5132f0710"
+      },
+      "head_repository": {
+        "archive_url": "https://api.github.com/repos/szTheory/sigra/{archive_format}{/ref}",
+        "assignees_url": "https://api.github.com/repos/szTheory/sigra/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/szTheory/sigra/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/szTheory/sigra/branches{/branch}",
+        "collaborators_url": "https://api.github.com/repos/szTheory/sigra/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/szTheory/sigra/comments{/number}",
+        "commits_url": "https://api.github.com/repos/szTheory/sigra/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/szTheory/sigra/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/szTheory/sigra/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/szTheory/sigra/contributors",
+        "deployments_url": "https://api.github.com/repos/szTheory/sigra/deployments",
+        "description": "Batteries-included authentication for Phoenix (admin UI, MFA, OAuth, passkeys)",
+        "downloads_url": "https://api.github.com/repos/szTheory/sigra/downloads",
+        "events_url": "https://api.github.com/repos/szTheory/sigra/events",
+        "fork": false,
+        "forks_url": "https://api.github.com/repos/szTheory/sigra/forks",
+        "full_name": "szTheory/sigra",
+        "git_commits_url": "https://api.github.com/repos/szTheory/sigra/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/szTheory/sigra/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/szTheory/sigra/git/tags{/sha}",
+        "hooks_url": "https://api.github.com/repos/szTheory/sigra/hooks",
+        "html_url": "https://github.com/szTheory/sigra",
+        "id": 1207487684,
+        "issue_comment_url": "https://api.github.com/repos/szTheory/sigra/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/szTheory/sigra/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/szTheory/sigra/issues{/number}",
+        "keys_url": "https://api.github.com/repos/szTheory/sigra/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/szTheory/sigra/labels{/name}",
+        "languages_url": "https://api.github.com/repos/szTheory/sigra/languages",
+        "merges_url": "https://api.github.com/repos/szTheory/sigra/merges",
+        "milestones_url": "https://api.github.com/repos/szTheory/sigra/milestones{/number}",
+        "name": "sigra",
+        "node_id": "R_kgDOR_jMxA",
+        "notifications_url": "https://api.github.com/repos/szTheory/sigra/notifications{?[REDACTED]",
+        "owner": {
+          "avatar_url": "https://avatars.githubusercontent.com/u/28652?[REDACTED]",
+          "events_url": "https://api.github.com/users/szTheory/events{/privacy}",
+          "followers_url": "https://api.github.com/users/szTheory/followers",
+          "following_url": "https://api.github.com/users/szTheory/following{/other_user}",
+          "gists_url": "https://api.github.com/users/szTheory/gists{/gist_id}",
+          "gravatar_id": "",
+          "html_url": "https://github.com/szTheory",
+          "id": 28652,
+          "login": "szTheory",
+          "node_id": "MDQ6VXNlcjI4NjUy",
+          "organizations_url": "https://api.github.com/users/szTheory/orgs",
+          "received_events_url": "https://api.github.com/users/szTheory/received_events",
+          "repos_url": "https://api.github.com/users/szTheory/repos",
+          "site_admin": false,
+          "starred_url": "https://api.github.com/users/szTheory/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/szTheory/subscriptions",
+          "type": "User",
+          "url": "https://api.github.com/users/szTheory",
+          "user_view_type": "public"
+        },
+        "private": false,
+        "pulls_url": "https://api.github.com/repos/szTheory/sigra/pulls{/number}",
+        "releases_url": "https://api.github.com/repos/szTheory/sigra/releases{/id}",
+        "stargazers_url": "https://api.github.com/repos/szTheory/sigra/stargazers",
+        "statuses_url": "https://api.github.com/repos/szTheory/sigra/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/szTheory/sigra/subscribers",
+        "subscription_url": "https://api.github.com/repos/szTheory/sigra/subscription",
+        "tags_url": "https://api.github.com/repos/szTheory/sigra/tags",
+        "teams_url": "https://api.github.com/repos/szTheory/sigra/teams",
+        "trees_url": "https://api.github.com/repos/szTheory/sigra/git/trees{/sha}",
+        "url": "https://api.github.com/repos/szTheory/sigra"
+      },
+      "head_sha": "212a52365a6d0d413f9026678718610782ff50a9",
+      "html_url": "https://github.com/szTheory/sigra/actions/runs/39648174669",
+      "id": 39648174669,
+      "jobs_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669/jobs",
+      "logs_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669/logs",
+      "name": "Phase 253 Gate Canary / verifier / 39648174669-1",
+      "node_id": "WFR_kwLOR_jMxM8AAAAJOzciTQ",
+      "path": ".github/workflows/ci.yml",
+      "previous_attempt_url": null,
+      "pull_requests": [],
+      "referenced_workflows": [],
+      "repository": {
+        "archive_url": "https://api.github.com/repos/szTheory/sigra/{archive_format}{/ref}",
+        "assignees_url": "https://api.github.com/repos/szTheory/sigra/assignees{/user}",
+        "blobs_url": "https://api.github.com/repos/szTheory/sigra/git/blobs{/sha}",
+        "branches_url": "https://api.github.com/repos/szTheory/sigra/branches{/branch}",
+        "collaborators_url": "https://api.github.com/repos/szTheory/sigra/collaborators{/collaborator}",
+        "comments_url": "https://api.github.com/repos/szTheory/sigra/comments{/number}",
+        "commits_url": "https://api.github.com/repos/szTheory/sigra/commits{/sha}",
+        "compare_url": "https://api.github.com/repos/szTheory/sigra/compare/{base}...{head}",
+        "contents_url": "https://api.github.com/repos/szTheory/sigra/contents/{+path}",
+        "contributors_url": "https://api.github.com/repos/szTheory/sigra/contributors",
+        "deployments_url": "https://api.github.com/repos/szTheory/sigra/deployments",
+        "description": "Batteries-included authentication for Phoenix (admin UI, MFA, OAuth, passkeys)",
+        "downloads_url": "https://api.github.com/repos/szTheory/sigra/downloads",
+        "events_url": "https://api.github.com/repos/szTheory/sigra/events",
+        "fork": false,
+        "forks_url": "https://api.github.com/repos/szTheory/sigra/forks",
+        "full_name": "szTheory/sigra",
+        "git_commits_url": "https://api.github.com/repos/szTheory/sigra/git/commits{/sha}",
+        "git_refs_url": "https://api.github.com/repos/szTheory/sigra/git/refs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/szTheory/sigra/git/tags{/sha}",
+        "hooks_url": "https://api.github.com/repos/szTheory/sigra/hooks",
+        "html_url": "https://github.com/szTheory/sigra",
+        "id": 1207487684,
+        "issue_comment_url": "https://api.github.com/repos/szTheory/sigra/issues/comments{/number}",
+        "issue_events_url": "https://api.github.com/repos/szTheory/sigra/issues/events{/number}",
+        "issues_url": "https://api.github.com/repos/szTheory/sigra/issues{/number}",
+        "keys_url": "https://api.github.com/repos/szTheory/sigra/keys{/key_id}",
+        "labels_url": "https://api.github.com/repos/szTheory/sigra/labels{/name}",
+        "languages_url": "https://api.github.com/repos/szTheory/sigra/languages",
+        "merges_url": "https://api.github.com/repos/szTheory/sigra/merges",
+        "milestones_url": "https://api.github.com/repos/szTheory/sigra/milestones{/number}",
+        "name": "sigra",
+        "node_id": "R_kgDOR_jMxA",
+        "notifications_url": "https://api.github.com/repos/szTheory/sigra/notifications{?[REDACTED]",
+        "owner": {
+          "avatar_url": "https://avatars.githubusercontent.com/u/28652?[REDACTED]",
+          "events_url": "https://api.github.com/users/szTheory/events{/privacy}",
+          "followers_url": "https://api.github.com/users/szTheory/followers",
+          "following_url": "https://api.github.com/users/szTheory/following{/other_user}",
+          "gists_url": "https://api.github.com/users/szTheory/gists{/gist_id}",
+          "gravatar_id": "",
+          "html_url": "https://github.com/szTheory",
+          "id": 28652,
+          "login": "szTheory",
+          "node_id": "MDQ6VXNlcjI4NjUy",
+          "organizations_url": "https://api.github.com/users/szTheory/orgs",
+          "received_events_url": "https://api.github.com/users/szTheory/received_events",
+          "repos_url": "https://api.github.com/users/szTheory/repos",
+          "site_admin": false,
+          "starred_url": "https://api.github.com/users/szTheory/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/szTheory/subscriptions",
+          "type": "User",
+          "url": "https://api.github.com/users/szTheory",
+          "user_view_type": "public"
+        },
+        "private": false,
+        "pulls_url": "https://api.github.com/repos/szTheory/sigra/pulls{/number}",
+        "releases_url": "https://api.github.com/repos/szTheory/sigra/releases{/id}",
+        "stargazers_url": "https://api.github.com/repos/szTheory/sigra/stargazers",
+        "statuses_url": "https://api.github.com/repos/szTheory/sigra/statuses/{sha}",
+        "subscribers_url": "https://api.github.com/repos/szTheory/sigra/subscribers",
+        "subscription_url": "https://api.github.com/repos/szTheory/sigra/subscription",
+        "tags_url": "https://api.github.com/repos/szTheory/sigra/tags",
+        "teams_url": "https://api.github.com/repos/szTheory/sigra/teams",
+        "trees_url": "https://api.github.com/repos/szTheory/sigra/git/trees{/sha}",
+        "url": "https://api.github.com/repos/szTheory/sigra"
+      },
+      "rerun_url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669/rerun",
+      "run_attempt": 1,
+      "run_number": 1208,
+      "run_started_at": "2026-10-21T17:55:59Z",
+      "status": "completed",
+      "triggering_actor": {
+        "avatar_url": "https://avatars.githubusercontent.com/u/28652?[REDACTED]",
+        "events_url": "https://api.github.com/users/szTheory/events{/privacy}",
+        "followers_url": "https://api.github.com/users/szTheory/followers",
+        "following_url": "https://api.github.com/users/szTheory/following{/other_user}",
+        "gists_url": "https://api.github.com/users/szTheory/gists{/gist_id}",
+        "gravatar_id": "",
+        "html_url": "https://github.com/szTheory",
+        "id": 28652,
+        "login": "szTheory",
+        "node_id": "MDQ6VXNlcjI4NjUy",
+        "organizations_url": "https://api.github.com/users/szTheory/orgs",
+        "received_events_url": "https://api.github.com/users/szTheory/received_events",
+        "repos_url": "https://api.github.com/users/szTheory/repos",
+        "site_admin": false,
+        "starred_url": "https://api.github.com/users/szTheory/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/szTheory/subscriptions",
+        "type": "User",
+        "url": "https://api.github.com/users/szTheory",
+        "user_view_type": "public"
+      },
+      "updated_at": "2026-10-21T17:56:09Z",
+      "url": "https://api.github.com/repos/szTheory/sigra/actions/runs/39648174669",
+      "workflow_id": 259268962,
+      "workflow_url": "https://api.github.com/repos/szTheory/sigra/actions/workflows/259268962"
+    },
+    "run_id": "39648174669",
+    "status": "passed"
+  },
+  "status": "canary_verified",
+  "transport": {
+    "requests": 85,
+    "status": "transport_verified",
+    "window_id": "253-170-canary-window-1"
+  }
+}
+803a00620 docs(253-170): R13 canary sources, verifier and sealed accounting
+DONE step 2 2026-10-21T17:57:29Z
+RUNNER-EXIT 0

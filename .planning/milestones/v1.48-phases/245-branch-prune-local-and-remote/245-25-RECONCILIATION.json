@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "plan": 25,
+  "captured_at": "2026-10-01T15:10:24.422235+00:00",
+  "verdict": "halted_disposition_verified",
+  "contract_commit": "6f5aa40354eb3f3126d8394c80060cc607dfa674",
+  "blocked_result_commit": "a1cd058d63eb713ce50568a953b316cdfc3ef7bd",
+  "inspected_head": "d24c3d5245c36b3fa1d92407458ad4045df4969c",
+  "checks": [
+    {
+      "name": "contract_single_parent",
+      "passed": true
+    },
+    {
+      "name": "contract_exact_five_paths",
+      "passed": true
+    },
+    {
+      "name": "contract_sidecar",
+      "passed": true
+    },
+    {
+      "name": "blocked_result_single_parent",
+      "passed": true
+    },
+    {
+      "name": "blocked_result_exact_path",
+      "passed": true
+    },
+    {
+      "name": "contract_has_one_final_child",
+      "passed": true,
+      "children": [
+        "a1cd058d63eb713ce50568a953b316cdfc3ef7bd"
+      ]
+    },
+    {
+      "name": "latest_result_is_blocked_child",
+      "passed": true
+    },
+    {
+      "name": "blocked_outcome_and_zero_prune_operations",
+      "passed": true
+    },
+    {
+      "name": "recorded_boundary_local_refs_unchanged",
+      "passed": true
+    },
+    {
+      "name": "recorded_boundary_live_origin_refs_unchanged",
+      "passed": true
+    },
+    {
+      "name": "recorded_boundary_open_prs_unchanged",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-18-ORIGIN-REFS.tsv",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-22-FETCH-PROOF.json",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-23-RESULT.json",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-23-HANDOFF.json",
+      "passed": true
+    },
+    {
+      "name": "source_pin:.planning/phases/245-branch-prune-local-and-remote/245-24-OBJECT-ACQUISITION.json",
+      "passed": true
+    },
+    {
+      "name": "precommit_pin:.planning/phases/245-branch-prune-local-and-remote/245-25-EXEC-PREFLIGHT.json",
+      "passed": true
+    },
+    {
+      "name": "precommit_pin:.planning/phases/245-branch-prune-local-and-remote/245-25-BRANCH-DELETE-ALLOWLIST.tsv",
+      "passed": true
+    },
+    {
+      "name": "precommit_pin:.planning/phases/245-branch-prune-local-and-remote/245-25-ADMISSION.json",
+      "passed": true
+    },
+    {
+      "name": "working_copy_preserved:.planning/phases/245-branch-prune-local-and-remote/245-25-ADMISSION.json",
+      "passed": true
+    },
+    {
+      "name": "working_copy_preserved:.planning/phases/245-branch-prune-local-and-remote/245-25-BRANCH-DELETE-ALLOWLIST.tsv",
+      "passed": true
+    },
+    {
+      "name": "working_copy_preserved:.planning/phases/245-branch-prune-local-and-remote/245-25-CURRENT-CONTRACT.json",
+      "passed": true
+    },
+    {
+      "name": "working_copy_preserved:.planning/phases/245-branch-prune-local-and-remote/245-25-CURRENT-CONTRACT.json.sha256",
+      "passed": true
+    },
+    {
+      "name": "working_copy_preserved:.planning/phases/245-branch-prune-local-and-remote/245-25-EXEC-PREFLIGHT.json",
+      "passed": true
+    },
+    {
+      "name": "working_copy_preserved:.planning/phases/245-branch-prune-local-and-remote/245-25-RESULT.json",
+      "passed": true
+    },
+    {
+      "name": "current_local_refs_unchanged_except_evidence_head",
+      "passed": true,
+      "count": 128,
+      "evidence_head": "d24c3d5245c36b3fa1d92407458ad4045df4969c"
+    },
+    {
+      "name": "active_symbolic_head_preserved",
+      "passed": true
+    },
+    {
+      "name": "summary_halted",
+      "passed": true
+    },
+    {
+      "name": "plan18_objects_readable",
+      "passed": true,
+      "checked": 488
+    },
+    {
+      "name": "current_contract_objects_readable",
+      "passed": true,
+      "checked": 487
+    },
+    {
+      "name": "direct_readiness_verifier_passes",
+      "passed": true,
+      "exit_code": 0
+    },
+    {
+      "name": "temporary_copy_reproduces_operator_readiness_failure",
+      "passed": true,
+      "exit_code": 1,
+      "rejection_codes": [
+        "readiness_artifact_path_outside_repository",
+        "readiness_artifact_missing_from_commit",
+        "readiness_artifact_missing_from_worktree"
+      ]
+    },
+    {
+      "name": "state_keeps_phase_open",
+      "passed": true
+    },
+    {
+      "name": "route_plans_gap_without_retry",
+      "passed": true
+    },
+    {
+      "name": "requirement_still_open",
+      "passed": true
+    },
+    {
+      "name": "no_staged_changes",
+      "passed": true
+    }
+  ],
+  "check_count": 43,
+  "passed": 43,
+  "phase_complete": false,
+  "repo_04_status": "open",
+  "plan25_prune_operations": 0,
+  "source_code_changes": false,
+  "verification_scope": "Independent immutable commit graph, file pins, recorded boundary inventories, current local refs and object readability; direct and temporary-copy readiness-verifier reproduction. Live origin and PR inventories are the committed operation-boundary observations, not newly fetched here.",
+  "after_stage_note": "Executor ran the contract after-stage verifier at a1cd058d before the later metadata commit. This independent reconciliation checks that immutable child directly without rewinding HEAD.",
+  "interrupted_attempt": {
+    "kind": "read_only_verification_timeout",
+    "command": "temporary-copy readiness verification",
+    "observed_child": "git hash-object --stdin --path .planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+    "elapsed_seconds_minimum": 213,
+    "disposition": "Scoped process tree terminated; retry once with a 45-second bound.",
+    "ref_mutations": 0
+  },
+  "next_command": "$gsd-plan-phase 245 --gaps"
+}

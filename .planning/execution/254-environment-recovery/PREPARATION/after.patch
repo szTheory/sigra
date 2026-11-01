@@ -1,0 +1,1317 @@
+diff --git a/.github/actions/example-playwright-boot/action.yml b/.github/actions/example-playwright-boot/action.yml
+index 0001e36ec97641cd66b2244da4a942d141f33c10..6910d5a7150a02f9ab4bc15c0c243c2fc08bb1a0 100644
+--- a/.github/actions/example-playwright-boot/action.yml
++++ b/.github/actions/example-playwright-boot/action.yml
+@@ -130,10 +130,10 @@ runs:
+         CACHE_HIT: ${{ steps.browser_cache_result.outputs.hit }}
+       run: |
+         set -euo pipefail
+-        if [ "$CACHE_HIT" = "true" ]; then
+-          npx playwright install-deps $BROWSERS
+-        else
+-          npx playwright install --with-deps $BROWSERS
++        python3 "$GITHUB_WORKSPACE/scripts/ci/ci-playwright-os-deps.py" \
++          --playwright-dir "$PWD" --report "$RUNNER_TEMP/playwright-os-deps.json" $BROWSERS
++        if [ "$CACHE_HIT" != "true" ]; then
++          npx playwright install $BROWSERS
+         fi
+ 
+     - name: Boot example app
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 632f94bb23929b784dd95dd1624169c7411fdd87..a36f7560535d1773223fc892d91313fecf560cc0 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -353,6 +353,11 @@ jobs:
+         # is NOT run here -- it requires a live `gh` against a real run -- only its
+         # PATH-shadowed self-test, which makes no network call and needs no GH_TOKEN.
+         run: bash scripts/ci/ci-run-metrics.test.sh
++      - name: Browser package acquisition and runner identity self-tests
++        run: |
++          python3 scripts/ci/ci-apt-transfer-probe.test.py
++          python3 scripts/ci/ci-playwright-os-deps.test.py
++          node --test scripts/ci/ci-runner-image.test.mjs
+       - name: Offline attestation runtime self-test
+         run: bash scripts/ci/verify-terminal-ratification-attestation-offline.test.sh
+       - name: Verify retained terminal attestation offline
+@@ -550,7 +555,7 @@ jobs:
+   # library contract checked on every pull request.
+   library_tests_shard:
+     name: Library tests shard
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 20
+     needs: release_ref_guard
+     services:
+@@ -566,6 +571,10 @@ jobs:
+           --health-timeout 5s --health-retries 5
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
++      - name: Capture runner image identity before setup
++        run: |
++          mkdir -p test-results
++          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
+       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+         id: setup
+         with:
+@@ -670,6 +679,20 @@ jobs:
+           fs.mkdirSync('test-results', { recursive: true });
+           fs.writeFileSync('test-results/ci-measurement-metadata.json', `${JSON.stringify(metadata, null, 2)}\n`);
+           NODE
++      - name: Verify and attach runner image identity
++        if: always()
++        run: |
++          node --input-type=module <<'NODEIMAGE'
++          import fs from 'node:fs';
++          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
++          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
++          const verification=verifyFromSystem(proof);
++          const path='test-results/ci-measurement-metadata.json';
++          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
++          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
++          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
++          if(verification.status!=='verified')process.exitCode=1;
++          NODEIMAGE
+       - name: Upload library measurement metadata
+         if: always()
+         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+@@ -768,7 +791,7 @@ jobs:
+ 
+   example_unit_smoke:
+     name: Example unit smoke (ExUnit + ConnTest)
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     needs: [changes]
+     # Phase 230 (FAST-05 / D-09, D-07): first time this required lane gains
+@@ -791,6 +814,10 @@ jobs:
+           --health-timeout 5s --health-retries 5
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
++      - name: Capture runner image identity before setup
++        run: |
++          mkdir -p test-results
++          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
+       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+         id: setup
+         if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+@@ -863,6 +890,20 @@ jobs:
+           const metadata = { schema_version:'sigra.ci-measurement-metadata/v1', repository:process.env.GITHUB_REPOSITORY ?? null, run_id:process.env.GITHUB_RUN_ID ?? null, run_attempt:process.env.GITHUB_RUN_ATTEMPT ?? null, source_sha:process.env.GITHUB_SHA ?? null, event:process.env.GITHUB_EVENT_NAME ?? null, matrix_seam:null, job_name:process.env.JOB_NAME, runner_os:process.env.RUNNER_OS ?? null, runner_arch:process.env.RUNNER_ARCH ?? null, runner_image:{image_os:process.env.ImageOS ?? null,image_version:process.env.ImageVersion ?? null}, cache_outcome:{example_deps:cache(process.env.EXAMPLE_DEPS_CACHE_HIT)}, configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null}, observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null}, version_unavailable:{erlang:reasons(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reasons(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'} };
+           fs.mkdirSync('test-results', { recursive:true }); fs.writeFileSync('test-results/ci-measurement-metadata.json', `${JSON.stringify(metadata,null,2)}\n`);
+           NODE
++      - name: Verify and attach runner image identity
++        if: always()
++        run: |
++          node --input-type=module <<'NODEIMAGE'
++          import fs from 'node:fs';
++          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
++          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
++          const verification=verifyFromSystem(proof);
++          const path='test-results/ci-measurement-metadata.json';
++          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
++          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
++          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
++          if(verification.status!=='verified')process.exitCode=1;
++          NODEIMAGE
+       - name: Upload example unit measurement metadata
+         if: always()
+         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+@@ -876,7 +917,7 @@ jobs:
+     # Also closes SEED-3 / UAT-01 greenfield: `mix sigra.gen.oauth` + path/migration/router
+     # checks (see scripts/ci/install-smoke.sh and docs/uat-ci-coverage.md).
+     name: Install smoke (fresh phx.new + sigra.install)
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     needs: [release_ref_guard, changes]
+     # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
+@@ -897,6 +938,10 @@ jobs:
+           --health-timeout 5s --health-retries 5
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
++      - name: Capture runner image identity before setup
++        run: |
++          mkdir -p test-results
++          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
+       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+         id: setup
+         if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+@@ -967,6 +1012,20 @@ jobs:
+           const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{library_deps:cache(process.env.INSTALL_DEPS_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null},observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null},version_unavailable:{erlang:reason(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reason(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'}};
+           fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
+           NODE
++      - name: Verify and attach runner image identity
++        if: always()
++        run: |
++          node --input-type=module <<'NODEIMAGE'
++          import fs from 'node:fs';
++          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
++          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
++          const verification=verifyFromSystem(proof);
++          const path='test-results/ci-measurement-metadata.json';
++          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
++          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
++          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
++          if(verification.status!=='verified')process.exitCode=1;
++          NODEIMAGE
+       - name: Upload install smoke measurement metadata
+         if: always()
+         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+@@ -1267,7 +1326,7 @@ jobs:
+ 
+   example_http_smoke:
+     name: Example HTTP smoke (boot + curl critical routes)
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 10
+     needs: [release_ref_guard, changes]
+     # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
+@@ -1287,6 +1346,10 @@ jobs:
+           --health-timeout 5s --health-retries 5
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
++      - name: Capture runner image identity before setup
++        run: |
++          mkdir -p test-results
++          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
+       - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+         id: setup
+         if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+@@ -1371,6 +1434,20 @@ jobs:
+           const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{example_deps:cache(process.env.HTTP_DEPS_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null},observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null},version_unavailable:{erlang:reason(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reason(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'}};
+           fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
+           NODE
++      - name: Verify and attach runner image identity
++        if: always()
++        run: |
++          node --input-type=module <<'NODEIMAGE'
++          import fs from 'node:fs';
++          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
++          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
++          const verification=verifyFromSystem(proof);
++          const path='test-results/ci-measurement-metadata.json';
++          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
++          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
++          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
++          if(verification.status!=='verified')process.exitCode=1;
++          NODEIMAGE
+       - name: Upload HTTP smoke measurement metadata
+         if: always()
+         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+@@ -1382,7 +1459,7 @@ jobs:
+ 
+   example_playwright_shard:
+     name: Example Playwright shard (${{ matrix.seam }})
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 30
+     needs: [release_ref_guard, changes]
+     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
+@@ -1437,6 +1514,12 @@ jobs:
+           --health-timeout 5s --health-retries 5
+     steps:
+       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
++      - name: Capture runner image identity before setup
++        env:
++          MATRIX_SEAM: ${{ matrix.seam }}
++        run: |
++          mkdir -p test-results
++          node scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json
+ 
+       - name: Boot isolated example app
+         id: boot
+@@ -1694,6 +1777,24 @@ jobs:
+           const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:process.env.MATRIX_SEAM??null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{example_deps:cache(process.env.BROWSER_DEPS_CACHE_HIT),browser_binaries:cache(process.env.BROWSER_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:process.env.CONFIGURED_NODE??null,playwright:playwrightPin},observed_versions:{erlang:otp.value,elixir:elixir.value,node:node.value,playwright:playwright.value},version_unavailable:{erlang:otp.reason,elixir:elixir.reason,node:node.reason,playwright:playwright.reason}};
+           fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
+           NODE
++      - name: Verify and attach runner image identity
++        if: always()
++        env:
++          MATRIX_SEAM: ${{ matrix.seam }}
++        run: |
++          node --input-type=module <<'NODEIMAGE'
++          import fs from 'node:fs';
++          import { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';
++          const proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));
++          const verification=verifyFromSystem(proof);
++          const path='test-results/ci-measurement-metadata.json';
++          const metadata=JSON.parse(fs.readFileSync(path,'utf8'));
++          metadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};
++          const depsPath=process.env.RUNNER_TEMP+'/playwright-os-deps.json';
++          metadata.os_dependencies=fs.existsSync(depsPath)?JSON.parse(fs.readFileSync(depsPath,'utf8')):null;
++          fs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');
++          if(verification.status!=='verified')process.exitCode=1;
++          NODEIMAGE
+       - name: Upload Playwright measurement metadata
+         if: always()
+         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+@@ -2052,7 +2153,7 @@ jobs:
+   # a PR is opened for human review (OQ2) before anything merges to main.
+   admin_design_recapture:
+     name: Recapture admin-design baselines (in-CI)
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 40
+     if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
+     needs: release_ref_guard
+@@ -2296,7 +2397,7 @@ jobs:
+ 
+   admin_checkpoint_recapture:
+     name: Recapture admin-checkpoint baselines (in-CI)
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 20
+     if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
+     needs: release_ref_guard
+@@ -2483,7 +2584,7 @@ jobs:
+   # forbids reinstating the job-level mask and requires the step-level flag to stay.
+   admin_eval_render:
+     name: Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-24.04
+     timeout-minutes: 40
+     needs: [release_ref_guard]
+     if: github.event_name != 'pull_request'
+diff --git a/scripts/ci/ci-apt-transfer-probe.sh b/scripts/ci/ci-apt-transfer-probe.sh
+new file mode 100644
+index 0000000000000000000000000000000000000000..83364d91d019aae69133a742101bca445febbe03
+--- /dev/null
++++ b/scripts/ci/ci-apt-transfer-probe.sh
+@@ -0,0 +1,162 @@
++#!/usr/bin/env bash
++# Diagnostic downloads only: no apt update, package install, source edits or auth bypass.
++set -euo pipefail
++[[ $# == 2 && "$1" == --output ]] || { echo 'usage: ci-apt-transfer-probe.sh --output NEW_REPORT.json' >&2; exit 2; }
++python3 - "$2" <<'PY'
++import datetime
++import hashlib
++import json
++import pathlib
++import re
++import subprocess
++import sys
++import tempfile
++import time
++import urllib.parse
++
++output = pathlib.Path(sys.argv[1])
++if output.exists():
++    raise SystemExit('probe_output_already_exists')
++report = {'schema_version': 'sigra.ci-apt-transfer-probe/v1', 'package': 'libflite1',
++          'captured_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
++          'installs_packages': False, 'changes_apt_configuration': False,
++          'apt_authentication_disabled': False, 'probes': [], 'diagnostics': []}
++
++def run(args, *, cwd=None, seconds=20):
++    started = time.monotonic()
++    try:
++        result = subprocess.run(args, cwd=cwd, capture_output=True, text=True, timeout=seconds)
++        return result.returncode, result.stdout, time.monotonic() - started
++    except subprocess.TimeoutExpired:
++        return 124, '', time.monotonic() - started
++    except OSError:
++        return 127, '', time.monotonic() - started
++
++def endpoint(value):
++    parsed = urllib.parse.urlsplit(value)
++    if parsed.scheme in ('http', 'https') and parsed.hostname:
++        return {'scheme': parsed.scheme, 'host': parsed.hostname}
++    return {'scheme': 'local_mirror_list' if value.startswith('mirror+file:') else 'unsupported'}
++
++def check_file(path, expected_size, digest):
++    size = path.stat().st_size if path.is_file() else 0
++    actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
++    valid = size == expected_size and (digest is None or actual == digest)
++    return size, actual, valid
++
++try:
++    keys = {'retries': 'Acquire::Retries', 'http_timeout': 'Acquire::http::Timeout',
++            'https_timeout': 'Acquire::https::Timeout', 'http_dl_limit': 'Acquire::http::Dl-Limit',
++            'https_dl_limit': 'Acquire::https::Dl-Limit'}
++    args = ['apt-config', 'shell']
++    for label, key in keys.items():
++        args += [label, key]
++    code, text, _ = run(args)
++    # Never log raw configuration: proxies may contain credentials.
++    config = {key: None for key in keys}
++    for line in text.splitlines():
++        match = re.fullmatch(r"([a-z_]+)='([0-9]+)'", line)
++        if match and match[1] in config:
++            config[match[1]] = int(match[2])
++    report['effective_apt_acquire'] = config
++    report['apt_config_exit_code'] = code
++    mirrors = []
++    for path in (pathlib.Path('/etc/apt/apt-mirrors.txt'), pathlib.Path('/etc/apt/sources.list'),
++                 *sorted(pathlib.Path('/etc/apt/sources.list.d').glob('*.sources'))):
++        if path.is_file():
++            for line in path.read_text().splitlines():
++                if line.lstrip().startswith('#'):
++                    continue
++                for value in re.findall(r'(?:https?|mirror\+file):[^\s]+', line):
++                    item = endpoint(value)
++                    if item not in mirrors:
++                        mirrors.append(item)
++    report['configured_endpoints'] = mirrors
++    code, text, _ = run(['apt-get', '--print-uris', 'download', 'libflite1'])
++    rows = []
++    for line in text.splitlines():
++        # apt documents URI, output filename, size and optional hash for --print-uris.
++        match = re.fullmatch(r"'([^']+)'\s+(\S+)\s+(\d+)(?:\s+(\S+))?", line)
++        if match:
++            rows.append(match.groups())
++    if code or len(rows) != 1:
++        raise ValueError('package_uri_unavailable_or_ambiguous')
++    uri, filename, size, hash_field = rows[0]
++    size = int(size)
++    if not (0 < size <= 32 * 1024 * 1024) or not re.fullmatch(r'libflite1_[A-Za-z0-9.+~:%_-]+\.deb', filename):
++        raise ValueError('package_identity_or_size_invalid')
++    digest_match = re.fullmatch(r'SHA256:([0-9a-fA-F]{64})', hash_field or '')
++    digest = digest_match[1].lower() if digest_match else None
++    parsed = urllib.parse.urlsplit(uri)
++    if parsed.query or parsed.fragment or parsed.username or parsed.password:
++        raise ValueError('package_uri_contains_nonpublic_components')
++    pool = re.search(r'(/pool/[A-Za-z0-9/_.+~%:-]+\.deb)$', parsed.path)
++    if not pool:
++        raise ValueError('package_uri_not_ubuntu_pool')
++    current_uri = uri
++    if uri.startswith('mirror+file:'):
++        mirror_path = pathlib.Path(parsed.path.split('/pool/')[0])
++        if mirror_path != pathlib.Path('/etc/apt/apt-mirrors.txt'):
++            raise ValueError('package_mirror_list_not_standard')
++        candidates = [line.split()[0] for line in mirror_path.read_text().splitlines()
++                      if line.strip() and not line.lstrip().startswith('#')]
++        current_uri = next((value.rstrip('/') + pool[1] for value in candidates
++                            if urllib.parse.urlsplit(value).scheme in ('http', 'https')), None)
++        report['current_curl_endpoint_selection'] = 'first_http_mirror_list_entry_not_proof_of_apt_backend'
++    if current_uri:
++        candidate = urllib.parse.urlsplit(current_uri)
++        if candidate.scheme not in ('http', 'https') or candidate.query or candidate.fragment or candidate.username or candidate.password:
++            raise ValueError('current_mirror_uri_unsafe')
++    official_uri = 'https://archive.ubuntu.com/ubuntu' + pool[1]
++    report['package_metadata'] = {'filename': filename, 'size_bytes': size,
++                                  'apt_sha256': digest, 'source_endpoint': endpoint(uri)}
++    with tempfile.TemporaryDirectory(prefix='sigra-apt-probe-') as temp:
++        root = pathlib.Path(temp)
++        for label, options in [('apt_current', []), ('apt_no_download_cap',
++                ['-o', 'Acquire::http::Dl-Limit=0', '-o', 'Acquire::https::Dl-Limit=0'])]:
++            directory = root / label
++            directory.mkdir()
++            code, _, elapsed = run(['timeout', '--signal=TERM', '--kill-after=5s', '60s',
++                                    'apt-get', *options, 'download', 'libflite1'], cwd=directory, seconds=70)
++            files = list(directory.glob('*.deb'))
++            path = files[0] if len(files) == 1 else directory / filename
++            received, actual, valid = check_file(path, size, digest)
++            report['probes'].append({'name': label, 'exit_code': code, 'elapsed_seconds': round(elapsed, 3),
++                'size_bytes': received, 'bytes_per_second': round(received / max(elapsed, .001), 1),
++                'status': 'complete' if code == 0 and valid else 'incomplete',
++                'sha256': actual if code == 0 and valid else None,
++                'apt_sha256_verified': bool(digest and code == 0 and valid),
++                'uses_original_apt_authentication': True, 'maximum_seconds': 60})
++        for label, target in [('curl_current_endpoint', current_uri), ('curl_official_https', official_uri)]:
++            if not target:
++                report['probes'].append({'name': label, 'status': 'unavailable'})
++                continue
++            path = root / (label + '.deb')
++            code, stats, elapsed = run(['curl', '--disable', '--fail', '--location', '--silent', '--show-error',
++                '--proto', '=http,https', '--proto-redir', '=http,https', '--max-redirs', '3',
++                '--connect-timeout', '10', '--max-time', '30', '--speed-limit', '102400', '--speed-time', '10',
++                '--max-filesize', str(size), '--output', str(path),
++                '--write-out', '%{http_code} %{size_download} %{speed_download}', target], seconds=40)
++            received, actual, valid = check_file(path, size, digest)
++            values = stats.strip().split()
++            http_status = int(values[0]) if values and re.fullmatch(r'[0-9]{3}', values[0]) else None
++            speed = float(values[2]) if len(values) == 3 and re.fullmatch(r'[0-9.]+', values[2]) else None
++            report['probes'].append({'name': label, 'endpoint': endpoint(target), 'exit_code': code,
++                'http_status': http_status, 'elapsed_seconds': round(elapsed, 3), 'size_bytes': received,
++                'bytes_per_second': speed, 'status': 'complete' if code == 0 and valid else 'incomplete',
++                'sha256': actual if code == 0 and valid else None,
++                'apt_sha256_verified': bool(digest and code == 0 and valid),
++                'diagnostic_download_only_never_installed': True, 'maximum_seconds': 30,
++                'minimum_bytes_per_second_over_10_seconds': 102400})
++    report['status'] = 'diagnostic_complete'
++except (OSError, ValueError) as error:
++    report['status'] = 'diagnostic_failed'
++    # Only fixed diagnostic names are surfaced, never transport stderr or raw URIs.
++    report['diagnostics'].append(str(error) if isinstance(error, ValueError) else 'local_io_error')
++output.parent.mkdir(parents=True, exist_ok=True)
++with output.open('x') as destination:
++    json.dump(report, destination, indent=2)
++    destination.write('\n')
++print(json.dumps({'status': report['status'], 'probe_count': len(report['probes'])}))
++raise SystemExit(0 if report['status'] == 'diagnostic_complete' else 1)
++PY
+diff --git a/scripts/ci/ci-apt-transfer-probe.test.py b/scripts/ci/ci-apt-transfer-probe.test.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..0c552ef2ee8c13b5124093c5c3b88670d1483c07
+--- /dev/null
++++ b/scripts/ci/ci-apt-transfer-probe.test.py
+@@ -0,0 +1,97 @@
++#!/usr/bin/env python3
++"""Hermetic transfer diagnostics: no packages, sudo, network or GitHub access."""
++import hashlib
++import json
++import os
++import pathlib
++import subprocess
++import tempfile
++import unittest
++
++SCRIPT = pathlib.Path(__file__).with_name('ci-apt-transfer-probe.sh')
++PAYLOAD = b'authenticated package bytes'
++DIGEST = hashlib.sha256(PAYLOAD).hexdigest()
++
++
++class TransferProbeTest(unittest.TestCase):
++    def invoke(self, mode='normal'):
++        with tempfile.TemporaryDirectory() as temp:
++            root = pathlib.Path(temp)
++            binaries = root / 'bin'
++            binaries.mkdir()
++            shim = binaries / 'shim'
++            shim.write_text('''#!/usr/bin/env python3
++import os,sys,pathlib,json
++name=pathlib.Path(sys.argv[0]).name;args=sys.argv[1:];mode=os.environ['PROBE_TEST_MODE']
++with open(os.environ['PROBE_TEST_CALLS'],'a') as f:f.write(json.dumps([name,*args])+'\\n')
++data=b'authenticated package bytes'
++if name=='apt-config':
++ print("http_dl_limit='50'\\nhttps_timeout='15'\\nProxy='https://secret:password@example.test?token=SECRET'")
++elif name=='apt-get':
++ if '--print-uris' in args:
++  url='http://azure.archive.ubuntu.com/ubuntu/pool/universe/f/flite/libflite1_2.2-6build3_amd64.deb'
++  if mode=='secret_uri':url+='?token=SECRET'
++  print("'%s' libflite1_2.2-6build3_amd64.deb %s SHA256:%s"%(url,len(data),os.environ['PROBE_TEST_DIGEST']))
++ else:
++  if mode=='apt_timeout' and 'Acquire::http::Dl-Limit=0' not in args:sys.exit(124)
++  pathlib.Path('libflite1_2.2-6build3_amd64.deb').write_bytes(data)
++elif name=='timeout':
++ import subprocess
++ sys.exit(subprocess.call(args[3:]))
++elif name=='curl':
++ target=pathlib.Path(args[args.index('--output')+1])
++ target.write_bytes(b'tampered' if mode=='tamper' else data)
++ print('200 %s 1000000'%len(data),end='')
++''')
++            shim.chmod(0o755)
++            for name in ['apt-config', 'apt-get', 'timeout', 'curl']:
++                (binaries / name).symlink_to(shim)
++            calls = root / 'calls'
++            output = root / 'report.json'
++            env = {**os.environ, 'PATH': str(binaries) + os.pathsep + os.environ['PATH'],
++                   'PROBE_TEST_MODE': mode, 'PROBE_TEST_CALLS': str(calls), 'PROBE_TEST_DIGEST': DIGEST}
++            process = subprocess.run(['bash', str(SCRIPT), '--output', str(output)], env=env,
++                                     capture_output=True, text=True, timeout=15)
++            return process, json.loads(output.read_text()), [json.loads(x) for x in calls.read_text().splitlines()]
++
++    def test_records_all_four_paths_and_checks_package_hashes_without_install(self):
++        process, report, calls = self.invoke()
++        self.assertEqual(process.returncode, 0, process.stderr)
++        self.assertEqual(len(report['probes']), 4)
++        self.assertTrue(all(row['status'] == 'complete' and row['apt_sha256_verified'] for row in report['probes']))
++        self.assertEqual(report['effective_apt_acquire']['http_dl_limit'], 50)
++        self.assertNotIn('SECRET', json.dumps(report) + process.stdout + process.stderr)
++        self.assertNotIn('password', json.dumps(report))
++        for call in calls:
++            self.assertNotIn('install', call)
++            self.assertNotIn('update', call)
++            self.assertNotIn('--allow-unauthenticated', call)
++        curls = [row for row in calls if row[0] == 'curl']
++        self.assertEqual(curls[1][-1], 'https://archive.ubuntu.com/ubuntu/pool/universe/f/flite/libflite1_2.2-6build3_amd64.deb')
++        self.assertTrue(all(row[row.index('--max-time')+1] == '30' for row in curls))
++
++    def test_timeout_is_recorded_and_cap_override_still_executed_once(self):
++        process, report, calls = self.invoke('apt_timeout')
++        self.assertEqual(process.returncode, 0)
++        self.assertEqual(report['probes'][0]['exit_code'], 124)
++        self.assertEqual(report['probes'][0]['status'], 'incomplete')
++        self.assertEqual(report['probes'][1]['status'], 'complete')
++        downloads = [row for row in calls if row[0] == 'apt-get' and '--print-uris' not in row]
++        self.assertEqual(len(downloads), 2)
++        self.assertIn('Acquire::http::Dl-Limit=0', downloads[1])
++
++    def test_tampered_curl_download_is_never_reported_complete(self):
++        process, report, _ = self.invoke('tamper')
++        self.assertEqual(process.returncode, 0)
++        self.assertTrue(all(row['status'] == 'incomplete' and not row['apt_sha256_verified'] for row in report['probes'][2:]))
++
++    def test_secret_uri_fails_closed_without_transport_or_leak(self):
++        process, report, calls = self.invoke('secret_uri')
++        self.assertEqual(process.returncode, 1)
++        self.assertEqual(report['diagnostics'], ['package_uri_contains_nonpublic_components'])
++        self.assertFalse(any(row[0] in ('curl', 'timeout') for row in calls))
++        self.assertNotIn('SECRET', json.dumps(report) + process.stdout + process.stderr)
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/scripts/ci/ci-measure-workflow.test.mjs b/scripts/ci/ci-measure-workflow.test.mjs
+index 7a8df322cb6d2d35d971ec8910c59c6b741873a2..9dde6c9479df343bed031f90f27f53b1bb9101ab 100644
+--- a/scripts/ci/ci-measure-workflow.test.mjs
++++ b/scripts/ci/ci-measure-workflow.test.mjs
+@@ -140,3 +140,15 @@ test('metadata keeps configured pins separate from command-observed versions and
+   assert.match(blocks.example_playwright_shard, /capture\('elixir',\['--version'\]/);
+   assert.match(blocks.example_playwright_shard, /capture\('node',\['--version'\]/);
+ });
++
++test('captures native image identity before setup and rejects changes before artifact publication', () => {
++  for (const [id, block] of Object.entries(blocks)) {
++    assert.match(block, /runs-on: ubuntu-24\.04/);
++    const early = block.indexOf('ci-runner-image.mjs capture --output');
++    const setup = block.search(/uses: (?:erlef\/setup-beam|\.\/\.github\/actions\/example-playwright-boot)/);
++    assert.ok(early >= 0 && setup > early, `${id} requires an early image record`);
++    assert.ok(block.includes('verifyFromSystem(proof)'), `${id} must verify the initial file again`);
++    assert.ok(block.includes("if(verification.status!=='verified')process.exitCode=1"));
++    assert.ok(block.includes('source_proof:proof,verification'));
++  }
++});
+diff --git a/scripts/ci/ci-playwright-os-deps.py b/scripts/ci/ci-playwright-os-deps.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..6f653e16f11ebdf3f55bfc57ecb35d682516f65e
+--- /dev/null
++++ b/scripts/ci/ci-playwright-os-deps.py
+@@ -0,0 +1,262 @@
++#!/usr/bin/env python3
++"""Install the locked Playwright OS packages without unbounded apt downloads.
++
++Only Ubuntu 24.04 amd64 is supported. Repository signatures and TLS verification
++remain enabled. Acquisition may retry once; package configuration never retries
++or receives this helper's wall-clock timeout.
++"""
++
++from __future__ import annotations
++
++import argparse
++from contextlib import contextmanager
++import hashlib
++import json
++import os
++from pathlib import Path
++import platform
++import re
++import shlex
++import shutil
++import subprocess
++import tempfile
++import time
++import urllib.parse
++
++
++HOSTS = {"archive.ubuntu.com", "security.ubuntu.com", "azure.archive.ubuntu.com"}
++PACKAGE = re.compile(r"[a-z0-9][a-z0-9+.-]*\Z")
++SUITES = {"noble", "noble-updates", "noble-security", "noble-backports"}
++KEYRING = "/usr/share/keyrings/ubuntu-archive-keyring.gpg"
++
++
++def packages_from_dry_run(output: str) -> list[str]:
++    """Parse the public CLI's printed command as data, never execute its shell."""
++    if len(output) > 65536 or len(output.strip().splitlines()) != 1:
++        raise ValueError("unexpected_playwright_dry_run_output")
++    wrapper = shlex.split(output)
++    if wrapper[:4] == ["sudo", "--", "sh", "-c"] and len(wrapper) == 5:
++        command = wrapper[4]
++    elif wrapper[:2] == ["sh", "-c"] and len(wrapper) == 3:
++        command = wrapper[2]
++    else:
++        raise ValueError("unexpected_playwright_dry_run_wrapper")
++    lexer = shlex.shlex(command, posix=True, punctuation_chars=True)
++    lexer.whitespace_split = True
++    lexer.commenters = ""
++    tokens = list(lexer)
++    prefix = ["apt-get", "update", "&&", "apt-get", "install", "-y", "--no-install-recommends"]
++    packages = tokens[len(prefix):]
++    if tokens[:len(prefix)] != prefix or not packages or any(not PACKAGE.fullmatch(p) for p in packages):
++        raise ValueError("unexpected_playwright_apt_command")
++    if len(set(packages)) != len(packages):
++        raise ValueError("duplicate_playwright_package")
++    return packages
++
++
++def _official_uri(value: str) -> bool:
++    uri = urllib.parse.urlsplit(value)
++    return (uri.scheme in {"http", "https"} and uri.hostname in HOSTS
++            and not uri.username and not uri.password and uri.port is None
++            and uri.path.rstrip("/") == "/ubuntu" and not uri.query and not uri.fragment)
++
++
++def ubuntu_sources(original: str, mirrorlists: dict[str, str]) -> str:
++    """Retain each Ubuntu stanza, replacing only its URI field and continuations."""
++    result = []
++    for stanza in re.split(r"\n[ \t]*\n", original.strip()):
++        lines = stanza.splitlines()
++        fields = {}
++        spans = {}
++        current = None
++        for index, line in enumerate(lines):
++            if not line.strip() or line.lstrip().startswith("#"):
++                continue
++            if line.startswith((" ", "\t")):
++                if current is None:
++                    raise ValueError("invalid_ubuntu_sources_continuation")
++                fields[current] += " " + line.strip()
++                spans[current][1] = index + 1
++                continue
++            match = re.fullmatch(r"([A-Za-z][A-Za-z-]*):[ \t]*(.*)", line)
++            if not match or match[1].lower() in fields:
++                raise ValueError("invalid_ubuntu_sources_field")
++            current = match[1].lower()
++            fields[current] = match[2]
++            spans[current] = [index, index + 1]
++        if not fields:
++            result.append(stanza)
++            continue
++        required = {"types", "uris", "suites", "components", "signed-by"}
++        allowed = required | {"architectures", "languages", "targets", "enabled", "pdiffs", "by-hash"}
++        if not required <= fields.keys() or not fields.keys() <= allowed:
++            raise ValueError("unsupported_ubuntu_sources_fields")
++        if (not set(fields["types"].split()) <= {"deb", "deb-src"}
++                or not fields["types"].split()
++                or not set(fields["suites"].split()) <= SUITES or not fields["suites"].split()
++                or not set(fields["components"].split()) <= {"main", "restricted", "universe", "multiverse"}
++                or not fields["components"].split()
++                or fields["signed-by"].strip() != KEYRING
++                or fields.get("architectures", "amd64").split() != ["amd64"]
++                or fields.get("enabled", "yes") != "yes"):
++            raise ValueError("unsupported_ubuntu_sources_identity")
++        for uri in fields["uris"].split():
++            if uri in {"mirror+file:/etc/apt/apt-mirrors.txt", "mirror+file:/etc/apt/apt-security-mirrors.txt"}:
++                mirrorlist = mirrorlists.get(uri, "")
++                mirrors = [line.split()[0] for line in mirrorlist.splitlines()
++                           if line.strip() and not line.lstrip().startswith("#")]
++                if not mirrors or not all(_official_uri(item) for item in mirrors):
++                    raise ValueError("unrecognized_ubuntu_mirrorlist")
++            elif not _official_uri(uri):
++                raise ValueError("unrecognized_ubuntu_source_uri")
++        if not fields["uris"].split():
++            raise ValueError("missing_ubuntu_source_uri")
++        security_only = set(fields["suites"].split()) == {"noble-security"}
++        host = "security.ubuntu.com" if security_only else "archive.ubuntu.com"
++        start, end = spans["uris"]
++        lines[start:end] = [f"URIs: https://{host}/ubuntu/"]
++        result.append("\n".join(lines))
++    if not result or not any("URIs: https://" in stanza for stanza in result):
++        raise ValueError("no_ubuntu_sources")
++    return "\n\n".join(result) + "\n"
++
++
++def transient_acquisition(code: int, output: str) -> bool:
++    if re.search(r"NO_PUBKEY|GPG error|not signed|Certificate verification failed|Release file.*expired", output, re.I):
++        return False
++    return code in {124, 137} or bool(re.search(
++        r"Temporary failure resolving|Could not connect|Connection (?:failed|timed out)|"
++        r"TLS connection was non-properly terminated|(?:500|502|503|504) (?:Internal|Bad|Service|Gateway)",
++        output, re.I))
++
++
++def run_logged(argv: list[str], log: Path) -> int:
++    with log.open("x") as output:
++        return subprocess.run(argv, stdout=output, stderr=subprocess.STDOUT).returncode
++
++
++@contextmanager
++def apt_directory():
++    # apt creates root/_apt-owned files; only remove the directory we generated.
++    folder = Path(tempfile.mkdtemp(prefix="sigra-playwright-apt-"))
++    try:
++        folder.chmod(0o755)
++        yield folder
++    finally:
++        try:
++            shutil.rmtree(folder)
++        except PermissionError:
++            subprocess.run(["sudo", "--non-interactive", "rm", "--recursive", "--force",
++                            "--one-file-system", "--", str(folder)], check=True)
++
++
++def install(playwright_dir: Path, browsers: list[str], report_path: Path, *,
++            system_root: Path = Path("/"), runner=run_logged) -> int:
++    report = {"schema_version": "sigra.playwright-os-deps/v1", "status": "failed",
++              "browsers": browsers, "phases": [], "maximum_acquisition_attempts": 2,
++              "package_configuration_retried": False,
++              "retry_policy": "one fresh connection to the official HTTPS sources"}
++    if report_path.exists():
++        raise ValueError("report_already_exists")
++    report_path.parent.mkdir(parents=True, exist_ok=True)
++
++    def save():
++        report_path.write_text(json.dumps(report, indent=2) + "\n")
++
++    def stage(name, attempt, argv):
++        log = report_path.with_name(report_path.stem + f".{attempt}.{name}.log")
++        started = time.monotonic()
++        code = runner(argv, log)
++        report["phases"].append({"phase": name, "attempt": attempt, "exit_code": code,
++                                 "elapsed_seconds": round(time.monotonic() - started, 3),
++                                 "log": str(log), "log_sha256": hashlib.sha256(log.read_bytes()).hexdigest()})
++        save()
++        return code, log.read_text(errors="replace")
++
++    try:
++        if not browsers or len(set(browsers)) != len(browsers) or not set(browsers) <= {"chromium", "webkit", "firefox"}:
++            raise ValueError("unsupported_browser_selection")
++        release = dict(line.split("=", 1) for line in (system_root/"etc/os-release").read_text().splitlines()
++                       if "=" in line and not line.startswith("#"))
++        if (platform.system() != "Linux" or platform.machine() != "x86_64"
++                or release.get("ID", "").strip('"') != "ubuntu"
++                or release.get("VERSION_ID", "").strip('"') != "24.04"):
++            raise ValueError("requires_ubuntu_24_04_amd64")
++        if not (system_root/KEYRING.lstrip("/")).is_file():
++            raise ValueError("ubuntu_archive_keyring_missing")
++        source = (system_root/"etc/apt/sources.list.d/ubuntu.sources").read_text()
++        mirrors = {}
++        for name in ("apt-mirrors.txt", "apt-security-mirrors.txt"):
++            path = system_root/"etc/apt"/name
++            if path.is_file():
++                mirrors[f"mirror+file:/etc/apt/{name}"] = path.read_text()
++        generated = ubuntu_sources(source, mirrors)
++        node = shutil.which("node")
++        cli = playwright_dir/"node_modules/playwright/cli.js"
++        if not node or not cli.is_file():
++            raise ValueError("locked_playwright_cli_missing")
++        # The public CLI derives package names for the actual host and selection.
++        code, dry_run = stage("package-plan", 0, [node, str(cli.resolve()), "install-deps", "--dry-run", *browsers])
++        if code:
++            return code
++        packages = packages_from_dry_run(dry_run)
++        report.update(packages=packages, original_sources_sha256=hashlib.sha256(source.encode()).hexdigest())
++        sudo = [] if os.geteuid() == 0 else ["sudo", "--non-interactive"]
++        with apt_directory() as temporary:
++            (temporary/"empty-sources").mkdir(mode=0o755)
++            (temporary/"lists").mkdir(mode=0o755)
++            (temporary/"archives").mkdir(mode=0o755)
++            for attempt in (1, 2):
++                sources = temporary/"ubuntu.sources"
++                sources.write_text(generated); sources.chmod(0o644)
++                env = ["env", "DEBIAN_FRONTEND=noninteractive"]
++                # Command-line options win over any later image apt.conf.d file.
++                options = {"Dir::Etc::sourcelist": sources,
++                           "Dir::Etc::sourceparts": temporary/"empty-sources",
++                           "Dir::State::lists": temporary/"lists",
++                           "Dir::Cache::archives": temporary/"archives",
++                           "Dir::Cache::pkgcache": "", "Dir::Cache::srcpkgcache": "",
++                           "Acquire::Retries": "0", "Acquire::http::Timeout": "15",
++                           "Acquire::https::Timeout": "15", "APT::Update::Error-Mode": "any"}
++                apt = ["/usr/bin/apt-get", *[arg for key, value in options.items()
++                       for arg in ("-o", f"{key}={value}")], "-y", "--no-install-recommends"]
++                failure = None
++                for name, seconds, arguments in (("update", 60, ["update"]),
++                                                 ("download", 240, ["--download-only", "install", *packages])):
++                    command = [*sudo, "timeout", "--signal=TERM", "--kill-after=10s", f"{seconds}s", *env, *apt, *arguments]
++                    code, output = stage(name, attempt, command)
++                    if code:
++                        failure = (code, output)
++                        break
++                if failure:
++                    if attempt == 1 and transient_acquisition(*failure):
++                        continue
++                    return failure[0]
++                # Every package is acquired and verified before dpkg can run.
++                # Do not put a kill timer around package configuration.
++                code, _ = stage("install", attempt, [*sudo, *env, *apt, "--no-download", "install", *packages])
++                if code:
++                    return code
++                report["status"] = "passed"
++                report["successful_acquisition_attempt"] = attempt
++                return 0
++        raise AssertionError("unreachable_acquisition_state")
++    except (OSError, ValueError, subprocess.SubprocessError) as error:
++        report["status"] = "failed"
++        report["diagnostic"] = str(error)
++        return 1
++    finally:
++        save()
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("browsers", nargs="+", choices=["chromium", "webkit", "firefox"])
++    parser.add_argument("--playwright-dir", type=Path, default=Path.cwd())
++    parser.add_argument("--report", type=Path, required=True)
++    args = parser.parse_args()
++    return install(args.playwright_dir.resolve(), args.browsers, args.report.resolve())
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/scripts/ci/ci-playwright-os-deps.test.py b/scripts/ci/ci-playwright-os-deps.test.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..428d0d8a36a2ca9f7653c2dbbec8dc560c9d69fc
+--- /dev/null
++++ b/scripts/ci/ci-playwright-os-deps.test.py
+@@ -0,0 +1,158 @@
++#!/usr/bin/env python3
++"""Hermetic acquisition/installation boundaries; no apt, sudo, or network."""
++import importlib.util
++import json
++from pathlib import Path
++import tempfile
++import unittest
++from unittest.mock import patch
++
++spec = importlib.util.spec_from_file_location("os_deps", Path(__file__).with_name("ci-playwright-os-deps.py"))
++deps = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(deps)
++
++SOURCE = """# Existing Ubuntu archive
++Types: deb
++URIs: mirror+file:/etc/apt/apt-mirrors.txt
++Suites: noble noble-updates noble-backports
++Components: main restricted universe multiverse
++Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
++
++Types: deb
++URIs: http://security.ubuntu.com/ubuntu/
++Suites: noble-security
++Components: main restricted universe multiverse
++Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
++"""
++MIRRORS = "http://azure.archive.ubuntu.com/ubuntu/\tpriority:1\nhttps://archive.ubuntu.com/ubuntu/\tpriority:2\n"
++MIRRORLISTS = {"mirror+file:/etc/apt/apt-mirrors.txt": MIRRORS,
++               "mirror+file:/etc/apt/apt-security-mirrors.txt": MIRRORS}
++PLAN = 'sudo -- sh -c "apt-get update&& apt-get install -y --no-install-recommends libflite1 libasound2t64 fonts-liberation"\n'
++
++
++class OsDependencies(unittest.TestCase):
++    def test_public_cli_command_is_data_and_exact_packages_are_retained(self):
++        self.assertEqual(deps.packages_from_dry_run(PLAN), ["libflite1", "libasound2t64", "fonts-liberation"])
++        self.assertEqual(deps.packages_from_dry_run(PLAN.replace("sudo -- ", "")),
++                         ["libflite1", "libasound2t64", "fonts-liberation"])
++
++    def test_unknown_shell_forms_and_injections_fail_closed(self):
++        for value in [PLAN + "notice\n", PLAN.replace("&&", ";"),
++                      PLAN.replace("libflite1", "libflite1; touch /tmp/injected"),
++                      PLAN.replace("libflite1", "$(whoami)"),
++                      PLAN.replace("libflite1", "--allow-unauthenticated"),
++                      PLAN.replace("libflite1", "libflite1 libflite1"),
++                      PLAN.replace("apt-get update", "echo apt-get update"),
++                      PLAN.replace("sudo -- sh", "sudo sh"),
++                      PLAN.replace("libflite1", "libflite1 #comment")]:
++            with self.subTest(value=value), self.assertRaises(ValueError):
++                deps.packages_from_dry_run(value)
++
++    def test_sources_change_only_uri_and_keep_signature_and_suite_fields(self):
++        first = deps.ubuntu_sources(SOURCE, MIRRORLISTS)
++        self.assertIn("URIs: https://archive.ubuntu.com/ubuntu/", first)
++        self.assertIn("URIs: https://security.ubuntu.com/ubuntu/", first)
++        original_other = [line for line in SOURCE.splitlines() if not line.startswith("URIs:")]
++        for output in [first]:
++            self.assertEqual(original_other, [line for line in output.splitlines() if not line.startswith("URIs:")])
++            self.assertNotIn("Trusted:", output)
++
++    def test_standard_security_mirrorlist_is_validated_and_resolved(self):
++        source = SOURCE.replace("http://security.ubuntu.com/ubuntu/",
++                                "mirror+file:/etc/apt/apt-security-mirrors.txt")
++        self.assertEqual(deps.ubuntu_sources(source, MIRRORLISTS), deps.ubuntu_sources(SOURCE, MIRRORLISTS))
++        with self.assertRaisesRegex(ValueError, "mirrorlist"):
++            deps.ubuntu_sources(source, {"mirror+file:/etc/apt/apt-mirrors.txt": MIRRORS})
++
++    def test_unrecognized_sources_and_security_overrides_are_rejected(self):
++        for source, mirrors in [(SOURCE.replace("noble-updates", "jammy-updates"), MIRRORS),
++                                (SOURCE.replace("Signed-By:", "Trusted:"), MIRRORS),
++                                (SOURCE + "Trusted: yes\n", MIRRORS),
++                                (SOURCE.replace("http://security.ubuntu.com/ubuntu/", "https://evil.example/ubuntu/"), MIRRORS),
++                                (SOURCE, "https://evil.example/ubuntu/\n"),
++                                (SOURCE.replace("http://security.ubuntu.com/ubuntu/", "https://user:pass@security.ubuntu.com/ubuntu/"), MIRRORS),
++                                (SOURCE.replace("http://security.ubuntu.com/ubuntu/", "https://security.ubuntu.com/ubuntu/?override=1"), MIRRORS)]:
++            with self.subTest(source=source), self.assertRaises(ValueError):
++                deps.ubuntu_sources(source, {key: mirrors for key in MIRRORLISTS})
++
++    def fixture(self, folder):
++        root = Path(folder)/"system"
++        (root/"etc/apt/sources.list.d").mkdir(parents=True)
++        (root/"etc/os-release").write_text('ID=ubuntu\nVERSION_ID="24.04"\n')
++        (root/"etc/apt/sources.list.d/ubuntu.sources").write_text(SOURCE)
++        (root/"etc/apt/apt-mirrors.txt").write_text(MIRRORS)
++        key = root/deps.KEYRING.lstrip("/"); key.parent.mkdir(parents=True); key.write_bytes(b"retained-keyring")
++        playwright = Path(folder)/"playwright"
++        (playwright/"node_modules/playwright").mkdir(parents=True)
++        (playwright/"node_modules/playwright/cli.js").write_text("// public CLI fixture\n")
++        return root, playwright
++
++    def scenario(self, outcomes):
++        with tempfile.TemporaryDirectory() as folder:
++            root, playwright = self.fixture(folder)
++            calls = []
++            def runner(argv, log):
++                calls.append(argv)
++                if "--dry-run" in argv:
++                    log.write_text(PLAN)
++                    return 0
++                code, output = outcomes.pop(0)
++                self.assertFalse(any("Dl-Limit" in arg or "Verify-Peer" in arg for arg in argv))
++                for key in ["Dir::State::lists=", "Dir::Cache::archives=", "Dir::Etc::sourceparts="]:
++                    self.assertTrue(any(arg.startswith(key) for arg in argv))
++                self.assertIn("/usr/bin/apt-get", argv)
++                self.assertIn("Acquire::Retries=0", argv)
++                self.assertIn("APT::Update::Error-Mode=any", argv)
++                log.write_text(output)
++                return code
++            report = Path(folder)/"result.json"
++            with patch.object(deps.platform, "system", return_value="Linux"), \
++                 patch.object(deps.platform, "machine", return_value="x86_64"), \
++                 patch.object(deps.shutil, "which", return_value="/usr/bin/node"), \
++                 patch.object(deps.os, "geteuid", return_value=1001):
++                code = deps.install(playwright, ["chromium", "webkit"], report, system_root=root, runner=runner)
++            self.assertEqual((root/"etc/apt/sources.list.d/ubuntu.sources").read_text(), SOURCE)
++            self.assertEqual((root/"etc/apt/apt-mirrors.txt").read_text(), MIRRORS)
++            return code, json.loads(report.read_text()), calls
++
++    def test_success_acquires_before_install_and_install_has_no_kill_timer(self):
++        code, report, calls = self.scenario([(0, "updated"), (0, "downloaded"), (0, "configured")])
++        self.assertEqual(code, 0)
++        self.assertEqual(report["status"], "passed")
++        self.assertEqual([x["phase"] for x in report["phases"]], ["package-plan", "update", "download", "install"])
++        self.assertIn("timeout", calls[1]); self.assertIn("timeout", calls[2])
++        self.assertIn("--download-only", calls[2]); self.assertIn("--no-download", calls[3])
++        self.assertNotIn("timeout", calls[3]); self.assertNotIn("--foreground", sum(calls, []))
++        self.assertEqual(calls[3][-3:], ["libflite1", "libasound2t64", "fonts-liberation"])
++
++    def test_one_acquisition_retry_then_success_does_not_repeat_install(self):
++        code, report, calls = self.scenario([(0, "updated"), (124, "slow acquisition"),
++                                            (0, "updated fallback"), (0, "downloaded"), (0, "configured")])
++        self.assertEqual(code, 0)
++        self.assertEqual(report["successful_acquisition_attempt"], 2)
++        self.assertEqual(sum("--no-download" in argv for argv in calls), 1)
++        self.assertEqual([x["exit_code"] for x in report["phases"]], [0, 0, 124, 0, 0, 0])
++
++    def test_exhausted_acquisition_keeps_last_exit_and_never_starts_dpkg(self):
++        code, report, calls = self.scenario([(124, "slow index"), (137, "stalled fallback")])
++        self.assertEqual(code, 137)
++        self.assertEqual(report["status"], "failed")
++        self.assertFalse(any("--no-download" in argv for argv in calls))
++        self.assertEqual([x["exit_code"] for x in report["phases"]], [0, 124, 137])
++
++    def test_security_error_and_install_error_never_retry(self):
++        code, report, calls = self.scenario([(100, "GPG error: repository is not signed")])
++        self.assertEqual(code, 100); self.assertEqual(len(calls), 2)
++        code, report, calls = self.scenario([(0, "updated"), (0, "downloaded"), (100, "dpkg failure")])
++        self.assertEqual(code, 100); self.assertEqual(len(calls), 4)
++        self.assertFalse(report["package_configuration_retried"])
++
++    def test_network_errors_retry_but_unknown_errors_do_not(self):
++        self.assertTrue(deps.transient_acquisition(100, "Temporary failure resolving archive.ubuntu.com"))
++        self.assertTrue(deps.transient_acquisition(100, "503 Service Unavailable"))
++        self.assertFalse(deps.transient_acquisition(100, "Unable to locate package libflite1"))
++        self.assertFalse(deps.transient_acquisition(124, "Certificate verification failed"))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/scripts/ci/ci-prep-profile.mjs b/scripts/ci/ci-prep-profile.mjs
+index 177641e5f6348abba1640cb2640020f773e86a8a..49a52a09eff3d6a46b9ea5ca562fef111e613132 100644
+--- a/scripts/ci/ci-prep-profile.mjs
++++ b/scripts/ci/ci-prep-profile.mjs
+@@ -81,7 +81,7 @@ export function buildPreparationCommands(actionSource) {
+ 
+ export function assertPreparationCacheContract(actionSource) {
+   const action = actionSource;
+-  for (const token of ['inputs.app-port', 'steps.setup_beam.outputs.otp-version', 'steps.setup_beam.outputs.elixir-version', '-dev-', 'restore-keys:', 'deps.get', 'compile --warnings-as-errors', 'PGDATABASE:', 'PGPORT:', 'PORT:', 'MIX_ENV: dev', 'ecto.create', 'ecto.migrate', 'run priv/repo/seeds.exs', 'run: npm ci', 'npx playwright install-deps $BROWSERS', 'npx playwright install --with-deps $BROWSERS', 'Boot example app', 'mix phx.server', 'Wait for app and warm routes', 'curl -sf "$BASE_URL/"']) {
++  for (const token of ['inputs.app-port', 'steps.setup_beam.outputs.otp-version', 'steps.setup_beam.outputs.elixir-version', '-dev-', 'restore-keys:', 'deps.get', 'compile --warnings-as-errors', 'PGDATABASE:', 'PGPORT:', 'PORT:', 'MIX_ENV: dev', 'ecto.create', 'ecto.migrate', 'run priv/repo/seeds.exs', 'run: npm ci', 'ci-playwright-os-deps.py', '--playwright-dir "$PWD" --report "$RUNNER_TEMP/playwright-os-deps.json" $BROWSERS', 'npx playwright install $BROWSERS', 'Boot example app', 'mix phx.server', 'Wait for app and warm routes', 'curl -sf "$BASE_URL/"']) {
+     if (!action.includes(token)) throw new Error(`preparation_contract_missing:${token}`);
+   }
+   buildPreparationCommands(action);
+diff --git a/scripts/ci/ci-prep-semantics.test.mjs b/scripts/ci/ci-prep-semantics.test.mjs
+index 1d89e94bfcbd8eda98e12fa6a88c1201206a6f71..3b1ae2e0ee1ebd65e88094c027b763087e73ddbb 100644
+--- a/scripts/ci/ci-prep-semantics.test.mjs
++++ b/scripts/ci/ci-prep-semantics.test.mjs
+@@ -63,8 +63,8 @@ test('preparation comparison rejects source mutations that drop cache or cold-pa
+     action.replaceAll('inputs.app-port', 'inputs.default-port'),
+     action.replace('restore-keys:', 'fallback-keys:'),
+     action.replace('run: npm ci', 'run: npm install'),
+-    action.replace('npx playwright install-deps $BROWSERS', 'echo skip cached OS dependencies'),
+-    action.replace('npx playwright install --with-deps $BROWSERS', 'npx playwright install $BROWSERS'),
++    action.replace('ci-playwright-os-deps.py', 'skip-cached-OS-dependencies'),
++    action.replace('npx playwright install $BROWSERS', 'echo skip browser binaries'),
+     action.replace('run priv/repo/seeds.exs', 'echo skip seeds'),
+     action.replace('ecto.migrate', 'echo skip migrations'),
+     action.replace('curl -sf "$BASE_URL/"', 'true'),
+diff --git a/scripts/ci/ci-runner-image.mjs b/scripts/ci/ci-runner-image.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..e34b066a5162d738d1083b7f1c99639d9e3e43a2
+--- /dev/null
++++ b/scripts/ci/ci-runner-image.mjs
+@@ -0,0 +1,176 @@
++#!/usr/bin/env node
++// Capture the runner's own image record before tool setup can affect measurements.
++import { createHash } from 'node:crypto';
++import { readFileSync, writeFileSync } from 'node:fs';
++import { machine as currentMachine } from 'node:os';
++import { resolve } from 'node:path';
++import { pathToFileURL } from 'node:url';
++
++const SCHEMA = 'sigra.ci-runner-image/v1';
++const IMAGE_PATH = '/imagegeneration/imagedata.json';
++const OS_PATH = '/etc/os-release';
++const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
++const safe = (value, pattern) => typeof value === 'string' && pattern.test(value) ? value : null;
++
++export function normalizeImageOS(value) {
++  if (value === 'ubuntu24' || value === 'ubuntu-24.04') return 'ubuntu24';
++  return null;
++}
++
++function identityFromEnvironment(env) {
++  return {
++    repository: safe(env.GITHUB_REPOSITORY, /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/),
++    run_id: safe(env.GITHUB_RUN_ID, /^[1-9][0-9]*$/),
++    run_attempt: safe(env.GITHUB_RUN_ATTEMPT, /^[1-9][0-9]*$/),
++    source_sha: safe(env.GITHUB_SHA, /^[0-9a-f]{40}$/),
++    job: safe(env.GITHUB_JOB, /^[A-Za-z_][A-Za-z0-9_-]*$/),
++    matrix_seam: env.MATRIX_SEAM === undefined || env.MATRIX_SEAM === '' ? null
++      : safe(env.MATRIX_SEAM, /^[a-z][a-z0-9_]*$/),
++  };
++}
++
++function parseImageData(bytes) {
++  const rows = JSON.parse(bytes.toString('utf8'));
++  if (!Array.isArray(rows)) throw new Error('image_data_not_array');
++  const images = rows.filter((row) => row && row.group === 'Runner Image');
++  if (images.length !== 1 || typeof images[0].detail !== 'string') throw new Error('runner_image_row_not_unique');
++  const lines = images[0].detail.split(/\r?\n/);
++  const names = lines.filter((line) => line.startsWith('Image: '));
++  const versions = lines.filter((line) => line.startsWith('Version: '));
++  if (names.length !== 1 || versions.length !== 1) throw new Error('runner_image_fields_not_unique');
++  const imageOS = normalizeImageOS(names[0].slice(7));
++  const imageVersion = safe(versions[0].slice(9), /^[0-9]{8}\.[0-9]+\.[0-9]+$/);
++  if (!imageOS || !imageVersion) throw new Error('runner_image_fields_invalid');
++  return { image_os: imageOS, image_version: imageVersion };
++}
++
++function osIdentity(bytes) {
++  const values = {};
++  for (const line of bytes.toString('utf8').split(/\r?\n/)) {
++    const match = /^(ID|VERSION_ID)=(?:"([a-zA-Z0-9_.-]+)"|([a-zA-Z0-9_.-]+))$/.exec(line);
++    if (match) {
++      if (values[match[1]] !== undefined) throw new Error('os_release_fields_not_unique');
++      values[match[1]] = match[2] ?? match[3];
++    }
++  }
++  if (values.ID !== 'ubuntu' || values.VERSION_ID !== '24.04') throw new Error('os_release_not_ubuntu_24_04');
++  return { id: values.ID, version_id: values.VERSION_ID };
++}
++
++export function captureRunnerImage({ imageData, osRelease, machine, env, now = new Date().toISOString() }) {
++  const imageBytes = Buffer.from(imageData);
++  const osBytes = Buffer.from(osRelease);
++  const environment = {
++    image_os: normalizeImageOS(env.ImageOS),
++    image_version: safe(env.ImageVersion, /^[0-9]{8}\.[0-9]+\.[0-9]+$/),
++  };
++  const identity = identityFromEnvironment(env);
++  const result = { schema_version: SCHEMA, captured_at: now, status: 'image_identity_unavailable',
++    image_file: { path: IMAGE_PATH, sha256: hash(imageBytes) },
++    os_release_file: { path: OS_PATH, sha256: hash(osBytes) },
++    machine: safe(machine, /^(x86_64|aarch64)$/), identity,
++    environment_image: environment, file_image: null, runner_image: null, diagnostics: [] };
++  try {
++    result.file_image = parseImageData(imageBytes);
++    result.os_release = osIdentity(osBytes);
++  } catch (error) {
++    // JSON parsing messages may contain input bytes; use fixed diagnostics only.
++    result.diagnostics.push(error instanceof SyntaxError ? 'image_data_json_invalid' : error.message);
++    return result;
++  }
++  // Preserve the exact valid runner-owned file bytes, not a reserialized version.
++  result.image_file.base64 = imageBytes.toString('base64');
++  result.os_release_file.base64 = osBytes.toString('base64');
++  if (!result.machine || Object.entries(identity).some(([key, value]) => key !== 'matrix_seam' && value === null)
++      || (env.MATRIX_SEAM && identity.matrix_seam === null) || !environment.image_os || !environment.image_version) {
++    result.diagnostics.push('runner_environment_identity_missing_or_invalid');
++    return result;
++  }
++  if (environment.image_os !== result.file_image.image_os || environment.image_version !== result.file_image.image_version) {
++    result.status = 'image_identity_conflict';
++    result.diagnostics.push('runner_file_and_environment_disagree');
++    return result;
++  }
++  result.status = 'verified';
++  result.runner_image = result.file_image;
++  return result;
++}
++
++export function verifyRunnerImage({ proof, imageData, osRelease, machine, env, now = new Date().toISOString() }) {
++  const current = captureRunnerImage({ imageData, osRelease, machine, env, now });
++  const compact = { schema_version: SCHEMA, status: 'image_identity_conflict',
++    captured_at: proof?.captured_at ?? null, verified_at: now,
++    image_file_sha256: current.image_file.sha256, os_release_sha256: current.os_release_file.sha256,
++    machine: current.machine, identity: current.identity, runner_image: null, diagnostics: [] };
++  if (proof?.schema_version !== SCHEMA || proof?.status !== 'verified') {
++    compact.diagnostics.push('early_image_proof_not_verified');
++    return compact;
++  }
++  for (const key of ['image_file', 'os_release_file']) {
++    const stored = proof[key];
++    if (typeof stored?.base64 !== 'string') {
++      compact.diagnostics.push('early_image_bytes_missing');
++      return compact;
++    }
++    const decoded = Buffer.from(stored.base64, 'base64');
++    if (decoded.toString('base64') !== stored.base64 || hash(decoded) !== stored.sha256
++        || stored.sha256 !== current[key].sha256) {
++      compact.diagnostics.push('runner_image_bytes_changed_or_invalid');
++      return compact;
++    }
++  }
++  // Reconstruct the early values from their retained original bytes, so modified
++  // parsed fields cannot be accepted just because the file hashes still match.
++  const reconstructed = captureRunnerImage({ imageData: Buffer.from(proof.image_file.base64, 'base64'),
++    osRelease: Buffer.from(proof.os_release_file.base64, 'base64'), machine, env, now: proof.captured_at });
++  const fields = ['machine', 'identity', 'environment_image', 'file_image', 'runner_image', 'os_release'];
++  if (current.status !== 'verified' || reconstructed.status !== 'verified'
++      || fields.some((key) => JSON.stringify(proof[key]) !== JSON.stringify(reconstructed[key]))) {
++    compact.diagnostics.push('runner_image_or_job_identity_changed');
++    return compact;
++  }
++  compact.status = 'verified';
++  compact.runner_image = current.runner_image;
++  return compact;
++}
++
++function systemInputs() {
++  return { imageData: readFileSync(IMAGE_PATH), osRelease: readFileSync(OS_PATH), machine: currentMachine(), env: process.env };
++}
++
++export function captureFromSystem() {
++  return captureRunnerImage(systemInputs());
++}
++
++export function verifyFromSystem(proof) {
++  return verifyRunnerImage({ proof, ...systemInputs() });
++}
++
++function main(args) {
++  if (args.length !== 3 || !['capture', 'verify'].includes(args[0])
++      || args[1] !== (args[0] === 'capture' ? '--output' : '--proof')) {
++    process.stderr.write('usage: ci-runner-image.mjs capture --output NEW.json | verify --proof FILE.json\n');
++    return 2;
++  }
++  let result;
++  try {
++    if (args[0] === 'capture') {
++      try {
++        result = captureFromSystem();
++      } catch {
++        result = { schema_version: SCHEMA, status: 'image_identity_unavailable', diagnostics: ['runner_image_files_unavailable'] };
++      }
++      writeFileSync(args[2], JSON.stringify(result, null, 2) + '\n', { flag: 'wx' });
++      process.stdout.write(JSON.stringify({ status: result.status, diagnostics: result.diagnostics }) + '\n');
++    } else {
++      result = verifyFromSystem(JSON.parse(readFileSync(args[2], 'utf8')));
++      process.stdout.write(JSON.stringify(result) + '\n');
++    }
++  } catch {
++    process.stdout.write(JSON.stringify({ schema_version: SCHEMA, status: 'image_identity_unavailable', diagnostics: ['runner_image_proof_io_or_json_invalid'] }) + '\n');
++    return 1;
++  }
++  return result.status === 'verified' ? 0 : 1;
++}
++
++if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) process.exitCode = main(process.argv.slice(2));
+diff --git a/scripts/ci/ci-runner-image.test.mjs b/scripts/ci/ci-runner-image.test.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..9eb81feb53854ddfe29833c3a0390b31e9150fb0
+--- /dev/null
++++ b/scripts/ci/ci-runner-image.test.mjs
+@@ -0,0 +1,105 @@
++import assert from 'node:assert/strict';
++import { createHash } from 'node:crypto';
++import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
++import { tmpdir } from 'node:os';
++import { join } from 'node:path';
++import { spawnSync } from 'node:child_process';
++import test from 'node:test';
++import { captureRunnerImage, verifyRunnerImage, normalizeImageOS } from './ci-runner-image.mjs';
++
++const rows = [
++  { group: 'Operating System', detail: 'Ubuntu\n24.04.5\nLTS' },
++  { group: 'Runner Image', detail: 'Image: ubuntu-24.04\nVersion: 20261012.334.1\nIncluded Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md\nImage Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334' },
++];
++const inputs = () => ({ imageData: Buffer.from(JSON.stringify(rows, null, 2) + '\n'),
++  osRelease: Buffer.from('NAME="Ubuntu"\nID=ubuntu\nVERSION_ID="24.04"\n'), machine: 'x86_64',
++  env: { ImageOS: 'ubuntu24', ImageVersion: '20261012.334.1', GITHUB_REPOSITORY: 'szTheory/sigra',
++    GITHUB_RUN_ID: '40035537413', GITHUB_RUN_ATTEMPT: '1', GITHUB_SHA: 'a'.repeat(40),
++    GITHUB_JOB: 'example_playwright_shard', MATRIX_SEAM: 'design_gallery', TOKEN: 'SECRET' },
++  now: '2026-10-23T22:44:00Z' });
++
++test('captures exact official file bytes and verifies aliases without recording unrelated environment', () => {
++  const source = inputs();
++  const proof = captureRunnerImage(source);
++  assert.equal(proof.status, 'verified');
++  assert.equal(proof.runner_image.image_os, 'ubuntu24');
++  assert.deepEqual(Buffer.from(proof.image_file.base64, 'base64'), source.imageData);
++  assert.equal(proof.image_file.sha256, createHash('sha256').update(source.imageData).digest('hex'));
++  assert.equal(proof.identity.matrix_seam, 'design_gallery');
++  assert.equal(verifyRunnerImage({ proof, ...source }).status, 'verified');
++  assert.ok(!JSON.stringify(proof).includes('SECRET'));
++  assert.equal(normalizeImageOS('ubuntu-24.04'), 'ubuntu24');
++  assert.equal(normalizeImageOS('ubuntu-22.04'), null);
++});
++
++test('a stale file and newer environment fail closed instead of choosing either version', () => {
++  const source = inputs();
++  source.env.ImageVersion = '20261023.334.3';
++  const proof = captureRunnerImage(source);
++  assert.equal(proof.status, 'image_identity_conflict');
++  assert.equal(proof.file_image.image_version, '20261012.334.1');
++  assert.equal(proof.environment_image.image_version, '20261023.334.3');
++  assert.equal(proof.runner_image, null);
++  assert.equal(verifyRunnerImage({ proof, ...source }).status, 'image_identity_conflict');
++});
++
++test('invalid JSON, duplicate rows and ambiguous fields never become verified', () => {
++  for (const imageData of [Buffer.from('SECRET malformed {'), Buffer.from('{}'),
++    Buffer.from(JSON.stringify([...rows, rows[1]])),
++    Buffer.from(JSON.stringify([{ ...rows[1], detail: rows[1].detail + '\nVersion: 20261023.334.3' }]))]) {
++    const proof = captureRunnerImage({ ...inputs(), imageData });
++    assert.equal(proof.status, 'image_identity_unavailable');
++    assert.equal(proof.runner_image, null);
++    assert.ok(!JSON.stringify(proof).includes('SECRET'));
++  }
++});
++
++test('changing either raw file, its proof hash, parsed values or the job identity is rejected', () => {
++  const source = inputs();
++  const proof = captureRunnerImage(source);
++  for (const changed of [
++    { ...source, imageData: Buffer.concat([source.imageData, Buffer.from('\n')]) },
++    { ...source, osRelease: Buffer.concat([source.osRelease, Buffer.from('\n')]) },
++    { ...source, machine: 'aarch64' },
++    { ...source, env: { ...source.env, GITHUB_RUN_ATTEMPT: '2' } },
++    { ...source, env: { ...source.env, GITHUB_SHA: 'b'.repeat(40) } },
++    { ...source, env: { ...source.env, MATRIX_SEAM: 'admin_checkpoints' } },
++  ]) assert.equal(verifyRunnerImage({ proof, ...changed }).status, 'image_identity_conflict');
++  const changedHash = structuredClone(proof);
++  changedHash.image_file.sha256 = '0'.repeat(64);
++  assert.equal(verifyRunnerImage({ proof: changedHash, ...source }).status, 'image_identity_conflict');
++  const changedParsed = structuredClone(proof);
++  changedParsed.runner_image.image_version = '20261023.334.3';
++  assert.equal(verifyRunnerImage({ proof: changedParsed, ...source }).status, 'image_identity_conflict');
++});
++
++test('missing or invalid machine, source, version, seam and OS identity fail closed', () => {
++  const source = inputs();
++  for (const changed of [{ ...source, machine: 'other' },
++    { ...source, osRelease: Buffer.from('ID=ubuntu\nVERSION_ID="26.04"\n') },
++    { ...source, env: { ...source.env, GITHUB_SHA: undefined } },
++    { ...source, env: { ...source.env, ImageVersion: 'SECRET' } },
++    { ...source, env: { ...source.env, MATRIX_SEAM: '../SECRET' } }]) {
++    const result = captureRunnerImage(changed);
++    assert.equal(result.status, 'image_identity_unavailable');
++    assert.ok(!JSON.stringify(result).includes('SECRET'));
++  }
++});
++
++test('CLI refuses path overrides and existing outputs; malformed proofs produce safe JSON', () => {
++  const directory = mkdtempSync(join(tmpdir(), 'sigra-image-test-'));
++  try {
++    const path = join(directory, 'proof.json');
++    writeFileSync(path, 'SECRET invalid json');
++    const cli = new URL('./ci-runner-image.mjs', import.meta.url).pathname;
++    const malformed = spawnSync(process.execPath, [cli, 'verify', '--proof', path], { encoding: 'utf8' });
++    assert.equal(malformed.status, 1);
++    assert.equal(JSON.parse(malformed.stdout).status, 'image_identity_unavailable');
++    assert.ok(!malformed.stderr.includes('SECRET') && !malformed.stdout.includes('SECRET'));
++    const existing = spawnSync(process.execPath, [cli, 'capture', '--output', path], { encoding: 'utf8' });
++    assert.equal(existing.status, 1);
++    assert.equal(readFileSync(path, 'utf8'), 'SECRET invalid json');
++    const override = spawnSync(process.execPath, [cli, 'capture', '--image-file', path], { encoding: 'utf8' });
++    assert.equal(override.status, 2);
++  } finally { rmSync(directory, { recursive: true }); }
++});

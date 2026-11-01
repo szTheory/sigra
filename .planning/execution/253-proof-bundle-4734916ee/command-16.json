@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "bash",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/runtime/ci-pr-proof.sh",
+    "--family",
+    "normal",
+    "--freeze",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/pr-freeze.json",
+    "--allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/prs-allocation.json",
+    "--requests",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/prs-ledger.json",
+    "--repo-root",
+    "/Users/jon/projects/sigra",
+    "--revision-freeze",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/canary-freeze.json",
+    "--action-approval",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/prs-approval.json",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/normal-evidence.json"
+  ],
+  "exit": 0,
+  "stdout": "{\"allocation_valid\": true, \"category_limits\": {\"artifact_downloads\": 20, \"artifact_metadata\": 4, \"attempt_jobs\": 4, \"docs_publication\": 14, \"failure_logs\": 2, \"infrastructure_rerun\": 21, \"native_checks\": 4, \"pr_create\": 2, \"pr_identity\": 8, \"pre_watch_rate\": 2, \"preflight\": 8, \"run_discovery\": 4, \"terminal_polls\": 27}, \"network_requests\": 0, \"status\": \"freeze_valid\"}\n{\"family\": \"normal\", \"notes\": [], \"requests\": 30, \"status\": \"collected\", \"stop\": null}\n",
+  "stderr": ""
+}

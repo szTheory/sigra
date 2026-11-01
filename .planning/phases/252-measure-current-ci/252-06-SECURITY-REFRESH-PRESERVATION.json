@@ -1,0 +1,34 @@
+{
+  "schema_version": "sigra.phase252-plan06-security-refresh-preservation/v1",
+  "purpose": "Exact pre-refresh history for strict security replay and source archive refresh",
+  "captured_at_utc": "2026-10-12T23:30:00Z",
+  "checkout": {
+    "root": "/Users/jon/projects/sigra",
+    "branch": "phase-244-playwright-measurement",
+    "head": "0cdc4e40f"
+  },
+  "readback_verified": true,
+  "preserved_paths": [
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+      "sha256": "5478c3337881eac2285764d57f35fe103191cb5eea1814fc3dd8b36357758d29"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-BASELINE.json",
+      "sha256": "45029a440b8c00fb9aca6ad9b5ae427c443e5736bb7ae1164c44a5ce4caf0376"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-BASELINE.md",
+      "sha256": "5bb582b266e7d2f2ccedd01c4b749939ae13c0d1430ce85cec5037c9c713413a"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json",
+      "sha256": "c485b54ace77d9bfa871261889e40b6c52ea0c21c0db7ef9e20b2ca468a9193f"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-06-SUMMARY.md",
+      "sha256": "b4ac51779c8e6eaf3c562886b19f00119f68b4e48a766cac1b3a0ed4bf17185d"
+    }
+  ],
+  "recovery": "Exact bytes are recoverable from commit 0cdc4e40f. Before this record was written, each listed file was read from HEAD and from disk; the SHA-256 values matched."
+}

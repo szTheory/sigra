@@ -1,0 +1,43 @@
+Test A/B/C: --jobs <id> emits a per-job table; 1053s/17m33s failure row not filtered; negative duration clamped to 0
+  PASS: table row present for failing job at 1053s/17m33s; negative duration clamped to 0s (exit 0)
+Test D: unknown flag -> exit 2, ci-run-metrics: FAIL: unknown arg, ZERO gh invocations
+  PASS: exit 2, correct message, zero gh calls (fail-closed before any gh invocation)
+Test E: gh absent from PATH -> non-zero exit, ci-run-metrics: FAIL: message
+  PASS: exit non-zero (1), FAIL message, no partial stdout
+Test F: gh exits non-zero -> non-zero exit, ci-run-metrics: FAIL: message, no partial table
+  PASS: exit non-zero (1) on gh failure, no partial table emitted
+Test G: empty job list -> non-zero exit, ci-run-metrics: FAIL: message, no partial table
+  PASS: exit non-zero (1) on empty job list, no partial table emitted
+Test H: --format json emits valid JSON; failure-conclusion job present; negative duration clamped
+  PASS: --format json valid, duration/clamp/no-filter semantics match table mode
+Test I/J: window --mode wall table header, per-trigger n/mean/p50/max/outcomes, negative clamp
+  PASS: exact header + odd(n=5)/even(n=4) p50 index rule + negative-duration clamp all correct (exit 0)
+Test K: --mode jobspan produces a strictly smaller mean than --mode wall on the identical canned window
+  PASS: jobspan mean (160s) strictly less than wall mean (180s) on the same window
+Test L: empty run list -> non-zero exit, ci-run-metrics: FAIL: message, no partial table
+  PASS: exit non-zero (1) on empty run list, no partial table emitted
+
+----------------------------------------
+test_archived_test_z_preserves_red_and_passing_test_d (__main__.DiagnosisContract) ... FAIL
+test_changed_archive_fails_closed_with_saved_diagnostic (__main__.DiagnosisContract) ... ok
+test_fixture_members_keep_their_original_hashes_and_cannot_claim_acceptance (__main__.DiagnosisContract) ... ok
+test_late_failure_context_and_incomplete_inputs (__main__.DiagnosisContract) ... ok
+
+======================================================================
+FAIL: test_archived_test_z_preserves_red_and_passing_test_d (__main__.DiagnosisContract)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<stdin>", line 64, in test_archived_test_z_preserves_red_and_passing_test_d
+AssertionError: 'unknown_failure' != 'historical_metrics_dependency_failure'
+- unknown_failure
++ historical_metrics_dependency_failure
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.378s
+
+FAILED (failures=1)
+  FAIL: Versioned diagnosis consumes the saved native family
+Results: 9 passed, 1 failed
+----------------------------------------
+ci-run-metrics.test: FAIL

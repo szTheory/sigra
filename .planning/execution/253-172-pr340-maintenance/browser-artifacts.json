@@ -1,0 +1,187 @@
+[
+  {
+    "artifact_id": 12393712505,
+    "name": "browser-execution-non_admin_smoke-39702539995-1",
+    "sha256": "c31eced8dd2269112fc547cd0467be0bd189d5f3ccecded3ee5fba6f3935731a",
+    "selection_files": [
+      "non-admin-smoke.selection.json"
+    ],
+    "execution_record": {
+      "schema_version": "sigra.browser-execution-record/v1",
+      "run_id": "39702539995",
+      "run_attempt": "1",
+      "source_sha": "2214dea84d66e585547f7976eb0fcdc892a327e0",
+      "event": "pull_request",
+      "workflow_ref": "szTheory/sigra/.github/workflows/ci.yml@refs/pull/340/merge",
+      "workflow_sha": "2214dea84d66e585547f7976eb0fcdc892a327e0",
+      "classifier_result": "success",
+      "docs_only": "false",
+      "seam": "non_admin_smoke",
+      "workflow_file_sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+      "selected_steps": [
+        {
+          "id": "non_admin_smoke",
+          "outcome": "success",
+          "conclusion": "success",
+          "reports": [
+            {
+              "path": "non-admin-smoke.json",
+              "selection_path": "non-admin-smoke.selection.json",
+              "sha256": "03559772ce8b99eff8afffdca791b62bedaef10f5d0c1fe1f9a9a998ff217974",
+              "selection_sha256": "f91417dbe7b03fcf9416ea3ea4325590eab0ad2c2528b9ea7263ce003e8b7ff5"
+            }
+          ]
+        }
+      ],
+      "missing_details": []
+    }
+  },
+  {
+    "artifact_id": 12393577627,
+    "name": "browser-execution-admin_behavior-39702539995-1",
+    "sha256": "33d8a4d5bbbaf1f108fed77903fc5731e23db54d70657bf4d9d39fc444331249",
+    "selection_files": [
+      "admin-behavior.selection.json"
+    ],
+    "execution_record": {
+      "schema_version": "sigra.browser-execution-record/v1",
+      "run_id": "39702539995",
+      "run_attempt": "1",
+      "source_sha": "2214dea84d66e585547f7976eb0fcdc892a327e0",
+      "event": "pull_request",
+      "workflow_ref": "szTheory/sigra/.github/workflows/ci.yml@refs/pull/340/merge",
+      "workflow_sha": "2214dea84d66e585547f7976eb0fcdc892a327e0",
+      "classifier_result": "success",
+      "docs_only": "false",
+      "seam": "admin_behavior",
+      "workflow_file_sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+      "selected_steps": [
+        {
+          "id": "admin_behavior",
+          "outcome": "success",
+          "conclusion": "success",
+          "reports": [
+            {
+              "path": "admin-behavior.json",
+              "selection_path": "admin-behavior.selection.json",
+              "sha256": "783c9a507a362c666f8a80f522183e4ae4f28a75cab5329619614ea4ae4d076c",
+              "selection_sha256": "347286036f4d3563d99a3cf824384db01ca89eaaa2c5a44ed1880e83ffbb1a32"
+            }
+          ]
+        }
+      ],
+      "missing_details": []
+    }
+  },
+  {
+    "artifact_id": 12393857016,
+    "name": "browser-execution-admin_checkpoints-39702539995-1",
+    "sha256": "d2efaeca69fe1849a993a52a36224e2b60600d95c8818461a93bc0db0d230ad0",
+    "selection_files": [
+      "admin-checkpoints.selection.json"
+    ],
+    "execution_record": {
+      "schema_version": "sigra.browser-execution-record/v1",
+      "run_id": "39702539995",
+      "run_attempt": "1",
+      "source_sha": "2214dea84d66e585547f7976eb0fcdc892a327e0",
+      "event": "pull_request",
+      "workflow_ref": "szTheory/sigra/.github/workflows/ci.yml@refs/pull/340/merge",
+      "workflow_sha": "2214dea84d66e585547f7976eb0fcdc892a327e0",
+      "classifier_result": "success",
+      "docs_only": "false",
+      "seam": "admin_checkpoints",
+      "workflow_file_sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+      "selected_steps": [
+        {
+          "id": "admin_checkpoints",
+          "outcome": "success",
+          "conclusion": "success",
+          "reports": [
+            {
+              "path": "admin-checkpoints.json",
+              "selection_path": "admin-checkpoints.selection.json",
+              "sha256": "5c4b703cbb601108a59ce7271fe58e9b2e4e772c6188b2ee34540dcb3843c4b3",
+              "selection_sha256": "6bd49b899af2d174600b5c7b2b6520c4c6e85f1a560ef97732a665b5a98b8cc2"
+            }
+          ]
+        }
+      ],
+      "missing_details": []
+    }
+  },
+  {
+    "artifact_id": 12393322242,
+    "name": "browser-execution-design_gallery-39702539995-1",
+    "sha256": "b00f50545d13385ab5f3bad5829a869fe0847954de3e80cd0fddf0614c62d858",
+    "selection_files": [
+      "design-gallery-pr-behavior.selection.json"
+    ],
+    "execution_record": {
+      "schema_version": "sigra.browser-execution-record/v1",
+      "run_id": "39702539995",
+      "run_attempt": "1",
+      "source_sha": "2214dea84d66e585547f7976eb0fcdc892a327e0",
+      "event": "pull_request",
+      "workflow_ref": "szTheory/sigra/.github/workflows/ci.yml@refs/pull/340/merge",
+      "workflow_sha": "2214dea84d66e585547f7976eb0fcdc892a327e0",
+      "classifier_result": "success",
+      "docs_only": "false",
+      "seam": "design_gallery",
+      "workflow_file_sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+      "selected_steps": [
+        {
+          "id": "design_gallery",
+          "outcome": "success",
+          "conclusion": "success",
+          "reports": [
+            {
+              "path": "design-gallery-pr-behavior.json",
+              "selection_path": "design-gallery-pr-behavior.selection.json",
+              "sha256": "2203546bb2a9b63456cd148273224f26feb340fd8a0f22fb1ba982bb92b1cd7c",
+              "selection_sha256": "08ec256ad4562e020bb94f68d93ec037f8f8e9a486c8a85fb58339b9790e4a76"
+            }
+          ]
+        }
+      ],
+      "missing_details": []
+    }
+  },
+  {
+    "artifact_id": 12393252148,
+    "name": "browser-execution-demo_showcase-39702539995-1",
+    "sha256": "23357185b2eb3fe196b190d523eee897e9f9dc7520001b1f4c16b58e21b5ddc9",
+    "selection_files": [
+      "demo-showcase.selection.json"
+    ],
+    "execution_record": {
+      "schema_version": "sigra.browser-execution-record/v1",
+      "run_id": "39702539995",
+      "run_attempt": "1",
+      "source_sha": "2214dea84d66e585547f7976eb0fcdc892a327e0",
+      "event": "pull_request",
+      "workflow_ref": "szTheory/sigra/.github/workflows/ci.yml@refs/pull/340/merge",
+      "workflow_sha": "2214dea84d66e585547f7976eb0fcdc892a327e0",
+      "classifier_result": "success",
+      "docs_only": "false",
+      "seam": "demo_showcase",
+      "workflow_file_sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+      "selected_steps": [
+        {
+          "id": "demo_showcase",
+          "outcome": "success",
+          "conclusion": "success",
+          "reports": [
+            {
+              "path": "demo-showcase.json",
+              "selection_path": "demo-showcase.selection.json",
+              "sha256": "480be63508ef44c14d66a32a8cebe5962131396404bcbc964399e62cf3a16f7d",
+              "selection_sha256": "83966c54b93f2cc42cdba88ac380bba4f6aeef2ea0e59ef927d59192140c6422"
+            }
+          ]
+        }
+      ],
+      "missing_details": []
+    }
+  }
+]

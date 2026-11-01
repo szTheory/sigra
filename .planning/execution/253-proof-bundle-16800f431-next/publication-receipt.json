@@ -1,0 +1,208 @@
+{
+  "action_approval": {
+    "commit": "328df94acd1f6387641c4f74e7c54525754b1bdc",
+    "path": ".planning/execution/253-proof-bundle-16800f431-next/canary-approval.json",
+    "section": "canary",
+    "section_sha256": "0e2e8388ce95ac47181aaee1a04a865b3cb66c59e321f7dc2bf3b090b3096669",
+    "sha256": "60af7d85bd2177d2a8645a23d8932ca90aa1df7475c4aaaef29be1cd99eb0d55",
+    "window_wall_start_epoch": 1792620651
+  },
+  "allocation_path": "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-allocation.json",
+  "allocation_sha256": "01235ec1a710d95939af8700f2af0a6e72da12185ac373e90a550f921e0b340d",
+  "candidate_ref": "refs/heads/gsd/253-proof-16800f431-next-candidate",
+  "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+  "candidate_tree_sha": "28924e64262e3a2acb8bc41278acd5f7b0102abc",
+  "candidate_workflow_blob": "072a1ea3793213309d89f0c46d75810c6b7df341",
+  "fixture_ref": "refs/heads/gsd/253-proof-16800f431-next-fixture",
+  "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+  "fixture_tree_sha": "4b03073118eddf30b7b299c44446a524dfb2a73c",
+  "fixture_workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+  "ledger_path": "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-ledger.json",
+  "ledger_sha256": "da5ee7cce2ec4c40bc63dcd54cd5af2442b12912cf763776499fdde2c73c72c1",
+  "manifest_sha256": "25a028ebebb1f8fff32fb0f4637c28da5de7b8cf77fe5373dd4ea74c902dcc65",
+  "origin": {
+    "allocation_mode": "live",
+    "host": "api.github.com",
+    "identities_from_ledger": true,
+    "kind": "actual-github",
+    "transactions": 19,
+    "window_id": "253-proof-16800f431-next-canary-1"
+  },
+  "production_publish_performed": true,
+  "publication_transactions": [
+    {
+      "sequence": 6,
+      "sha256": "73642fe73ae75627c46d1bd43670b1446a8c62bad61ddff61b9a4ae5320beaf6"
+    },
+    {
+      "sequence": 7,
+      "sha256": "92b56100b9e55897166b8c7750c216e3b7b0e01eedb890b83041fb7be90a3bc5"
+    },
+    {
+      "sequence": 8,
+      "sha256": "345bf9667f9a33d1fc0ff04fe664fdae20952879361c75155aeb216e1859c276"
+    },
+    {
+      "sequence": 9,
+      "sha256": "a85adaa7845e51bc61d2f6174f76060cf15879fc9ffff2c3edf2d467301bf867"
+    },
+    {
+      "sequence": 10,
+      "sha256": "e525d2783b334047d30ad1aa528be9a710829223664c950e608b7f528bc05a17"
+    },
+    {
+      "sequence": 11,
+      "sha256": "bdd7e12c48f40741e0b08e513f7c97768d89cdfe2e93cd9fc4f508321f316329"
+    },
+    {
+      "sequence": 12,
+      "sha256": "c58ef59556614432da3941d2e581a8cbb36d1ee7ad2faf8c70eaa12283768467"
+    },
+    {
+      "sequence": 13,
+      "sha256": "4c3667cfcc15cba308c6215a8153610be70b09fad097a635e5e546633ca5bf58"
+    },
+    {
+      "sequence": 14,
+      "sha256": "07ecf9930d1358f860d72a6d2cff9020b911cac621c188fac77bd94c4763fc26"
+    },
+    {
+      "sequence": 15,
+      "sha256": "feca72ff02679e136a4504a01096078b53ba384419cfa05f5503b4b13108d398"
+    },
+    {
+      "sequence": 16,
+      "sha256": "ba60abbd8deb0d43f424812ec571d9bfd2c1eed2cd4ef7f399b5e1b5bbc157ea"
+    },
+    {
+      "sequence": 17,
+      "sha256": "3c815a0d4341a062ecc673be9a0b9569fdd8ed3c6499420b1f6c1c510ec1a357"
+    },
+    {
+      "sequence": 18,
+      "sha256": "fc5913062254ec63706874d2e728d56f5e8fcb6f0ea8f2d2a6e3628d5e04c234"
+    },
+    {
+      "sequence": 19,
+      "sha256": "e4ea5c1f06b3ddafa2c997b58add6655ebbc500f717f7799efd89a5171b2e76e"
+    },
+    {
+      "sequence": 20,
+      "sha256": "ed1e13e2a0eb01b3686f002aef0b1c7a7004ccf120bb313a495bdac4e1124cc5"
+    },
+    {
+      "sequence": 21,
+      "sha256": "2cd39ae3e887b1d8e44d802922918e6658b2215d9dba648efdbd568aaca8c581"
+    },
+    {
+      "sequence": 22,
+      "sha256": "665d9a507150ebe4a36cdbf44b8172370636d3dc4c4666a9ef78ab13a1d24db3"
+    },
+    {
+      "sequence": 23,
+      "sha256": "d8647a585906818234384237589dd4d93afd3d59a06ec6069971d207cb425602"
+    },
+    {
+      "sequence": 24,
+      "sha256": "9727232bcb359c51138d13b4853ff9d1a3bb13524d799651bdea8fd7fb380a31"
+    }
+  ],
+  "request_count": 19,
+  "schema_version": "sigra.phase253.git-publication-receipt/v1",
+  "server_object_receipts": [
+    {
+      "kind": "parent-preflight",
+      "sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "tree": "817de2441c7b03dff93cfff89296c9c2f345d289"
+    },
+    {
+      "base_tree": "817de2441c7b03dff93cfff89296c9c2f345d289",
+      "kind": "tree",
+      "sequence": 1,
+      "sha": "94e8eadd2fd4212ae11287c1b7dcfa2d78cc8b4b",
+      "variant": "candidate-part-01"
+    },
+    {
+      "base_tree": "94e8eadd2fd4212ae11287c1b7dcfa2d78cc8b4b",
+      "kind": "tree",
+      "sequence": 2,
+      "sha": "d758d25dcabd5712bab2295beed1efdc98bf8e8e",
+      "variant": "candidate-part-02"
+    },
+    {
+      "kind": "blob",
+      "path": "test/fixtures/ci-metrics/archived-diagnosis/source.tar.gz",
+      "sha": "25e3ee6679a9f418f96585f9c7602cd3e7976a45"
+    },
+    {
+      "base_tree": "d758d25dcabd5712bab2295beed1efdc98bf8e8e",
+      "kind": "tree",
+      "sequence": 3,
+      "sha": "8af2b4329d17d8c60aa37007895dac1f684d83a8",
+      "variant": "candidate-part-03"
+    },
+    {
+      "base_tree": "8af2b4329d17d8c60aa37007895dac1f684d83a8",
+      "kind": "tree",
+      "sequence": 4,
+      "sha": "28924e64262e3a2acb8bc41278acd5f7b0102abc",
+      "variant": "candidate"
+    },
+    {
+      "kind": "commit",
+      "message": "Phase 253 frozen CI candidate\n",
+      "parent": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "server_message_form": "trailing_newline_stripped",
+      "sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+      "tree": "28924e64262e3a2acb8bc41278acd5f7b0102abc",
+      "variant": "candidate"
+    },
+    {
+      "commit": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+      "kind": "workflow-blob",
+      "sha": "072a1ea3793213309d89f0c46d75810c6b7df341",
+      "variant": "candidate"
+    },
+    {
+      "base_tree": "28924e64262e3a2acb8bc41278acd5f7b0102abc",
+      "kind": "tree",
+      "sequence": 1,
+      "sha": "4b03073118eddf30b7b299c44446a524dfb2a73c",
+      "variant": "fixture"
+    },
+    {
+      "kind": "commit",
+      "message": "Phase 253 isolated gate canary fixture\n",
+      "parent": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+      "server_message_form": "trailing_newline_stripped",
+      "sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+      "tree": "4b03073118eddf30b7b299c44446a524dfb2a73c",
+      "variant": "fixture"
+    },
+    {
+      "commit": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+      "kind": "workflow-blob",
+      "sha": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+      "variant": "fixture"
+    },
+    {
+      "kind": "ref",
+      "ref": "refs/heads/gsd/253-proof-16800f431-next-candidate",
+      "sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+      "tree": "28924e64262e3a2acb8bc41278acd5f7b0102abc",
+      "variant": "candidate",
+      "workflow_blob": "072a1ea3793213309d89f0c46d75810c6b7df341"
+    },
+    {
+      "kind": "ref",
+      "ref": "refs/heads/gsd/253-proof-16800f431-next-fixture",
+      "sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+      "tree": "4b03073118eddf30b7b299c44446a524dfb2a73c",
+      "variant": "fixture",
+      "workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+    }
+  ],
+  "server_parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "status": "published-actual-github"
+}

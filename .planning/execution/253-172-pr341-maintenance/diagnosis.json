@@ -1,0 +1,33 @@
+{
+  "schema": "sigra.phase253.pr341-diagnosis/v1",
+  "attempt_commit": "28895b6c2",
+  "approval_commit": "e4eeb9c9b",
+  "candidate_source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "candidate_sha": "56d413b045e8852d16e119e3a3926f0d08b01d49",
+  "normal_pr": 341,
+  "run_id": 39706873401,
+  "ci_conclusion": "success",
+  "run_attempt": 1,
+  "canary_verified": true,
+  "canary_requests": 93,
+  "pr_requests": 34,
+  "canary_jobs": 37,
+  "canary_seconds": 832,
+  "pr_seconds": 508,
+  "workflow_dispatches": 7,
+  "pr_creations": 1,
+  "reruns": 0,
+  "compare_files": 212,
+  "compare_matches_frozen_local_diff": true,
+  "root_cause": "Verifier incorrectly treats 100 files as the compare endpoint cap. Actual response contains212 complete unique files; documented cap is300.",
+  "documentation": "https://docs.github.com/en/rest/commits/commits#compare-two-commits",
+  "offline_verifier_result": "pr_family_verified; accepted_live true",
+  "docs_only": "not created; new scoped window required",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted_missing_docs_only"
+  },
+  "phase_verification_status": "not_started",
+  "historical_halts_unchanged": 29,
+  "prior_attempt_changed": false
+}

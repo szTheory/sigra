@@ -1,0 +1,32 @@
+Test A: Markdown + .planning/** list -> docs_only=true
+  PASS: Test A: docs_only=true
+Test B: mixed diff (one non-docs path added) -> docs_only=false
+  PASS: Test B: docs_only=false
+Test C: a single .planning/**/*.md path -> docs_only=true
+  PASS: Test C: docs_only=true
+Test D: a single .planning/** non-Markdown path -> docs_only=true
+  PASS: Test D: docs_only=true
+Test E: empty stdin -> docs_only=true
+  PASS: Test E: docs_only=true
+Test F: docs.md/evil.ex (contains .md, does not end in it) -> docs_only=false
+  PASS: Test F: docs_only=false
+Test G: .planning-evil/x.ex (resembles the prefix without matching) -> docs_only=false
+  PASS: Test G: docs_only=false
+Test H: a git-quoted path with an embedded escape (quoted-newline .md) -> docs_only=false
+  PASS: Test H: docs_only=false
+Test I: reversed order produces the same output line as Test B
+  PASS: Test I: reversed order is stable (docs_only=false)
+Test J: unknown flag -> exit 2 with docs-only-classify: FAIL: unknown arg: --bogus-flag
+  PASS: Test J: exit 2, stderr 'docs-only-classify: FAIL: unknown arg: --bogus-flag'
+Test K: every successful case emits exactly one docs_only=(true|false) line
+  PASS: Test K: every case emitted exactly one docs_only=(true|false) line
+
+----------------------------------------
+Results: 11 passed, 0 failed
+----------------------------------------
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 1.051s
+
+OK
+docs-only-classify.test: PASS

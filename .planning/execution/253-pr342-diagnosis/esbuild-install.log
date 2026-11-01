@@ -1,0 +1,12 @@
+
+22:51:50.332 [debug] Downloading esbuild from https://registry.npmjs.org/@esbuild/darwin-arm64/0.25.4
+** (RuntimeError) couldn't fetch https://registry.npmjs.org/@esbuild/darwin-arm64/0.25.4: {true, {:ok, {{~c"HTTP/1.1", 502, ~c"Bad Gateway"}, [{~c"cache-control", ~c"private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0"}, {~c"connection", ~c"keep-alive"}, {~c"date", ~c"Thu, 22 Oct 2026 02:52:20 GMT"}, {~c"server", ~c"cloudflare"}, {~c"content-length", ~c"16"}, {~c"content-type", ~c"text/plain; charset=UTF-8"}, {~c"cf-ray", ~c"a4e533d90da34613-BOS"}, {~c"referrer-policy", ~c"same-origin"}, {~c"x-frame-options", ~c"SAMEORIGIN"}, {~c"set-cookie", ~c"__cf_bm=QgeCgFyQduIoHXBAWI0Rx9P0h._hNVUm2CoJK3yxqTY-1792637510.562762-1.0.1.1-y8jQ5UGwXmebKAVhp6H01i2dinlDXwG2ViLTA4a_jXtoiWAcErQzayoBsKMN8eH2PEVjYpgk7uKqYNB98eirAQE8wqh1BXuk9OJlwXDJEKPurG3cFoNpTblOpeVKH8Zh; HttpOnly; Secure; Path=/; Domain=npmjs.org; Expires=Thu, 22 Oct 2026 03:22:20 GMT"}], "error code: 502\n"}}}
+
+You may also install the "esbuild" executable manually, see the docs: https://hexdocs.pm/esbuild
+
+    (esbuild 0.10.1) lib/esbuild/npm_registry.ex:78: Esbuild.NpmRegistry.fetch_file!/2
+    (esbuild 0.10.1) lib/esbuild/npm_registry.ex:46: Esbuild.NpmRegistry.fetch_package!/2
+    (esbuild 0.10.1) lib/esbuild.ex:244: Esbuild.install/0
+    (mix 1.19.5) lib/mix/task.ex:499: anonymous fn/3 in Mix.Task.run_task/5
+    (mix 1.19.5) lib/mix/cli.ex:129: Mix.CLI.run_task/2
+    /Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/mix:7: (file)

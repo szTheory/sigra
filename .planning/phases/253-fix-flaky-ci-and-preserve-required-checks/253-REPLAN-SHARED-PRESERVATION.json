@@ -1,0 +1,55 @@
+{
+  "schema_version": "sigra.phase253.replan-shared-preservation/v1",
+  "recorded_at": "2026-10-13T18:22:21.459707+00:00",
+  "prior_shared_bytes": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "ref": "e0a8dc06ddc9765827eb82742f5ff03083b9fc61",
+      "sha256": "e2fab5688fd2ff635ce20380c39f8e56ede949808c420efe2fcc961a8d05ea3d",
+      "bytes": 11800,
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "ref": "e0a8dc06ddc9765827eb82742f5ff03083b9fc61",
+      "sha256": "b06d2cd7f279e5f84001e12f872b948343a51ec39a5d9c65258f81fc2357adea",
+      "bytes": 37103,
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "ref": "e0a8dc06ddc9765827eb82742f5ff03083b9fc61",
+      "sha256": "780de64a306b19baf3e806ca576c6e13468e81e10ad961307572f25b4ad94e48",
+      "bytes": 91637,
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "ref": "e0a8dc06ddc9765827eb82742f5ff03083b9fc61",
+      "sha256": "6f0d8199e3a99de7ac38415984422beb32c6c2e6b0a3273bf73091d80bfbf45d",
+      "bytes": 12782,
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+      "status": "clean",
+      "ref": "e0a8dc06ddc9765827eb82742f5ff03083b9fc61",
+      "sha256": "05772cd896847a2fe4e61e4d96ead6a8bfad4bb4e6c0b475e16d5ec20f676b5c",
+      "bytes": 74176,
+      "exact_readback": true
+    }
+  ],
+  "config": {
+    "path": ".planning/config.json",
+    "status": " M",
+    "ref": "refs/gsd/phase253-recovery-execution-unrelated-config",
+    "sha256": "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d",
+    "exact_readback": true,
+    "will_remain_unstaged": true
+  },
+  "next": "SDK planned-phase then preserve SDK bytes before final shared alignment"
+}

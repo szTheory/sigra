@@ -1,0 +1,46 @@
+{
+  "schema_version": "sigra.phase253.outward-action-approval/v1",
+  "decision": "approve",
+  "decided_by": "Jon (operator), via AskUserQuestion collected by the execute-phase orchestrator at the 253-134 Task 1 checkpoint (2026-10-19T00:31:12Z); recorded by the 253-134 executor",
+  "decision_text": "Approve (Recommended)",
+  "note": "",
+  "section": "docs_and_prs",
+  "section_sha256": "f0e47f00c63f2ac3b9e8ed3a560ba9d5d2148c31aa00234329e18e2d65646ee2",
+  "freeze_sha256": "e6eb4cd07dccf75804202dedafe323adcddceaf45ef71a3c8c4faf0caa129c90",
+  "head_base_pairs": [
+    {"family": "normal", "head": "gsd/253-replan-r11-candidate", "base": "main", "draft": true},
+    {"family": "docs-only", "head": "gsd/253-replan-docs-head", "base": "gsd/253-replan-docs-base", "draft": true}
+  ],
+  "rerun": "expired",
+  "approved_pr_body": {
+    "body": "Draft proof pull request; never merged.",
+    "body_sha256": "576a778041112cdcbc69439ce7fc4240fbb037daf33a33098a415c2dd85c02b3",
+    "titles": {
+      "normal": "Phase 253 normal CI proof (draft, do not merge)",
+      "docs-only": "Phase 253 docs-only CI proof (draft, do not merge)"
+    },
+    "source": "scripts/ci/ci-pr-proof.sh collect() (frozen text, unchanged)",
+    "plan_mismatch_accepted": "253-134-PLAN.md says the normal PR body states CIREL-01 is partial; the frozen ci-pr-proof.sh body above makes no fix claim and no CIREL-01 statement. The orchestrator disclosed this before the question and recommended accepting the frozen text (changing it would invalidate FREEZE-R11); Jon approved with the frozen text named in the question. The CIREL-01 partial statement is carried by the 253-134/253-135 records instead."
+  },
+  "authorizes": [
+    "publish_docs_objects (max 14 docs_publication-category requests; docs base 99b33f903038d523865889bcc8a97b7a73c042e9, docs head 40adc7e54b7c1353e2ae155067566ecaed2f656c)",
+    "create_ref refs/heads/gsd/253-replan-docs-base -> 99b33f903038d523865889bcc8a97b7a73c042e9 (create-only, never created before)",
+    "create_ref refs/heads/gsd/253-replan-docs-head -> 40adc7e54b7c1353e2ae155067566ecaed2f656c (create-only, never created before)",
+    "pr_create draft normal: head gsd/253-replan-r11-candidate, base main, body 'Draft proof pull request; never merged.'",
+    "pr_create draft docs-only: head gsd/253-replan-docs-head, base gsd/253-replan-docs-base, body 'Draft proof pull request; never merged.'",
+    "the read-only requests of both PR families inside one production allocation (window 253-134-pr-window-1)",
+    "caps: 120 requests, 60 minutes from the first preflight, reruns 0"
+  ],
+  "excludes": [
+    "canary section (publication, dispatches, cancel, verifier of FREEZE-R11): approved separately at 253-133 and never reused here",
+    "any rerun (the 21-request infrastructure_rerun category is expired)",
+    "any merge, auto-merge or ready-for-review of either PR (both stay draft)",
+    "any push, force update, ref deletion, rule or protection change, tag, release or main mutation",
+    "any use of gsd/253-replan-r8-candidate or gsd/253-replan-r8-fixture (no read for reuse, move, recreation or deletion)",
+    "any use of gsd/253-replan-r9-candidate or gsd/253-replan-r9-fixture (no read for reuse, move, recreation or deletion)",
+    "any use of gsd/253-replan-r10-candidate or gsd/253-replan-r10-fixture (no read for reuse, move, recreation or deletion)",
+    "any use of gsd/253-replan-r11-fixture, and any use of gsd/253-replan-r11-candidate other than as the normal PR head",
+    "any PR create other than the two pairs above, and any change to the PR title or body text"
+  ],
+  "recorded_at": "2026-10-19T00:33:30Z"
+}

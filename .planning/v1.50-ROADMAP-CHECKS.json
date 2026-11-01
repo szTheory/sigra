@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-12T15:24:31.707596+00:00",
+  "status": "roadmap_review_checks_passed",
+  "milestone": "v1.50",
+  "requirements_approved": true,
+  "requirement_descriptions_equal_confirmed_proposal": true,
+  "roadmap_approved": false,
+  "requirements_count": 9,
+  "mapped_exactly_once": 9,
+  "unmapped": 0,
+  "duplicate_assignments": 0,
+  "phase_count": 4,
+  "phase_numbers": [
+    252,
+    253,
+    254,
+    255
+  ],
+  "success_criteria_per_phase": [
+    4,
+    4,
+    4,
+    4
+  ],
+  "all_implementation_and_phase_verification_pending": true,
+  "state_validation": {
+    "valid": true,
+    "warnings": [],
+    "scope": "complete"
+  },
+  "runtime_roadmap_analysis": {
+    "milestones": [
+      {
+        "heading": "v1.50 \u2014 CI-SPEED-AND-RELIABILITY",
+        "version": "v1.50"
+      }
+    ],
+    "phases": [
+      {
+        "number": "252",
+        "name": "Measure Current CI",
+        "goal": "Contributors and maintainers can identify today's CI waiting time, failure patterns, and largest runtime costs before choosing fixes.",
+        "mode": null,
+        "depends_on": "Nothing \u2014 first phase of v1.50; prior release-record gaps are not prerequisites.",
+        "plan_count": 0,
+        "summary_count": 0,
+        "has_context": false,
+        "has_research": false,
+        "disk_status": "empty",
+        "roadmap_complete": false,
+        "context_read_error": null,
+        "context_scope": "complete"
+      },
+      {
+        "number": "253",
+        "name": "Fix Flaky CI and Preserve Required Checks",
+        "goal": "Selected flaky CI failures are reproducible and fixed, while real failures still prevent the required checks from passing.",
+        "mode": null,
+        "depends_on": "Phase 252",
+        "plan_count": 0,
+        "summary_count": 0,
+        "has_context": false,
+        "has_research": false,
+        "disk_status": "empty",
+        "roadmap_complete": false,
+        "context_read_error": null,
+        "context_scope": "complete"
+      },
+      {
+        "number": "254",
+        "name": "Speed Up the Measured Slow Jobs",
+        "goal": "Contributors receive the required PR CI result at least 20% sooner without increasing slow-run waits or total runner time.",
+        "mode": null,
+        "depends_on": "Phase 253",
+        "plan_count": 0,
+        "summary_count": 0,
+        "has_context": false,
+        "has_research": false,
+        "disk_status": "empty",
+        "roadmap_complete": false,
+        "context_read_error": null,
+        "context_scope": "complete"
+      },
+      {
+        "number": "255",
+        "name": "Make Failures Reproducible and Report the Result",
+        "goal": "Contributors can reproduce updated CI checks locally and maintainers can independently replay the final speed and reliability comparison.",
+        "mode": null,
+        "depends_on": "Phase 254",
+        "plan_count": 0,
+        "summary_count": 0,
+        "has_context": false,
+        "has_research": false,
+        "disk_status": "empty",
+        "roadmap_complete": false,
+        "context_read_error": null,
+        "context_scope": "complete"
+      }
+    ],
+    "phase_count": 4,
+    "completed_phases": 0,
+    "total_plans": 0,
+    "total_summaries": 0,
+    "progress_percent": 0,
+    "progress_scope": "complete",
+    "current_phase": null,
+    "next_phase": "252",
+    "checkbox_conflict": [],
+    "missing_phase_details": null,
+    "scope": "complete"
+  },
+  "first_phase_readiness": {
+    "researcher_model": "gpt-6-luna",
+    "planner_model": "gpt-6-sol",
+    "checker_model": "gpt-6-luna",
+    "tdd_mode": false,
+    "granularity": "fine",
+    "research_enabled": true,
+    "plan_checker_enabled": true,
+    "nyquist_validation_enabled": true,
+    "commit_docs": true,
+    "text_mode": false,
+    "auto_advance": false,
+    "auto_chain_active": false,
+    "mode": "yolo",
+    "phase_found": true,
+    "phase_dir": "/Users/jon/projects/sigra/.planning/phases/252-measure-current-ci",
+    "expected_phase_dir": null,
+    "phase_number": "252",
+    "phase_name": "measure-current-ci",
+    "phase_slug": "measure-current-ci",
+    "padded_phase": "252",
+    "phase_req_ids": "CIMEAS-01, CIMEAS-02",
+    "phase_status": "Pending",
+    "has_research": false,
+    "has_context": false,
+    "context_scope": "complete",
+    "has_reviews": false,
+    "has_plans": false,
+    "plan_count": 0,
+    "threat_id_duplicates": [],
+    "threat_id_duplicate_count": 0,
+    "planning_exists": true,
+    "roadmap_exists": true,
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "patterns_path": null,
+    "section_manifest": {
+      "workflow": "plan-phase",
+      "included": [],
+      "excluded": [
+        "reviews-prerequisite",
+        "prd-express-gate",
+        "adr-ingest-express-path",
+        "research-only-modifiers",
+        "research-only-early-exit",
+        "chunked-planning-mode"
+      ],
+      "read": []
+    },
+    "prior_verify_commands": [],
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "immediate_command": "$gsd-new-milestone",
+  "after_approval_command": "$gsd-discuss-phase 252",
+  "historical_release_gap_is_forward_blocker": false,
+  "missing_old_records_required_from_user": false,
+  "before_write_exact_readbacks": [
+    {
+      "path": ".planning/PROJECT.md",
+      "status": "clean",
+      "sha256": "c1bc557926893742c5556d98b34f591fd3746984fb71c339bdeb0d07cbf4984c",
+      "bytes": 195796,
+      "recoverable_ref": "2e71cd4a2432ebec696d8355ca928aa4d128c8bf",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "1b2da4977ffb09b0360c2a8dd6bc05af425a5cc62b424cf9dbc2501bfaf3497d",
+      "bytes": 4604,
+      "recoverable_ref": "2e71cd4a2432ebec696d8355ca928aa4d128c8bf",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "ad1cb45b8a5f2251d3c1f135b05076da466d1964bd8c0a1fcd23521ca5b0fb6f",
+      "bytes": 1476,
+      "recoverable_ref": "2e71cd4a2432ebec696d8355ca928aa4d128c8bf",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "2b980fa5535bfdd1cd58b1ebae15482f1ce98d613b74a690799fb42ce71deadd",
+      "bytes": 5093,
+      "recoverable_ref": "2e71cd4a2432ebec696d8355ca928aa4d128c8bf",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "sha256": "3fe8fca0d105e88ad56861ed446a8a580a0727005ea58a3b08a1f6ef9d7baed3",
+      "bytes": 3002,
+      "recoverable_ref": "2e71cd4a2432ebec696d8355ca928aa4d128c8bf",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/v1.50-START.json",
+      "status": "clean",
+      "sha256": "bc53c73288008c18b9cedad60e79a9f7bd137756032eeab564a5312eaf2eb4fc",
+      "bytes": 6034,
+      "recoverable_ref": "2e71cd4a2432ebec696d8355ca928aa4d128c8bf",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/v1.50-REQUIREMENTS-PROPOSAL.md",
+      "status": "clean",
+      "sha256": "745ff6ea96ebaac131a57422514f1838122185606be9a4e02efed34df8917707",
+      "bytes": 4972,
+      "recoverable_ref": "2e71cd4a2432ebec696d8355ca928aa4d128c8bf",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/config.json",
+      "status": "clean",
+      "sha256": "c4edd866d9ca58f698740210c77b7064b29e955b0c165a3f0461cdc9788aa386",
+      "bytes": 1797,
+      "recoverable_ref": "2e71cd4a2432ebec696d8355ca928aa4d128c8bf",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "sha256": "3fe8fca0d105e88ad56861ed446a8a580a0727005ea58a3b08a1f6ef9d7baed3",
+      "bytes": 3002,
+      "recoverable_ref": "394caa3642b7daa3dc7d219ebce2c5cf8ae0b088",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/REQUIREMENTS.md",
+      "status": "clean",
+      "sha256": "76767eca65957ba0819af055bd939a57bde5eb574687e313629b37a05adfd3e3",
+      "bytes": 5676,
+      "recoverable_ref": "394caa3642b7daa3dc7d219ebce2c5cf8ae0b088",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/PROJECT.md",
+      "status": "clean",
+      "sha256": "90c1cb0edd6d5e63f6e6fc57d479fc50f06c4882328a4c18e7302d55cbe1283d",
+      "bytes": 197323,
+      "recoverable_ref": "394caa3642b7daa3dc7d219ebce2c5cf8ae0b088",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "1b2da4977ffb09b0360c2a8dd6bc05af425a5cc62b424cf9dbc2501bfaf3497d",
+      "bytes": 4604,
+      "recoverable_ref": "394caa3642b7daa3dc7d219ebce2c5cf8ae0b088",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "ad1cb45b8a5f2251d3c1f135b05076da466d1964bd8c0a1fcd23521ca5b0fb6f",
+      "bytes": 1476,
+      "recoverable_ref": "394caa3642b7daa3dc7d219ebce2c5cf8ae0b088",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "2b980fa5535bfdd1cd58b1ebae15482f1ce98d613b74a690799fb42ce71deadd",
+      "bytes": 5093,
+      "recoverable_ref": "394caa3642b7daa3dc7d219ebce2c5cf8ae0b088",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/v1.50-START.json",
+      "status": "clean",
+      "sha256": "bc53c73288008c18b9cedad60e79a9f7bd137756032eeab564a5312eaf2eb4fc",
+      "bytes": 6034,
+      "recoverable_ref": "394caa3642b7daa3dc7d219ebce2c5cf8ae0b088",
+      "git_readback_exact": true
+    }
+  ],
+  "historical_audit_and_requirement_bytes_unchanged": true,
+  "persistent_config_unchanged": true,
+  "milestone_history_retained": true,
+  "app_code_changed": false,
+  "application_tests_run": false,
+  "ci_dispatched": false,
+  "phase_directories": [
+    "252-measure-current-ci",
+    "253-fix-flaky-ci-and-preserve-required-checks",
+    "254-speed-up-the-measured-slow-jobs",
+    "255-make-failures-reproducible-and-report-the-result"
+  ],
+  "phase_directory_contents": "Only .gitkeep placeholders; no context/research/plans/evidence fabricated.",
+  "initial_state_diagnostic": {
+    "code": "S004",
+    "cause": "Current phase was declared before its directory existed.",
+    "resolved_by": "Create the four empty phase directories with .gitkeep; state.validate now valid=true, scope=complete, warnings=[]."
+  },
+  "diff_check_exit_code": 0
+}

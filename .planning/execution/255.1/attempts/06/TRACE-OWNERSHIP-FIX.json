@@ -1,0 +1,58 @@
+{
+  "status": "focused_regression_passed",
+  "implementation_commit": "36e9e43229d6cc08859bd62b29be74f2f7e39d32",
+  "fixture_sha256": "d386b6f90c50d8ff3febe13c4118e5bba337c12af057753592a86266cfbb0603",
+  "local_only": true,
+  "acceptance_samples": 0,
+  "hosted_status": "blocked",
+  "probes": [
+    {
+      "scenario": "pass",
+      "expected_exit": 0,
+      "observed_native_exit": 0,
+      "source_sha": "36e9e43229d6cc08859bd62b29be74f2f7e39d32",
+      "dirty_status": "M .planning/HANDOFF.json\n M .planning/STATE.md\n M .planning/state.json\n M prompts/fan-out-prompt.txt\n?? .planning/execution/255.1/attempts/06/STOPPED.json\n?? scripts/ci/__pycache__/",
+      "native_report": {
+        "path": ".gsd/temp/phase2551-admin-theme-trace-pass/native-diagnostics/pass/native-report.json",
+        "sha256": "c929812645751fd78478a0355d4047739e4456ac5ffdefabf6efcd4e138a01d9"
+      },
+      "auth_diagnostic": {
+        "path": ".gsd/temp/phase2551-admin-theme-trace-pass/admin-theme-diagnostics.json",
+        "sha256": "685aaea45d65b0e1de1498afb03845665d7fca20b4206b2d0b4fe4ba4d454dbc",
+        "storage_mode": 384,
+        "cleanup_complete": true,
+        "registered_admin_count": 1,
+        "consumer_contexts": 1
+      },
+      "registered_failure_traces": [],
+      "registry_present": false
+    },
+    {
+      "scenario": "fail",
+      "expected_exit": 1,
+      "observed_native_exit": 1,
+      "source_sha": "9e98e59e772d988f9a105219c0f7f40ac54275c3",
+      "dirty_status": "M .planning/HANDOFF.json\n M .planning/STATE.md\n M .planning/state.json\n M prompts/fan-out-prompt.txt\n M scripts/ci/ci-admin-theme-prep.test.mjs\n M scripts/ci/fixtures/playwright-admin-theme-diagnostics.spec.ts\n M test/example/priv/playwright/fixtures/adminTheme.ts\n?? .planning/execution/255.1/attempts/06/STOPPED.json\n?? scripts/ci/__pycache__/",
+      "native_report": {
+        "path": ".gsd/temp/phase2551-admin-theme-trace-focused-verified/native-diagnostics/fail/native-report.json",
+        "sha256": "9d16eaebdc11618e3f3f5f6146b79262bd95dd1079ae4c16a85f252a27c2f427"
+      },
+      "auth_diagnostic": {
+        "path": ".gsd/temp/phase2551-admin-theme-trace-focused-verified/admin-theme-diagnostics.json",
+        "sha256": "ab9187b27d42144f6eab3b4b800340826d1937db33718fc82c4133085f522896",
+        "storage_mode": 384,
+        "cleanup_complete": true,
+        "registered_admin_count": 1,
+        "consumer_contexts": 1
+      },
+      "registered_failure_traces": [
+        {
+          "path": ".gsd/temp/phase2551-admin-theme-trace-focused-verified/native-diagnostics/fail/traces/admin-theme-test-d9427186-4f52-4c27-ba05-e83278bf954e-65279-8d7b6eba9af9c7fc.zip",
+          "sha256": "d4b656886cb8c6aa7b85317425496167c63aab1c11591a095aed1deca4d38e24"
+        }
+      ],
+      "registry_present": true
+    }
+  ],
+  "full_new_source_parity": "pending_new_source_freeze"
+}

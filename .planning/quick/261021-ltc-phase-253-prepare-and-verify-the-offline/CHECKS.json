@@ -1,0 +1,31 @@
+{
+  "status": "passed_offline",
+  "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "bundle_sha256": "d5ea3bbfd2dddba4ba9af18f06247cafe694b5e5b4a326d51d0be278f671f4aa",
+  "tests": 23,
+  "canary_check_only": "passed",
+  "synthetic_pr_prepare_and_live_origin_rejection": "passed",
+  "normal_gsd_runnable_plans": [
+    "253-172-PLAN.md"
+  ],
+  "current_routes_aligned": true,
+  "prior_shared_readbacks_verified": true,
+  "pending172_prior_readback_verified": true,
+  "historical_repair_artifacts_unchanged": true,
+  "phase_verification_status": "not_started",
+  "github_requests": 0,
+  "ci_launches": 0,
+  "allocations": 0,
+  "approvals": 0,
+  "budget_renewals": 0,
+  "acceptance179_reruns": 0,
+  "files": {
+    ".planning/quick/261021-ltc-phase-253-prepare-and-verify-the-offline/tests-development-path-failure.log": "7256c2ed47c8f761560a3ceefb3a67deceb81cb55fb5ecab598170521e4abf88",
+    ".planning/quick/261021-ltc-phase-253-prepare-and-verify-the-offline/tests-development-clock-failure.log": "2389f864bdbfe833bed60f29fdc92329107a0ddb1deedaf52cffa6622e07c811",
+    ".planning/quick/261021-ltc-phase-253-prepare-and-verify-the-offline/tests-first.log": "d1e9e38d41100b1fea18e39249158e4de7ef5734fbd0700524d4bd158f168902",
+    ".planning/quick/261021-ltc-phase-253-prepare-and-verify-the-offline/261021-ltc-PLAN.md": "70e397fda4ca56b8a3d3587c64a5487bec68458249dc6e7e26aae57fda4a356e",
+    ".planning/quick/261021-ltc-phase-253-prepare-and-verify-the-offline/self-check-final.log": "8a0dad3dfb1f2b52593e90ac8f2a47c35c34adf9aa5a50a01bb81737bca3d0eb",
+    ".planning/quick/261021-ltc-phase-253-prepare-and-verify-the-offline/tests-final.log": "2c5fee8717b3a36d8ad58c7eb8a68cef41634fe42c732b40cdec3c85c269dc65",
+    ".planning/quick/261021-ltc-phase-253-prepare-and-verify-the-offline/261021-ltc-SUMMARY.md": "4dce4b38774cbd3ec954bd8e839630389e929628be517088f8c6458a715131f9"
+  }
+}

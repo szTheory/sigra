@@ -1,0 +1,961 @@
+{
+  "config": {
+    "configFile": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/playwright.config.ts",
+    "rootDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/(admin-user-operations|admin-audit|admin-theme|admin-coherence-sweep|impersonation|admin-flow-).*\\.spec\\.ts/",
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/passkeys-hooks\\.spec\\.ts|passkey-options\\.spec\\.ts|passkey-login\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-modal-interaction\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-checkpoints-chromium",
+        "name": "admin-checkpoints-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-checkpoints-mobile",
+        "name": "admin-checkpoints-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-checkpoints-dark",
+        "name": "admin-checkpoints-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-generated",
+        "name": "admin-generated",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-generated\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "generated-host-chromium",
+        "name": "generated-host-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/generated-confirmation\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "demo-showcase-chromium",
+        "name": "demo-showcase-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/demo-showcase\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-setup-chromium",
+        "name": "admin-design-setup-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-chromium",
+        "name": "admin-design-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-setup-mobile",
+        "name": "admin-design-setup-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-mobile",
+        "name": "admin-design-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-setup-dark",
+        "name": "admin-design-setup-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-dark",
+        "name": "admin-design-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval",
+        "name": "admin-eval",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval-mobile",
+        "name": "admin-eval-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval-dark",
+        "name": "admin-eval-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-w6zS7N/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never",
+          "outputFolder": "playwright-report/html"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright-report/non-admin-smoke.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ga-uat-shift-left.spec.ts",
+      "file": "ga-uat-shift-left.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "GA UAT shift-left (SEED-6 / SEED-7)",
+          "file": "ga-uat-shift-left.spec.ts",
+          "line": 120,
+          "column": 6,
+          "specs": [
+            {
+              "title": "SEED-6: invitation signup rejects tampered email with locked-address error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 819,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T19:18:36.116Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f2bcd157030f6f91f659-60437f9bb68f1e1e6d6a",
+              "file": "ga-uat-shift-left.spec.ts",
+              "line": 121,
+              "column": 7
+            },
+            {
+              "title": "SEED-7: MFA regenerate confirmation surface is reachable after enrollment",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 699,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T19:18:37.010Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f2bcd157030f6f91f659-6365b1d09508b3aa305e",
+              "file": "ga-uat-shift-left.spec.ts",
+              "line": 164,
+              "column": 7
+            },
+            {
+              "title": "SEED-6: invitation signup rejects tampered email with locked-address error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1446,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T19:18:45.966Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f2bcd157030f6f91f659-fd996995d225a159e009",
+              "file": "ga-uat-shift-left.spec.ts",
+              "line": 121,
+              "column": 7
+            },
+            {
+              "title": "SEED-7: MFA regenerate confirmation surface is reachable after enrollment",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 750,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T19:18:47.668Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f2bcd157030f6f91f659-b64bef47e1918d114dba",
+              "file": "ga-uat-shift-left.spec.ts",
+              "line": 164,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "golden-path.spec.ts",
+      "file": "golden-path.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 859,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:18:37.715Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d6dd496e245cb9874cb8-52c3db116eda0a288a0f",
+          "file": "golden-path.spec.ts",
+          "line": 17,
+          "column": 5
+        },
+        {
+          "title": "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1069,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:18:48.424Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d6dd496e245cb9874cb8-8bea12a12a6752dbbcfe",
+          "file": "golden-path.spec.ts",
+          "line": 17,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "organizations.spec.ts",
+      "file": "organizations.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2861,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:18:38.581Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e73cfbd0adf242785189-ed723503d33da298936f",
+          "file": "organizations.spec.ts",
+          "line": 181,
+          "column": 5
+        },
+        {
+          "title": "organization invitations: new user accepts through the mailbox signup path",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1187,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:18:41.446Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e73cfbd0adf242785189-6b33e2c786ab25b9ac22",
+          "file": "organizations.spec.ts",
+          "line": 451,
+          "column": 5
+        },
+        {
+          "title": "organization invitations: signed-in matching user accepts through the mailbox link",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 936,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:18:42.636Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e73cfbd0adf242785189-41a684d7d28369cab2d7",
+          "file": "organizations.spec.ts",
+          "line": 502,
+          "column": 5
+        },
+        {
+          "title": "phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2847,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:18:49.502Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e73cfbd0adf242785189-745aec0a619d2982ac0f",
+          "file": "organizations.spec.ts",
+          "line": 181,
+          "column": 5
+        },
+        {
+          "title": "organization invitations: new user accepts through the mailbox signup path",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1532,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:18:52.353Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e73cfbd0adf242785189-0fc39f37615c7294300c",
+          "file": "organizations.spec.ts",
+          "line": 451,
+          "column": 5
+        },
+        {
+          "title": "organization invitations: signed-in matching user accepts through the mailbox link",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1279,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:18:53.890Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e73cfbd0adf242785189-ec29658e03fdf7d92d95",
+          "file": "organizations.spec.ts",
+          "line": 502,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "passkey-login.spec.ts",
+      "file": "passkey-login.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "passkey-primary login fallback smoke",
+          "file": "passkey-login.spec.ts",
+          "line": 121,
+          "column": 6,
+          "specs": [
+            {
+              "title": "keeps identifier, password, and magic-link fallback visible on the real login page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 101,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T19:18:43.577Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "da0286b6e7fb3c32d2e7-37f8e7b5ef41b2de3a38",
+              "file": "passkey-login.spec.ts",
+              "line": 122,
+              "column": 7
+            },
+            {
+              "title": "clicking passkey login requests real options path without leaking browser errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1009,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T19:18:43.682Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "da0286b6e7fb3c32d2e7-d2ff097ca3211e1f4766",
+              "file": "passkey-login.spec.ts",
+              "line": 182,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "passkey-options.spec.ts",
+      "file": "passkey-options.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "enrollment requests real passkey options from the served MFA settings page",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 892,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:18:44.696Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8d3aabca64552d7e3f48-fc0b21f69b19221d2738",
+          "file": "passkey-options.spec.ts",
+          "line": 58,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "passkeys-hooks.spec.ts",
+      "file": "passkeys-hooks.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "generated passkey hooks complete real browser registration and authentication with a virtual authenticator",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 140,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-23T19:18:45.595Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ba06a96a340fa970f999-bc3e6670038c5caf57bc",
+          "file": "passkeys-hooks.spec.ts",
+          "line": 74,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T19:18:35.901Z",
+    "duration": 19288.447,
+    "expected": 16,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

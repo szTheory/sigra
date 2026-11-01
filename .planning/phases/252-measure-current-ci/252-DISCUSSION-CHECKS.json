@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-12T16:11:03.355916+00:00",
+  "claim": "confirmed discussion artifacts are ready to commit, not phase implementation or acceptance",
+  "checks": [
+    {
+      "name": "Six standard context sections",
+      "passed": true
+    },
+    {
+      "name": "21 unique locked decisions",
+      "passed": true
+    },
+    {
+      "name": "Explicit approval, no default selection",
+      "passed": true
+    },
+    {
+      "name": "Scope and phase outcome remain pending",
+      "passed": true
+    },
+    {
+      "name": "Bounded snapshot and acquisition limits",
+      "passed": true
+    },
+    {
+      "name": "Fixed matched comparison and unchanged targets",
+      "passed": true
+    },
+    {
+      "name": "Known discovery limits retained",
+      "passed": true
+    },
+    {
+      "name": "Audit log is not planner input",
+      "passed": true
+    },
+    {
+      "name": "Exact source readback effective-rules-main.json",
+      "passed": true
+    },
+    {
+      "name": "Exact source readback runs-pull_request.json",
+      "passed": true
+    },
+    {
+      "name": "Exact source readback runs-push-main.json",
+      "passed": true
+    },
+    {
+      "name": "Exact source readback runs-schedule.json",
+      "passed": true
+    },
+    {
+      "name": "Exact source readback representative-pr-jobs.json",
+      "passed": true
+    },
+    {
+      "name": "Exact source readback api-runs-pull_request-get.json",
+      "passed": true
+    },
+    {
+      "name": "Exact source readback api-runs-pull_request.json",
+      "passed": true
+    },
+    {
+      "name": "Exact source readback workflows.json",
+      "passed": true
+    },
+    {
+      "name": "Exact source readback API-ACCESS-NOTES.txt",
+      "passed": true
+    },
+    {
+      "name": "Exact source readback DECISION-PACKET.md",
+      "passed": true
+    },
+    {
+      "name": "Capture still clean/recoverable .planning/STATE.md",
+      "passed": true
+    },
+    {
+      "name": "Capture still clean/recoverable .planning/state.json",
+      "passed": true
+    },
+    {
+      "name": "Capture still clean/recoverable .planning/HANDOFF.json",
+      "passed": true
+    },
+    {
+      "name": "Capture still clean/recoverable .planning/PROJECT.md",
+      "passed": true
+    },
+    {
+      "name": "Capture still clean/recoverable .planning/ROADMAP.md",
+      "passed": true
+    },
+    {
+      "name": "Capture still clean/recoverable .planning/v1.50-START.json",
+      "passed": true
+    },
+    {
+      "name": "Capture still clean/recoverable .planning/REQUIREMENTS.md",
+      "passed": true
+    },
+    {
+      "name": "Capture still clean/recoverable .planning/config.json",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .planning/ROADMAP.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .planning/REQUIREMENTS.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .planning/PROJECT.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .planning/METHODOLOGY.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists AGENTS.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists MAINTAINING.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists scripts/ci/ci-run-metrics.sh",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists scripts/ci/ci-run-metrics.test.sh",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .github/workflows/ci.yml",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .github/actions/example-playwright-boot/action.yml",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .github/ci-skip-manifest.tsv",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists mix.exs",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists test/test_helper.exs",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists test/support/postgres_case.ex",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists test/example/priv/playwright/playwright.config.ts",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists prompts/elixir-oss-lib-ci-cd-best-practices-deep-research.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists prompts/elixir-opensource-libs-best-practices-deep-research.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists prompts/elixir-best-practices-deep-research.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists prompts/ecto-best-practices-deep-research.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists prompts/Phoenix Auth Library \u2014 Jobs to Be Done, Personas & User Flows.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .planning/todos/pending/2026-09-15-test-01-02-timing-machinery-orphaned.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .planning/todos/pending/2026-09-15-admin-eval-webkit-registration-flake-recurrence.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .planning/todos/pending/2026-09-19-example-playwright-smoke-manifest-step-gate-inaccuracy.md",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "Canonical reference exists .planning/phases/252-measure-current-ci/discussion-sources/manifest.json",
+      "passed": true
+    },
+    {
+      "name": "Only phase252 discussion files changed",
+      "passed": true
+    }
+  ],
+  "all_passed": true,
+  "source_inputs_exact": 10,
+  "prior_clean_source_readbacks": 8,
+  "context_decisions": 21,
+  "implementation_started": false,
+  "phase_verification_status": "not_started",
+  "app_tests_run": false,
+  "ci_dispatched": false
+}

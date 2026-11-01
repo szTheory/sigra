@@ -1,0 +1,635 @@
+{
+  "timestamp": "2026-10-11T11:11:18Z",
+  "phase": "Phase 250 remains active and incomplete; the exact Plan 250-07 test is authorized and pending dispatch; Plan 250-08\u201312 remain blocked.",
+  "phase_name": "Close v1.49 audit gaps: reconcile Phase 247/248/249 verification and prove release failure/cancellation receipts",
+  "plan": "Resume Plan 250-07 from its packet decision checkpoint",
+  "task": "Decide whether to run the one bounded, non-publishing test described in the current packet.",
+  "total_tasks": 19,
+  "status": "The current packet was explicitly authorized. Same-source preflight was refreshed and all reviewed source blobs, main SHA, workflow IDs/paths, permissions, and retention settings still match. No controller workflow has been dispatched yet.",
+  "completed_tasks": [
+    {
+      "id": "249-08",
+      "name": "Preserve inherited work under verified, recoverable refs",
+      "status": "Complete. 49/49 closeout validator tests pass; 102 inherited identities have exact preservation refs and the sole historical HANDOFF identity is recorded as an explicit user-authorized accepted loss, not as recovered or preserved.",
+      "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-08-SUMMARY.md"
+    },
+    {
+      "id": "249-09",
+      "name": "Assemble the source-bound receipt and required documentation gate",
+      "status": "Complete. Candidate 72fc10449577f63974d068c5aba8c4b3ce99052e is based on current main e2fa303017364c7e496c3c620f7b709c8e90c8fb, changes exactly ten paths, passes the plan fixtures and docs rebuild/index comparison, and remains local for Plan 10 review.",
+      "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-09-SUMMARY.md"
+    },
+    {
+      "id": "249-10",
+      "name": "Complete and review the scoped promotion candidate",
+      "status": "Complete. Candidate 10246c8dbcc2acd3c49432844e84a34ae0bd01c1 is based on e2fa303017364c7e496c3c620f7b709c8e90c8fb, contains exactly fourteen paths, passes internal security review and the full contributor gate, and remains local pending Plan 11.",
+      "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-SUMMARY.md"
+    },
+    {
+      "id": "249-11",
+      "name": "Promote the exact reviewed candidate through protected auto-merge",
+      "status": "Complete. PR #304 merged by protected squash auto-merge at 3c7d713f290c93de3b9fd54be7ece31d71f32787; exact-head CI run 37992672660 passed.",
+      "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md"
+    },
+    {
+      "id": "249-12-task-1",
+      "name": "Join the scoped merge to the receipt and exact current-main ci-gate",
+      "status": "Complete. Protected main 08300af1740fea8b77d5928a182688acbf103edc has successful exact-head CI run 38003573391; ci-gate job 114069179560 passed on the same SHA.",
+      "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json"
+    },
+    {
+      "id": "249-12-task-2",
+      "name": "Reconcile every open PR and worktree, then seal final acceptance",
+      "status": "Complete. Refreshed live inventory and preservation/disposition validation pass for six clean worktrees and 14 open PRs; canonical acceptance and interim terminal seal passed at a8adada5c34fe09ce41a1cc59be83f4c5a1c7d33. The recorded closeout order places final inventory, acceptance, and terminal seal after the report/state commit.",
+      "summary_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-12-SUMMARY.md"
+    },
+    {
+      "id": "PHASE250-DISCUSS",
+      "name": "Capture Phase 250 context and audit-gap recommendations",
+      "status": "Complete. Context, evidence references, fail-closed identity reconciliation, and safe canary constraints are recorded.",
+      "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CONTEXT.md",
+      "discussion_log_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-DISCUSSION-LOG.md"
+    },
+    {
+      "id": "PHASE250-PLAN",
+      "name": "Plan Phase 250 audit-gap closure",
+      "status": "Complete. Five plans cover all six original owner requirements; all 12 task checks are mapped. Independent plan checker passed with no material issues.",
+      "evidence_paths": [
+        ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-PLAN.md",
+        ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-PLAN.md",
+        ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-PLAN.md",
+        ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-PLAN.md",
+        ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-PLAN.md",
+        ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-RESEARCH.md",
+        ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VALIDATION.md",
+        ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-PATTERNS.md"
+      ],
+      "plan_commits": [
+        "eecd549ec",
+        "e54749ef5"
+      ],
+      "checker": "gsd-plan-checker: VERIFICATION PASSED (5 plans, 12 task rows)"
+    },
+    {
+      "id": "250-01-task-1",
+      "name": "Wire one complete dual-outcome canary tracer",
+      "status": "Complete. Commit a068230ee; source/controller/observer implementation is merged by PR #310 at 707be7255c557b187a3e7df7c2d65a7ab51f171d."
+    },
+    {
+      "id": "250-01-task-2",
+      "name": "Add negative tests for canary identity and cancellation boundaries",
+      "status": "Complete. RED commit 8f0de1720 and GREEN commit 93434c9f9; tests passed and the contract changes are merged by PR #310."
+    },
+    {
+      "id": "250-01-task-3",
+      "name": "Capture the exact hosted proof and fail closed",
+      "status": "Complete as blocked-proof reporting. Controller run 38059620443 failed to produce the failure artifact; cancellation was not dispatched. Canonical proof and controller artifact record are linked in evidence_refs.controller_retry_38059620443."
+    },
+    {
+      "id": "250-03",
+      "name": "Refresh Phase 248 exact-source verification",
+      "status": "Complete. AUTO-01 satisfied; AUTO-02 stays unsatisfied because no hosted failure or cancellation artifact is available.",
+      "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-SUMMARY.md"
+    },
+    {
+      "id": "250-04",
+      "name": "Independently refresh Phase 249 release verification",
+      "status": "Complete. Read-only snapshot and report check passed. REL-01 satisfied; REL-02 unsatisfied for current workflow failure and five live PR identity/disposition mismatches.",
+      "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-SUMMARY.md",
+      "snapshot_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json",
+      "owner_report_path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md"
+    },
+    {
+      "id": "250-02",
+      "name": "Phase 250 Plan 02 implementation/reporting",
+      "status": "summarized; acceptance gaps retained",
+      "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-SUMMARY.md"
+    },
+    {
+      "id": "250-05",
+      "name": "Phase 250 Plan 05 implementation/reporting",
+      "status": "summarized; acceptance gaps retained",
+      "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-SUMMARY.md"
+    },
+    {
+      "id": "250-REVIEW-FIX",
+      "name": "Code review repairs and independent recheck",
+      "status": "9 verified fixes; 0 open findings",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-RECHECK-3.md"
+    },
+    {
+      "id": "250-GOAL-VERIFICATION",
+      "name": "Goal-based Phase 250 verification",
+      "status": "gaps_found; 8/14 must-haves; phase not complete",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md"
+    },
+    {
+      "id": "PHASE250-GAP-PLAN",
+      "name": "Plan six Phase250 verification gaps",
+      "status": "Complete. Seven plans06\u201312,19 tasks,5 waves; independent checker passed after1 revision;14 schema/structure checks and38 command probes pass.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-EVIDENCE.json"
+    },
+    {
+      "id": "250-06",
+      "name": "Repair and deliver source-bound canary",
+      "status": "Complete; PR #318 and exact-head CI passed; hosted AUTO-02 still unsatisfied.",
+      "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-06-SUMMARY.md"
+    },
+    {
+      "id": "250-07-source-identity-repair",
+      "name": "Fix exact canary workflow-run dynamic name correlation",
+      "status": "Scoped source repair merged via PR #320 to main 9cb1c48; CI run 38084430351 passed. This is not Plan 250-07 completion and does not authorize another hosted run.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-REPAIR.md"
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": "250-07",
+      "name": "Execute 250-07-PLAN.md",
+      "status": "halted: v5 packet SHA-256 b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287 targets e0c66d61211ddb461c049ca6422350308b420126 and is stale against recorded main ff96768bc2843ef1a89926d238690b1145bfd514; no current packet approval or dispatch.",
+      "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "packet_id": "250-07-canary-authority-v5",
+      "packet_sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
+      "packet_source_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+      "packet_status": "awaiting_user_decision; stale against recorded main ff96768bc2843ef1a89926d238690b1145bfd514",
+      "superseded_v4_packet_sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
+      "repair_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-PARSER-REPAIR.json",
+      "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936-refresh-20261010T223159Z.json",
+      "preflight_sha256": "9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9",
+      "previous_consumed_approved_packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
+      "dispatch_request_sha256": "b03c35c3203706679bdac9cbc1e72c74a7ac5cf826718b40b1a5a869d99738e1",
+      "dispatch_http_status": 204,
+      "controller_run_id": 38091955379,
+      "controller_run_url": "https://github.com/szTheory/sigra/actions/runs/38091955379",
+      "run_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json",
+      "run_evidence_sha256": "ed6eb89d8ed7ff9fedf99a89469b485291307e1c69a75f05dd53719ae29f3300",
+      "observer_failure": "choose exactly one event source",
+      "repair_evidence_sha256": "9e56c17c0aeb9167a947b8bfbaa20874a275830cce32342d3c825a82ab978676",
+      "main_ci_run_id": 38093033532,
+      "release_please_run_id": 38093033505,
+      "release_please_pr_head_sha": "d4ff8ca3956fa9c47ecbc41dbca02aeb5845d086",
+      "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md",
+      "recovery_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json"
+    },
+    {
+      "id": "250-08",
+      "name": "Execute 250-08-PLAN.md",
+      "status": "halted: tuple packet has zero eligible tuples; decision status not_asked_no_eligible_tuple; approval was not requested.",
+      "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-PLAN.md",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+      "summary_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-SUMMARY.md",
+      "recovery_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json"
+    },
+    {
+      "id": "250-09",
+      "name": "Execute 250-09-PLAN.md",
+      "status": "blocked by halted 250-08 until a complete immutable READY tuple route exists",
+      "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-09-PLAN.md"
+    },
+    {
+      "id": "250-10",
+      "name": "Execute 250-10-PLAN.md",
+      "status": "blocked by halted 250-07 until fresh current-main canary evidence is authorized and proved",
+      "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-PLAN.md"
+    },
+    {
+      "id": "250-11",
+      "name": "Execute 250-11-PLAN.md",
+      "status": "blocked by 250-07/09/10 dependencies",
+      "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-11-PLAN.md"
+    },
+    {
+      "id": "250-12",
+      "name": "Execute 250-12-PLAN.md",
+      "status": "blocked by 250-11; strict audit remains last",
+      "plan_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-12-PLAN.md"
+    },
+    {
+      "id": "PHASE250-REVERIFY",
+      "name": "Re-verify Phase250 goal after gap execution",
+      "status": "pending;existing verifier8/14 and audit5/9 unchanged",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "READY-01/READY-02",
+      "reason": "No eligible source tuple: old parent browser predicate rejected; corrected child lacks own dry-run and readiness record; current dispositions incomplete.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json"
+    },
+    {
+      "id": "AUTO-02",
+      "reason": "AUTO-02 still needs the hosted test to create and validate a failure record and a cancellation record. The current-main code, matching source files, green CI, and local tests are verified; they do not replace those hosted records.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json"
+    },
+    {
+      "id": "REL-02",
+      "reason": "The previously cited main CI failure 38061391571 is historical: current release commit ff96768 has successful exact-SHA CI 38097941299, and separate release workflow 38097941302 published v1.7.0. This does not by itself satisfy the v1.49 Phase 249 1.6.0 owner predicates or their original-source dispositions; do not promote REL-02 from this separate release.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json"
+    },
+    {
+      "id": "TRACEABILITY",
+      "reason": "Strict audit is gaps_found at 5/9 with 31 blockers and 0 orphaned requirements. Original owner summary and requirement-row contradictions remain; no requirement promotion or milestone archive occurred.",
+      "evidence_path": ".planning/v1.49-MILESTONE-AUDIT.md"
+    },
+    {
+      "id": "PUBLIC-SOURCE-AVAILABILITY",
+      "reason": "Phase 249 live report check and its single retry returned HTTP 503 for the exact GitHub source URL; version/checksum, docs and tag still matched. Captured source status was 200; no successful freshness revalidation is claimed.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json"
+    },
+    {
+      "id": "LOCAL-MIX-DEPENDENCY",
+      "reason": "Mix TAP wrapper stopped on the existing Phoenix lock mismatch. Its seven underlying dependency-free ExUnit contracts passed standalone; wrapper is not marked passed.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json"
+    },
+    {
+      "id": "AUTO-02-OBSERVER-RECEIPT-MISSING",
+      "reason": "The earlier hosted attempts did not produce both required validated records. The current code repair is on main ff96768; the current packet now names that commit, but its exact test run still awaits an explicit user decision. No dispatch or cancellation has occurred.",
+      "evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "repair_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-PARSER-REPAIR.json",
+      "run_evidence_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json"
+    }
+  ],
+  "async_jobs": [],
+  "human_actions_pending": [],
+  "decisions": [
+    {
+      "decision": "Do not create a release candidate while preservation mode has blockers.",
+      "rationale": "Plan 249-09 has an explicit precondition and Phase 249 must not claim a clean closeout without exact preservation proof."
+    },
+    {
+      "decision": "Keep inherited work outside the release candidate.",
+      "rationale": "Plan 08 preserved exact paths under local refs; preservation is not release inclusion."
+    },
+    {
+      "decision": "Classify the Phase 233 scaffold-discovery edit as a separate test/CI maintenance follow-up, not 1.6.0 release scope.",
+      "rationale": "The bounded change has a clear test-maintenance owner, and exact-source Plan 05 evidence proves 1.6.0 passed full CI without it; its exact bytes are preserved under a scoped local ref."
+    },
+    {
+      "decision": "Accept only the exact historical HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148 as unrecovered loss.",
+      "rationale": "The user authorized continuation after exhaustive local/GitHub/worktree/artifact searches. The exact bytes are not claimed as preserved and remain outside the candidate."
+    },
+    {
+      "decision": "Write-ahead preserve dirty planning artifacts before refreshing them.",
+      "rationale": "A digest without a durable byte copy allowed a later handoff update to supersede the captured identity. The new project rule requires exact path/status/byte preservation and read-back before any rewrite or cleanup."
+    },
+    {
+      "decision": "Require fresh explicit approval before any further controller dispatch beyond the single current packet v3 authorization.",
+      "rationale": "Packet v3 SHA-256 56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68 has now been explicitly authorized for one bounded current-main run; all later retries still require fresh authority."
+    }
+  ],
+  "uncommitted_files": [],
+  "next_action": "Perform the final live main/source and preflight freshness checks, then dispatch exactly one controller run as authorized.",
+  "context_notes": "Fresh capture 2026-10-09T18:20:45.573Z observed five worktrees, 14 open PRs, and no failed changed-file reads. Phase 233 source is preserved under refs/phase-249-preservation/phase-233-bounded-scaffold-discovery (commit fca3772b0dc546f954cd28c4122e72c29ddd6a05; source SHA-256 02f142f9a1313c3a87523957c932300299a137ff9e29cbe6aa9ad6106e53c2c4) as separate test/CI maintenance and excluded from the release candidate. The only blocker is old .planning/HANDOFF.json SHA-256 00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148: audit scanned 22,400 Git blobs and 74,345 regular files across the repository/worktrees with no match; current/base handoff versions differ. Inventory is complete; preservation fails closed on that historical loss. No candidate, push, PR, or merge was created. Plan 249-08 implementation is complete; Phase 249 REL-02 verification remains incomplete. Latest preservation record is .planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json from refs/phase-249-preservation/plan-08-preservation-record-v4 (commit 96581c2b555a11b50b6efece9c25a5b1f8e0e456; SHA-256 b47304df684b3eda5916730072a481d91113f6fca76bd0f9507e24387f3f4ad3). Follow-up audit 2026-10-09 searched all current local Git objects/blobs and all 405 GitHub mirror refs (branch, tag, PR-head and PR-merge), plus 74,345 registered-worktree files; no target hash match. GitHub artifact metadata had no handoff/planning/preservation/Phase 249 name match. No user-held copy is available, so there is no manual decision/action pending; retain the fail-closed blocker. The audit results are in 249-PRESERVATION.json revision 4.\n\nRoot-cause limit: retained evidence proves the old handoff revision was inventoried and later unavailable, but does not identify the exact write/tool that replaced it. Prevention controls are in AGENTS.md, .planning/METHODOLOGY.md, the closeout ledger's planning_mutation_guards, and validate-closeout tests. Current preservation record revision 5 supersedes v4 while retaining the immutable recovery audit.\n\nPlan 249-09 candidate: branch gsd/phase-249-09-candidate, base e2fa303017364c7e496c3c620f7b709c8e90c8fb, HEAD 72fc10449577f63974d068c5aba8c4b3ce99052e, ten exact changed paths, clean worktree, no push/PR. Evidence: 249-09-CANDIDATE.json and 249-09-SUMMARY.md. The old HANDOFF identity remains unrecovered and user-authorized as a single accepted loss, not preserved. Prevention rule remains: write-ahead preserve dirty planning files before any rewrite.\n\nPlan 249-10 completed 2026-10-09. Candidate `gsd/phase-249-09-candidate` is clean at 10246c8dbcc2acd3c49432844e84a34ae0bd01c1, based on e2fa303017364c7e496c3c620f7b709c8e90c8fb, with exactly fourteen paths and no push/PR. Plan 10 evidence: 249-10-CANDIDATE.json and 249-10-SUMMARY.md. Release receipt SHA-256 remains c1a58f6a36656194387b0006dac9aab447d8f445cce9b060dcfb638ba6c4fff5 for package source/CI head 9e80cb78d6374b1ed4074d5fef6b613fee879dca, run 37875238741. Full `MIX_ENV=test mix ci` passed outside the command sandbox with temporary Mix home/required phx_new archive and ephemeral Postgres; other focused proof, docs, workflow and symlink-destination tests passed. Plan 11 must freshly resolve main and inventory before any push/open because the candidate base observation predates Plan 10 completion. Preservation remains valid as `accepted-with-recorded-loss` for only the historical HANDOFF identity; its bytes remain unrecovered and are not claimed preserved. Write-ahead planning-artifact preservation controls remain in AGENTS.md, METHODOLOGY.md, closeout capture guards and validator tests.\n\nPlan 249-11 completed 2026-10-09: PR #304 merged by protected squash auto-merge at 3c7d713f290c93de3b9fd54be7ece31d71f32787; candidate run 37992672660 passed exact-head CI. Plan 249-12 current-main proof passed run 37993629114, ci-gate job 114036565274. Terminal-seal code now lives in validate-closeout.mjs; its 60 tests cover exact canonical binding, ref-only checkpoint/seal, missing/nonempty status, and post-write reread. Methodology records the prevention sequence. Final ledger/acceptance/terminal proof remain to run; user-approved historical HANDOFF loss remains accepted-with-recorded-loss, never recovered.\n\nPhase 249 Plan 12 implementation is complete: 60 validator tests pass; terminal sealing commits only to refs/heads/evidence/phase-249-final-acceptance and independently checks raw status bytes for every registered worktree twice. Current-main CI run 37993629114 and ci-gate job 114036565274 pass on 3c7d713f290c93de3b9fd54be7ece31d71f32787. The final acceptance binds public Sigra 1.6.0 to package source 9e80cb78d6374b1ed4074d5fef6b613fee879dca, covers six worktrees and 14 dispositioned open PRs, and records zero dirty paths. Phase 249 is complete; the final seal is replayed after state/roadmap closeout edits. The next roadmap phase query for 250 returned phase_found=false; route to $gsd-audit-milestone.\n\nPhase 249 live closeout refresh (2026-10-09T23:55:08Z): current protected main is 08300af1740fea8b77d5928a182688acbf103edc; exact-main CI run 38003573391 and ci-gate job 114069179560 passed. The fresh complete inventory contains six registered worktrees, zero dirty paths, and 14 open PRs. Inventory, source-backed dispositions, preservation, public release proof, and final acceptance validators pass. PR #302 is dispositioned against base 08300af1740fea8b77d5928a182688acbf103edc and head 048f137e146c684b32ca7f40d4885271cf921a7c after its four-file Release Please diff was reread. An interim terminal ref write passed at a8adada5c34fe09ce41a1cc59be83f4c5a1c7d33; replay after these state/report commits remains the last repository mutation. The earlier verifier mismatch came from validating after the ledger root HEAD and PR #302 identity had advanced; it was stale snapshot evidence, not a release-source failure. Prevention is recorded in METHODOLOGY.md: bind checks to exact SHA/ref/version/tree/toolchain, reproduce mismatches on the exact target, and recapture inventory after all evidence/state commits.\n\nMilestone audit 2026-10-10: report .planning/v1.49-MILESTONE-AUDIT.md has status gaps_found (3/9 requirements satisfy the strict three-source matrix). Phase 247 has no VERIFICATION.md; Phase 248 has partial Nyquist and its hosted failure/cancellation receipt delivery is unproven; current GitHub environment secret names and release-environment-preflight.sh now pass, while 248-USER-SETUP.md and 248-VERIFICATION.md are stale. Phase 249 final acceptance on refs/heads/evidence/phase-249-final-acceptance passes, but its checked-in verifier is an older 35/40 snapshot. At that capture the next command was $gsd-validate-phase 248; that validation has since run, and the current route is $gsd-audit-milestone. Keep v1.49 unarchived and reconcile the remaining phase records and requirement statuses. METHODOLOGY.md now states that later external evidence invalidates a phase-verification snapshot and calls for narrow automatic re-verification.\n\nPhase 248 validation refresh 2026-10-10T01:15:48Z: Wave 0 is complete and 11 local checks pass, including the scoped exact-source workflow fixture fix. The exact-head Release Please gate and successful 1.6.0 receipt remain confirmed; protected environment secret names and main-only policies pass preflight. No eligible hosted failure/cancellation receipt was found. Do not repeat $gsd-validate-phase 248 until new hosted evidence exists. The next command is $gsd-audit-milestone. Phase 250 readiness query returned phase_found=false. A safe non-publishing hosted canary is the recommended follow-up for AUTO-02. Write-ahead preservation ref refs/codex/preservations/phase-248-nyquist-20261010, commit 1c8f3959efd62d4832ab51c5eb17e1b1ddd6a3c7, manifest .planning/recovery/phase-248-nyquist-20261010.json.\n\nMilestone audit refresh 2026-10-10T01:24:10Z: `.planning/v1.49-MILESTONE-AUDIT.md` reports gaps_found, 3/9 requirements satisfied; integration is 8/9 and no implementation flow is broken. AUTO-02 hosted failure/cancellation receipt retrieval remains the substantive external-evidence gap. Phase 247 has no canonical verifier; Phase 248 verifier is stale despite current secret-name/main-only preflight and hosted success receipt; Phase 249 verifier is pre-seal, while passing acceptance is on `refs/heads/evidence/phase-249-final-acceptance` commit `65f1ca4c851d62415ed656509cb068dc3acbab15`. Current checkout acceptance JSON is older and blocked. `init.plan-phase 250` returned `phase_found=false`. Next: insert a single focused Phase 250 to prove AUTO-02 via a no-publish-credentials canary and reconcile phase verification/traceability, then rerun `$gsd-audit-milestone`. No human UAT or manual secret work is pending.\n\nPhase 250 added 2026-10-10T01:26Z as an integer at the end of v1.49, after Phase 249. The supplied 112-character title was retained verbatim; GSD flagged it as long/title-shaped. Directory: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat. Phase goal/success criteria are in ROADMAP.md. `init.plan-phase 250` reports Pending, no plans/context, and no prerequisite blocker. Next command: `$gsd-discuss-phase 250`. Audit remains gaps_found (3/9) pending closure. Forward route refreshed 2026-10-10: Phase 250 discussion artifacts are committed at f9d7ab7cf; readiness confirms pending, complete context, zero plans, and no prerequisite blocker. Next action: $gsd-plan-phase 250. The exact pre-route STATE.md bytes are preserved in commit ce65b583e. Phase 247 candidate identity conflict remains fail-closed for the planner to resolve.\n\nPhase 250 planning closeout 2026-10-10T12:09:15.315Z: plans eecd549ec and validation/research resolution e54749ef5 are committed. The independent checker passed all five plans and all 12 task mappings. `gsd_run init.execute-phase 250` reports five runnable plans and no prerequisite blocker. The 10-file Plan 01 warning was reviewed and retained because it represents the three already separated deliverables. Phase 247 exact-tuple approval, live Actions settings/retention, and hosted failure/cancellation artifacts remain unproven fail-closed gates. No Phase 250 implementation or verification has run. Next action: $gsd-execute-phase 250.\n\nPhase 250-01 Task 3: PR #310 merged canary implementation; PR #311 fixed settings snapshot validation; PR #312 merged the ready preflight evidence. The one authorized controller run 38054862873 failed before child probes because the runner checkout was shallow. GitHub compare proves the preflight target is an ancestor of current main. Proof: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json (commit eebf552f4); exact controller artifact 11670154191 expires 2026-11-09T13:13:43Z. Fix the shallow ancestry check, then require new explicit authorization before dispatching another controller run.\n\nPhase 250-01 recovery update 2026-10-10T14:10:46Z: PR #313 merged c13bedb392d653871df45e4a12c7007470dae6d8 (CI 38055794383, head dc24e832ec75126e0e15cab486e054a3ababf90a); PR #314 merged b95bb44b6a780837d33e0309136d24bd459bbe5e (CI 38056811805, head f6b60b01fc3ea2fdee1ec81325c0a23894b3450e); PR #315 merged f606ac15d3beaaf87a285e908674ebadff2866f3 (CI 38057655905, head 0ac8f42af63d68f4f18506ae53fef370a8edb94f). The PR #315 preflight target was b95bb44b6a780837d33e0309136d24bd459bbe5 and validated against main f606ac15d3beaaf87a285e908674ebadff2866f3 before expiration. The local execution checkout is synced at c8f4758e4. Its pre-recovery planning bytes are preserved under refs/codex/preservations/phase-250-checkpoint-20261010, commit 1b4df4b4d204bc905d438839887a409e56a81bd0, with read-back verified manifest 250-CHECKPOINT-PRESERVATION.json.\n\nPhase 250-03 completed 2026-10-10: live name-only environment metadata and exact v1.6.0 success receipt prove AUTO-01. Snapshot 250-248-SOURCE-SNAPSHOT.json records Release Please run 37875238705, CI run 37875238741, ci-gate job 113654406257, and success artifact 11594782728. Canary controller 38059620443 failed; source run 38059634695 has no receipt artifact; cancellation was not dispatched. AUTO-02 remains open. Next action: $gsd-execute-phase 250; no further dispatch/cancel without fresh explicit authorization.\n\nLatest Phase 250 verification 2026-10-10T18:15:09Z: all five summaries complete; .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md is gaps_found at 8/14. Original owner statuses remain READY-01/02 unsatisfied, AUTO-01 satisfied/AUTO-02 unsatisfied, REL-01 captured satisfied/REL-02 unsatisfied. Strict audit remains 5/9 with 31 blockers and zero orphaned requirements. Nine code findings are independently fixed; ASVS L1 has zero open threats. Regression source checks include an unwaived GitHub source HTTP 503 and an unwaived Mix wrapper dependency block. Next command is $gsd-plan-phase 250 --gaps; no Phase 251 exists. Prior historical routes in this context are superseded. No further canary is authorized; historical HANDOFF accepted loss is unchanged.\n\nPhase250 gap planning closeout 2026-10-10T18:59:23Z: seven plans06\u201312 passed independent checker after one revision;14 schema/structure checks,38 command path/failure-signal probes,6 requirement and10 decision coverage gates passed. Next action: $gsd-execute-phase 250 --gaps-only. Original01\u201305 implementation/reporting remains complete; phase verification8/14 and audit5/9 unchanged. Exact-candidate browser recovery remains an execution risk and blocks before tuple approval if unavailable. No new canary authority or tuple approval is granted. Draft bytes are recoverable at refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z, commit15c1afd319f7d59012cd9173195e0833b8135c77; exact identities and read-back are in .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-EVIDENCE.json. Prior historical routes remain history.\n\nPhase 250 gap execution 2026-10-10T20:23:43Z: Plan 06 complete and scoped Plan 07 delivery prerequisite repaired via protected PRs #318/#319; CI IDs 38080575187/38082645367. Replacement packet e5b7e986... awaiting exact source authority for main33fccd8b; old34f approval unused. No hosted dispatch or cancellation. Plan08 zero eligible tuples; do not ask tuple approval or repeat unchanged recovery. Resume Plan07 Task3 only after new authority. No next roadmap phase. Current evidence: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json.\n\n2026-10-10T21:21:22Z: User explicitly approved packet v3 SHA-256 56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68 for exactly one no-publish 35-minute controller dispatch against main 9cb1c48ec233d909784b4070a2e6ecd795522291; user also authorized a squash merge if CI is green. PR #320 was already squash-merged with passing CI 38084430351; no open repair PR remains. Dispatch has not yet occurred. No retry or publish is authorized.\n\n2026-10-10T21:23:39Z: Authorized same-source preflight refresh completed read-only on 9cb1c48ec233d909784b4070a2e6ecd795522291; timestamp 2026-10-10T21:21:47Z, preflight SHA-256 9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539, compact payload SHA-256 a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e. Reviewed packet SHA-256 56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68; effective packet after the allowed refresh is f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960. No other preflight fields changed.\n\n2026-10-10T21:25:12Z: Exactly one authorized controller dispatch returned HTTP 204; run 38087516844 is in progress on main 9cb1c48ec233d909784b4070a2e6ecd795522291. Effective authorization/input packet at dispatch SHA-256 f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960; post-dispatch evidence packet SHA-256 060c8144d1de077e81855beb9e1a128570673a1be354e9d5fde83a72d7275a93. The sole 60-second-interval watcher is active; no retry or publish.\n\n2026-10-10T21:42:25Z: Run 38087516844 failed after 14m27s at exact_cancellation_observer_run_was_not_found. Failure source run 38087529909 produced one schema-valid failure receipt; exact cancellation run 38087599521 completed cancelled; no observer run appeared and no cancellation receipt/artifact exists. Controller artifact 11683830176 is blocked with receipts=[]; one-run authority consumed, no retry. Evidence: .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38087516844.json.\n\n2026-10-11 plain-language route: \u201csource-bound\u201d means a result identifies the exact commit and test files that produced it. Current-main CI and local tests pass, but hosted failure/cancellation records are still missing. The planner created no new plan because Plan 07 already covers that test. Current packet .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json SHA-256 6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c targets main ff96768bc2843ef1a89926d238690b1145bfd514 and awaits a specific decision. Its scope is one controlled test only: no release, publish, merge, tag, unrelated cancellation, or retry. Plan 08 remains separately blocked by the absence of one candidate with all matching readiness evidence. No external action occurred.\n\n2026-10-11T11:11:18ZZ approval: user reply \"yeah go for it maybe u can also in future optimize ci/cd that's a long run\" authorizes only the current Plan 07 test packet (approved predecision SHA-256 6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c); the user also raised a separate future CI/CD optimization request. Read-only preflight refreshed at 2026-10-11T11:10:47Z with unchanged main SHA, workflow IDs/paths, permissions, retention, and all nine source blobs. No dispatch has occurred yet.",
+  "last_updated": "2026-10-11T11:11:18Z",
+  "last_known_head": "13b4a6d0d306a152d86a8f957949f0b52c4df92a",
+  "evidence_refs": {
+    "preservation": {
+      "ref": "refs/codex/preservations/phase-250-checkpoint-20261010",
+      "commit": "1b4df4b4d204bc905d438839887a409e56a81bd0",
+      "manifest": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CHECKPOINT-PRESERVATION.json",
+      "readback_verified": true
+    },
+    "controller_failure": {
+      "run_id": 38054862873,
+      "artifact_id": 11670154191,
+      "artifact_digest": "sha256:ecbe27bc7d736cde8bef48bf78105256d293653bdda5fb85746597a15e762889",
+      "proof_commit": "eebf552f4be57721f7d90a3d219cadc7ad788c63",
+      "proof_file_sha256": "5d80dd349b3e7c5b42c40a64d9e133daa8819536f59f5e1e9315caf1ec356348",
+      "child_canary_dispatch_attempted": false
+    },
+    "controller_retry_38059620443": {
+      "proof": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+      "controller_artifact_record": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-CONTROLLER-PROOF-38059620443.json",
+      "controller_run_id": 38059620443,
+      "source_failure_run_id": 38059634695,
+      "status": "blocked",
+      "failure_receipt_uploaded": false,
+      "cancellation_probe_dispatched": false,
+      "retry_authorization_consumed": true,
+      "post_fix_exact_head_ci_run": 38060050307,
+      "post_fix_exact_head_ci_conclusion": "success"
+    },
+    "repairs": [
+      {
+        "pr": 313,
+        "merge_commit": "c13bedb392d653871df45e4a12c7007470dae6d8",
+        "ci_run": 38055794383,
+        "conclusion": "success"
+      },
+      {
+        "pr": 314,
+        "merge_commit": "b95bb44b6a780837d33e0309136d24bd459bbe5e",
+        "ci_run": 38056811805,
+        "conclusion": "success"
+      },
+      {
+        "pr": 315,
+        "merge_commit": "f606ac15d3beaaf87a285e908674ebadff2866f3",
+        "ci_run": 38057655905,
+        "conclusion": "success"
+      }
+    ],
+    "preflight": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+      "captured_at": "2026-10-10T13:53:41Z",
+      "target_sha": "b95bb44b6a780837d33e0309136d24bd459bbe5",
+      "status": "ready_at_capture",
+      "artifact_retention_days": 90,
+      "validation": "passed against current main f606ac15 before expiration",
+      "expires_at": "2026-10-10T14:08:41Z"
+    },
+    "plan_250_03": {
+      "summary": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-SUMMARY.md",
+      "snapshot": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+      "owner_report": ".planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+      "auto_01": "satisfied",
+      "auto_02": "unsatisfied",
+      "success_release_run_id": 37875238705,
+      "success_ci_run_id": 37875238741,
+      "success_artifact_id": 11594782728,
+      "blocked_controller_run_id": 38059620443,
+      "failure_run_id": 38059634695,
+      "failure_artifact_uploaded": false,
+      "cancellation_dispatched": false
+    },
+    "plan_250_04": {
+      "summary": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-SUMMARY.md",
+      "snapshot": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json",
+      "owner_report": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
+      "rel_01": "satisfied",
+      "rel_02": "unsatisfied",
+      "current_main_sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+      "current_ci_run_id": 38061391571,
+      "current_ci_job_id": 114241911167,
+      "blocking_prs": [
+        302,
+        306,
+        307,
+        308,
+        309
+      ],
+      "accepted_loss_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+      "bytes_recovered": false,
+      "bytes_preserved": false
+    },
+    "phase_250_verification": {
+      "report": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md",
+      "status": "gaps_found",
+      "score": "8/14",
+      "audit": ".planning/v1.49-MILESTONE-AUDIT.md",
+      "requirements_satisfied": "5/9",
+      "audit_blockers": 31,
+      "review_recheck": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-RECHECK-3.md",
+      "security": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SECURITY.md",
+      "regression": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json",
+      "source_commit": "94bb68d4f98ddf36e7220d4c3a607d166a9003ef",
+      "repair_commits": [
+        "da7d33053",
+        "13d11e69a",
+        "27ddb4ea1",
+        "b300f227c",
+        "698f5d6cc",
+        "abc187698",
+        "e806ccf07",
+        "866dfd735",
+        "d9c74aac0"
+      ],
+      "gate_commit": "9c3312850",
+      "next_command": "$gsd-plan-phase 250 --gaps",
+      "next_readiness": {
+        "phase_250": {
+          "phase_found": true,
+          "has_plans": true,
+          "has_context": true,
+          "has_research": true
+        },
+        "phase_251": {
+          "phase_found": false
+        },
+        "roadmap_next_phase": null
+      },
+      "preservation": {
+        "prior_ref": "refs/codex/preservations/phase-250-checkpoint-20261010",
+        "commit": "1b4df4b4d204bc905d438839887a409e56a81bd0",
+        "manifest": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CHECKPOINT-PRESERVATION.json"
+      },
+      "accepted_historical_loss_sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148"
+    },
+    "phase_250_gap_planning": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-EVIDENCE.json",
+      "status": "passed",
+      "plans": [
+        "250-06-PLAN.md",
+        "250-07-PLAN.md",
+        "250-08-PLAN.md",
+        "250-09-PLAN.md",
+        "250-10-PLAN.md",
+        "250-11-PLAN.md",
+        "250-12-PLAN.md"
+      ],
+      "checker_iterations": 2,
+      "next_command": "$gsd-execute-phase 250 --gaps-only",
+      "preservation_ref": "refs/gsd/preservation/phase-250-gap-planning-pre-revision1-20261010T184304Z",
+      "preservation_commit": "15c1afd319f7d59012cd9173195e0833b8135c77",
+      "preservation_manifest": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-PRESERVATION-MANIFEST.json",
+      "readback_verified": true,
+      "execute_readiness": {
+        "incomplete_count": 7,
+        "runnable_count": 7,
+        "threat_id_duplicate_count": 0,
+        "blocked_by": {}
+      }
+    },
+    "phase_250_gap_execution": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json",
+      "source_head": "d0bc8f81c9e5e275bdcd8f33dc6159699e87e3b0",
+      "completed_plans": 6,
+      "remaining_plans": 6,
+      "new_phase_verification_executed": false,
+      "next_command": "$gsd-execute-phase 250 --gaps-only"
+    },
+    "canary_authority_v5": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
+      "packet_id": "250-07-canary-authority-v5",
+      "status": "awaiting_user_decision"
+    },
+    "canary_preflight_v5": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-e0c66d6-refresh-20261010T230919Z.json",
+      "sha256": "96c92236157ba4eb99fdc5f0f37ecd97a4033f02d7accbbabf3623109247630c",
+      "captured_at": "2026-10-10T23:09:19Z",
+      "target_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+      "status": "ready"
+    },
+    "canary_v4_preserved": {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-v4-consumed.json",
+      "sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
+      "commit": "a842ca320",
+      "readback_verified": true
+    },
+    "main_ci_38093033532": {
+      "url": "https://github.com/szTheory/sigra/actions/runs/38093033532",
+      "conclusion": "success",
+      "head_sha": "e0c66d61211ddb461c049ca6422350308b420126",
+      "ci_gate_job_id": 114334543957,
+      "admin_eval_job_id": 114333203375
+    }
+  },
+  "authority_reconciliation": {
+    "earlier_packet_v1": {
+      "source_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+      "payload_sha256": "10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69",
+      "approval_received": true,
+      "dispatched": false,
+      "status": "superseded_before_dispatch"
+    },
+    "replacement_packet_v2": {
+      "source_sha": "33fccd8b3afe8ad093a0e379578fdc29c8a44e95",
+      "packet_sha256": "e5b7e986c74743b149c764e74c2111260d93e80e534963f35f909f0da367d85b",
+      "consumed_by_controller_run": 38083752867,
+      "child_run": 38083779742,
+      "result": "failed_dynamic_run_name_identity; no cancellation or observer"
+    },
+    "current_packet_v3": {
+      "source_sha": "9cb1c48ec233d909784b4070a2e6ecd795522291",
+      "packet_sha256": "b6193b07b13f703b33c275824ec2a30bf1d5b5532fa4bf810b7fd9527ac8b09f",
+      "preflight_file_sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539",
+      "preflight_payload_sha256": "a9f53fb403b2915ff274a449843eb949370d7b60fabd1ae417e89122d1caa58e",
+      "status": "consumed_failed",
+      "approved_packet_sha256": "56662aa1985d168b85cc540cfb9f56872594499e68b14fffed40606cb5c96d68",
+      "approved_at": "2026-10-10T21:21:22Z",
+      "user_reply_verbatim": "yes i authorize and if CI green u can squash merge it too",
+      "preflight_captured_at": "2026-10-10T21:21:47Z",
+      "effective_packet_sha256": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960",
+      "effective_packet_sha256_at_dispatch": "f394782e69551090fe7e53816f228749760c09e6b0bbded0d5d3c5c461d18960",
+      "execution_status": "failed_observer_missing",
+      "controller_run_id": 38087516844,
+      "controller_run_attempt": 1,
+      "controller_run_url": "https://github.com/szTheory/sigra/actions/runs/38087516844",
+      "dispatched_at": "2026-10-10T21:24:43Z",
+      "controller_conclusion": "failure",
+      "observer_run_found": false,
+      "retry_authorized": false,
+      "result_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38087516844.json"
+    },
+    "write_ahead_preservation": {
+      "commit": "d9637d7a13b490e404020cae728a70f002806437",
+      "snapshot_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z",
+      "manifest_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/PRESERVATION.json",
+      "readback_verified": true
+    },
+    "observer_dispatch_repair": {
+      "recorded_at": "2026-10-10T21:56:49Z",
+      "cause": "The controller-triggered canary cancellation used GITHUB_TOKEN; GitHub suppresses most follow-on workflow events for that token, so the workflow_run observer did not start. This is the diagnosed cause consistent with the exact run inventory.",
+      "repair": "The controller now explicitly dispatches the read-only observer for the exact canceled canary source run. The observer independently fetches Actions metadata and accepts only the exact canceled canary identity; the controller validates the exact observer run and receipt.",
+      "pr": 321,
+      "pr_url": "https://github.com/szTheory/sigra/pull/321",
+      "pr_head_sha": "5fc3b2f30528526d9342713d3d04f2eaf489ea6d",
+      "pr_ci_run_id": 38088968210,
+      "pr_ci_conclusion": "success",
+      "merge_commit": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "main_sha_at_recording": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "post_merge_ci_run_id": 38089444484,
+      "post_merge_ci_status_at_recording": "in_progress",
+      "release_please_run_id": 38089444492,
+      "release_please_publish_job": "skipped",
+      "release_please_ci_gate_job": "skipped",
+      "release_please_docs_build_status_at_recording": "in_progress",
+      "controller_retry_dispatched": false,
+      "new_canary_packet_status": "not_prepared_pending_post_merge_ci_and_fresh_preflight",
+      "approval_required_before_new_controller_dispatch": true
+    },
+    "current_packet_v4": {
+      "packet_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "packet_sha256": "5cbaa02f87817119f9887ee35bad9055e80f5af18139a3b4311fa10acb9a2922",
+      "source_sha": "1b420936e5135727f4a1b6dfcfd9c3d1ca050a04",
+      "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936.json",
+      "preflight_sha256": "c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e",
+      "preflight_payload_sha256": "cbaef01e342ee3636992c21489e75f9fe2b1bb64b21c7d1aa15724dcd7647366",
+      "captured_at": "2026-10-10T22:25:47Z",
+      "status": "awaiting_user_decision",
+      "dispatch_attempted": false,
+      "approval_required": true,
+      "latest_prior_reply_applies": false
+    },
+    "current_packet_v7": {
+      "packet_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "packet_sha256": "5907fb6e63ba9db4da5098ddae13584d97361ae9c7340da878f745254a6c8237",
+      "source_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
+      "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T111036Z.json",
+      "preflight_sha256": "00317a71840eb2d0277d162c1f9dcb00bbe97e29b4dfe3df6a28708fba5cf1d9",
+      "status": "approved_pending_dispatch",
+      "approved": true,
+      "dispatch_attempted": false,
+      "approved_packet_sha256": "6cf33e3ebcf77ba0d72fea2ba98afd46c687bcf782f0a4510ef8e23675b2835c",
+      "approved_at": "2026-10-11T11:11:18Z",
+      "user_reply_verbatim": "yeah go for it maybe u can also in future optimize ci/cd that's a long run"
+    }
+  },
+  "separate_automation_observation": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
+    "status": "completed_separate_v1.7.0_public_release",
+    "release_pr": 302,
+    "merge_commit": "ff96768bc2843ef1a89926d238690b1145bfd514",
+    "release_commit_ci_run_id": 38097941299,
+    "release_commit_ci_conclusion": "success",
+    "release_please_run_id": 38097941302,
+    "release_please_conclusion": "success",
+    "hex_publish_job_id": 114351805835,
+    "hex_publish_job_conclusion": "success",
+    "github_release_tag": "v1.7.0",
+    "hex_version": "1.7.0",
+    "does_not_update_phase_249_v149_owner_verdict": true,
+    "merge_method": "squash"
+  },
+  "release_observation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
+  "next_command": null,
+  "route_reconciliation": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json",
+    "phase_247_summaries": "11 plans / 11 summaries after byte-exact restoration and evidence-backed Plan 09 summary reconstruction",
+    "phase_247_verification": "GSD reports missing; do not route backward because Phase 250 execute readiness has no prerequisite blocker and its reconciliation plans own the remaining audit.",
+    "phase_246_stale_verification": "separate historical maintenance; Phase 250 readiness reports no prerequisite blocker",
+    "phase_247_summary_validation": "Four restored/reconstructed summaries pass the current summary check; Plan 06 flags a historical key file absent from this checkout and Plan 11 returns self_check=failed. Both source summaries remain byte-exact and the diagnostics are recorded in the reconciliation JSON."
+  },
+  "safe_resume_reconciliation_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json",
+  "manual_reconciliation": {
+    "recorded_at": "2026-10-11T11:11:18Z",
+    "halted_plans": [
+      "250-08"
+    ],
+    "paused_at_packet_decision": [],
+    "completed_phase_250_plans": [
+      "250-01",
+      "250-02",
+      "250-03",
+      "250-04",
+      "250-05",
+      "250-06"
+    ],
+    "runnable_gap_plans": [],
+    "phase_verification": "gaps_found",
+    "requirements_completed": [],
+    "external_actions_during_closeout": [],
+    "authorized_plan_pending_execution": [
+      "250-07"
+    ]
+  },
+  "resume_command": "$gsd-execute-phase 250 --gaps-only",
+  "route": {
+    "immediate_gsd_command": null,
+    "immediate_action": "Authorize or decline the exact Plan 07 packet; no hosted run has started.",
+    "resume_command": "$gsd-execute-phase 250 --gaps-only",
+    "resume_when": "After an explicit decision authorizes the current packet, and only after live main/source checks plus a fresh committed preflight.",
+    "current_packet_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+    "current_packet_sha256": "5907fb6e63ba9db4da5098ddae13584d97361ae9c7340da878f745254a6c8237",
+    "current_main_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
+    "source_identity_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-ff96768-20261011T0323Z.json",
+    "source_identity_sha256": "f47daee40a947ee38e11533f56e86ee9bedd370a5a0a75457b014e6db0d573b8",
+    "preflight_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T111036Z.json",
+    "preflight_sha256": "00317a71840eb2d0277d162c1f9dcb00bbe97e29b4dfe3df6a28708fba5cf1d9",
+    "planning_outcome_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T030026Z.json",
+    "next_roadmap_phase": null
+  }
+}

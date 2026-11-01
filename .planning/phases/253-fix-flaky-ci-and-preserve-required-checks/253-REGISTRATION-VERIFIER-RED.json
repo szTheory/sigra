@@ -1,0 +1,13 @@
+{
+  "schema_version": "sigra.phase253.review-regression/v1",
+  "recorded_at": "2026-10-13T04:48:09.111226+00:00",
+  "source_head": "65b084117c872efcaeff941a849408aabfc0dff3",
+  "code_changed": false,
+  "test_changed": true,
+  "command": "bash scripts/ci/ci-registration-repro.test.sh",
+  "exit_code": 1,
+  "stdout": "registration freeze: PASS\nregistration runner modes: PASS\n",
+  "stderr": "node:internal/assert/utils:146\n  throw error;\n  ^\n\nAssertionError [ERR_ASSERTION]: --verify-controls must reject self-reported fixed: --verify-controls: fixed\n \n\n0 !== 3\n\n    at [stdin]:26:14\n    at runScriptInThisContext (node:internal/vm:219:10)\n    at node:internal/process/execution:485:12\n    at [stdin]-wrapper:6:24\n    at runScriptInContext (node:internal/process/execution:483:60)\n    at evalFunction (node:internal/process/execution:317:30)\n    at evalTypeScript (node:internal/process/execution:329:3)\n    at node:internal/main/eval_stdin:51:5\n    at Socket.<anonymous> (node:internal/process/execution:239:5)\n    at Socket.emit (node:events:526:24) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 0,\n  expected: 3,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v26.10.0\n",
+  "expected_failure": "forged --verify-controls fixed record incorrectly exits 0",
+  "status": "expected_failure"
+}

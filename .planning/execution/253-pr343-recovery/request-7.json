@@ -1,0 +1,9 @@
+{
+  "method": "GET",
+  "route_id": "pr_read",
+  "category": "pr_identity",
+  "family": "normal",
+  "params": {
+    "pull_number": 343
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "status": "failed_new_image_gate_corrected_without_acceptance_reset",
+  "runs": [
+    {
+      "role": "before",
+      "run_id": 40043060412,
+      "conclusion": "failure",
+      "failed_jobs": [
+        {
+          "id": 120718625859,
+          "name": "Generated admin Playwright smoke",
+          "conclusion": "cancelled",
+          "failed_steps": []
+        },
+        {
+          "id": 120718708437,
+          "name": "Example HTTP smoke (boot + curl critical routes)",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Capture runner image identity before setup",
+            "Verify and attach runner image identity"
+          ]
+        },
+        {
+          "id": 120718708473,
+          "name": "Install smoke (fresh phx.new + sigra.install)",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Capture runner image identity before setup",
+            "Verify and attach runner image identity"
+          ]
+        },
+        {
+          "id": 120718708608,
+          "name": "Example Playwright shard (design_gallery)",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Capture runner image identity before setup",
+            "Run design gallery behavior",
+            "Verify and attach runner image identity"
+          ]
+        },
+        {
+          "id": 120723244349,
+          "name": "Example Playwright smoke (full lifecycle)",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Aggregate every Playwright shard result"
+          ]
+        },
+        {
+          "id": 120724210656,
+          "name": "ci-gate",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Honest-skip verdict (GATE-03)"
+          ]
+        }
+      ],
+      "raw_hashes_verified": true,
+      "preservation": "refs/evidence/phase254-environment-preparation-before-attempt-1"
+    },
+    {
+      "role": "after",
+      "run_id": 40043074317,
+      "conclusion": "failure",
+      "failed_jobs": [
+        {
+          "id": 120719806477,
+          "name": "Install smoke (fresh phx.new + sigra.install)",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Capture runner image identity before setup",
+            "Verify and attach runner image identity"
+          ]
+        },
+        {
+          "id": 120719806494,
+          "name": "Example Playwright shard (admin_behavior)",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Capture runner image identity before setup",
+            "Run admin behavior browser truth",
+            "Verify and attach runner image identity"
+          ]
+        },
+        {
+          "id": 120719806565,
+          "name": "Example Playwright shard (design_gallery)",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Capture runner image identity before setup",
+            "Run design gallery behavior",
+            "Verify and attach runner image identity"
+          ]
+        },
+        {
+          "id": 120722634227,
+          "name": "Example Playwright smoke (full lifecycle)",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Validate selected native browser execution"
+          ]
+        },
+        {
+          "id": 120722763134,
+          "name": "ci-gate",
+          "conclusion": "failure",
+          "failed_steps": [
+            "Honest-skip verdict (GATE-03)"
+          ]
+        }
+      ],
+      "raw_hashes_verified": true,
+      "preservation": "refs/evidence/phase254-environment-preparation-after-attempt-1"
+    }
+  ],
+  "invocations": 2,
+  "retries": 0,
+  "HTTP_requests": 180,
+  "request_elapsed_seconds": 1374,
+  "previous_preparation_invocations": 4,
+  "total_preparation_invocations": 6,
+  "measured_samples": 0,
+  "window_started": false,
+  "next_correction": "../IMAGE-AUTHORITY/POLICY.json",
+  "all_old_outcomes_unchanged": true
+}

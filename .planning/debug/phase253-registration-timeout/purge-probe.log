@@ -1,0 +1,6 @@
+ecto_version=3.13.5; elixir=1.19.5; otp=28
+queryable_path=/Users/jon/projects/sigra/test/example/_build/dev/lib/example/consolidated/Elixir.Ecto.Queryable.beam
+control=2000_passed
+concurrent_outcomes: %{ok: 40000}
+process_exit_reasons: %{normal: 5}
+restored_query=passed

@@ -1,0 +1,26 @@
+{
+  "schema_version": "sigra.phase253.tdd-evidence/v1",
+  "stage": "GREEN",
+  "test_commit": "6a9df8fef",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/ci/ci-git-publication.test.py",
+  "exitCode": 0,
+  "testResult": "28 tests passed",
+  "transportCommand": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/ci/ci-hosted-transport.test.py",
+  "transportExitCode": 0,
+  "transportTestResult": "16 tests passed",
+  "largeDeltaFixture": {
+    "productDeltaBytes": "greater than 2 MiB across all candidate tree requests",
+    "perRequestBytes": "at most 2 MiB",
+    "requestCount": "measured journal matched the transport ledger and remained at most 24",
+    "treeParity": "full path, mode, blob SHA, and blob content matched local Git",
+    "refOrder": "candidate and fixture trees and commits were uploaded and read back before either ref request"
+  },
+  "negativeOutcomes": [
+    "Broken tree base rejected",
+    "Tampered intermediate tree SHA rejected",
+    "Incomplete tree chain rejected",
+    "Over-budget request projection rejected",
+    "Single tree request over 2 MiB rejected"
+  ],
+  "semanticAssessment": "The packed tree chain reconstructs the native final candidate and fixture trees; object-aware local HTTPS publication preserves exact product entries and request accounting before create-only ref readback."
+}

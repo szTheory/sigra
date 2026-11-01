@@ -1,0 +1,9 @@
+{
+  "plan": "253-05",
+  "source_head": "15ec8fec4c55b65b9f1d6c3cbea2eb828a5855b9",
+  "command": "node --test scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs",
+  "exit_code": 0,
+  "passed": 34,
+  "log_sha256": "149476ceccbca9d0df47c179fa6f44150764a1c7792acec8c4c2f6a55e6b34fa",
+  "hosted_proof": false
+}

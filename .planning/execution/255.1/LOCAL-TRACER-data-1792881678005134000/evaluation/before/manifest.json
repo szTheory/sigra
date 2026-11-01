@@ -1,0 +1,12 @@
+{
+  "repository": "szTheory/sigra",
+  "request_count": 0,
+  "schema_version": "sigra.ci-run-metrics/snapshot-v1",
+  "source_sha256": {
+    "request_ledger": "5824b184c28cf0c23227b846f1229c9a2786e9589f1d0c28158b18c65dd022b3",
+    "selection_ledger": "94d5ba7357f5f8d9a48e1b859964d5569fc34509b24b84af38ba18e7048819be"
+  },
+  "status": "incomplete",
+  "stop_reason": "local_only_no_hosted_families",
+  "workflow": "ci.yml"
+}

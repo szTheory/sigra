@@ -1,0 +1,222 @@
+{
+  "schema": {
+    "valid": true,
+    "missing": [],
+    "present": [
+      "phase",
+      "plan",
+      "type",
+      "wave",
+      "depends_on",
+      "files_modified",
+      "autonomous",
+      "must_haves",
+      "gap_closure"
+    ],
+    "invalidValue": [],
+    "schema": "plan-gap-closure"
+  },
+  "structure": {
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "task_count": 3,
+    "tasks": [
+      {
+        "name": "Task 1: Prove both freeze commands stop on receipt refusal and repair the real Git fixture",
+        "type": "tracer",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      },
+      {
+        "name": "Task 2: Validate SDK output semantics and the exact complete plan universe",
+        "type": "auto",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      },
+      {
+        "name": "Task 3: Preserve and reconnect existing179/180 through completed181, then prove the complete local route",
+        "type": "auto",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      }
+    ],
+    "frontmatter_fields": [
+      "phase",
+      "plan",
+      "type",
+      "gap_closure",
+      "wave",
+      "depends_on",
+      "files_modified",
+      "autonomous",
+      "requirements",
+      "tags",
+      "estimate",
+      "must_haves"
+    ]
+  },
+  "decisions": {
+    "passed": true,
+    "skipped": false,
+    "total": 24,
+    "covered": 24,
+    "uncovered": [],
+    "message": "All trackable CONTEXT.md decisions are covered by plans."
+  },
+  "coverage": {
+    "block": false,
+    "passed": true,
+    "enabled": true,
+    "table": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIREL-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIREL-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n| CONTEXT.md | D-22 | \u2713 Covered |\n| CONTEXT.md | D-23 | \u2713 Covered |\n| CONTEXT.md | D-24 | \u2713 Covered |\n\n\u2713 All 26 items covered by plans\n",
+    "summary": "\u2713 All 26 items covered by plans",
+    "counts": {
+      "total": 26,
+      "covered": 26,
+      "uncovered": 0
+    },
+    "message": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIREL-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIREL-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n| CONTEXT.md | D-22 | \u2713 Covered |\n| CONTEXT.md | D-23 | \u2713 Covered |\n| CONTEXT.md | D-24 | \u2713 Covered |\n\n\u2713 All 26 items covered by plans\n"
+  },
+  "paths": {
+    "status": "not_applicable",
+    "readError": null,
+    "commands": [
+      {
+        "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_168_requires_receipt_before_each_automated_body SuccessorContractTests.test_nested_173_review_requires_original_location_schema_and_findings SuccessorContractTests.test_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "253-181-PLAN.md",
+        "task": "Task 1: Prove both freeze commands stop on receipt refusal and repair the real Git fixture"
+      },
+      {
+        "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_sdk_report_rejects_rehashed_fabricated_queries SuccessorContractTests.test_sdk_indexes_require_exact_unique_plan_universe",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "253-181-PLAN.md",
+        "task": "Task 2: Validate SDK output semantics and the exact complete plan universe"
+      },
+      {
+        "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "253-181-PLAN.md",
+        "task": "Task 3: Preserve and reconnect existing179/180 through completed181, then prove the complete local route"
+      },
+      {
+        "command": "python3 -B -c 'import json,pathlib,re; p=pathlib.Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks\"); r=json.loads((p/\"253-181-REPAIR-REVIEW.json\").read_bytes()); assert (r[\"status\"],r[\"repair_plan\"],r[\"acceptance_plan\"],r[\"bridge_plan\"])==(\"reviewed_for_new_acceptance\",\"253-181\",\"253-179\",\"253-180\"); assert r[\"unresolved_implementation_findings\"]==[] and r[\"acceptance_attempts\"]==0; assert r[\"requirements\"]=={\"CIREL-01\":\"partial_not_reproduced\",\"CIREL-02\":\"unaccepted\"} and r[\"phase_verification_status\"]==\"not_started\"; a=(p/\"253-179-PLAN.md\").read_text(); assert re.search(r\"(?m)^depends_on: \\[\\\"253-181\\\"\\]$\",a); assert re.search(r\"(?m)^status: halted$\",(p/\"253-178-SUMMARY.md\").read_text()); assert all(not (p/(\"253-\"+n+\"-SUMMARY.md\")).exists() for n in (\"176\",\"177\",\"179\",\"180\")); assert not (p/\"253-179-RECOVERY-RECEIPT.json\").exists(); print(\"181 reviewed;178 halted;179/180 amended and unexecuted;requirements open\")'",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "253-181-PLAN.md",
+        "task": "Task 3: Preserve and reconnect existing179/180 through completed181, then prove the complete local route"
+      },
+      {
+        "command": "python3 -B -c 'import hashlib,json,pathlib,re,subprocess\np=pathlib.Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks\")\nr=json.loads((p/\"253-181-REPAIR-REVIEW.json\").read_bytes())\nv=r[\"amended_plan_validation\"]\nassert set(v)=={\"253-179\",\"253-180\"}\nnode=pathlib.Path.home()/\".asdf/installs/nodejs/20.18.1/bin/node\"\nsdk=pathlib.Path.home()/\".codex/gsd-core/bin/gsd-tools.cjs\"\nassert node.is_file() and sdk.is_file()\nfor ident,wave,dep in ((\"253-179\",2,\"253-181\"),(\"253-180\",3,\"253-179\")):\n q=p/(ident+\"-PLAN.md\")\n raw=q.read_bytes()\n row=v[ident]\n assert row[\"plan_path\"]==q.as_posix()\n assert row[\"plan_sha256\"]==hashlib.sha256(raw).hexdigest()==r[\"source_files\"][q.as_posix()]\n text=raw.decode(\"utf-8\",\"strict\")\n assert re.search(r\"(?m)^wave: \"+str(wave)+r\"\\s*$\",text)\n assert re.search(r\"(?m)^depends_on:\\s*\\[\\x22\"+dep+r\"\\x22\\]\\s*$\",text)\n assert (p/(dep+\"-PLAN.md\")).is_file()\n for key,command,extra in ((\"frontmatter\",\"frontmatter.validate\",[\"--schema\",\"plan-gap-closure\"]),(\"structure\",\"verify.plan-structure\",[])):\n  saved=row[key]\n  argv=[str(node),str(sdk),\"query\",command,q.as_posix(),*extra]\n  actual=subprocess.run(argv,capture_output=True,check=False)\n  assert actual.returncode==saved[\"exit_code\"]==0,(ident,key,\"nonzero validator\")\n  stdout=actual.stdout.decode(\"utf-8\",\"strict\")\n  assert saved[\"argv\"]==argv and saved[\"stdout\"]==stdout,(ident,key,\"retained command/output differs\")\n  assert hashlib.sha256(actual.stdout).hexdigest()==saved[\"stdout_sha256\"]\n  result=json.loads(stdout)\n  assert isinstance(result,dict) and result.get(\"valid\") is True,(ident,key,result)\n  if key==\"frontmatter\":\n   assert result.get(\"schema\")==\"plan-gap-closure\" and result.get(\"missing\")==[] and result.get(\"invalidValue\")==[]\n  else:\n   assert result.get(\"errors\")==[] and result.get(\"task_count\")==2 and len(result.get(\"tasks\",[]))==2\n   assert all(all(t.get(k) is True for k in (\"hasFiles\",\"hasAction\",\"hasVerify\",\"hasDone\")) for t in result[\"tasks\"])\nprint(\"179/180 retained schema and structure results match fresh validators and exact amended bytes;waves/dependencies valid\")'",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "253-181-PLAN.md",
+        "task": "Task 3: Preserve and reconnect existing179/180 through completed181, then prove the complete local route"
+      }
+    ],
+    "note": "Python/shell paths marked not_applicable are unsupported by this static probe, not proven targets; targets were inspected by planner/checker."
+  },
+  "directions": {
+    "status": "ok",
+    "readError": null,
+    "commands": [
+      {
+        "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_168_requires_receipt_before_each_automated_body SuccessorContractTests.test_nested_173_review_requires_original_location_schema_and_findings SuccessorContractTests.test_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits",
+        "statement": "Nonzero exit, fewer than3 named tests, receipt counts other than[1,1], a downstream spy runs after receipt refusal, a corruption is rejected only by a fixture/Git error, or any actual freeze/acceptance command runs.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "253-181-PLAN.md",
+        "task": "Task 1: Prove both freeze commands stop on receipt refusal and repair the real Git fixture"
+      },
+      {
+        "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_sdk_report_rejects_rehashed_fabricated_queries SuccessorContractTests.test_sdk_indexes_require_exact_unique_plan_universe",
+        "statement": "Nonzero exit, fewer than2 named tests, saved fabrication accepted, any rehashed wrong query/identity/source digest accepted, duplicate/missing/replaced IDs accepted, a positive semantic fixture rejected for unrelated setup, or actual179 acceptance/network work runs.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "253-181-PLAN.md",
+        "task": "Task 2: Validate SDK output semantics and the exact complete plan universe"
+      },
+      {
+        "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+        "statement": "Nonzero exit, fewer than20 tests, any original test removed without its stated equivalent, missing new receipt/SDK/inventory/lifecycle regressions, mocked SDK used as route proof, final copied inventory other than181unique/0incomplete/25exacthalts, altered old175/178 evidence, unauthorized PLAN/source/shared changes, or any179acceptance/browser/hosted work.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "253-181-PLAN.md",
+        "task": "Task 3: Preserve and reconnect existing179/180 through completed181, then prove the complete local route"
+      },
+      {
+        "command": "python3 -B -c 'import json,pathlib,re; p=pathlib.Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks\"); r=json.loads((p/\"253-181-REPAIR-REVIEW.json\").read_bytes()); assert (r[\"status\"],r[\"repair_plan\"],r[\"acceptance_plan\"],r[\"bridge_plan\"])==(\"reviewed_for_new_acceptance\",\"253-181\",\"253-179\",\"253-180\"); assert r[\"unresolved_implementation_findings\"]==[] and r[\"acceptance_attempts\"]==0; assert r[\"requirements\"]=={\"CIREL-01\":\"partial_not_reproduced\",\"CIREL-02\":\"unaccepted\"} and r[\"phase_verification_status\"]==\"not_started\"; a=(p/\"253-179-PLAN.md\").read_text(); assert re.search(r\"(?m)^depends_on: \\[\\\"253-181\\\"\\]$\",a); assert re.search(r\"(?m)^status: halted$\",(p/\"253-178-SUMMARY.md\").read_text()); assert all(not (p/(\"253-\"+n+\"-SUMMARY.md\")).exists() for n in (\"176\",\"177\",\"179\",\"180\")); assert not (p/\"253-179-RECOVERY-RECEIPT.json\").exists(); print(\"181 reviewed;178 halted;179/180 amended and unexecuted;requirements open\")'",
+        "statement": "Nonzero exit, missing named result line, unresolved findings, wrong lineage/status/dependency, reclassified178, any fabricated176/177/179/180SUMMARY or actual179success receipt.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "253-181-PLAN.md",
+        "task": "Task 3: Preserve and reconnect existing179/180 through completed181, then prove the complete local route"
+      },
+      {
+        "command": "python3 -B -c 'import hashlib,json,pathlib,re,subprocess\np=pathlib.Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks\")\nr=json.loads((p/\"253-181-REPAIR-REVIEW.json\").read_bytes())\nv=r[\"amended_plan_validation\"]\nassert set(v)=={\"253-179\",\"253-180\"}\nnode=pathlib.Path.home()/\".asdf/installs/nodejs/20.18.1/bin/node\"\nsdk=pathlib.Path.home()/\".codex/gsd-core/bin/gsd-tools.cjs\"\nassert node.is_file() and sdk.is_file()\nfor ident,wave,dep in ((\"253-179\",2,\"253-181\"),(\"253-180\",3,\"253-179\")):\n q=p/(ident+\"-PLAN.md\")\n raw=q.read_bytes()\n row=v[ident]\n assert row[\"plan_path\"]==q.as_posix()\n assert row[\"plan_sha256\"]==hashlib.sha256(raw).hexdigest()==r[\"source_files\"][q.as_posix()]\n text=raw.decode(\"utf-8\",\"strict\")\n assert re.search(r\"(?m)^wave: \"+str(wave)+r\"\\s*$\",text)\n assert re.search(r\"(?m)^depends_on:\\s*\\[\\x22\"+dep+r\"\\x22\\]\\s*$\",text)\n assert (p/(dep+\"-PLAN.md\")).is_file()\n for key,command,extra in ((\"frontmatter\",\"frontmatter.validate\",[\"--schema\",\"plan-gap-closure\"]),(\"structure\",\"verify.plan-structure\",[])):\n  saved=row[key]\n  argv=[str(node),str(sdk),\"query\",command,q.as_posix(),*extra]\n  actual=subprocess.run(argv,capture_output=True,check=False)\n  assert actual.returncode==saved[\"exit_code\"]==0,(ident,key,\"nonzero validator\")\n  stdout=actual.stdout.decode(\"utf-8\",\"strict\")\n  assert saved[\"argv\"]==argv and saved[\"stdout\"]==stdout,(ident,key,\"retained command/output differs\")\n  assert hashlib.sha256(actual.stdout).hexdigest()==saved[\"stdout_sha256\"]\n  result=json.loads(stdout)\n  assert isinstance(result,dict) and result.get(\"valid\") is True,(ident,key,result)\n  if key==\"frontmatter\":\n   assert result.get(\"schema\")==\"plan-gap-closure\" and result.get(\"missing\")==[] and result.get(\"invalidValue\")==[]\n  else:\n   assert result.get(\"errors\")==[] and result.get(\"task_count\")==2 and len(result.get(\"tasks\",[]))==2\n   assert all(all(t.get(k) is True for k in (\"hasFiles\",\"hasAction\",\"hasVerify\",\"hasDone\")) for t in result[\"tasks\"])\nprint(\"179/180 retained schema and structure results match fresh validators and exact amended bytes;waves/dependencies valid\")'",
+        "statement": "Nonzero exit, missing named result line, missing179/180validation row, retained argv/raw stdout/hash differing from the fresh validator, nonzero recorded or actual validator exit, valid other thantrue, missing/invalid schema fields, structure errors or other than2complete tasks, plan hash differing from current amended bytes/review source_files, wrong waves2/3 or dependencies181/179, or a missing dependency PLAN.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "253-181-PLAN.md",
+        "task": "Task 3: Preserve and reconnect existing179/180 through completed181, then prove the complete local route"
+      }
+    ],
+    "note": "Python/shell paths marked not_applicable are unsupported by this static probe, not proven targets; targets were inspected by planner/checker."
+  },
+  "review": {
+    "file": "253-181-CHECK-02.md",
+    "verdict": "VERIFICATION PASSED",
+    "blockers": 0,
+    "warnings": 0
+  },
+  "recorded_at": "2026-10-20T21:02:00.403095+00:00"
+}

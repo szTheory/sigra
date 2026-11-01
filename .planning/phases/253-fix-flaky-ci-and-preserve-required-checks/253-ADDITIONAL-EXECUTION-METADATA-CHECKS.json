@@ -1,0 +1,50 @@
+{
+  "schema_version": "sigra.phase253.additional-execution-metadata-checks/v1",
+  "checked_at": "2026-10-13T23:28:55.640Z",
+  "source_head": "a1a1887e116fc34dbbdfc4186347467ffad33f91",
+  "command": "python3 /private/tmp/sigra-phase253-final-metadata-check.py",
+  "exit_code": 0,
+  "result": {
+    "status": "passed",
+    "checks": {
+      "root_and_branch": true,
+      "json_parse": true,
+      "current_routes": true,
+      "markdown_route": true,
+      "progress_counts": true,
+      "no_runnable_plan_or_pending_approval": true,
+      "no_phase_acceptance": true,
+      "finite_native_charge": true,
+      "publication_projection": true,
+      "requirements_not_accepted": true,
+      "roadmap_counts_and_route": true,
+      "prior_bytes_.planning/STATE.md": true,
+      "prior_bytes_.planning/state.json": true,
+      "prior_bytes_.planning/HANDOFF.json": true,
+      "prior_bytes_.planning/ROADMAP.md": true,
+      "prior_bytes_.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json": true,
+      "config_bytes": true,
+      "config_unstaged": true,
+      "captured_paths_unchanged_except_preserved_shared_state": true,
+      "native_bytes_.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json": true,
+      "native_bytes_.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json": true,
+      "native_bytes_.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json": true,
+      "requirement_checkboxes_open": true,
+      "later_phases_pending": true,
+      "blocked_summaries_absent": true
+    },
+    "check_count": 25,
+    "phase252_unchanged_paths": 94,
+    "initial_capture_unchanged_paths": 263,
+    "all_25_plans_unchanged": true,
+    "completed_plan_count": 10,
+    "phase_verification_status": "not_started",
+    "next_command": "$gsd-plan-phase 253"
+  },
+  "initial_harness_failure": {
+    "exit_code": 1,
+    "failed_assertion": "Requirement text matcher expected '**CIREL-01**', while the unchanged file uses '**CIREL-01:**'.",
+    "disposition": "Corrected the read-only checker to match the actual unchanged checkbox format; no planning or requirement bytes were changed in response."
+  },
+  "git_diff_check_exit": 0
+}

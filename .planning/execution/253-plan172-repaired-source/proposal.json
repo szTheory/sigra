@@ -1,0 +1,82 @@
+{
+  "schema": "sigra.phase253.repaired-source-proposal/v1",
+  "status": "executable_bundle_verified_offline_approval_pending",
+  "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
+  "object_record": "objects.json",
+  "checks": "CHECKS.json",
+  "decision_requested": true,
+  "execution_ready": true,
+  "recommendation": "Prepare one new paired normal/docs proof on the exact repaired source; retain the old canary results only for unchanged gate code, with their original source and run identities. Do not repeat the full canary matrix.",
+  "retained_canaries": {
+    "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+    "evidence": ".planning/execution/253-proof-bundle-a6838a8f9/canary-evidence.json",
+    "identity_rewritten": false,
+    "scope": "Original six outcomes and independent hosted verifier; unchanged gate inputs proven separately by CHECKS.json. This is not a claim that the repaired source already ran."
+  },
+  "old_normal": {
+    "pr": 341,
+    "run": 39706873401,
+    "status": "historical_success_only",
+    "usable_as_repaired_source_normal": false
+  },
+  "old_docs": {
+    "pr": 342,
+    "run": 39711884498,
+    "status": "closed_failure",
+    "window_reopened": false
+  },
+  "proposed_actions": {
+    "fresh_create_only_refs": [
+      "gsd/253-replan-proof-5e13621e5-candidate",
+      "gsd/253-replan-proof-5e13621e5-docs-base",
+      "gsd/253-replan-proof-5e13621e5-docs-head"
+    ],
+    "draft_prs": [
+      {
+        "family": "normal",
+        "head": "gsd/253-replan-proof-5e13621e5-candidate",
+        "base": "main"
+      },
+      {
+        "family": "docs-only",
+        "head": "gsd/253-replan-proof-5e13621e5-docs-head",
+        "base": "gsd/253-replan-proof-5e13621e5-docs-base"
+      }
+    ],
+    "automatic_ci_runs": 2,
+    "workflow_dispatches": 0,
+    "reruns": 0,
+    "merges": 0
+  },
+  "proposed_unallocated_ceilings": {
+    "publication_requests": 24,
+    "pr_collection_requests": 120,
+    "seconds_per_window": 3600,
+    "active": false,
+    "approved": false,
+    "old_limits_changed": false
+  },
+  "prerequisites_before_approval": [],
+  "activation_requirements": [
+    "Fresh explicit approval of the completed executable bundle, not an earlier yes.",
+    "Read current main before publication. If it differs from the known parent, halt before writes and rebuild offline; this proposal does not establish parent freshness.",
+    "One watcher per run at 60 seconds, stop on 403/429 or REST core <=250, preserve every real failure and request."
+  ],
+  "requirements": {
+    "CIREL_01": "partial_not_reproduced",
+    "CIREL_02": "unaccepted_docs_ci_failed"
+  },
+  "phase_verification_status": "not_started",
+  "residual_phase_blockers": [
+    "The original selected registration failure has not been reproduced; successful new PRs cannot satisfy CIREL-01.",
+    "29 historical halts and 73 blocked plans remain. A later closeout must account for them without fabricating completed summaries."
+  ],
+  "historical_requests": 608,
+  "historical_ci_launches": 34,
+  "requests_this_preparation": 0,
+  "ci_launches_this_preparation": 0,
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_scope": "Approve the exact completed two-PR bundle; then continue Plan172 once. No CI has been authorized or launched by preparation.",
+  "bundle": "bundle.json",
+  "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524"
+}

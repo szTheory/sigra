@@ -1,0 +1,80 @@
+{
+  "schema": "sigra.phase253.postfix-local-validation/v1",
+  "status": "prepared_not_approved",
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+  "postgres_image": "docker.io/library/postgres@sha256:c961aa287d8698297cb26cdfadfbe9fd2cbaf77e53cfffe9636e8d8a1e4d842c",
+  "cases": [
+    {
+      "project": "admin-eval",
+      "repeat": 1
+    },
+    {
+      "project": "admin-eval",
+      "repeat": 2
+    },
+    {
+      "project": "admin-eval",
+      "repeat": 3
+    },
+    {
+      "project": "admin-eval-mobile",
+      "repeat": 1
+    },
+    {
+      "project": "admin-eval-mobile",
+      "repeat": 2
+    },
+    {
+      "project": "admin-eval-mobile",
+      "repeat": 3
+    },
+    {
+      "project": "admin-eval-dark",
+      "repeat": 1
+    },
+    {
+      "project": "admin-eval-dark",
+      "repeat": 2
+    },
+    {
+      "project": "admin-eval-dark",
+      "repeat": 3
+    }
+  ],
+  "title": "render bundle: board-mg-9/populated",
+  "limits": {
+    "browser_invocations": 9,
+    "seconds_including_cleanup": 1200,
+    "retries": 0,
+    "stop_at_first_failure": true,
+    "github_requests": 0,
+    "ci_launches": 0,
+    "old_slots_reopened": 0
+  },
+  "file_sha256": {
+    "validate.py": "a3084530022ffc6a88991179f31409b5554ccebc13eda16ddc20da2996ba7ab0",
+    "test_validate.py": "c651053ac7da91a403b99cec41729d43f838d05f3b9f13787027443af44edc98",
+    "in_container.py": "dd4c09aa895880b6e75d70f73c9f1d9db394901dba1c65d83091c06efe545f37",
+    "Dockerfile": "0e4b301c94c271dfc4cc6df90f7274158c112af10a508ef0a4d53e2a6a14f7a9",
+    "prepare.py": "51abfc73f6515981c5d628518da2ac29585864d9517ea91af195451623d58bf9",
+    "inspect_compiled_endpoint.exs": "486a6ec0466ee032d34234fef880b4ed49f5dfe38df0f6776bf7dc02524ab720",
+    "source-manifest.json": "82821b1c710c7fc5ef6506bd0be643a95ee37e1f1f6c2ee2f6ca15428da55e54",
+    "preparation.json": "53b3f3eb1ad3253ab5cf5851c833be96c57aca8bd4d4b71bd2193f5fec9004db",
+    "inspect.json": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0"
+  },
+  "command": "python3 .planning/execution/253-registration-postfix/validate.py --run",
+  "approval_received": false,
+  "old_approvals_reusable": false,
+  "phase_completion_claim": false,
+  "remaining_after_success": [
+    "normal integration selections on the candidate source",
+    "separate review of all CIREL-01 criteria and canonical phase verification"
+  ],
+  "limitations": [
+    "x64 emulation on ARM Mac; Erlang +JMsingle true workaround remains",
+    "fresh seeded databases, not the original CI snapshot",
+    "one selected board per project, not the historical 161-test prefix or full integration suite",
+    "the original CI module-lifecycle schedule was not traced"
+  ]
+}

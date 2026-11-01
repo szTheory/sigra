@@ -1,0 +1,168 @@
+{
+  "captured": 27,
+  "missing": [],
+  "attachments": [
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-global-overview-admin-checkpoints-chromium",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-global-overview-admin-checkpoints-chromium-7eada6cc2a77e7f5a6446ea9c8560807cdbdb83a.png",
+      "sha256": "ddc8e8beff32f9de1ef708895f0c60f370c13db1066f60cdbe632253f7ddebe7"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-org-overview-admin-checkpoints-chromium",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-org-overview-admin-checkpoints-chromium-7cf75e9eec2680b71248eab264b30f24cf5513b8.png",
+      "sha256": "2a536ec75d91e0fd0fe993b284893c483113d0a39b96792e290b523560fae770"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-global-user-index-admin-checkpoints-chromium",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-global-user-index-admin-checkpoints-chromium-650c97eecc644f19858a735cf4c3c25568336720.png",
+      "sha256": "2eb881fc8343e6695148de8fd09e4ce195053facbc55b7f36fc63ef05d7e42b1"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-user-detail-admin-checkpoints-chromium",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-user-detail-admin-checkpoints-chromium-90951a99740e1aa95e721a58de11542ed24e94ac.png",
+      "sha256": "40a41c3e1c1ae9066cf130d2bb6df260b3e25d468c17db49e566fae93780a64d"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-user-sessions-admin-checkpoints-chromium",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-user-sessions-admin-checkpoints-chromium-c865747dab657071cea70e88ab84a92e1763ead7.png",
+      "sha256": "4e89a9996308708d0368416b10234ac81e7e432faedd492f79e71f3f33e7cc90"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-org-scoped-admin-admin-checkpoints-chromium",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-org-scoped-admin-admin-checkpoints-chromium-3537be5f8baee5a5d04d9dba38275dda8af6b77c.png",
+      "sha256": "76f4c5e8203b4b67807a5b1054583e5910830d7fa843bc5fada0405f07f10d10"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-impersonation-banner-admin-checkpoints-chromium",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-impersonation-banner-admin-checkpoints-chromium-ecd37665b3bcd6f41b8ecf9d0ab5b3bcd4ec8290.png",
+      "sha256": "7b7bbd3fb282d221c6050bb0e80851f8f34e9f6df7a5d6c81d51e725c5dfab66"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-user-audit-admin-checkpoints-chromium",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-user-audit-admin-checkpoints-chromium-d0cd2d27c3b6993fc9ffb3bd3dd4f9199e7f0691.png",
+      "sha256": "69d9b19b287f9ce2a77eb7217cc4355d29d9d9471a70ee5ece70c141ba82de3b"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-audit-explorer-admin-checkpoints-chromium",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-audit-explorer-admin-checkpoints-chromium-41c103dc4d65ba559bc56bcefa4f8c41049219b5.png",
+      "sha256": "126e50a8fadf6bb7e4a6dfe4d1a9d73af83a11a8b2d4491fbb834ce8965f0cc5"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-global-overview-admin-checkpoints-mobile",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-global-overview-admin-checkpoints-mobile-633334f17e0a039eb64076cc84ca5835a5c9766d.png",
+      "sha256": "148183cfa3c7805306d0cd096a7581468f2ba51022c7044175cbd04dc8031efa"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-org-overview-admin-checkpoints-mobile",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-org-overview-admin-checkpoints-mobile-85e37051184d5ad2255dbcb395905b11fb497ce8.png",
+      "sha256": "90cf87f3c915ab2a817cf9a41ccd89d92265d8025bed8c92ab10059992f576df"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-global-user-index-admin-checkpoints-mobile",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-global-user-index-admin-checkpoints-mobile-cd8d1f34db0d12b3d459ae01f0d0a58a9f3cb667.png",
+      "sha256": "bfb262e97369af5fb461cc87640772d10b20639e7e7115e403fc436132bc1ce5"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-user-detail-admin-checkpoints-mobile",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-user-detail-admin-checkpoints-mobile-e89916f2ad0eff3182fb72f4d70e8072eb3a5a45.png",
+      "sha256": "142855862863790a7e0f6f078baa29acaab0c103854257d4672be95928b20017"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-user-sessions-admin-checkpoints-mobile",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-user-sessions-admin-checkpoints-mobile-994ea265cd426cf4a48224344acefc3ca8fbad91.png",
+      "sha256": "6ac0849c32b3f48197c49b194c92303b951ca8d2cb03e9d26532ea50cca28592"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-org-scoped-admin-admin-checkpoints-mobile",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-org-scoped-admin-admin-checkpoints-mobile-db8e080207b50f7c4958f2aad8bd067d6c41a5bb.png",
+      "sha256": "5460e760bd3e4482664fdbd64d3339a09635e989121bc124511173c8ae1cbf38"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-impersonation-banner-admin-checkpoints-mobile",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-impersonation-banner-admin-checkpoints-mobile-642140d2a9b2feb2730975319eb4cc31663939bb.png",
+      "sha256": "533f1e313f2bf06bb91efc011cd82da3b6f5ff64fc9ed403dcfe25663cec8816"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-user-audit-admin-checkpoints-mobile",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-user-audit-admin-checkpoints-mobile-9aedd601196d7f86c78c675d680d6fb3bcc69812.png",
+      "sha256": "5fe04df555eda3ddd5d2be6951d0c465c81e1c6ca1a4531c02e5101258495d8c"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-audit-explorer-admin-checkpoints-mobile",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-audit-explorer-admin-checkpoints-mobile-cc49c7dfcf7bbec13d9863b77ffbc3768a37d837.png",
+      "sha256": "a970514f40c231c50c900c5bc5210e5a5749cacb700e1b017c102dc8b7405e0f"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-global-overview-admin-checkpoints-dark",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-global-overview-admin-checkpoints-dark-2b84c82093223699ee956e7453430935d4935fc1.png",
+      "sha256": "fc4486172d00acf8c5325bfa6a0cb01d2ad2c43ae26395e4a1a0088d71d8c856"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-org-overview-admin-checkpoints-dark",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-org-overview-admin-checkpoints-dark-f8d738335868051fb0ac879ae69499b5f3d7e779.png",
+      "sha256": "f25c6b006896719ff1fdb5da55a0123bc37127cf2512ff1c9d30e001f2e1cb2e"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-global-user-index-admin-checkpoints-dark",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-global-user-index-admin-checkpoints-dark-9ba6cab58d1f2942f22421091e219d5abdd0460f.png",
+      "sha256": "e12bfc11d89753105a188bd67d04c0aef9f3196ee318eee65fcf74171f8d67d5"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-user-detail-admin-checkpoints-dark",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-user-detail-admin-checkpoints-dark-7767c82c72a291b98957c6ad7da048a961a0fb61.png",
+      "sha256": "64e77d71c1f83d56d52e902c5b997ed55242fc1102809a23fc24da1765f40f53"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-user-sessions-admin-checkpoints-dark",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-user-sessions-admin-checkpoints-dark-7df25ab82ab5e5830ccc5e0bec45f339f41ccf0a.png",
+      "sha256": "77c44885775073c6da4d630f09bef00257e462b07f0bfe9d71c4111ab5b022be"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-org-scoped-admin-admin-checkpoints-dark",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-org-scoped-admin-admin-checkpoints-dark-f9195e67aeee95ebe69b5c5ea143dc85181ba78f.png",
+      "sha256": "451d0b91718c959f9fc110530ba5a45b667084cade55d8212e3a9e6847b5e285"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-impersonation-banner-admin-checkpoints-dark",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-impersonation-banner-admin-checkpoints-dark-adf4f9f2c965680202cf8aa68586cc631ca6125b.png",
+      "sha256": "1cdce52cc621b9b324783b09d3fa477b46fad298a06592bc79c5cd0d1cb7badc"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-user-audit-admin-checkpoints-dark",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-user-audit-admin-checkpoints-dark-2bcddc7daff2c08063ea4e54f8b6a71457728642.png",
+      "sha256": "d199d56ee266321293ad63923eb829c7d4fce1b0bbf928b5479a91f225423a8d"
+    },
+    {
+      "seam": "admin_checkpoints",
+      "name": "admin-audit-explorer-admin-checkpoints-dark",
+      "path": "runtime-output/admin_checkpoints/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-audit-explorer-admin-checkpoints-dark-6a43e48b3b86b2e01a9b3804aa5cdd073e959c7f.png",
+      "sha256": "9e760a5d4bc8b929bfd102339d0f450d81bbaf82aa2d4a776a7a31fa082f40ec"
+    }
+  ]
+}

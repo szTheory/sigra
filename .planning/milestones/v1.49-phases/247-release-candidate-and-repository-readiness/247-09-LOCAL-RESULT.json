@@ -1,0 +1,38 @@
+{
+  "local_mobile_webkit": "blocked_host_appkit",
+  "host": {
+    "macos_version": "26.6.2",
+    "darwin_version": "25.6",
+    "playwright_platform": "mac15-arm64",
+    "architecture": "arm64"
+  },
+  "playwright_version": "1.59.1",
+  "webkit_revision": "2272",
+  "browser_path": "/Users/jon/Library/Caches/ms-playwright/webkit-2272/pw_run.sh",
+  "browser_executable_architecture": "arm64",
+  "browser_sha256": "ce9b371291f83e4c448eae16d782ec23e91e949b1bc3114c294ddb201e92157a",
+  "wrapper_sha256": "a85baad3d8c07173ac387a59b41500c382b21ed692afe0964d29aac247ccc63b",
+  "codesign_strict_verification": "valid",
+  "launch": {
+    "exit_code": 134,
+    "signal": "SIGABRT",
+    "abort_trap": 6,
+    "page_started": false,
+    "tests_started": false,
+    "phase": "AppKit application registration and menu-bar initialization"
+  },
+  "crash_stack_contains": [
+    "_RegisterApplication",
+    "GetCurrentProcess",
+    "NSMenuBarPresentationInstance",
+    "NSApplication init"
+  ],
+  "local_command": "Playwright 1.59.1 WebKit browser-readiness probe with DEBUG=pw:browser,pw:browser:launcher",
+  "candidate_setup": {
+    "mix_compile": "passed",
+    "database_migrations_and_seeds": "passed",
+    "registration_route_http_status": 200
+  },
+  "diagnostics": "/private/tmp/phase247-plan09-local-playwright-diagnostics.md",
+  "ci_browser_proof_required": true
+}

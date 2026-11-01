@@ -1,0 +1,352 @@
+{
+  "schema_version": "sigra.phase253.registration-replan-freeze/v1",
+  "status": "frozen_before_results",
+  "frozen_at": "2026-10-13T19:03:48.120Z",
+  "source": {
+    "repository": "szTheory/sigra",
+    "checkout_head": "d0fb055adb40c1756da4a262a8ff26168e716229",
+    "tracked_worktree_clean_except_exact_preserved_config": true,
+    "blobs": {
+      "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+      "scripts/ci/ci-registration-recovery.mjs": "f68ffd4477db6acc8ebec405ab0390b69cd75991",
+      "scripts/ci/ci-registration-recovery.test.mjs": "2dbc1825b0c8b4f32201661d3a4e0af8734282ba",
+      "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+      "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+      "test/example/priv/playwright/tests/admin-eval.spec.ts": "6540493e78121f134867445dffc7010afcd85815",
+      "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+      "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+      "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+      ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+    }
+  },
+  "historical": {
+    "original_freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json",
+    "original_freeze_sha256": "e662f7fe9045b576320b8885126c726c00d650261991e1d46db35d02bf868308",
+    "original_evidence_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json",
+    "original_evidence_sha256": "17a7f9b3f0a30be002d177b70924a7efdc3dcaa5e047525951830d47ebfbfc18",
+    "terminal_diagnostic_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json",
+    "terminal_diagnostic_sha256": "cb97baa38d43ad59f3370114d9b493959264079d4a29e076e7e3b816741c9122",
+    "recovery_capture_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-ADDITIONAL-EXECUTION-CAPTURE.json",
+    "recovery_capture_sha256": "b5b0a89a608424cbc267e2e4b8362f9726dc00db625f42cde7a204a85233fac2",
+    "spent_slot_id": "D19-DIAG-01",
+    "spent_browser_launches": 0,
+    "spent_charged_ms": 3768,
+    "rejected_original_log_hashes": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01-attempt-01/setup-log.log",
+        "sha256": "57cd1940345dacaaa82795b966bbed7a72e5ce007d3a7afe70365ff8b584c09c",
+        "accepted_as_native_receipt": false
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01-attempt-01/drop-log.log",
+        "sha256": "57cd1940345dacaaa82795b966bbed7a72e5ce007d3a7afe70365ff8b584c09c",
+        "accepted_as_native_receipt": false
+      }
+    ],
+    "preceding_order": "unknown",
+    "preceding_order_reason": "The archived original preceding-order log is absent."
+  },
+  "supersedes_zero_work_freeze": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-FREEZE.json",
+    "sha256": "cffaa0e81713e1dc49957265b073505250c66754996d498c0276b500a2d9b466",
+    "native_work_started": false,
+    "preparation_work_started": false,
+    "capacity_added": false
+  },
+  "supersedes_source_revision": {
+    "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-FREEZE-REVISION-02.json",
+    "freeze_sha256": "9b84d8f8f535a2c710d6beed86d6abda1d4096fa9e105a5d38281be302d6c644",
+    "evidence_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+    "evidence_sha256": "1cc58699b8b0776ccec6ec7a615209675c5b35c2032a372c98bffa165ad75b09",
+    "source_commit": "ba4e82c490f88f98814c96f904e83111c9ea37ad",
+    "preparation_charge_ms": 3743,
+    "native_attempts": 0,
+    "browser_launches": 0,
+    "capacity_added": false
+  },
+  "preparation": {
+    "id": "D19-COMMON-PREPARATION",
+    "max_duration_ms": 116232,
+    "charged_duration_ms": 3743,
+    "inherited_from": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-FREEZE-REVISION-02.json",
+    "allowed": [
+      "npm ci using the existing lockfile",
+      "node --version",
+      "Playwright --version",
+      "mix --version",
+      "MIX_ENV=dev mix deps version observation"
+    ],
+    "prohibits": [
+      "application boot",
+      "HTTP request",
+      "browser launch",
+      "endpoint compilation",
+      "database setup"
+    ]
+  },
+  "ledger": {
+    "historical_charge_ms": 33884,
+    "spent_reservations": [
+      {
+        "id": "D19-DIAG-01",
+        "browser_launches": 0,
+        "charged_ms": 3768,
+        "outcome": "halted_setup_and_drop_exit_1"
+      }
+    ],
+    "slots": [
+      {
+        "id": "R-INFRA-RETRY-DESKTOP",
+        "owner_plan": 15,
+        "sequence": 1,
+        "kind": "diagnostic",
+        "stage": "D19",
+        "project": "admin-eval",
+        "max_duration_ms": 120000,
+        "title": "render bundle: board-mg-9/populated",
+        "argv": [
+          "--project=admin-eval",
+          "--grep=render bundle: board-mg-9/populated",
+          "--workers=1",
+          "--retries=0",
+          "--trace=retain-on-failure"
+        ],
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "title": "render bundle: board-mg-9/populated",
+          "cases": null
+        }
+      },
+      {
+        "id": "R-DIAG-MOBILE",
+        "owner_plan": 15,
+        "sequence": 2,
+        "kind": "diagnostic",
+        "stage": "D19",
+        "project": "admin-eval-mobile",
+        "max_duration_ms": 120000,
+        "title": "render bundle: board-mg-9/populated",
+        "argv": [
+          "--project=admin-eval-mobile",
+          "--grep=render bundle: board-mg-9/populated",
+          "--workers=1",
+          "--retries=0",
+          "--trace=retain-on-failure"
+        ],
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "title": "render bundle: board-mg-9/populated",
+          "cases": null
+        }
+      }
+    ],
+    "acceptance_slots": [
+      {
+        "id": "D20-ACCEPT-admin-eval-1",
+        "owner_plan": 17,
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval",
+        "repeat": 1,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-2",
+        "owner_plan": 17,
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval",
+        "repeat": 2,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-3",
+        "owner_plan": 17,
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval",
+        "repeat": 3,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-mobile-1",
+        "owner_plan": 17,
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-mobile",
+        "repeat": 1,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-mobile-2",
+        "owner_plan": 17,
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-mobile",
+        "repeat": 2,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-mobile-3",
+        "owner_plan": 17,
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-mobile",
+        "repeat": 3,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-dark-1",
+        "owner_plan": 17,
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-dark",
+        "repeat": 1,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-dark-2",
+        "owner_plan": 17,
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-dark",
+        "repeat": 2,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-dark-3",
+        "owner_plan": 17,
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-dark",
+        "repeat": 3,
+        "max_duration_ms": 240000
+      }
+    ],
+    "d19": {
+      "regular_command_reservations": 8,
+      "each_max_duration_ms": 120000,
+      "max_charged_duration_ms": 1080000,
+      "retry": {
+        "count": 1,
+        "max_duration_ms": 120000,
+        "requires_independent_infrastructure_diagnosis": true
+      }
+    },
+    "d20": {
+      "acceptance_command_reservations": 9,
+      "each_max_duration_ms": 240000,
+      "max_charged_duration_ms": 2160000,
+      "retry": {
+        "count": 1,
+        "max_duration_ms": 240000,
+        "requires_independent_infrastructure_diagnosis": true
+      }
+    },
+    "shared_retry_count": 1,
+    "max_new_browser_launches": 18,
+    "max_charged_duration_ms": 3480000,
+    "max_total_charged_ms_including_historical": 3480000,
+    "unused_slot_mapping": [
+      {
+        "id": "R-DIAG-DESKTOP",
+        "old_slot": "D19-DIAG-02",
+        "owner": "253-15"
+      },
+      {
+        "id": "R-DIAG-MOBILE",
+        "old_slot": "D19-DIAG-03",
+        "owner": "253-15"
+      },
+      {
+        "id": "R-DIAG-CONTROL-DARK",
+        "old_slot": "D19-CONTROL-03",
+        "owner": "253-16",
+        "combined": true
+      },
+      {
+        "id": "R-CONTROL-FIRST-DESKTOP",
+        "old_slot": "D19-CONTROL-01",
+        "owner": "253-16"
+      },
+      {
+        "id": "R-CONTROL-FIRST-MOBILE",
+        "old_slot": "D19-CONTROL-02",
+        "owner": "253-16"
+      },
+      {
+        "id": "R-CONTROL-SECOND-DESKTOP",
+        "old_slot": "D19-CONTROL-04",
+        "owner": "253-16"
+      },
+      {
+        "id": "R-CONTROL-SECOND-MOBILE",
+        "old_slot": "D19-CONTROL-05",
+        "owner": "253-16"
+      },
+      {
+        "id": "R-CONTROL-SECOND-DARK",
+        "old_slot": "D19-CONTROL-06",
+        "owner": "253-16"
+      }
+    ]
+  },
+  "tools": {
+    "playwright_required": "1.59.1",
+    "playwright_lock_blob": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+    "ecto_sql": null,
+    "phoenix_live_view": null
+  },
+  "stop_conditions": [
+    "source or config mismatch",
+    "missing/empty/forged native report",
+    "process and report status mismatch",
+    "failed setup/drop/cleanup",
+    "port collision",
+    "slot or cumulative clock exhaustion",
+    "unknown infrastructure outcome"
+  ],
+  "retry_context": {
+    "original_freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-FREEZE-REVISION-03.json",
+    "original_freeze_sha256": "60c790a9fe9c7051eed93e5f7e552ef725558b6b112d6a19c5346dd9f5cb41d9",
+    "original_evidence_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+    "original_evidence_sha256": "0d1054b4628fd2287f89447f10644fa7a650dc15d43ca9d29eb5c025eb1b4960",
+    "review_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-REVIEW.json",
+    "review_sha256": "fd84291efe6a38673888e9d6e677219f6bc7ef1ae6ea6cfa061a3b4437f3bcbc",
+    "original_source": {
+      "checkout_head": "08429d9e7033e36dec62192b8620858af5592c85",
+      "blobs": {
+        "scripts/ci/ci-registration-repro.sh": "2606cf4a486b6a446935f8107e9d87e00045bde0",
+        "scripts/ci/ci-registration-recovery.mjs": "de0aa149b2f466d60dd92d3076934cffbf0ca447",
+        "scripts/ci/ci-registration-recovery.test.mjs": "e201c742ccc51f1c61ff10659dca712e6b6b0b30",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "6540493e78121f134867445dffc7010afcd85815",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+      }
+    },
+    "original_failure": "Chromium launch terminated with SIGTRAP after host permission denial; selected test did not execute, so registration outcome is unobserved.",
+    "retry_count": 1,
+    "retry_budget": 1,
+    "retry_reason": "Chromium headless shell SIGTRAP at macOS Mach port bootstrap_check_in with Permission denied (1100), before selected test began"
+  },
+  "infrastructure_retry": {
+    "reservation_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-SHARED-RETRY-RESERVATION.json",
+    "reservation_sha256": "e9f62c42e6c15a86004029c2c41ecb93622281e44e8224191b33aa4f52555c56",
+    "used_marker_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-SHARED-RETRY-USED.json",
+    "count": 1,
+    "max_duration_ms": 120000,
+    "consumed": false
+  },
+  "supersedes_retry_source": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-FREEZE.json",
+    "sha256": "b02701def049593c2844396974517d5744b519c9fae9f5c46cb19da3aa2a5ad6",
+    "source_commit": "edab42a060bdf3361fbdaa4ea56dc48150444762",
+    "native_attempts": 0,
+    "retry_reservation_preserved": true
+  },
+  "freeze_sha256": "14c6bdc58496b547fcba7e8b8a8a4a2f3a52a618f8d55944f181f9c3104682df"
+}

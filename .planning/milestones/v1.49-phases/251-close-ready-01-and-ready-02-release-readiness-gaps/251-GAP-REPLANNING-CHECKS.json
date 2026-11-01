@@ -1,0 +1,1618 @@
+{
+  "schema_version": 1,
+  "phase": 251,
+  "invocation": "$gsd-plan-phase 251 --gaps",
+  "checked_at": "2026-10-12T02:35:28.790315+00:00",
+  "status": "planning_inconclusive_independently_verified",
+  "new_plans": 0,
+  "new_tasks": 0,
+  "phase_complete": false,
+  "milestone_complete": false,
+  "implementation": "7/7 existing plans and12/12 last-round gap tasks complete",
+  "verification": "gaps_found9/10",
+  "next_command": "$gsd-discuss-phase 251",
+  "diagnostic": {
+    "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json",
+    "sha256": "e0c97cb7a357928b6013d4d35e3598c5312795e31e9e47b2a62fa93355c17413",
+    "commit": "8168b76c33bdeb70a34c42827f08eec1a5fde71c"
+  },
+  "capture_path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CAPTURE.json",
+  "checker": {
+    "status": "blocked_planning_conclusion_verified",
+    "new_plans": 0,
+    "issues": [],
+    "phase_verification": "gaps_found",
+    "phase_score": "9/10",
+    "milestone_complete": false,
+    "next_command": "$gsd-discuss-phase 251",
+    "planner_agent": "/root/phase251_gap_planner_2",
+    "checker_agent": "/root/phase251_gap_stop_checker",
+    "planner_commit": "8168b76c33bdeb70a34c42827f08eec1a5fde71c",
+    "qualification": "Independent checker verifies the blocked planning conclusion only; no new executable plan is verified and no acceptance bar is changed."
+  },
+  "fresh_checks": {
+    "verify-command-paths": {
+      "status": "not_applicable",
+      "commands": [
+        {
+          "command": "node --input-type=module -e 'import fs from \"node:fs\"; import assert from \"node:assert/strict\"; const p=JSON.parse(fs.readFileSync(\".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json\",\"utf8\")); const a=p.requirements?.READY01, b=p.requirements?.READY02; assert([\"ready\",\"blocked\"].includes(p.status)); assert(p.active_checkout?.head && p.baseline?.commit && Array.isArray(p.source_blobs) && p.source_blobs.length>0 && Array.isArray(p.checks) && p.checks.length>0 && Array.isArray(p.blockers) && p.trusted_sources?.github_api === \"https://api.github.com/repos/szTheory/sigra\"); assert(a && b && [\"ready\",\"blocked\"].includes(a.source_feasibility) && [\"ready\",\"blocked\"].includes(b.source_feasibility) && typeof a.capture_allowed===\"boolean\" && typeof b.capture_allowed===\"boolean\" && Array.isArray(a.sources) && Array.isArray(a.source_checks) && Array.isArray(a.evidence_producers) && Array.isArray(a.independent_trust) && Array.isArray(b.sources) && Array.isArray(b.source_checks) && Array.isArray(b.evidence_producers) && Array.isArray(b.independent_trust) && typeof a.history_complete===\"boolean\" && a.time_window && Object.hasOwn(a.time_window,\"start\") && Object.hasOwn(a.time_window,\"end\") && typeof a.time_window.complete===\"boolean\" && Object.hasOwn(a.time_window,\"start_boundary\") && Object.hasOwn(a.time_window,\"end_boundary\") && [\"found\",\"absent\",\"not_searchable\"].includes(a.approval_event) && Array.isArray(a.blockers) && Array.isArray(a.findings) && Array.isArray(b.blockers) && Array.isArray(b.findings)); assert.equal(a.capture_allowed,a.source_feasibility===\"ready\"); assert.equal(b.capture_allowed,b.source_feasibility===\"ready\"); assert.equal(p.status===\"ready\",a.capture_allowed||b.capture_allowed); if(a.history_complete && a.approval_event===\"absent\") assert.equal(a.verdict,\"authorization_pending\"); if(p.status===\"ready\") assert.equal(p.blockers.length,0); else { assert(p.blockers.length>0); assert.notEqual(a.verdict,\"satisfied\"); assert.notEqual(b.verdict,\"satisfied\"); }' && node --input-type=module -e 'import fs from \"node:fs\"; import assert from \"node:assert/strict\"; const p=JSON.parse(fs.readFileSync(\".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json\",\"utf8\")); const a=p.requirements.READY01; assert.deepEqual(a.candidate_tuple,{candidate_sha:\"0e773d3614a242e4fbcdd34c418ecb8a307703d6\",reviewed_base_sha:\"d135cbce343947499a0810736c500ef5f1cb5c32\",protected_main_sha:\"a494f3ee3878da93aab4f70712ffddeefd77a802\"}); assert.deepEqual(a.published_release_source,{tag:\"v1.6.0\",tag_ref:\"refs/tags/v1.6.0\",commit_sha:\"9e80cb78d6374b1ed4074d5fef6b613fee879dca\"}); assert.notEqual(a.candidate_tuple.candidate_sha,a.published_release_source.commit_sha); const q=a.package_adopter; const candidate=\"candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6\", published=\"published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca\"; const candidatePaths=[\".release-please-manifest.json\",\"release-please-config.json\",\"mix.exs\",\"CHANGELOG.md\",\"README.md\",\"guides/introduction/upgrading-to-v1.6.md\",\"test/example/priv/playwright/tests/organizations.spec.ts\"], publishedPaths=[\"mix.exs\",\"CHANGELOG.md\",\"README.md\",\"guides/introduction/upgrading-to-v1.6.md\",\"lib/sigra.ex\"]; assert(q && Array.isArray(q.sources) && Array.isArray(q.source_paths) && q.checks); for(const [identity,sha,paths] of [[candidate,a.candidate_tuple.candidate_sha,candidatePaths],[published,a.published_release_source.commit_sha,publishedPaths]]) for(const path of paths){assert(q.source_paths.includes(path));assert(q.sources.some(x=>x.source_identity===identity&&x.commit_sha===sha&&x.path===path&&Object.hasOwn(x,\"read_status\")&&Object.hasOwn(x,\"trust_status\")),`missing identity-labelled source record ${identity} ${path}`);} for(const path of [\"mix.exs\",\"CHANGELOG.md\",\"README.md\",\"guides/introduction/upgrading-to-v1.6.md\"]) assert(q.sources.some(x=>x.source_identity===candidate&&x.path===path)&&q.sources.some(x=>x.source_identity===published&&x.path===path),`repeated path lacks both source identities: ${path}`); const names=[\"package_version\",\"package_metadata\",\"release_manifest\",\"release_config\",\"changelog\",\"tag_target\",\"hexdocs_source_reference\",\"published_tag_guide\",\"readme_guide_link\",\"adopter_shipped_changes\",\"adopter_compatibility\",\"generated_host_action\",\"version_requirement\",\"update_check_path\"]; for(const name of names){const c=q.checks[name];assert([\"pass\",\"missing\",\"mismatch\",\"unreadable\"].includes(c?.result),\"missing named result\");assert(typeof c.source_identity===\"string\"&&c.source_identity.trim().length>0,\"missing source_identity\");assert(typeof c.evidence_detail===\"string\"&&c.evidence_detail.trim().length>0,\"missing evidence_detail\");assert(typeof c.finding_detail===\"string\"&&c.finding_detail.trim().length>0,\"missing finding_detail\");if(c.result===\"pass\")assert(c.finding_detail.startsWith(\"No finding:\")&&c.evidence_detail.length>0,\"pass lacks evidence detail\");else assert(c.finding_detail.startsWith(c.result+\":\"),\"failure lacks result-specific finding detail\");}; for(const x of p.source_blobs) assert(x.source_identity&&x.commit_sha&&x.path&&x.git_blob_oid&&x.sha256); const failed=names.some(name=>[\"missing\",\"mismatch\",\"unreadable\"].includes(q.checks[name].result))||q.sources.some(x=>[\"missing\",\"mismatch\",\"unreadable\"].includes(x.read_status)); if(failed){assert.equal(a.acceptance_satisfied,false);assert.notEqual(a.verdict,\"satisfied\");} if(q.checks.published_tag_guide.result===\"missing\"||q.sources.some(x=>x.source_identity===published&&x.path===\"guides/introduction/upgrading-to-v1.6.md\"&&x.read_status===\"missing\")){assert.equal(a.acceptance_satisfied,false);assert.notEqual(a.verdict,\"satisfied\");if(b.source_feasibility===\"ready\")assert.equal(b.capture_allowed,true);}'",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-01-PLAN.md",
+          "task": "Task 1: Run the read-only evidence-feasibility preflight"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-01-PLAN.md",
+          "task": "Task 2: Implement READY-01 and READY-02 evaluators behind the feasibility gate"
+        },
+        {
+          "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251 && node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-01-PLAN.md",
+          "task": "Task 3: Capture the current populations and publish the source-derived owner report"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-02-PLAN.md",
+          "task": "Task 1: Distinguish the historical Phase 250 exception from current READY acceptance"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-02-PLAN.md",
+          "task": "Task 2: Reconcile READY traceability and regenerate the strict milestone audit"
+        },
+        {
+          "command": "node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-03-PLAN.md",
+          "task": "Task 1: Reject a changed PR identity through final inventory and final readiness"
+        },
+        {
+          "command": "node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-03-PLAN.md",
+          "task": "Task 2: Prove duplicate, adjacency, and ordering boundaries"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-04-PLAN.md",
+          "task": "Task 1: Reject a falsely passing READY-01 check from source record to owner verdict"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-04-PLAN.md",
+          "task": "Task 2: Make the independent audit reject the same forged package evidence"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-05-PLAN.md",
+          "task": "Task 1: Carry one secondary-worktree dirty path through capture, join, and READY-02 verdict"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-05-PLAN.md",
+          "task": "Task 2: Recover the recorded inherited base and capture a complete current population"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-05-PLAN.md",
+          "task": "Task 3: Disposition and preserve every current inherited item, then refresh owner evidence"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-06-PLAN.md",
+          "task": "Task 1: Trace a missing historical approval through feasibility, packet, and owner verdict"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-06-PLAN.md",
+          "task": "Task 2: Verify published-tag adopter paths and capture determinism"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-07-PLAN.md",
+          "task": "Task 1: Trace one current READY owner verdict into requirement row and strict audit"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-07-PLAN.md",
+          "task": "Task 2: Recheck the complete audit and keep contextual failures separate"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251 && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md && node --input-type=module -e 'import fs from \"node:fs\"; import assert from \"node:assert/strict\"; const s=fs.readFileSync(\".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md\",\"utf8\"); const statuses=[...s.matchAll(/^\\| 251-(?:03|04|05|06|07)-\\d{2} \\|[^\\n]*\\| (pass|pending|failed|blocked) \\|$/gm)].map(x=>x[1]); assert.equal(statuses.length,12); const complete=statuses.every(x=>x===\"pass\"); const fm=s.match(/^---\\n([\\s\\S]*?)\\n---/)[1]; assert.match(fm,complete?/^status: validated$/m:/^status: pending$/m); assert.match(fm,complete?/^nyquist_compliant: true$/m:/^nyquist_compliant: false$/m); assert.match(fm,complete?/^wave_0_complete: true$/m:/^wave_0_complete: false$/m); assert.equal(Number(s.match(/^\\| Checks proven passing \\| (\\d+) \\|$/m)?.[1]),statuses.filter(x=>x===\"pass\").length); assert.equal(Number(s.match(/^\\| Checks not yet proven \\| (\\d+) \\|$/m)?.[1]),statuses.filter(x=>x!==\"pass\").length); const sign=s.split(\"## Current Full-Phase Validation Sign-Off\")[1]; assert(sign); assert.equal((sign.match(/^- \\[[ x]\\]/gm)||[]).length,3); assert.equal((sign.match(/^- \\[x\\]/gm)||[]).length,complete?3:0)'",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "251-07-PLAN.md",
+          "task": "Task 3: Dispose review findings and reconcile full-phase validation"
+        }
+      ],
+      "counts": {
+        "blocker": 0,
+        "warning": 0,
+        "total": 17
+      },
+      "readError": null
+    },
+    "verify-failure-directions": {
+      "status": "ok",
+      "commands": [
+        {
+          "command": "node --input-type=module -e 'import fs from \"node:fs\"; import assert from \"node:assert/strict\"; const p=JSON.parse(fs.readFileSync(\".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json\",\"utf8\")); const a=p.requirements?.READY01, b=p.requirements?.READY02; assert([\"ready\",\"blocked\"].includes(p.status)); assert(p.active_checkout?.head && p.baseline?.commit && Array.isArray(p.source_blobs) && p.source_blobs.length>0 && Array.isArray(p.checks) && p.checks.length>0 && Array.isArray(p.blockers) && p.trusted_sources?.github_api === \"https://api.github.com/repos/szTheory/sigra\"); assert(a && b && [\"ready\",\"blocked\"].includes(a.source_feasibility) && [\"ready\",\"blocked\"].includes(b.source_feasibility) && typeof a.capture_allowed===\"boolean\" && typeof b.capture_allowed===\"boolean\" && Array.isArray(a.sources) && Array.isArray(a.source_checks) && Array.isArray(a.evidence_producers) && Array.isArray(a.independent_trust) && Array.isArray(b.sources) && Array.isArray(b.source_checks) && Array.isArray(b.evidence_producers) && Array.isArray(b.independent_trust) && typeof a.history_complete===\"boolean\" && a.time_window && Object.hasOwn(a.time_window,\"start\") && Object.hasOwn(a.time_window,\"end\") && typeof a.time_window.complete===\"boolean\" && Object.hasOwn(a.time_window,\"start_boundary\") && Object.hasOwn(a.time_window,\"end_boundary\") && [\"found\",\"absent\",\"not_searchable\"].includes(a.approval_event) && Array.isArray(a.blockers) && Array.isArray(a.findings) && Array.isArray(b.blockers) && Array.isArray(b.findings)); assert.equal(a.capture_allowed,a.source_feasibility===\"ready\"); assert.equal(b.capture_allowed,b.source_feasibility===\"ready\"); assert.equal(p.status===\"ready\",a.capture_allowed||b.capture_allowed); if(a.history_complete && a.approval_event===\"absent\") assert.equal(a.verdict,\"authorization_pending\"); if(p.status===\"ready\") assert.equal(p.blockers.length,0); else { assert(p.blockers.length>0); assert.notEqual(a.verdict,\"satisfied\"); assert.notEqual(b.verdict,\"satisfied\"); }' && node --input-type=module -e 'import fs from \"node:fs\"; import assert from \"node:assert/strict\"; const p=JSON.parse(fs.readFileSync(\".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json\",\"utf8\")); const a=p.requirements.READY01; assert.deepEqual(a.candidate_tuple,{candidate_sha:\"0e773d3614a242e4fbcdd34c418ecb8a307703d6\",reviewed_base_sha:\"d135cbce343947499a0810736c500ef5f1cb5c32\",protected_main_sha:\"a494f3ee3878da93aab4f70712ffddeefd77a802\"}); assert.deepEqual(a.published_release_source,{tag:\"v1.6.0\",tag_ref:\"refs/tags/v1.6.0\",commit_sha:\"9e80cb78d6374b1ed4074d5fef6b613fee879dca\"}); assert.notEqual(a.candidate_tuple.candidate_sha,a.published_release_source.commit_sha); const q=a.package_adopter; const candidate=\"candidate:0e773d3614a242e4fbcdd34c418ecb8a307703d6\", published=\"published_tag:v1.6.0:9e80cb78d6374b1ed4074d5fef6b613fee879dca\"; const candidatePaths=[\".release-please-manifest.json\",\"release-please-config.json\",\"mix.exs\",\"CHANGELOG.md\",\"README.md\",\"guides/introduction/upgrading-to-v1.6.md\",\"test/example/priv/playwright/tests/organizations.spec.ts\"], publishedPaths=[\"mix.exs\",\"CHANGELOG.md\",\"README.md\",\"guides/introduction/upgrading-to-v1.6.md\",\"lib/sigra.ex\"]; assert(q && Array.isArray(q.sources) && Array.isArray(q.source_paths) && q.checks); for(const [identity,sha,paths] of [[candidate,a.candidate_tuple.candidate_sha,candidatePaths],[published,a.published_release_source.commit_sha,publishedPaths]]) for(const path of paths){assert(q.source_paths.includes(path));assert(q.sources.some(x=>x.source_identity===identity&&x.commit_sha===sha&&x.path===path&&Object.hasOwn(x,\"read_status\")&&Object.hasOwn(x,\"trust_status\")),`missing identity-labelled source record ${identity} ${path}`);} for(const path of [\"mix.exs\",\"CHANGELOG.md\",\"README.md\",\"guides/introduction/upgrading-to-v1.6.md\"]) assert(q.sources.some(x=>x.source_identity===candidate&&x.path===path)&&q.sources.some(x=>x.source_identity===published&&x.path===path),`repeated path lacks both source identities: ${path}`); const names=[\"package_version\",\"package_metadata\",\"release_manifest\",\"release_config\",\"changelog\",\"tag_target\",\"hexdocs_source_reference\",\"published_tag_guide\",\"readme_guide_link\",\"adopter_shipped_changes\",\"adopter_compatibility\",\"generated_host_action\",\"version_requirement\",\"update_check_path\"]; for(const name of names){const c=q.checks[name];assert([\"pass\",\"missing\",\"mismatch\",\"unreadable\"].includes(c?.result),\"missing named result\");assert(typeof c.source_identity===\"string\"&&c.source_identity.trim().length>0,\"missing source_identity\");assert(typeof c.evidence_detail===\"string\"&&c.evidence_detail.trim().length>0,\"missing evidence_detail\");assert(typeof c.finding_detail===\"string\"&&c.finding_detail.trim().length>0,\"missing finding_detail\");if(c.result===\"pass\")assert(c.finding_detail.startsWith(\"No finding:\")&&c.evidence_detail.length>0,\"pass lacks evidence detail\");else assert(c.finding_detail.startsWith(c.result+\":\"),\"failure lacks result-specific finding detail\");}; for(const x of p.source_blobs) assert(x.source_identity&&x.commit_sha&&x.path&&x.git_blob_oid&&x.sha256); const failed=names.some(name=>[\"missing\",\"mismatch\",\"unreadable\"].includes(q.checks[name].result))||q.sources.some(x=>[\"missing\",\"mismatch\",\"unreadable\"].includes(x.read_status)); if(failed){assert.equal(a.acceptance_satisfied,false);assert.notEqual(a.verdict,\"satisfied\");} if(q.checks.published_tag_guide.result===\"missing\"||q.sources.some(x=>x.source_identity===published&&x.path===\"guides/introduction/upgrading-to-v1.6.md\"&&x.read_status===\"missing\")){assert.equal(a.acceptance_satisfied,false);assert.notEqual(a.verdict,\"satisfied\");if(b.source_feasibility===\"ready\")assert.equal(b.capture_allowed,true);}'",
+          "statement": "Source feasibility is conflated with approval-event existence, a missing exact approval event blocks independent READY-02 capture, any blocked requirement is recorded as satisfied, candidate and published-tag source records are not separately labelled for every required path, named package/adopter checks are omitted, a missing/mismatched package/adopter result is not asserted unsatisfied, or the absent published-tag guide does not preserve an independently ready READY-02 capture.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-01-PLAN.md",
+          "task": "Task 1: Run the read-only evidence-feasibility preflight"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+          "statement": "Any named candidate/tag SHA, metadata, manifest/config, changelog, tag/source-ref, published-guide, or adopter mismatch fixture is absent or does not leave READY-01 unsatisfied; the publishedTagGuideAbsent fixture fails to preserve source-ready READY-02 capture; READY-01-only source failure disables READY-02; or a partial API result is treated as a complete empty set.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-01-PLAN.md",
+          "task": "Task 2: Implement READY-01 and READY-02 evaluators behind the feasibility gate"
+        },
+        {
+          "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251 && node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+          "statement": "The packet/report digest or source identities disagree, an unavailable item is promoted to satisfaction, or the historical Phase 250 bytes change.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-01-PLAN.md",
+          "task": "Task 3: Capture the current populations and publish the source-derived owner report"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+          "statement": "A historical Phase 250 exception is promoted to a current READY pass, a legitimate new owner report invalidates authentic historical evidence, or any altered historical blob is accepted.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-02-PLAN.md",
+          "task": "Task 1: Distinguish the historical Phase 250 exception from current READY acceptance"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md",
+          "statement": "A READY checkbox differs from its Phase 247 verdict, the source-derived audit conflicts with the generated report, or a missing READY item produces a complete milestone claim.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-02-PLAN.md",
+          "task": "Task 2: Reconcile READY traceability and regenerate the strict milestone audit"
+        },
+        {
+          "command": "node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+          "statement": "The changed-base-SHA fixture retains a disposition, any changed identity passes final readiness, or the unchanged control fails.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-03-PLAN.md",
+          "task": "Task 1: Reject a changed PR identity through final inventory and final readiness"
+        },
+        {
+          "command": "node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+          "statement": "A duplicate/equal row is counted twice, a null base SHA is accepted, or order depends on API arrival order.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-03-PLAN.md",
+          "task": "Task 2: Prove duplicate, adjacency, and ordering boundaries"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+          "statement": "The candidate guide is accepted as the published guide, a generic prose-only check passes, or the correct path/blob control is rejected.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-04-PLAN.md",
+          "task": "Task 1: Reject a falsely passing READY-01 check from source record to owner verdict"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+          "statement": "The traceability checker accepts the forged satisfied row or rejects a correctly recorded unsatisfied blocker.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-04-PLAN.md",
+          "task": "Task 2: Make the independent audit reject the same forged package evidence"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+          "statement": "The secondary dirty path disappears from observed IDs, a wrong-byte ref passes, or READY-02 becomes satisfied without its join.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-05-PLAN.md",
+          "task": "Task 1: Carry one secondary-worktree dirty path through capture, join, and READY-02 verdict"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+          "statement": "A truncated or raced population passes, an arbitrary base is accepted, or a complete observed empty population is misclassified as unavailable.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-05-PLAN.md",
+          "task": "Task 2: Recover the recorded inherited base and capture a complete current population"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251",
+          "statement": "The packet omits an observed item, a preservation ref lacks byte read-back, owner/packet digests differ, or a blocked source is labeled satisfied.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-05-PLAN.md",
+          "task": "Task 3: Disposition and preserve every current inherited item, then refresh owner evidence"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+          "statement": "A noncontemporaneous or incomplete approval passes, the historical 404 is recorded as trusted bytes, or READY-02 changes solely because READY-01 lacks approval.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-06-PLAN.md",
+          "task": "Task 1: Trace a missing historical approval through feasibility, packet, and owner verdict"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251",
+          "statement": "A candidate guide satisfies the published-tag check, repeated inputs change semantic verdict, or mixed-generation artifacts pass --check-251.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-06-PLAN.md",
+          "task": "Task 2: Verify published-tag adopter paths and capture determinism"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources",
+          "statement": "A READY row lacks the owner report reference, an unproved checkbox raises the count, or Phase 250 history is treated as current READY acceptance.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-07-PLAN.md",
+          "task": "Task 1: Trace one current READY owner verdict into requirement row and strict audit"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md",
+          "statement": "Any READY row contradicts its owner proof, the audit count or completion status conflicts with those rows, or an AUTO/REL owner fact changes without source evidence.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-07-PLAN.md",
+          "task": "Task 2: Recheck the complete audit and keep contextual failures separate"
+        },
+        {
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-251 && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md && node --input-type=module -e 'import fs from \"node:fs\"; import assert from \"node:assert/strict\"; const s=fs.readFileSync(\".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md\",\"utf8\"); const statuses=[...s.matchAll(/^\\| 251-(?:03|04|05|06|07)-\\d{2} \\|[^\\n]*\\| (pass|pending|failed|blocked) \\|$/gm)].map(x=>x[1]); assert.equal(statuses.length,12); const complete=statuses.every(x=>x===\"pass\"); const fm=s.match(/^---\\n([\\s\\S]*?)\\n---/)[1]; assert.match(fm,complete?/^status: validated$/m:/^status: pending$/m); assert.match(fm,complete?/^nyquist_compliant: true$/m:/^nyquist_compliant: false$/m); assert.match(fm,complete?/^wave_0_complete: true$/m:/^wave_0_complete: false$/m); assert.equal(Number(s.match(/^\\| Checks proven passing \\| (\\d+) \\|$/m)?.[1]),statuses.filter(x=>x===\"pass\").length); assert.equal(Number(s.match(/^\\| Checks not yet proven \\| (\\d+) \\|$/m)?.[1]),statuses.filter(x=>x!==\"pass\").length); const sign=s.split(\"## Current Full-Phase Validation Sign-Off\")[1]; assert(sign); assert.equal((sign.match(/^- \\[[ x]\\]/gm)||[]).length,3); assert.equal((sign.match(/^- \\[x\\]/gm)||[]).length,complete?3:0)'",
+          "statement": "A fixed row lacks reproducing test and passing repair evidence, a required source/audit check fails, or the 12-row validation status, counts, frontmatter and sign-off disagree.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "251-07-PLAN.md",
+          "task": "Task 3: Dispose review findings and reconcile full-phase validation"
+        }
+      ],
+      "counts": {
+        "blocker": 0,
+        "warning": 0,
+        "total": 17
+      },
+      "readError": null
+    },
+    "decision-coverage": {
+      "passed": true,
+      "skipped": false,
+      "total": 6,
+      "covered": 6,
+      "uncovered": [],
+      "message": "All trackable CONTEXT.md decisions are covered by plans."
+    },
+    "packet-check": {
+      "valid": true,
+      "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+      "capture_id": "phase251-939607ff3f17e03b22aa",
+      "capture_id_matches": true,
+      "verdicts_match": true
+    },
+    "sources-check": {
+      "schemaVersion": 1,
+      "capturedAt": "2026-10-12T02:31:05.118Z",
+      "status": "gaps_found",
+      "milestoneStatus": "incomplete",
+      "acceptanceAmendment": {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-ACCEPTANCE-AMENDMENT.json",
+        "sha256": "e8a1a8f346f4d002bddddcab8859c8a202eaae9ddb72e2dedc8eaca33d123eb0",
+        "historicalSource": {
+          "commit": "0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+          "ownerReportPath": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+          "ownerReportSha256": "d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39",
+          "reconciliationPath": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+          "reconciliationSha256": "1e532d16385b8276e473d20ec98723f9015d4ccecc258f7b406c82d0084360c4",
+          "tuplePacketPath": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+          "tuplePacketSha256": "8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660"
+        }
+      },
+      "acceptedExceptionCount": 0,
+      "historicalExceptionCount": 2,
+      "unacceptedBlockerCount": 16,
+      "score": {
+        "requirements": "8/9",
+        "phases": "4/6",
+        "integration": "4/5",
+        "flows": "3/4"
+      },
+      "currentReadiness": {
+        "packetPath": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json",
+        "packetSha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+        "ownerPhase": 247,
+        "ready01": "unsatisfied",
+        "ready02": "satisfied",
+        "blockers": [
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: Historical owner report commit 0e7a2835ebd0d7a1e791ad4dbc73955270108ed1 is locally readable (blob da60a96544dcb1dff301e416930e183e021f0b6e, SHA-256 d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39), but the GitHub commit endpoint returns 422 and exact-ref contents lookup returns 404; local bytes are not independently trusted.",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: READY01_preflight_source_blocked",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: approval_candidate_tuple_mismatch",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: approval_dry_run_receipt_mismatch",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: approval_event_not_exact_or_contemporaneous",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: approval_exact_head_ci_mismatch",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: approval_readiness_record_mismatch",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: authorization_pending",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: authorization_pending: complete review/timeline history has zero reviews and no exact-candidate approval.",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: historical_owner_source_untrusted",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: mismatch: published README omits the guide link.",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: missing: published tag lacks the v1.6 guide.",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: package_check_mismatch:readme_guide_link",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01: package_check_missing:published_tag_guide",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Phase 251 READY-01 is authorization_pending: no recoverable contemporaneous approval binds the exact candidate/source/CI/readiness/dry-run record.",
+            "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+          },
+          {
+            "id": "READY-01",
+            "message": "Canonical owner Phase 247 verifier is gaps_found; requirement verdict is unsatisfied.",
+            "identity": {
+              "report": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+              "reportSha256": "4529597b6cf838dfc8e404cbc531c47b111bfda885e591db15510554c43aaf9c"
+            }
+          }
+        ]
+      },
+      "nyquist": {
+        "compliantPhases": [
+          246,
+          248,
+          249,
+          250,
+          251
+        ],
+        "partialPhases": [
+          247
+        ],
+        "notValidatedPhases": [],
+        "missingPhases": [],
+        "overall": "partial",
+        "rows": [
+          {
+            "phase": 246,
+            "status": "compliant",
+            "path": ".planning/phases/246-generated-confirmation-recovery/246-VALIDATION.md",
+            "sha256": "56fb54570b1001d70b67f3fcb1864f1c755b34a7c98285ec7bb388f11f6bf336"
+          },
+          {
+            "phase": 247,
+            "status": "partial",
+            "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md",
+            "sha256": "f1ff60a86690ad45d3732d4a244f298cc4f15b9a7c201275a6af724fa2a2c425"
+          },
+          {
+            "phase": 248,
+            "status": "compliant",
+            "path": ".planning/phases/248-exact-source-release-gate/248-VALIDATION.md",
+            "sha256": "086267acb7d2b17db7520c57416a9e6231d9f28512e53bbad1cb80dca9642a8e"
+          },
+          {
+            "phase": 249,
+            "status": "compliant",
+            "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VALIDATION.md",
+            "sha256": "3497379bcdb02492dd6d7db8075d89e8e7ab36c65e5d3ef24a44684a0a294c75"
+          },
+          {
+            "phase": 250,
+            "status": "compliant",
+            "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VALIDATION.md",
+            "sha256": "a6da282052b6ff257ab2b9fe52ac4d40bf97b111cf6f2ed9f73affb16153e027"
+          },
+          {
+            "phase": 251,
+            "status": "compliant",
+            "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+            "sha256": "cd199f0d917f8ca1f1e734177c7bffb93c40f99971fcff5b9562652b614e7d8f"
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "id": "CONF-01",
+          "phase": "246",
+          "description": "In a freshly generated host app, an anonymous visitor and an already signed-in visitor can complete email confirmation, and the test proves the persisted account state changed rather than relying on response status alone.",
+          "traceability": "complete",
+          "status": "satisfied",
+          "acceptance_status": "verified",
+          "historical_phase_250_exception": false,
+          "verification_status": "satisfied",
+          "owner_report_status": "passed",
+          "claimed_by_plans": [
+            "246-01"
+          ],
+          "completed_by_plans": [
+            "246-01"
+          ],
+          "evidence": "Canonical Phase 246 requirement-level verdict is satisfied; overall report status is passed."
+        },
+        {
+          "id": "CONF-02",
+          "phase": "246",
+          "description": "A confirmation code copied from the generated email can be pasted into the generated confirmation form and accepted without browser-side truncation or locale-dependent validation failure.",
+          "traceability": "complete",
+          "status": "satisfied",
+          "acceptance_status": "verified",
+          "historical_phase_250_exception": false,
+          "verification_status": "satisfied",
+          "owner_report_status": "passed",
+          "claimed_by_plans": [
+            "246-02"
+          ],
+          "completed_by_plans": [
+            "246-02"
+          ],
+          "evidence": "Canonical Phase 246 requirement-level verdict is satisfied; overall report status is passed."
+        },
+        {
+          "id": "CONF-03",
+          "phase": "246",
+          "description": "Generated authentication screens display confirmation success and error feedback produced by their LiveViews, including invalid-code feedback.",
+          "traceability": "complete",
+          "status": "satisfied",
+          "acceptance_status": "verified",
+          "historical_phase_250_exception": false,
+          "verification_status": "satisfied",
+          "owner_report_status": "passed",
+          "claimed_by_plans": [
+            "246-01",
+            "246-02"
+          ],
+          "completed_by_plans": [
+            "246-01",
+            "246-02"
+          ],
+          "evidence": "Canonical Phase 246 requirement-level verdict is satisfied; overall report status is passed."
+        },
+        {
+          "id": "READY-01",
+          "phase": "247",
+          "description": "The 1.6.0 release candidate's package metadata, manifest, changelog, tag, and HexDocs source reference agree; adopter notes accurately describe shipped changes, compatibility, required generated-host action or no action, and the `~> 1.6.0` update/check path. The current Phase 247 owner verdict is `authorization_pending`: no recoverable contemporaneous approval joins the exact candidate/source/CI/readiness/dry-run record; the published tag also lacks the v1.6 guide and its README link.",
+          "traceability": "open",
+          "status": "unsatisfied",
+          "acceptance_status": "unaccepted",
+          "historical_phase_250_exception": true,
+          "verification_status": "unsatisfied",
+          "owner_report_status": "gaps_found",
+          "claimed_by_plans": [],
+          "completed_by_plans": [],
+          "evidence": "Canonical Phase 247 requirement-level verdict is unsatisfied; overall report status is gaps_found; see named source blockers."
+        },
+        {
+          "id": "READY-02",
+          "phase": "247",
+          "description": "Every open PR at readiness time has a recorded release-blocking, release-relevant, or separate-follow-up disposition; inherited checkout changes are preserved and dispositioned; release work proceeds from a clean source checkout without silently absorbing unrelated work. The current Phase 247 owner verdict is satisfied: the fresh 15-PR identity set and 2,421 inherited commit/path identities are dispositioned and joined to preservation records with verified read-back.",
+          "traceability": "complete",
+          "status": "satisfied",
+          "acceptance_status": "verified",
+          "historical_phase_250_exception": true,
+          "verification_status": "satisfied",
+          "owner_report_status": "gaps_found",
+          "claimed_by_plans": [],
+          "completed_by_plans": [],
+          "evidence": "Canonical Phase 247 requirement-level verdict is satisfied; overall report status is gaps_found."
+        },
+        {
+          "id": "AUTO-01",
+          "phase": "248",
+          "description": "Before release package work starts, the release tag is proven to resolve to the exact Release Please source SHA whose required CI gate passed; the existing test, warning-free docs, package-content, and Hex dry-run checks run against that immutable source. Active release evaluation is not cancelled, workflow permissions are scoped, and the Hex secret is available only to the final publish step.",
+          "traceability": "complete",
+          "status": "satisfied",
+          "acceptance_status": "verified",
+          "historical_phase_250_exception": false,
+          "verification_status": "satisfied",
+          "owner_report_status": "passed",
+          "claimed_by_plans": [
+            "248-01",
+            "248-02",
+            "248-03",
+            "248-05"
+          ],
+          "completed_by_plans": [
+            "248-01",
+            "248-02",
+            "248-03",
+            "248-05"
+          ],
+          "evidence": "Canonical Phase 248 requirement-level verdict is satisfied; overall report status is passed."
+        },
+        {
+          "id": "AUTO-02",
+          "phase": "248",
+          "description": "The release lane retains machine-readable gate and publish receipts for both success and failure, linking version/tag, source SHA, workflow/run identity, verdict, relevant URLs, attempts/timestamps, and failure or cancellation state.",
+          "traceability": "complete",
+          "status": "satisfied",
+          "acceptance_status": "verified",
+          "historical_phase_250_exception": false,
+          "verification_status": "satisfied",
+          "owner_report_status": "passed",
+          "claimed_by_plans": [
+            "248-04",
+            "248-05"
+          ],
+          "completed_by_plans": [
+            "248-04",
+            "248-05"
+          ],
+          "evidence": "Canonical Phase 248 requirement-level verdict is satisfied; overall report status is passed."
+        },
+        {
+          "id": "REL-01",
+          "phase": "249",
+          "description": "Hex contains package version 1.6.0 built from the gated source, and live checks prove the versioned HexDocs and source reference resolve to the same release.",
+          "traceability": "complete",
+          "status": "satisfied",
+          "acceptance_status": "verified",
+          "historical_phase_250_exception": false,
+          "verification_status": "satisfied",
+          "owner_report_status": "passed",
+          "claimed_by_plans": [
+            "249-01",
+            "249-05",
+            "249-06",
+            "249-07"
+          ],
+          "completed_by_plans": [
+            "249-01",
+            "249-05",
+            "249-06",
+            "249-07"
+          ],
+          "evidence": "Canonical Phase 249 requirement-level verdict is satisfied; overall report status is passed."
+        },
+        {
+          "id": "REL-02",
+          "phase": "249",
+          "description": "The final protected-main release commit has green required CI, the release receipt is committed and points to that exact source, every local worktree is clean, and every open PR has a recorded disposition.",
+          "traceability": "complete",
+          "status": "satisfied",
+          "acceptance_status": "verified",
+          "historical_phase_250_exception": false,
+          "verification_status": "satisfied",
+          "owner_report_status": "passed",
+          "claimed_by_plans": [
+            "249-01",
+            "249-02",
+            "249-03",
+            "249-05",
+            "249-06",
+            "249-07",
+            "249-08",
+            "249-12"
+          ],
+          "completed_by_plans": [
+            "249-01",
+            "249-02",
+            "249-03",
+            "249-05",
+            "249-06",
+            "249-07",
+            "249-08",
+            "249-12"
+          ],
+          "evidence": "Canonical Phase 249 requirement-level verdict is satisfied; overall report status is passed."
+        }
+      ],
+      "owners": {
+        "246": {
+          "phase": "246",
+          "path": ".planning/phases/246-generated-confirmation-recovery/246-VERIFICATION.md",
+          "status": "passed",
+          "reportSha256": "9d90c546cc3891bd823695450065550f5441b8eb182fa2e1be3dc45506b1570e",
+          "requirements": [
+            {
+              "id": "CONF-01",
+              "status": "satisfied"
+            },
+            {
+              "id": "CONF-02",
+              "status": "satisfied"
+            },
+            {
+              "id": "CONF-03",
+              "status": "satisfied"
+            }
+          ]
+        },
+        "247": {
+          "phase": "247",
+          "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+          "status": "gaps_found",
+          "reportSha256": "4529597b6cf838dfc8e404cbc531c47b111bfda885e591db15510554c43aaf9c",
+          "reconciliation": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json",
+          "reconciliationSha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+          "capturedAt": "2026-10-11T22:50:16.792Z",
+          "sourceFeasibility": {
+            "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json",
+            "sha256": "f3d2067afbe16299122d32f1741bcfcd98a564e450bbfa93c69badbb4c6042a9"
+          },
+          "packetOwnerPhase": 247,
+          "phase251BindingValid": true,
+          "requirementVerdicts": {
+            "READY-01": "unsatisfied",
+            "READY-02": "satisfied"
+          },
+          "requirements": [
+            {
+              "id": "READY-01",
+              "status": "unsatisfied"
+            },
+            {
+              "id": "READY-02",
+              "status": "satisfied"
+            }
+          ]
+        },
+        "248": {
+          "phase": "248",
+          "path": ".planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+          "status": "passed",
+          "reportSha256": "7274e9017ba6e46d5f919d4acc478698b344f21caf1203975f7574c7acde06ad",
+          "evidence": {
+            "sourceSha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+            "releaseRunId": 37875238705,
+            "ciRunId": 37875238741,
+            "failureRunId": 38137550871,
+            "failureArtifactId": 11701436633,
+            "cancellationRunId": 38137614523,
+            "cancellationArtifactId": 11702216188
+          },
+          "sourceSnapshot": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+          "snapshotCapturedAt": "2026-10-11T12:19:47.481Z",
+          "evidenceIdentities": {
+            "tag": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+            "releaseRun": 37875238705,
+            "ciRun": 37875238741,
+            "successArtifact": 11594782728,
+            "canaryProofSha256": "6eb5fb2e373d2bca6efd3dc9161793e4a3ca0f260bfcf4f6a208aa3c40952289"
+          },
+          "requirements": [
+            {
+              "id": "AUTO-01",
+              "status": "satisfied"
+            },
+            {
+              "id": "AUTO-02",
+              "status": "satisfied"
+            }
+          ]
+        },
+        "249": {
+          "phase": "249",
+          "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
+          "status": "passed",
+          "reportSha256": "1245ce7bfc639c102cb50ac4dfc96a12ca5773393aa664fdcdef51e2db74dd74",
+          "sourceSnapshot": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json",
+          "snapshotCapturedAt": "2026-10-11T15:43:51.442Z",
+          "evidenceIdentities": {
+            "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+            "historical_release_main_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+            "current_protected_main_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+            "historical_is_ancestor": true,
+            "historical_ancestor_evidence": {
+              "provider": "GitHub Compare API",
+              "url": "https://api.github.com/repos/szTheory/sigra/compare/08300af1740fea8b77d5928a182688acbf103edc...4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+              "observed_at": "2026-10-11T15:43:48.075Z",
+              "status": "ahead",
+              "ahead_by": 22,
+              "behind_by": 0,
+              "response_keys": [
+                "ahead_by",
+                "base_commit",
+                "behind_by",
+                "commits",
+                "diff_url",
+                "files",
+                "html_url",
+                "merge_base_commit",
+                "patch_url",
+                "permalink_url",
+                "status",
+                "total_commits",
+                "url"
+              ],
+              "base_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+              "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+              "merge_base_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+              "verdict": "passed"
+            },
+            "evidenceRef": "refs/heads/evidence/phase-249-final-acceptance",
+            "evidenceRefCommit": "65f1ca4c851d62415ed656509cb068dc3acbab15",
+            "historicalCiRunId": 38003573391,
+            "currentCiRunId": 38146312411,
+            "currentCiJobId": 114491782314,
+            "acceptedLossSha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148"
+          },
+          "requirements": [
+            {
+              "id": "REL-01",
+              "status": "satisfied"
+            },
+            {
+              "id": "REL-02",
+              "status": "satisfied"
+            }
+          ]
+        }
+      },
+      "sourceIdentities": [
+        {
+          "phase": "247",
+          "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json",
+          "sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+          "ownerPhase": 247
+        },
+        {
+          "phase": "247",
+          "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json",
+          "sha256": "f3d2067afbe16299122d32f1741bcfcd98a564e450bbfa93c69badbb4c6042a9",
+          "status": "ready"
+        },
+        {
+          "phase": "248",
+          "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+          "capturedAt": "2026-10-11T12:19:47.481Z",
+          "identities": {
+            "tag": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+            "releaseRun": 37875238705,
+            "ciRun": 37875238741,
+            "successArtifact": 11594782728,
+            "canaryProofSha256": "6eb5fb2e373d2bca6efd3dc9161793e4a3ca0f260bfcf4f6a208aa3c40952289"
+          }
+        },
+        {
+          "phase": "249",
+          "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json",
+          "capturedAt": "2026-10-11T15:43:51.442Z",
+          "identities": {
+            "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+            "historical_release_main_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+            "current_protected_main_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+            "historical_is_ancestor": true,
+            "historical_ancestor_evidence": {
+              "provider": "GitHub Compare API",
+              "url": "https://api.github.com/repos/szTheory/sigra/compare/08300af1740fea8b77d5928a182688acbf103edc...4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+              "observed_at": "2026-10-11T15:43:48.075Z",
+              "status": "ahead",
+              "ahead_by": 22,
+              "behind_by": 0,
+              "response_keys": [
+                "ahead_by",
+                "base_commit",
+                "behind_by",
+                "commits",
+                "diff_url",
+                "files",
+                "html_url",
+                "merge_base_commit",
+                "patch_url",
+                "permalink_url",
+                "status",
+                "total_commits",
+                "url"
+              ],
+              "base_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+              "head_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+              "merge_base_sha": "08300af1740fea8b77d5928a182688acbf103edc",
+              "verdict": "passed"
+            },
+            "evidenceRef": "refs/heads/evidence/phase-249-final-acceptance",
+            "evidenceRefCommit": "65f1ca4c851d62415ed656509cb068dc3acbab15",
+            "historicalCiRunId": 38003573391,
+            "currentCiRunId": 38146312411,
+            "currentCiJobId": 114491782314,
+            "acceptedLossSha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148"
+          }
+        },
+        {
+          "phase": "250",
+          "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-ACCEPTANCE-AMENDMENT.json",
+          "sha256": "e8a1a8f346f4d002bddddcab8859c8a202eaae9ddb72e2dedc8eaca33d123eb0"
+        },
+        {
+          "phase": "250-historical",
+          "commit": "0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+          "ownerReportPath": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+          "ownerReportSha256": "d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39",
+          "reconciliationPath": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+          "reconciliationSha256": "1e532d16385b8276e473d20ec98723f9015d4ccecc258f7b406c82d0084360c4",
+          "tuplePacketPath": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+          "tuplePacketSha256": "8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660"
+        }
+      ],
+      "historicalExceptions": [
+        {
+          "id": "READY-01",
+          "acceptance_status": "accepted_exception",
+          "scope": "Phase 250 closeout only",
+          "owner_verification_status": "unsatisfied",
+          "source": {
+            "commit": "0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+            "ownerReportPath": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+            "ownerReportSha256": "d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39",
+            "reconciliationPath": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+            "reconciliationSha256": "1e532d16385b8276e473d20ec98723f9015d4ccecc258f7b406c82d0084360c4",
+            "tuplePacketPath": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+            "tuplePacketSha256": "8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660"
+          }
+        },
+        {
+          "id": "READY-02",
+          "acceptance_status": "accepted_exception",
+          "scope": "Phase 250 closeout only",
+          "owner_verification_status": "unsatisfied",
+          "source": {
+            "commit": "0e7a2835ebd0d7a1e791ad4dbc73955270108ed1",
+            "ownerReportPath": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+            "ownerReportSha256": "d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39",
+            "reconciliationPath": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+            "reconciliationSha256": "1e532d16385b8276e473d20ec98723f9015d4ccecc258f7b406c82d0084360c4",
+            "tuplePacketPath": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+            "tuplePacketSha256": "8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660"
+          }
+        }
+      ],
+      "blockers": [
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: Historical owner report commit 0e7a2835ebd0d7a1e791ad4dbc73955270108ed1 is locally readable (blob da60a96544dcb1dff301e416930e183e021f0b6e, SHA-256 d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39), but the GitHub commit endpoint returns 422 and exact-ref contents lookup returns 404; local bytes are not independently trusted.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: READY01_preflight_source_blocked",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_candidate_tuple_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_dry_run_receipt_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_event_not_exact_or_contemporaneous",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_exact_head_ci_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_readiness_record_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: authorization_pending",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: authorization_pending: complete review/timeline history has zero reviews and no exact-candidate approval.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: historical_owner_source_untrusted",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: mismatch: published README omits the guide link.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: missing: published tag lacks the v1.6 guide.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: package_check_mismatch:readme_guide_link",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: package_check_missing:published_tag_guide",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01 is authorization_pending: no recoverable contemporaneous approval binds the exact candidate/source/CI/readiness/dry-run record.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Canonical owner Phase 247 verifier is gaps_found; requirement verdict is unsatisfied.",
+          "identity": {
+            "report": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+            "reportSha256": "4529597b6cf838dfc8e404cbc531c47b111bfda885e591db15510554c43aaf9c"
+          }
+        }
+      ],
+      "sourceBlockers": [
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: Historical owner report commit 0e7a2835ebd0d7a1e791ad4dbc73955270108ed1 is locally readable (blob da60a96544dcb1dff301e416930e183e021f0b6e, SHA-256 d34f94f861b5fc4983138efadd26ae3b93336bb0b3b8e63afcf1c866fd709e39), but the GitHub commit endpoint returns 422 and exact-ref contents lookup returns 404; local bytes are not independently trusted.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: READY01_preflight_source_blocked",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_candidate_tuple_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_dry_run_receipt_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_event_not_exact_or_contemporaneous",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_exact_head_ci_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_readiness_record_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: authorization_pending",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: authorization_pending: complete review/timeline history has zero reviews and no exact-candidate approval.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: historical_owner_source_untrusted",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: mismatch: published README omits the guide link.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: missing: published tag lacks the v1.6 guide.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: package_check_mismatch:readme_guide_link",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: package_check_missing:published_tag_guide",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01 is authorization_pending: no recoverable contemporaneous approval binds the exact candidate/source/CI/readiness/dry-run record.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Canonical owner Phase 247 verifier is gaps_found; requirement verdict is unsatisfied.",
+          "identity": {
+            "report": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+            "reportSha256": "4529597b6cf838dfc8e404cbc531c47b111bfda885e591db15510554c43aaf9c"
+          }
+        }
+      ],
+      "orphaned": [],
+      "contradictions": [
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_candidate_tuple_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_dry_run_receipt_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_exact_head_ci_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: approval_readiness_record_mismatch",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: mismatch: published README omits the guide link.",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        },
+        {
+          "id": "READY-01",
+          "message": "Phase 251 READY-01: package_check_mismatch:readme_guide_link",
+          "identity": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json"
+        }
+      ]
+    },
+    "audit-check": {
+      "valid": true,
+      "errors": [],
+      "status": "gaps_found",
+      "score": {
+        "requirements": "8/9",
+        "phases": "4/6",
+        "integration": "4/5",
+        "flows": "3/4"
+      },
+      "blockerCount": 16
+    },
+    "post-gap-analysis": {
+      "block": false,
+      "passed": true,
+      "enabled": true,
+      "table": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | READY-01 | \u2713 Covered |\n| REQUIREMENTS.md | READY-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n\n\u2713 All 8 items covered by plans\n",
+      "summary": "\u2713 All 8 items covered by plans",
+      "counts": {
+        "total": 8,
+        "covered": 8,
+        "uncovered": 0
+      },
+      "message": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | READY-01 | \u2713 Covered |\n| REQUIREMENTS.md | READY-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n\n\u2713 All 8 items covered by plans\n"
+    }
+  },
+  "readiness": {
+    "plan": {
+      "researcher_model": "gpt-6-luna",
+      "planner_model": "gpt-6-sol",
+      "checker_model": "gpt-6-luna",
+      "tdd_mode": false,
+      "granularity": "fine",
+      "research_enabled": true,
+      "plan_checker_enabled": true,
+      "nyquist_validation_enabled": true,
+      "commit_docs": true,
+      "text_mode": false,
+      "auto_advance": false,
+      "auto_chain_active": false,
+      "mode": "yolo",
+      "phase_found": true,
+      "phase_dir": "/Users/jon/projects/sigra/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps",
+      "expected_phase_dir": null,
+      "phase_number": "251",
+      "phase_name": "close-ready-01-and-ready-02-release-readiness-gaps",
+      "phase_slug": "close-ready-01-and-ready-02-release-readiness-gaps",
+      "padded_phase": "251",
+      "phase_req_ids": "READY-01, READY-02",
+      "phase_status": "Executed",
+      "has_research": true,
+      "has_context": true,
+      "context_scope": "complete",
+      "has_reviews": false,
+      "has_plans": true,
+      "plan_count": 7,
+      "threat_id_duplicates": [],
+      "threat_id_duplicate_count": 0,
+      "planning_exists": true,
+      "roadmap_exists": true,
+      "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+      "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+      "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+      "patterns_path": "/Users/jon/projects/sigra/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-PATTERNS.md",
+      "context_path": "/Users/jon/projects/sigra/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md",
+      "research_path": "/Users/jon/projects/sigra/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-RESEARCH.md",
+      "verification_path": "/Users/jon/projects/sigra/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md",
+      "section_manifest": {
+        "workflow": "plan-phase",
+        "included": [],
+        "excluded": [
+          "reviews-prerequisite",
+          "prd-express-gate",
+          "adr-ingest-express-path",
+          "research-only-modifiers",
+          "research-only-early-exit",
+          "chunked-planning-mode"
+        ],
+        "read": []
+      },
+      "prior_verify_commands": [
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-PLAN.md",
+          "task": "Task 1: Wire one complete dual-outcome canary tracer",
+          "command": "bash scripts/ci/release-canary.sh --self-test && bash scripts/ci/release-receipt.test.sh && bash scripts/ci/release-observer.test.sh && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-PLAN.md",
+          "task": "Task 2: Lock down canary identity and cancellation boundaries with fixtures",
+          "command": "bash scripts/ci/release-canary.test.sh && mix test test/sigra/planning/phase_250_canary_contract_test.exs"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-PLAN.md",
+          "task": "Task 3: Capture the exact hosted proof and fail closed on unavailable Actions evidence",
+          "command": "bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-canary.sh --validate-proof .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-PLAN.md",
+          "task": "Task 1: Reconcile authorization and one immutable candidate tuple",
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-PLAN.md",
+          "task": "Task 2: Write the canonical Phase 247 verifier from the captured join",
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-report .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-PLAN.md",
+          "task": "Task 1: Re-query Phase 248's exact environment, source and receipt identities",
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.test.mjs && bash scripts/ci/release-environment-preflight.test.sh"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-PLAN.md",
+          "task": "Task 2: Refresh the canonical Phase 248 report without hiding historical gaps",
+          "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs --check-report .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md && bash scripts/ci/release-receipt.test.sh && bash scripts/ci/release-observer.test.sh"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-PLAN.md",
+          "task": "Task 1: Independently join public, historical terminal and post-canary main evidence",
+          "command": "bash scripts/ci/release-public-proof.test.sh && node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs && node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-PLAN.md",
+          "task": "Task 2: Refresh Phase 249 verification and retain the accepted-loss record",
+          "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs --check-report .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md && node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-PLAN.md",
+          "task": "Task 1: Reconcile original owner summaries and requirement rows",
+          "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs --check-report .planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs --check-report .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs --check-report .planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-PLAN.md",
+          "task": "Task 2: Add a narrow cross-owner freshness and contradiction gate",
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs && node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-sources"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-PLAN.md",
+          "task": "Task 3: Run the strict milestone audit as the final acceptance gate",
+          "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs --check-audit .planning/v1.49-MILESTONE-AUDIT.md && test -z \"$(git status --porcelain=v1 --untracked-files=all)\""
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-06-PLAN.md",
+          "task": "Task 1: Repair one failure dispatch through exact receipt construction",
+          "command": "bash scripts/ci/release-canary.test.sh"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-06-PLAN.md",
+          "task": "Task 2: Prove safe cancellation and roll out the scoped canary repair",
+          "command": "bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-receipt.test.sh && bash scripts/ci/release-observer.test.sh && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
+          "task": "Task 1: Prepare a fresh read-only canary preflight and exact action packet",
+          "command": "bash scripts/ci/release-canary.test.sh && bash scripts/ci/release-canary.sh --self-test && actionlint .github/workflows/release-receipt-canary.yml .github/workflows/release-receipt-canary-controller.yml .github/workflows/release-run-observer.yml"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
+          "task": "Task 2: Authorize one new bounded hosted canary or retain AUTO-02 blocked",
+          "command": "jq -e '.repository == \"szTheory/sigra\" and .dispatch_attempted == false and .credential_values_recorded == false' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
+          "task": "Task 3: Retrieve both hosted terminal receipts and refresh Phase 248",
+          "command": "bash scripts/ci/release-canary.sh --validate-proof .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
+          "task": "Task 3: Retrieve both hosted terminal receipts and refresh Phase 248",
+          "command": "node .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs --check-report .planning/phases/248-exact-source-release-gate/248-VERIFICATION.md"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
+          "task": "Task 3: Retrieve both hosted terminal receipts and refresh Phase 248",
+          "command": "jq -e '.requirements[\"AUTO-01\"].status == \"satisfied\" and .requirements[\"AUTO-02\"].status == \"satisfied\" and (.blockers | length) == 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json"
+        },
+        {
+          "phase": "250",
+          "plan": "/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-PLAN.md",
+          "task": "Task 1: Build an immutable tuple and gap packet for READY-01/02",
+          "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs && node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs && jq -e '(.eligible_tuples | length) > 0 and ([.eligible_tuples[] | select(.route_status == \"proved\" and .exact_candidate_browser_source == \"retrievable\" and (.evidence_ids | length) > 0 and (.missing | length) == 0)] | length) > 0' .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json"
+        }
+      ],
+      "project_root": "/Users/jon/projects/sigra",
+      "agents_installed": true,
+      "missing_agents": [],
+      "agents_dir": "/Users/jon/.codex/agents",
+      "agent_runtime": "codex",
+      "project_title": "Sigra"
+    },
+    "execute": {
+      "executor_model": "gpt-6-luna",
+      "verifier_model": "gpt-6-luna",
+      "tdd_mode": false,
+      "commit_docs": true,
+      "sub_repos": [],
+      "parallelization": true,
+      "context_window": 200000,
+      "branching_strategy": "none",
+      "phase_branch_template": "gsd/phase-{phase}-{slug}",
+      "milestone_branch_template": "gsd/{milestone}-{slug}",
+      "verifier_enabled": true,
+      "phase_found": true,
+      "phase_dir": "/Users/jon/projects/sigra/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps",
+      "phase_number": "251",
+      "padded_phase": "251",
+      "phase_name": "Close READY-01 and READY-02 release readiness gaps",
+      "phase_slug": "close-ready-01-and-ready-02-release-readiness-gaps",
+      "phase_req_ids": "READY-01, READY-02",
+      "plans": [
+        "251-01-PLAN.md",
+        "251-02-PLAN.md",
+        "251-03-PLAN.md",
+        "251-04-PLAN.md",
+        "251-05-PLAN.md",
+        "251-06-PLAN.md",
+        "251-07-PLAN.md"
+      ],
+      "summaries": [
+        "251-01-SUMMARY.md",
+        "251-02-SUMMARY.md",
+        "251-03-SUMMARY.md",
+        "251-04-SUMMARY.md",
+        "251-05-SUMMARY.md",
+        "251-06-SUMMARY.md",
+        "251-07-SUMMARY.md",
+        "251-EVIDENCE-SUMMARY.md"
+      ],
+      "incomplete_plans": [],
+      "plan_count": 7,
+      "incomplete_count": 0,
+      "threat_id_duplicates": [],
+      "threat_id_duplicate_count": 0,
+      "halted_plans": [],
+      "blocked_by": {},
+      "runnable_plans": [],
+      "runnable_count": 0,
+      "branch_name": null,
+      "milestone_version": "v1.49",
+      "milestone_name": "RELEASE-1.6.0",
+      "milestone_slug": "release-1-6-0",
+      "state_exists": true,
+      "roadmap_exists": true,
+      "config_exists": true,
+      "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+      "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+      "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+      "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+      "section_manifest": {
+        "workflow": "execute-phase",
+        "included": [
+          "regression-gate"
+        ],
+        "excluded": [
+          "partial-wave",
+          "gap-closure-artifacts"
+        ],
+        "read": [
+          "gsd-core/workflows/execute-phase/steps/regression-gate.md"
+        ]
+      },
+      "project_root": "/Users/jon/projects/sigra",
+      "agents_installed": true,
+      "missing_agents": [],
+      "agents_dir": "/Users/jon/.codex/agents",
+      "agent_runtime": "codex",
+      "project_title": "Sigra"
+    },
+    "reason": "init.plan-phase reports Executed with complete context and7plans; init.execute-phase has zero incompleteplans. Roadmap ends251. Fresh verification defaults to gap planning, but this actual gap-planning attempt found no new in-scope delta. Independent checker recommends context/scope resolution through discuss-phase."
+  },
+  "scope_unchanged": true,
+  "release_mutations": false,
+  "test_execution_this_invocation": false,
+  "regression_counts_in_diagnostic": "213 Node/250 Elixir are prior execution proof, not rerun here",
+  "gate_disposition": {
+    "research": "skipped_by_gaps",
+    "closed_phase": "allowed_Executed",
+    "ui": "nonfrontend",
+    "context_drift": "none",
+    "codebase_drift": "skipped_no_STRUCTURE",
+    "requirements_coverage": "2/2 inexistingplans",
+    "decisions_coverage": "6/6 inexistingplans",
+    "post_planning_coverage": "8/8; coverage does not imply requirement acceptance",
+    "planning_completion_state_gate": "not entered; no newplans and outcomeinconclusive",
+    "auto_advance": "disabled; no executabledelta"
+  },
+  "tracking_prior_bytes_recovery": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "d3bd32fff1c9ed25ea74bf3c726313459f8a8d18d39352d5178b516f9d3e4128",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "00ec9a2d85eb87c071cf48a4fddc7859702b2c07c9589f5121b21f700ed17957",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "398ddd30e18d56046683852a854723e6fcf18d98483291b842d6382ad79140a5",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "sha256": "77e0fdbb69b943e22aff90f0191a9b1b06fcbfc58defa5f8c67c73ca4edabf49",
+      "recovery_ref": "fe1ec63b978cf732b113dcb407d3a6a395b79245",
+      "read_back_verified": true
+    }
+  ]
+}

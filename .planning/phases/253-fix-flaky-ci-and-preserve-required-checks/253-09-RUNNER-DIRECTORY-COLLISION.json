@@ -1,0 +1,16 @@
+{
+  "schema_version": "sigra.phase253.registration-runner-preflight-failure/v1",
+  "recorded_at": "2026-10-13T15:37:24Z",
+  "command": "bash scripts/ci/ci-registration-repro.sh --run-recovery .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json --output .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json",
+  "exit_code": 3,
+  "stderr": "EEXIST: file already exists, mkdir '/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json.raw/D19-DIAG-01'\n",
+  "tool_reported_wall_time_ms": 177,
+  "slot": "D19-DIAG-01",
+  "classification": "runner_preflight_error",
+  "child_processes_spawned": [],
+  "database_setup_started": false,
+  "application_started": false,
+  "browser_launches": 0,
+  "project_outcome": "not_run",
+  "accounting": "The runner stopped when creating the diagnostic raw directory, before any database/app/browser child process started. Charge 177 ms to the first D19 diagnostic slot as prelaunch setup; browser launches remain zero."
+}

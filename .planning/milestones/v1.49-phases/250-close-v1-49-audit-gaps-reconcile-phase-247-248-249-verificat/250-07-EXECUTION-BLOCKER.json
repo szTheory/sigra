@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "status": "blocked_before_authorized_dispatch",
+  "captured_at": "2026-10-10T20:03:35Z",
+  "repository": "szTheory/sigra",
+  "authorization": {
+    "decision": "approved",
+    "packet_sha256": "10ef9de2997d7c37a0ca50b42b75dcf83b1aae6f2876d8354721f3aeebc09d69",
+    "authority_record_commit": "27a5cb0dcc9a54fd6f1c9c66b38dbb2586c9c4c7",
+    "controller_workflow_id": 380517406,
+    "authorized_main_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+    "authorized_dispatches": 1,
+    "additional_retry_authorized": false
+  },
+  "fresh_preflight": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+    "sha256": "d29901067e4a843ac6d71668366442eae13bb589f6c7d4bfb478ef223d8167a5",
+    "captured_at": "2026-10-10T20:03:14Z",
+    "commit": "ca711c46c415bf5e56b5eae2cfa8dc1e9f2d07a9",
+    "target_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+    "status": "ready",
+    "dispatch_attempted": false,
+    "credential_values_recorded": false
+  },
+  "authorized_main_preflight": {
+    "repository_main_sha": "34f7fd8e47c4b356ef97656f3213a2e749017f2a",
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+    "blob": "c3c3c955e7bdc14eb4d89a4921de97f20be56ee7",
+    "captured_at": "2026-10-10T14:19:15Z",
+    "status": "ready",
+    "reason_unusable": "The controller checks out refs/heads/main, then validate_committed_preflight rejects a preflight older than 900 seconds before dispatching any canary source run."
+  },
+  "blocker": {
+    "code": "authorized_main_preflight_stale_and_cannot_be_refreshed_without_changing_approved_source_tuple",
+    "evidence": [
+      "release-receipt-canary-controller.yml checks out ref main.",
+      "release-canary.sh validate_committed_preflight reads the preflight in that checkout and requires age <= 900 seconds.",
+      "The approved main commit contains the 14:19:15Z preflight; the newly captured 20:03:14Z preflight is committed only on the active execution branch.",
+      "Committing the fresh preflight onto main would advance main beyond the exact SHA in the user's packet-bound authorization."
+    ],
+    "required_next_step": "Keep this authorization unused. To proceed, create a fresh packet for a main source that has a usable fresh-preflight path, then obtain explicit authority for that exact source and one dispatch."
+  },
+  "dispatch_attempted": false,
+  "canary_child_dispatch_attempted": false,
+  "cancellation_attempted": false,
+  "hosted_proof_updated": false,
+  "auto_02_status": "unsatisfied",
+  "credential_values_recorded": false
+}

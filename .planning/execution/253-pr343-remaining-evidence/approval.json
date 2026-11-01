@@ -1,0 +1,12 @@
+{
+  "schema": "sigra.phase253.pr343-remaining-evidence-approval/v1",
+  "decision": "approve",
+  "decision_text": "i approve",
+  "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+  "manifest_sha256": "6c87fc47f711885b85a121ba137ef7606c0392f20c31d5097f01d7d8524186fe",
+  "scope": "pr343-five-artifacts-and-frozen-docs-only-pr",
+  "approved_at_epoch": 1792695941,
+  "expires_epoch": 1792782341,
+  "approved_by": "user",
+  "authorization": "Download five pinned PR343 artifacts and create the frozen docs-only refs and one draft PR/automatic CI run; at most70 measured HTTP requests within60 minutes; no retries, reruns, dispatches or merges."
+}

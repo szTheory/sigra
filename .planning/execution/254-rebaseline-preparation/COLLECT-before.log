@@ -1,0 +1,3 @@
+snapshot manifest: /Users/jon/projects/sigra/.planning/execution/254-rebaseline-preparation/RAW-before/manifest.json
+status: complete; requests: 38
+hosted-gate-verify: FAIL: required check did not succeed: Example Playwright smoke (full lifecycle)

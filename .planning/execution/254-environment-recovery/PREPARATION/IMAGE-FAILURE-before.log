@@ -1,0 +1,413 @@
+﻿2026-10-24T00:10:25.2546416Z Current runner version: '2.338.0'
+2026-10-24T00:10:25.2568074Z ##[group]Runner Image Provisioner
+2026-10-24T00:10:25.2568982Z Hosted Compute Agent
+2026-10-24T00:10:25.2569568Z Version: 20261021.618
+2026-10-24T00:10:25.2570163Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-24T00:10:25.2570842Z Build Date: 2026-10-21T00:45:21Z
+2026-10-24T00:10:25.2571468Z Worker ID: {43b52929-c8b0-4ad8-af92-bdc08276be5f}
+2026-10-24T00:10:25.2572133Z Region: westus3
+2026-10-24T00:10:25.2572652Z Cloud: Azure
+2026-10-24T00:10:25.2573407Z ##[endgroup]
+2026-10-24T00:10:25.2574795Z ##[group]Operating System
+2026-10-24T00:10:25.2575365Z Ubuntu
+2026-10-24T00:10:25.2575874Z 24.04.5
+2026-10-24T00:10:25.2576381Z LTS
+2026-10-24T00:10:25.2576849Z ##[endgroup]
+2026-10-24T00:10:25.2577391Z ##[group]Runner Image
+2026-10-24T00:10:25.2577950Z Image: ubuntu-24.04
+2026-10-24T00:10:25.2578475Z Version: 20261012.334.1
+2026-10-24T00:10:25.2579687Z Included Software: [URL REDACTED]
+2026-10-24T00:10:25.2581110Z Image Release: [URL REDACTED]
+2026-10-24T00:10:25.2581993Z ##[endgroup]
+2026-10-24T00:10:25.2583035Z ##[group]GITHUB_TOKEN Permissions
+2026-10-24T00:10:25.2585065Z Contents: read
+2026-10-24T00:10:25.2585618Z Metadata: read
+2026-10-24T00:10:25.2586181Z ##[endgroup]
+2026-10-24T00:10:25.2587983Z Secret source: Actions
+2026-10-24T00:10:25.2588898Z Cache mode: write
+2026-10-24T00:10:25.2589541Z Prepare workflow directory
+2026-10-24T00:10:25.2970511Z Prepare all required actions
+2026-10-24T00:10:25.3016878Z Getting action download info
+2026-10-24T00:10:25.6095289Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-24T00:10:25.7013920Z Download action repository 'erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124' (SHA:54075bcc5e249e4758d363f27d099f55d843f124)
+2026-10-24T00:10:26.3358068Z Download action repository 'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9' (SHA:55cc8345863c7cc4c66a329aec7e433d2d1c52a9)
+2026-10-24T00:10:26.5095278Z Download action repository 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a' (SHA:043fb46d1a93c77aae656e7c1c64a875d1fc6a0a)
+2026-10-24T00:10:26.7542646Z Complete job name: Install smoke (fresh phx.new + sigra.install)
+2026-10-24T00:10:26.8135637Z ##[group]Checking docker version
+2026-10-24T00:10:26.8148278Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2026-10-24T00:10:26.8841594Z '1.48'
+2026-10-24T00:10:26.8855133Z Docker daemon API version: '1.48'
+2026-10-24T00:10:26.8855958Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2026-10-24T00:10:26.9024839Z '1.48'
+2026-10-24T00:10:26.9066148Z Docker client API version: '1.48'
+2026-10-24T00:10:26.9071138Z ##[endgroup]
+2026-10-24T00:10:26.9073753Z ##[group]Clean up resources from previous jobs
+2026-10-24T00:10:26.9078950Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=a58456"
+2026-10-24T00:10:26.9220803Z ##[command]/usr/bin/docker network prune --force --filter "label=a58456"
+2026-10-24T00:10:26.9338623Z ##[endgroup]
+2026-10-24T00:10:26.9339218Z ##[group]Create local container network
+2026-10-24T00:10:26.9349390Z ##[command]/usr/bin/docker network create --label a58456 github_network_3c969ee84f694454afd2eaee27b2dd1a
+2026-10-24T00:10:26.9768448Z 7941eb745f8d06ce7988a653695e828e8e6d22063d875d12b081144b4c7638cf
+2026-10-24T00:10:26.9780184Z ##[endgroup]
+2026-10-24T00:10:26.9806659Z ##[group]Starting postgres service container
+2026-10-24T00:10:26.9834040Z ##[command]/usr/bin/docker pull postgres:15
+2026-10-24T00:10:27.8003596Z 15: Pulling from library/postgres
+2026-10-24T00:10:28.0174310Z f2be67225471: Pulling fs layer
+2026-10-24T00:10:28.0175903Z e0428ef87eb8: Pulling fs layer
+2026-10-24T00:10:28.0177322Z c9b382b1f732: Pulling fs layer
+2026-10-24T00:10:28.0178575Z 0f6d195ee345: Pulling fs layer
+2026-10-24T00:10:28.0179620Z d1b142a2d3ac: Pulling fs layer
+2026-10-24T00:10:28.0181040Z 2ab475e318db: Pulling fs layer
+2026-10-24T00:10:28.0182149Z bee16f784947: Pulling fs layer
+2026-10-24T00:10:28.0183437Z 633cb7982454: Pulling fs layer
+2026-10-24T00:10:28.0184633Z bf5dc03c5433: Pulling fs layer
+2026-10-24T00:10:28.0185766Z 426e36b5695b: Pulling fs layer
+2026-10-24T00:10:28.0186918Z 8a5ff7b733f5: Pulling fs layer
+2026-10-24T00:10:28.0188093Z 09018b22bca2: Pulling fs layer
+2026-10-24T00:10:28.0189299Z bd451b9fde8d: Pulling fs layer
+2026-10-24T00:10:28.0190532Z ee1936713636: Pulling fs layer
+2026-10-24T00:10:28.0191761Z 2ab475e318db: Waiting
+2026-10-24T00:10:28.0192812Z bee16f784947: Waiting
+2026-10-24T00:10:28.0194181Z bf5dc03c5433: Waiting
+2026-10-24T00:10:28.0195376Z 633cb7982454: Waiting
+2026-10-24T00:10:28.0196686Z 426e36b5695b: Waiting
+2026-10-24T00:10:28.0197962Z 8a5ff7b733f5: Waiting
+2026-10-24T00:10:28.0199273Z 09018b22bca2: Waiting
+2026-10-24T00:10:28.0200525Z bd451b9fde8d: Waiting
+2026-10-24T00:10:28.0201767Z ee1936713636: Waiting
+2026-10-24T00:10:28.0203043Z 0f6d195ee345: Waiting
+2026-10-24T00:10:28.0204441Z d1b142a2d3ac: Waiting
+2026-10-24T00:10:28.1892379Z e0428ef87eb8: Verifying Checksum
+2026-10-24T00:10:28.1894880Z e0428ef87eb8: Download complete
+2026-10-24T00:10:28.2167450Z c9b382b1f732: Verifying Checksum
+2026-10-24T00:10:28.2171621Z c9b382b1f732: Download complete
+2026-10-24T00:10:28.2649276Z f2be67225471: Verifying Checksum
+2026-10-24T00:10:28.2655254Z f2be67225471: Download complete
+2026-10-24T00:10:28.3949735Z 0f6d195ee345: Verifying Checksum
+2026-10-24T00:10:28.3952014Z 0f6d195ee345: Download complete
+2026-10-24T00:10:28.4264640Z d1b142a2d3ac: Verifying Checksum
+2026-10-24T00:10:28.4267098Z d1b142a2d3ac: Download complete
+2026-10-24T00:10:28.4746952Z 2ab475e318db: Verifying Checksum
+2026-10-24T00:10:28.4748907Z 2ab475e318db: Download complete
+2026-10-24T00:10:28.5641911Z bee16f784947: Verifying Checksum
+2026-10-24T00:10:28.5645958Z bee16f784947: Download complete
+2026-10-24T00:10:28.5965980Z 633cb7982454: Verifying Checksum
+2026-10-24T00:10:28.5969437Z 633cb7982454: Download complete
+2026-10-24T00:10:28.7695224Z 426e36b5695b: Verifying Checksum
+2026-10-24T00:10:28.7697107Z 426e36b5695b: Download complete
+2026-10-24T00:10:28.7867966Z 8a5ff7b733f5: Verifying Checksum
+2026-10-24T00:10:28.7876279Z 8a5ff7b733f5: Download complete
+2026-10-24T00:10:28.9250806Z bf5dc03c5433: Verifying Checksum
+2026-10-24T00:10:28.9256764Z bf5dc03c5433: Download complete
+2026-10-24T00:10:28.9605422Z bd451b9fde8d: Verifying Checksum
+2026-10-24T00:10:28.9607628Z bd451b9fde8d: Download complete
+2026-10-24T00:10:28.9624363Z 09018b22bca2: Verifying Checksum
+2026-10-24T00:10:28.9626379Z 09018b22bca2: Download complete
+2026-10-24T00:10:29.0951333Z ee1936713636: Verifying Checksum
+2026-10-24T00:10:29.0952724Z ee1936713636: Download complete
+2026-10-24T00:10:29.1534127Z f2be67225471: Pull complete
+2026-10-24T00:10:30.3210540Z e0428ef87eb8: Pull complete
+2026-10-24T00:10:30.5569270Z c9b382b1f732: Pull complete
+2026-10-24T00:10:30.6094584Z 0f6d195ee345: Pull complete
+2026-10-24T00:10:30.9775073Z d1b142a2d3ac: Pull complete
+2026-10-24T00:10:31.0598147Z 2ab475e318db: Pull complete
+2026-10-24T00:10:31.0668809Z bee16f784947: Pull complete
+2026-10-24T00:10:31.0780316Z 633cb7982454: Pull complete
+2026-10-24T00:10:34.6906395Z bf5dc03c5433: Pull complete
+2026-10-24T00:10:34.7045335Z 426e36b5695b: Pull complete
+2026-10-24T00:10:34.7147502Z 8a5ff7b733f5: Pull complete
+2026-10-24T00:10:34.7250218Z 09018b22bca2: Pull complete
+2026-10-24T00:10:34.7323424Z bd451b9fde8d: Pull complete
+2026-10-24T00:10:34.7425005Z ee1936713636: Pull complete
+2026-10-24T00:10:34.7464058Z Digest: sha256:baa22e6286bf832cb147b8bb5aa9d8bc999846d69c21d11bf63f58fbeed1fa48
+2026-10-24T00:10:34.7476014Z Status: Downloaded newer image for postgres:15
+2026-10-24T00:10:34.7485949Z docker.io/library/postgres:15
+2026-10-24T00:10:34.7537758Z ##[command]/usr/bin/docker create --name 872ef0e1f78a4bd4aabd50eae394cf6a_postgres15_ecf0cd --label a58456 --network github_network_3c969ee84f694454afd2eaee27b2dd1a --network-alias postgres -p 5432:5432 --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 -e "POSTGRES_PASSWORD=postgres" -e GITHUB_ACTIONS=true -e CI=true postgres:15
+2026-10-24T00:10:34.7770097Z 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:34.7787138Z ##[command]/usr/bin/docker start 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:34.9385680Z 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:34.9403002Z ##[command]/usr/bin/docker ps --all --filter id=5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647 --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2026-10-24T00:10:34.9534188Z 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647 Up Less than a second (health: starting)
+2026-10-24T00:10:34.9550518Z ##[command]/usr/bin/docker port 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:34.9686644Z 5432/tcp -> 0.0.0.0:5432
+2026-10-24T00:10:34.9692300Z 5432/tcp -> [::]:5432
+2026-10-24T00:10:34.9724694Z ##[endgroup]
+2026-10-24T00:10:34.9732668Z ##[group]Waiting for all services to be ready
+2026-10-24T00:10:34.9745955Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:34.9864840Z starting
+2026-10-24T00:10:34.9884299Z postgres service is starting, waiting 2 seconds before checking again.
+2026-10-24T00:10:36.9892102Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:37.0016373Z starting
+2026-10-24T00:10:37.0024497Z postgres service is starting, waiting 3 seconds before checking again.
+2026-10-24T00:10:40.8021424Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:40.8146827Z starting
+2026-10-24T00:10:40.8154611Z postgres service is starting, waiting 7 seconds before checking again.
+2026-10-24T00:10:47.9675628Z ##[command]/usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:47.9802333Z healthy
+2026-10-24T00:10:47.9814267Z postgres service is healthy.
+2026-10-24T00:10:47.9815094Z ##[endgroup]
+2026-10-24T00:10:48.0091253Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-10-24T00:10:48.0091839Z with:
+2026-10-24T00:10:48.0092156Z   repository: szTheory/sigra
+2026-10-24T00:10:48.0095057Z   token: ***
+2026-10-24T00:10:48.0095378Z   ssh-strict: true
+2026-10-24T00:10:48.0095669Z   ssh-user: git
+2026-10-24T00:10:48.0095977Z   persist-credentials: true
+2026-10-24T00:10:48.0096294Z   clean: true
+2026-10-24T00:10:48.0096634Z   sparse-checkout-cone-mode: true
+2026-10-24T00:10:48.0097001Z   fetch-depth: 1
+2026-10-24T00:10:48.0097316Z   fetch-tags: false
+2026-10-24T00:10:48.0097608Z   show-progress: true
+2026-10-24T00:10:48.0097897Z   lfs: false
+2026-10-24T00:10:48.0098242Z   submodules: false
+2026-10-24T00:10:48.0098557Z   set-safe-directory: true
+2026-10-24T00:10:48.0098868Z   allow-unsafe-pr-checkout: false
+2026-10-24T00:10:48.0099385Z ##[endgroup]
+2026-10-24T00:10:48.1013835Z Syncing repository: szTheory/sigra
+2026-10-24T00:10:48.1015316Z ##[group]Getting Git version info
+2026-10-24T00:10:48.1015914Z Working directory is '/home/runner/work/sigra/sigra'
+2026-10-24T00:10:48.1016610Z [command]/usr/bin/git version
+2026-10-24T00:10:48.1049208Z git version 2.55.0
+2026-10-24T00:10:48.1065164Z ##[endgroup]
+2026-10-24T00:10:48.1075366Z Temporarily overriding HOME='/home/runner/work/_temp/9bfdb589-67fc-4e02-ae2c-51ef70c8ff50' before making global git config changes
+2026-10-24T00:10:48.1076731Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-24T00:10:48.1080666Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sigra/sigra
+2026-10-24T00:10:48.1117701Z Deleting the contents of '/home/runner/work/sigra/sigra'
+2026-10-24T00:10:48.1120456Z ##[group]Determining repository object format
+2026-10-24T00:10:48.1121489Z ##[endgroup]
+2026-10-24T00:10:48.1122061Z ##[group]Initializing the repository
+2026-10-24T00:10:48.1125319Z [command]/usr/bin/git init /home/runner/work/sigra/sigra
+2026-10-24T00:10:48.1195207Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-24T00:10:48.1196113Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-24T00:10:48.1196932Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-24T00:10:48.1197637Z hint: call:
+2026-10-24T00:10:48.1198013Z hint:
+2026-10-24T00:10:48.1198479Z hint: 	git config --global init.defaultBranch <name>
+2026-10-24T00:10:48.1199024Z hint:
+2026-10-24T00:10:48.1199613Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-24T00:10:48.1200277Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-24T00:10:48.1200703Z hint:
+2026-10-24T00:10:48.1200983Z hint: 	git branch -m <name>
+2026-10-24T00:10:48.1201315Z hint:
+2026-10-24T00:10:48.1201728Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-24T00:10:48.1202432Z Initialized empty Git repository in /home/runner/work/sigra/sigra/.git/
+2026-10-24T00:10:48.1203959Z [command]/usr/bin/git remote add origin [URL REDACTED]
+2026-10-24T00:10:48.1273510Z ##[endgroup]
+2026-10-24T00:10:48.1274129Z ##[group]Disabling automatic garbage collection
+2026-10-24T00:10:48.1276687Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-24T00:10:48.1302427Z ##[endgroup]
+2026-10-24T00:10:48.1303127Z ##[group]Setting up auth
+2026-10-24T00:10:48.1303801Z Removing SSH command configuration
+2026-10-24T00:10:48.1307205Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-24T00:10:48.1332037Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-24T00:10:48.1590233Z Removing HTTP extra header
+2026-10-24T00:10:48.1594868Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-24T00:10:48.1621010Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.[URL REDACTED] || :"
+2026-10-24T00:10:48.1794645Z Removing includeIf entries pointing to credentials config files
+2026-10-24T00:10:48.1799419Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-24T00:10:48.1826117Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-24T00:10:48.1996344Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-681f4775-e3ca-4dfd-9daf-733059b4b82a.config http.[URL REDACTED] AUTHORIZATION: basic ***
+2026-10-24T00:10:48.2027212Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/sigra/sigra/.git.path /home/runner/work/_temp/git-credentials-681f4775-e3ca-4dfd-9daf-733059b4b82a.config
+2026-10-24T00:10:48.2050910Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-681f4775-e3ca-4dfd-9daf-733059b4b82a.config
+2026-10-24T00:10:48.2077687Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-681f4775-e3ca-4dfd-9daf-733059b4b82a.config
+2026-10-24T00:10:48.2101659Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-681f4775-e3ca-4dfd-9daf-733059b4b82a.config
+2026-10-24T00:10:48.2124408Z ##[endgroup]
+2026-10-24T00:10:48.2125247Z ##[group]Fetching the repository
+2026-10-24T00:10:48.2130379Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +fcf451d23bebbf02024ea32ba41445d5b8a71952:refs/remotes/pull/348/merge
+2026-10-24T00:10:50.1222385Z From [URL REDACTED]
+2026-10-24T00:10:50.1223325Z  * [new ref]         fcf451d23bebbf02024ea32ba41445d5b8a71952 -> pull/348/merge
+2026-10-24T00:10:50.1228744Z ##[endgroup]
+2026-10-24T00:10:50.1229577Z ##[group]Determining the checkout info
+2026-10-24T00:10:50.1230277Z ##[endgroup]
+2026-10-24T00:10:50.1234750Z [command]/usr/bin/git sparse-checkout disable
+2026-10-24T00:10:50.1277422Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-24T00:10:50.1301070Z ##[group]Checking out the ref
+2026-10-24T00:10:50.1304341Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/348/merge
+2026-10-24T00:10:50.3709558Z Note: switching to 'refs/remotes/pull/348/merge'.
+2026-10-24T00:10:50.3710393Z 
+2026-10-24T00:10:50.3710926Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-24T00:10:50.3712052Z changes and commit them, and you can discard any commits you make in this
+2026-10-24T00:10:50.3712962Z state without impacting any branches by switching back to a branch.
+2026-10-24T00:10:50.3713896Z 
+2026-10-24T00:10:50.3715022Z If you want to create a new branch to retain commits you create, you may
+2026-10-24T00:10:50.3715705Z do so (now or later) by using -c with the switch command. Example:
+2026-10-24T00:10:50.3716072Z 
+2026-10-24T00:10:50.3716246Z   git switch -c <new-branch-name>
+2026-10-24T00:10:50.3716540Z 
+2026-10-24T00:10:50.3716705Z Or undo this operation with:
+2026-10-24T00:10:50.3716948Z 
+2026-10-24T00:10:50.3717124Z   git switch -
+2026-10-24T00:10:50.3717461Z 
+2026-10-24T00:10:50.3717817Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-24T00:10:50.3718284Z 
+2026-10-24T00:10:50.3718782Z HEAD is now at fcf451d Merge 2b0e51d37184ffb95698dea586eebf3c42a33d85 into 09df342a82e03c3d5d40173c912b70e827f7eadc
+2026-10-24T00:10:50.3720954Z ##[endgroup]
+2026-10-24T00:10:50.3758276Z [command]/usr/bin/git log -1 --format=%H
+2026-10-24T00:10:50.3779757Z fcf451d23bebbf02024ea32ba41445d5b8a71952
+2026-10-24T00:10:50.3952810Z ##[group]Run mkdir -p test-results
+2026-10-24T00:10:50.3953677Z [36;1mmkdir -p test-results[0m
+2026-10-24T00:10:50.3954242Z [36;1mnode scripts/ci/ci-runner-image.mjs capture --output test-results/ci-runner-image.json[0m
+2026-10-24T00:10:50.4077143Z shell: /usr/bin/bash -e {0}
+2026-10-24T00:10:50.4077488Z ##[endgroup]
+2026-10-24T00:10:50.5621310Z {"status":"image_identity_conflict","diagnostics":["runner_file_and_environment_disagree"]}
+2026-10-24T00:10:50.5668686Z ##[error]Process completed with exit code 1.
+2026-10-24T00:10:50.5796204Z ##[group]Run {
+2026-10-24T00:10:50.5796633Z [36;1m{[0m
+2026-10-24T00:10:50.5796928Z [36;1m  echo "## install_smoke cache"[0m
+2026-10-24T00:10:50.5797334Z [36;1m  echo "- deps cache (exact hit): "[0m
+2026-10-24T00:10:50.5797717Z [36;1m} >> "$GITHUB_STEP_SUMMARY"[0m
+2026-10-24T00:10:50.5838092Z shell: /usr/bin/bash -e {0}
+2026-10-24T00:10:50.5838439Z ##[endgroup]
+2026-10-24T00:10:50.5940374Z ##[group]Run node <<'NODE'
+2026-10-24T00:10:50.5940775Z [36;1mnode <<'NODE'[0m
+2026-10-24T00:10:50.5941215Z [36;1mconst fs = require('node:fs'); const { spawnSync } = require('node:child_process');[0m
+2026-10-24T00:10:50.5942136Z [36;1mconst readTool = (name) => { try { return fs.readFileSync('.tool-versions','utf8').split(/\n/).find((line)=>line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1] ?? null; } catch { return null; } };[0m
+2026-10-24T00:10:50.5943427Z [36;1mconst result = spawnSync('elixir',['--version'],{encoding:'utf8'}); const lines=`${result.stdout ?? ''}\n${result.stderr ?? ''}`.split(/\r?\n/).map((line)=>line.trim());[0m
+2026-10-24T00:10:50.5944945Z [36;1mconst pick=(pattern)=>result.status===0 ? lines.find((line)=>pattern.test(line)) ?? null : null; const reason=(value)=>value?null:(result.error?.code==='ENOENT'?'binary_missing':result.status===0?'version_line_unrecognized':'version_command_failed'); const cache=(value)=>value==='true'?'hit':value==='false'?'miss':null;[0m
+2026-10-24T00:10:50.5948598Z [36;1mconst metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{library_deps:cache(process.env.INSTALL_DEPS_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null},observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null},version_unavailable:{erlang:reason(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reason(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'}};[0m
+2026-10-24T00:10:50.5951626Z [36;1mfs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);[0m
+2026-10-24T00:10:50.5952303Z [36;1mNODE[0m
+2026-10-24T00:10:50.5987743Z shell: /usr/bin/bash -e {0}
+2026-10-24T00:10:50.5988114Z env:
+2026-10-24T00:10:50.5988441Z   JOB_NAME: Install smoke (fresh phx.new + sigra.install)
+2026-10-24T00:10:50.5988872Z   DEPS_CACHE_HIT: 
+2026-10-24T00:10:50.5989167Z   EXAMPLE_DEPS_CACHE_HIT: 
+2026-10-24T00:10:50.5989475Z   INSTALL_DEPS_CACHE_HIT: 
+2026-10-24T00:10:50.5989811Z   HTTP_DEPS_CACHE_HIT: 
+2026-10-24T00:10:50.5990112Z   BROWSER_DEPS_CACHE_HIT: 
+2026-10-24T00:10:50.5990439Z   BROWSER_CACHE_HIT: 
+2026-10-24T00:10:50.5990779Z ##[endgroup]
+2026-10-24T00:10:50.6369028Z ##[group]Run node --input-type=module <<'NODEIMAGE'
+2026-10-24T00:10:50.6369521Z [36;1mnode --input-type=module <<'NODEIMAGE'[0m
+2026-10-24T00:10:50.6369880Z [36;1mimport fs from 'node:fs';[0m
+2026-10-24T00:10:50.6370329Z [36;1mimport { verifyFromSystem } from './scripts/ci/ci-runner-image.mjs';[0m
+2026-10-24T00:10:50.6370953Z [36;1mconst proof=JSON.parse(fs.readFileSync('test-results/ci-runner-image.json','utf8'));[0m
+2026-10-24T00:10:50.6371453Z [36;1mconst verification=verifyFromSystem(proof);[0m
+2026-10-24T00:10:50.6371920Z [36;1mconst path='test-results/ci-measurement-metadata.json';[0m
+2026-10-24T00:10:50.6372387Z [36;1mconst metadata=JSON.parse(fs.readFileSync(path,'utf8'));[0m
+2026-10-24T00:10:50.6373047Z [36;1mmetadata.runner_image={image_os:null,image_version:null,...verification.runner_image,source_proof:proof,verification};[0m
+2026-10-24T00:10:50.6373984Z [36;1mfs.writeFileSync(path,JSON.stringify(metadata,null,2)+'\n');[0m
+2026-10-24T00:10:50.6374591Z [36;1mif(verification.status!=='verified')process.exitCode=1;[0m
+2026-10-24T00:10:50.6374982Z [36;1mNODEIMAGE[0m
+2026-10-24T00:10:50.6414178Z shell: /usr/bin/bash -e {0}
+2026-10-24T00:10:50.6414529Z ##[endgroup]
+2026-10-24T00:10:50.6791850Z ##[error]Process completed with exit code 1.
+2026-10-24T00:10:50.6859097Z ##[group]Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+2026-10-24T00:10:50.6859565Z with:
+2026-10-24T00:10:50.6859924Z   name: install-smoke-measurement-metadata-40043060412-1
+2026-10-24T00:10:50.6860369Z   path: test-results/ci-measurement-metadata.json
+2026-10-24T00:10:50.6860766Z   retention-days: 7
+2026-10-24T00:10:50.6861122Z   if-no-files-found: warn
+2026-10-24T00:10:50.6861446Z   compression-level: 6
+2026-10-24T00:10:50.6861750Z   overwrite: false
+2026-10-24T00:10:50.6862035Z   include-hidden-files: false
+2026-10-24T00:10:50.6862382Z   archive: true
+2026-10-24T00:10:50.6862690Z ##[endgroup]
+2026-10-24T00:10:50.8260592Z With the provided path, there will be 1 file uploaded
+2026-10-24T00:10:50.8266394Z Artifact name is valid!
+2026-10-24T00:10:50.8267049Z Root directory input is valid!
+2026-10-24T00:10:51.1933243Z Uploading artifact: install-smoke-measurement-metadata-40043060412-1.zip
+2026-10-24T00:10:51.1965451Z Beginning upload of artifact content to blob storage
+2026-10-24T00:10:51.4525660Z Uploaded bytes 1771
+2026-10-24T00:10:51.5143035Z Finished uploading artifact content to blob storage!
+2026-10-24T00:10:51.5144197Z SHA256 digest of uploaded artifact is 61b789dd1895e3538fe1e7c46abd41a30736d441cf677709f62f7d0345a2d597
+2026-10-24T00:10:51.5145218Z Finalizing artifact upload
+2026-10-24T00:10:52.0961218Z Artifact install-smoke-measurement-metadata-40043060412-1 successfully finalized. Artifact ID 12540152817
+2026-10-24T00:10:52.0962153Z Artifact install-smoke-measurement-metadata-40043060412-1 has been successfully uploaded! Final size is 1771 bytes. Artifact ID is 12540152817
+2026-10-24T00:10:52.0964192Z Artifact download URL: [URL REDACTED]
+2026-10-24T00:10:52.1124614Z Post job cleanup.
+2026-10-24T00:10:52.1889183Z [command]/usr/bin/git version
+2026-10-24T00:10:52.1921099Z git version 2.55.0
+2026-10-24T00:10:52.1951949Z Temporarily overriding HOME='/home/runner/work/_temp/1d676fd9-f85e-41b4-a8b6-31f17fd8b258' before making global git config changes
+2026-10-24T00:10:52.1952810Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-24T00:10:52.1956802Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sigra/sigra
+2026-10-24T00:10:52.1980991Z Removing SSH command configuration
+2026-10-24T00:10:52.1986544Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-24T00:10:52.2014396Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-24T00:10:52.2189971Z Removing HTTP extra header
+2026-10-24T00:10:52.2195251Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-24T00:10:52.2223030Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.[URL REDACTED] || :"
+2026-10-24T00:10:52.2405899Z Removing includeIf entries pointing to credentials config files
+2026-10-24T00:10:52.2410656Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-24T00:10:52.2433729Z includeif.gitdir:/home/runner/work/sigra/sigra/.git.path
+2026-10-24T00:10:52.2434575Z includeif.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path
+2026-10-24T00:10:52.2435240Z includeif.gitdir:/github/workspace/.git.path
+2026-10-24T00:10:52.2435827Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-24T00:10:52.2442838Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/sigra/sigra/.git.path
+2026-10-24T00:10:52.2462088Z /home/runner/work/_temp/git-credentials-681f4775-e3ca-4dfd-9daf-733059b4b82a.config
+2026-10-24T00:10:52.2472146Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/sigra/sigra/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-681f4775\-e3ca\-4dfd\-9daf\-733059b4b82a\.config
+2026-10-24T00:10:52.2514354Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path
+2026-10-24T00:10:52.2535443Z /home/runner/work/_temp/git-credentials-681f4775-e3ca-4dfd-9daf-733059b4b82a.config
+2026-10-24T00:10:52.2538160Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-681f4775\-e3ca\-4dfd\-9daf\-733059b4b82a\.config
+2026-10-24T00:10:52.2566622Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-24T00:10:52.2583813Z /github/runner_temp/git-credentials-681f4775-e3ca-4dfd-9daf-733059b4b82a.config
+2026-10-24T00:10:52.2590952Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-681f4775\-e3ca\-4dfd\-9daf\-733059b4b82a\.config
+2026-10-24T00:10:52.2616958Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-24T00:10:52.2633696Z /github/runner_temp/git-credentials-681f4775-e3ca-4dfd-9daf-733059b4b82a.config
+2026-10-24T00:10:52.2640577Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-681f4775\-e3ca\-4dfd\-9daf\-733059b4b82a\.config
+2026-10-24T00:10:52.2668761Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-24T00:10:52.2838123Z Removing credentials config '/home/runner/work/_temp/git-credentials-681f4775-e3ca-4dfd-9daf-733059b4b82a.config'
+2026-10-24T00:10:52.2928668Z Print service container logs: 872ef0e1f78a4bd4aabd50eae394cf6a_postgres15_ecf0cd
+2026-10-24T00:10:52.2932566Z ##[command]/usr/bin/docker logs --details 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:52.3073906Z  The files belonging to this database system will be owned by user "postgres".
+2026-10-24T00:10:52.3075754Z  initdb: warning: enabling "trust" authentication for local connections
+2026-10-24T00:10:52.3076608Z  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+2026-10-24T00:10:52.3077633Z  2026-10-24 00:10:35.968 UTC [1] LOG:  starting PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-10-24T00:10:52.3078419Z  2026-10-24 00:10:35.968 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-10-24T00:10:52.3079025Z  2026-10-24 00:10:35.968 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2026-10-24T00:10:52.3079685Z  2026-10-24 00:10:35.969 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-10-24T00:10:52.3080276Z  2026-10-24 00:10:35.970 UTC [62] LOG:  database system was shut down at 2026-10-24 00:10:35 UTC
+2026-10-24T00:10:52.3080904Z  2026-10-24 00:10:35.973 UTC [1] LOG:  database system is ready to accept connections
+2026-10-24T00:10:52.3081762Z  2026-10-24 00:10:44.990 UTC [73] FATAL:  role "root" does not exist
+2026-10-24T00:10:52.3082350Z  This user must also own the server process.
+2026-10-24T00:10:52.3082802Z  
+2026-10-24T00:10:52.3083405Z  The database cluster will be initialized with locale "en_US.utf8".
+2026-10-24T00:10:52.3083922Z  The default database encoding has accordingly been set to "UTF8".
+2026-10-24T00:10:52.3084441Z  The default text search configuration will be set to "english".
+2026-10-24T00:10:52.3084820Z  
+2026-10-24T00:10:52.3085088Z  Data page checksums are disabled.
+2026-10-24T00:10:52.3085511Z  
+2026-10-24T00:10:52.3085876Z  fixing permissions on existing directory /var/lib/postgresql/data ... ok
+2026-10-24T00:10:52.3086327Z  creating subdirectories ... ok
+2026-10-24T00:10:52.3086739Z  selecting dynamic shared memory implementation ... posix
+2026-10-24T00:10:52.3087141Z  selecting default max_connections ... 100
+2026-10-24T00:10:52.3087545Z  selecting default shared_buffers ... 128MB
+2026-10-24T00:10:52.3087930Z  selecting default time zone ... Etc/UTC
+2026-10-24T00:10:52.3088323Z  creating configuration files ... ok
+2026-10-24T00:10:52.3088665Z  running bootstrap script ... ok
+2026-10-24T00:10:52.3089026Z  performing post-bootstrap initialization ... ok
+2026-10-24T00:10:52.3089458Z  syncing data to disk ... ok
+2026-10-24T00:10:52.3089744Z  
+2026-10-24T00:10:52.3090023Z  
+2026-10-24T00:10:52.3090365Z  Success. You can now start the database server using:
+2026-10-24T00:10:52.3090740Z  
+2026-10-24T00:10:52.3091077Z      pg_ctl -D /var/lib/postgresql/data -l logfile start
+2026-10-24T00:10:52.3091639Z  
+2026-10-24T00:10:52.3092282Z  waiting for server to start....2026-10-24 00:10:35.736 UTC [48] LOG:  starting PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-10-24T00:10:52.3093262Z  2026-10-24 00:10:35.737 UTC [48] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-10-24T00:10:52.3094026Z  2026-10-24 00:10:35.739 UTC [51] LOG:  database system was shut down at 2026-10-24 00:10:35 UTC
+2026-10-24T00:10:52.3094563Z  2026-10-24 00:10:35.742 UTC [48] LOG:  database system is ready to accept connections
+2026-10-24T00:10:52.3094980Z   done
+2026-10-24T00:10:52.3095298Z  server started
+2026-10-24T00:10:52.3095563Z  
+2026-10-24T00:10:52.3095995Z  /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+2026-10-24T00:10:52.3096467Z  
+2026-10-24T00:10:52.3096882Z  waiting for server to shut down...2026-10-24 00:10:35.852 UTC [48] LOG:  received fast shutdown request
+2026-10-24T00:10:52.3097554Z  .2026-10-24 00:10:35.852 UTC [48] LOG:  aborting any active transactions
+2026-10-24T00:10:52.3098197Z  2026-10-24 00:10:35.854 UTC [48] LOG:  background worker "logical replication launcher" (PID 54) exited with exit code 1
+2026-10-24T00:10:52.3098757Z  2026-10-24 00:10:35.854 UTC [49] LOG:  shutting down
+2026-10-24T00:10:52.3099198Z  2026-10-24 00:10:35.855 UTC [49] LOG:  checkpoint starting: shutdown immediate
+2026-10-24T00:10:52.3100139Z  2026-10-24 00:10:35.857 UTC [49] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.003 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB
+2026-10-24T00:10:52.3101000Z  2026-10-24 00:10:35.859 UTC [48] LOG:  database system is shut down
+2026-10-24T00:10:52.3101402Z   done
+2026-10-24T00:10:52.3101714Z  server stopped
+2026-10-24T00:10:52.3101979Z  
+2026-10-24T00:10:52.3102313Z  PostgreSQL init process complete; ready for start up.
+2026-10-24T00:10:52.3102726Z  
+2026-10-24T00:10:52.3107948Z Stop and remove container: 872ef0e1f78a4bd4aabd50eae394cf6a_postgres15_ecf0cd
+2026-10-24T00:10:52.3111969Z ##[command]/usr/bin/docker rm --force 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:52.7658266Z 5e0cb6226b837608771b3fcf8c3362ecf7edb7865887b38ae046c382f236b647
+2026-10-24T00:10:52.7679015Z Remove container network: github_network_3c969ee84f694454afd2eaee27b2dd1a
+2026-10-24T00:10:52.7682725Z ##[command]/usr/bin/docker network rm github_network_3c969ee84f694454afd2eaee27b2dd1a
+2026-10-24T00:10:52.8575243Z github_network_3c969ee84f694454afd2eaee27b2dd1a
+2026-10-24T00:10:52.8646984Z Cleaning up orphan processes

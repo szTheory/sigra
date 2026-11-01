@@ -1,0 +1,13 @@
+Compiling 1 file (.ex)
+Generated registration_reloader_probe app
+** (MatchError) no match of right hand side value:
+
+    {:undefined,
+     %{arity: 1, function: :to_query, module: Ecto.Queryable.Atom, reason: nil}}
+
+    .planning/debug/phase253-registration-timeout/reloader_probe.exs:104: anonymous fn/2 in :elixir_compiler_0.__FILE__/1
+    (elixir 1.19.5) lib/enum.ex:4562: Enum.reduce/3
+    .planning/debug/phase253-registration-timeout/reloader_probe.exs:104: anonymous fn/4 in :elixir_compiler_0.__FILE__/1
+    (mix 1.19.5) lib/mix/project.ex:557: Mix.Project.in_project/4
+    (elixir 1.19.5) lib/file.ex:2013: File.cd!/2
+    .planning/debug/phase253-registration-timeout/reloader_probe.exs:101: (file)

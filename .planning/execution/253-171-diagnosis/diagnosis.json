@@ -1,0 +1,84 @@
+{
+  "schema": "sigra.phase253.pr-failure-diagnosis/v1",
+  "run_id": 39651372938,
+  "pr": 338,
+  "authority": "User AGENTS.md automation-first verification: inspect run logs and diagnose deterministic failures. Separate read-only diagnosis after Plan171 halt; its ledger and budgets remain unchanged.",
+  "connector_calls": {
+    "run_jobs": 1,
+    "failed_job_logs": 4,
+    "total": 5,
+    "underlying_http_request_count": "not exposed by connector; not claimed as measured Plan171 requests"
+  },
+  "ci_dispatches": 0,
+  "ci_reruns": 0,
+  "acceptance179_reruns": 0,
+  "plan171_requests_unchanged": 19,
+  "findings": [
+    {
+      "component": "candidate publication",
+      "cause": "Publisher takes non-planning source files but planning files only from parent main, dropping archived evidence and the saved Phase252 source bundle required by candidate tests.",
+      "proof": [
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+          "local_exists": true,
+          "candidate_exists": false
+        },
+        {
+          "path": ".planning/phases/252-measure-current-ci/252-BASELINE.json",
+          "local_exists": true,
+          "candidate_exists": false
+        },
+        {
+          "path": ".planning/milestones/v1.48-phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SAFETY-CLOSEOUT.md",
+          "local_exists": true,
+          "candidate_exists": false
+        },
+        {
+          "path": ".planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md",
+          "local_exists": true,
+          "candidate_exists": false
+        }
+      ],
+      "repair": "Publish the explicit required immutable dependency set (with original hashes), or make historical tests carry self-contained immutable fixtures. Do not skip the checks or invent evidence."
+    },
+    {
+      "component": "browser inventory contract",
+      "cause": "Test expects each admin spec exactly once, but workflow has the same specs in two mutually exclusive runtime branches.",
+      "actual_spec_counts": {
+        "admin-theme.spec.ts": 2,
+        "admin-coherence-sweep.spec.ts": 2
+      },
+      "repair": "Assert one occurrence per executable branch and both branch predicates; preserve both branch commands and retry-zero semantics."
+    },
+    {
+      "component": "generated docs",
+      "cause": "Generated doc/llms.txt differs from indexed candidate version.",
+      "repair": "Generate with the pinned toolchain for the repaired source and commit complete generated output; run check-docs-index."
+    },
+    {
+      "component": "admin audit URL contract",
+      "cause": "At admin-audit.spec.ts:129 exact initial URL omits canonical default sort/page query parameters added after Apply filters.",
+      "expected": "/admin/audit?action_prefix=admin.impersonation",
+      "actual": "/admin/audit?action_prefix=admin.impersonation&order_by=inserted_at&order_direction=desc&page_size=25",
+      "repair": "Check the canonical filter/sort/page semantics after first submit, then prove subsequent identical submits preserve that canonical URL and rows. No extra sleep or retry."
+    },
+    {
+      "component": "receipt redaction",
+      "cause": "Raw serialized-JSON regex corrupts escaped quotes in compare patch strings.",
+      "reproduction": "../253-171/reproduce.py",
+      "review_candidate": "../253-171/json-candidate.py",
+      "candidate_tests": 4,
+      "candidate_status": "offline prototype only; frozen product file unchanged",
+      "repair": "Parse JSON before redacting string values and credential fields, then serialize it; retain unchanged header validation and raw observation hash. Add full transport and PR regression coverage."
+    }
+  ],
+  "artifacts": {
+    ".planning/execution/253-171-diagnosis/job-119400308956-failure-excerpt.log": "8497f60d84cbe28c371b44c99f0519deadd2c0f454b2244d90f28b0fef6a02d5",
+    ".planning/execution/253-171-diagnosis/job-119400379715-failure-excerpt.log": "82feb0824ed1e628b70741c719b9d7c737a77139427fc3dc7efa111389946351",
+    ".planning/execution/253-171-diagnosis/job-119400265700-failure-excerpt.log": "a11b3416f37e67a454445c34fdfc8183f7fb0956a9402f2442c5b1f0018542a5",
+    ".planning/execution/253-171-diagnosis/jobs.json": "0afa545ec52dadf086eee44507468d2881bd68afef78bbca3d1fdfdc2ee22076",
+    ".planning/execution/253-171-diagnosis/job-119400379765-failure-excerpt.log": "7495b9acf37de778cda55ecada65f8fdc8932cc403ade66cad98f3db2a1af89f"
+  },
+  "phase_verification_status": "not_started",
+  "next_action": "One scoped offline repair of these known defects, preserving the failed window and all historical bytes; no numbered plan, acceptance replay or CI launch."
+}

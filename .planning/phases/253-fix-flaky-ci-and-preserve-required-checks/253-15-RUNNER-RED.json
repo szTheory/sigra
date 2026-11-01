@@ -1,0 +1,10 @@
+{
+  "command": "node --test --test-reporter=tap --test-name-pattern='revision attempt directory creates' scripts/ci/ci-registration-recovery.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: revision attempt directory creates the missing slot parent before any native setup\nnot ok 1 - revision attempt directory creates the missing slot parent before any native setup\n  ---\n  duration_ms: 1.131875\n  type: 'test'\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-registration-recovery.test.mjs:88:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    + actual - expected\n    \n    + 'undefined'\n    - 'function'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 'function'\n  actual: 'undefined'\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-registration-recovery.test.mjs:89:10)\n    Test.runInAsyncScope (node:async_hooks:203:9)\n    Test.run (node:internal/test_runner/test:1402:25)\n    Test.start (node:internal/test_runner/test:1262:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 52.825541\n",
+  "targetTest": "revision attempt directory creates the missing slot parent before any native setup",
+  "targetFile": "scripts/ci/ci-registration-recovery.test.mjs",
+  "expected": "A previously absent output parent is created before a native setup attempt.",
+  "actual": "The expected helper was absent, confirming the runner could fail before creating its per-slot directory.",
+  "semanticAssessment": "The target failed on a direct assertion, not on test loading or a fixture failure."
+}

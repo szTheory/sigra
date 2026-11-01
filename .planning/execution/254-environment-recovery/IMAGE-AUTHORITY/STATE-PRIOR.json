@@ -1,0 +1,31 @@
+{
+  "ref": "refs/evidence/phase254-before-native-authority-running-state",
+  "commit": "f656174dbaca536f421a59e5f28b60b544418e48",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "773824dce89dc25f7bfd6abfbc99279b3e05d653d070e39d4c9b6ada94aba133",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "5d4b81a8bb78cef2f9bac3858cd540e36ade6da08c37a0a078433a5b6dba0731",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "125854c50daf40a4fd95e4cfbb06a03b3e429ff591ed1b18509d17ba333b2693",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/254-CONTINUATION.json",
+      "status": "clean",
+      "sha256": "8b2afc26eb4dac47aa71f20bf3e90d4b1b83f189b64c7865d2c6fc128d71e95d",
+      "readback_verified": true
+    }
+  ],
+  "readback_verified": true
+}

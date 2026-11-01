@@ -1,0 +1,225 @@
+{
+  "context_drift": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "verify",
+      "context-drift",
+      "253"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"block\": false,\n  \"skipped\": false,\n  \"stale_artifacts\": [],\n  \"action\": \"warn\",\n  \"message\": \"\"\n}",
+    "stderr": ""
+  },
+  "codebase_drift": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "verify",
+      "codebase-drift"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"block\": false,\n  \"skipped\": true,\n  \"reason\": \"no-structure-md\",\n  \"action_required\": false,\n  \"directive\": \"none\",\n  \"elements\": []\n}",
+    "stderr": ""
+  },
+  "ui": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "check",
+      "ui-plan-gate",
+      "253",
+      "--raw"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"frontend\": false,\n  \"hasFrontendEvidence\": false,\n  \"hasUiSpec\": false,\n  \"block\": false,\n  \"uiSpecPath\": null,\n  \"matchedToken\": null,\n  \"matchedLine\": null\n}",
+    "stderr": ""
+  },
+  "mvp": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "phase.mvp-mode",
+      "253",
+      "--pick",
+      "active"
+    ],
+    "exit_code": 0,
+    "stdout": "false",
+    "stderr": "gsd-tools: warning: unknown config key(s) in .planning/config.json: sigra_defaults \u2014 these will be ignored\ngsd-tools: warning: /Users/jon/.gsd/defaults.json sets model_profile, resolve_model_ids, runtime, model_profile_overrides but a project config takes precedence here \u2014 those global keys are ignored for model resolution. (#3532)\n"
+  },
+  "specless": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "config-get",
+      "workflow.specless_probe_fallback",
+      "--raw"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: Key not found: workflow.specless_probe_fallback\n"
+  },
+  "stall_enabled": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "config-get",
+      "planner.stall_detection_enabled",
+      "--raw"
+    ],
+    "exit_code": 0,
+    "stdout": "true",
+    "stderr": ""
+  },
+  "stall_interval": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "config-get",
+      "planner.stall_detect_interval_minutes",
+      "--raw"
+    ],
+    "exit_code": 0,
+    "stdout": "5",
+    "stderr": ""
+  },
+  "stall_threshold": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "config-get",
+      "planner.stall_threshold_minutes",
+      "--raw"
+    ],
+    "exit_code": 0,
+    "stdout": "10",
+    "stderr": ""
+  },
+  "context_window": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "config-get",
+      "context_window",
+      "--raw"
+    ],
+    "exit_code": 0,
+    "stdout": "200000",
+    "stderr": ""
+  },
+  "chunked": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "config-get",
+      "workflow.plan_chunked",
+      "--raw"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: Key not found: workflow.plan_chunked\n"
+  },
+  "bounce": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "config-get",
+      "workflow.plan_bounce",
+      "--raw"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: Key not found: workflow.plan_bounce\n"
+  },
+  "planner": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "resolve-model",
+      "gsd-planner"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"model\": \"gpt-6.1-sol\",\n  \"profile\": \"adaptive\",\n  \"effort\": \"xhigh\",\n  \"tier\": \"opus\"\n}",
+    "stderr": "gsd-tools: warning: unknown config key(s) in .planning/config.json: sigra_defaults \u2014 these will be ignored\ngsd-tools: warning: /Users/jon/.gsd/defaults.json sets model_profile, resolve_model_ids, runtime, model_profile_overrides but a project config takes precedence here \u2014 those global keys are ignored for model resolution. (#3532)\n"
+  },
+  "checker": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "resolve-model",
+      "gsd-plan-checker"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"model\": \"gpt-6-luna\",\n  \"profile\": \"adaptive\",\n  \"effort\": \"low\",\n  \"tier\": \"haiku\"\n}",
+    "stderr": "gsd-tools: warning: unknown config key(s) in .planning/config.json: sigra_defaults \u2014 these will be ignored\ngsd-tools: warning: /Users/jon/.gsd/defaults.json sets model_profile, resolve_model_ids, runtime, model_profile_overrides but a project config takes precedence here \u2014 those global keys are ignored for model resolution. (#3532)\n"
+  },
+  "edge_probe": {
+    "exit_code": 0,
+    "result": {
+      "items": [
+        {
+          "requirement_id": "CIREL-01",
+          "category": "unclassified",
+          "status": "unresolved",
+          "verification": null,
+          "resolution": null,
+          "reason": null,
+          "probe": "unclassified \u2014 review manually"
+        },
+        {
+          "requirement_id": "CIREL-02",
+          "category": "empty",
+          "status": "unresolved",
+          "verification": null,
+          "resolution": null,
+          "reason": null,
+          "probe": "What is the result for empty, single-element, or null input?"
+        },
+        {
+          "requirement_id": "CIREL-02",
+          "category": "encoding",
+          "status": "unresolved",
+          "verification": null,
+          "resolution": null,
+          "reason": null,
+          "probe": "Whose definition of length/equality applies \u2014 bytes, code points, grapheme clusters, or normalized form?"
+        }
+      ],
+      "coverage": {
+        "applicable": 3,
+        "resolved": 0,
+        "unresolved": 3,
+        "unclassified": 1,
+        "byVerification": {
+          "explicit": 0,
+          "backstop": 0
+        }
+      }
+    },
+    "spec_sections_absent": true
+  },
+  "research_reuse": {
+    "existing": true,
+    "refresh_required": false,
+    "context_drift_stale": false
+  },
+  "validation_reuse": {
+    "paths": [
+      "253-REPLAN-VALIDATION.md",
+      "253-RECOVERY-VALIDATION.md",
+      "253-VALIDATION.md"
+    ],
+    "existing_historical_artifacts_not_rewritten": true
+  }
+}

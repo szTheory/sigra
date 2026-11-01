@@ -1,0 +1,67 @@
+TAP version 13
+# Subtest: removes only the exact allowlisted local branch and retains its snapshotted object
+ok 1 - removes only the exact allowlisted local branch and retains its snapshotted object
+  ---
+  duration_ms: 14211.326542
+  ...
+# D-01 readiness confirmed: Phase 244 complete; PR \#213 deferred/closed; PR \#283 disposition recorded.\\ncaptured local refs: 20 rows at /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.A0x9edKq2Q/repo/.planning/phases/245-branch-prune-local-and-remote/245-LOCAL-REFS.tsv\\n{\\n  "status": "ready",\\n  "source_commit": "9aee590611ed1e55735358db0a1dc6a2d22cecb3",\\n  "output": ".planning/phases/245-branch-prune-local-and-remote/245-READINESS.json",\\n  "blocked_reasons": []\\n}\\nPASS: committed snapshot 0bbca5935d6b5b9eb41b32a73d111336ab511a61 contains 20 refs; all direct and peeled objects and D-01 readiness are valid.\\nprune-stale-branches: pass=local apply=1 rows=1 snapshot_commit=0bbca5935d6b5b9eb41b32a73d111336ab511a61 allowlist_commit=70f446e049a5ca374b88298c2696fef7fcba703d\\ndeleted local ref refs/heads/stale/merged with expected-old-OID guard\\nprune-stale-branches: local pass done — deleted=1 absent=0 would_delete=0\\nPASS: complete local ref names, types, direct IDs, peeled IDs, symrefs, and allowlisted deletions match the committed keep set.\\nPASS: all direct and peeled objects from committed snapshot 0bbca5935d6b5b9eb41b32a73d111336ab511a61 remain readable (20 refs).\\nPASS: report-only, exact-name apply, independent local readback, and object proof.
+# Subtest: remote leases preserve concurrent origin refs and PR identity checks reject incomplete results
+ok 2 - remote leases preserve concurrent origin refs and PR identity checks reject incomplete results
+  ---
+  duration_ms: 104661.379834
+  ...
+# captured complete open PR state for szTheory/sigra\\ncaptured origin refs: 3 rows at /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.M8STBltgVr/origin.tsv\\ncaptured local refs: 30 rows at /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.M8STBltgVr/origin-work/.planning/phases/245-branch-prune-local-and-remote/245-LOCAL-REFS.tsv\\ncaptured origin refs: 8 rows at /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.M8STBltgVr/origin-work/.planning/phases/245-branch-prune-local-and-remote/245-ORIGIN-REFS.tsv\\ncaptured complete open PR state for szTheory/sigra\\n{\\n  "status": "ready",\\n  "source_commit": "9aee590611ed1e55735358db0a1dc6a2d22cecb3",\\n  "output": ".planning/phases/245-branch-prune-local-and-remote/245-READINESS.json",\\n  "blocked_reasons": []\\n}\\nPASS: non-mutating origin access preflight passed for publish refs/heads/safety/local-main-before-release-cleanup-fixture.\\nprune-stale-branches: FAIL: safety_publish_lease_rejected: refs/heads/safety/local-main-before-release-cleanup-fixture expected=absent observed=9aee590611ed1e55735358db0a1dc6a2d22cecb3\\tcommit: To /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.M8STBltgVr/origin.git\\n ! [rejected]          safety/local-main-before-release-cleanup-fixture -> safety/local-main-before-release-cleanup-fixture (stale info)\\nerror: failed to push some refs to '/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.M8STBltgVr/origin.git'\\npublished absent safety ref: refs/heads/safety/local-main-before-release-cleanup-fixture (local-only safety anchor)\\nPASS: safety publication pass processed 1 committed exact ref rows.\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\nPASS: 2 committed exact allowlist rows bind to local/origin inventories and avoid baseline PR names.\\nPASS: non-mutating origin access preflight passed for delete refs/heads/stale/delete.\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\nprune-stale-branches: FAIL: remote_delete_lease_rejected: refs/heads/stale/delete expected=9aee590611ed1e55735358db0a1dc6a2d22cecb3/commit observed=1021387d75f27155099a973c7fc7de677936a532\\tcommit: To /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.M8STBltgVr/origin.git\\n ! [rejected]          (delete) -> stale/delete (stale info)\\nerror: failed to push some refs to '/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/tmp.M8STBltgVr/origin.git'\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\ndeleted origin ref refs/heads/stale/delete (fixture stale origin branch)\\nPASS: origin deletion pass processed 1 committed exact ref rows.\\nalready absent after remote deletion: refs/remotes/origin/stale/delete\\nPASS: exact tracking-ref pass processed 1 committed rows.\\nPASS: complete local ref names, types, direct IDs, peeled IDs, symrefs, and allowlisted deletions match the committed keep set.\\nPASS: complete origin ref names, types, direct IDs, peeled IDs, and symrefs match the committed keep set.\\nPASS: 5 required safety refs retain their exact local and origin identity, including namespace/type.\\nPASS: all 1 baseline PRs remain open with their recorded head/base identities and live origin bases.\\nPASS: all direct and peeled local and origin snapshot objects remain readable (local=30 origin=8).\\nPASS: live PR capture completeness guards and independent origin annotated-tag inventory.
+# Subtest: top-level prune runner invokes local and remote suites once without nesting
+ok 3 - top-level prune runner invokes local and remote suites once without nesting
+  ---
+  duration_ms: 0.494209
+  ...
+# Subtest: rejects self-asserted readiness before an apply mode can delete refs
+ok 4 - rejects self-asserted readiness before an apply mode can delete refs
+  ---
+  duration_ms: 1326.194625
+  ...
+# Subtest: captures and verifies a source-pinned Phase 244 readiness receipt
+ok 5 - captures and verifies a source-pinned Phase 244 readiness receipt
+  ---
+  duration_ms: 7448.944042
+  ...
+# Subtest: local compare-and-delete preserves a branch moved after preflight and keeps snapshotted objects readable
+ok 6 - local compare-and-delete preserves a branch moved after preflight and keeps snapshotted objects readable
+  ---
+  duration_ms: 12131.0935
+  ...
+# Subtest: all apply modes fail closed for missing Phase 244 readiness inputs
+ok 7 - all apply modes fail closed for missing Phase 244 readiness inputs
+  ---
+  duration_ms: 14537.288084
+  ...
+# Subtest: all apply modes fail closed for dirty Phase 244 readiness inputs
+ok 8 - all apply modes fail closed for dirty Phase 244 readiness inputs
+  ---
+  duration_ms: 18632.888625
+  ...
+# Subtest: all apply modes fail closed for stale Phase 244 readiness inputs
+ok 9 - all apply modes fail closed for stale Phase 244 readiness inputs
+  ---
+  duration_ms: 12336.666958
+  ...
+# Subtest: all apply modes fail closed for contradictory Phase 244 readiness inputs
+ok 10 - all apply modes fail closed for contradictory Phase 244 readiness inputs
+  ---
+  duration_ms: 12846.261416
+  ...
+# Subtest: all apply modes fail closed for incomplete Phase 244 readiness inputs
+ok 11 - all apply modes fail closed for incomplete Phase 244 readiness inputs
+  ---
+  duration_ms: 12727.766125
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 210906.705667

@@ -1,0 +1,581 @@
+{
+  "trace": {
+    "first": [
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/ebin\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460751386916084,
+        "mfa": "Code.prepend_path/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460751386260792,
+        "mfa": "Code.prepend_path/1 return true"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/consolidated\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460751380913167,
+        "mfa": "Code.delete_path/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460751380296042,
+        "mfa": "Code.delete_path/1 return true"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460751372312959,
+        "mfa": ":code.purge/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460751372288875,
+        "mfa": ":code.purge/1 return false"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460751372288125,
+        "mfa": ":code.delete/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.160.0>",
+        "time": -576460751372016334,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.159.0>",
+        "time": -576460751372016459,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460751372004709,
+        "mfa": ":code.delete/1 return true"
+      },
+      {
+        "pid": "#PID<0.160.0>",
+        "time": -576460751370426084,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.159.0>",
+        "time": -576460751370426667,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.160.0>",
+        "time": -576460751332293959,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.159.0>",
+        "time": -576460751332293625,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "pid": "#PID<0.160.0>",
+        "time": -576460751330442375,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.159.0>",
+        "time": -576460751330442375,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/consolidated\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460751328496917,
+        "mfa": "Code.prepend_path/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460751327813625,
+        "mfa": "Code.prepend_path/1 return true"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/consolidated\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460751322531542,
+        "mfa": "Code.prepend_path/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460751321714625,
+        "mfa": "Code.prepend_path/1 return true"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460751315386417,
+        "mfa": "Phoenix.CodeReloader.Server.purge_module/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460751315385125,
+        "mfa": ":code.purge/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460751314585875,
+        "mfa": ":code.purge/1 return false"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460751314584625,
+        "mfa": ":code.delete/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.160.0>",
+        "time": -576460751314124792,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.159.0>",
+        "time": -576460751314124834,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460751314034292,
+        "mfa": ":code.delete/1 return true"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460751314033459,
+        "mfa": "Phoenix.CodeReloader.Server.purge_module/1 return true"
+      },
+      {
+        "pid": "#PID<0.159.0>",
+        "time": -576460751313402709,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.160.0>",
+        "time": -576460751313400917,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/ebin\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460751301947667,
+        "mfa": "Code.prepend_path/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460751301048042,
+        "mfa": "Code.prepend_path/1 return true"
+      }
+    ],
+    "errors": [],
+    "counts": {
+      ":code.delete/1 call": 100,
+      ":code.delete/1 return true": 100,
+      ":code.ensure_loaded/1 call": 300,
+      ":code.ensure_loaded/1 return {:module, Ecto.Queryable}": 300,
+      ":code.purge/1 call": 100,
+      ":code.purge/1 return false": 100,
+      "Code.delete_path/1 call": 50,
+      "Code.delete_path/1 return true": 50,
+      "Code.prepend_path/1 call": 150,
+      "Code.prepend_path/1 return true": 150,
+      "Phoenix.CodeReloader.Server.purge_module/1 call": 50,
+      "Phoenix.CodeReloader.Server.purge_module/1 return true": 50
+    },
+    "recent": [
+      {
+        "pid": "#PID<0.160.0>",
+        "time": -576460747342480959,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.159.0>",
+        "time": -576460747342629250,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747343311709,
+        "mfa": "Phoenix.CodeReloader.Server.purge_module/1 return true"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747343312625,
+        "mfa": ":code.delete/1 return true"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.159.0>",
+        "time": -576460747343325084,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.160.0>",
+        "time": -576460747343325084,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747344018292,
+        "mfa": ":code.delete/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747344020375,
+        "mfa": ":code.purge/1 return false"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747345214959,
+        "mfa": ":code.purge/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747345216459,
+        "mfa": "Phoenix.CodeReloader.Server.purge_module/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747351920959,
+        "mfa": "Code.prepend_path/1 return true"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/consolidated\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747352509667,
+        "mfa": "Code.prepend_path/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747357190834,
+        "mfa": "Code.prepend_path/1 return true"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/consolidated\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747357979750,
+        "mfa": "Code.prepend_path/1 call"
+      },
+      {
+        "pid": "#PID<0.160.0>",
+        "time": -576460747361351959,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.159.0>",
+        "time": -576460747361353625,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.159.0>",
+        "time": -576460747363585167,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.160.0>",
+        "time": -576460747363585084,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "pid": "#PID<0.159.0>",
+        "time": -576460747400991209,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.160.0>",
+        "time": -576460747401039167,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747402433667,
+        "mfa": ":code.delete/1 return true"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.160.0>",
+        "time": -576460747402434792,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.159.0>",
+        "time": -576460747402437250,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747403950667,
+        "mfa": ":code.delete/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747403953167,
+        "mfa": ":code.purge/1 return false"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747404724375,
+        "mfa": ":code.purge/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747410358875,
+        "mfa": "Code.delete_path/1 return true"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/consolidated\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747410475459,
+        "mfa": "Code.delete_path/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747412697625,
+        "mfa": "Code.prepend_path/1 return true"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/ebin\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747413483750,
+        "mfa": "Code.prepend_path/1 call"
+      },
+      {
+        "pid": "#PID<0.160.0>",
+        "time": -576460747425764417,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.159.0>",
+        "time": -576460747425779417,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747426450584,
+        "mfa": "Phoenix.CodeReloader.Server.purge_module/1 return true"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747426450917,
+        "mfa": ":code.delete/1 return true"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.159.0>",
+        "time": -576460747426452625,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.160.0>",
+        "time": -576460747426453917,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747426870042,
+        "mfa": ":code.delete/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747426873792,
+        "mfa": ":code.purge/1 return false"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747427701334,
+        "mfa": ":code.purge/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747427702750,
+        "mfa": "Phoenix.CodeReloader.Server.purge_module/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747433978667,
+        "mfa": "Code.prepend_path/1 return true"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/consolidated\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747434652959,
+        "mfa": "Code.prepend_path/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747438154375,
+        "mfa": "Code.prepend_path/1 return true"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/consolidated\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747438857334,
+        "mfa": "Code.prepend_path/1 call"
+      },
+      {
+        "pid": "#PID<0.160.0>",
+        "time": -576460747441629334,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.159.0>",
+        "time": -576460747441644042,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.159.0>",
+        "time": -576460747443469709,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.160.0>",
+        "time": -576460747443483625,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "pid": "#PID<0.160.0>",
+        "time": -576460747481951750,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.159.0>",
+        "time": -576460747481957209,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747483163709,
+        "mfa": ":code.delete/1 return true"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.159.0>",
+        "time": -576460747483169792,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.160.0>",
+        "time": -576460747483169792,
+        "mfa": ":code.ensure_loaded/1 call"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747484446584,
+        "mfa": ":code.delete/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747484448334,
+        "mfa": ":code.purge/1 return false"
+      },
+      {
+        "args": "[Ecto.Queryable]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747485291209,
+        "mfa": ":code.purge/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747491043959,
+        "mfa": "Code.delete_path/1 return true"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/consolidated\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747491160375,
+        "mfa": "Code.delete_path/1 call"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747493790875,
+        "mfa": "Code.prepend_path/1 return true"
+      },
+      {
+        "args": "[\"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra253-reloader-258/_build/dev/lib/registration_reloader_probe/ebin\"]",
+        "pid": "#PID<0.157.0>",
+        "time": -576460747494436917,
+        "mfa": "Code.prepend_path/1 call"
+      },
+      {
+        "pid": "#PID<0.159.0>",
+        "time": -576460747509237125,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.160.0>",
+        "time": -576460747509238917,
+        "mfa": ":code.ensure_loaded/1 return {:module, Ecto.Queryable}"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747510086834,
+        "mfa": "Phoenix.CodeReloader.Server.purge_module/1 return true"
+      },
+      {
+        "pid": "#PID<0.157.0>",
+        "time": -576460747510087167,
+        "mfa": ":code.delete/1 return true"
+      }
+    ]
+  },
+  "otp": "28",
+  "elixir": "1.19.5",
+  "workers": [
+    {
+      "errors": [],
+      "counts": {
+        "undefined": 0,
+        "ok": 38521775
+      }
+    },
+    {
+      "errors": [],
+      "counts": {
+        "undefined": 0,
+        "ok": 38656171
+      }
+    }
+  ],
+  "ecto": "3.13.5",
+  "phoenix": "1.8.5",
+  "consolidate_protocols": true,
+  "source_change": "implementation",
+  "reloader_calls": 50,
+  "control_queries_passed": 100,
+  "restored_query": "passed",
+  "experiment": "actual Phoenix reloader, isolated synthetic project",
+  "limitation": "isolated synthetic project, not the original full app or hosted VM; temporary source changes are controlled diagnostic inputs",
+  "browser_invocations": 0,
+  "ci_launches": 0,
+  "network_requests": 0,
+  "project_source": "defmodule RegistrationReloaderProbe.MixProject do\n  use Mix.Project\n  def project do\n    [app: :registration_reloader_probe, version: \"0.0.0\", deps: [],\n     compilers: [:elixir, :app], consolidate_protocols: true,\n     listeners: [Phoenix.CodeReloader]]\n  end\nend\n",
+  "duration_ms": 4288
+}

@@ -1,0 +1,123 @@
+{
+  "schema_version": "sigra.phase253.discussion-discovery/v1",
+  "phase": 253,
+  "captured_at": "2026-10-13T02:05:49.770664+00:00",
+  "status": "research_input_not_phase_acceptance",
+  "source_head": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+  "source_archive": {
+    "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+    "sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30"
+  },
+  "findings": [
+    {
+      "id": "FD-01",
+      "kind": "confirmed_reporting_defect",
+      "path": "scripts/ci/ci-run-metrics.sh",
+      "line": 1680,
+      "rejected_signature": "Test D: --add round-trip passes (add ID_B first, then ID_A, assert sorted + lint passes)",
+      "run_ids": [
+        38314896976,
+        38316396580
+      ],
+      "actual_failed_check": "ci-run-metrics.test.sh Test Z: legacy timing bundle did not fail closed",
+      "current_dependency_repair_commit": "7c10e06b3",
+      "current_flake_proved": false
+    },
+    {
+      "id": "FD-02",
+      "kind": "recent_registration_failure_lead",
+      "run_ids": [
+        38139851334,
+        38141796613,
+        38205503164
+      ],
+      "latest_run_id": 38205503164,
+      "latest_source_sha": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+      "current_source_sha": "3aa795e5a8a59d439b7d75db05040dad34e6c03a",
+      "helper_path": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+      "helper_blob": "6540493e78121f134867445dffc7010afcd85815",
+      "same_blob_verified": true,
+      "latest_failed_project": "admin-eval-dark",
+      "latest_failed_test": "board-mg-9/populated",
+      "root_cause": "unknown",
+      "reproduced_this_discussion": false
+    },
+    {
+      "id": "FD-03",
+      "kind": "partial_diagnosis",
+      "path": "scripts/ci/ci-run-metrics.sh",
+      "line": 755,
+      "description": "Only the first failed job log is retained for some families; additional failed producer logs are unavailable. Prefix truncation can omit the actual late failure.",
+      "blanket_no_flake_claim_supported": false
+    },
+    {
+      "id": "FD-04",
+      "kind": "confirmed_ownership_gap",
+      "path": ".github/workflows/ci.yml",
+      "line": 1780,
+      "missing_internal_gate_owner": "example_unit_smoke",
+      "independently_required": true
+    },
+    {
+      "id": "FD-05",
+      "kind": "coverage_proof_gap",
+      "path": ".github/workflows/ci.yml",
+      "line": 1613,
+      "expected_seams": [
+        "non_admin_smoke",
+        "admin_behavior",
+        "admin_checkpoints",
+        "design_gallery",
+        "demo_showcase"
+      ],
+      "current_aggregate_checks": "native matrix aggregate success only"
+    },
+    {
+      "id": "FD-06",
+      "kind": "confirmed_manifest_mismatch",
+      "path": ".github/ci-skip-manifest.tsv",
+      "line": 75,
+      "job": "example_playwright_smoke",
+      "claimed": "docs-only step-gated",
+      "actual": "unconditional terminal aggregate"
+    },
+    {
+      "id": "FD-07",
+      "kind": "diagnostic_gap",
+      "path": "test/example/priv/playwright/playwright.config.ts",
+      "retries": 0,
+      "trace": "on-first-retry",
+      "selected_policy": "scoped retain-on-failure"
+    },
+    {
+      "id": "FD-08",
+      "kind": "execution_preflight_mismatch",
+      "locked_playwright": "1.59.1",
+      "observed_ignored_node_modules": "1.62.1",
+      "required_action": "Restore npm lockfile install in execution checkout and record command-observed version."
+    }
+  ],
+  "retained_log_hashes": [
+    {
+      "run_id": 38314896976,
+      "sha256": "86f5bcb60c7fcad07c25f55f2cb4bd716c8977c97f88dc2b0230824942db6312"
+    },
+    {
+      "run_id": 38316396580,
+      "sha256": "d211e390d2782f711cf6d2c168635bb02b27c7aafe6221438e46024d574dae02"
+    }
+  ],
+  "limitations": [
+    "No current browser root cause or fix is proved.",
+    "Some unselected failed producer details are missing.",
+    "Three repeat passes cannot establish absence of flakiness.",
+    "Scoped canary feasibility must be freshly preflighted before dispatch."
+  ],
+  "actions": {
+    "app_tests_run": false,
+    "ci_dispatched": false,
+    "github_api_acquisitions": false,
+    "external_mutations": false,
+    "new_dependencies": 0
+  }
+}

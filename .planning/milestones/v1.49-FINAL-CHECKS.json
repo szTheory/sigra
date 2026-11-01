@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "milestone": "v1.49",
+  "captured_at": "2026-10-12T13:34:54.950520+00:00",
+  "status": "closeout_and_forward_route_checks_passed",
+  "closeout_type": "override_closeout",
+  "requirements_satisfied": "8/9",
+  "READY-01": "unsatisfied",
+  "READY-02": "satisfied",
+  "phase251_implementation": "7/7",
+  "phase251_verification": "gaps_found 9/10",
+  "original_acceptance_changed": false,
+  "failed_checks_marked_passed": false,
+  "phase_archive_file_exact_readbacks": 361,
+  "roadmap_and_strict_audit_byte_exact": true,
+  "original_requirement_body_byte_exact": true,
+  "three_old_tracking_snapshots_exact": true,
+  "prior_prewrite_readbacks": [
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "sha256": "517bf1cecf35c66bbff3602cc1432bdb541f7be2d5770841910d01bcb35bc844",
+      "bytes": 22580,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "2e5e02629d99bef56a45ccaf8561304b71c5891f9c56817a9c576467a7798bfd",
+      "bytes": 5711,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "d43a01242e3801f42d0702c8ca312e03f79a8d9e2994663e02d4869401cc47a2",
+      "bytes": 983,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "c14694f70d0ba8b337e6e21823917e8ed2a7f4b6f4985c31ce38aa4cbdd1a400",
+      "bytes": 104362,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/MILESTONES.md",
+      "status": "clean",
+      "sha256": "44c39efb82b5ac9643027895236ac7d3e7fda6fa53724baee593c7ccaddb9548",
+      "bytes": 135911,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/PROJECT.md",
+      "status": "clean",
+      "sha256": "254c7bb381afe7b4ae5ce8253afc7e8e8d566c2d9c77fb8cd9964cc41b5985fb",
+      "bytes": 191936,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/RETROSPECTIVE.md",
+      "status": "clean",
+      "sha256": "c795d94d883939b2d3f137824c5d4224c9a1bb7ded1fceb9d43700be813f3b20",
+      "bytes": 89698,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/milestones/v1.49-REQUIREMENTS.md",
+      "status": "clean",
+      "sha256": "6ce1e8e17377350f0b47bec2c544e4923f3d42f2db945734496e040fb364eca1",
+      "bytes": 7593,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    },
+    {
+      "path": ".planning/milestones/v1.49-CLOSEOUT-DECISION.json",
+      "status": "clean",
+      "sha256": "3755ed0b7df12b14aa89d553165dea5facd9566891cfd46ebc3829d093c6bdec",
+      "bytes": 10605,
+      "recovery_ref": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+      "read_back_verified": true
+    }
+  ],
+  "historical_milestone_entries_preserved": true,
+  "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+  "guide_task_recorded": true,
+  "active_requirements_removed_only_after_archive_commit": "f20381132082360c3fbf5ea2c2dd3068c930e15b",
+  "live_routes_agree": true,
+  "user_required_to_produce_old_records": false,
+  "next_command": "$gsd-new-milestone",
+  "next_milestone_focus": "CI speed and reliability",
+  "active_phases": [],
+  "next_phase_found": false,
+  "next_phase_number": 252,
+  "new_milestone_initialization_ready": true,
+  "new_milestone_init": {
+    "researcher_model": "gpt-6-luna",
+    "synthesizer_model": "gpt-6-luna",
+    "roadmapper_model": "gpt-6-sol",
+    "commit_docs": true,
+    "research_enabled": true,
+    "current_milestone": "v1.49",
+    "current_milestone_name": null,
+    "latest_completed_milestone": "v1.47",
+    "latest_completed_milestone_name": "CI-EFFICIENCY",
+    "phase_dir_count": 0,
+    "phase_archive_path": "/Users/jon/projects/sigra/.planning/milestones/v1.47-phases",
+    "project_exists": true,
+    "roadmap_exists": true,
+    "state_exists": true,
+    "project_path": "/Users/jon/projects/sigra/.planning/PROJECT.md",
+    "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+    "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+    "requirements_path": "/Users/jon/projects/sigra/.planning/REQUIREMENTS.md",
+    "config_path": "/Users/jon/projects/sigra/.planning/config.json",
+    "research_dir": "/Users/jon/projects/sigra/.planning/research",
+    "milestones_path": "/Users/jon/projects/sigra/.planning/MILESTONES.md",
+    "phases_dir": "/Users/jon/projects/sigra/.planning/phases",
+    "archive_dir": "/Users/jon/projects/sigra/.planning/milestones",
+    "section_manifest": {
+      "workflow": "new-milestone",
+      "included": [
+        "project-md-milestone-write"
+      ],
+      "excluded": [
+        "reset-phase-safety"
+      ],
+      "read": [
+        "gsd-core/workflows/new-milestone/steps/project-md-milestone-write.md"
+      ]
+    },
+    "project_root": "/Users/jon/projects/sigra",
+    "agents_installed": true,
+    "missing_agents": [],
+    "agents_dir": "/Users/jon/.codex/agents",
+    "agent_runtime": "codex",
+    "project_title": "Sigra"
+  },
+  "readiness_projection": {
+    "manager": {
+      "milestone_version": "v1.49",
+      "milestone_name": null,
+      "phases": [],
+      "phase_count": 0,
+      "completed_count": 0,
+      "in_progress_count": 0,
+      "recommended_actions": [],
+      "waiting_signal": null,
+      "all_complete": false,
+      "project_exists": true,
+      "roadmap_exists": true,
+      "state_exists": true,
+      "manager_flags": {
+        "discuss": "",
+        "plan": "",
+        "execute": ""
+      },
+      "state_path": "/Users/jon/projects/sigra/.planning/STATE.md",
+      "roadmap_path": "/Users/jon/projects/sigra/.planning/ROADMAP.md",
+      "archive_dir": "/Users/jon/projects/sigra/.planning/milestones",
+      "project_root": "/Users/jon/projects/sigra",
+      "agents_installed": true,
+      "missing_agents": [],
+      "agents_dir": "/Users/jon/.codex/agents",
+      "agent_runtime": "codex",
+      "project_title": "Sigra"
+    },
+    "phase252": {
+      "phase_found": false,
+      "has_context": false,
+      "has_plans": false,
+      "phase_status": "Pending"
+    }
+  },
+  "app_source_changes": false,
+  "hosted_workflows_dispatched": false,
+  "package_published_during_closeout": false,
+  "git_tag_created": false,
+  "git_branch_changed": false,
+  "test_suites_rerun": false,
+  "diff_check_exit_code": 0,
+  "verification_qualification": "These checks prove archive integrity and forward routing. They do not satisfy the original missing READY-01 approval/source requirements."
+}

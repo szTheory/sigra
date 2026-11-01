@@ -1,0 +1,411 @@
+{
+  "schema": "sigra.phase253.execution182-closeout-checks/v1",
+  "checked_at": "2026-10-20T23:11:52.556540+00:00",
+  "scope": "saved failed attempt, preservation and routing only; no repair pass claimed",
+  "checks": [
+    {
+      "name": "original_ref_identity",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/HANDOFF.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/REQUIREMENTS.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/REQUIREMENTS.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/ROADMAP.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/ROADMAP.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/STATE.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/config.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/config.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-CHECK-01.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-CHECK-01.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-SOURCE-AUDIT.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-SOURCE-AUDIT.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-PLAN.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-PLAN.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-REPAIR-REVIEW.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-REPAIR-REVIEW.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-SUMMARY.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-SUMMARY.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CHECK-01.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CHECK-01.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CHECK-02.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CHECK-02.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CLOSEOUT-CHECKS.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CLOSEOUT-CHECKS.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CLOSEOUT-PRESERVATION.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CLOSEOUT-PRESERVATION.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-COMPLETION-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-COMPLETION-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-ROUTING.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-EXECUTION-ROUTING.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-FINAL-CHECKS.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-FINAL-CHECKS.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLAN.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLAN.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLANNING-CHECKS.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLANNING-CHECKS.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLANNING-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLANNING-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-REPAIR-REVIEW.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-REPAIR-REVIEW.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-ROUTING-CHECKS.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-ROUTING-CHECKS.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SOURCE-AUDIT.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SOURCE-AUDIT.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SUMMARY.md",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-SUMMARY.md",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-GREEN.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-GREEN.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-GREEN.log",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-GREEN.log",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-RED-REPLAY.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK1-RED-REPLAY.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-GREEN-VALIDATED.log",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-GREEN-VALIDATED.log",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-GREEN.log",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-GREEN.log",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-RED.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK2-RED.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-FULL-FAILED.log",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-FULL-FAILED.log",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-VALIDATORS.json",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-VALIDATORS.json",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FIRST-FULL-FAILED.log",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FIRST-FULL-FAILED.log",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-RED.log",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-RED.log",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "passed": true
+    },
+    {
+      "name": "unchanged:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "passed": true
+    },
+    {
+      "name": "recoverable:.planning/state.json",
+      "passed": true
+    },
+    {
+      "name": "route:.planning/state.json",
+      "passed": true
+    },
+    {
+      "name": "open_phase:.planning/state.json",
+      "passed": true
+    },
+    {
+      "name": "no_ready:.planning/state.json",
+      "passed": true
+    },
+    {
+      "name": "route:.planning/HANDOFF.json",
+      "passed": true
+    },
+    {
+      "name": "open_phase:.planning/HANDOFF.json",
+      "passed": true
+    },
+    {
+      "name": "no_ready:.planning/HANDOFF.json",
+      "passed": true
+    },
+    {
+      "name": "markdown_route",
+      "passed": true
+    },
+    {
+      "name": "markdown_halted",
+      "passed": true
+    },
+    {
+      "name": "actual_readiness",
+      "passed": true
+    },
+    {
+      "name": "forward_checked",
+      "passed": true
+    },
+    {
+      "name": "halt_summary",
+      "passed": true
+    },
+    {
+      "name": "halt_review",
+      "passed": true
+    },
+    {
+      "name": "no_pre_edit_red_disclosed",
+      "passed": true
+    },
+    {
+      "name": "failed_runs_disclosed",
+      "passed": true
+    },
+    {
+      "name": "no_direct_capture_claim",
+      "passed": true
+    },
+    {
+      "name": "no_summary_179",
+      "passed": true
+    },
+    {
+      "name": "no_summary_180",
+      "passed": true
+    },
+    {
+      "name": "no_native_acceptance",
+      "passed": true
+    },
+    {
+      "name": "diff_whitespace",
+      "passed": true
+    }
+  ],
+  "check_count": 100,
+  "status": "passed",
+  "repair_status": "halted",
+  "phase_verification_status": "not_started"
+}

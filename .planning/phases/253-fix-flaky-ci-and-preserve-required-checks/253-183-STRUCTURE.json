@@ -1,0 +1,46 @@
+{
+  "valid": true,
+  "errors": [],
+  "warnings": [],
+  "task_count": 3,
+  "tasks": [
+    {
+      "name": "Task 1: Prove real historical mutation and complete-stage hosted-link refusals",
+      "type": "tracer",
+      "hasFiles": true,
+      "hasAction": true,
+      "hasVerify": true,
+      "hasDone": true
+    },
+    {
+      "name": "Task 2: Complete the carried repair lifecycle and strict183/27/73 consumers",
+      "type": "auto",
+      "hasFiles": true,
+      "hasAction": true,
+      "hasVerify": true,
+      "hasDone": true
+    },
+    {
+      "name": "Task 3: Preserve179/180, amend their future instructions and publish the direct183 review",
+      "type": "auto",
+      "hasFiles": true,
+      "hasAction": true,
+      "hasVerify": true,
+      "hasDone": true
+    }
+  ],
+  "frontmatter_fields": [
+    "phase",
+    "plan",
+    "type",
+    "wave",
+    "depends_on",
+    "files_modified",
+    "autonomous",
+    "requirements",
+    "gap_closure",
+    "tags",
+    "estimate",
+    "must_haves"
+  ]
+}

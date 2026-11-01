@@ -1,0 +1,108 @@
+{
+  "schema_version": "sigra.phase253.control-recovery-budget-arithmetic/v1",
+  "status": "planning_contract_not_execution",
+  "components_ms": {
+    "historical_zero_launch": 3768,
+    "preparation": 3743,
+    "failed_desktop": 26373,
+    "retry_desktop": 46803,
+    "mobile": 40993,
+    "failed_dark": 121252,
+    "post_halt_cleanup": 112
+  },
+  "carried_ms": 243044,
+  "preparation_original_reservation_ms": 116232,
+  "preparation_spent_ms": 3743,
+  "preparation_remaining_ms": 112489,
+  "regular_remaining": {
+    "commands": 5,
+    "each_ms": 120000,
+    "total_ms": 600000
+  },
+  "d19": {
+    "spent_invocation_reservations": 5,
+    "total_invocation_reservations": 10,
+    "max_ms": 1200000,
+    "projected_ms": 955533
+  },
+  "d20": {
+    "conditional_browser_commands": 9,
+    "each_ms": 240000,
+    "total_ms": 2160000,
+    "shared_retry_available": 0
+  },
+  "launches": {
+    "unit": "playwright_cli_process",
+    "prior": 4,
+    "remaining_regular": 5,
+    "conditional_acceptance": 9,
+    "total": 18,
+    "cap": 18,
+    "engine_worker_facts_retained_separately": true
+  },
+  "projected_browser_preparation_ms": 3115533,
+  "optional_relevant_seed_checks": {
+    "count": 3,
+    "each_max_ms": 60000,
+    "total_max_ms": 180000,
+    "only_if_changed_exunit_contract": true
+  },
+  "projected_including_optional_seeds_ms": 3295533,
+  "shared_cap_ms": 3480000,
+  "outer_locked_cap_ms": 3600000,
+  "canary": {
+    "categories": [
+      8,
+      24,
+      7,
+      7,
+      7,
+      18,
+      7,
+      7,
+      12,
+      6,
+      1,
+      13
+    ],
+    "new_measured_max": 117,
+    "historical_known_command_reservations": 3,
+    "accounted_max": 120,
+    "historical_actual_http_proven": false,
+    "job_projection_with_retry_and_verifier": 43,
+    "job_cap": 45,
+    "max_minutes": 60
+  },
+  "production": {
+    "categories": [
+      8,
+      14,
+      2,
+      8,
+      4,
+      2,
+      27,
+      4,
+      4,
+      4,
+      20,
+      2,
+      21
+    ],
+    "measured_max": 120,
+    "max_minutes": 60,
+    "single_window_for_both_prs": true
+  },
+  "source_proposal_stale": true,
+  "runtime_acceptance": false,
+  "checks": {
+    "components_sum": true,
+    "prep_remaining": true,
+    "d19_fit": true,
+    "shared_fit": true,
+    "launch_fit": true,
+    "canary_sum": true,
+    "production_sum": true
+  }
+}
+

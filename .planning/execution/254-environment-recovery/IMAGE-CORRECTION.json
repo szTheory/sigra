@@ -1,0 +1,12 @@
+{
+  "corrects": ".planning/execution/254-rebaseline-preparation/IMAGE-COMPATIBILITY.json",
+  "history_unchanged": true,
+  "observed": {
+    "native_headers": {
+      "admin_checkpoints": "ubuntu-24.04 / 20261012.334.1",
+      "design_gallery": "ubuntu-24.04 / 20261012.334.1"
+    },
+    "uploaded_environment_metadata": "ubuntu24 / 20261023.334.3"
+  },
+  "conclusion": "Image sources conflict. No causal attribution to a newer image is established; prior statement was too strong. Preserve both identities; independent probe will capture image data and environment before package work."
+}

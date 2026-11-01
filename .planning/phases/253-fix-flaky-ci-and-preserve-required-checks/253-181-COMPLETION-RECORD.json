@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLANNING-RECORD.json",
+  "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CHECK-02.md",
+  "checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLANNING-CHECKS.json",
+  "routing_checks": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-ROUTING-CHECKS.json",
+  "plans": [
+    "253-181"
+  ],
+  "new_tasks": 3,
+  "new_waves": 1,
+  "future_chain": [
+    "253-181",
+    "253-179",
+    "253-180",
+    "253-168",
+    "253-169",
+    "253-170",
+    "253-171",
+    "253-172"
+  ],
+  "future_waves": 8,
+  "readiness": {
+    "plan_count": 181,
+    "completed_implementation_count": 75,
+    "incomplete_count": 81,
+    "halted_count": 25,
+    "without_summary": 81,
+    "runnable_count": 1,
+    "ready_plans": [
+      "253-181"
+    ]
+  },
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "implementation_status": "partial",
+  "phase_verification_status": "not_started",
+  "recorded_at": "2026-10-20T21:02:00.403095+00:00",
+  "browser_invocations": 0,
+  "github_requests": 0,
+  "acceptance_attempts": 0,
+  "preservation": {
+    "capture_head": "b6bc388d562e15982964a9846f0fdd196ae8dc10",
+    "pre_revision_ref": "refs/gsd/phase253-plan181-review01-inputs",
+    "pre_revision_commit": "977418ed664a23723a1e714716e04c553f7f8b97",
+    "sdk_state_ref": "refs/gsd/phase253-plan181-sdk-state",
+    "sdk_state_commit": "e624932506b4664c4bea640772e654efb5119554",
+    "readback_verified": true
+  }
+}

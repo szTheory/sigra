@@ -1,0 +1,10 @@
+{
+  "command": "node --test --test-reporter=tap scripts/ci/ci-run-metrics-replay.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: snapshot replay emits explicit zero-sample unknowns and distinct cost dimensions\nnot ok 1 - snapshot replay emits explicit zero-sample unknowns and distinct cost dimensions\n  ---\n  duration_ms: 315.243708\n  type: 'test'\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-run-metrics-replay.test.mjs:12:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    undefined !== 1\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 1\n  operator: 'strictEqual'\n  stack: |-\n    at TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-run-metrics-replay.test.mjs:59:12)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 361.558542",
+  "targetTest": "snapshot replay emits explicit zero-sample unknowns and distinct cost dimensions",
+  "targetFile": "scripts/ci/ci-run-metrics-replay.test.mjs",
+  "expected": "A cancelled run with no later attempt or superseding run identity remains cancellation_unclassified rather than being asserted to be superseded.",
+  "actual": "The replay emits no cancellation_unclassified row for the cancelled run.",
+  "semanticAssessment": "The target test executed, built a source-hash-valid snapshot, invoked replay, and failed on the planned cancellation classification assertion. No fixture, import, syntax, or discovery errors occurred."
+}

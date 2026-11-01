@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 [admin-checkpoints-chromium] › tests/admin-checkpoints.spec.ts:172:7 › Phase 31 admin checkpoint inventory (D-28) › captures curated admin review pages across desktop/mobile/dark (4.5s)
+  ✓  2 [admin-checkpoints-mobile] › tests/admin-checkpoints.spec.ts:172:7 › Phase 31 admin checkpoint inventory (D-28) › captures curated admin review pages across desktop/mobile/dark (5.8s)
+  ✓  3 [admin-checkpoints-dark] › tests/admin-checkpoints.spec.ts:172:7 › Phase 31 admin checkpoint inventory (D-28) › captures curated admin review pages across desktop/mobile/dark (4.5s)
+
+  3 passed (16.2s)

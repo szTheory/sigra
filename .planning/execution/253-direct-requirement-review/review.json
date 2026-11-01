@@ -1,0 +1,76 @@
+{
+  "schema": "sigra.phase253.direct-requirement-review/v1",
+  "recorded_at": "2026-10-22T19:38:32.795325+00:00",
+  "source_commit": "0ba6ec5fa27ff8cf7f839fcfb68bb8a79a882729",
+  "scope": "Read-only original-requirement review after Plan172; not a new acceptance invocation or full phase signoff",
+  "status": "blocked_on_original_registration_evidence",
+  "routing_correction": "Do not hand the user a gsd-progress status detour. Inspect current records directly. That review is now performed.",
+  "requirements": {
+    "CIREL-01": {
+      "status": "blocked_not_reproduced",
+      "accepted": false,
+      "original_target": "admin-eval registration in desktop Chromium, mobile WebKit and dark Chromium",
+      "missing": [
+        "original preceding-order log (archived original log absent; rejected as a native receipt)",
+        "original control/DB state for the selected registration collision",
+        "any red-before counterexample on preserved exact source tied to a registration harness seam"
+      ],
+      "controls_passed": 22,
+      "post_fix_slots_expired": 9,
+      "no_flake_path_allowed": false,
+      "strict_checker_exit": 3,
+      "approval_already_recorded": "not_reproduced disposition; not an acceptance or budget renewal"
+    },
+    "CIREL-02": {
+      "status": "hosted_components_and_local_contracts_verified",
+      "canary": "six actual hosted outcomes plus independent verifier replay passed",
+      "normal": "PR343/run39815188159 attempt1: native required checks and five browser record groups passed",
+      "docs_only": "PR344/run39837182521 attempt1: independent accepted_live=true",
+      "required_check_names_preserved": true,
+      "formal_phase_signoff": false,
+      "single_ledger_pair_verifier_not_claimed": true
+    }
+  },
+  "development_checks": [
+    {
+      "command": "bash scripts/ci/honest-skip-verdict.test.sh",
+      "exit_code": 0,
+      "result": "21 shell cases and5 unit-owner tests passed",
+      "observation": "exec sessions2585"
+    },
+    {
+      "command": "node --test scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs scripts/ci/ci-measure-workflow.test.mjs",
+      "exit_code": 0,
+      "tests": 57,
+      "observation": "exec session78406"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/ci/ci-hosted-gate-verify.test.py",
+      "exit_code": 0,
+      "tests": 151,
+      "observation": "exec session57251"
+    }
+  ],
+  "raw_read_only_checks": "checks.json",
+  "github_requests": 0,
+  "browser_launches": 0,
+  "acceptance_replays": 0,
+  "budgets_renewed": false,
+  "phase_complete": false,
+  "phase_verification": "blocked_by_original_requirement",
+  "immediate_user_action": "none; no status command is needed",
+  "next_action": "Obtain an original failing-order/state record or a permitted deterministic reproduction on the preserved affected source before considering a fix and post-fix acceptance. Existing registration and hosted slots remain closed. Do not create a repair-plan successor for ordinary development maintenance.",
+  "conditional_recheck_command": "$gsd-verify-work 253",
+  "recheck_only_after": "the missing original registration proof is available or an explicitly scoped valid reproduction path is authorized",
+  "input_sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION.json": "6afcc1a77b604bee7438195f3bc70e67336753afe345ea157c6c9c275d87a140",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json": "d7d566641da2d5e1c7d5e951adb6e7d53c88f2a32ff8da4f324b64df11c27b0e",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json": "f95393e39c2fc7d039556d627429de4a61af37a7aae69b9f40afbd0ef4988fc7",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json": "14df65778c6e1ab924d0ed5430937383af95c499c1f00468028910eda9d9f9a1",
+    ".planning/execution/253-pr344-closeout/result.json": "5b86465a32a566c2e5bbb1349cfdf6d9eafe3ad255dcefdaebb5a7d9f71dacf4",
+    ".planning/execution/253-pr343-remaining-evidence/docs-only-evidence.json": "c2ab827dde44fa467945570813196fbb7a9664829a5ee7b052cef9fd9ba0e42d",
+    ".planning/REQUIREMENTS.md": "5f3c20567c4c59ecb451a8d6b9f00139d96112e085314c6d184e7df6d58fd863",
+    "scripts/ci/ci-registration-recovery.mjs": "28d3efc23515a2b44447c89c444e2adfe087826132d4436dcdfd8dd36c51a1e2",
+    "scripts/ci/ci-hosted-gate-verify.py": "ed25274b6a6046060ca0c38e88139c3521396f24ecffc1581841675b5222e99e"
+  }
+}

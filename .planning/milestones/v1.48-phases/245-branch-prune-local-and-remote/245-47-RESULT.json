@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": 47,
+  "captured_at_utc": "2026-10-05T22:41:13Z",
+  "outcome": "blocked",
+  "gate": "plan_46_diagnostic_not_ready_for_fresh_admission",
+  "failed_predicates": [
+    "245-46-DIAGNOSTIC.json status is blocked_unlocalized, not ready_for_fresh_admission",
+    "245-46-DIAGNOSTIC.json live_admission_permitted is false",
+    "245-46-DIAGNOSTIC.json cause.kind is synthetic_latency_only, not reproduced_code_defect",
+    "245-46-DIAGNOSTIC.json regression has no observed red or green and did not pass"
+  ],
+  "diagnostic_source": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-46-DIAGNOSTIC.json",
+    "sha256": "7f6c02ac2654a79377ac046a22b7830ed69046534074d7af6ac9e378112e6d33",
+    "status": "blocked_unlocalized",
+    "cause_kind": "synthetic_latency_only",
+    "live_admission_permitted": false,
+    "regression": {
+      "red_observed": false,
+      "green_observed": false,
+      "passed": false
+    }
+  },
+  "current_contract_created": false,
+  "admission_created": false,
+  "allowlist_created": false,
+  "operation_attempted": false,
+  "operator": {
+    "attempt_count": 0,
+    "launch_count": 0
+  },
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved",
+    "pr_source": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-48-RESULT.json",
+      "sha256": "613083bb290be2a6da77e645ebf5ae8b919527ceff54f1774febb44f7c409c01"
+    },
+    "cleanup_source": {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-49-RESULT.json",
+      "sha256": "fa7cd6a02fc624048546e1bba1e65648d304cf34c34572d5f4079956a2acc1bb"
+    }
+  },
+  "repo_04_status": "open",
+  "next_missing_signal": "A production-linked stage trace and a reproduced deterministic operator defect with a red-then-green regression are required before a fresh current-state contract may be admitted."
+}

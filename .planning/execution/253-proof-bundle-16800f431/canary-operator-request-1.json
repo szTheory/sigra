@@ -1,0 +1,5 @@
+{
+  "method": "GET",
+  "route_id": "rate_limit",
+  "category": "preflight"
+}

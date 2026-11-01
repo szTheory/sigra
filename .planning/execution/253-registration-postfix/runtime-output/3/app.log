@@ -1,0 +1,182 @@
+[error] `inotify-tools` is needed to run `file_system` for your system, check https://github.com/rvoicilas/inotify-tools/wiki for more information about how to install it. If it's already installed but not be found, appoint executable file with `config.exs` or `FILESYSTEM_FSINOTIFY_EXECUTABLE_FILE` env.
+[warning] Not able to start file_system worker, reason: {:error, :fs_inotify_bootstrap_error}
+[warning] Could not start Phoenix live-reload because we cannot listen to the file system.
+You don't need to worry! This is an optional feature used during development to
+refresh your browser when you save files and it does not affect production.
+
+[info] Running ExampleWeb.Endpoint with Bandit 1.10.4 at 127.0.0.1:4011 (http)
+[info] Access ExampleWeb.Endpoint at http://localhost:4011
+[info] GET /
+[debug] Processing with ExampleWeb.PageController.home/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser]
+[info] Sent 200 in 56ms
+[info] GET /admin/_design
+[debug] Processing with ExampleWeb.Admin.DesignGalleryLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated, :admin_global]
+[info] Sent 302 in 952µs
+[debug] Phoenix.Router halted in :require_authenticated/2
+[info] GET /users/register
+[debug] Processing with ExampleWeb.RegistrationLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[info] Sent 200 in 33ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 239µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT ExampleWeb.RegistrationLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] Replied in 1ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: [authentication values redacted]
+[debug] Replied in 4ms
+[debug] HANDLE EVENT "validate" in ExampleWeb.RegistrationLive
+  Parameters: [authentication values redacted]
+[debug] Replied in 4ms
+[debug] HANDLE EVENT "save" in ExampleWeb.RegistrationLive
+  Parameters: [authentication values redacted]
+[debug] QUERY OK source="users" db=14.1ms decode=1.2ms queue=7.8ms idle=1845.6ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 [SQL arguments redacted]
+↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750
+[debug] QUERY OK db=1.7ms idle=1897.7ms
+begin []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK source="users" db=16.2ms
+INSERT INTO "auth"."users" ("email","must_change_password","failed_login_attempts","hashed_password","password_changed_at","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) [SQL arguments redacted]
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=1.6ms
+commit []
+↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160
+[debug] QUERY OK db=1.5ms idle=1948.3ms
+begin []
+[authentication values redacted]
+[authentication values redacted]
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[authentication values redacted]
+INSERT INTO "auth"."user_tokens" ("context","token","user_id","sent_to","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473
+[debug] QUERY OK db=1.3ms
+commit []
+[authentication values redacted]
+[debug] Replied in 179ms
+[info] POST /users/log_in
+[debug] Processing with ExampleWeb.SessionController.create/2
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :redirect_if_user_is_authenticated]
+[debug] QUERY OK source="users" db=1.5ms queue=0.4ms idle=164.4ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."email" = $1) [SQL arguments redacted]
+↳ Sigra.Auth.authenticate_with_config/2, at: lib/sigra/auth.ex:511
+[debug] QUERY OK db=0.1ms idle=101.5ms
+begin []
+[authentication values redacted]
+[debug] QUERY OK source="audit_events" db=2.1ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","target_id","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK db=0.3ms
+commit []
+[authentication values redacted]
+[debug] QUERY OK source="audit_actions" db=4.1ms queue=1.0ms idle=79.4ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Threadline.record_action/2, at: lib/threadline.ex:49
+[debug] QUERY OK source="user_sessions" db=10.5ms queue=5.8ms idle=75.5ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."inserted_at" DESC [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.list_by_user/2, at: lib/sigra/session_stores/ecto.ex:85
+[debug] QUERY OK source="user_sessions" db=19.4ms queue=4.1ms idle=92.7ms
+INSERT INTO "auth"."user_sessions" ("type","user_id","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42
+[debug] QUERY OK source="organizations" db=15.9ms queue=5.8ms idle=125.0ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) [SQL arguments redacted]
+↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061
+[debug] QUERY OK source="audit_events" db=8.5ms queue=1.7ms idle=147.8ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [SQL arguments redacted]
+↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191
+[debug] QUERY OK source="audit_actions" db=12.2ms queue=4.6ms idle=158.8ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Threadline.record_action/2, at: lib/threadline.ex:49
+[debug] QUERY OK source="user_sessions" db=19.9ms queue=4.0ms idle=177.0ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","user_agent","inserted_at","hashed_token","last_active_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.create/3, at: lib/sigra/session_stores/ecto.ex:42
+[debug] QUERY OK source="organizations" db=21.8ms idle=201.4ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 INNER JOIN "auth"."organization_memberships" AS o1 ON o1."organization_id" = o0."id" WHERE (o1."user_id" = $1) AND (o0."deleted_at" IS NULL) [SQL arguments redacted]
+↳ Sigra.Organizations.select_active_organization/3, at: lib/sigra/organizations.ex:1061
+[debug] QUERY OK source="audit_events" db=7.1ms queue=0.9ms idle=189.0ms
+INSERT INTO "auth"."audit_events" ("metadata","action","actor_type","actor_id","outcome","user_agent","ip_address","effective_user_id","occurred_at","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [SQL arguments redacted]
+↳ Sigra.Audit.do_log_safe/2, at: lib/sigra/audit.ex:191
+[debug] QUERY OK source="audit_actions" db=1.9ms queue=0.4ms idle=180.8ms
+INSERT INTO "audit_actions" ("name","status","correlation_id","actor_ref","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6) [SQL arguments redacted]
+↳ Threadline.record_action/2, at: lib/threadline.ex:49
+[info] Sent 302 in 209ms
+[info] GET /app
+[debug] Processing with ExampleWeb.AppLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated]
+[debug] QUERY OK source="user_sessions" db=0.9ms queue=0.5ms idle=180.6ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=1.6ms queue=0.6ms idle=154.9ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="user_passkeys" db=2.8ms queue=1.3ms idle=143.4ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35
+[debug] QUERY OK source="user_identities" db=1.7ms queue=0.7ms idle=118.8ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36
+[debug] QUERY OK source="organization_memberships" db=2.9ms queue=0.5ms idle=110.2ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37
+[info] Sent 200 in 36ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 47µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT ExampleWeb.AppLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] QUERY OK source="user_sessions" db=8.0ms idle=233.2ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=3.2ms idle=216.3ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] QUERY OK source="user_passkeys" db=6.6ms idle=199.5ms
+SELECT count(*) FROM "auth"."user_passkeys" AS u0 WHERE (u0."user_id" = $1) [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:35
+[debug] QUERY OK source="user_identities" db=5.2ms idle=197.7ms
+SELECT DISTINCT u0."provider" FROM "auth"."user_identities" AS u0 WHERE (u0."user_id" = $1) ORDER BY u0."provider" [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:36
+[debug] QUERY OK source="organization_memberships" db=15.2ms idle=200.1ms
+SELECT o1."id", o1."name", o1."slug", o1."deleted_at", o1."personal", o1."owner_user_id", o1."inserted_at", o1."updated_at", o0."role" FROM "auth"."organization_memberships" AS o0 INNER JOIN "auth"."organizations" AS o1 ON o1."id" = o0."organization_id" WHERE (o0."user_id" = $1) AND (o1."deleted_at" IS NULL) ORDER BY o0."inserted_at" DESC [SQL arguments redacted]
+↳ ExampleWeb.AppLive.mount/3, at: lib/example_web/live/app_live.ex:37
+[debug] Replied in 42ms
+[info] GET /admin/_design
+[debug] Processing with ExampleWeb.Admin.DesignGalleryLive.__live__/0
+  Parameters: [authentication values redacted]
+  Pipelines: [:browser, :require_authenticated, :admin_global]
+[debug] QUERY OK source="user_sessions" db=0.5ms idle=245.5ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=0.4ms idle=243.5ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[info] Sent 200 in 26ms
+[info] CONNECTED TO Phoenix.LiveView.Socket in 24µs
+  Transport: :websocket
+  Serializer: Phoenix.Socket.V2.JSONSerializer
+  Parameters: [authentication values redacted]
+[debug] MOUNT ExampleWeb.Admin.DesignGalleryLive
+  Parameters: [authentication values redacted]
+  Session: [authentication values redacted]
+[debug] QUERY OK source="user_sessions" db=0.7ms idle=481.8ms
+SELECT u0."id", u0."hashed_token", u0."type", u0."ip", u0."user_agent", u0."geo_city", u0."geo_country_code", u0."last_active_at", u0."sudo_at", u0."active_organization_id", u0."user_id", u0."inserted_at" FROM "auth"."user_sessions" AS u0 WHERE (u0."hashed_token" = $1) [SQL arguments redacted]
+↳ Sigra.SessionStores.Ecto.fetch/2, at: lib/sigra/session_stores/ecto.ex:57
+[debug] QUERY OK source="users" db=1.1ms idle=478.7ms
+SELECT u0."id", u0."email", u0."display_name", u0."hashed_password", u0."confirmed_at", u0."failed_login_attempts", u0."locked_at", u0."password_changed_at", u0."pending_email", u0."deleted_at", u0."scheduled_deletion_at", u0."original_email", u0."must_change_password", u0."inserted_at", u0."updated_at" FROM "auth"."users" AS u0 WHERE (u0."id" = $1) [SQL arguments redacted]
+[authentication values redacted]
+[debug] Replied in 3ms
+[notice] SIGTERM received - shutting down
+

@@ -1,0 +1,61 @@
+{
+  "status": "verified_offline",
+  "tests": 20,
+  "results": [
+    {
+      "check": "paired-tests",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-plan172-repaired-source/test_paired.py"
+      ],
+      "exit": 0,
+      "log": "paired-tests.log"
+    },
+    {
+      "check": "source-tests",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-plan172-repaired-source/test_check.py"
+      ],
+      "exit": 0,
+      "log": "source-tests.log"
+    },
+    {
+      "check": "self-check",
+      "command": [
+        "python3",
+        "-B",
+        ".planning/execution/253-plan172-repaired-source/run_pair.py",
+        "--self-check"
+      ],
+      "exit": 0,
+      "log": "self-check.log"
+    },
+    {
+      "check": "shell-syntax",
+      "command": [
+        "bash",
+        "-n",
+        ".planning/execution/253-plan172-repaired-source/runtime/ci-pr-proof.sh"
+      ],
+      "exit": 0,
+      "log": "shell-syntax.log"
+    },
+    {
+      "check": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "log": "diff-check.log"
+    }
+  ],
+  "network_requests": 0,
+  "ci_launches": 0,
+  "hosted_acceptance": false,
+  "phase_verified": false
+}

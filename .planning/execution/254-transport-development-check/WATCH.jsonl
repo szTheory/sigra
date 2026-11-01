@@ -1,0 +1,7 @@
+{"at": "2026-10-24T02:26:11.005560+00:00", "kind": "started", "runs": [{"attempt": 1, "role": "after", "run_id": 40054033393}]}
+{"at": "2026-10-24T02:27:12.057422+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40054033393, "status": "in_progress"}
+{"at": "2026-10-24T02:28:13.105421+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40054033393, "status": "in_progress"}
+{"at": "2026-10-24T02:29:14.321926+00:00", "attempt": 1, "conclusion": "success", "kind": "status", "role": "after", "run_id": 40054033393, "status": "completed"}
+{"at": "2026-10-24T02:29:46.208589+00:00", "collection_exit_code": 0, "kind": "captured", "role": "after", "source_bundle": ".planning/execution/254-transport-development-check/RAW-after"}
+{"at": "2026-10-24T02:29:47.743204+00:00", "commit": "f4147fef7bac400ea8b88be07614469230c3211d", "files": 123, "kind": "preserved", "ref": "refs/evidence/phase254-transport-development-after-attempt-1", "role": "after"}
+{"at": "2026-10-24T02:29:47.743492+00:00", "completed": ["after"], "kind": "finished", "measured_samples": 0}

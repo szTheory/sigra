@@ -1,0 +1,310 @@
+﻿2026-10-23T22:07:38.0451672Z Current runner version: '2.338.0'
+2026-10-23T22:07:38.0489656Z ##[group]Runner Image Provisioner
+2026-10-23T22:07:38.0491265Z Hosted Compute Agent
+2026-10-23T22:07:38.0492217Z Version: 20261012.601
+2026-10-23T22:07:38.0493279Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-23T22:07:38.0494501Z Build Date: 2026-10-12T17:48:21Z
+2026-10-23T22:07:38.0495653Z Worker ID: {b23f78ca-e48e-4df8-af28-538366c51587}
+2026-10-23T22:07:38.0497010Z Region: eastus
+2026-10-23T22:07:38.0497990Z Cloud: Azure
+2026-10-23T22:07:38.0498878Z ##[endgroup]
+2026-10-23T22:07:38.0502097Z ##[group]Operating System
+2026-10-23T22:07:38.0503340Z Ubuntu
+2026-10-23T22:07:38.0504479Z 24.04.5
+2026-10-23T22:07:38.0505444Z LTS
+2026-10-23T22:07:38.0506395Z ##[endgroup]
+2026-10-23T22:07:38.0507244Z ##[group]Runner Image
+2026-10-23T22:07:38.0508109Z Image: ubuntu-24.04
+2026-10-23T22:07:38.0509408Z Version: 20261012.334.1
+2026-10-23T22:07:38.0511559Z Included Software: [URL REDACTED]
+2026-10-23T22:07:38.0514302Z Image Release: [URL REDACTED]
+2026-10-23T22:07:38.0515919Z ##[endgroup]
+2026-10-23T22:07:38.0517940Z ##[group]GITHUB_TOKEN Permissions
+2026-10-23T22:07:38.0521125Z Contents: read
+2026-10-23T22:07:38.0522210Z Metadata: read
+2026-10-23T22:07:38.0523085Z ##[endgroup]
+2026-10-23T22:07:38.0526540Z Secret source: Actions
+2026-10-23T22:07:38.0528019Z Cache mode: write
+2026-10-23T22:07:38.0529974Z Prepare workflow directory
+2026-10-23T22:07:38.1024949Z Prepare all required actions
+2026-10-23T22:07:38.1097812Z Getting action download info
+2026-10-23T22:07:38.2995058Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-23T22:07:38.4891396Z Complete job name: Detect docs-only change
+2026-10-23T22:07:38.5804611Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-10-23T22:07:38.5805795Z with:
+2026-10-23T22:07:38.5806266Z   fetch-depth: 0
+2026-10-23T22:07:38.5806753Z   repository: szTheory/sigra
+2026-10-23T22:07:38.5810774Z   token: ***
+2026-10-23T22:07:38.5811246Z   ssh-strict: true
+2026-10-23T22:07:38.5811713Z   ssh-user: git
+2026-10-23T22:07:38.5812185Z   persist-credentials: true
+2026-10-23T22:07:38.5812688Z   clean: true
+2026-10-23T22:07:38.5813155Z   sparse-checkout-cone-mode: true
+2026-10-23T22:07:38.5813685Z   fetch-tags: false
+2026-10-23T22:07:38.5814148Z   show-progress: true
+2026-10-23T22:07:38.5814605Z   lfs: false
+2026-10-23T22:07:38.5815029Z   submodules: false
+2026-10-23T22:07:38.5815495Z   set-safe-directory: true
+2026-10-23T22:07:38.5816024Z   allow-unsafe-pr-checkout: false
+2026-10-23T22:07:38.5816868Z ##[endgroup]
+2026-10-23T22:07:38.6795242Z Syncing repository: szTheory/sigra
+2026-10-23T22:07:38.6797208Z ##[group]Getting Git version info
+2026-10-23T22:07:38.6798010Z Working directory is '/home/runner/work/sigra/sigra'
+2026-10-23T22:07:38.6799411Z [command]/usr/bin/git version
+2026-10-23T22:07:38.6868551Z git version 2.55.0
+2026-10-23T22:07:38.6889757Z ##[endgroup]
+2026-10-23T22:07:38.6900731Z Temporarily overriding HOME='/home/runner/work/_temp/ca9ba6d6-7611-4752-84dc-72e6af18f3fc' before making global git config changes
+2026-10-23T22:07:38.6903055Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-23T22:07:38.6905728Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sigra/sigra
+2026-10-23T22:07:38.6952335Z Deleting the contents of '/home/runner/work/sigra/sigra'
+2026-10-23T22:07:38.6955759Z ##[group]Determining repository object format
+2026-10-23T22:07:38.6957408Z ##[endgroup]
+2026-10-23T22:07:38.6958219Z ##[group]Initializing the repository
+2026-10-23T22:07:38.6962147Z [command]/usr/bin/git init /home/runner/work/sigra/sigra
+2026-10-23T22:07:38.7080575Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-23T22:07:38.7082421Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-23T22:07:38.7085006Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-23T22:07:38.7086739Z hint: call:
+2026-10-23T22:07:38.7087749Z hint:
+2026-10-23T22:07:38.7088501Z hint: 	git config --global init.defaultBranch <name>
+2026-10-23T22:07:38.7089666Z hint:
+2026-10-23T22:07:38.7090464Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-23T22:07:38.7091760Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-23T22:07:38.7093250Z hint:
+2026-10-23T22:07:38.7094238Z hint: 	git branch -m <name>
+2026-10-23T22:07:38.7094847Z hint:
+2026-10-23T22:07:38.7095495Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-23T22:07:38.7096517Z Initialized empty Git repository in /home/runner/work/sigra/sigra/.git/
+2026-10-23T22:07:38.7098274Z [command]/usr/bin/git remote add origin [URL REDACTED]
+2026-10-23T22:07:38.7156126Z ##[endgroup]
+2026-10-23T22:07:38.7157004Z ##[group]Disabling automatic garbage collection
+2026-10-23T22:07:38.7159935Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-23T22:07:38.7193014Z ##[endgroup]
+2026-10-23T22:07:38.7194170Z ##[group]Setting up auth
+2026-10-23T22:07:38.7194781Z Removing SSH command configuration
+2026-10-23T22:07:38.7199543Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-23T22:07:38.7234429Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-23T22:07:38.7589745Z Removing HTTP extra header
+2026-10-23T22:07:38.7596913Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-23T22:07:38.7632205Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.[URL REDACTED] || :"
+2026-10-23T22:07:38.7855109Z Removing includeIf entries pointing to credentials config files
+2026-10-23T22:07:38.7861082Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-23T22:07:38.7903877Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-23T22:07:38.8131189Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-32680009-8058-41b8-81ae-6f8b2844726e.config http.[URL REDACTED] AUTHORIZATION: basic ***
+2026-10-23T22:07:38.8168751Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/sigra/sigra/.git.path /home/runner/work/_temp/git-credentials-32680009-8058-41b8-81ae-6f8b2844726e.config
+2026-10-23T22:07:38.8201009Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-32680009-8058-41b8-81ae-6f8b2844726e.config
+2026-10-23T22:07:38.8236758Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-32680009-8058-41b8-81ae-6f8b2844726e.config
+2026-10-23T22:07:38.8269884Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-32680009-8058-41b8-81ae-6f8b2844726e.config
+2026-10-23T22:07:38.8298657Z ##[endgroup]
+2026-10-23T22:07:38.8300346Z ##[group]Fetching the repository
+2026-10-23T22:07:38.8307726Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17:refs/remotes/pull/331/merge
+2026-10-23T22:07:44.2142345Z From [URL REDACTED]
+2026-10-23T22:07:44.2144627Z  * [new branch]        agent-247-01-phase246-promotion          -> origin/agent-247-01-phase246-promotion
+2026-10-23T22:07:44.2147131Z  * [new branch]        agent-247-08-key-presence                -> origin/agent-247-08-key-presence
+2026-10-23T22:07:44.2149924Z  * [new branch]        agent-247-scoped-release-source          -> origin/agent-247-scoped-release-source
+2026-10-23T22:07:44.2152897Z  * [new branch]        agent-phase247-evidence-final            -> origin/agent-phase247-evidence-final
+2026-10-23T22:07:44.2155058Z  * [new branch]        chore/phase-88-uat-evidence              -> origin/chore/phase-88-uat-evidence
+2026-10-23T22:07:44.2157554Z  * [new branch]        chore/playwright-github-pages-ci         -> origin/chore/playwright-github-pages-ci
+2026-10-23T22:07:44.2160446Z  * [new branch]        ci/efficiency-quick-wins                 -> origin/ci/efficiency-quick-wins
+2026-10-23T22:07:44.2162494Z  * [new branch]        ci/phase-235-1-evidence                  -> origin/ci/phase-235-1-evidence
+2026-10-23T22:07:44.2165019Z  * [new branch]        ci/phase-235-16-source-complete          -> origin/ci/phase-235-16-source-complete
+2026-10-23T22:07:44.2167418Z  * [new branch]        ci/phase-88-provenance                   -> origin/ci/phase-88-provenance
+2026-10-23T22:07:44.2170596Z  * [new branch]        ci/recapture-admin-checkpoints-30658359487 -> origin/ci/recapture-admin-checkpoints-30658359487
+2026-10-23T22:07:44.2174176Z  * [new branch]        ci/recapture-admin-checkpoints-31043224661 -> origin/ci/recapture-admin-checkpoints-31043224661
+2026-10-23T22:07:44.2177483Z  * [new branch]        codex/250-06-canary-repair               -> origin/codex/250-06-canary-repair
+2026-10-23T22:07:44.2180979Z  * [new branch]        codex/250-07-observer-source-id-mode-fix -> origin/codex/250-07-observer-source-id-mode-fix
+2026-10-23T22:07:44.2184253Z  * [new branch]        codex/diagnose-release-receipt           -> origin/codex/diagnose-release-receipt
+2026-10-23T22:07:44.2187761Z  * [new branch]        codex/fix-oban-registry-test-race        -> origin/codex/fix-oban-registry-test-race
+2026-10-23T22:07:44.2191393Z  * [new branch]        codex/fix-release-start-timestamp        -> origin/codex/fix-release-start-timestamp
+2026-10-23T22:07:44.2194602Z  * [new branch]        codex/phase-250-fetch-history-20261010   -> origin/codex/phase-250-fetch-history-20261010
+2026-10-23T22:07:44.2198003Z  * [new branch]        codex/phase-250-no-publish-canary-20261010 -> origin/codex/phase-250-no-publish-canary-20261010
+2026-10-23T22:07:44.2201901Z  * [new branch]        codex/phase-250-preflight-evidence-20261010 -> origin/codex/phase-250-preflight-evidence-20261010
+2026-10-23T22:07:44.2205455Z  * [new branch]        codex/phase-250-preflight-refresh-20261010 -> origin/codex/phase-250-preflight-refresh-20261010
+2026-10-23T22:07:44.2209312Z  * [new branch]        codex/phase-250-preflight-snapshot-20261010 -> origin/codex/phase-250-preflight-snapshot-20261010
+2026-10-23T22:07:44.2212835Z  * [new branch]        codex/phase-250-proof-metadata-20261010  -> origin/codex/phase-250-proof-metadata-20261010
+2026-10-23T22:07:44.2216211Z  * [new branch]        codex/phase248-automerge-ledger-fix      -> origin/codex/phase248-automerge-ledger-fix
+2026-10-23T22:07:44.2219896Z  * [new branch]        codex/release-claim-version-scope        -> origin/codex/release-claim-version-scope
+2026-10-23T22:07:44.2223141Z  * [new branch]        codex/release-docs-post-push-retry       -> origin/codex/release-docs-post-push-retry
+2026-10-23T22:07:44.2227076Z  * [new branch]        dependabot/github_actions/actions/download-artifact-8.0.2 -> origin/dependabot/github_actions/actions/download-artifact-8.0.2
+2026-10-23T22:07:44.2232002Z  * [new branch]        dependabot/github_actions/actions/setup-node-7.1.0 -> origin/dependabot/github_actions/actions/setup-node-7.1.0
+2026-10-23T22:07:44.2236632Z  * [new branch]        dependabot/github_actions/actions/upload-artifact-7.0.2 -> origin/dependabot/github_actions/actions/upload-artifact-7.0.2
+2026-10-23T22:07:44.2241360Z  * [new branch]        dependabot/hex/mix-minor-patch-fc793a1886 -> origin/dependabot/hex/mix-minor-patch-fc793a1886
+2026-10-23T22:07:44.2244938Z  * [new branch]        dependabot/hex/threadline-1.0.1          -> origin/dependabot/hex/threadline-1.0.1
+2026-10-23T22:07:44.2249635Z  * [new branch]        dependabot/npm_and_yarn/test/example/priv/playwright/npm-minor-patch-369f6c29ad -> origin/dependabot/npm_and_yarn/test/example/priv/playwright/npm-minor-patch-369f6c29ad
+2026-10-23T22:07:44.2255385Z  * [new branch]        dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.64.0 -> origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.64.0
+2026-10-23T22:07:44.2261560Z  * [new branch]        dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0 -> origin/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0
+2026-10-23T22:07:44.2266620Z  * [new branch]        docs/230-phase-complete                  -> origin/docs/230-phase-complete
+2026-10-23T22:07:44.2270009Z  * [new branch]        docs/phase-240-planning                  -> origin/docs/phase-240-planning
+2026-10-23T22:07:44.2272747Z  * [new branch]        elevate-03-wave-v144-pr                  -> origin/elevate-03-wave-v144-pr
+2026-10-23T22:07:44.2275601Z  * [new branch]        evidence/247-plan07-rebind               -> origin/evidence/247-plan07-rebind
+2026-10-23T22:07:44.2278681Z  * [new branch]        evidence/phase-241-final-head-782328e65c13 -> origin/evidence/phase-241-final-head-782328e65c13
+2026-10-23T22:07:44.2282302Z  * [new branch]        evidence/phase-241-final-head-b09d04bf7bc3 -> origin/evidence/phase-241-final-head-b09d04bf7bc3
+2026-10-23T22:07:44.2287017Z  * [new branch]        evidence/phase-241-final-head-c4036a571eeb -> origin/evidence/phase-241-final-head-c4036a571eeb
+2026-10-23T22:07:44.2290930Z  * [new branch]        evidence/phase-241-final-head-cd1e7e1252da -> origin/evidence/phase-241-final-head-cd1e7e1252da
+2026-10-23T22:07:44.2294628Z  * [new branch]        evidence/phase-241-final-head-d949725a313a -> origin/evidence/phase-241-final-head-d949725a313a
+2026-10-23T22:07:44.2298253Z  * [new branch]        evidence/phase-241-final-head-f822381d0ab0 -> origin/evidence/phase-241-final-head-f822381d0ab0
+2026-10-23T22:07:44.2301600Z  * [new branch]        evidence/phase-247-hex-dry-run           -> origin/evidence/phase-247-hex-dry-run
+2026-10-23T22:07:44.2305018Z  * [new branch]        evidence/phase250-diagnostic-preservation-20261011 -> origin/evidence/phase250-diagnostic-preservation-20261011
+2026-10-23T22:07:44.2308435Z  * [new branch]        evidence/phase252-06-5a2dc5bf            -> origin/evidence/phase252-06-5a2dc5bf
+2026-10-23T22:07:44.2311887Z  * [new branch]        evidence/phase254-rerun-candidate-20261023 -> origin/evidence/phase254-rerun-candidate-20261023
+2026-10-23T22:07:44.2314874Z  * [new branch]        evidence/request-21-f061                 -> origin/evidence/request-21-f061
+2026-10-23T22:07:44.2317667Z  * [new branch]        fix/250-observer-metadata-20261011       -> origin/fix/250-observer-metadata-20261011
+2026-10-23T22:07:44.2321157Z  * [new branch]        fix/chimeway-opaque-recipient-backport-62ceb46 -> origin/fix/chimeway-opaque-recipient-backport-62ceb46
+2026-10-23T22:07:44.2324750Z  * [new branch]        fix/phase-249-public-proof-redirect-hosts -> origin/fix/phase-249-public-proof-redirect-hosts
+2026-10-23T22:07:44.2327942Z  * [new branch]        fix/phase250-admin-eval-registration     -> origin/fix/phase250-admin-eval-registration
+2026-10-23T22:07:44.2330805Z  * [new branch]        gh-pages                                 -> origin/gh-pages
+2026-10-23T22:07:44.2333394Z  * [new branch]        gsd/235-13-producer-manifest-chronology  -> origin/gsd/235-13-producer-manifest-chronology
+2026-10-23T22:07:44.2336394Z  * [new branch]        gsd/237-238-clean-baseline               -> origin/gsd/237-238-clean-baseline
+2026-10-23T22:07:44.2339625Z  * [new branch]        gsd/238-generated-auth-runtime-proof-evidence -> origin/gsd/238-generated-auth-runtime-proof-evidence
+2026-10-23T22:07:44.2343296Z  * [new branch]        gsd/253-gate-canary-fixture-20261013T044113Z-67104 -> origin/gsd/253-gate-canary-fixture-20261013T044113Z-67104
+2026-10-23T22:07:44.2346741Z  * [new branch]        gsd/253-proof-16800f431-candidate        -> origin/gsd/253-proof-16800f431-candidate
+2026-10-23T22:07:44.2349801Z  * [new branch]        gsd/253-proof-16800f431-fixture          -> origin/gsd/253-proof-16800f431-fixture
+2026-10-23T22:07:44.2352690Z  * [new branch]        gsd/253-proof-16800f431-next-candidate   -> origin/gsd/253-proof-16800f431-next-candidate
+2026-10-23T22:07:44.2355675Z  * [new branch]        gsd/253-proof-16800f431-next-fixture     -> origin/gsd/253-proof-16800f431-next-fixture
+2026-10-23T22:07:44.2358718Z  * [new branch]        gsd/253-replan-proof-16800f431-candidate -> origin/gsd/253-replan-proof-16800f431-candidate
+2026-10-23T22:07:44.2361980Z  * [new branch]        gsd/253-replan-proof-16800f431-fixture   -> origin/gsd/253-replan-proof-16800f431-fixture
+2026-10-23T22:07:44.2365083Z  * [new branch]        gsd/253-replan-proof-4734916ee-candidate -> origin/gsd/253-replan-proof-4734916ee-candidate
+2026-10-23T22:07:44.2368189Z  * [new branch]        gsd/253-replan-proof-4734916ee-fixture   -> origin/gsd/253-replan-proof-4734916ee-fixture
+2026-10-23T22:07:44.2371579Z  * [new branch]        gsd/253-replan-proof-5e13621e5-candidate -> origin/gsd/253-replan-proof-5e13621e5-candidate
+2026-10-23T22:07:44.2374718Z  * [new branch]        gsd/253-replan-proof-5e13621e5-docs-base -> origin/gsd/253-replan-proof-5e13621e5-docs-base
+2026-10-23T22:07:44.2377820Z  * [new branch]        gsd/253-replan-proof-5e13621e5-docs-head -> origin/gsd/253-replan-proof-5e13621e5-docs-head
+2026-10-23T22:07:44.2381082Z  * [new branch]        gsd/253-replan-proof-a6838a8f9-candidate -> origin/gsd/253-replan-proof-a6838a8f9-candidate
+2026-10-23T22:07:44.2384391Z  * [new branch]        gsd/253-replan-proof-a6838a8f9-docs-base -> origin/gsd/253-replan-proof-a6838a8f9-docs-base
+2026-10-23T22:07:44.2387575Z  * [new branch]        gsd/253-replan-proof-a6838a8f9-docs-head -> origin/gsd/253-replan-proof-a6838a8f9-docs-head
+2026-10-23T22:07:44.2391032Z  * [new branch]        gsd/253-replan-proof-a6838a8f9-fixture   -> origin/gsd/253-replan-proof-a6838a8f9-fixture
+2026-10-23T22:07:44.2393860Z  * [new branch]        gsd/253-replan-r10-candidate             -> origin/gsd/253-replan-r10-candidate
+2026-10-23T22:07:44.2396429Z  * [new branch]        gsd/253-replan-r10-fixture               -> origin/gsd/253-replan-r10-fixture
+2026-10-23T22:07:44.2399136Z  * [new branch]        gsd/253-replan-r11-candidate             -> origin/gsd/253-replan-r11-candidate
+2026-10-23T22:07:44.2401661Z  * [new branch]        gsd/253-replan-r11-fixture               -> origin/gsd/253-replan-r11-fixture
+2026-10-23T22:07:44.2404186Z  * [new branch]        gsd/253-replan-r12-candidate             -> origin/gsd/253-replan-r12-candidate
+2026-10-23T22:07:44.2406710Z  * [new branch]        gsd/253-replan-r12-fixture               -> origin/gsd/253-replan-r12-fixture
+2026-10-23T22:07:44.2409480Z  * [new branch]        gsd/253-replan-r13-candidate             -> origin/gsd/253-replan-r13-candidate
+2026-10-23T22:07:44.2412648Z  * [new branch]        gsd/253-replan-r13-fixture               -> origin/gsd/253-replan-r13-fixture
+2026-10-23T22:07:44.2415166Z  * [new branch]        gsd/253-replan-r8-candidate              -> origin/gsd/253-replan-r8-candidate
+2026-10-23T22:07:44.2417645Z  * [new branch]        gsd/253-replan-r8-fixture                -> origin/gsd/253-replan-r8-fixture
+2026-10-23T22:07:44.2420277Z  * [new branch]        gsd/253-replan-r9-candidate              -> origin/gsd/253-replan-r9-candidate
+2026-10-23T22:07:44.2422755Z  * [new branch]        gsd/253-replan-r9-fixture                -> origin/gsd/253-replan-r9-fixture
+2026-10-23T22:07:44.2425417Z  * [new branch]        gsd/phase-232-playwright-economics       -> origin/gsd/phase-232-playwright-economics
+2026-10-23T22:07:44.2428215Z  * [new branch]        gsd/phase-246-confirmation-guard         -> origin/gsd/phase-246-confirmation-guard
+2026-10-23T22:07:44.2431757Z  * [new branch]        gsd/phase-246-generated-confirmation-recovery-ci -> origin/gsd/phase-246-generated-confirmation-recovery-ci
+2026-10-23T22:07:44.2435011Z  * [new branch]        gsd/phase-249-09-candidate               -> origin/gsd/phase-249-09-candidate
+2026-10-23T22:07:44.2437092Z  * [new branch]        main                                     -> origin/main
+2026-10-23T22:07:44.2439224Z  * [new branch]        phase-242-execution                      -> origin/phase-242-execution
+2026-10-23T22:07:44.2441958Z  * [new branch]        phase-242-hex-remediation-infrastructure -> origin/phase-242-hex-remediation-infrastructure
+2026-10-23T22:07:44.2444878Z  * [new branch]        phase-244-full-baseline-capture          -> origin/phase-244-full-baseline-capture
+2026-10-23T22:07:44.2447393Z  * [new branch]        phase-244-full-webkit                    -> origin/phase-244-full-webkit
+2026-10-23T22:07:44.2450169Z  * [new branch]        phase-244-measure-workflow-fix           -> origin/phase-244-measure-workflow-fix
+2026-10-23T22:07:44.2452793Z  * [new branch]        phase-244-render-webkit-path             -> origin/phase-244-render-webkit-path
+2026-10-23T22:07:44.2455191Z  * [new branch]        phase-244-routing-pr                     -> origin/phase-244-routing-pr
+2026-10-23T22:07:44.2457534Z  * [new branch]        phase-244-share-beam-setup               -> origin/phase-244-share-beam-setup
+2026-10-23T22:07:44.2460057Z  * [new branch]        phase-244-webkit-deps                    -> origin/phase-244-webkit-deps
+2026-10-23T22:07:44.2462310Z  * [new branch]        phase-244/measurement                    -> origin/phase-244/measurement
+2026-10-23T22:07:44.2464626Z  * [new branch]        phase247-evidence-rebind                 -> origin/phase247-evidence-rebind
+2026-10-23T22:07:44.2467089Z  * [new branch]        phase247/receipt-diagnostics             -> origin/phase247/receipt-diagnostics
+2026-10-23T22:07:44.2470455Z  * [new branch]        phase250/admin-eval-registration-diagnostics -> origin/phase250/admin-eval-registration-diagnostics
+2026-10-23T22:07:44.2473508Z  * [new branch]        release-please--branches--main           -> origin/release-please--branches--main
+2026-10-23T22:07:44.2476635Z  * [new branch]        safety/local-main-before-release-cleanup-20260831 -> origin/safety/local-main-before-release-cleanup-20260831
+2026-10-23T22:07:44.2479512Z  * [new branch]        v1.1-pr                                  -> origin/v1.1-pr
+2026-10-23T22:07:44.2481548Z  * [new branch]        worktree-agent-p242-03                   -> origin/worktree-agent-p242-03
+2026-10-23T22:07:44.2483839Z  * [new branch]        worktree-agent-p242-11                   -> origin/worktree-agent-p242-11
+2026-10-23T22:07:44.2486130Z  * [new branch]        worktree-agent-p242-13                   -> origin/worktree-agent-p242-13
+2026-10-23T22:07:44.2488569Z  * [new branch]        worktree-agent-p242-artifacts            -> origin/worktree-agent-p242-artifacts
+2026-10-23T22:07:44.2491390Z  * [new tag]           archive/local-main-pre-235-recovery      -> archive/local-main-pre-235-recovery
+2026-10-23T22:07:44.2493450Z  * [new tag]           v0.2.1                                   -> v0.2.1
+2026-10-23T22:07:44.2494969Z  * [new tag]           v0.2.2                                   -> v0.2.2
+2026-10-23T22:07:44.2496501Z  * [new tag]           v0.2.3                                   -> v0.2.3
+2026-10-23T22:07:44.2498029Z  * [new tag]           v0.2.4                                   -> v0.2.4
+2026-10-23T22:07:44.2499704Z  * [new tag]           v0.2.5                                   -> v0.2.5
+2026-10-23T22:07:44.2501228Z  * [new tag]           v0.3.0                                   -> v0.3.0
+2026-10-23T22:07:44.2502756Z  * [new tag]           v1.0.0                                   -> v1.0.0
+2026-10-23T22:07:44.2504297Z  * [new tag]           v1.1.0                                   -> v1.1.0
+2026-10-23T22:07:44.2505823Z  * [new tag]           v1.2.0                                   -> v1.2.0
+2026-10-23T22:07:44.2507349Z  * [new tag]           v1.3.0                                   -> v1.3.0
+2026-10-23T22:07:44.2509388Z  * [new tag]           v1.4.0                                   -> v1.4.0
+2026-10-23T22:07:44.2511012Z  * [new tag]           v1.5.0                                   -> v1.5.0
+2026-10-23T22:07:44.2512526Z  * [new tag]           v1.6.0                                   -> v1.6.0
+2026-10-23T22:07:44.2514044Z  * [new tag]           v1.7.0                                   -> v1.7.0
+2026-10-23T22:07:44.2515552Z  * [new tag]           v1.7.1                                   -> v1.7.1
+2026-10-23T22:07:44.2517070Z  * [new tag]           v1.7.2                                   -> v1.7.2
+2026-10-23T22:07:44.2518801Z  * [new ref]           cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17 -> pull/331/merge
+2026-10-23T22:07:44.2522766Z ##[endgroup]
+2026-10-23T22:07:44.2524179Z ##[group]Determining the checkout info
+2026-10-23T22:07:44.2525834Z ##[endgroup]
+2026-10-23T22:07:44.2526746Z [command]/usr/bin/git sparse-checkout disable
+2026-10-23T22:07:44.2529764Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-23T22:07:44.2533118Z ##[group]Checking out the ref
+2026-10-23T22:07:44.2534573Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/331/merge
+2026-10-23T22:07:44.5347178Z Note: switching to 'refs/remotes/pull/331/merge'.
+2026-10-23T22:07:44.5348595Z 
+2026-10-23T22:07:44.5349321Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-23T22:07:44.5350376Z changes and commit them, and you can discard any commits you make in this
+2026-10-23T22:07:44.5351333Z state without impacting any branches by switching back to a branch.
+2026-10-23T22:07:44.5351898Z 
+2026-10-23T22:07:44.5352298Z If you want to create a new branch to retain commits you create, you may
+2026-10-23T22:07:44.5353233Z do so (now or later) by using -c with the switch command. Example:
+2026-10-23T22:07:44.5354131Z 
+2026-10-23T22:07:44.5354404Z   git switch -c <new-branch-name>
+2026-10-23T22:07:44.5354750Z 
+2026-10-23T22:07:44.5354990Z Or undo this operation with:
+2026-10-23T22:07:44.5355319Z 
+2026-10-23T22:07:44.5355516Z   git switch -
+2026-10-23T22:07:44.5355784Z 
+2026-10-23T22:07:44.5356272Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-23T22:07:44.5356832Z 
+2026-10-23T22:07:44.5357476Z HEAD is now at cc8cd273 Merge d4dcc1939bd1f1590f6ca01d55b861e31acc745f into 4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97
+2026-10-23T22:07:44.5378513Z ##[endgroup]
+2026-10-23T22:07:44.5428141Z [command]/usr/bin/git log -1 --format=%H
+2026-10-23T22:07:44.5457516Z cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17
+2026-10-23T22:07:44.5784344Z ##[group]Run set -euo pipefail
+2026-10-23T22:07:44.5784850Z [36;1mset -euo pipefail[0m
+2026-10-23T22:07:44.5785262Z [36;1mif [ "${EVENT_NAME}" != "pull_request" ]; then[0m
+2026-10-23T22:07:44.5785702Z [36;1m  echo "docs_only=false" >> "$GITHUB_OUTPUT"[0m
+2026-10-23T22:07:44.5786073Z [36;1m  exit 0[0m
+2026-10-23T22:07:44.5786336Z [36;1mfi[0m
+2026-10-23T22:07:44.5786645Z [36;1mgit fetch origin "${BASE_REF}" --depth=1[0m
+2026-10-23T22:07:44.5787350Z [36;1mgit diff --name-only "origin/${BASE_REF}...HEAD" | bash scripts/ci/docs-only-classify.sh | tee -a "$GITHUB_OUTPUT"[0m
+2026-10-23T22:07:44.6054177Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-23T22:07:44.6054837Z env:
+2026-10-23T22:07:44.6055205Z   EVENT_NAME: pull_request
+2026-10-23T22:07:44.6055622Z   BASE_REF: main
+2026-10-23T22:07:44.6055995Z ##[endgroup]
+2026-10-23T22:07:44.9376000Z From [URL REDACTED]
+2026-10-23T22:07:44.9376585Z  * branch              main       -> FETCH_HEAD
+2026-10-23T22:07:44.9596231Z fatal: origin/main...HEAD: no merge base
+2026-10-23T22:07:44.9601635Z docs_only=true
+2026-10-23T22:07:44.9621570Z ##[error]Process completed with exit code 128.
+2026-10-23T22:07:44.9785210Z Post job cleanup.
+2026-10-23T22:07:45.0662790Z [command]/usr/bin/git version
+2026-10-23T22:07:45.0712449Z git version 2.55.0
+2026-10-23T22:07:45.0749881Z Temporarily overriding HOME='/home/runner/work/_temp/14094255-a7db-4cf6-bb43-cd6baa603f40' before making global git config changes
+2026-10-23T22:07:45.0751357Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-23T22:07:45.0754991Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sigra/sigra
+2026-10-23T22:07:45.0794197Z Removing SSH command configuration
+2026-10-23T22:07:45.0801255Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-23T22:07:45.0839655Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-23T22:07:45.1078836Z Removing HTTP extra header
+2026-10-23T22:07:45.1084763Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-23T22:07:45.1124271Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.[URL REDACTED] || :"
+2026-10-23T22:07:45.1355436Z Removing includeIf entries pointing to credentials config files
+2026-10-23T22:07:45.1363159Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-23T22:07:45.1392177Z includeif.gitdir:/home/runner/work/sigra/sigra/.git.path
+2026-10-23T22:07:45.1393308Z includeif.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path
+2026-10-23T22:07:45.1394287Z includeif.gitdir:/github/workspace/.git.path
+2026-10-23T22:07:45.1395144Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-23T22:07:45.1401640Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/sigra/sigra/.git.path
+2026-10-23T22:07:45.1456731Z /home/runner/work/_temp/git-credentials-32680009-8058-41b8-81ae-6f8b2844726e.config
+2026-10-23T22:07:45.1466933Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/sigra/sigra/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-32680009\-8058\-41b8\-81ae\-6f8b2844726e\.config
+2026-10-23T22:07:45.1502624Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path
+2026-10-23T22:07:45.1527145Z /home/runner/work/_temp/git-credentials-32680009-8058-41b8-81ae-6f8b2844726e.config
+2026-10-23T22:07:45.1536484Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/sigra/sigra/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-32680009\-8058\-41b8\-81ae\-6f8b2844726e\.config
+2026-10-23T22:07:45.1568555Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-23T22:07:45.1590965Z /github/runner_temp/git-credentials-32680009-8058-41b8-81ae-6f8b2844726e.config
+2026-10-23T22:07:45.1600077Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-32680009\-8058\-41b8\-81ae\-6f8b2844726e\.config
+2026-10-23T22:07:45.1635133Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-23T22:07:45.1657206Z /github/runner_temp/git-credentials-32680009-8058-41b8-81ae-6f8b2844726e.config
+2026-10-23T22:07:45.1667330Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-32680009\-8058\-41b8\-81ae\-6f8b2844726e\.config
+2026-10-23T22:07:45.1704364Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-23T22:07:45.1938582Z Removing credentials config '/home/runner/work/_temp/git-credentials-32680009-8058-41b8-81ae-6f8b2844726e.config'
+2026-10-23T22:07:45.2094930Z Evaluate and set job outputs
+2026-10-23T22:07:45.2101723Z Set output 'docs_only'
+2026-10-23T22:07:45.2103987Z Cleaning up orphan processes

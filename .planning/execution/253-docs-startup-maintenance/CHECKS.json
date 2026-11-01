@@ -1,0 +1,29 @@
+{
+  "status": "offline_verified_new_approval_required",
+  "bundle_sha256": "8ce91280fbf7f89b7a665903d28d0cf97495994f3d9fe733ae94d238271e97f5",
+  "actual_prior_failure": "ModuleNotFoundError: No module named 'execution_guard'",
+  "repair": "Load the exact sibling guard by absolute file path",
+  "tests": 7,
+  "tests_passed": true,
+  "actual_shell_red_reproduced": true,
+  "actual_shell_green_reaches_request_guard": true,
+  "actual_shell_test_network_requests": 0,
+  "startup_test_before_new_allocation": true,
+  "prior_attempt_commit": "43b661d2b",
+  "prior_attempt_exact_readback_verified": true,
+  "prior_attempt_requests": 1,
+  "prior_attempt_prs": 0,
+  "prior_attempt_ci_launches": 0,
+  "new_bundle_network_requests": 0,
+  "new_bundle_approval_received": false,
+  "normal_pr341_retained": true,
+  "historical_halts_unchanged": 29,
+  "old_windows_reopened": 0,
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted_missing_docs_only"
+  },
+  "phase_verification_status": "not_started",
+  "shared_routes_aligned": true,
+  "next_command": "$gsd-execute-phase 253 --gaps-only"
+}

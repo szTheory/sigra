@@ -1,0 +1,43 @@
+{
+  "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "archive_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+  "log_sha256": "9eb5c33dd861f310f06d3ab5f559c14d05952d09d6203faf668ad478b76c3a0c",
+  "archive_member": "./raw/families/38205503164/failed-job.log",
+  "selected_failure": {
+    "timestamp": "2026-10-12T05:15:48.2331749Z",
+    "outcome": "failed",
+    "ordinal": 161,
+    "project": "admin-eval-dark",
+    "source_line": 442,
+    "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/populated",
+    "log_line": 3180
+  },
+  "node": {
+    "version": "v20.20.2",
+    "log_line": 318
+  },
+  "postgres_image": "public.ecr.aws/docker/library/postgres@sha256:c961aa287d8698297cb26cdfadfbe9fd2cbaf77e53cfffe9636e8d8a1e4d842c",
+  "postgres_digest_receipt": {
+    "line": 119,
+    "text": "2026-10-12T04:52:12.5424121Z Digest: sha256:c961aa287d8698297cb26cdfadfbe9fd2cbaf77e53cfffe9636e8d8a1e4d842c"
+  },
+  "otp": {
+    "line": 273,
+    "text": "2026-10-12T04:52:31.8786534Z ##[group]Installing Erlang/OTP OTP-28.5 - built on amd64/ubuntu-24.04"
+  },
+  "elixir": {
+    "line": 281,
+    "text": "2026-10-12T04:52:35.5912073Z ##[group]Installing Elixir v1.19.5-otp-28"
+  },
+  "runner_image": {
+    "line": 18,
+    "text": "2026-10-12T04:51:55.2042161Z Version: 20261004.327.1"
+  },
+  "remaining_unknown": [
+    "original database snapshot and exact account state",
+    "pageState fields after finalUrl were removed by archive redaction",
+    "cause of the registration failure; order alone does not establish it"
+  ],
+  "browser_invocations": 0,
+  "github_requests": 0
+}

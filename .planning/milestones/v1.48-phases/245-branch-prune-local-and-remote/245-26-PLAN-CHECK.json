@@ -1,0 +1,286 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-26",
+  "checked_at": "2026-10-01T15:51:42.451123Z",
+  "status": "passed",
+  "scope": "planning verification only; implementation and live continuation not executed",
+  "implementation_verified": false,
+  "plan_sha256": "250fb8115a35f8e6502cd3bade1571d65c8c5d585d72ffe1e24ee48134e7a461",
+  "source_preflight_sha256": "57d084ea7c6814706578fb99ae5e1d45a89ca53e6e66988da7fb2f9ddd5de492",
+  "frontmatter": {
+    "valid": true,
+    "missing": [],
+    "present": [
+      "phase",
+      "plan",
+      "type",
+      "wave",
+      "depends_on",
+      "files_modified",
+      "autonomous",
+      "must_haves",
+      "gap_closure"
+    ],
+    "invalidValue": [],
+    "schema": "plan-gap-closure"
+  },
+  "structure": {
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "task_count": 3,
+    "tasks": [
+      {
+        "name": "Task 1: Prove and repair the public schema-2 readiness path",
+        "type": "tracer",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      },
+      {
+        "name": "Task 2: Exercise a guarded tracking boundary and fail-closed cases in disposable repositories",
+        "type": "auto",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      },
+      {
+        "name": "Task 3: Confirm the production receipt read-only and record the handoff",
+        "type": "auto",
+        "hasFiles": true,
+        "hasAction": true,
+        "hasVerify": true,
+        "hasDone": true
+      }
+    ],
+    "frontmatter_fields": [
+      "phase",
+      "plan",
+      "type",
+      "wave",
+      "depends_on",
+      "files_modified",
+      "autonomous",
+      "requirements",
+      "gap_closure",
+      "estimate",
+      "must_haves"
+    ]
+  },
+  "source_crosscheck": {
+    "status": "passed",
+    "artifact_pins_verified": [
+      "plan23_schema2_readiness",
+      "plan25_current_contract",
+      "plan25_blocked_result",
+      "plan19_prior_mutation_result"
+    ],
+    "nested_readiness_pins_verified": 9,
+    "direct_readiness_verifier": {
+      "exit_code": 0,
+      "valid": true,
+      "status": "ready"
+    },
+    "production_prune_operations": 0
+  },
+  "verify_command_probes": {
+    "verify-command-paths": {
+      "phase_counts": {
+        "blocker": 0,
+        "warning": 0,
+        "total": 59
+      },
+      "new_plan_commands": [
+        {
+          "command": "bash -o pipefail -c 'node --test --test-concurrency=1 --test-reporter=tap --test-name-pattern=\"schema-2 operator read-only\" scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs | grep -E \"^ok [0-9]+ - schema-2 operator read-only$\"'",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "245-26-PLAN.md",
+          "task": "Task 1: Prove and repair the public schema-2 readiness path"
+        },
+        {
+          "command": "node --test --test-concurrency=1 scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs scripts/maintainers/prune-stale-branches-readiness.test.mjs scripts/maintainers/prune-stale-branches.test.mjs",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "245-26-PLAN.md",
+          "task": "Task 2: Exercise a guarded tracking boundary and fail-closed cases in disposable repositories"
+        },
+        {
+          "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/prune-stale-branches.sh verify-readiness --repo . --readiness-commit e61432a0248824d14d942c7d4ae2fd428a81ae99 --readiness .planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json && jq -e '.status == \"ready\" and .production_prune_operations == 0 and .prior_plan19_local_deletions == 1 and .prior_plan25_prune_operations == 0 and .repo_04 == \"open\" and .local_refs_unchanged == true and (.failed_predicates | length) == 0' .planning/phases/245-branch-prune-local-and-remote/245-26-RESULT.json && jq -e '.status == \"ready\" and .next_action == \"fresh_current_contract_required\" and .repo_04 == \"open\" and .historical_audits.pr_11_rows == \"unresolved\" and .historical_audits.cleanup_30_rows == \"unresolved\"' .planning/phases/245-branch-prune-local-and-remote/245-26-HANDOFF.json",
+          "status": "not_applicable",
+          "severity": "none",
+          "reason": null,
+          "form": null,
+          "rawTarget": null,
+          "target": null,
+          "manifest": null,
+          "script": null,
+          "sentinel": false,
+          "base": "/Users/jon/projects/sigra",
+          "plan": "245-26-PLAN.md",
+          "task": "Task 3: Confirm the production receipt read-only and record the handoff"
+        }
+      ],
+      "readError": null
+    },
+    "verify-failure-directions": {
+      "phase_counts": {
+        "blocker": 0,
+        "warning": 0,
+        "total": 59
+      },
+      "new_plan_commands": [
+        {
+          "command": "bash -o pipefail -c 'node --test --test-concurrency=1 --test-reporter=tap --test-name-pattern=\"schema-2 operator read-only\" scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs | grep -E \"^ok [0-9]+ - schema-2 operator read-only$\"'",
+          "statement": "No named schema-2 public-operator test passes, the valid committed receipt does not pass through the public shell, the RED artifact does not show the original helper-path failure, the direct helper fails, altered or absent provenance passes, or the test command exits nonzero.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "245-26-PLAN.md",
+          "task": "Task 1: Prove and repair the public schema-2 readiness path"
+        },
+        {
+          "command": "node --test --test-concurrency=1 scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs scripts/maintainers/prune-stale-branches-readiness.test.mjs scripts/maintainers/prune-stale-branches.test.mjs",
+          "statement": "The public tracking fixture cannot reach its admitted boundary, any negative case mutates a ref or lacks a named failure, the pinned runtime/coordinator is bypassed, an object is unreadable, the established schema-1 readiness or evidence-alias regressions fail, or the test command exits nonzero.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "245-26-PLAN.md",
+          "task": "Task 2: Exercise a guarded tracking boundary and fail-closed cases in disposable repositories"
+        },
+        {
+          "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/prune-stale-branches.sh verify-readiness --repo . --readiness-commit e61432a0248824d14d942c7d4ae2fd428a81ae99 --readiness .planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json && jq -e '.status == \"ready\" and .production_prune_operations == 0 and .prior_plan19_local_deletions == 1 and .prior_plan25_prune_operations == 0 and .repo_04 == \"open\" and .local_refs_unchanged == true and (.failed_predicates | length) == 0' .planning/phases/245-branch-prune-local-and-remote/245-26-RESULT.json && jq -e '.status == \"ready\" and .next_action == \"fresh_current_contract_required\" and .repo_04 == \"open\" and .historical_audits.pr_11_rows == \"unresolved\" and .historical_audits.cleanup_30_rows == \"unresolved\"' .planning/phases/245-branch-prune-local-and-remote/245-26-HANDOFF.json",
+          "statement": "The public check exits nonzero; the result/handoff is missing or claims live mutation, REPO-04 completion, changed local refs or resolved historical audits; or a required source pin cannot be proved.",
+          "status": "ok",
+          "severity": "none",
+          "plan": "245-26-PLAN.md",
+          "task": "Task 3: Confirm the production receipt read-only and record the handoff"
+        }
+      ],
+      "readError": null
+    }
+  },
+  "test_selection_guard_probe": {
+    "status": "passed",
+    "purpose": "Validate planned Task1 test-selection guard, not product implementation",
+    "cases": [
+      {
+        "case": "matching_pass",
+        "exit_code": 0,
+        "expected_exit_zero": true,
+        "check": "passed"
+      },
+      {
+        "case": "no_match",
+        "exit_code": 1,
+        "expected_exit_zero": false,
+        "check": "passed"
+      },
+      {
+        "case": "skipped_match",
+        "exit_code": 1,
+        "expected_exit_zero": false,
+        "check": "passed"
+      },
+      {
+        "case": "failing_match",
+        "exit_code": 1,
+        "expected_exit_zero": false,
+        "check": "passed"
+      }
+    ],
+    "production_prune_operations": 0
+  },
+  "requirements": {
+    "required": [
+      "REPO-04"
+    ],
+    "covered": [
+      "REPO-04"
+    ],
+    "requirement_status": "open"
+  },
+  "decision_coverage": {
+    "passed": true,
+    "skipped": false,
+    "total": 7,
+    "covered": 7,
+    "uncovered": [],
+    "message": "All trackable CONTEXT.md decisions are covered by plans."
+  },
+  "post_planning_gap_analysis": {
+    "passed": true,
+    "counts": {
+      "total": 8,
+      "covered": 8,
+      "uncovered": 0
+    }
+  },
+  "independent_reviews": [
+    {
+      "agent": "gsd-plan-checker",
+      "task": "check_245_gap_26",
+      "verdict": "issues_found",
+      "blockers": 1,
+      "warnings": 1,
+      "issues": [
+        "Task 1 could pass with zero matching tests",
+        "Task 2 omitted explicit schema-1/evidence-alias regression execution"
+      ]
+    },
+    {
+      "agent": "gsd-plan-checker",
+      "task": "recheck_245_gap_26",
+      "verdict": "verification_passed",
+      "blockers": 0,
+      "warnings": 0,
+      "resolved": [
+        "Exact passing TAP record required under pipefail; absent/skipped/failing cases exit nonzero",
+        "Established readiness and operator suites explicitly included"
+      ]
+    }
+  ],
+  "execution_routing": {
+    "runnable_plans": [
+      "245-26-PLAN.md"
+    ],
+    "runnable_count": 1,
+    "halted_plans": [
+      "245-04-PLAN.md",
+      "245-09-PLAN.md",
+      "245-12-PLAN.md",
+      "245-14-PLAN.md",
+      "245-21-PLAN.md",
+      "245-24-PLAN.md",
+      "245-25-PLAN.md"
+    ],
+    "blocked_by": {
+      "245-16-PLAN.md": [
+        "245-14"
+      ]
+    }
+  },
+  "next_command": "$gsd-execute-phase 245 --gaps-only",
+  "production_prune_operations": 0,
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  }
+}

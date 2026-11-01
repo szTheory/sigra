@@ -1,0 +1,188 @@
+{
+  "schema_version": "sigra.phase253.registration-setup-diagnostic/v1",
+  "status": "setup_passed",
+  "source_checkout_head": "46399bddc62dd3813ea2e0a136a35804a8ffa353",
+  "started_at": "2026-10-13T12:52:38.278Z",
+  "limits": {
+    "max_project_launches": 3,
+    "max_duration_seconds": 1200,
+    "automatic_retries": 0,
+    "browser_invocations": 0
+  },
+  "project_launches": [
+    {
+      "project": "admin-eval",
+      "port": 25311,
+      "database": "sigra_253_setup_1791895958278_admin_eval_18470",
+      "server_ready": true,
+      "browser_invocations": 0,
+      "setup": {
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval.db.log",
+        "log_sha256": "99b9325aaae9822614faa181ce46e6f5341fa16b270e9e53796421471b4e2cab"
+      },
+      "port_available_before_launch": true,
+      "app_pid": 21323,
+      "app_log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval.app.log",
+      "app_launch_error": null,
+      "http_status": 200,
+      "app_exit_code_before_shutdown": null,
+      "app_signal_before_shutdown": null,
+      "app_log_sha256": "f640e57ace594c57448bf263a3b6d3c120537f40d8d28f2be665ccccbb6030d4",
+      "drop": {
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval.drop.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "project": "admin-eval-mobile",
+      "port": 25312,
+      "database": "sigra_253_setup_1791895958278_admin_eval_mobile_18470",
+      "server_ready": true,
+      "browser_invocations": 0,
+      "setup": {
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-mobile.db.log",
+        "log_sha256": "c3fff63caaa73fde72abb569b89a894bc68a0bc1b3a62d83417e89fbdbe3e0a3"
+      },
+      "port_available_before_launch": true,
+      "app_pid": 22759,
+      "app_log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-mobile.app.log",
+      "app_launch_error": null,
+      "http_status": 200,
+      "app_exit_code_before_shutdown": null,
+      "app_signal_before_shutdown": null,
+      "app_log_sha256": "f9c23ade4cd3b924a28f9902a33f38ff04e3f98b8a390380de350e07c8126593",
+      "drop": {
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-mobile.drop.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "project": "admin-eval-dark",
+      "port": 25313,
+      "database": "sigra_253_setup_1791895958278_admin_eval_dark_18470",
+      "server_ready": true,
+      "browser_invocations": 0,
+      "setup": {
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-dark.db.log",
+        "log_sha256": "b8aad3b56a562254f0fad60cbc5333f84aa2c91e8c00582245d08a85fcdd0857"
+      },
+      "port_available_before_launch": true,
+      "app_pid": 23704,
+      "app_log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-dark.app.log",
+      "app_launch_error": null,
+      "http_status": 200,
+      "app_exit_code_before_shutdown": null,
+      "app_signal_before_shutdown": null,
+      "app_log_sha256": "c1c7ab959dac22ce649a9d4ddda1929c4b239ef77e5fb6c487c8da00e6247002",
+      "drop": {
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-dark.drop.log",
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "commands": [
+    {
+      "label": "clone",
+      "program": "git",
+      "args": [
+        "clone",
+        "--quiet",
+        "--shared",
+        "--no-checkout",
+        "/Users/jon/projects/sigra",
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-setup-qgWgX6/repo"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/clone.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "checkout",
+      "program": "git",
+      "args": [
+        "-C",
+        "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-setup-qgWgX6/repo",
+        "checkout",
+        "--quiet",
+        "--detach",
+        "46399bddc62dd3813ea2e0a136a35804a8ffa353"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/checkout.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "deps-get",
+      "program": "mix",
+      "args": [
+        "deps.get",
+        "--check-locked"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/deps-get.log",
+      "log_sha256": "c48fde30cc70abf0ec48735c791d53e82f1c82f5b987a6997b319a43f11bc997"
+    },
+    {
+      "label": "admin-eval.db",
+      "program": "mix",
+      "args": [
+        "ecto.setup"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval.db.log",
+      "log_sha256": "99b9325aaae9822614faa181ce46e6f5341fa16b270e9e53796421471b4e2cab"
+    },
+    {
+      "label": "admin-eval-mobile.db",
+      "program": "mix",
+      "args": [
+        "ecto.setup"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-mobile.db.log",
+      "log_sha256": "c3fff63caaa73fde72abb569b89a894bc68a0bc1b3a62d83417e89fbdbe3e0a3"
+    },
+    {
+      "label": "admin-eval-dark.db",
+      "program": "mix",
+      "args": [
+        "ecto.setup"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "log_path": "/private/tmp/sigra-253-setup-final-20261013T125500Z.json.logs/admin-eval-dark.db.log",
+      "log_sha256": "b8aad3b56a562254f0fad60cbc5333f84aa2c91e8c00582245d08a85fcdd0857"
+    }
+  ],
+  "completed_at": "2026-10-13T12:53:54.613Z",
+  "duration_seconds": 76
+}

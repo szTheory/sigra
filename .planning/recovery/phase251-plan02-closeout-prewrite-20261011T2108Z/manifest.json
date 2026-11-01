@@ -1,0 +1,34 @@
+{
+  "captured_at": "2026-10-11T21:08:00Z",
+  "reason": "Preserve current plan-closeout state before final route/state reconciliation.",
+  "files": [
+    {
+      "source_path": ".planning/STATE.md",
+      "backup_path": ".planning/recovery/phase251-plan02-closeout-prewrite-20261011T2108Z/STATE.md",
+      "status_at_capture": "M .planning/STATE.md",
+      "sha256": "1a4463e323661568b16c895fcf0d635c1680fdbe26f5a4c02db7c7ac1c737a94",
+      "bytes": 10612
+    },
+    {
+      "source_path": ".planning/ROADMAP.md",
+      "backup_path": ".planning/recovery/phase251-plan02-closeout-prewrite-20261011T2108Z/ROADMAP.md",
+      "status_at_capture": "M .planning/ROADMAP.md",
+      "sha256": "1b6e62cfd160bb1bb33e891617227bb587f1e6236cfadf49bd36b0e8026bce38",
+      "bytes": 20731
+    },
+    {
+      "source_path": ".planning/HANDOFF.json",
+      "backup_path": ".planning/recovery/phase251-plan02-closeout-prewrite-20261011T2108Z/HANDOFF.json",
+      "status_at_capture": "clean",
+      "sha256": "36dc2836f731e95c19a9ea9425a3aea5e6b168d6a077f474d469b52bdff18a42",
+      "bytes": 79493
+    },
+    {
+      "source_path": ".planning/state.json",
+      "backup_path": ".planning/recovery/phase251-plan02-closeout-prewrite-20261011T2108Z/state.json",
+      "status_at_capture": "clean",
+      "sha256": "e4f0f5b9939f8d01c6d8a23faf4d4ef6c3bac8567c325d97b5df3ce78724e380",
+      "bytes": 1189
+    }
+  ]
+}

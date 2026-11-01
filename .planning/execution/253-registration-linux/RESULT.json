@@ -1,0 +1,119 @@
+{
+  "schema": "sigra.phase253.linux-registration-diagnostic-result/v1",
+  "recorded_at": "2026-10-22T22:03:08.030961+00:00",
+  "status": "completed_not_reproduced",
+  "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "proposal_sha256": "56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
+  "approval_commit": "8acf6e3ef32d86688f0508878e521de9c3f26080",
+  "approval_sha256": "02afb34bfa51980b5d6dc0a7cbc2a1089529a0cd5319585fb3fd5b172c3a9fb5",
+  "reservation_commit": "cc9666e2f7869ca8d528bdfc744376432eb4e100",
+  "host_result": {
+    "kind": "diagnostic",
+    "acceptance": false,
+    "browser_invocations": 1,
+    "github_requests": 0,
+    "ci_launches": 0,
+    "old_slots_reopened": 0,
+    "status": "container_finished",
+    "container_names": [
+      "sigra253-linux-1792704901190313000-pg",
+      "sigra253-linux-1792704901190313000-app"
+    ],
+    "cleanup_complete": true,
+    "image_id": "sha256:e5272f11689c8740c02789ca6bf3e3fc955c4550f25ac53f738e7807205c9836",
+    "postgres_image": "docker.io/library/postgres@sha256:c961aa287d8698297cb26cdfadfbe9fd2cbaf77e53cfffe9636e8d8a1e4d842c",
+    "postgres_version": "postgres (PostgreSQL) 15.19 (Debian 15.19-1.pgdg13+2)",
+    "container_exit": 0,
+    "duration_seconds": 1622.1794726669905,
+    "native_verdict": "not_reproduced",
+    "within_limit": true
+  },
+  "browser_stats": {
+    "startTime": "2026-10-22T21:35:12.624Z",
+    "duration": 1609378.638,
+    "expected": 161,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "original_order_verified": true,
+  "projects": {
+    "admin-eval": 64,
+    "admin-eval-mobile": 64,
+    "admin-eval-dark": 33
+  },
+  "selected_original_case": {
+    "ordinal": 161,
+    "project": "admin-eval-dark",
+    "title": "render bundle: board-mg-9/populated",
+    "status": "passed",
+    "retries": 0
+  },
+  "reproduction_demonstrated": false,
+  "cause_demonstrated": false,
+  "product_fix_made": false,
+  "CIREL_01": "incomplete_not_reproduced",
+  "CIREL_02": "complete_unchanged",
+  "phase_complete": false,
+  "additional_browser_invocations_authorized": false,
+  "next_command": "$gsd-debug \"Phase 253 registration timeout: inspect the original CI failure and Linux replay logs; offline only, no browser or CI run\"",
+  "next_action": "The approved Linux replay completed:161/161 original-order cases passed,including the original dark board-mg-9/populated case;zero retries/skips;1622.2seconds including cleanup;both containers removed. It did not reproduce the CI timeout or demonstrate a cause/fix. CIREL-01 and Phase253 remain incomplete;CIREL-02 stays complete. The single-run approval is consumed;no additional browser,GitHub or CI execution is authorized. Continue focused offline diagnosis of the original registration save path;do not repeat an empty gap-plan scan or add a numbered repair plan.",
+  "next_roadmap_phase_readiness": {
+    "phase_number": "254",
+    "phase_status": "Pending",
+    "has_context": false,
+    "has_research": false,
+    "has_plans": false,
+    "plan_count": 0
+  },
+  "next_phase_started": false,
+  "forward_after_actual_253_completion": "Recheck readiness, then $gsd-discuss-phase 254",
+  "prior_shared_state": {
+    ".planning/STATE.md": {
+      "commit": "cc9666e2f7869ca8d528bdfc744376432eb4e100",
+      "sha256": "1789c837c71f7c9782ae4c90c124ac46c49ef5b108f21160c1598710d4915dfe",
+      "readback_verified": true
+    },
+    ".planning/state.json": {
+      "commit": "cc9666e2f7869ca8d528bdfc744376432eb4e100",
+      "sha256": "19caa1fecd1715fefbd29d060bc3fa48baabc9ef4bdae10ab06eb4b570100c81",
+      "readback_verified": true
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "cc9666e2f7869ca8d528bdfc744376432eb4e100",
+      "sha256": "eb1acf8d6ad41cda7485b5fd4ed3aa2d9e211f8ce30de76054b6fa6e7552060f",
+      "readback_verified": true
+    },
+    ".planning/execution/253-CONTINUATION.json": {
+      "commit": "cc9666e2f7869ca8d528bdfc744376432eb4e100",
+      "sha256": "2309a086e04044b6bea2c3c9c5b848515f0e2713c341757062c4c02d5502304f",
+      "readback_verified": true
+    },
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+      "commit": "cc9666e2f7869ca8d528bdfc744376432eb4e100",
+      "sha256": "af63e91946ee3e64d3dc9ce940315bcf0258033ca693c5ae8eeff898c68b3528",
+      "readback_verified": true
+    }
+  },
+  "logs_local_only": true,
+  "before_external_sharing": "Use sanitized copies of logs; original outputs retained locally.",
+  "raw_output_sha256": {
+    "diagnostic-output/host-result.json": "d9c85a2a5728a8b8ecfb56d335408da5c059705a973398a6db490484c9f263b8",
+    "diagnostic-output/result.json": "fb9a603f2b63917e04c6bdcf1096db26f20bcfce2652d29a6e6c8469192286c0",
+    "diagnostic-output/tools.json": "684a1afeb8958bebbd50835cd47421bc0106aa09dbd164a3088d429086316b4d",
+    "diagnostic-output/browser.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diagnostic-output/browser-started.json": "9b94dc64620bc064aad77d9dc5692939daf57a5407024b32e57639dd1e798163",
+    "diagnostic-output/setup.log": "dea36d2dfe6d75d97831534bb722b2d2170263a47292ee955ddb5a7f6195ee5d",
+    "diagnostic-output/sigra253-linux-1792704901190313000-app-cleanup.log": "befd379b98a5b93c51c440d02351d695cb3c589dfb1bc36500c20324541f6fe5",
+    "diagnostic-output/sigra253-linux-1792704901190313000-pg-cleanup.log": "a5de72cbd413a656e7d3ff65dc42a7ac0d7ae12080a8c3435c5888fef3a1eafc",
+    "diagnostic-output/container.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "diagnostic-output/app.log": "ffe9e9366c6406afc27330ce14c8ed62652cf7e95571acf3d33a6a049fdabb73",
+    "diagnostic-output/browser.json": "0a0e314f990143b74b3f8e8735d3de9a650498b2e44804846bd85f78ed65fd9f",
+    "diagnostic-output/test-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  },
+  "limitations": [
+    "x64 emulation on ARM Mac; diagnostic-only Erlang +JMsingle true flag",
+    "different kernel/full runner software image and scheduling",
+    "fresh seeded database; original snapshot and redacted page state unavailable"
+  ]
+}

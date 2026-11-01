@@ -1,0 +1,34 @@
+{
+  "ref": "refs/gsd/phase254/state-before-hosted-halt",
+  "commit": "f2cd83578701b4d212c7b4fc955d50179e867880",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "git_blob": "5c10129df9b1540c1d4b07d7aaacbc506b958522",
+      "sha256": "8aa85b0ab13249ae3ac64503cf86de2ee7292ccf0e017997d635695f7ac545db",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "git_blob": "aff9d4541aec6a48d0b71961bb163ce9c6b624c5",
+      "sha256": "e3a814935ec5791b0978bffc5dbb9d27de22e57eb440c57afce68f5022948002",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "git_blob": "823a60d11c48fa823abd42b8821b64824a40fa29",
+      "sha256": "9164d9d988ecd652996cfe0e46dda6c32d12774994dbaf92eda280fbae297c60",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "git_blob": "c894adcfff86dc904a593679705d5b0e42580536",
+      "sha256": "cd6686a1ceb052fce4df803a30678852a644de4886cc96692af4ed4ba5b4fedc",
+      "readback_verified": true
+    }
+  ]
+}

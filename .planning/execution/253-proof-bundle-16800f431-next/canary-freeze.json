@@ -1,0 +1,369 @@
+{
+  "schema_version": "sigra.phase253.load-recovery-canary-freeze/v1",
+  "plan": "253-171",
+  "source": {
+    "commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+    "product_tree_sha": "1a44d3909ef0811e91a43d85f54e795680691cf3",
+    "product_files": 1485
+  },
+  "identity": {
+    "candidate_helper_commit": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+    "candidate_tree_sha": "28924e64262e3a2acb8bc41278acd5f7b0102abc",
+    "fixture_workflow_commit": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+    "fixture_workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+    "fixture_tree_sha": "4b03073118eddf30b7b299c44446a524dfb2a73c",
+    "server_parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "docs_base_commit": "13920797cab15bd2cebf7c2114facd6e69b31833",
+    "docs_head_commit": "481e3698b20c7f37f111ea6bc02fb7fda1f32e0c",
+    "candidate_ref": "refs/heads/gsd/253-proof-16800f431-next-candidate",
+    "fixture_ref": "refs/heads/gsd/253-proof-16800f431-next-fixture",
+    "workflow_path": ".github/workflows/ci.yml",
+    "old_failed_run_id": "38347679431",
+    "old_failed_epoch": 1791909792,
+    "old_failed_halt_seconds": 34,
+    "old_known_commands": 3
+  },
+  "helper_blobs": {
+    "scripts/ci/ci-gate-canary.sh": "0bfea9017d3b40459f1a79a9e280cf0dbb532d82",
+    "scripts/ci/ci-gate-canary.test.sh": "97fa15c2a27f1da6331b41b07287a5827b5a153b",
+    "scripts/ci/ci-git-publication.py": "eb0f8dfd0aadcd0dde7ca2a57b6aa7cd7849eb4d",
+    "scripts/ci/ci-git-publication.test.py": "e292951717831d4f19574ebe42c6bb844a8b06ca",
+    "scripts/ci/ci-hosted-gate-verify.py": "2bd8bf930bf8751d997d2c10e96c3cc188ec8f0f",
+    "scripts/ci/ci-hosted-gate-verify.test.py": "fdb7a284fbadbbc009b0c41f3171c6a48ad60602",
+    "scripts/ci/ci-hosted-transport.py": "f190e2198efee4196b5dd931be3ee90b621c6ef7",
+    "scripts/ci/ci-pr-proof.sh": "c6594034db5164a3f90e64f6c0160431f8fea1e7",
+    "scripts/ci/ci-pr-proof.test.sh": "b0bb48c7bfdbf59f3767f32052708fb1c6a85eb4",
+    "scripts/ci/ci-browser-records.mjs": "40203391014e2ac8cfe6e0d8d58b2bce8679f644",
+    "scripts/ci/honest-skip-verdict.sh": "191d9642e7c29e1ebf14e40d120cbd992ff01bf4",
+    ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+  },
+  "bound_documents": {
+    "publication_manifest": {
+      "path": ".planning/execution/253-proof-bundle-16800f431-next/publication.json",
+      "sha256": "25a028ebebb1f8fff32fb0f4637c28da5de7b8cf77fe5373dd4ea74c902dcc65"
+    },
+    "fixture_workflow": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
+      "sha256": "3c31cb72c3168c4e86a1ea529f16bfdd40b4405551459ca27b9b989cb762df7b"
+    }
+  },
+  "native_target": {
+    "acceptance_evidence": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json",
+      "sha256": "f95393e39c2fc7d039556d627429de4a61af37a7aae69b9f40afbd0ef4988fc7"
+    },
+    "disposition": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION.json",
+      "sha256": "6afcc1a77b604bee7438195f3bc70e67336753afe345ea157c6c9c275d87a140"
+    },
+    "disposition_approval": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json",
+      "sha256": "d7d566641da2d5e1c7d5e951adb6e7d53c88f2a32ff8da4f324b64df11c27b0e"
+    },
+    "note": "CIREL-01 partial: target not reproduced; the nine D-20 acceptance slots expired unused; the normal PR runs each browser seam once as integration coverage only",
+    "route": "not_reproduced_disposition"
+  },
+  "outward_actions": {
+    "canary": {
+      "max_requests": 117,
+      "reruns": 0,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "actions": [
+        {
+          "action": "publish_git_objects",
+          "category": "publication",
+          "max_requests": 24,
+          "candidate_commit": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+          "fixture_commit": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+          "manifest": "bound_documents.publication_manifest"
+        },
+        {
+          "action": "create_ref",
+          "ref": "refs/heads/gsd/253-proof-16800f431-next-candidate",
+          "sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa"
+        },
+        {
+          "action": "create_ref",
+          "ref": "refs/heads/gsd/253-proof-16800f431-next-fixture",
+          "sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145"
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "full-pass",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "docs-only",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "actual-failure",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "missing-seam",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "unexpected-skip",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "cancelled",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "cancel_run",
+          "scenario": "cancelled",
+          "max": 1,
+          "run_identity": {
+            "workflow_id": 259268962,
+            "event": "workflow_dispatch",
+            "head_branch": "gsd/253-proof-16800f431-next-fixture",
+            "head_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "display_title_prefix": "Phase 253 Gate Canary / cancelled /"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-next-fixture",
+          "inputs": {
+            "scenario": "verifier",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "matrix_evidence": "compact gzip+base64 receipts of the six verified sources; digest recorded at dispatch"
+          }
+        }
+      ]
+    },
+    "docs_and_prs": {
+      "max_requests": 120,
+      "reruns": 0,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "actions": [
+        {
+          "action": "publish_docs_objects",
+          "category": "docs_publication",
+          "max_requests": 14,
+          "docs_base_commit": "13920797cab15bd2cebf7c2114facd6e69b31833",
+          "docs_head_commit": "481e3698b20c7f37f111ea6bc02fb7fda1f32e0c",
+          "refs": [
+            {
+              "ref": "refs/heads/gsd/253-proof-16800f431-next-docs-base",
+              "sha": "13920797cab15bd2cebf7c2114facd6e69b31833"
+            },
+            {
+              "ref": "refs/heads/gsd/253-proof-16800f431-next-docs-head",
+              "sha": "481e3698b20c7f37f111ea6bc02fb7fda1f32e0c"
+            }
+          ]
+        },
+        {
+          "action": "pr_create",
+          "family": "normal",
+          "head": "gsd/253-proof-16800f431-next-candidate",
+          "base": "main",
+          "draft": true
+        },
+        {
+          "action": "pr_create",
+          "family": "docs-only",
+          "head": "gsd/253-proof-16800f431-next-docs-head",
+          "base": "gsd/253-proof-16800f431-next-docs-base",
+          "draft": true
+        }
+      ]
+    }
+  },
+  "outward_actions_sha256": {
+    "canary": "0e2e8388ce95ac47181aaee1a04a865b3cb66c59e321f7dc2bf3b090b3096669",
+    "docs_and_prs": "daf857fb4422ad9567fa2c0b3e412c3a370f7d296da8934b39715b7d89adcc27"
+  },
+  "scenarios": {
+    "count": 6,
+    "optional_infrastructure_retry": 0,
+    "retry_status": "expired",
+    "retry_reason": "no implemented rerun route; an infrastructure fault halts",
+    "cases": [
+      {
+        "name": "full-pass",
+        "expected_outcome": "success"
+      },
+      {
+        "name": "docs-only",
+        "expected_outcome": "success"
+      },
+      {
+        "name": "actual-failure",
+        "expected_outcome": "failure"
+      },
+      {
+        "name": "missing-seam",
+        "expected_outcome": "failure"
+      },
+      {
+        "name": "unexpected-skip",
+        "expected_outcome": "failure"
+      },
+      {
+        "name": "cancelled",
+        "expected_outcome": "cancelled"
+      }
+    ]
+  },
+  "expired_reruns": {
+    "canary": {
+      "category": "infrastructure_retry",
+      "status": "expired",
+      "requests": 5,
+      "jobs": 6,
+      "used": 0,
+      "reason": "no implemented rerun route; an infrastructure fault halts"
+    },
+    "pull_requests": {
+      "category": "infrastructure_rerun",
+      "status": "expired",
+      "requests": 21,
+      "used": 0,
+      "reason": "no implemented rerun route; an infrastructure fault halts"
+    }
+  },
+  "bounds": {
+    "max_requests": 120,
+    "new_measured_max_requests": 117,
+    "historical_command_allocations": 3,
+    "max_actual_tiny_jobs": 45,
+    "max_minutes": 60,
+    "max_dispatch_input_keys": 10,
+    "max_dispatch_input_chars": 65535,
+    "max_artifact_compressed_bytes": 2097152,
+    "max_artifact_extracted_bytes": 4194304
+  },
+  "categories": {
+    "canary": {
+      "preflight": 16,
+      "publication": 24,
+      "dispatch": 7,
+      "run_discovery": 7,
+      "pre_watch_rate": 7,
+      "terminal_polls": 18,
+      "attempt_jobs": 7,
+      "artifact_metadata": 7,
+      "artifact_downloads": 12,
+      "failure_logs": 6,
+      "cancellation": 1,
+      "infrastructure_retry": 5
+    },
+    "production": {
+      "preflight": 8,
+      "docs_publication": 14,
+      "pr_create": 2,
+      "pr_identity": 8,
+      "run_discovery": 4,
+      "pre_watch_rate": 2,
+      "terminal_polls": 27,
+      "attempt_jobs": 4,
+      "native_checks": 4,
+      "artifact_metadata": 4,
+      "artifact_downloads": 20,
+      "failure_logs": 2,
+      "infrastructure_rerun": 21
+    }
+  },
+  "clock": {
+    "minutes": 60,
+    "begins": "before_first_preflight_or_publication_request"
+  },
+  "required_checks": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "workflow": {
+    "name": "Phase 253 Gate Canary",
+    "path": ".github/workflows/ci.yml",
+    "trigger": [
+      "workflow_dispatch"
+    ],
+    "permissions": {
+      "contents": "read"
+    },
+    "registered_workflow_id": 259268962,
+    "jobs": {
+      "tiny_producers": 5,
+      "verdict": 1,
+      "independent_verifier": 1,
+      "observer_trigger": false
+    }
+  },
+  "historical": {
+    "previous_accounted_or_reserved_requests": 20,
+    "previous_exact_http_count_proven": false,
+    "note": "old run 38347679431, epoch 1791909792, 34-second halt and three known commands remain closed; historical actual HTTP is unknown"
+  }
+}

@@ -99,3 +99,62 @@ This repo can host a browsable mirror of the Playwright HTML report (including *
 **If the API step fails with 403** (some orgs restrict `pages:write` on `GITHUB_TOKEN`), set Pages once in **Settings → Pages** → **Deploy from a branch** → **`gh-pages`** / **`/`**, then re-run the workflow.
 
 **If Pages is already set to “GitHub Actions”** (`build_type: workflow`), the ensure script **does not** change it; use Settings or migrate the workflow to `deploy-pages` yourself.
+
+## Reproducing a failure and reading the Phase 254 comparison
+
+The single result report is [Phase 254 comparison: insufficient data](.planning/execution/255-replay/REPORT.md), with machine-readable values in [REPORT.json](.planning/execution/255-replay/REPORT.json). It links the original run receipts, the later analysis, diagnostic runs, and the immutable replay package. The comparison observed one failed baseline and one successful candidate, zero matched pairs, and null median/p95; CISPEED-01/02 remain open.
+
+### Runtime and database setup
+
+- Use `.tool-versions`: Elixir `1.19.5-otp-28` and Erlang/OTP `28.5`.
+- Library tests read `SIGRA_TEST_PG_HOSTNAME`, `SIGRA_TEST_PG_PORT`, `SIGRA_TEST_PG_USERNAME`, `SIGRA_TEST_PG_PASSWORD`, and `SIGRA_TEST_PG_DATABASE` from `config/test.exs`. The example dev app reads the ordinary `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, and `PGDATABASE` variables. `scripts/db/up.sh` writes `tmp/db.env` for both conventions; source it in each new shell.
+- `mix ci.install_golden` requires the `phx_new 1.8.8` archive. Install that exact version with `mix archive.install --force hex phx_new 1.8.8`.
+- The example Playwright suite uses its committed `package-lock.json` and Playwright `1.59.1`. Run `cd test/example/priv/playwright && npm ci && npx playwright install chromium webkit` when preparing the browser tools. Use Ubuntu 24.04 Actions artifacts for screenshot/font comparisons; macOS screenshots are compare-only for behavior review.
+
+Run the same seven-leg local library gate as CI:
+
+```sh
+MIX_ENV=test mix ci
+```
+
+For an isolated Playwright seam, the local wrapper creates its own database, port, build directory, and server:
+
+```sh
+python3 -B scripts/ci/ci-browser-local.py --seam admin_behavior --event pull_request --port 51000 --grep '@smoke search -> filter -> open user -> revoke session keeps scope visible'
+```
+
+For the explicit first-failure diagnostics fixture, use a new private output directory and retain it only while inspecting the sanitized result:
+
+```sh
+RUN_DIR="$(mktemp -d)"
+python3 -B scripts/ci/ci-browser-local.py --seam admin_behavior --event push --port 51001 --diagnostic-case fail --keep-output --output-root "$RUN_DIR"
+```
+
+The recorded native failure argv was `node test/example/priv/playwright/node_modules/playwright/cli.js test --config scripts/ci/fixtures/playwright-diagnostics.config.ts --project=chromium --retries=0`; there was no explicit Playwright seed (`null`). The runner-termination case added `--grep "retains a default-context first failure"` and ended with SIGTERM; Phoenix startup/discovery/browser-launch failures had no created Playwright context or seed. The exact per-case argv and unavailable-trace reason are in [BROWSER-DIAGNOSTICS.json](.planning/execution/255-local/BROWSER-DIAGNOSTICS.json). Do not copy raw authentication state or traces into Git; the tracked diagnostics bundle is sanitized.
+
+### Retrieve the saved comparison inputs
+
+The package is on the real remote at `refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d`, commit `52d2f3611fa195042d52ab0ef9dba64e4d75a2eb`. Its archive SHA-256 is `6d098e9bee2d28b0d88dda2c517503467448939b4e48af84bf6e2ffd5255fe23`. A clean temporary checkout can retrieve and replay it with:
+
+```sh
+REPLAY_DIR="$(mktemp -d)"
+git -C "$REPLAY_DIR" init --initial-branch=main
+git -C "$REPLAY_DIR" fetch --no-tags https://github.com/szTheory/sigra.git refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d
+git -C "$REPLAY_DIR" checkout --detach FETCH_HEAD
+shasum -a 256 "$REPLAY_DIR/.planning/execution/255-replay/distributed/input-package.tar.gz"
+python3 -B "$REPLAY_DIR/scripts/ci/ci-comparison-replay.py" replay --package "$REPLAY_DIR/.planning/execution/255-replay/distributed/input-package.tar.gz" --output "$REPLAY_DIR/replayed-result.json"
+```
+
+The hash command must print the value above. Replay checks all package members and blocks network command execution. The tested in-repository distribution verification is `python3 -B scripts/ci/ci-comparison-replay.py verify-distribution --record .planning/execution/255-replay/DISTRIBUTION.json`.
+
+### Download short-lived CI diagnostics
+
+Phase 255 canary artifacts expire after seven days. For example, retrieve the deliberate failure artifact by its exact run and artifact name before **2026-10-31**:
+
+```sh
+umask 077
+ARTIFACT_DIR="$(mktemp -d)"
+gh run download 40123954650 --repo szTheory/sigra --name sigra-ci-7aae47281bb3e91bb38fe2387427f27bd0b44327-40123954650-1-diagnostic-fixture-failure-phase255-failure-1792868930 --dir "$ARTIFACT_DIR"
+```
+
+Trace files and browser authentication state can contain session material. Keep downloads in a private temporary directory and never commit raw files. The cancellation run `40124112173` has a partial artifact: `final-output.log` and `final-trace.zip` are absent and were not reconstructed.

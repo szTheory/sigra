@@ -6,6 +6,7 @@ area: auth
 severity: blocker
 disposition: fast-follow
 disposition_note: "Deliberately NOT pulled into v1.48 (CLEAN-BASELINE) — decided 2026-09-15. Must be scheduled as a fast-follow in the FIRST phase batch of the next milestone, not left to generic seed triggers."
+resolves_phase: 246
 source: downstream adopter field report, 2026-09-15 (relayed); verified locally at 160de093
 files:
   - lib/sigra/install/features/core.ex:370-376

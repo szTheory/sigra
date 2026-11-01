@@ -1,0 +1,51 @@
+{
+  "schema": "sigra.phase253.gap-execution-checks/v1",
+  "checked_at": "2026-10-20T16:24:18.134702+00:00",
+  "result": "halted_record_verified_not_acceptance",
+  "next_command": "$gsd-plan-phase 253 --gaps",
+  "command_bytes_match_plan": true,
+  "failed_log_exact": true,
+  "failed_log_exit": 1,
+  "success_receipt_absent": true,
+  "halted_summary": true,
+  "original_plan_summary_count_unchanged": 269,
+  "shared_prior_bytes_readback": "exact",
+  "shared_current_route_aligned": true,
+  "git_object_permission_probe_readback": "exact",
+  "product_changes": [],
+  "github_requests": 0,
+  "regression_suite_executed": false,
+  "phase_verification": "not_started",
+  "artifacts": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "47a47a290f0751dd2788899ef1218c5fcb861933a11e61bbcc97a9dcaebe9343",
+      "bytes": 21284
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "6d52e5870b0d4a61db63300714bfdfce9480d6f4555cfe7f560253d42bd81ede",
+      "bytes": 74394
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "e43bb1023c007d081cf7d86205f354d26227f4b4daf96f9a49f41ad5b70cae31",
+      "bytes": 133599
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "sha256": "56c638368cd142567582088aa6de6117716f22457d3952189b1f10d29f5d1658",
+      "bytes": 21687
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-RECORD.json",
+      "sha256": "eb085f4e109ac383b04ee52cf03fe339a578450c1a19322f7cccaeaacf144393",
+      "bytes": 38381
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-ENVIRONMENT-DIAGNOSTIC.json",
+      "sha256": "371cb46d7bd3d87fc721d8ac8a2842015f1635d9670dbfc3673566b492bbf3a5",
+      "bytes": 1588
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "route_id": "git_create_commit",
+  "category": "publication",
+  "body": {
+    "message": "Phase 253 frozen CI candidate\n",
+    "tree": "6cda96349b9ae7e79527b3af2db101003a5bfaca",
+    "parents": [
+      "09df342a82e03c3d5d40173c912b70e827f7eadc"
+    ],
+    "author": {
+      "name": "Sigra Publication Bot",
+      "email": "sigra-publication@users.noreply.github.com",
+      "date": "2026-10-22T04:00:00Z"
+    },
+    "committer": {
+      "name": "Sigra Publication Bot",
+      "email": "sigra-publication@users.noreply.github.com",
+      "date": "2026-10-22T04:00:00Z"
+    }
+  }
+}

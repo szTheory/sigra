@@ -1,0 +1,107 @@
+{
+  "schema": "sigra.phase253.integration-offline-checks/v1",
+  "recorded_at": "2026-10-23T01:22:45.612938+00:00",
+  "status": "prepared_not_approved",
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "proposal_sha256": "221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889",
+  "counts": {
+    "admin_behavior": 43,
+    "admin_checkpoints": 3,
+    "design_gallery": 42,
+    "non_admin_smoke": 16,
+    "demo_showcase": 4
+  },
+  "total_selected_tests": 108,
+  "checks": {
+    "protocol_tests": 13,
+    "existing_unit_contracts": 43,
+    "unit_contracts_exit": 0,
+    "configuration_tests_per_seed": 3,
+    "seeds": [
+      101,
+      202,
+      303
+    ],
+    "actual_unapproved_command_exit": 1,
+    "no_reservation_or_runtime_output": true,
+    "collection_network": "none",
+    "collection_container_removed": true,
+    "product_matches_candidate": true,
+    "product_changes_since_verified_library": [
+      "test/example/config/dev.exs",
+      "test/sigra/planning/phase_253_ci_static_runtime_test.exs"
+    ],
+    "prior_shared_bytes_recoverable_and_verified": true,
+    "shared_routes_agree": true,
+    "prior_nine_targeted_result_independently_reverified": true,
+    "git_diff_check_exit": 0
+  },
+  "historical_controls": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json": {
+      "status": "halted",
+      "sha256": "25a8d094b64bb97233ed8d3b5c2b4453903a1305b256bf249bd1b4aa342b8746",
+      "supplies_passing_browser_proof": false
+    },
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json": {
+      "status": "halted",
+      "sha256": "e9982fd5a787777cc00defacd3b88ac41edfee21e08df5e62234e6dfe2319ab0",
+      "supplies_passing_browser_proof": false
+    },
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-TIMEOUT-ASSESSMENT.json": {
+      "status": "halted",
+      "sha256": "bdb1b9d5aa0dc8fb6422708228276ade641b60cc91db1fca556e3f788e264a40",
+      "supplies_passing_browser_proof": false
+    }
+  },
+  "requirements": {
+    "CIREL_01": "incomplete:integration plus readiness/isolation/trace browser controls and canonical phase verification",
+    "CIREL_02": "complete_unchanged",
+    "normal_library_source": "unchanged;new configuration regression covered;no fresh full mix ci result claimed",
+    "original_hosted_interleaving": "inferred_not_traced"
+  },
+  "runtime": {
+    "browser_invocations": 0,
+    "app_starts": 0,
+    "database_starts": 0,
+    "github_requests": 0,
+    "ci_launches": 0,
+    "approval_received": false,
+    "old_slots_reopened": 0,
+    "prior_nine_run_approval_consumed": true,
+    "phase_complete": false
+  },
+  "prior_shared_state": ".planning/execution/253-registration-integration/prior-state.json",
+  "next_command": "$gsd-debug continue phase253-registration-timeout",
+  "next_command_conditional": true,
+  "condition": "explicit approval of the exact integration proposal",
+  "sha256": {
+    ".gitignore": "32dae3052f331ee34d628ef535709b301259a45df7c7522c4d35dcf49873f00b",
+    "README.md": "b40e4a80f9c37acd163c8003d2714796dafdd32ca6eaf676bd0d0ca39457f3b5",
+    "collection.json": "859059d8377be3a65d6afab5f21492b5f23c2a21a68558b83e065dfc21bc8553",
+    "collection.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "config-results.json": "2ef9b12b8cfb23057ee7db8d8877975772f5a02d20e11fc3d03b39e539481a17",
+    "config-seed-101.log": "37be9a62a84b836e0a4732936944f3c39aaf6740e2f8a311a71d398033e69231",
+    "config-seed-202.log": "f3c94ae69bd325480e13ba96aeb84e1f87d0b7e78e1c793c22524c0f54cc64fe",
+    "config-seed-303.log": "fc822c2d3ce944912f8ece3386e831cb95a193f3b46069c15f1165f718c98723",
+    "contracts-result.json": "665630cfbc3baff531df412e3eae75fc28f07bce60b9c7bd1249420f9aa9f919",
+    "contracts.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "contracts.stdout": "7bb07de4ec8500620f6abaf2595b837a2e578db752196e85721a59647601dd0c",
+    "in_container.py": "57e446ae5cdaa5df5147fba34468c5557b064778c6d6182a959242ce327cd4ec",
+    "phase254-readiness.json": "6d9b2e5d2fc7ef46635a93eb713671d1811c69a675e26110e10b5980f71cee35",
+    "preflight.log": "e92c0924084a9f23bd0495527ac3c3aefda645c54436679832e87ddd08f18cac",
+    "prepare.py": "be4c3369e8d6b8d760026c1872bc633283c54593230bd5ce6934c91ba0136c29",
+    "prior-state.json": "d62fa2c626d819458c9a57bfb3e18b63ea984b3ad773c31c83361a38c70307a4",
+    "proposal.json": "221abdc46ee99e5dfe7cf71b989aa810bd4c6f0774b2085a32185a958b9f7889",
+    "selection.py": "dfcbd7535a540327528e91a4630d9d9a72d1388517ee6fa496654d57c2e77aee",
+    "stopped-collection-1/collection.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stopped-collection-1/collection.stderr": "86a1f588bdd6d2bb3aeaa522235314475b3e634616dc6ac7d0f60edeb2ac7df0",
+    "stopped-collection-1/in_container.py": "57e446ae5cdaa5df5147fba34468c5557b064778c6d6182a959242ce327cd4ec",
+    "stopped-collection-1/prepare.py": "be4c3369e8d6b8d760026c1872bc633283c54593230bd5ce6934c91ba0136c29",
+    "stopped-collection-1/reason.json": "4492e6818b889b5bde49249ece9cfed8fff081718420924bd32aa54d0c8ecf8c",
+    "stopped-collection-1/selection.py": "c2b48928ae76451cd2fefbf5a28704f3e3119c02f829f5c2d9cd58a0f98ece04",
+    "test_validate.py": "18d717c0f403ac625ab92fe9a818952f7944ad88573a916229377c6c92308ebc",
+    "tests.log": "4f60a2c9ce1ab522f198755170677b9bc93b112d593440a20c133acad2719394",
+    "unapproved-run-refusal.log": "c9b69aea92e5f2dc036cf11020ba61e931fd9fdad0667191b770b5a25e80e12b",
+    "validate.py": "bf4b82bcaa8d1fbb63c12eacabb75775f3990c46d7eb0a76b795c63238c520b4"
+  }
+}

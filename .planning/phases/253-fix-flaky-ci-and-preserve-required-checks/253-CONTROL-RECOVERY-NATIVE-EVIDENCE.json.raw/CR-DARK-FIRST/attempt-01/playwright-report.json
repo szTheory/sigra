@@ -1,0 +1,328 @@
+{
+  "config": {
+    "configFile": "/Users/jon/projects/sigra/test/example/priv/playwright/playwright.config.ts",
+    "rootDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/(admin-user-operations|admin-audit|admin-theme|admin-coherence-sweep|impersonation|admin-flow-).*\\.spec\\.ts/",
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/passkeys-hooks\\.spec\\.ts|passkey-options\\.spec\\.ts|passkey-login\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-modal-interaction\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-checkpoints-chromium",
+        "name": "admin-checkpoints-chromium",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-checkpoints-mobile",
+        "name": "admin-checkpoints-mobile",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-checkpoints-dark",
+        "name": "admin-checkpoints-dark",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-generated",
+        "name": "admin-generated",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-generated\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "generated-host-chromium",
+        "name": "generated-host-chromium",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/generated-confirmation\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "demo-showcase-chromium",
+        "name": "demo-showcase-chromium",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/demo-showcase\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-setup-chromium",
+        "name": "admin-design-setup-chromium",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-chromium",
+        "name": "admin-design-chromium",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-setup-mobile",
+        "name": "admin-design-setup-mobile",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-mobile",
+        "name": "admin-design-mobile",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-setup-dark",
+        "name": "admin-design-setup-dark",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-dark",
+        "name": "admin-design-dark",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-eval",
+        "name": "admin-eval",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-eval-mobile",
+        "name": "admin-eval-mobile",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-eval-dark",
+        "name": "admin-eval-dark",
+        "testDir": "/Users/jon/projects/sigra/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [],
+  "errors": [
+    {
+      "message": "Error: require() of ES Module /Users/jon/projects/sigra/test/example/priv/playwright/node_modules/parse5/dist/index.js from /Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts not supported.\nInstead change the require of index.js in /Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts to a dynamic import() which is available in all CommonJS modules.",
+      "stack": "Error: require() of ES Module /Users/jon/projects/sigra/test/example/priv/playwright/node_modules/parse5/dist/index.js from /Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts not supported.\nInstead change the require of index.js in /Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts to a dynamic import() which is available in all CommonJS modules.\n    at Object.<anonymous> (/Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts:7:14)\n    at Object.<anonymous> (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:10:21)",
+      "location": {
+        "file": "/Users/jon/projects/sigra/test/example/priv/playwright/lib/eval/canonicalize.ts",
+        "column": 14,
+        "line": 7
+      },
+      "snippet": "   at ../lib/eval/canonicalize.ts:7\n\n   5 |  *  - Stripping ALL volatile per-request attrs (data-phx-*, phx-*, nonce, integrity, id)\n   6 |  *  - Allowlist-keeping only semantic attrs: type, name, role, aria-label, alt, data-testid\n>  7 |  *  - Keeping href (with ?vsn= and 32-hex digest fingerprints stripped)\n     |              ^\n   8 |  *  - Keeping class (tokens sorted)\n   9 |  *  - Sorting all remaining attrs by name\n  10 |  *  - Normalizing text: collapsing whitespace runs, dropping whitespace-only nodes"
+    },
+    {
+      "message": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments.",
+      "stack": "Error: No tests found.\nMake sure that arguments are regular expressions matching test files.\nYou may need to escape symbols like \"$\" or \"*\" and quote the arguments."
+    }
+  ],
+  "stats": {
+    "startTime": "2026-10-14T01:20:03.991Z",
+    "duration": 170.76999999999998,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

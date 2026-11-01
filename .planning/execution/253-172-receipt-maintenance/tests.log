@@ -1,0 +1,11 @@
+test_actual_32_request_boundary_passes_unchanged_checker (__main__.ReceiptBridgeTest.test_actual_32_request_boundary_passes_unchanged_checker) ... ok
+test_actual_unchanged_command_reproduces_failure (__main__.ReceiptBridgeTest.test_actual_unchanged_command_reproduces_failure) ... ok
+test_duplicate_and_unmeasured_receipts_stay_rejected (__main__.ReceiptBridgeTest.test_duplicate_and_unmeasured_receipts_stay_rejected) ... ok
+test_missing_original_receipt_stays_rejected (__main__.ReceiptBridgeTest.test_missing_original_receipt_stays_rejected) ... ok
+test_original_raw_attempt_files_unchanged (__main__.ReceiptBridgeTest.test_original_raw_attempt_files_unchanged) ... ok
+test_substitutions_stay_rejected (__main__.ReceiptBridgeTest.test_substitutions_stay_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.232s
+
+OK

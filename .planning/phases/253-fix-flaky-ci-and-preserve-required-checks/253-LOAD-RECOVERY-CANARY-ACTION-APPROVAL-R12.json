@@ -1,0 +1,30 @@
+{
+  "schema_version": "sigra.phase253.outward-action-approval/v1",
+  "decision": "approve",
+  "decided_by": "Jon (operator), via AskUserQuestion collected by the execute-phase orchestrator at the 253-143 Task 1 checkpoint (2026-10-19T18:41Z); recorded by Jon via ! (W1 fallback after the classifier refused the executor's write)",
+  "decision_text": "Approve (Recommended)",
+  "note": "",
+  "section": "canary",
+  "section_sha256": "e506857812ea12e17e0ccd06e640a3ffd2582b6b90e3d3df6dba395a0456bd29",
+  "freeze_sha256": "fd1a27cb2c3e40e1f598b51576083ddb2fc89527e5a3933cfa81cd56cf2bf309",
+  "authorizes": [
+    "publish_git_objects (max 24 publication-category requests, including the parent preflight read of fetched main 09df342a82e03c3d5d40173c912b70e827f7eadc; candidate 6e4f87657254ed9d4a3c8b661d5e707751bc5214, fixture b37f05424b2b497b3c786fc604caa4dab4dbcdf0)",
+    "create_ref refs/heads/gsd/253-replan-r12-candidate -> 6e4f87657254ed9d4a3c8b661d5e707751bc5214 (create-only)",
+    "create_ref refs/heads/gsd/253-replan-r12-fixture -> b37f05424b2b497b3c786fc604caa4dab4dbcdf0 (create-only)",
+    "workflow_dispatch x6 on gsd/253-replan-r12-fixture, workflow 259268962, in order: full-pass, docs-only, actual-failure, missing-seam, unexpected-skip, cancelled",
+    "cancel_run x1 (the identified cancelled-scenario run)",
+    "one separate verifier workflow_dispatch on gsd/253-replan-r12-fixture, workflow 259268962",
+    "caps: 117 requests, 45 jobs, 60 minutes, no reruns"
+  ],
+  "excludes": [
+    "docs_and_prs section (docs object publication, draft PR creates): requires a separate 253-144 approval",
+    "any rerun (the infrastructure retry is expired)",
+    "any read for reuse, move, recreation or deletion of the r8 refs gsd/253-replan-r8-candidate and gsd/253-replan-r8-fixture",
+    "any read for reuse, move, recreation or deletion of the r9 refs gsd/253-replan-r9-candidate and gsd/253-replan-r9-fixture",
+    "any read for reuse, move, recreation or deletion of the r10 refs gsd/253-replan-r10-candidate and gsd/253-replan-r10-fixture",
+    "any read for reuse, move, recreation or deletion of the r11 refs gsd/253-replan-r11-candidate and gsd/253-replan-r11-fixture",
+    "any push, merge, ref deletion, force update, rule or protection change, tag, release or main mutation",
+    "any git fetch"
+  ],
+  "recorded_at": "2026-10-19T19:11:48Z"
+}

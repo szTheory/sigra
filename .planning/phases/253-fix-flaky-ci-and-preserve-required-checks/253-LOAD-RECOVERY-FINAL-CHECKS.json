@@ -1,0 +1,191 @@
+{
+  "schema": "sigra.phase253.load-recovery-final-checks/v1",
+  "recorded_at": "2026-10-14T02:28:32.371790+00:00",
+  "checks": [
+    {
+      "name": "419 captured non-shared planning paths unchanged",
+      "passed": true
+    },
+    {
+      "name": "353 product paths unchanged",
+      "passed": true
+    },
+    {
+      "name": "original 35 plans unchanged",
+      "passed": true
+    },
+    {
+      "name": "prior five shared files readable byte-exact from committed SDK state",
+      "passed": true
+    },
+    {
+      "name": "pre SDK rich history readable byte-exact",
+      "passed": true
+    },
+    {
+      "name": "SDK dirty output committed before replacement",
+      "passed": true
+    },
+    {
+      "name": "config unchanged and exact durable recovery blob",
+      "passed": true
+    },
+    {
+      "name": "config remains unstaged",
+      "passed": true
+    },
+    {
+      "name": "branch unchanged",
+      "passed": true
+    },
+    {
+      "name": "24 fresh plan schema and structure checks pass",
+      "passed": true
+    },
+    {
+      "name": "12 gap closure plans and 26 tasks",
+      "passed": true
+    },
+    {
+      "name": "every runnable verify command binds its failure direction",
+      "passed": true
+    },
+    {
+      "name": "all plans lead with tracer",
+      "passed": true
+    },
+    {
+      "name": "nine dependency waves",
+      "passed": true
+    },
+    {
+      "name": "24 new unique threats 71 through 94",
+      "passed": true
+    },
+    {
+      "name": "independent review passed without override",
+      "passed": true
+    },
+    {
+      "name": "honest not applicable SDK probe limitation",
+      "passed": true
+    },
+    {
+      "name": "24 locked decisions covered",
+      "passed": true
+    },
+    {
+      "name": "both requirements planned and remain unchecked",
+      "passed": true
+    },
+    {
+      "name": "fresh execute readiness 47 plans 30 incomplete 12 reachable",
+      "passed": true
+    },
+    {
+      "name": "first four ready are 36 37 42 43",
+      "passed": true
+    },
+    {
+      "name": "new graph not blocked by historical failure",
+      "passed": true
+    },
+    {
+      "name": "six halted and 18 original blocked still literal",
+      "passed": true
+    },
+    {
+      "name": "fresh planner readiness complete context research and no duplicate threats",
+      "passed": true
+    },
+    {
+      "name": "five top level route keys align",
+      "passed": true
+    },
+    {
+      "name": "resume route and state next align",
+      "passed": true
+    },
+    {
+      "name": "Markdown state current route accurate",
+      "passed": true
+    },
+    {
+      "name": "state milestone arithmetic accurate",
+      "passed": true
+    },
+    {
+      "name": "current ledger statuses accurate",
+      "passed": true
+    },
+    {
+      "name": "phase not verified or completed",
+      "passed": true
+    },
+    {
+      "name": "no new executed or synthetic summary",
+      "passed": true
+    },
+    {
+      "name": "native and hosted untouched",
+      "passed": true
+    },
+    {
+      "name": "no async or human action pending",
+      "passed": true
+    },
+    {
+      "name": "native charges five CLI and retry zero carried",
+      "passed": true
+    },
+    {
+      "name": "remaining budget arithmetic without expansion",
+      "passed": true
+    },
+    {
+      "name": "all detailed prior state history survives SDK reset",
+      "passed": true
+    },
+    {
+      "name": "all prior handoff history preserved",
+      "passed": true
+    },
+    {
+      "name": "Phase 254 actual section remains unchanged",
+      "passed": true
+    },
+    {
+      "name": "Phase 255 actual section remains unchanged",
+      "passed": true
+    },
+    {
+      "name": "roadmap phase and new plan rows are unchecked",
+      "passed": true
+    },
+    {
+      "name": "old Windows ledger including unrun entry 11 unchanged",
+      "passed": true
+    },
+    {
+      "name": "new planning JSON artifacts parse",
+      "passed": true
+    },
+    {
+      "name": "auto advance disabled without changing config",
+      "passed": true
+    },
+    {
+      "name": "diff whitespace check",
+      "passed": true
+    }
+  ],
+  "passed": 44,
+  "failed": 0,
+  "new_plans": 12,
+  "new_tasks": 26,
+  "waves": 9,
+  "native_commands": 0,
+  "github_requests": 0,
+  "phase_verification": "not_started",
+  "next_command": "$gsd-execute-phase 253 --gaps-only"
+}

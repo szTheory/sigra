@@ -1,0 +1,27 @@
+test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure (__main__.CallerTests.test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure) ... 
+  test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure (__main__.CallerTests.test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure) (plan=172) ... FAIL
+test_plan172_other_work_is_unchanged (__main__.CallerTests.test_plan172_other_work_is_unchanged) ... FAIL
+
+======================================================================
+FAIL: test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure (__main__.CallerTests.test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure) (plan=172)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-receipt-caller.test.py", line 26, in test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure
+    with self.subTest(plan=n):self.assertTrue(b.startswith(PREFIX), b[:200])
+                              ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : python3 .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py verify-receipt --consumer 168 && N="$HOME/.asdf/installs/nodejs/20.18.1/bin/node"; P=.planning/phases/2
+
+======================================================================
+FAIL: test_plan172_other_work_is_unchanged (__main__.CallerTests.test_plan172_other_work_is_unchanged)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-receipt-caller.test.py", line 34, in test_plan172_other_work_is_unchanged
+    self.assertEqual(current, original.replace(old,PREFIX,1))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '---\[33609 chars]hon3 .planning/phases/253-fix-flaky-ci-and-pre[9089 chars]t>\n' != '---\[33609 chars]hon3 -B .planning/phases/253-fix-flaky-ci-and-[9101 chars]t>\n'
+Diff is 48294 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.018s
+
+FAILED (failures=2)

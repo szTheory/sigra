@@ -1,0 +1,1253 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-24T22:34:46.494680+00:00",
+  "phase": "255.1",
+  "status": "passed",
+  "scope": "planning only; implementation and performance verification pending",
+  "plan_count": 7,
+  "task_count": 16,
+  "wave_count": 7,
+  "requirements": {
+    "required": [
+      "CISPEED-01",
+      "CISPEED-02"
+    ],
+    "covered": [
+      "CISPEED-01",
+      "CISPEED-02"
+    ],
+    "implementation_verified": false
+  },
+  "independent_checker": {
+    "agent": "gsd-plan-checker",
+    "model": "gpt-6-luna",
+    "effort": "low",
+    "marker": "VERIFICATION PASSED",
+    "blockers": 0,
+    "warnings": 0
+  },
+  "decision_coverage": {
+    "passed": true,
+    "skipped": false,
+    "total": 16,
+    "covered": 16,
+    "uncovered": [],
+    "message": "All trackable CONTEXT.md decisions are covered by plans."
+  },
+  "structure": [
+    {
+      "file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255.1-01-01: Carry one real local source/report through the actual evaluator",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255.1-01-02: Prove paired source, actual PR trigger and six cache-owner feasibility",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-02-PLAN.md",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255.1-02-01: Persist actual library receiver reports through the CI artifact path",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255.1-02-02: Validate equivalent real library/browser work and safe origins",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-03-PLAN.md",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255.1-03-01: Bind one recorded PR family to its original wait and all physical-job costs",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255.1-03-02: Enforce bounded read-only acquisition and owner cache/image evidence",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-04-PLAN.md",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255.1-04-01: Package and replay the new experiment offline end to end",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255.1-04-02: Produce an honest threshold verdict and report all observations",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-05-PLAN.md",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "255.1-05-01: Refresh final measured sources and real work parity after implementation",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255.1-05-02: Freeze one reviewable contract with blocked-by-default authority",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255.1-05-03: Prove finite scheduling, interruption and no-renewal controls",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-06-PLAN.md",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "255.1-06-01: Obtain separate concrete approval before any live preparation",
+            "type": "checkpoint:decision",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255.1-06-02: Perform only approved finite preparation and retain ready or precise blocked outcome",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    },
+    {
+      "file": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-07-PLAN.md",
+      "result": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 3,
+        "tasks": [
+          {
+            "name": "255.1-07-01: Obtain separate concrete approval for the frozen 20-pair collection",
+            "type": "checkpoint:decision",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255.1-07-02: Collect exactly the approved real-PR families or stop with insufficient data",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "255.1-07-03: Replay and report the actual amended result, retaining original limitations",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "estimate",
+          "must_haves"
+        ]
+      }
+    }
+  ],
+  "command_path_probe": {
+    "status": "not_applicable",
+    "commands": [
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-01-PLAN.md",
+        "task": "255.1-01-01: Carry one real local source/report through the actual evaluator"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py local-tracer --source HEAD --output .planning/execution/255.1/LOCAL-TRACER.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-01-PLAN.md",
+        "task": "255.1-01-01: Carry one real local source/report through the actual evaluator"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-01-PLAN.md",
+        "task": "255.1-01-02: Prove paired source, actual PR trigger and six cache-owner feasibility"
+      },
+      {
+        "command": "node --test scripts/ci/ci-prep-semantics.test.mjs scripts/ci/ci-measure-workflow.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-01-PLAN.md",
+        "task": "255.1-01-02: Prove paired source, actual PR trigger and six cache-owner feasibility"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-mix-receivers.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-02-PLAN.md",
+        "task": "255.1-02-01: Persist actual library receiver reports through the CI artifact path"
+      },
+      {
+        "command": "node --test scripts/ci/ci-prep-semantics.test.mjs scripts/ci/ci-measure-workflow.test.mjs",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-02-PLAN.md",
+        "task": "255.1-02-01: Persist actual library receiver reports through the CI artifact path"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-hosted-gate-verify.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-02-PLAN.md",
+        "task": "255.1-02-02: Validate equivalent real library/browser work and safe origins"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-work.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-02-PLAN.md",
+        "task": "255.1-02-02: Validate equivalent real library/browser work and safe origins"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-work.test.py --native --sources .planning/execution/255.1/SOURCES.json --output .planning/execution/255.1/EQUIVALENT-WORK.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-02-PLAN.md",
+        "task": "255.1-02-02: Validate equivalent real library/browser work and safe origins"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-metrics.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-03-PLAN.md",
+        "task": "255.1-03-01: Bind one recorded PR family to its original wait and all physical-job costs"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics-comparison.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-03-PLAN.md",
+        "task": "255.1-03-01: Bind one recorded PR family to its original wait and all physical-job costs"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-metrics.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-03-PLAN.md",
+        "task": "255.1-03-02: Enforce bounded read-only acquisition and owner cache/image evidence"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-metrics-security.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-03-PLAN.md",
+        "task": "255.1-03-02: Enforce bounded read-only acquisition and owner cache/image evidence"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-03-PLAN.md",
+        "task": "255.1-03-02: Enforce bounded read-only acquisition and owner cache/image evidence"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-04-PLAN.md",
+        "task": "255.1-04-01: Package and replay the new experiment offline end to end"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-04-PLAN.md",
+        "task": "255.1-04-01: Package and replay the new experiment offline end to end"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-04-PLAN.md",
+        "task": "255.1-04-02: Produce an honest threshold verdict and report all observations"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics-comparison.test.sh",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-04-PLAN.md",
+        "task": "255.1-04-02: Produce an honest threshold verdict and report all observations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-report.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-04-PLAN.md",
+        "task": "255.1-04-02: Produce an honest threshold verdict and report all observations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py preflight --source HEAD --output .planning/execution/255.1/FEASIBILITY.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-01: Refresh final measured sources and real work parity after implementation"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-work.test.py --native --sources .planning/execution/255.1/SOURCES.json --output .planning/execution/255.1/EQUIVALENT-WORK.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-01: Refresh final measured sources and real work parity after implementation"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-02: Freeze one reviewable contract with blocked-by-default authority"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py freeze --output .planning/execution/255.1/CONTRACT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-02: Freeze one reviewable contract with blocked-by-default authority"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-03: Prove finite scheduling, interruption and no-renewal controls"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py verify-local --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/LOCAL-CHECKS.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-03: Prove finite scheduling, interruption and no-renewal controls"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py verify-contract --contract .planning/execution/255.1/CONTRACT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-06-PLAN.md",
+        "task": "255.1-06-01: Obtain separate concrete approval before any live preparation"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py prep --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/PREP-RESULT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-06-PLAN.md",
+        "task": "255.1-06-02: Perform only approved finite preparation and retain ready or precise blocked outcome"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py verify-prep --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/PREP-RESULT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-06-PLAN.md",
+        "task": "255.1-06-02: Perform only approved finite preparation and retain ready or precise blocked outcome"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py verify-prep --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/PREP-RESULT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-01: Obtain separate concrete approval for the frozen 20-pair collection"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py collect --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/MEASUREMENT-RESULT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-02: Collect exactly the approved real-PR families or stop with insufficient data"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py verify-experiment --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/OBSERVATIONS.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-02: Collect exactly the approved real-PR families or stop with insufficient data"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.py package --contract .planning/execution/255.1/CONTRACT.json --registrations .planning/execution/255.1/REGISTRATIONS.json --input-root .planning/execution/255.1 --output .planning/execution/255.1/replay/input-package.tar.gz",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.py replay --package .planning/execution/255.1/replay/input-package.tar.gz --output .planning/execution/255.1/RESULT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.py report --contract .planning/execution/255.1/CONTRACT.json --result .planning/execution/255.1/RESULT.json --output .planning/execution/255.1/REPORT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.py verify-result --contract .planning/execution/255.1/CONTRACT.json --result .planning/execution/255.1/RESULT.json",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py",
+        "status": "not_applicable",
+        "severity": "none",
+        "reason": null,
+        "form": null,
+        "rawTarget": null,
+        "target": null,
+        "manifest": null,
+        "script": null,
+        "sentinel": false,
+        "base": "/Users/jon/projects/sigra",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      }
+    ],
+    "counts": {
+      "blocker": 0,
+      "warning": 0,
+      "total": 37
+    },
+    "readError": null
+  },
+  "failure_direction_probe": {
+    "status": "ok",
+    "commands": [
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.test.py",
+        "statement": "Non-zero exit, zero tests executed, or one local observation reported as a speed pass.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-01-PLAN.md",
+        "task": "255.1-01-01: Carry one real local source/report through the actual evaluator"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py local-tracer --source HEAD --output .planning/execution/255.1/LOCAL-TRACER.json",
+        "statement": "Non-zero exit, status blocked, absent actual native report/seed/test IDs, or local_only differs from true.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-01-PLAN.md",
+        "task": "255.1-01-01: Carry one real local source/report through the actual evaluator"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.test.py",
+        "statement": "Non-zero exit, zero tests or acceptance of altered source, wrong merge, sibling cache or fallback fixtures.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-01-PLAN.md",
+        "task": "255.1-01-02: Prove paired source, actual PR trigger and six cache-owner feasibility"
+      },
+      {
+        "command": "node --test scripts/ci/ci-prep-semantics.test.mjs scripts/ci/ci-measure-workflow.test.mjs",
+        "statement": "Non-zero exit or any failed/cancelled test.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-01-PLAN.md",
+        "task": "255.1-01-02: Prove paired source, actual PR trigger and six cache-owner feasibility"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-mix-receivers.test.py",
+        "statement": "Non-zero exit, zero tests or deletion of a persistent report after subprocess exit.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-02-PLAN.md",
+        "task": "255.1-02-01: Persist actual library receiver reports through the CI artifact path"
+      },
+      {
+        "command": "node --test scripts/ci/ci-prep-semantics.test.mjs scripts/ci/ci-measure-workflow.test.mjs",
+        "statement": "Non-zero exit or any failed/cancelled test.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-02-PLAN.md",
+        "task": "255.1-02-01: Persist actual library receiver reports through the CI artifact path"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-hosted-gate-verify.test.py",
+        "statement": "Non-zero exit or zero tests executed.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-02-PLAN.md",
+        "task": "255.1-02-02: Validate equivalent real library/browser work and safe origins"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-work.test.py",
+        "statement": "Non-zero exit, zero tests or acceptance of incomplete/mismatched/sensitive evidence.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-02-PLAN.md",
+        "task": "255.1-02-02: Validate equivalent real library/browser work and safe origins"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-work.test.py --native --sources .planning/execution/255.1/SOURCES.json --output .planning/execution/255.1/EQUIVALENT-WORK.json",
+        "statement": "Non-zero exit, any native command failed, status blocked, or any unmatched product identity/status/skip.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-02-PLAN.md",
+        "task": "255.1-02-02: Validate equivalent real library/browser work and safe origins"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-metrics.test.py",
+        "statement": "Non-zero exit, zero tests or acceptance of wrong-origin/missing-duration fixtures.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-03-PLAN.md",
+        "task": "255.1-03-01: Bind one recorded PR family to its original wait and all physical-job costs"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics-comparison.test.sh",
+        "statement": "Non-zero exit or any comparison self-test reports not ok.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-03-PLAN.md",
+        "task": "255.1-03-01: Bind one recorded PR family to its original wait and all physical-job costs"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-metrics.test.py",
+        "statement": "Non-zero exit, zero tests or a bounded/cache/image rejection fixture accepted.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-03-PLAN.md",
+        "task": "255.1-03-02: Enforce bounded read-only acquisition and owner cache/image evidence"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-metrics-security.test.py",
+        "statement": "Non-zero exit or zero tests executed.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-03-PLAN.md",
+        "task": "255.1-03-02: Enforce bounded read-only acquisition and owner cache/image evidence"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py",
+        "statement": "Non-zero exit or historical pinned expected result changed.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-03-PLAN.md",
+        "task": "255.1-03-02: Enforce bounded read-only acquisition and owner cache/image evidence"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.test.py",
+        "statement": "Non-zero exit, zero tests, network request during replay or acceptance of a tampered/incomplete package.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-04-PLAN.md",
+        "task": "255.1-04-01: Package and replay the new experiment offline end to end"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py",
+        "statement": "Non-zero exit or any historical pinned output mismatch.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-04-PLAN.md",
+        "task": "255.1-04-01: Package and replay the new experiment offline end to end"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.test.py",
+        "statement": "Non-zero exit, zero tests or any boundary/outcome fixture returns the wrong verdict.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-04-PLAN.md",
+        "task": "255.1-04-02: Produce an honest threshold verdict and report all observations"
+      },
+      {
+        "command": "bash scripts/ci/ci-run-metrics-comparison.test.sh",
+        "statement": "Non-zero exit or not ok comparison result.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-04-PLAN.md",
+        "task": "255.1-04-02: Produce an honest threshold verdict and report all observations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-report.test.py",
+        "statement": "Non-zero exit or old Phase255 report expectations change.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-04-PLAN.md",
+        "task": "255.1-04-02: Produce an honest threshold verdict and report all observations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py preflight --source HEAD --output .planning/execution/255.1/FEASIBILITY.json",
+        "statement": "Non-zero exit, structural source/trigger/work blocker, treatment-only mismatch or missing final producer object; live warmth remains explicitly pending rather than asserted.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-01: Refresh final measured sources and real work parity after implementation"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-work.test.py --native --sources .planning/execution/255.1/SOURCES.json --output .planning/execution/255.1/EQUIVALENT-WORK.json",
+        "statement": "Non-zero exit, status blocked, any native command failure, missing seed/report or unequal product identity/status/skip.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-01: Refresh final measured sources and real work parity after implementation"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.test.py",
+        "statement": "Non-zero exit, zero tests or any unauthorized/changed-contract fixture reaches the network adapter.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-02: Freeze one reviewable contract with blocked-by-default authority"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py freeze --output .planning/execution/255.1/CONTRACT.json",
+        "statement": "Non-zero exit, status blocked, missing exact source/work/feasibility inputs or any stage marked authorized.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-02: Freeze one reviewable contract with blocked-by-default authority"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.test.py",
+        "statement": "Non-zero exit, zero tests or an over-budget/duplicate/unauthorized mutation is observed.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-03: Prove finite scheduling, interruption and no-renewal controls"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py verify-local --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/LOCAL-CHECKS.json",
+        "statement": "Non-zero exit, any required local check is missing/failed, or local evidence claims speed acceptance.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-05-PLAN.md",
+        "task": "255.1-05-03: Prove finite scheduling, interruption and no-renewal controls"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py verify-contract --contract .planning/execution/255.1/CONTRACT.json",
+        "statement": "Non-zero exit, stale local/source/work hashes or a missing proposed limit.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-06-PLAN.md",
+        "task": "255.1-06-01: Obtain separate concrete approval before any live preparation"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py prep --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/PREP-RESULT.json",
+        "statement": "Non-zero exit, unauthorized/stale approval, stage limit exceeded, status blocked or a missing owner/work/cache-origin receipt.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-06-PLAN.md",
+        "task": "255.1-06-02: Perform only approved finite preparation and retain ready or precise blocked outcome"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py verify-prep --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/PREP-RESULT.json",
+        "statement": "Non-zero exit, not ready, fallback/miss, sibling-only scope, incomplete report, unmatched image or unproved changed terminal delivery.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-06-PLAN.md",
+        "task": "255.1-06-02: Perform only approved finite preparation and retain ready or precise blocked outcome"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py verify-prep --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/PREP-RESULT.json",
+        "statement": "Non-zero exit, missing/stale approved contract or prep status is not ready.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-01: Obtain separate concrete approval for the frozen 20-pair collection"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py collect --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/MEASUREMENT-RESULT.json",
+        "statement": "Non-zero exit, unauthorized/stale scope, limit violation, incomplete binding or result status insufficient_data; preserve the terminal record and continue only offline reporting.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-02: Collect exactly the approved real-PR families or stop with insufficient data"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-comparison.py verify-experiment --contract .planning/execution/255.1/CONTRACT.json --output .planning/execution/255.1/OBSERVATIONS.json",
+        "statement": "Non-zero exit, unbound observation/cost, unknown duration, unmatched cache/image/work or incomplete family inventory.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-02: Collect exactly the approved real-PR families or stop with insufficient data"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.test.py",
+        "statement": "Non-zero exit or zero tests executed.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.py package --contract .planning/execution/255.1/CONTRACT.json --registrations .planning/execution/255.1/REGISTRATIONS.json --input-root .planning/execution/255.1 --output .planning/execution/255.1/replay/input-package.tar.gz",
+        "statement": "Non-zero exit, missing/altered/transitive input, unsafe member or a digest mismatch.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.py replay --package .planning/execution/255.1/replay/input-package.tar.gz --output .planning/execution/255.1/RESULT.json",
+        "statement": "Non-zero exit, network access, changed input hash or replay/calculated result disagreement.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.py report --contract .planning/execution/255.1/CONTRACT.json --result .planning/execution/255.1/RESULT.json --output .planning/execution/255.1/REPORT.json",
+        "statement": "Non-zero exit or report omits any actual outcome, cost, required limitation or amendment disclosure.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-repaired-replay.py verify-result --contract .planning/execution/255.1/CONTRACT.json --result .planning/execution/255.1/RESULT.json",
+        "statement": "Non-zero exit or verdict/statistics/inventory violates its count, source or threshold contract.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      },
+      {
+        "command": "python3 -B scripts/ci/ci-comparison-replay.test.py",
+        "statement": "Non-zero exit or historical pinned replay changed.",
+        "status": "ok",
+        "severity": "none",
+        "plan": "255.1-07-PLAN.md",
+        "task": "255.1-07-03: Replay and report the actual amended result, retaining original limitations"
+      }
+    ],
+    "counts": {
+      "blocker": 0,
+      "warning": 0,
+      "total": 37
+    },
+    "readError": null
+  },
+  "notes": [
+    "Command-path probe not_applicable does not prove command targets resolve.",
+    "37 automated commands have observable failure signals.",
+    "No implementation/native/performance tests run in planning.",
+    "No hosted preparation, collection, publication, or acceptance allowances spent.",
+    "Both CISPEED requirements remain open."
+  ],
+  "plans": {
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-01-PLAN.md": "edf2b0d410b05b536afc81e07fd2e5689f8592e9e311583e0b1029c80295d719",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-02-PLAN.md": "0b8fd7cbc2f4bf321be911a1f2a975e61d0f1fd5245b89c818cd3a6c95c89b30",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-03-PLAN.md": "2b42caa59402b6efd5796c92374983534b2ccc93c43d774f9e656dc45c931ad5",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-04-PLAN.md": "e7966132ccac2c7a68b7ca643747dd235af7924458fb142f0969ae93c42a75d9",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-05-PLAN.md": "1a37418f2886cc70736ed18f73eec3337e8279484cbd6c47411a41d3d849d8f2",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-06-PLAN.md": "42a4f870edc6272e4bc5b5723ad06c3445d9442431ce79d35f29907dbc2e585e",
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-07-PLAN.md": "85076847a9c052f6008145a461ee9c0916214312c34db5d7c65401002d05ef29"
+  },
+  "generated_state_preservation": {
+    "ref": "refs/evidence/phase255-1-planning/generated-state-48e21b1d70ef",
+    "commit": "48e21b1d70ef5803d63c1e002e21862c6d6a0af9",
+    "capture_head": "73e2ea873659ef130dcd67848c7678071c093e1f",
+    "paths": {
+      ".planning/STATE.md": {
+        "status": " M",
+        "sha256": "3f4eeecd1efbc56e08911334b39fae43890bd3cf963c71280048d041c48c5d6e",
+        "read_back_equal": true
+      },
+      ".planning/state.json": {
+        "status": " M",
+        "sha256": "411a9571a8d8dc33fcc1f9c81af731109721a15bf54f6524d89ce4ca6a3aac9f",
+        "read_back_equal": true
+      }
+    }
+  },
+  "clean_capture_tracking": {
+    ".planning/STATE.md": {
+      "sha256": "cbd19ae9bd042e08e133ca672a286b5beffb78c19b5891528dae556719484299",
+      "head": "73e2ea873659ef130dcd67848c7678071c093e1f"
+    },
+    ".planning/state.json": {
+      "sha256": "09b6a15df9ff220358223844b833c02f478bd04763b1b43033b13965435faadc",
+      "head": "73e2ea873659ef130dcd67848c7678071c093e1f"
+    },
+    ".planning/HANDOFF.json": {
+      "sha256": "a34012f0cb04412e490d24adc61384f36c8a5c2aa41f85a797b466f663529276",
+      "head": "73e2ea873659ef130dcd67848c7678071c093e1f"
+    },
+    ".planning/ROADMAP.md": {
+      "sha256": "58ab3fb1176212bc69f21373e6021d6270c4a8e7f6c038283ac12f395e2ee6ed",
+      "head": "73e2ea873659ef130dcd67848c7678071c093e1f"
+    }
+  },
+  "next_command": "$gsd-execute-phase 255.1"
+}

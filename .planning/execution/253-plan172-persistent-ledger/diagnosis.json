@@ -1,0 +1,28 @@
+{
+  "schema": "sigra.phase253.local-preservation-diagnosis/v1",
+  "closed_attempt_commit": "afe01a308",
+  "approval_commit": "2687b7ad8",
+  "literal_answer": "i approve",
+  "actual_command": "python3 -B .planning/execution/253-plan172-repaired-source/run_pair.py --run",
+  "actual_failure": "preservation_failed: could not anchor the prior dirty ledger",
+  "requests": 1,
+  "refs_created": 0,
+  "prs_created": 0,
+  "ci_launches": 0,
+  "root_causes": [
+    "Git recovery ref update was blocked by default .git write restriction",
+    "Inherited disposable candidate object directory would lose recovery blobs after temporary directory cleanup"
+  ],
+  "reproduction": "test_preservation.py reproduces original dangling ref and confirms permanent readback after disposal; actual request_one performs two appends with unit HTTP fixture",
+  "fixes": [
+    "Only recovery Git commands remove inherited object-store overrides; candidate commands retain isolated store",
+    "Actual dirty-ledger write and permanent byte readback run before any allocation or HTTP",
+    "Live invocation requires approved Git metadata write permission"
+  ],
+  "product_source_unchanged": "5e13621e50e646c63e135035080d2e6e46fbc955",
+  "new_bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+  "checks": "BUNDLE-CHECKS.json",
+  "all_prior_windows_closed": true,
+  "prior_approval_consumed": true,
+  "phase_verified": false
+}

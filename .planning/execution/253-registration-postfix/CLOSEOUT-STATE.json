@@ -1,0 +1,50 @@
+{
+  "at": "2026-10-23T00:58:30.129393+00:00",
+  "prior_state_commit": "1725ef1d9e4cb7df0bfbe295c9d2f90746f71027",
+  "prior_files": {
+    ".planning/STATE.md": {
+      "commit": "1725ef1d9e4cb7df0bfbe295c9d2f90746f71027",
+      "sha256": "fbf57d74ca1f11a3f718c0b1d1c5b9b4b2e34ada9c75730404b3c826f3669a19",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/state.json": {
+      "commit": "1725ef1d9e4cb7df0bfbe295c9d2f90746f71027",
+      "sha256": "363b012eadb3370974c2448784205c2e298cab8c4b453309b5b7d39702105960",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "1725ef1d9e4cb7df0bfbe295c9d2f90746f71027",
+      "sha256": "736648083b5d285f84a523c3ddff18550ae75531a14a3a6f9f0d7c29769d50b0",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/execution/253-CONTINUATION.json": {
+      "commit": "1725ef1d9e4cb7df0bfbe295c9d2f90746f71027",
+      "sha256": "77093159b0d5d2a692d4fd3ae0cd3da795ce701b0cc61ae37d297f7038fa89bb",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/debug/phase253-registration-timeout.md": {
+      "commit": "1725ef1d9e4cb7df0bfbe295c9d2f90746f71027",
+      "sha256": "4b5b1970db1e8275179488f8d1ed09a17cf931517ee16d47520a8d6dd9cd77ec",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/debug/phase253-registration-timeout/REPORT.md": {
+      "commit": "1725ef1d9e4cb7df0bfbe295c9d2f90746f71027",
+      "sha256": "5b7265f1faadb44656e14dba97af245c166bd10fd4e81d5322d2793ae1299d81",
+      "status": "",
+      "readback_verified": true
+    },
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+      "commit": "1725ef1d9e4cb7df0bfbe295c9d2f90746f71027",
+      "sha256": "188267afbe986a921bb15058eaf3fab7f7815733d9b8255c79f0c3cc1e6110f0",
+      "status": "",
+      "readback_verified": true
+    }
+  },
+  "actual_evidence_commit": "eb2e23a14cc079a6539d8c037810e543e97c4658",
+  "readback_verified_before_replacement": true
+}

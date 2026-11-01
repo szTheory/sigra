@@ -1,0 +1,55 @@
+{
+  "schema_version": "sigra.phase253.recovery-state-preservation/v1",
+  "ref": "17f23464cafaf867a45498e423003d10f7cdf857",
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "bytes": 11336,
+      "sha256": "df6ab185ae3192a2eb441182364bc46d8d44b5262f7dd033bda3a5402f53f609",
+      "recoverable_ref": "17f23464cafaf867a45498e423003d10f7cdf857",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "bytes": 2333,
+      "sha256": "e8fd516e3ec105c3121b56eb2acec066a262b0f197e1850ca1f44d48b7435ec1",
+      "recoverable_ref": "17f23464cafaf867a45498e423003d10f7cdf857",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "bytes": 44687,
+      "sha256": "e04afc9a94875e0aa41b3bb12f3fe8d077d7377529742ea83a6c6b3583e74f18",
+      "recoverable_ref": "17f23464cafaf867a45498e423003d10f7cdf857",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "bytes": 11711,
+      "sha256": "9975f70fd02815f93a2e984d906cc2f8d0efaffb4c10d025bce77c50dcaeec4b",
+      "recoverable_ref": "17f23464cafaf867a45498e423003d10f7cdf857",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+      "status": "clean",
+      "bytes": 18018,
+      "sha256": "46a19102a848870f1cc8c0c802b22f281e33369461008bf7d4e2e2be923fb6b5",
+      "recoverable_ref": "17f23464cafaf867a45498e423003d10f7cdf857",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-PLAN-CHECK-02.md",
+      "status": "clean",
+      "bytes": 5175,
+      "sha256": "6091e4e0a903a0e0ae56892dbe8beb40416a24b70845a5807e9901e33649b55d",
+      "recoverable_ref": "17f23464cafaf867a45498e423003d10f7cdf857",
+      "readback_exact": true
+    }
+  ],
+  "verified_before_mutation": true
+}

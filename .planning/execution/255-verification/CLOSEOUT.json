@@ -1,0 +1,65 @@
+{
+  "schema_version": "sigra.phase255.closeout/v1",
+  "verification_status": "passed",
+  "verification": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md",
+  "phase_complete": {
+    "completed_phase": "255",
+    "plans_executed": "7/7",
+    "date": "2026-10-24",
+    "tool_selected_next_phase": "254"
+  },
+  "completion_tracking_preservation": {
+    "commit": "8ba5a87607be94d582d3e5daf3e47cbf7fa4dc21",
+    "ref": "refs/heads/phase-244-playwright-measurement",
+    "paths": {
+      ".planning/STATE.md": "2084ab9e20e6c07ccb009de69370050c0ad3aaf19ed9c994bfac3b18a972ce40",
+      ".planning/state.json": "5f418a87c82aacb4e2671335df87457bb86f0f989a83386d0d26b964db139d67",
+      ".planning/ROADMAP.md": "9a989e8c5f8584376c1cd9ff68e0a9f2c0a32db792b23d954a66c3b5ac6627d3",
+      ".planning/REQUIREMENTS.md": "6d50998070f35889fbfc47db07dca5e6e7130d14266bb58b3ba9f5728b9a9f78"
+    },
+    "read_back_equal": true
+  },
+  "custom_state_recovery_source": "d09e5ce2d:.planning/state.json",
+  "next_command": "$gsd-audit-milestone",
+  "forward_route": ".planning/execution/255-verification/FORWARD-ROUTE.json",
+  "warnings": {
+    "summary_warning_groups": 6,
+    "named_command_or_short_path_entries": 30,
+    "reason": "Completion scanner treated shell commands as file paths and one bundle path without its execution-root prefix as missing. Actual script/test files and the bundle exist; current tests and independent phase verification passed.",
+    "actual_files": {
+      "scripts/ci/ci-comparison-replay.test.py": "0c088bd8bf70f65dbfc25ba6dc2ab5671f2adefe3b7a400fe2710b3d94cecee7",
+      "scripts/ci/ci-metrics-security.test.py": "bd63721a287b5035ba3d59af7661153dafc34b6dc03f31ed7122331ab377711f",
+      "scripts/ci/ci-run-metrics-comparison.test.sh": "fdffa45075d6a01d18249625b0aadd203fe59e9e73c18cc824bed0debc91caed",
+      "scripts/ci/ci-diagnostic-bundle.test.py": "d47aaf7ed059cda61c7062226b43356794dcec837aec3a57b8b3cd128d55baa5",
+      "scripts/ci/ci-command-record.test.py": "41a92f65811b0686427f9e39ceb3dad5d164cf3022070eade1f3c25094bb78ec",
+      "scripts/ci/ci-mix-receivers.test.py": "09154d2e9a2161e43b96578ec5406a915c0a72e3a1041810334408d2eb8dd59c",
+      "scripts/ci/ci-prep-semantics.test.mjs": "be5db32ca80eea4ef323b1393e27019cd970ab2b605c4a9efd1631251918d30a",
+      "scripts/ci/test-sigra-dep-off.sh": "512a64ee16a45c069015612e00eb625cc87b5178ba817aad9c3e0bef554f92f7",
+      "test/sigra/planning/ci_timing_formatter_test.exs": "25758a7dad434ef3dd0ef17e1159da7a28eee263556f5f86191319bf84353a41",
+      "scripts/ci/ci-browser-local.test.py": "b7f5cf8d5001168a21f81c5e3cf43a6f57c0713397ac196396a80d773b0269ad",
+      "scripts/ci/ci-browser-diagnostics.test.mjs": "52317290ec86b499a494501655a45de2ab3052f0e49604eb608e8aaafc24ccfc",
+      "scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs": "f4229500be10364ffc21d9f3d94f20056d59f7699a0bdf91ab2fb9361b27b58e",
+      "scripts/ci/ci-hosted-gate-verify.test.py": "6cb6a32e1c2d862fe6d83a5ace618ac276afa1ac0b8b2008639de62794d0d0b0",
+      "scripts/ci/honest-skip-verdict.test.sh": "384620661c5bafe0296cc30025c552fbc0d27e07546104b8b105388a0ceafe24",
+      "scripts/ci/ci-comparison-report.test.py": "6796bb4419e4cf7bc4812bc0b9d659708cfbf68bd82a54fa9d99d936880b79f1",
+      ".planning/execution/255-local/browser-diagnostics-1792865705155/diagnostics.zip": "2699db3d619584d798e2e20c86f2eb75f0f875fc6ad5a3792f0c7583b38b2d10"
+    },
+    "unresolved_missing_deliverables": []
+  },
+  "transition": {
+    "global_learnings": "disabled (missing feature uses default false)",
+    "graduation": "No qualifying clusters: only one prior LEARNINGS file exists, below three distinct phases.",
+    "matching_todos_closed": 0,
+    "workstream_collisions": [],
+    "auto_advance": false
+  },
+  "milestone_complete": false,
+  "remaining_open": [
+    "Phase254 verification",
+    "CISPEED-01",
+    "CISPEED-02"
+  ],
+  "preexisting_untracked_preserved": [
+    "scripts/ci/__pycache__/"
+  ]
+}

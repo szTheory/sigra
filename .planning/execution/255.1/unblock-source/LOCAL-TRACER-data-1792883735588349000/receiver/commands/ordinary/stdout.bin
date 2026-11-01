@@ -1,0 +1,53 @@
+===> Analyzing applications...
+===> Compiling h2
+==> flop
+Compiling 17 files (.ex)
+Generated flop app
+==> phoenix_template
+Compiling 4 files (.ex)
+Generated phoenix_template app
+==> credo
+Compiling 257 files (.ex)
+Generated credo app
+==> oban
+Compiling 70 files (.ex)
+Generated oban app
+==> hammer
+Compiling 14 files (.ex)
+Generated hammer app
+==> phoenix
+Compiling 75 files (.ex)
+Generated phoenix app
+==> phoenix_live_view
+Compiling 55 files (.ex)
+Generated phoenix_live_view app
+==> flop_phoenix
+Compiling 6 files (.ex)
+Generated flop_phoenix app
+==> sigra
+===> Analyzing applications...
+===> Compiling quic
+===> Analyzing applications...
+===> Compiling webtransport
+===> Analyzing applications...
+===> Compiling hackney
+==> swoosh
+Compiling 62 files (.ex)
+Generated swoosh app
+==> threadline
+Compiling 87 files (.ex)
+Generated threadline app
+==> tzdata
+Compiling 17 files (.ex)
+Generated tzdata app
+==> chimeway
+Compiling 63 files (.ex)
+Generated chimeway app
+==> sigra
+Compiling 178 files (.ex)
+Generated sigra app
+Running ExUnit with seed: 637948, max_cases: 36
+
+....................................................
+Finished in 0.08 seconds (0.08s async, 0.00s sync)
+52 tests, 0 failures

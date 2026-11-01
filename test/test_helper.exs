@@ -10,13 +10,27 @@
 # gets a clean skip, not a crash. NOT a blanket :postgres exclusion — CLAUDE.md forbids
 # that pattern. The :upgrade exclusion is conditional on archive absence only.
 phx_new_ok? =
-  case System.cmd("mix", ["archive.list"], stderr_to_stdout: true) do
+  case System.cmd("mix", ["archive"], stderr_to_stdout: true) do
     {output, 0} -> String.contains?(output, "phx_new-1.8.8")
     _ -> false
   end
 
+required_gate? = System.get_env("SIGRA_CI_REQUIRED") == "1"
+
+if required_gate? and not phx_new_ok? do
+  raise "SIGRA_CI_REQUIRED=1: required phx_new 1.8.8 archive is unavailable; install it with `mix archive.install --force hex phx_new 1.8.8`"
+end
+
 unless phx_new_ok? do
   ExUnit.configure(exclude: [:upgrade])
+end
+
+if System.get_env("SIGRA_EXUNIT_TIMING_JSON") not in [nil, ""] do
+  unless Code.ensure_loaded?(Sigra.Test.CITimingFormatter) do
+    Code.require_file("support/ci_timing_formatter.ex", __DIR__)
+  end
+
+  ExUnit.configure(formatters: [ExUnit.CLIFormatter, Sigra.Test.CITimingFormatter])
 end
 
 ExUnit.start()
@@ -24,6 +38,21 @@ ExUnit.start()
 if Code.ensure_loaded?(Postgrex) and Code.ensure_loaded?(Sigra.Test.PostgresRepo) do
   {:ok, _pid} = Sigra.Test.PostgresRepo.start_link(Sigra.Test.PostgresRepo.default_config())
   Ecto.Adapters.SQL.Sandbox.mode(Sigra.Test.PostgresRepo, :manual)
+
+  if required_gate? do
+    try do
+      :ok = Ecto.Adapters.SQL.Sandbox.checkout(Sigra.Test.PostgresRepo)
+
+      try do
+        Ecto.Adapters.SQL.query!(Sigra.Test.PostgresRepo, "SELECT 1", [])
+      after
+        Ecto.Adapters.SQL.Sandbox.checkin(Sigra.Test.PostgresRepo)
+      end
+    rescue
+      error ->
+        raise "SIGRA_CI_REQUIRED=1: required test PostgreSQL query failed: #{Exception.message(error)}"
+    end
+  end
 end
 
 # Define Mox mocks for Sigra.Auth tests

@@ -1,0 +1,22 @@
+{
+  "schema_version": "sigra.phase253.read-approval/v1",
+  "section": "main_fetch",
+  "decision": "approve",
+  "decision_text": "Approve (Recommended)",
+  "note": "",
+  "decided_by": "Jon via AskUserQuestion collected by the orchestrator at the 253-136 Task 1 checkpoint (2026-10-19T03:32Z), recorded by the 253-136 executor",
+  "authorizes": [
+    "git fetch --no-tags origin main (once, run by Jon from 253-R12-MAIN-FETCH-OPERATOR.sh)"
+  ],
+  "remote_url": "https://github.com/szTheory/sigra.git",
+  "before_origin_main": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "excludes": [
+    "any GitHub API request",
+    "any other ref or tag fetch",
+    "any push",
+    "any ref creation, move or deletion on GitHub",
+    "any PR action",
+    "any change to the working tree, HEAD or .planning/config.json"
+  ],
+  "recorded_at": "2026-10-19T03:35:00Z"
+}

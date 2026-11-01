@@ -1,0 +1,35 @@
+{
+  "schema_version": "sigra.phase252-plan06-repair-preservation/v1",
+  "purpose": "Exact pre-refresh history for the ExUnit invocation correction",
+  "captured_at_utc": "2026-10-12T22:41:22Z",
+  "checkout": {
+    "root": "/Users/jon/projects/sigra",
+    "branch": "phase-244-playwright-measurement",
+    "head": "7c10e06b359894a67d16aced95867bc782f3f6e6",
+    "status": "clean"
+  },
+  "readback_verified": true,
+  "preserved_paths": [
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+      "sha256": "169e5425870bd4486b0c7c6a07a4fd2c938c363fb7c156ffac27f4220f7426f0"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-BASELINE.json",
+      "sha256": "32c0881d0a67053ec65c63ef51821f937287c7d75a728cf3e16aee1fa1dc16f4"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-BASELINE.md",
+      "sha256": "59f6e7ca0d5000bf51ce80afe6c3b61785130f9271b1364a559892e758be42c0"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json",
+      "sha256": "58b07aeaf158623274c4bf74e0fb62dd94530a138f6a14318f9080c95e964de5"
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-06-SUMMARY.md",
+      "sha256": "b1294d915fc9586047dbb5dac2dec8c6fa2d0f8f38fb155205460d97feb091a0"
+    }
+  ],
+  "recovery": "Each exact prior file is available by reading the recorded path from checkout HEAD 7c10e06b359894a67d16aced95867bc782f3f6e6. SHA-256 readback from HEAD matched the working copy for every listed file before refresh. Earlier accepted baseline bytes also remain in the history at commit 5cad1606e and the source-archive commits."
+}

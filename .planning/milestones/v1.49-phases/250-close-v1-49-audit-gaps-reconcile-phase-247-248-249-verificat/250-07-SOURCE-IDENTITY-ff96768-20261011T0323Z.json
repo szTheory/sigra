@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T03:26:29Z",
+  "repository": "szTheory/sigra",
+  "default_branch": "main",
+  "main_sha_before": "ff96768bc2843ef1a89926d238690b1145bfd514",
+  "main_sha_after": "ff96768bc2843ef1a89926d238690b1145bfd514",
+  "tree_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
+  "reviewed_blobs": [
+    {
+      "path": ".github/workflows/release-receipt-canary.yml",
+      "expected_blob": "04b3ad78954f075615b3535cf330bf74c11814a9",
+      "actual_blob": "04b3ad78954f075615b3535cf330bf74c11814a9",
+      "matches": true
+    },
+    {
+      "path": ".github/workflows/release-receipt-canary-controller.yml",
+      "expected_blob": "56f8f86fa1f2343a40106a743f99f9bbdcb2c2b1",
+      "actual_blob": "56f8f86fa1f2343a40106a743f99f9bbdcb2c2b1",
+      "matches": true
+    },
+    {
+      "path": ".github/workflows/release-run-observer.yml",
+      "expected_blob": "b8b7ec5c4fecf9ed2f9346ce2a323f85324c6517",
+      "actual_blob": "b8b7ec5c4fecf9ed2f9346ce2a323f85324c6517",
+      "matches": true
+    },
+    {
+      "path": "scripts/ci/release-canary.sh",
+      "expected_blob": "049a1afc0b65c5b78ed5f90d0cba3d962a42d71c",
+      "actual_blob": "049a1afc0b65c5b78ed5f90d0cba3d962a42d71c",
+      "matches": true
+    },
+    {
+      "path": "scripts/ci/release-canary.test.sh",
+      "expected_blob": "6834865de696c4597856481808e656ba5381b1f8",
+      "actual_blob": "6834865de696c4597856481808e656ba5381b1f8",
+      "matches": true
+    },
+    {
+      "path": "scripts/ci/release-observer.sh",
+      "expected_blob": "82ca31358a9c22e1ced5846a4fe28f890031c22e",
+      "actual_blob": "82ca31358a9c22e1ced5846a4fe28f890031c22e",
+      "matches": true
+    },
+    {
+      "path": "scripts/ci/release-receipt.sh",
+      "expected_blob": "6781863befcc7e1da491edd7d08592dfbc694fe6",
+      "actual_blob": "6781863befcc7e1da491edd7d08592dfbc694fe6",
+      "matches": true
+    },
+    {
+      "path": "test/sigra/planning/phase_248_release_observer_contract_test.exs",
+      "expected_blob": "7da186da49ab4013d66b88d050c33e61ccf38601",
+      "actual_blob": "7da186da49ab4013d66b88d050c33e61ccf38601",
+      "matches": true
+    },
+    {
+      "path": "test/sigra/planning/phase_250_canary_contract_test.exs",
+      "expected_blob": "01a5ef076e4ad3b51f51e44d4004e9208afc69fd",
+      "actual_blob": "01a5ef076e4ad3b51f51e44d4004e9208afc69fd",
+      "matches": true
+    }
+  ],
+  "test_support_blob": {
+    "path": "scripts/ci/normalize-release-timestamp.sh",
+    "expected_blob": "1885dfdef311f1b471ad56273ed8bd44572c3352",
+    "actual_blob": "1885dfdef311f1b471ad56273ed8bd44572c3352",
+    "matches": true
+  },
+  "preflight": {
+    "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T032312Z.json",
+    "sha256": "2b131e3b8df4a7219b74992de9ead09bf2c95d7729b1753bfc08851dc7fbf20f",
+    "payload_sha256": "cc612a494c841cef2d07032cf5613b5f5e75d5aa0d0eb1d137c18616882c14af",
+    "payload_bytes": 825,
+    "target_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
+    "captured_at": "2026-10-11T03:23:12Z"
+  },
+  "current_main_ci": {
+    "run_id": 38097941299,
+    "workflow": ".github/workflows/ci.yml",
+    "event": "push",
+    "head_sha": "ff96768bc2843ef1a89926d238690b1145bfd514",
+    "conclusion": "success",
+    "ci_gate_job_id": 114348921095,
+    "ci_gate_conclusion": "success"
+  },
+  "exact_source_checks": {
+    "release_canary_cases": {
+      "passed": 59,
+      "failed": 0
+    },
+    "release_canary_self_test": "passed",
+    "release_observer_cases": {
+      "passed": 24,
+      "failed": 0
+    },
+    "release_receipt_cases": {
+      "passed": 16,
+      "failed": 0
+    },
+    "actionlint": "passed",
+    "source_bytes_verified_by_git_blob_sha": true
+  },
+  "dispatch_attempted": false,
+  "credential_values_recorded": false,
+  "previous_packet_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+  "previous_packet_sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287"
+}

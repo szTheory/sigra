@@ -6,6 +6,9 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   @workflow_path ".github/workflows/ci.yml"
   @evidence_workflow_path ".github/workflows/terminal-ratification-evidence.yml"
   @contributing_path "CONTRIBUTING.md"
+  @historical_source_commit "47a88f1480173ace77db2ec4031d2527086b6e42"
+  @historical_contributing_sha "33d045c1fe8940a050db76d087ab1e8b45020b404d2f122032c50c170d11760b"
+  @browser_command_path "scripts/ci/ci-browser-command.mjs"
   @mix_path "mix.exs"
   @playwright_config_path "test/example/priv/playwright/playwright.config.ts"
   @playwright_package_path "test/example/priv/playwright/package.json"
@@ -578,7 +581,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   test "contributor topology names live direct owners, aggregates, reproduction, and non-PR signals" do
-    contributing = File.read!(@contributing_path)
+    contributing = historical_contributing!()
 
     assert validate_contributor_topology!(
              contributing,
@@ -590,7 +593,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
   end
 
   test "contributor topology contract rejects aggregate ownership, missing seams, commands, paths, and false PR ownership" do
-    contributing = File.read!(@contributing_path)
+    contributing = historical_contributing!()
     workflow = File.read!(@workflow_path)
     mix_exs = File.read!(@mix_path)
     playwright_config = File.read!(@playwright_config_path)
@@ -660,7 +663,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     ledger = ledger!()
     seed = File.read!(@seed_path)
     milestone_arc = File.read!(@milestone_arc_path)
-    contributing = File.read!(@contributing_path)
+    contributing = historical_contributing!()
     residual = File.read!(@residual_path)
 
     assert validate_closeout_records!(ledger, contributing, seed, milestone_arc, residual) == :ok
@@ -668,7 +671,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
   test "terminal closeout contract rejects contradicted verdict prose, artifacts, residuals, and stale active framing" do
     ledger = ledger!()
-    contributing = File.read!(@contributing_path)
+    contributing = historical_contributing!()
     seed = File.read!(@seed_path)
     milestone_arc = File.read!(@milestone_arc_path)
     residual = File.read!(@residual_path)
@@ -1780,7 +1783,19 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     require_text!(library_shard, "run: MIX_ENV=test mix ci", "library direct-owner command")
     require_text!(library_aggregate, "needs: [library_tests_shard]", "library aggregate needs")
-    require_text!(playwright_shard, "npx playwright test", "Playwright direct-owner command")
+
+    require_text!(
+      playwright_shard,
+      "ci-browser-command.mjs list",
+      "Playwright direct-owner command"
+    )
+
+    require_text!(
+      playwright_shard,
+      "ci-browser-command.mjs run",
+      "Playwright direct-owner command"
+    )
+
     require_text!(playwright_aggregate, "example_playwright_shard", "Playwright aggregate needs")
 
     if library_aggregate =~ "MIX_ENV=test mix ci" or playwright_aggregate =~ "npx playwright test" do
@@ -1856,6 +1871,28 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     for seam <- ~w(admin_behavior admin_checkpoints design_gallery non_admin_smoke demo_showcase) do
       require_text!(contributing, seam, "Playwright seam #{seam}")
       require_text!(workflow, "seam: #{seam}", "workflow Playwright seam #{seam}")
+
+      require_text!(
+        playwright_shard,
+        "ci-browser-command.mjs list --seam #{seam} --event",
+        "workflow executable Playwright seam #{seam}"
+      )
+
+      require_text!(
+        playwright_shard,
+        "ci-browser-command.mjs run --seam #{seam} --event",
+        "workflow executable Playwright seam #{seam}"
+      )
+
+      {output, 0} = browser_policy!(seam)
+      invocations = Jason.decode!(output)
+
+      unless invocations != [] and
+               Enum.all?(invocations, fn policy ->
+                 Enum.all?(policy["invocations"], &(&1["retries"] == 0))
+               end) do
+        raise ArgumentError, "workflow executable Playwright seam #{seam}"
+      end
     end
 
     require_text!(contributing, "test/example/priv/playwright", "Playwright reproduction path")
@@ -1886,6 +1923,34 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
     end
 
     :ok
+  end
+
+  defp historical_contributing! do
+    {resolved, 0} =
+      System.cmd("git", ["rev-parse", "--verify", "#{@historical_source_commit}^{commit}"])
+
+    unless String.trim(resolved) == @historical_source_commit do
+      raise ArgumentError, "historical contributor source identity mismatch"
+    end
+
+    {contents, 0} =
+      System.cmd("git", ["show", "#{@historical_source_commit}:CONTRIBUTING.md"])
+
+    actual = :crypto.hash(:sha256, contents) |> Base.encode16(case: :lower)
+
+    unless actual == @historical_contributing_sha do
+      raise ArgumentError, "historical contributor blob digest mismatch: #{actual}"
+    end
+
+    contents
+  end
+
+  defp browser_policy!(seam) do
+    script =
+      "import { browserInvocations } from './#{@browser_command_path}'; " <>
+        "process.stdout.write(JSON.stringify(browserInvocations('#{seam}', 'pull_request')));"
+
+    System.cmd("node", ["--input-type=module", "-e", script])
   end
 
   defp require_text!(text, expected, diagnostic) do

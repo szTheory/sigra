@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "submitted_at": "2026-10-11T11:58:56Z",
+  "dispatch_attempted": true,
+  "submission_result": "accepted",
+  "http_status_line": "HTTP/2.0 204 No Content",
+  "request_record_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-REQUEST-v8.json",
+  "request_record_sha256": "cda7e0eb2b3ee9851f4101d78d6d4160e44aa28d076d6cb070b4db7271383f6d",
+  "packet_sha256": "0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628",
+  "preflight_sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+  "controller_workflow_id": 380517406,
+  "controller_run_id": null,
+  "run_resolution_status": "pending",
+  "retry_authorized": false
+}

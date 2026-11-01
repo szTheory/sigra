@@ -1,0 +1,121 @@
+{
+  "baseline_application_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "candidate_identity": {
+    "application_sha": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+    "tree_sha": "75a08a5631aed56703f2ef1f20d60bd13ecf5d4a",
+    "branch": "evidence/phase254-environment-after-20261024",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "preparation_attempt": 1,
+    "reviewed_source": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
+    "workflow_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
+    "source_ref": "refs/evidence/phase254-parity-fixed-source-after"
+  },
+  "native_coverage_comparison": {
+    "inventories": {
+      "before": {
+        "admin_behavior": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/admin_behavior/coverage-source.json",
+          "descriptor_sha256": "89110f3cb76f3b0d7b1ca903f1f0038adc2be613275801791a43d76a3a927b97",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/admin_behavior/admin-behavior.selection.json",
+          "selection_sha256": "1d0a467a778ab627d394cb2742fad61d809c861cd1aa10ddc3641ba9d88b2111",
+          "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+        },
+        "admin_checkpoints": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/admin_checkpoints/coverage-source.json",
+          "descriptor_sha256": "ab4b58eb56cf6ec3603269c944f1cc615777ab91534fc03f0e9a43d22691c06c",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/admin_checkpoints/admin-checkpoints.selection.json",
+          "selection_sha256": "c398bddfdf7419aa3f33a0c49e2ce010f3e9e4c5f761cb323c4e4c4ce02c84e0",
+          "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+        },
+        "design_gallery": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/design_gallery/coverage-source.json",
+          "descriptor_sha256": "fe4944f8e737786d910545e05f78c03e820bd6ce456771c6f708e6e850d56cab",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/design_gallery/design-gallery-pr-behavior.selection.json",
+          "selection_sha256": "6f10b564ad79cd02605b4b70e07a5046e5655bfb906d064c43703dfcba5c0921",
+          "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+        },
+        "non_admin_smoke": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/non_admin_smoke/coverage-source.json",
+          "descriptor_sha256": "493ee459d724380374e64d9d871f40a5b7a4a1a026ea52d63bb20432c01acb94",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/non_admin_smoke/non-admin-smoke.selection.json",
+          "selection_sha256": "212014664f4041a9c593d22b23e57cbdf51402d11f2d50be96b6c103706bfd5c",
+          "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+        },
+        "demo_showcase": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/demo_showcase/coverage-source.json",
+          "descriptor_sha256": "a3eb53148e44f0e2e5c2131fabe6b5be5deaa025b03db670ec1ed7f36e2a752e",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-BASELINE-NATIVE-VERIFIED/demo_showcase/demo-showcase.selection.json",
+          "selection_sha256": "5974502b1a7d115dfdae367b407d8f41b37f176a0a26445221dc60be3a5c8ac7",
+          "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+        }
+      },
+      "after": {
+        "admin_behavior": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/admin_behavior/coverage-source.json",
+          "descriptor_sha256": "853749f167844bbb8b9d1e12cf1191b209c63786a9a2098a2cef3d560d026bbb",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/admin_behavior/admin-behavior.selection.json",
+          "selection_sha256": "c64b98d39739de9c2a4f00256c6360c3cf0d1ee12fc170f8e241d05826294a01",
+          "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47"
+        },
+        "admin_checkpoints": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/admin_checkpoints/coverage-source.json",
+          "descriptor_sha256": "b704505cf7290384e3fe32117c03c3cc2923bd52aba42d12ad76fe620fe98f08",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/admin_checkpoints/admin-checkpoints.selection.json",
+          "selection_sha256": "5f812964366721787086c675cb442360b84c10c4ab9d9601af573bb3ca6da660",
+          "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47"
+        },
+        "design_gallery": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/design_gallery/coverage-source.json",
+          "descriptor_sha256": "a5814005365da85b1e752a75dc6b5cb1bb050f4d7531a7bf1f24e0433765206a",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/design_gallery/design-gallery-pr-behavior.selection.json",
+          "selection_sha256": "ab1017c6de83eebdbc67921908249626ce93d2076e09aa1749e8cc777efad311",
+          "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47"
+        },
+        "non_admin_smoke": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/non_admin_smoke/coverage-source.json",
+          "descriptor_sha256": "30150c9c571310de3be960f706ad13c50e88436a07a0e6e30234d19fc56499d4",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/non_admin_smoke/non-admin-smoke.selection.json",
+          "selection_sha256": "90fa90b49aa6d81549efc4f20f7bd6c328767e808e3d1986362081d049709734",
+          "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47"
+        },
+        "demo_showcase": {
+          "descriptor_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/demo_showcase/coverage-source.json",
+          "descriptor_sha256": "c3699740df54da8afb315e49db25198084b6fa56826deba72ed092e391c8b309",
+          "selection_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-INTEGRATION-CHECK-NODE20.19.5-NATIVE/demo_showcase/demo-showcase.selection.json",
+          "selection_sha256": "0da96af46e60a5cc76d367332c36ee5db1bf835c7264ebba23fb787ac0358619",
+          "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47"
+        }
+      }
+    },
+    "source_equivalence": {
+      "before": {
+        "inventory_source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+        "amended_source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+        "authorization_path": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
+        "authorization_sha256": "b483ea80c8427482badbcfceb99e94d8a61e2066edc940f2f76dbf29db9850d3",
+        "snapshots_path": ".planning/execution/254-environment-recovery/PARITY-FIX/SOURCE-SNAPSHOTS.json",
+        "snapshots_sha256": "33e10d4f9e068344249828a533da7ddabc07ad342be022aae726554723d5cbdd"
+      },
+      "after": {
+        "inventory_source_sha": "da6401170e4295cba8099fd6f3ec348c6867de47",
+        "amended_source_sha": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+        "authorization_path": ".planning/execution/254-environment-recovery/PARITY-FIX/AUTHORIZATION.json",
+        "authorization_sha256": "b483ea80c8427482badbcfceb99e94d8a61e2066edc940f2f76dbf29db9850d3",
+        "snapshots_path": ".planning/execution/254-environment-recovery/PARITY-FIX/SOURCE-SNAPSHOTS.json",
+        "snapshots_sha256": "33e10d4f9e068344249828a533da7ddabc07ad342be022aae726554723d5cbdd"
+      }
+    }
+  },
+  "baseline_identity": {
+    "application_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+    "tree_sha": "4207b705356619ddc7fdc20edf7190fc7330c117",
+    "branch": "evidence/phase254-environment-before-20261024",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "preparation_attempt": 1,
+    "reviewed_source": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+    "workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+    "source_ref": "refs/evidence/phase254-parity-fixed-source-before"
+  },
+  "runner_image_proof_required": true,
+  "runner_image_proof_policy": "v2_native_file_authority"
+}

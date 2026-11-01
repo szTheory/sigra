@@ -1,0 +1,14 @@
+{
+  "candidate_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+  "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+  "spec_blob": "030317814796f8265fc738cab05d80f344ceaa10",
+  "local_mobile_webkit": "blocked_host_appkit",
+  "local_command": "Playwright 1.59.1 WebKit readiness probe with DEBUG=pw:browser,pw:browser:launcher; the organizations spec did not start because the matching cached browser aborted before page startup. Details: .planning/phases/247-release-candidate-and-repository-readiness/247-09-LOCAL-RESULT.json",
+  "ci_head_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+  "ci_conclusion": "success",
+  "mobile_webkit_job": "success",
+  "ci_gate_job": "success",
+  "run_id": 37819712610,
+  "attempt": 1,
+  "ready_01_status": "blocked_by_stale_candidate_evidence"
+}

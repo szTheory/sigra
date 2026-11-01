@@ -1,0 +1,15 @@
+{
+  "schema_version": "sigra.phase253.tdd-evidence/v1",
+  "stage": "RED",
+  "baseline_head": "ca29ed14b14b9eb3ff3e8fb23ea6850df8cadaaa",
+  "targetTest": "test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain",
+  "targetFile": "scripts/ci/ci-git-publication.test.py",
+  "command": "python3 scripts/ci/ci-git-publication.test.py PublicationTests.test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain (publisher temporarily restored from baseline HEAD)",
+  "exitCode": 1,
+  "output": "test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain (__main__.PublicationTests.test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain) ... FAIL\n\n======================================================================\nFAIL: test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain (__main__.PublicationTests.test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jon/projects/sigra/scripts/ci/ci-git-publication.test.py\", line 308, in test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain\n    self.assertEqual(manifest[\"status\"], \"ready-local-proposal\")\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 'blocked' != 'ready-local-proposal'\n- blocked\n+ ready-local-proposal\n\n\n----------------------------------------------------------------------\nRan 1 test in 1.472s\n\nFAILED (failures=1)\n",
+  "expected": "A complete multi-file delta with bounded ordered tree requests is ready for a local proposal.",
+  "actual": "The baseline publisher classified the proposal as blocked because the full delta was sent as one tree request.",
+  "targetTest": "test_large_multifile_product_delta_is_packed_into_ordered_bounded_tree_chain",
+  "targetFile": "scripts/ci/ci-git-publication.test.py",
+  "semanticAssessment": "The named unittest ran and failed on the planned readiness assertion. The baseline's single-tree body exceeded 2 MiB although deterministic splitting can fit within the request allocation."
+}

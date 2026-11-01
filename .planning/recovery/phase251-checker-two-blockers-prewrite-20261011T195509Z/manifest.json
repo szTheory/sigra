@@ -1,0 +1,41 @@
+{
+  "purpose": "Exact current dirty planning bytes and git status before applying the two Phase 251 plan checker blockers",
+  "captured_at": "2026-10-11T19:55:14.300516+00:00",
+  "files": [
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "git_status": " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "sha256": "a760006f616abb0fb36a4bd478f9fc2c0926c791e75f9076f79874ad9d30fb8a",
+      "bytes": 41888,
+      "recovery_path": ".planning/recovery/phase251-checker-two-blockers-prewrite-20261011T195509Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "git_status": " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "sha256": "a52de22d4802319ec6ecedff1e1787bda166737f43b581909cc9eb9ea4a3e006",
+      "bytes": 13839,
+      "recovery_path": ".planning/recovery/phase251-checker-two-blockers-prewrite-20261011T195509Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "git_status": " M .planning/STATE.md",
+      "sha256": "348ef8dd80fc9db58e5964604075cfa76c2c30a23f05c87020966041587a5515",
+      "bytes": 9108,
+      "recovery_path": ".planning/recovery/phase251-checker-two-blockers-prewrite-20261011T195509Z/.planning/STATE.md"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "git_status": " M .planning/HANDOFF.json",
+      "sha256": "fdde820f72386b42f0d9226034e6fa70612fa90cbf4a1780f32e4ec744c83dba",
+      "bytes": 77176,
+      "recovery_path": ".planning/recovery/phase251-checker-two-blockers-prewrite-20261011T195509Z/.planning/HANDOFF.json"
+    },
+    {
+      "path": ".planning/state.json",
+      "git_status": " M .planning/state.json",
+      "sha256": "c7555a675a9d871935fd95244cd82a3b29c6bf6300a696ea191a4dae4a79d739",
+      "bytes": 1783,
+      "recovery_path": ".planning/recovery/phase251-checker-two-blockers-prewrite-20261011T195509Z/.planning/state.json"
+    }
+  ]
+}

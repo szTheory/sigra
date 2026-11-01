@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "ref": "refs/evidence/phase254-state-before-preparation-closeout",
+  "commit": "e8d0090a4d6143ed7d15c5818240990456b42388",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "59068b7293180536193b15cf9a3e2c85bf97fe1f37e3dc994584f93fb5ace1ac",
+      "git_blob": "eb2aa36b5f1ad3ddac193b9f49b9a62ef698861a",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "ed20802229099c3621d2fa9db367337d1946f7daa82cfa7bb04c904d70944125",
+      "git_blob": "91ff276c4ee4fcb0aabc8726a1e65fc08a28c514",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "4c676ac289cab12d37de0f9f3ddb460c55c07d4c0b1ad85bd698bce84cd645c7",
+      "git_blob": "361044a713cf69690963cebc9b7f622786e19dbd",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/254-CONTINUATION.json",
+      "status": "clean",
+      "sha256": "958b1ec054b2fb2a7ccee8016080d7163736c5e761df7e99b17f23143865e534",
+      "git_blob": "3607625cca5a796a60023c17a9d71e655edef13e",
+      "readback_verified": true
+    }
+  ],
+  "verified_at": "2026-10-23T22:24:41.800014+00:00"
+}

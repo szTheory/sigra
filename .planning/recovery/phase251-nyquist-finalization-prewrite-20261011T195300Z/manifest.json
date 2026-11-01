@@ -1,0 +1,36 @@
+{
+  "purpose": "Exact Phase 251 plan, validation, state and handoff bytes before final Nyquist bookkeeping",
+  "captured_at": "2026-10-11T19:51:43.431789+00:00",
+  "files": [
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "sha256": "eff94da9b94de0de564ede2147f69ec71d97af1e5af1abc95921d70498ff398f",
+      "bytes": 41422,
+      "recovery_path": ".planning/recovery/phase251-nyquist-finalization-prewrite-20261011T195300Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "sha256": "da0a6c1825d55f4a4b6dff6fec2f9ccabd53b66ec6c0626af9af766c53eeb151",
+      "bytes": 13746,
+      "recovery_path": ".planning/recovery/phase251-nyquist-finalization-prewrite-20261011T195300Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "01d8a20ce8d3159c69d4abf6003953283ad947226dab0a5728c3979d0b724169",
+      "bytes": 7722,
+      "recovery_path": ".planning/recovery/phase251-nyquist-finalization-prewrite-20261011T195300Z/.planning/STATE.md"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "c5656782d1bb92387b844e5f4ef38c1d8e39d522c1fa7c54f26533460064b658",
+      "bytes": 75570,
+      "recovery_path": ".planning/recovery/phase251-nyquist-finalization-prewrite-20261011T195300Z/.planning/HANDOFF.json"
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "3a8cbe7f35e7c9c4e13b6b902eef11e82c46b64761233e313fc169c18dfc6d06",
+      "bytes": 2075,
+      "recovery_path": ".planning/recovery/phase251-nyquist-finalization-prewrite-20261011T195300Z/.planning/state.json"
+    }
+  ]
+}

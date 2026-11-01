@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/runtime/ci-hosted-gate-verify.py",
+    "--mode",
+    "canary",
+    "--scenario",
+    "sources",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/canary-evidence.json"
+  ],
+  "exit": 0,
+  "stdout": "{\n  \"checks\": {\n    \"names\": [\n      \"Library tests\",\n      \"Example unit smoke (ExUnit + ConnTest)\",\n      \"Install smoke (fresh phx.new + sigra.install)\",\n      \"Example HTTP smoke (boot + curl critical routes)\",\n      \"Example Playwright smoke (full lifecycle)\"\n    ],\n    \"status\": \"effective_checks_verified\"\n  },\n  \"executed_jobs\": 36,\n  \"scenarios\": [\n    {\n      \"artifact_digest\": \"sha256:d08aa1cad145ddd0996dcadaf40b61b8a7740501706411a346ae12a81e43e9f5\",\n      \"artifact_id\": 12394613176,\n      \"conclusion\": \"success\",\n      \"run_id\": \"39705689564\",\n      \"scenario\": \"full-pass\",\n      \"status\": \"verified\",\n      \"synthetic\": true\n    },\n    {\n      \"artifact_digest\": \"sha256:f85d6570efc97a4de39007545202e08a07d384dd5a6df82e85e33d5e466f2d82\",\n      \"artifact_id\": 12395271528,\n      \"conclusion\": \"success\",\n      \"run_id\": \"39705846861\",\n      \"scenario\": \"docs-only\",\n      \"status\": \"verified\",\n      \"synthetic\": true\n    },\n    {\n      \"artifact_digest\": \"sha256:32465d081672079ad1fdc08054705222fae615db4ac8a3207ce06d1114c94471\",\n      \"artifact_id\": 12394651933,\n      \"conclusion\": \"failure\",\n      \"run_id\": \"39705993934\",\n      \"scenario\": \"actual-failure\",\n      \"status\": \"verified_non_green\",\n      \"synthetic\": true\n    },\n    {\n      \"artifact_digest\": \"sha256:b770c2a027738844675ed2133cf38e741199266c1a2657dc74f9832c72ad210c\",\n      \"artifact_id\": 12395261985,\n      \"conclusion\": \"failure\",\n      \"run_id\": \"39706157738\",\n      \"scenario\": \"missing-seam\",\n      \"status\": \"verified_non_green\",\n      \"synthetic\": true\n    },\n    {\n      \"artifact_digest\": \"sha256:70585ef6e766873d6a2828a256e21df2af17e34acc96d80902b82db14747f8a2\",\n      \"artifact_id\": 12394952504,\n      \"conclusion\": \"failure\",\n      \"run_id\": \"39706311517\",\n      \"scenario\": \"unexpected-skip\",\n      \"status\": \"verified_non_green\",\n      \"synthetic\": true\n    },\n    {\n      \"artifacts\": 0,\n      \"conclusion\": \"cancelled\",\n      \"run_id\": \"39706467176\",\n      \"scenario\": \"cancelled\",\n      \"status\": \"verified_non_green\"\n    }\n  ],\n  \"status\": \"sources_verified\",\n  \"transport\": {\n    \"requests\": 93,\n    \"status\": \"transport_verified\",\n    \"window_id\": \"gsd/253-replan-proof-a6838a8f9-canary-1\"\n  }\n}\n",
+  "stderr": ""
+}

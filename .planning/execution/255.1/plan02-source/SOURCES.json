@@ -1,0 +1,146 @@
+{
+  "acceptance_samples": 0,
+  "artifact_directory": "sources-1792885055498292000",
+  "base_ref_freshness": "local snapshot only; no remote request authorized",
+  "base_ref_input": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "candidate_capture_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+  "common_patch": {
+    "path": "sources-1792885055498292000/common-repairs.patch",
+    "sha256": "466f747287d199e672034e189d784ab788b77641ac378c5c98a6772c64efecb7"
+  },
+  "common_repaired_source": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+  "common_tree": "74ec9ce1a6fb04dca047a95435a69c269d7a837a",
+  "constructor_sha256": "92f1b17856e8e2ea739b71383d4d7f8f4ef74805e4f0284043750e961788e935",
+  "control_ref_readback_equal": true,
+  "historical_source_unchanged": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+  "local_only": true,
+  "remote_requests": 0,
+  "schema_version": "sigra.ci-repaired-sources/v1",
+  "sources": {
+    "candidate": {
+      "application_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+      "archive": {
+        "excluded_top_level": [
+          ".planning"
+        ],
+        "path": "sources-1792885055498292000/candidate.tar.gz",
+        "sha256": "0cc7b46ef726479aa804d3d9025c7f87e34678b7746821a2c73480fbf858f09e"
+      },
+      "file_sha256": {
+        ".github/actions/example-playwright-boot/action.yml": "0492dd0291d521b1f4a5bc4a83fb2e9feaecb6c71f50da73e342b309fbc6b3b5",
+        ".github/workflows/ci.yml": "80a05405438bf2dd14709538ecbe468831d1a45b7c1d3730fadc15ebd49ef202",
+        ".tool-versions": "bad70134e7aa0fecd1ef6ae4313f3f958d6a65e54cd7c32100336fee9b0b8499",
+        "mix.exs": "48bd5097e5ac07f6766333732c9cab222ef9d25632c58adb6490382de802333b",
+        "mix.lock": "d5e1ffd653afde7a70fb13fc9756156a10d4a3b0a726d9b79becd4c50afd2b6a",
+        "scripts/ci/ci-mix-receivers.py": "c88e07e9100255c450cd1a15d6ca945fe54c60a3c2ea8d386e12944f5ef01034",
+        "scripts/ci/ci-run-metrics.sh": "f42eca9f28fedfc266176e05dee3e45d7a3d8817cac8a24d28301b683b454408",
+        "scripts/ci/docs-only-classify.sh": "14b8e1f501175bfae2ad10034908961933d1d3a8e5db5a942a9887f2ab0a5c2c",
+        "test/example/priv/playwright/playwright.config.ts": "e6603651fef4c17e5bb2889f38eeff425fecb8587c97f90f08519935ece4f26a",
+        "test/example/priv/playwright/tests/admin-theme.spec.ts": "4cc00daa71ab8f1a60a2aa2df9b9fbf45acfd512bc19a15d56ec5f758c17fcfe",
+        "test/example/priv/playwright/tests/organizations.spec.ts": "d3b9516b0811ac6cb126863007a1f01d5e01b585f952048bd1bfeea1314482ad",
+        "test/example/priv/static/assets/js/app.js": "3b7730aec7be5ff88c3c69d534abda86e762a5fa43ac0ed34272509f40351ca2"
+      },
+      "hosted_merge_sha": null,
+      "merge_preview": {
+        "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+        "computed_tree": "afda3c16e9e149aa73b06b2e99cef91124b907da",
+        "conflicting_paths": [],
+        "exit_code": 0,
+        "expected_tree": "afda3c16e9e149aa73b06b2e99cef91124b907da",
+        "head_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+        "reason": null,
+        "status": "ready",
+        "stderr": "",
+        "stdout": "afda3c16e9e149aa73b06b2e99cef91124b907da\n"
+      },
+      "pr_number": null,
+      "producer_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+      "proposed_merge_tree": "afda3c16e9e149aa73b06b2e99cef91124b907da",
+      "proposed_pr_base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "proposed_pr_head_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+      "proposed_target_branch": "main",
+      "source_ref": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+      "source_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+      "tree_sha": "afda3c16e9e149aa73b06b2e99cef91124b907da",
+      "workflow_revision": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+      "workflow_sha256": "80a05405438bf2dd14709538ecbe468831d1a45b7c1d3730fadc15ebd49ef202"
+    },
+    "control": {
+      "application_sha": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+      "archive": {
+        "excluded_top_level": [
+          ".planning"
+        ],
+        "path": "sources-1792885055498292000/control.tar.gz",
+        "sha256": "a18a9b33b2f47c84d87ca598ec5e64cd661023c26eae74aea6a76f5756de2f23"
+      },
+      "file_sha256": {
+        ".github/actions/example-playwright-boot/action.yml": "63b4f1a00b82a0c394419e3a866a941cb814b98d76f12382cd50b494098f6af5",
+        ".github/workflows/ci.yml": "5b6d27a35c7f30cac8f34060de903ab5d82bd26af126c3845321f16ae87abbec",
+        ".tool-versions": "bad70134e7aa0fecd1ef6ae4313f3f958d6a65e54cd7c32100336fee9b0b8499",
+        "mix.exs": "48bd5097e5ac07f6766333732c9cab222ef9d25632c58adb6490382de802333b",
+        "mix.lock": "d5e1ffd653afde7a70fb13fc9756156a10d4a3b0a726d9b79becd4c50afd2b6a",
+        "scripts/ci/ci-mix-receivers.py": "c88e07e9100255c450cd1a15d6ca945fe54c60a3c2ea8d386e12944f5ef01034",
+        "scripts/ci/ci-run-metrics.sh": "f42eca9f28fedfc266176e05dee3e45d7a3d8817cac8a24d28301b683b454408",
+        "scripts/ci/docs-only-classify.sh": "14b8e1f501175bfae2ad10034908961933d1d3a8e5db5a942a9887f2ab0a5c2c",
+        "test/example/priv/playwright/playwright.config.ts": "e6603651fef4c17e5bb2889f38eeff425fecb8587c97f90f08519935ece4f26a",
+        "test/example/priv/playwright/tests/admin-theme.spec.ts": "0c39d6eba6ea2921f6a15f491fe69369141583d0a92875d9beb0b75bf1e2277e",
+        "test/example/priv/playwright/tests/organizations.spec.ts": "c9980e7796cbb126ff5be39e6e540a31ad0a8f6562ffa0b595be2c372577ede4",
+        "test/example/priv/static/assets/js/app.js": "3b7730aec7be5ff88c3c69d534abda86e762a5fa43ac0ed34272509f40351ca2"
+      },
+      "hosted_merge_sha": null,
+      "merge_preview": {
+        "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+        "computed_tree": "74ec9ce1a6fb04dca047a95435a69c269d7a837a",
+        "conflicting_paths": [],
+        "exit_code": 0,
+        "expected_tree": "74ec9ce1a6fb04dca047a95435a69c269d7a837a",
+        "head_sha": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+        "reason": null,
+        "status": "ready",
+        "stderr": "",
+        "stdout": "74ec9ce1a6fb04dca047a95435a69c269d7a837a\n"
+      },
+      "pr_number": null,
+      "producer_sha": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+      "proposed_merge_tree": "74ec9ce1a6fb04dca047a95435a69c269d7a837a",
+      "proposed_pr_base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "proposed_pr_head_sha": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+      "proposed_target_branch": "main",
+      "source_ref": "refs/evidence/phase255-1/source-control-a54666bc8c77",
+      "source_sha": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+      "tree_sha": "74ec9ce1a6fb04dca047a95435a69c269d7a837a",
+      "workflow_revision": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+      "workflow_sha256": "5b6d27a35c7f30cac8f34060de903ab5d82bd26af126c3845321f16ae87abbec"
+    }
+  },
+  "status": "constructed",
+  "treatment_files": {
+    ".github/actions/example-playwright-boot/action.yml": {
+      "candidate_sha256": "0492dd0291d521b1f4a5bc4a83fb2e9feaecb6c71f50da73e342b309fbc6b3b5",
+      "classification": "Run the same five native preparation tasks in separate Mix VMs; retain outer recorder, all env/readiness/cache/OS dependencies.",
+      "control_sha256": "63b4f1a00b82a0c394419e3a866a941cb814b98d76f12382cd50b494098f6af5"
+    },
+    ".github/workflows/ci.yml": {
+      "candidate_sha256": "80a05405438bf2dd14709538ecbe468831d1a45b7c1d3730fadc15ebd49ef202",
+      "classification": "Restore duplicate Hex/Rebar installation after pinned setup-beam; retain cold fetch and sole seven-leg mix ci.",
+      "control_sha256": "5b6d27a35c7f30cac8f34060de903ab5d82bd26af126c3845321f16ae87abbec"
+    },
+    "test/example/priv/playwright/tests/admin-theme.spec.ts": {
+      "candidate_sha256": "4cc00daa71ab8f1a60a2aa2df9b9fbf45acfd512bc19a15d56ec5f758c17fcfe",
+      "classification": "Reverse invocation-local auth reuse; retain identical tests, real registration/lockout, and branding restoration.",
+      "control_sha256": "0c39d6eba6ea2921f6a15f491fe69369141583d0a92875d9beb0b75bf1e2277e"
+    },
+    "test/example/priv/playwright/tests/organizations.spec.ts": {
+      "candidate_sha256": "d3b9516b0811ac6cb126863007a1f01d5e01b585f952048bd1bfeea1314482ad",
+      "classification": "Restore two redundant owner logins; retain authentication-state assertions and invitee lifecycle.",
+      "control_sha256": "c9980e7796cbb126ff5be39e6e540a31ad0a8f6562ffa0b595be2c372577ede4"
+    }
+  },
+  "treatment_patch": {
+    "path": "sources-1792885055498292000/treatment.patch",
+    "sha256": "098f7e26df121c73eabdcc86b6e18e5b5c5332c9454a6b0e63b2b49e8a1a53dc"
+  },
+  "treatment_round_trip_tree_equal": true
+}

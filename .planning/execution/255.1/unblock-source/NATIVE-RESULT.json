@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-24T23:27:18.953492+00:00",
+  "status": "passed",
+  "scope": "Exact reconciled source local native Mix gate only; hosted CI and performance acceptance are unproved.",
+  "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+  "source_tree": "5de8edaba20ff7c6d3954bf79ded4c8f4e6f8572",
+  "clean_source_before_native": true,
+  "clean_source_after_native": true,
+  "command": [
+    "MIX_ENV=test",
+    "mix",
+    "ci"
+  ],
+  "native_exit_code": 0,
+  "elapsed_seconds": 328.374,
+  "suites": [
+    {
+      "owner": "ordinary",
+      "report": ".planning/execution/255.1/unblock-source/native-supported/ordinary.json",
+      "report_sha256": "054eb5b1d44f8382f2e070dc4f00ef6454814c7446767e997a2d5def2ca4fec9",
+      "command_record": ".planning/execution/255.1/unblock-source/native-supported/ordinary-command.json",
+      "command_record_sha256": "ef82105dd40f357d30356fdfa0d5d6228bdcac2b64118e4009692ef6ed392e29",
+      "seed": 652902,
+      "counts": {
+        "excluded": 22,
+        "failed": 0,
+        "passed": 2678,
+        "skipped": 12
+      },
+      "complete": true
+    },
+    {
+      "owner": "scaffold",
+      "report": ".planning/execution/255.1/unblock-source/native-supported/scaffold.json",
+      "report_sha256": "fb30ed4959bda5db2ae47d469c3cd3fc11e7b168e4ca19477e1c502214ff36bd",
+      "command_record": ".planning/execution/255.1/unblock-source/native-supported/scaffold-command.json",
+      "command_record_sha256": "b7d4829118d1c72c8c32263d40b4c191d6a687edb22c24fa125649f72f0d5dc0",
+      "seed": 253915,
+      "counts": {
+        "excluded": 0,
+        "failed": 0,
+        "passed": 22,
+        "skipped": 0
+      },
+      "complete": true
+    },
+    {
+      "owner": "dep-off",
+      "report": ".planning/execution/255.1/unblock-source/native-supported/dep-off.json",
+      "report_sha256": "d7ceff9d916506bcf9a0db384f86cd8bcd3325ac2fd3f835de2e7deda9e64cbd",
+      "command_record": ".planning/execution/255.1/unblock-source/native-supported/dep-off-command.json",
+      "command_record_sha256": "30cea433ed6c57074f207ce4fbcb3dfc062bb7e63231199dbf629874e11b03e0",
+      "seed": 560644,
+      "counts": {
+        "excluded": 2647,
+        "failed": 0,
+        "passed": 65,
+        "skipped": 0
+      },
+      "complete": true
+    }
+  ],
+  "local_only": true,
+  "acceptance_samples": 0,
+  "hosted_invocations": 0,
+  "development_attempts": [
+    {
+      "execution_context": "default outer sandbox",
+      "native_exit_code": 1,
+      "ordinary_seed": 608028,
+      "failed_test_ids": [
+        "Sigra.Planning.Phase235Fast01SourceCompleteContractTest.test authenticated strict pass is reconciled exactly into FAST-01 and its residual",
+        "Sigra.Planning.Phase235Fast01SourceCompleteContractTest.test semantic fixture parsing stays isolated from the authenticated default path"
+      ],
+      "reason": "Two existing tests invoked sandbox-exec, which the outer sandbox denied; no product assertion was waived.",
+      "raw_report": ".gsd/phase2551-source-unblock-9eb8dd091/MIX-RECEIVERS.json"
+    },
+    {
+      "execution_context": "authorized native filesystem/process permissions",
+      "native_exit_code": 0,
+      "raw_report": ".gsd/phase2551-source-unblock-9eb8dd091/MIX-RECEIVERS-SUPPORTED.json"
+    }
+  ],
+  "raw_storage_record": ".planning/execution/255.1/unblock-source/RAW-STORAGE.json"
+}

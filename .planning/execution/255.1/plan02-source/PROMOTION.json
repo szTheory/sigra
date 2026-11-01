@@ -1,0 +1,22 @@
+{
+  "status": "local_ready",
+  "candidate_sha": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+  "control_sha": "af922fb8ec56ae8f1d67f64cb2b60225548dce1e",
+  "local_status": "ready",
+  "hosted_status": "blocked",
+  "acceptance_samples": 0,
+  "prior_revisions": [
+    {
+      "path": ".planning/execution/255.1/SOURCES.json",
+      "sha256": "8f9d82097598b86e73bd0ba0fae91c77e038ea1f157bfad11e0a065f709cf2a6",
+      "recovery_commit": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/execution/255.1/FEASIBILITY.json",
+      "sha256": "9ca48b8615af4663b9a1036954efee94d6361062643c05c5c9e2180985b402dd",
+      "recovery_commit": "a54666bc8c77efe9e5e0309361acc468ecd29be6",
+      "read_back_equal": true
+    }
+  ]
+}

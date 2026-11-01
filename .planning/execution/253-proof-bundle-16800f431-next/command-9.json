@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "bash",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/runtime/ci-gate-canary.sh",
+    "--scenario",
+    "full-pass",
+    "--revision-freeze",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-freeze.json",
+    "--action-approval",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-approval.json",
+    "--http-allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-allocation.json",
+    "--requests",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-ledger.json",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/canary-evidence.json",
+    "--publication-receipt",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/publication-receipt.json"
+  ],
+  "exit": 1,
+  "stdout": "{\n  \"checks\": {\n    \"names\": [\n      \"Library tests\",\n      \"Example unit smoke (ExUnit + ConnTest)\",\n      \"Install smoke (fresh phx.new + sigra.install)\",\n      \"Example HTTP smoke (boot + curl critical routes)\",\n      \"Example Playwright smoke (full lifecycle)\"\n    ],\n    \"status\": \"effective_checks_verified\"\n  },\n  \"status\": \"preflight_verified\",\n  \"transport\": {\n    \"requests\": 32,\n    \"status\": \"transport_verified\",\n    \"window_id\": \"253-proof-16800f431-next-canary-1\"\n  }\n}\n",
+  "stderr": "hosted-gate-verify: FAIL: fixture ref is outside the scoped namespace\nci-gate-canary: FAIL: command exited 1 at line 956: python3 \"$(dirname \"${BASH_SOURCE[0]}\")/ci-hosted-gate-verify.py\" --mode canary --evidence \"$EVIDENCE\" --scenario \"$case_name\" (last route artifact_zip, endpoint actions/runs/39684755372/artifacts?per_page=100, HTTP 200)\n"
+}

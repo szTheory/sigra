@@ -1,0 +1,14 @@
+{
+  "ref": "refs/gsd/phase253-quick-261020-swa-work",
+  "commit": "6123e54c48588e968c1e3106b7eccc6bd3953f88",
+  "status_base64": "IE0gLnBsYW5uaW5nL0hBTkRPRkYuanNvbgAgTSAucGxhbm5pbmcvU1RBVEUubWQAIE0gLnBsYW5uaW5nL3BoYXNlcy8yNTMtZml4LWZsYWt5LWNpLWFuZC1wcmVzZXJ2ZS1yZXF1aXJlZC1jaGVja3MvMjUzLVJFQ09WRVJZLVJFU0VULm1kACBNIC5wbGFubmluZy9zdGF0ZS5qc29uAD8/IC5wbGFubmluZy9xdWljay8yNjEwMjAtc3dhLXBoYXNlLTI1My1yZWNvbm5lY3QtYWNjZXB0YW5jZS1wcmVyZXF1aXMvMjYxMDIwLXN3YS1QTEFOLm1kAD8/IC5wbGFubmluZy9xdWljay8yNjEwMjAtc3dhLXBoYXNlLTI1My1yZWNvbm5lY3QtYWNjZXB0YW5jZS1wcmVyZXF1aXMvMjYxMDIwLXN3YS1TVU1NQVJZLm1kAA==",
+  "files": {
+    ".planning/HANDOFF.json": "172470c759776e3f729722590f2905aafea605d03cab2e93aebb767f5cbc8b6e",
+    ".planning/STATE.md": "825147489017646bf9939a43b7b46db505901c7a837dd38f1a4171a847060339",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-RESET.md": "69ebcf53ccb1264577cabd398afd20470d67a9a7e1a60f3a7ffbdb5118d1bb1a",
+    ".planning/state.json": "fec039bd94f0952675d22e38dc4f14be1a66bc2ede6afa8cce366fefadb3f718",
+    ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/261020-swa-PLAN.md": "71c8fa406b6a1165e3da3f9f3991de712d3bb56330e93dad18a4b9f74359312b",
+    ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/261020-swa-SUMMARY.md": "fc2fcec8b550e1682875b7d0149060c64254108661bf22e7cf0da3f1467223c9"
+  },
+  "immutable_ref": "refs/gsd/phase253-quick-261020-swa-work-6123e54c48"
+}

@@ -1,0 +1,1497 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "plan": 49,
+  "status": "blocked",
+  "repo_04_status": "open",
+  "truth_status": "unresolved",
+  "source_gate_status": "blocked_missing_full_window_source_and_trust_root",
+  "source_gate_sha256": "5e800895521c7b0c767f5eb5a605787b34d4239be49146ad1c81f339bfd77ed8",
+  "unknown_count": 30,
+  "uncovered_pair_count": 30,
+  "phase_source_gap_count": 10,
+  "phase_source_gaps": [
+    {
+      "phase": 236,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 237,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 238,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 239,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 240,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 241,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 242,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 243,
+      "gaps": [
+        "no committed direct command-history or operation-log source found"
+      ],
+      "available_sources": []
+    },
+    {
+      "phase": 244,
+      "gaps": [
+        "available committed logs are bounded operation records and do not attest complete command history"
+      ],
+      "available_sources": [
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-03-MIX-CI-LOG.txt",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-GAP-CLOSURE-MIX-CI-LOG.txt",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-POST-REVIEW-MIX-CI-LOG.txt"
+      ]
+    },
+    {
+      "phase": 245,
+      "gaps": [
+        "available committed logs are bounded operation records and do not attest complete command history",
+        "verification_not_passed:gaps_found"
+      ],
+      "available_sources": [
+        ".planning/phases/245-branch-prune-local-and-remote/245-01-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-01-REMOTE-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-07-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-GAP-CODE-TESTS.tap",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SAFETY-BRANCH-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SANDBOX-RETRY-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-PR-INTEGRITY-VERIFICATION.json"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "phase": 236,
+      "command_family": "git gc",
+      "pair": "236:git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "b6e889c42af9c0719e9e4b75da1f145ded95700e",
+          "committed_at": "2026-09-16T03:29:52.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md",
+          "blob_oid": "70aef7c18cb55d6164e7751d2da4475343a6647e"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "1d512e69de12a3ae964f6a84c3ad43fa5da40d10",
+          "committed_at": "2026-09-25T16:01:00.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-VERIFICATION.md",
+          "blob_oid": "f989a6903343242ca02e7fe94aa56219de1b67a9"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 236,
+      "command_family": "git reflog expire",
+      "pair": "236:git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "b6e889c42af9c0719e9e4b75da1f145ded95700e",
+          "committed_at": "2026-09-16T03:29:52.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md",
+          "blob_oid": "70aef7c18cb55d6164e7751d2da4475343a6647e"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "1d512e69de12a3ae964f6a84c3ad43fa5da40d10",
+          "committed_at": "2026-09-25T16:01:00.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-VERIFICATION.md",
+          "blob_oid": "f989a6903343242ca02e7fe94aa56219de1b67a9"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 236,
+      "command_family": "--prune=now",
+      "pair": "236:--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "b6e889c42af9c0719e9e4b75da1f145ded95700e",
+          "committed_at": "2026-09-16T03:29:52.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-01-PLAN.md",
+          "blob_oid": "70aef7c18cb55d6164e7751d2da4475343a6647e"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "1d512e69de12a3ae964f6a84c3ad43fa5da40d10",
+          "committed_at": "2026-09-25T16:01:00.000Z",
+          "artifact_path": ".planning/phases/236-flake-root-cause-reproduce-name-fix/236-VERIFICATION.md",
+          "blob_oid": "f989a6903343242ca02e7fe94aa56219de1b67a9"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 237,
+      "command_family": "git gc",
+      "pair": "237:git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-01-PLAN.md",
+          "blob_oid": "fae7f8c59aaeec7b56fd15adbff6459ccbfdcdbd"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "8c5d1e03700b543333770ef6909c8b198883df22",
+          "committed_at": "2026-09-25T16:29:11.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-VERIFICATION.md",
+          "blob_oid": "85026d8a570eeeaa00878ff2125e828325599829"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 237,
+      "command_family": "git reflog expire",
+      "pair": "237:git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-01-PLAN.md",
+          "blob_oid": "fae7f8c59aaeec7b56fd15adbff6459ccbfdcdbd"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "8c5d1e03700b543333770ef6909c8b198883df22",
+          "committed_at": "2026-09-25T16:29:11.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-VERIFICATION.md",
+          "blob_oid": "85026d8a570eeeaa00878ff2125e828325599829"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 237,
+      "command_family": "--prune=now",
+      "pair": "237:--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-01-PLAN.md",
+          "blob_oid": "fae7f8c59aaeec7b56fd15adbff6459ccbfdcdbd"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "8c5d1e03700b543333770ef6909c8b198883df22",
+          "committed_at": "2026-09-25T16:29:11.000Z",
+          "artifact_path": ".planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-VERIFICATION.md",
+          "blob_oid": "85026d8a570eeeaa00878ff2125e828325599829"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 238,
+      "command_family": "git gc",
+      "pair": "238:git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-01-PLAN.md",
+          "blob_oid": "5306947140fce15851f3cfd3e044908a47b1a208"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "21947eb2a5fdf5b03ed2f99f100e96d88e6873ed",
+          "committed_at": "2026-09-25T16:53:48.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-VERIFICATION.md",
+          "blob_oid": "944b5024707d56cf0d1e29f7228c496c26ee6681"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 238,
+      "command_family": "git reflog expire",
+      "pair": "238:git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-01-PLAN.md",
+          "blob_oid": "5306947140fce15851f3cfd3e044908a47b1a208"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "21947eb2a5fdf5b03ed2f99f100e96d88e6873ed",
+          "committed_at": "2026-09-25T16:53:48.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-VERIFICATION.md",
+          "blob_oid": "944b5024707d56cf0d1e29f7228c496c26ee6681"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 238,
+      "command_family": "--prune=now",
+      "pair": "238:--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "6b03af0553a13d17db487f06927dc0b990b90e3c",
+          "committed_at": "2026-09-17T16:27:14.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-01-PLAN.md",
+          "blob_oid": "5306947140fce15851f3cfd3e044908a47b1a208"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "21947eb2a5fdf5b03ed2f99f100e96d88e6873ed",
+          "committed_at": "2026-09-25T16:53:48.000Z",
+          "artifact_path": ".planning/phases/238-tag-guard-then-tag-deletion/238-VERIFICATION.md",
+          "blob_oid": "944b5024707d56cf0d1e29f7228c496c26ee6681"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 239,
+      "command_family": "git gc",
+      "pair": "239:git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-01-PLAN.md",
+          "blob_oid": "c438ed4c22da25c84acada9eac80ebb0ee397cd0"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md",
+          "blob_oid": "57f04c7958cc9cc121b4890b128a089728fe2c14"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 239,
+      "command_family": "git reflog expire",
+      "pair": "239:git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-01-PLAN.md",
+          "blob_oid": "c438ed4c22da25c84acada9eac80ebb0ee397cd0"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md",
+          "blob_oid": "57f04c7958cc9cc121b4890b128a089728fe2c14"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 239,
+      "command_family": "--prune=now",
+      "pair": "239:--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-01-PLAN.md",
+          "blob_oid": "c438ed4c22da25c84acada9eac80ebb0ee397cd0"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "bca3ad72ccfabd0e4b5fd109cc631832f6f446e7",
+          "committed_at": "2026-09-18T15:58:50.000Z",
+          "artifact_path": ".planning/phases/239-priv-templates-sweep-one-batched-re-bless/239-VERIFICATION.md",
+          "blob_oid": "57f04c7958cc9cc121b4890b128a089728fe2c14"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 240,
+      "command_family": "git gc",
+      "pair": "240:git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "04e94a863bc70a85d1655ede1416a4c22e0f8ca6",
+          "committed_at": "2026-09-18T17:18:26.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-01-PLAN.md",
+          "blob_oid": "6fe6fefaefe8937c38c99bd24bf2c1a126187c17"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "491b1a0c19ac90eadea7d0e35a0fba62a5243126",
+          "committed_at": "2026-09-18T19:05:10.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-VERIFICATION.md",
+          "blob_oid": "50ed7eb82a417eb4e5c892fa608706a8b1aca76c"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 240,
+      "command_family": "git reflog expire",
+      "pair": "240:git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "04e94a863bc70a85d1655ede1416a4c22e0f8ca6",
+          "committed_at": "2026-09-18T17:18:26.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-01-PLAN.md",
+          "blob_oid": "6fe6fefaefe8937c38c99bd24bf2c1a126187c17"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "491b1a0c19ac90eadea7d0e35a0fba62a5243126",
+          "committed_at": "2026-09-18T19:05:10.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-VERIFICATION.md",
+          "blob_oid": "50ed7eb82a417eb4e5c892fa608706a8b1aca76c"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 240,
+      "command_family": "--prune=now",
+      "pair": "240:--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "04e94a863bc70a85d1655ede1416a4c22e0f8ca6",
+          "committed_at": "2026-09-18T17:18:26.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-01-PLAN.md",
+          "blob_oid": "6fe6fefaefe8937c38c99bd24bf2c1a126187c17"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "491b1a0c19ac90eadea7d0e35a0fba62a5243126",
+          "committed_at": "2026-09-18T19:05:10.000Z",
+          "artifact_path": ".planning/phases/240-green-main-evidence-honest-pages-script/240-VERIFICATION.md",
+          "blob_oid": "50ed7eb82a417eb4e5c892fa608706a8b1aca76c"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 241,
+      "command_family": "git gc",
+      "pair": "241:git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "5ee912d0a81f1e682f1356b187209497eaafce51",
+          "committed_at": "2026-09-18T20:28:09.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-01-PLAN.md",
+          "blob_oid": "1e2d26be818cbe2ea53dbcb499a7f6dc2bf2e569"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "ffbcdf8522bbd8c695d062691807f4ee50aa3e59",
+          "committed_at": "2026-09-25T17:13:54.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-VERIFICATION.md",
+          "blob_oid": "d51282195e0b0f1377ee4c31ab43a7850e520d80"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 241,
+      "command_family": "git reflog expire",
+      "pair": "241:git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "5ee912d0a81f1e682f1356b187209497eaafce51",
+          "committed_at": "2026-09-18T20:28:09.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-01-PLAN.md",
+          "blob_oid": "1e2d26be818cbe2ea53dbcb499a7f6dc2bf2e569"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "ffbcdf8522bbd8c695d062691807f4ee50aa3e59",
+          "committed_at": "2026-09-25T17:13:54.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-VERIFICATION.md",
+          "blob_oid": "d51282195e0b0f1377ee4c31ab43a7850e520d80"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 241,
+      "command_family": "--prune=now",
+      "pair": "241:--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "5ee912d0a81f1e682f1356b187209497eaafce51",
+          "committed_at": "2026-09-18T20:28:09.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-01-PLAN.md",
+          "blob_oid": "1e2d26be818cbe2ea53dbcb499a7f6dc2bf2e569"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "ffbcdf8522bbd8c695d062691807f4ee50aa3e59",
+          "committed_at": "2026-09-25T17:13:54.000Z",
+          "artifact_path": ".planning/phases/241-retire-v1-47-s-dishonest-debt-adopter-leakage-guard/241-VERIFICATION.md",
+          "blob_oid": "d51282195e0b0f1377ee4c31ab43a7850e520d80"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 242,
+      "command_family": "git gc",
+      "pair": "242:git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "a00b0494bd9a3670a794a6ea0f4144e674d9e345",
+          "committed_at": "2026-09-20T13:34:44.000Z",
+          "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-01-PLAN.md",
+          "blob_oid": "e937fc056d3dfd396c1581f9d8e4232e799e2f5b"
+        },
+        "end": {
+          "kind": "committed_roadmap_phase_completion_marker",
+          "commit_oid": "cd0e7711f52c6bd009b2d52b8b7e07c65b950b85",
+          "committed_at": "2026-09-27T13:01:37.000Z",
+          "artifact_path": ".planning/ROADMAP.md",
+          "blob_oid": "ac3c9d962d6e2306ded5852840c26a67e9174fda"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 242,
+      "command_family": "git reflog expire",
+      "pair": "242:git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "a00b0494bd9a3670a794a6ea0f4144e674d9e345",
+          "committed_at": "2026-09-20T13:34:44.000Z",
+          "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-01-PLAN.md",
+          "blob_oid": "e937fc056d3dfd396c1581f9d8e4232e799e2f5b"
+        },
+        "end": {
+          "kind": "committed_roadmap_phase_completion_marker",
+          "commit_oid": "cd0e7711f52c6bd009b2d52b8b7e07c65b950b85",
+          "committed_at": "2026-09-27T13:01:37.000Z",
+          "artifact_path": ".planning/ROADMAP.md",
+          "blob_oid": "ac3c9d962d6e2306ded5852840c26a67e9174fda"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 242,
+      "command_family": "--prune=now",
+      "pair": "242:--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "a00b0494bd9a3670a794a6ea0f4144e674d9e345",
+          "committed_at": "2026-09-20T13:34:44.000Z",
+          "artifact_path": ".planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-01-PLAN.md",
+          "blob_oid": "e937fc056d3dfd396c1581f9d8e4232e799e2f5b"
+        },
+        "end": {
+          "kind": "committed_roadmap_phase_completion_marker",
+          "commit_oid": "cd0e7711f52c6bd009b2d52b8b7e07c65b950b85",
+          "committed_at": "2026-09-27T13:01:37.000Z",
+          "artifact_path": ".planning/ROADMAP.md",
+          "blob_oid": "ac3c9d962d6e2306ded5852840c26a67e9174fda"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 243,
+      "command_family": "git gc",
+      "pair": "243:git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "161eb581b2a33e72e947f2a3510b54f55c5df319",
+          "committed_at": "2026-09-25T02:31:23.000Z",
+          "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-01-PLAN.md",
+          "blob_oid": "ab037e0d20b48af1691043936efb4dbf75d59b57"
+        },
+        "end": {
+          "kind": "committed_roadmap_phase_completion_marker",
+          "commit_oid": "cd0e7711f52c6bd009b2d52b8b7e07c65b950b85",
+          "committed_at": "2026-09-27T13:01:37.000Z",
+          "artifact_path": ".planning/ROADMAP.md",
+          "blob_oid": "ac3c9d962d6e2306ded5852840c26a67e9174fda"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 243,
+      "command_family": "git reflog expire",
+      "pair": "243:git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "161eb581b2a33e72e947f2a3510b54f55c5df319",
+          "committed_at": "2026-09-25T02:31:23.000Z",
+          "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-01-PLAN.md",
+          "blob_oid": "ab037e0d20b48af1691043936efb4dbf75d59b57"
+        },
+        "end": {
+          "kind": "committed_roadmap_phase_completion_marker",
+          "commit_oid": "cd0e7711f52c6bd009b2d52b8b7e07c65b950b85",
+          "committed_at": "2026-09-27T13:01:37.000Z",
+          "artifact_path": ".planning/ROADMAP.md",
+          "blob_oid": "ac3c9d962d6e2306ded5852840c26a67e9174fda"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 243,
+      "command_family": "--prune=now",
+      "pair": "243:--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "161eb581b2a33e72e947f2a3510b54f55c5df319",
+          "committed_at": "2026-09-25T02:31:23.000Z",
+          "artifact_path": ".planning/phases/243-drain-the-queue-dependabot-tiers-a-b-stale-prs-todo-triage/243-01-PLAN.md",
+          "blob_oid": "ab037e0d20b48af1691043936efb4dbf75d59b57"
+        },
+        "end": {
+          "kind": "committed_roadmap_phase_completion_marker",
+          "commit_oid": "cd0e7711f52c6bd009b2d52b8b7e07c65b950b85",
+          "committed_at": "2026-09-27T13:01:37.000Z",
+          "artifact_path": ".planning/ROADMAP.md",
+          "blob_oid": "ac3c9d962d6e2306ded5852840c26a67e9174fda"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "missing",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "no_committed_direct_command_history_source",
+        "no committed direct command-history or operation-log source found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "no committed direct command-history or operation-log source found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 244,
+      "command_family": "git gc",
+      "pair": "244:git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "34176393dd706ac4411b4407f531904e0e1b5922",
+          "committed_at": "2026-09-26T01:38:24.000Z",
+          "artifact_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-01-PLAN.md",
+          "blob_oid": "579a1cc2762efeeafa71277b728cae21007c51a7"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+          "committed_at": "2026-09-27T00:10:30.000Z",
+          "artifact_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+          "blob_oid": "5579ba64144b0b50136c4536183cf998ff75a0d3"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-03-MIX-CI-LOG.txt",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-GAP-CLOSURE-MIX-CI-LOG.txt",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-POST-REVIEW-MIX-CI-LOG.txt"
+      ],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "partial",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "available_sources_do_not_cover_the_complete_phase_window",
+        "available committed logs are bounded operation records and do not attest complete command history",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "available committed logs are bounded operation records and do not attest complete command history; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 244,
+      "command_family": "git reflog expire",
+      "pair": "244:git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "34176393dd706ac4411b4407f531904e0e1b5922",
+          "committed_at": "2026-09-26T01:38:24.000Z",
+          "artifact_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-01-PLAN.md",
+          "blob_oid": "579a1cc2762efeeafa71277b728cae21007c51a7"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+          "committed_at": "2026-09-27T00:10:30.000Z",
+          "artifact_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+          "blob_oid": "5579ba64144b0b50136c4536183cf998ff75a0d3"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-03-MIX-CI-LOG.txt",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-GAP-CLOSURE-MIX-CI-LOG.txt",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-POST-REVIEW-MIX-CI-LOG.txt"
+      ],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "partial",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "available_sources_do_not_cover_the_complete_phase_window",
+        "available committed logs are bounded operation records and do not attest complete command history",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "available committed logs are bounded operation records and do not attest complete command history; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 244,
+      "command_family": "--prune=now",
+      "pair": "244:--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "34176393dd706ac4411b4407f531904e0e1b5922",
+          "committed_at": "2026-09-26T01:38:24.000Z",
+          "artifact_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-01-PLAN.md",
+          "blob_oid": "579a1cc2762efeeafa71277b728cae21007c51a7"
+        },
+        "end": {
+          "kind": "latest_passed_phase_verification",
+          "commit_oid": "f62e252648db66706cf27c3e37241fcd7b78a3de",
+          "committed_at": "2026-09-27T00:10:30.000Z",
+          "artifact_path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+          "blob_oid": "5579ba64144b0b50136c4536183cf998ff75a0d3"
+        }
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-03-MIX-CI-LOG.txt",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-GAP-CLOSURE-MIX-CI-LOG.txt",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+        ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-POST-REVIEW-MIX-CI-LOG.txt"
+      ],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "partial",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "available_sources_do_not_cover_the_complete_phase_window",
+        "available committed logs are bounded operation records and do not attest complete command history",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "available committed logs are bounded operation records and do not attest complete command history; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 245,
+      "command_family": "git gc",
+      "pair": "245:git gc",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "1e4274daed9722da0b7fa044794d60f484cbc54f",
+          "committed_at": "2026-09-27T16:57:32.000Z",
+          "artifact_path": ".planning/phases/245-branch-prune-local-and-remote/245-01-PLAN.md",
+          "blob_oid": "8c723966f3ba07030305dd202bc11a2831d1155f"
+        },
+        "end": null
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [
+        ".planning/phases/245-branch-prune-local-and-remote/245-01-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-01-REMOTE-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-07-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-GAP-CODE-TESTS.tap",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SAFETY-BRANCH-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SANDBOX-RETRY-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-PR-INTEGRITY-VERIFICATION.json"
+      ],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "partial",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "phase_completion_boundary_unavailable",
+        "available_sources_do_not_cover_the_complete_phase_window",
+        "available committed logs are bounded operation records and do not attest complete command history",
+        "verification_not_passed:gaps_found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "available committed logs are bounded operation records and do not attest complete command history; verification_not_passed:gaps_found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 245,
+      "command_family": "git reflog expire",
+      "pair": "245:git reflog expire",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "1e4274daed9722da0b7fa044794d60f484cbc54f",
+          "committed_at": "2026-09-27T16:57:32.000Z",
+          "artifact_path": ".planning/phases/245-branch-prune-local-and-remote/245-01-PLAN.md",
+          "blob_oid": "8c723966f3ba07030305dd202bc11a2831d1155f"
+        },
+        "end": null
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [
+        ".planning/phases/245-branch-prune-local-and-remote/245-01-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-01-REMOTE-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-07-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-GAP-CODE-TESTS.tap",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SAFETY-BRANCH-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SANDBOX-RETRY-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-PR-INTEGRITY-VERIFICATION.json"
+      ],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "partial",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "phase_completion_boundary_unavailable",
+        "available_sources_do_not_cover_the_complete_phase_window",
+        "available committed logs are bounded operation records and do not attest complete command history",
+        "verification_not_passed:gaps_found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "available committed logs are bounded operation records and do not attest complete command history; verification_not_passed:gaps_found; no independently trusted contiguous signed full-window command sequence"
+    },
+    {
+      "phase": 245,
+      "command_family": "--prune=now",
+      "pair": "245:--prune=now",
+      "phase_window": {
+        "start": {
+          "kind": "first_committed_phase_plan",
+          "commit_oid": "1e4274daed9722da0b7fa044794d60f484cbc54f",
+          "committed_at": "2026-09-27T16:57:32.000Z",
+          "artifact_path": ".planning/phases/245-branch-prune-local-and-remote/245-01-PLAN.md",
+          "blob_oid": "8c723966f3ba07030305dd202bc11a2831d1155f"
+        },
+        "end": null
+      },
+      "eligible_sources": [],
+      "bounded_candidate_paths": [
+        ".planning/phases/245-branch-prune-local-and-remote/245-01-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-01-REMOTE-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-07-RED-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-EVIDENCE.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-GAP-CODE-TESTS.tap",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SAFETY-BRANCH-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-MIX-CI-SANDBOX-RETRY-LOG.txt",
+        ".planning/phases/245-branch-prune-local-and-remote/245-PR-INTEGRITY-VERIFICATION.json"
+      ],
+      "recorder_trust_identity": null,
+      "trust_contract": "ed25519-recorder-attestation-v1",
+      "coverage": "partial",
+      "source_coverage": {
+        "complete": false,
+        "covered_start": null,
+        "covered_end": null,
+        "proof": null
+      },
+      "history_complete": false,
+      "full_window_covered": false,
+      "disposition": "unknown",
+      "missing_sources": [
+        "complete_command_history",
+        "independent_trust_root"
+      ],
+      "blockers": [
+        "phase_completion_boundary_unavailable",
+        "available_sources_do_not_cover_the_complete_phase_window",
+        "available committed logs are bounded operation records and do not attest complete command history",
+        "verification_not_passed:gaps_found",
+        "missing_independent_recorder_trust_root"
+      ],
+      "reason": "available committed logs are bounded operation records and do not attest complete command history; verification_not_passed:gaps_found; no independently trusted contiguous signed full-window command sequence"
+    }
+  ],
+  "cleanup_operations": 0,
+  "ref_operations": 0,
+  "pr_operations": 0,
+  "historical_absence_proven": false,
+  "source_digests": {
+    "current_audit_sha256": "eb9f141fce4499a9c244e576dc151561510adb2fa9146861d09ca4a610674518",
+    "phase_15_audit_sha256": "4d85d9e037a9325ef6d24f5ae70e363348b293d079d53e533222dd30d0472eac",
+    "inventory_sha256": "16020dae08cc2bb14d97f9811f0db5c43078157a4b158f2b3214b2560d3f369b"
+  },
+  "next_source_discovery_requires": "fresh_D-06_source_gate",
+  "reason": "No independently trusted complete command-history source covers any phase window. Bounded operation logs cannot establish absence of cleanup commands."
+}

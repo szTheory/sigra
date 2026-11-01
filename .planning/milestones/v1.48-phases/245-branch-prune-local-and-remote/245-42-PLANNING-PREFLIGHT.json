@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": 42,
+  "captured_at": "2026-10-05T01:47:41Z",
+  "status": "ready_for_planning_only",
+  "authority": {
+    "production_ref_operations": 0,
+    "pull_request_mutations": 0,
+    "fetches": 0,
+    "approval_requested": false,
+    "plan_41_approval_reusable": false,
+    "current_source_capture_is_execution_authority": false
+  },
+  "required_sources": {
+    "pinned_baselines_and_cited_blobs": {
+      "status": "ready",
+      "source": "local Git object database",
+      "plan_41_contract_commit": "5c704e0eba7556026ed97df5846eb5170144b01d",
+      "plan_41_contract_sha256": "5421c8b7a8772c259ff738578427a1bda83111b75bd13b4c5929633c7e9b7292",
+      "checked_pins": 9,
+      "checked_pins_description": "Seven commit/path/blob/SHA-256 pinned_inputs in 245-41-CURRENT-CONTRACT.json, plus that committed contract and its committed allowlist",
+      "all_commit_types_commit": true,
+      "all_blob_ids_and_sha256_match": true,
+      "plan_41_result_commit": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+      "plan_41_result_blob": "b042a558078c0b74c92f3387da9b78b415b15f78",
+      "plan_41_summary_blob": "c9f616fbc93ee032ab51a294a6f6d2cfc0ee0d90",
+      "failures": []
+    },
+    "two_independent_post_operation_captures": {
+      "status": "ready",
+      "source": "embedded post_state.observations in committed 245-41-RESULT.json",
+      "capture_count": 2,
+      "capture_sha256": [
+        "ccd002f06a76d974bbfb3cf62b0a2e55cb39b220645de66972103995e819beec",
+        "cf19894ed10a6348a978af161bd9d3f3abf7ca9d53cd4d498b00ea16a694d148"
+      ],
+      "local_ref_count_each": 106,
+      "exact_origin_ref_count_each": 361,
+      "open_pr_count_each": 14,
+      "local_origin_and_pr_arrays_equal": true,
+      "approved_tracking_rows": 14,
+      "exact_absent_rows": 13,
+      "exact_present_rows": [
+        {
+          "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+          "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+          "type": "commit"
+        }
+      ],
+      "plan_41_result_outcome": "blocked",
+      "plan_41_result_production_ref_operations": 13
+    },
+    "recorded_objects": {
+      "status": "ready",
+      "source": "committed Plan 18 local-ref snapshot; committed Plan 41 local/origin refs, open PR OIDs and pinned inputs; both embedded post-operation captures; committed Plan 41 result and summary blobs",
+      "plan_18_rows": 129,
+      "unique_ref_direct_or_peeled_oid_type_pairs_checked": 363,
+      "unique_typed_pairs_including_prs_pins_and_result_blobs_checked": 381,
+      "cat_file_type_failures": 0,
+      "remaining_tracking_oid_type": "commit"
+    },
+    "current_local_git": {
+      "status": "ready",
+      "head_ref": "refs/heads/phase-244-playwright-measurement",
+      "head_oid_at_preflight": "3e47bf5ad63a0a920d3fbc886fda8caceb8c65dc",
+      "for_each_ref_exit": 0,
+      "local_ref_count": 106,
+      "remaining_tracking_ref_at_expected_oid": true,
+      "coordinator_verify": "passed_with_/usr/bin/git_2.50.1",
+      "coordinator_status": "verified_lock_free_zero_transaction_leases"
+    },
+    "current_origin": {
+      "status": "ready",
+      "source": "git ls-remote --symref origin",
+      "exit": 0,
+      "raw_row_count": 363,
+      "default_symref": "refs/heads/main",
+      "main_oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+      "remaining_tracking_ref_matching_origin_head_present": false,
+      "required_safety_refs_observed": {
+        "refs/heads/ci/phase-235-16-source-complete": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+        "refs/heads/safety/local-main-before-release-cleanup-20260831": "04ae0ba753e4f0613df5b3f840955018742ffbb9",
+        "refs/tags/archive/local-main-pre-235-recovery": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972"
+      }
+    },
+    "independent_current_pr_registry": {
+      "status": "ready",
+      "source": "GitHub gh pr list and REST pulls page 1",
+      "rest_core_remaining_before_reads": 5000,
+      "cli_open_count": 14,
+      "api_open_count": 14,
+      "number_head_base_and_oid_sets_equal": true,
+      "pr_219_head": "gsd/238-generated-auth-runtime-proof-evidence",
+      "pr_219_base": "main"
+    },
+    "phase_244_readiness": {
+      "status": "ready",
+      "pinned_plan_23_receipt": "ready",
+      "pinned_plan_37_d06_verdict": "ready"
+    }
+  },
+  "historical_sources_excluded_from_this_plan": {
+    "pr_base_oid_mismatch": {
+      "row_count": 11,
+      "status": "unresolved_historical_record",
+      "full_window_reconstruction_required": false
+    },
+    "cleanup_history": {
+      "row_count": 30,
+      "unknown_rows": 30,
+      "status": "unresolved_historical_record",
+      "qualifying_full_window_trust_source": "unavailable",
+      "full_window_reconstruction_required": false
+    },
+    "pinned_historical_baseline": {
+      "status": "unavailable_from_local_git_and_github",
+      "replacement_requested": false
+    }
+  },
+  "planning_conclusion": "D-06 feasibility is satisfied for a fresh D-07 current-state continuation using local Git, exact live origin refs, and complete live GitHub open-PR identities. Plan 41's approval is exhausted. A new execution-time contract, exact-row approval, and independent post-state proof are still required; REPO-04 remains open.",
+  "failed_predicates": []
+}

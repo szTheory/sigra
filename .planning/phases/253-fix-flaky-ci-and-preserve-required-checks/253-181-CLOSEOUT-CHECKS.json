@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-10-20T22:28:11.860324+00:00",
+  "status": "halt_confirmed",
+  "next_command": "$gsd-plan-phase 253 --gaps",
+  "candidate_commit": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+  "shared_routes_aligned": true,
+  "original178_unchanged": true,
+  "candidate_hashes_match_committed_bytes": true,
+  "final_suite_result": {
+    "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+    "exit_code": 1,
+    "tests_run": 21,
+    "passed": 20,
+    "failed": 1,
+    "duration_seconds": 384.179,
+    "complete_output": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-FULL-FAILED.log",
+      "bytes": 4647,
+      "sha256": "6864de43372cce91efb9b01ccc5404c6c72e20ee7ed791dd42b5c5b5ac1a39ab"
+    },
+    "failure": {
+      "test": "test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits",
+      "subtest": "22-halt",
+      "test_source": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "line": 949,
+      "assertion_line": 972,
+      "assertion": "ContractError not raised",
+      "mutation": "good169.replace(\"c.halted_plans.length!==24\", \"c.halted_plans.length!==22\", 1)",
+      "fixture_count_before": "c.halted_plans.length!==25",
+      "fixture_count_after": "c.halted_plans.length!==25",
+      "fixture_bytes_changed": false,
+      "interpretation": "The replacement matched nothing because the fixture already says 25. The test therefore rehashed and accepted unchanged valid bytes. This does not establish whether a genuinely changed 22-halt body is accepted."
+    }
+  },
+  "actual_fresh_validators": [
+    {
+      "plan": "253-179",
+      "kind": "frontmatter",
+      "exit_code": 0,
+      "stdout_sha256": "1dc7d083392efc52ce8392b3b1fd133485cf575e309731f1a04a86f741621be1"
+    },
+    {
+      "plan": "253-179",
+      "kind": "structure",
+      "exit_code": 0,
+      "stdout_sha256": "93728a163d452c68096efea02ebf8fe1fc81e4333d25955c34a5c4bd552009dd"
+    },
+    {
+      "plan": "253-180",
+      "kind": "frontmatter",
+      "exit_code": 0,
+      "stdout_sha256": "1dc7d083392efc52ce8392b3b1fd133485cf575e309731f1a04a86f741621be1"
+    },
+    {
+      "plan": "253-180",
+      "kind": "structure",
+      "exit_code": 0,
+      "stdout_sha256": "c40815efe6025bbf447bb3aaa298ab8b13b17b3c112ec647e1bbd7044a4df102"
+    }
+  ],
+  "preservation_file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CLOSEOUT-PRESERVATION.json"
+}

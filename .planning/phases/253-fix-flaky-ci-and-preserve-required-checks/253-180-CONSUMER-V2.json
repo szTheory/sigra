@@ -1,0 +1,32 @@
+{
+  "schema": "sigra.phase253.versioned-bridge-consumer/v2",
+  "status": "verified_local_consumer",
+  "task": "quick-261021-drl",
+  "authorization": "Explicit user quick task: resolve180 28-halt incompatibility additively; preserve179-pinned files/receipt/halts/budgets; no179 replay orCI",
+  "implementation": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py": "093fabeb53a2bb35150ec645eed5b928647640cb1a600597713ff06841330b14",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.test.py": "b727a397ff5976eca8c54899c7abfe9e5eb511b35bda37736b12d3f8ad365433",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md": "c5ca3cadeda3ef003534024eed299e3833f5212c27014795b1cc5d5f8b948ea3"
+  },
+  "checks": {
+    "path": "/Users/jon/projects/sigra/.planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/CHECKS.json",
+    "sha256": "2ff4c9b9bb8ab30e80321287da0d2562255abf640de0461e704a450fb813da70"
+  },
+  "acceptance_source": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
+  "acceptance_receipt": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-RECOVERY-RECEIPT.json",
+    "sha256": "d839aca846707be4b191695debd4ff2a1d53bdafc146a28b2fbdea0456c37da4"
+  },
+  "current_halting_policy": {
+    "exact_halt_count": 28,
+    "halted183_required": true,
+    "success_183_forbidden": true
+  },
+  "real_bridge_status": "not_executed",
+  "phase_verification_status": "not_started",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 2"
+}

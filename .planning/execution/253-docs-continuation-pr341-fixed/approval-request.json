@@ -1,0 +1,56 @@
+{
+  "schema": "sigra.phase253.docs-continuation-request/v1",
+  "status": "awaiting_explicit_approval",
+  "bundle_path": ".planning/execution/253-docs-continuation-pr341-fixed/bundle.json",
+  "bundle_sha256": "8ce91280fbf7f89b7a665903d28d0cf97495994f3d9fe733ae94d238271e97f5",
+  "candidate_source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "checker_source": "63feb218d603b3192402fb6698e4b3713566f0ac",
+  "scope": "docs-only",
+  "actions": [
+    {
+      "action": "publish_docs_objects",
+      "category": "docs_publication",
+      "max_requests": 14,
+      "docs_base_commit": "98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7",
+      "docs_head_commit": "879d628feeb0b894af1c0d842830b3002f905440",
+      "refs": [
+        {
+          "ref": "refs/heads/gsd/253-replan-proof-a6838a8f9-docs-base",
+          "sha": "98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7"
+        },
+        {
+          "ref": "refs/heads/gsd/253-replan-proof-a6838a8f9-docs-head",
+          "sha": "879d628feeb0b894af1c0d842830b3002f905440"
+        }
+      ]
+    },
+    {
+      "action": "pr_create",
+      "family": "docs-only",
+      "head": "gsd/253-replan-proof-a6838a8f9-docs-head",
+      "base": "gsd/253-replan-proof-a6838a8f9-docs-base",
+      "draft": true
+    }
+  ],
+  "limits": {
+    "requests": 120,
+    "seconds": 3600,
+    "draft_prs": 1,
+    "docs_publication": 14,
+    "workflow_dispatches": 0,
+    "reruns": 0
+  },
+  "original_section_sha256": "34bf9bd67ffbbf9bc4ac48dcc4e60f7ee57f29ac334777bd2cf120e80723e15a",
+  "legacy_section_contains_normal_action_but_new_guard_forbids_it": true,
+  "retained_successes": [
+    "six canary cases",
+    "independent hosted verifier",
+    "normal PR341/run39706873401"
+  ],
+  "old_windows_reopened": 0,
+  "github_requests_so_far": 0,
+  "ci_launches_so_far": 0,
+  "operator": "PYTHONDONTWRITEBYTECODE=1 python3 -B .planning/execution/253-docs-continuation-pr341-fixed/operator.py --run",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "prior_docs_attempt_commit": "43b661d2b"
+}

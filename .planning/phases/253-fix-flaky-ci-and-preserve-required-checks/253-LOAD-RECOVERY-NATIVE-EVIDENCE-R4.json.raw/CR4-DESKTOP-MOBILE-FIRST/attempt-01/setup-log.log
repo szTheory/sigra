@@ -1,0 +1,1255 @@
+==> file_system
+Compiling 7 files (.ex)
+Generated file_system app
+==> mime
+Compiling 1 file (.ex)
+Generated mime app
+==> x509
+Compiling 24 files (.ex)
+Generated x509 app
+==> nimble_options
+Compiling 3 files (.ex)
+Generated nimble_options app
+==> comeonin
+Compiling 3 files (.ex)
+Generated comeonin app
+==> plug_crypto
+Compiling 5 files (.ex)
+Generated plug_crypto app
+==> hpax
+Compiling 4 files (.ex)
+Generated hpax app
+==> jose
+Compiling 113 files (.erl)
+Compiling 8 files (.ex)
+Generated jose app
+==> assent
+Compiling 38 files (.ex)
+Generated assent app
+==> nimble_csv
+Compiling 1 file (.ex)
+Generated nimble_csv app
+==> asn1_compiler
+Compiling 1 file (.ex)
+    warning: :asn1ct.compile/2 is undefined (module :asn1ct is not available or is yet to be defined)
+    │
+ 74 │       :asn1ct.compile(to_charlist(input), options)
+    │               ~
+    │
+    └─ lib/mix/tasks/compile.asn1.ex:74:15: Mix.Tasks.Compile.Asn1.run/1
+
+Generated asn1_compiler app
+==> elixir_make
+Compiling 8 files (.ex)
+Generated elixir_make app
+==> argon2_elixir
+mkdir -p /private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/mix-build/lib/argon2_elixir/priv
+cc -g -O3 -pthread -Wall -I"/Users/jon/.asdf/installs/erlang/28.5/erts-16.4/include" -Iargon2/include -Iargon2/src -Ic_src -dynamiclib -undefined dynamic_lookup  argon2/src/argon2.c argon2/src/core.c argon2/src/blake2/blake2b.c argon2/src/thread.c argon2/src/encoding.c argon2/src/ref.c c_src/argon2_nif.c -o /private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/mix-build/lib/argon2_elixir/priv/argon2_nif.so
+Compiling 3 files (.ex)
+Generated argon2_elixir app
+==> decimal
+Compiling 4 files (.ex)
+Generated decimal app
+==> jason
+Compiling 10 files (.ex)
+Generated jason app
+==> nimble_totp
+Compiling 1 file (.ex)
+Generated nimble_totp app
+==> example
+===> Analyzing applications...
+===> Compiling unicode_util_compat
+===> Analyzing applications...
+===> Compiling idna
+===> Analyzing applications...
+===> Compiling telemetry
+==> telemetry_metrics
+Compiling 7 files (.ex)
+Generated telemetry_metrics app
+==> example
+===> Analyzing applications...
+===> Compiling telemetry_poller
+==> thousand_island
+Compiling 18 files (.ex)
+Generated thousand_island app
+==> db_connection
+Compiling 18 files (.ex)
+Generated db_connection app
+==> ecto
+Compiling 56 files (.ex)
+Generated ecto app
+==> flop
+Compiling 17 files (.ex)
+Generated flop app
+==> cbor
+Compiling 5 files (.ex)
+Generated cbor app
+==> wax_
+Compiling 3 files (.erl)
+Compiling 25 files (.ex)
+Generated wax_ app
+==> phoenix_html
+Compiling 6 files (.ex)
+Generated phoenix_html app
+==> phoenix_template
+Compiling 4 files (.ex)
+Generated phoenix_template app
+==> expo
+Compiling 2 files (.erl)
+Compiling 22 files (.ex)
+Generated expo app
+==> gettext
+Compiling 18 files (.ex)
+Generated gettext app
+==> phoenix_pubsub
+Compiling 12 files (.ex)
+Generated phoenix_pubsub app
+==> cloak
+Compiling 14 files (.ex)
+Generated cloak app
+==> dns_cluster
+Compiling 1 file (.ex)
+Generated dns_cluster app
+==> plug
+Compiling 1 file (.erl)
+Compiling 42 files (.ex)
+Generated plug app
+==> postgrex
+Compiling 69 files (.ex)
+Generated postgrex app
+==> phoenix_ecto
+Compiling 7 files (.ex)
+Generated phoenix_ecto app
+==> ecto_sql
+Compiling 25 files (.ex)
+Generated ecto_sql app
+==> oban
+Compiling 65 files (.ex)
+Generated oban app
+==> joken
+Compiling 8 files (.ex)
+Generated joken app
+==> hammer
+Compiling 11 files (.ex)
+Generated hammer app
+==> eqrcode
+Compiling 10 files (.ex)
+Generated eqrcode app
+==> websock
+Compiling 1 file (.ex)
+Generated websock app
+==> bandit
+Compiling 54 files (.ex)
+Generated bandit app
+==> swoosh
+Compiling 59 files (.ex)
+Generated swoosh app
+==> websock_adapter
+Compiling 4 files (.ex)
+Generated websock_adapter app
+==> phoenix
+Compiling 74 files (.ex)
+Generated phoenix app
+==> phoenix_live_reload
+Compiling 5 files (.ex)
+Generated phoenix_live_reload app
+==> phoenix_live_view
+Compiling 49 files (.ex)
+Generated phoenix_live_view app
+==> threadline
+Compiling 83 files (.ex)
+Generated threadline app
+==> flop_phoenix
+Compiling 6 files (.ex)
+Generated flop_phoenix app
+==> cloak_ecto
+Compiling 23 files (.ex)
+Generated cloak_ecto app
+==> sigra
+Compiling 161 files (.ex)
+Generated sigra app
+==> example
+Compiling 75 files (.ex)
+Generated example app
+The database for Example.Repo has been created
+
+14:30:13.840 [info] == Running 20260410125242 Example.Repo.Migrations.CreateSigraAuthTables.up/0 forward
+
+14:30:13.841 [info] execute "CREATE SCHEMA IF NOT EXISTS auth"
+
+14:30:13.842 [info] execute "CREATE EXTENSION IF NOT EXISTS citext"
+
+14:30:13.848 [info] create table auth.users
+
+14:30:13.853 [info] create index auth.users_email_active_index
+
+14:30:13.858 [info] create index auth.users_pending_email_index
+
+14:30:13.861 [info] create index auth.users_inserted_at_index
+
+14:30:13.863 [info] create table auth.user_tokens
+
+14:30:13.872 [info] create index auth.user_tokens_user_id_index
+
+14:30:13.874 [info] create index auth.user_tokens_context_token_index
+
+14:30:13.875 [info] create table auth.user_sessions
+
+14:30:13.883 [info] create index auth.user_sessions_hashed_token_index
+
+14:30:13.885 [info] create index auth.user_sessions_user_id_index
+
+14:30:13.887 [info] create index auth.user_sessions_user_id_type_index
+
+14:30:13.890 [info] create index auth.user_sessions_inserted_at_index
+
+14:30:13.894 [info] create index auth.user_sessions_last_active_at_index
+
+14:30:13.896 [info] create index auth.user_sessions_user_id_last_active_at_index
+
+14:30:13.897 [info] create table auth.user_mfa_credentials
+
+14:30:13.903 [info] create index auth.user_mfa_credentials_user_id_type_index
+
+14:30:13.907 [info] create table auth.user_backup_codes
+
+14:30:13.909 [info] create index auth.user_backup_codes_user_id_index
+
+14:30:13.911 [info] alter table auth.users
+
+14:30:13.912 [info] == Migrated 20260410125242 in 0.0s
+
+14:30:13.921 [info] == Running 20260410125243 Example.Repo.Migrations.AddActiveOrganizationIdToUserSessions.change/0 forward
+
+14:30:13.921 [info] alter table auth.user_sessions
+
+14:30:13.922 [info] == Migrated 20260410125243 in 0.0s
+
+14:30:13.928 [info] == Running 20260410125244 Example.Repo.Migrations.CreateAuditEvents.change/0 forward
+
+14:30:13.928 [info] create table auth.audit_events
+
+14:30:13.934 [info] create index auth.audit_events_actor_id_inserted_at_index
+
+14:30:13.949 [info] create index auth.audit_events_action_inserted_at_index
+
+14:30:13.952 [info] create index auth.audit_events_inserted_at_index
+
+14:30:13.954 [info] == Migrated 20260410125244 in 0.0s
+
+14:30:13.958 [info] == Running 20260410125245 Example.Repo.Migrations.CreateOrganizations.up/0 forward
+
+14:30:13.958 [info] create table auth.organizations
+
+14:30:13.961 [info] create index auth.organizations_slug_active_index
+
+14:30:13.969 [info] create table auth.organization_memberships
+
+14:30:13.972 [info] create index auth.organization_memberships_user_id_organization_id_index
+
+14:30:13.973 [info] create index auth.organization_memberships_organization_id_index
+
+14:30:13.980 [info] create table auth.organization_invitations
+
+14:30:13.984 [info] create index auth.organization_invitations_pending_index
+
+14:30:13.991 [info] create index auth.organization_invitations_hashed_token_index
+
+14:30:13.993 [info] == Migrated 20260410125245 in 0.0s
+
+14:30:13.994 [info] == Running 20260410125246 Example.Repo.Migrations.AlterAuditEventsAddOrgColumns.up/0 forward
+
+14:30:13.995 [info] alter table auth.audit_events
+
+14:30:13.999 [info] create index auth.audit_events_organization_id_inserted_at_index
+
+14:30:14.007 [info] == Migrated 20260410125246 in 0.0s
+
+14:30:14.015 [info] == Running 20260413120000 Example.Repo.Migrations.CreateOrganizationSlugAliases.up/0 forward
+
+14:30:14.015 [info] create table auth.organization_slug_aliases
+
+14:30:14.028 [info] create index auth.organization_slug_aliases_organization_id_index
+
+14:30:14.031 [info] create index auth.organization_slug_aliases_old_slug_active_idx
+
+14:30:14.039 [info] == Migrated 20260413120000 in 0.0s
+
+14:30:14.042 [info] == Running 20260414000000 Example.Repo.Migrations.AddRevokedByIdToOrganizationInvitations.change/0 forward
+
+14:30:14.042 [info] alter table auth.organization_invitations
+
+14:30:14.044 [info] == Migrated 20260414000000 in 0.0s
+
+14:30:14.047 [info] == Running 20260415000001 Example.Repo.Migrations.AddOwnerUserIdAndPersonalToOrganizations.change/0 forward
+
+14:30:14.047 [info] alter table auth.organizations
+
+14:30:14.049 [info] create index auth.organizations_owner_user_id_index
+
+14:30:14.051 [info] create index auth.organizations_personal_owner_unique_index
+
+14:30:14.052 [info] == Migrated 20260415000001 in 0.0s
+
+14:30:14.055 [info] == Running 20260415000002 Example.Repo.Migrations.CreateUserPasskeys.change/0 forward
+
+14:30:14.055 [info] create table auth.user_passkeys
+
+14:30:14.061 [info] create index auth.user_passkeys_user_id_index
+
+14:30:14.063 [info] create index auth.user_passkeys_credential_id_index
+
+14:30:14.064 [info] == Migrated 20260415000002 in 0.0s
+
+14:30:14.068 [info] == Running 20260416193000 Example.Repo.Migrations.AddDisplayNameToUsers.change/0 forward
+
+14:30:14.068 [info] alter table auth.users
+
+14:30:14.068 [info] create index auth.users_display_name_index
+
+14:30:14.069 [info] == Migrated 20260416193000 in 0.0s
+
+14:30:14.073 [info] == Running 20260525010000 Example.Repo.Migrations.CreateEnterpriseConnections.change/0 forward
+
+14:30:14.073 [info] create table auth.enterprise_connections
+
+14:30:14.076 [info] create index auth.enterprise_connections_organization_id_index
+
+14:30:14.077 [info] create index auth.enterprise_connections_active_display_name_index
+
+14:30:14.079 [info] == Migrated 20260525010000 in 0.0s
+
+14:30:14.082 [info] == Running 20260526043000 Example.Repo.Migrations.CreateOrganizationAuthPolicies.change/0 forward
+
+14:30:14.082 [info] create table auth.organization_auth_policies
+
+14:30:14.084 [info] create index auth.organization_auth_policies_organization_id_index
+
+14:30:14.086 [info] create table auth.organization_auth_policy_exemptions
+
+14:30:14.093 [info] create index auth.organization_auth_policy_exemptions_organization_id_index
+
+14:30:14.098 [info] create index auth.organization_auth_policy_exemptions_organization_id_user_id_index
+
+14:30:14.102 [info] identifier "organization_auth_policy_exemptions_organization_id_user_id_index" will be truncated to "organization_auth_policy_exemptions_organization_id_user_id_ind"
+
+14:30:14.102 [info] == Migrated 20260526043000 in 0.0s
+
+14:30:14.104 [info] == Running 20260528152137 ThreadlineAuditSchema.up/0 forward
+
+14:30:14.104 [info] execute "CREATE TABLE IF NOT EXISTS audit_transactions (\n  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  txid        bigint      NOT NULL UNIQUE,\n  occurred_at timestamptz NOT NULL DEFAULT now(),\n  source      text,\n  meta        jsonb\n)\n"
+
+14:30:14.107 [info] execute "CREATE INDEX IF NOT EXISTS audit_transactions_txid_idx ON audit_transactions (txid)"
+
+14:30:14.108 [info] execute "CREATE TABLE IF NOT EXISTS audit_changes (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  transaction_id uuid        NOT NULL REFERENCES audit_transactions(id) ON DELETE CASCADE,\n  table_schema   text        NOT NULL,\n  table_name     text        NOT NULL,\n  table_pk       jsonb       NOT NULL,\n  op             text        NOT NULL CHECK (op IN ('insert', 'update', 'delete')),\n  data_after     jsonb,\n  changed_fields text[],\n  changed_from     jsonb,\n  captured_at    timestamptz NOT NULL DEFAULT now()\n)\n"
+
+14:30:14.111 [info] execute "CREATE INDEX IF NOT EXISTS audit_changes_transaction_id_idx ON audit_changes (transaction_id)"
+
+14:30:14.113 [info] execute "CREATE INDEX IF NOT EXISTS audit_changes_table_name_idx ON audit_changes (table_name)"
+
+14:30:14.115 [info] execute "CREATE INDEX IF NOT EXISTS audit_changes_captured_at_idx ON audit_changes (captured_at)"
+
+14:30:14.116 [info] execute "CREATE OR REPLACE FUNCTION threadline_capture_changes()\nRETURNS TRIGGER\nLANGUAGE plpgsql\nAS $threadline_trigger$\nDECLARE\n  v_txid           bigint;\n  v_tx_id          uuid;\n  v_data_after     jsonb;\n  v_table_pk       jsonb;\n  v_changed_fields text[];\nBEGIN\n  v_txid := txid_current();\n\n  -- Upsert the audit_transactions row keyed on the PostgreSQL transaction ID.\n  -- ON CONFLICT DO NOTHING is idempotent: multiple writes in the same transaction\n  -- reuse the existing row. This is PgBouncer-safe because txid_current() is\n  -- transaction-scoped, not session-scoped.\n  INSERT INTO audit_transactions (id, txid, occurred_at, actor_ref)\n  VALUES (\n    gen_random_uuid(),\n    v_txid,\n    clock_timestamp(),\n    NULLIF(current_setting('threadline.actor_ref', true), '')::jsonb\n  )\n  ON CONFLICT (txid) DO NOTHING;\n\n  SELECT id INTO v_tx_id\n  FROM audit_transactions\n  WHERE txid = v_txid;\n\n\n  IF TG_OP = 'DELETE' THEN\n    v_table_pk       := jsonb_build_object('id', (to_jsonb(OLD) ->> 'id'));\n    v_data_after     := NULL;\n    v_changed_fields := NULL;\n\n  ELSIF TG_OP = 'INSERT' THEN\n    v_table_pk       := jsonb_build_object('id', (to_jsonb(NEW) ->> 'id'));\n    v_data_after     := to_jsonb(NEW);\n    v_changed_fields := NULL;\n\n  ELSE\n    -- UPDATE: capture changed field names\n    v_table_pk   := jsonb_build_object('id', (to_jsonb(NEW) ->> 'id'));\n    v_data_after := to_jsonb(NEW);\n\n    SELECT array_agg(n.key ORDER BY n.key)\n    INTO   v_changed_fields\n    FROM   jsonb_each(to_jsonb(NEW)) AS n\n    JOIN   jsonb_each(to_jsonb(OLD)) AS o ON n.key = o.key\n    WHERE  n.value IS DISTINCT FROM o.value;\n  END IF;\n\n  INSERT INTO audit_changes (\n    id, transaction_id, table_schema, table_name,\n    table_pk, op, data_after, changed_fields, changed_from, captured_at\n  ) VALUES (\n    gen_random_uuid(), v_tx_id, TG_TABLE_SCHEMA, TG_TABLE_NAME,\n    v_table_pk, lower(TG_OP), v_data_after, v_changed_fields, NULL::jsonb, clock_timestamp()\n  );\n\n\n  IF TG_OP = 'DELETE' THEN\n    RETURN OLD;\n  END IF;\n  RETURN NEW;\nEND;\n$threadline_trigger$\n"
+
+14:30:14.117 [info] == Migrated 20260528152137 in 0.0s
+
+14:30:14.120 [info] == Running 20260528152138 ThreadlineSemanticsMigration.up/0 forward
+
+14:30:14.120 [info] execute "CREATE TABLE IF NOT EXISTS audit_actions (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  name           text        NOT NULL,\n  actor_ref      jsonb       NOT NULL,\n  status         text        NOT NULL CHECK (status IN ('ok', 'error')),\n  verb           text,\n  category       text,\n  reason         text,\n  comment        text,\n  correlation_id text,\n  request_id     text,\n  job_id         text,\n  inserted_at    timestamptz NOT NULL DEFAULT now()\n)\n"
+
+14:30:14.123 [info] execute "CREATE INDEX IF NOT EXISTS audit_actions_actor_ref_idx\n  ON audit_actions USING GIN (actor_ref)\n"
+
+14:30:14.124 [info] execute "CREATE INDEX IF NOT EXISTS audit_actions_inserted_at_idx\n  ON audit_actions (inserted_at)\n"
+
+14:30:14.125 [info] execute "CREATE INDEX IF NOT EXISTS audit_actions_name_idx\n  ON audit_actions (name)\n"
+
+14:30:14.127 [info] execute "ALTER TABLE audit_transactions\n  ADD COLUMN IF NOT EXISTS actor_ref jsonb,\n  ADD COLUMN IF NOT EXISTS action_id uuid REFERENCES audit_actions(id) ON DELETE SET NULL\n"
+
+14:30:14.128 [info] == Migrated 20260528152138 in 0.0s
+
+14:30:14.130 [info] == Running 20260528152139 ThreadlineGovernanceSchema.up/0 forward
+
+14:30:14.131 [info] execute "CREATE TABLE IF NOT EXISTS threadline_export_jobs (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  status         text        NOT NULL,\n  query_params   jsonb       NOT NULL,\n  actor_ref      jsonb,\n  file_path      text,\n  error_message  text,\n  started_at     timestamptz,\n  completed_at   timestamptz,\n  expires_at     timestamptz,\n  inserted_at    timestamptz NOT NULL DEFAULT now(),\n  updated_at     timestamptz NOT NULL DEFAULT now()\n)\n"
+
+14:30:14.133 [info] execute "CREATE TABLE IF NOT EXISTS threadline_retention_runs (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  status         text        NOT NULL,\n  deleted_count  integer,\n  duration_ms    integer,\n  error_message  text,\n  started_at     timestamptz,\n  completed_at   timestamptz,\n  inserted_at    timestamptz NOT NULL DEFAULT now(),\n  updated_at     timestamptz NOT NULL DEFAULT now()\n)\n"
+
+14:30:14.135 [info] execute "CREATE TABLE IF NOT EXISTS threadline_saved_views (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  name           text        NOT NULL,\n  actor_ref      jsonb       NOT NULL,\n  filters        jsonb       NOT NULL,\n  inserted_at    timestamptz NOT NULL DEFAULT now(),\n  updated_at     timestamptz NOT NULL DEFAULT now()\n)\n"
+
+14:30:14.137 [info] execute "CREATE TABLE IF NOT EXISTS threadline_evidence_records (\n  id             uuid        PRIMARY KEY DEFAULT gen_random_uuid(),\n  subject        text        NOT NULL,\n  subject_ref    jsonb       NOT NULL,\n  summary_status text        NOT NULL,\n  recorded_at    timestamptz NOT NULL,\n  actor_ref      jsonb,\n  provenance     jsonb       NOT NULL DEFAULT '{}'::jsonb,\n  detail         jsonb       NOT NULL DEFAULT '{}'::jsonb,\n  schema_version integer     NOT NULL DEFAULT 1,\n  inserted_at    timestamptz NOT NULL DEFAULT now()\n)\n"
+
+14:30:14.139 [info] execute "CREATE INDEX IF NOT EXISTS threadline_evidence_records_subject_idx\n  ON threadline_evidence_records (subject)\n"
+
+14:30:14.140 [info] execute "CREATE INDEX IF NOT EXISTS threadline_evidence_records_recorded_at_idx\n  ON threadline_evidence_records (recorded_at)\n"
+
+14:30:14.141 [info] execute "CREATE INDEX IF NOT EXISTS threadline_evidence_records_subject_ref_idx\n  ON threadline_evidence_records\n  USING gin (subject_ref)\n"
+
+14:30:14.142 [info] == Migrated 20260528152139 in 0.0s
+
+14:30:14.145 [info] == Running 20260529000000 Example.Repo.Migrations.CreateUserIdentities.change/0 forward
+
+14:30:14.145 [info] create table if not exists auth.user_identities
+
+14:30:14.148 [info] create index if not exists auth.user_identities_user_id_provider_index
+
+14:30:14.150 [info] create index if not exists auth.user_identities_provider_provider_uid_index
+
+14:30:14.151 [info] create index if not exists auth.user_identities_user_id_index
+
+14:30:14.152 [info] == Migrated 20260529000000 in 0.0s
+
+14:30:14.154 [info] == Running 20260607000000 Example.Repo.Migrations.CreateSigraBrandProfiles.up/0 forward
+
+14:30:14.154 [info] execute "CREATE SCHEMA IF NOT EXISTS auth"
+
+14:30:14.155 [info] schema "auth" already exists, skipping
+
+14:30:14.155 [info] create table auth.sigra_brand_profiles
+
+14:30:14.157 [info] create index auth.sigra_brand_profiles_scope_index
+
+14:30:14.158 [info] == Migrated 20260607000000 in 0.0s
+
+14:30:14.161 [info] == Running 20260623000000 Example.Repo.Migrations.AddObanJobsTable.up/0 forward
+
+14:30:14.174 [info] execute "DO $$\nBEGIN\nIF NOT EXISTS (SELECT 1 FROM pg_type\n               WHERE typname = 'oban_job_state'\n                 AND typnamespace = 'public'::regnamespace::oid) THEN\n    CREATE TYPE \"public\".oban_job_state AS ENUM (\n      'available',\n      'suspended',\n      'scheduled',\n      'executing',\n      'retryable',\n      'completed',\n      'discarded',\n      'cancelled'\n    );\n  END IF;\nEND$$;\n"
+
+14:30:14.176 [info] create table if not exists public.oban_jobs
+
+14:30:14.179 [info] create index if not exists public.oban_jobs_queue_index
+
+14:30:14.181 [info] create index if not exists public.oban_jobs_state_index
+
+14:30:14.183 [info] create index if not exists public.oban_jobs_scheduled_at_index
+
+14:30:14.184 [info] execute "CREATE OR REPLACE FUNCTION \"public\".oban_jobs_notify() RETURNS trigger AS $$\nDECLARE\n  channel text;\n  notice json;\nBEGIN\n  IF (TG_OP = 'INSERT') THEN\n    channel = 'public.oban_insert';\n    notice = json_build_object('queue', NEW.queue, 'state', NEW.state);\n\n    -- No point triggering for a job that isn't scheduled to run now\n    IF NEW.scheduled_at IS NOT NULL AND NEW.scheduled_at > now() AT TIME ZONE 'utc' THEN\n      RETURN null;\n    END IF;\n  ELSE\n    channel = 'public.oban_update';\n    notice = json_build_object('queue', NEW.queue, 'new_state', NEW.state, 'old_state', OLD.state);\n  END IF;\n\n  PERFORM pg_notify(channel, notice::text);\n\n  RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n"
+
+14:30:14.185 [info] execute "DROP TRIGGER IF EXISTS oban_notify ON \"public\".oban_jobs"
+
+14:30:14.185 [info] trigger "oban_notify" for relation "public.oban_jobs" does not exist, skipping
+
+14:30:14.185 [info] execute "CREATE TRIGGER oban_notify\nAFTER INSERT OR UPDATE OF state ON \"public\".oban_jobs\nFOR EACH ROW EXECUTE PROCEDURE \"public\".oban_jobs_notify();\n"
+
+14:30:14.186 [info] drop index if exists public.oban_jobs_scheduled_at_index
+
+14:30:14.187 [info] create index public.oban_jobs_scheduled_at_index
+
+14:30:14.188 [info] create check constraint worker_length on table public.oban_jobs
+
+14:30:14.189 [info] create check constraint queue_length on table public.oban_jobs
+
+14:30:14.190 [info] execute "CREATE OR REPLACE FUNCTION \"public\".oban_wrap_id(value bigint) RETURNS int AS $$\nBEGIN\n  RETURN (CASE WHEN value > 2147483647 THEN mod(value, 2147483647) ELSE value END)::int;\nEND;\n$$ LANGUAGE plpgsql IMMUTABLE;\n"
+
+14:30:14.190 [info] alter table public.oban_jobs
+
+14:30:14.191 [info] execute "DROP FUNCTION IF EXISTS \"public\".oban_wrap_id(value bigint)"
+
+14:30:14.191 [info] drop index if exists public.oban_jobs_scheduled_at_index
+
+14:30:14.192 [info] drop index if exists public.oban_jobs_queue_index
+
+14:30:14.192 [info] drop index if exists public.oban_jobs_state_index
+
+14:30:14.193 [info] create index if not exists public.oban_jobs_queue_state_scheduled_at_id_index
+
+14:30:14.194 [info] create index if not exists public.oban_jobs_attempted_at_id_index
+
+14:30:14.195 [info] alter table public.oban_jobs
+
+14:30:14.196 [info] alter table public.oban_jobs
+
+14:30:14.197 [info] drop index if exists public.oban_jobs_queue_state_scheduled_at_id_index
+
+14:30:14.198 [info] create index if not exists public.oban_jobs_state_queue_priority_scheduled_at_id_index
+
+14:30:14.200 [info] execute "CREATE OR REPLACE FUNCTION \"public\".oban_jobs_notify() RETURNS trigger AS $$\nDECLARE\n  channel text;\n  notice json;\nBEGIN\n  IF NEW.state = 'available' THEN\n    channel = 'public.oban_insert';\n    notice = json_build_object('queue', NEW.queue);\n\n    PERFORM pg_notify(channel, notice::text);\n  END IF;\n\n  RETURN NULL;\nEND;\n$$ LANGUAGE plpgsql;\n"
+
+14:30:14.200 [info] execute "DROP TRIGGER IF EXISTS oban_notify ON \"public\".oban_jobs"
+
+14:30:14.201 [info] execute "CREATE TRIGGER oban_notify\nAFTER INSERT ON \"public\".oban_jobs\nFOR EACH ROW EXECUTE PROCEDURE \"public\".oban_jobs_notify();\n"
+
+14:30:14.202 [info] alter table public.oban_jobs
+
+14:30:14.203 [info] execute "ALTER TYPE \"public\".oban_job_state ADD VALUE IF NOT EXISTS 'cancelled'"
+
+14:30:14.203 [info] enum label "cancelled" already exists, skipping
+
+14:30:14.203 [info] create index if not exists public.oban_jobs_state_queue_priority_scheduled_at_id_index
+
+14:30:14.204 [info] relation "oban_jobs_state_queue_priority_scheduled_at_id_index" already exists, skipping
+
+14:30:14.204 [info] alter table public.oban_jobs
+
+14:30:14.205 [info] create check constraint priority_range on table public.oban_jobs
+
+14:30:14.206 [info] create check constraint positive_max_attempts on table public.oban_jobs
+
+14:30:14.207 [info] create check constraint attempt_range on table public.oban_jobs
+
+14:30:14.207 [info] drop index if exists public.oban_jobs_args_vector
+
+14:30:14.208 [info] index "oban_jobs_args_vector" does not exist, skipping
+
+14:30:14.208 [info] drop index if exists public.oban_jobs_worker_gist
+
+14:30:14.208 [info] index "oban_jobs_worker_gist" does not exist, skipping
+
+14:30:14.208 [info] drop index if exists public.oban_jobs_attempted_at_id_index
+
+14:30:14.209 [info] create index if not exists public.oban_jobs_args_index
+
+14:30:14.210 [info] create index if not exists public.oban_jobs_meta_index
+
+14:30:14.210 [info] create table if not exists public.oban_peers
+
+14:30:14.212 [info] execute "ALTER TABLE \"public\".oban_peers SET UNLOGGED"
+
+14:30:14.215 [info] drop constraint priority_range from table public.oban_jobs
+
+14:30:14.216 [info] create check constraint non_negative_priority on table public.oban_jobs
+
+14:30:14.217 [info] execute "DROP TRIGGER IF EXISTS oban_notify ON \"public\".oban_jobs"
+
+14:30:14.219 [info] execute "DROP FUNCTION IF EXISTS \"public\".oban_jobs_notify()"
+
+14:30:14.219 [info] execute "COMMENT ON TABLE \"public\".oban_jobs IS '12'"
+
+14:30:14.220 [info] == Migrated 20260623000000 in 0.0s
+[debug] QUERY OK source="users" db=0.7ms queue=1.0ms idle=9.0ms
+SELECT count(*) FROM "auth"."users" AS u0 WHERE (u0."email" LIKE 'loadtest-%') []
+[90m↳ Example.Demo.Seeds.seed_bulk_users/0, at: lib/example/demo/seeds.ex:117[0m
+[debug] QUERY OK db=0.3ms idle=10.9ms
+begin []
+[90m↳ Example.Demo.Seeds.seed_bulk_users/0, at: lib/example/demo/seeds.ex:124[0m
+[debug] %Postgrex.Query{ref: nil, name: "ecto_77194", statement: "SELECT TRUE FROM \"auth\".\"users\" AS u0 WHERE (u0.\"email\" = $1) LIMIT 1", param_oids: nil, param_formats: nil, param_types: nil, columns: nil, result_oids: nil, result_formats: nil, result_types: nil, types: nil, cache: :reference} uses unknown oid(s) 25489forcing us to reload type information from the database. This is expected behaviour whenever you migrate your database.
+[debug] QUERY OK source="users" db=0.7ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-01-3e74a1a309cb5ee27f33e64bf5952fa6@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.8ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-01-3e74a1a309cb5ee27f33e64bf5952fa6@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$0eMvJkG1LEXs4mxUJjY1hQ$uzuqNOscTLP599GVOp4VeFRZ8s7V5OeFaoK1BgGWMR4", ~U[2026-10-14 18:30:14Z], "Load Test User 01 Very Long Display Name bulk-1-c87373d7", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "9b2acce6-880d-4f45-b89d-aa0a65120052"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.6ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "9b2acce6-880d-4f45-b89d-aa0a65120052"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-02-5f66d26329186074f2795433a3b023f4@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-02-5f66d26329186074f2795433a3b023f4@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$3z5SJCUxTahq4PlSKqlzdA$uC/lwKDaWo2JOFCRB0wuinpchtvVtekoWLq4PmTX1Nw", ~U[2026-10-14 18:30:14Z], "Load Test User 02 Very Long Display Name bulk-2-f732d8a5", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "c44aaf6a-6e68-4b43-870a-e6aa9c56ccae"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "c44aaf6a-6e68-4b43-870a-e6aa9c56ccae"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-03-f6eda579f7bacd1481036834ff39955e@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-03-f6eda579f7bacd1481036834ff39955e@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$vUYMO4iTapGQ+YrVnrYCGA$e2+tXqqzQfYTEM396ivq/M7K5UhZIxL2ziRjllHNg/4", ~U[2026-10-14 18:30:14Z], "Load Test User 03 Very Long Display Name bulk-3-493512ba", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "98551264-9d1d-467a-8167-253d00825b95"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "98551264-9d1d-467a-8167-253d00825b95"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-04-877d83e1a1f4dcf83307a9ea46a6390b@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-04-877d83e1a1f4dcf83307a9ea46a6390b@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$LcvBBhqLBlEbT2EoiOcMaw$XCP2kn7edROfg8Qe2buiybBywGv4ul10rVk9z2VdsUI", ~U[2026-10-14 18:30:14Z], "Load Test User 04 Very Long Display Name bulk-4-441d8c34", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "fb4cd6a6-2edf-4b7f-87b1-1941373bc854"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "fb4cd6a6-2edf-4b7f-87b1-1941373bc854"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-05-3b607975cd9d58ea04f2884e9e126ec5@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-05-3b607975cd9d58ea04f2884e9e126ec5@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$pmKiyiGF7p//Z41Y9Z0wlQ$Bja8ZB7ftctjXBArO6u2YMlfhdA1ZkRLWH9QVpLva1o", ~U[2026-10-14 18:30:14Z], "Load Test User 05 Very Long Display Name bulk-5-defd8725", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "b924ecd4-5cd9-4029-92c2-0476767afc3a"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "b924ecd4-5cd9-4029-92c2-0476767afc3a"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-06-a42508c571b590ee5e3012d06a7c00fd@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-06-a42508c571b590ee5e3012d06a7c00fd@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$7ms/AmAfWe7/9i+WM7Mx9w$lzn2NFl6lXxtzc1A1CydfDzB46lk4AUYTPaPaquvwqg", ~U[2026-10-14 18:30:14Z], "Load Test User 06 Very Long Display Name bulk-6-b3f44b64", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "f9c3f65d-c156-4586-8ffe-ef1f7ef41e84"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "f9c3f65d-c156-4586-8ffe-ef1f7ef41e84"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-07-1c137da2b63f1466b6a8e3218c538970@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.5ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-07-1c137da2b63f1466b6a8e3218c538970@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$6pttcbijlsxdXNXE9RDbNw$N+z7+zWlikbRuI97+EzTclZEYK4wVWoH3qO9svrC9n0", ~U[2026-10-14 18:30:14Z], "Load Test User 07 Very Long Display Name bulk-7-3636e71e", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "38f2e7a3-c759-4480-a09c-5abf6483f8b8"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "38f2e7a3-c759-4480-a09c-5abf6483f8b8"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-08-edcc3de78651dc45ecad74e1e264a70c@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-08-edcc3de78651dc45ecad74e1e264a70c@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$ThaBnXTi2l93EbnXN9umrg$weZMT8M6rGRholkjzNCdzH/+w9XJu6GGd++qXxXacmo", ~U[2026-10-14 18:30:14Z], "Load Test User 08 Very Long Display Name bulk-8-a241912b", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "917e5d61-d4b8-484e-9991-8d7ba6598989"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "917e5d61-d4b8-484e-9991-8d7ba6598989"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-09-f0e7ab9856753bba9930a2350b7054f1@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-09-f0e7ab9856753bba9930a2350b7054f1@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$BXQLE705gWWrE+7nMCEnkw$nSO6p/nw5NNA8JASebv5AK+pg1qqRWwXbiMicQ7n2SQ", ~U[2026-10-14 18:30:14Z], "Load Test User 09 Very Long Display Name bulk-9-49fe6c23", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "a0596125-6281-4492-b599-2187fe0f7643"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "a0596125-6281-4492-b599-2187fe0f7643"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-10-1d4b3e9842ebb9e8137805c9f1e2e84b@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-10-1d4b3e9842ebb9e8137805c9f1e2e84b@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$RiOcVOGRz1Kr40nfB53T0A$SeageExF0vR8Dv7LqbZc+x3Q6K4+pp4oeoYcueYT+Q4", ~U[2026-10-14 18:30:14Z], "Load Test User 10 Very Long Display Name bulk-10-8453bf8b", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "1d28bb74-09a6-4694-a94d-9eb5223f0f7c"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "1d28bb74-09a6-4694-a94d-9eb5223f0f7c"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-11-4c3a3a75d533cf22ca906b20fc6a9c2b@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-11-4c3a3a75d533cf22ca906b20fc6a9c2b@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$5r1fbkdgId18ZVotED4PRg$l13QvDOf382nlj0Kh83TMssmHJrgizlKesDszmPnO60", ~U[2026-10-14 18:30:14Z], "Load Test User 11 Very Long Display Name bulk-11-4aff7904", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "2a295ac9-f2fe-4d51-a7c4-c04de5f2327b"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "2a295ac9-f2fe-4d51-a7c4-c04de5f2327b"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-12-55590d846e85e7d4c8d8b25b2dd01f27@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-12-55590d846e85e7d4c8d8b25b2dd01f27@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$SsN5sc02EETo0JhjpJPioQ$xRrhZpmxcbaIUdac0WU73UTR5a08kFOqKCqPLnJ1TG0", ~U[2026-10-14 18:30:14Z], "Load Test User 12 Very Long Display Name bulk-12-6c10c306", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "f25c43a3-3c22-4c50-93d9-dbbccf79cb89"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "f25c43a3-3c22-4c50-93d9-dbbccf79cb89"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=1.0ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-13-00f953a253918d756be984ba91974546@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-13-00f953a253918d756be984ba91974546@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$0oWC7derfw+QuSm4h2H9qg$8+VVw8Ldhrj2ejKy0/grzKnQSoHC2xn6hddSq4NM36M", ~U[2026-10-14 18:30:14Z], "Load Test User 13 Very Long Display Name bulk-13-cf23a294", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "d6ab3f43-d1cd-4398-88e6-dc96ca064131"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.4ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "d6ab3f43-d1cd-4398-88e6-dc96ca064131"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-14-572c08d51909b9c471254c68a3fdc67c@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-14-572c08d51909b9c471254c68a3fdc67c@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$b1rrqbNyd2KbjXYr3OwzNQ$gCbmHLtwUZvxNiOH58jLBpSZUsLiF0LP8Cl99502uZo", ~U[2026-10-14 18:30:14Z], "Load Test User 14 Very Long Display Name bulk-14-b67cf400", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "44fc02ae-f96c-462a-aa9d-e98f579a99e9"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "44fc02ae-f96c-462a-aa9d-e98f579a99e9"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.6ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-15-3051e976695b31af73591cded1bab73f@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-15-3051e976695b31af73591cded1bab73f@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$7+SvO9ioXmy74IbnoZYN1A$YSG8mAXZvqcwFTEBSJLRKQ0Lp0HXmwH3cBc2vjD5wZA", ~U[2026-10-14 18:30:14Z], "Load Test User 15 Very Long Display Name bulk-15-3f3f0167", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "613bbe70-7cd3-46ca-a683-6006d64d7d2f"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "613bbe70-7cd3-46ca-a683-6006d64d7d2f"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-16-488ea2648ff83c37fe53cc7832152555@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-16-488ea2648ff83c37fe53cc7832152555@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$XF0lvfPQWRFGQEbTdgA6Lw$psKVzMw+1zY9hA3cbjMszVlDJvNVPhrQeXsgCwbLyLw", ~U[2026-10-14 18:30:14Z], "Load Test User 16 Very Long Display Name bulk-16-e54653be", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "200e1318-2a04-468f-bb2f-97c2a14ca65c"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "200e1318-2a04-468f-bb2f-97c2a14ca65c"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-17-390bbc5f634e609140dca2b12048a5b3@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-17-390bbc5f634e609140dca2b12048a5b3@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$0HrW+N3Hf+kmwVVv8HZUBg$h7AxEEcDEDH3TmJxJGKztGKKcQZ1hhhCFYJbEKIzR8M", ~U[2026-10-14 18:30:14Z], "Load Test User 17 Very Long Display Name bulk-17-58946f9b", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "1e99cc30-1f86-4668-b3dc-92e75bb61116"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "1e99cc30-1f86-4668-b3dc-92e75bb61116"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-18-026ba0c0533a6f596edeb42d998c86dd@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-18-026ba0c0533a6f596edeb42d998c86dd@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$acETaAm6Sr8bQhC+S+hbrA$6RPNBtK38J2znPGEuAjosoCqZGFkJ28CcmKn9SYHvM0", ~U[2026-10-14 18:30:14Z], "Load Test User 18 Very Long Display Name bulk-18-f0dcfb7b", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "c062823f-d27b-42f1-a726-6fa344d84491"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "c062823f-d27b-42f1-a726-6fa344d84491"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-19-7e89e9d15a241f37218300430e6b356e@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-19-7e89e9d15a241f37218300430e6b356e@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$t61FAMTDzJ6r/ixQV3Gpjg$nSwJTVK1IO3j+aBDD2J3BdOxqhqA9cqni/BljjKpeKc", ~U[2026-10-14 18:30:14Z], "Load Test User 19 Very Long Display Name bulk-19-b5d7c5d1", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "7d8f0846-00d9-4bb8-90e0-bd4cd88bef74"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "7d8f0846-00d9-4bb8-90e0-bd4cd88bef74"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-20-7e46a96c2dd44e6aa050f2069991cbbc@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-20-7e46a96c2dd44e6aa050f2069991cbbc@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$IKv46A/t5QUUyb1XGajv2Q$VUNGhrqJWMsifxs4bHT5pbVbYN36opA0tyoYGnKoryE", ~U[2026-10-14 18:30:14Z], "Load Test User 20 Very Long Display Name bulk-20-5252179d", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "6b87aef6-5f21-4a34-816e-2cc7be96f881"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "6b87aef6-5f21-4a34-816e-2cc7be96f881"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-21-089f4e786781d4301a8009e091125306@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-21-089f4e786781d4301a8009e091125306@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$i7ZyDLFXHSwh0HsaEJabeA$ceehbJ1+ZKWtyYW3O1GqJag4jDo2KwxMBRb3xDQ9UHw", ~U[2026-10-14 18:30:14Z], "Load Test User 21 Very Long Display Name bulk-21-f9224484", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "58317120-f162-407e-a94d-6b7e693cfa73"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "58317120-f162-407e-a94d-6b7e693cfa73"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-22-0bb24370baabd313e8a9eb946f94d45b@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-22-0bb24370baabd313e8a9eb946f94d45b@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$PSrLjJ01N3aD5WXbh+ol3Q$f1U8MjHw2TqkRGdpU1n/Sss2/n6qyp2UFY3qJPJ77Lg", ~U[2026-10-14 18:30:14Z], "Load Test User 22 Very Long Display Name bulk-22-2f52d47d", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "03af8d9c-afa4-4f84-b08c-7f20821f084c"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "03af8d9c-afa4-4f84-b08c-7f20821f084c"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-23-c6017f9662cac029d0139f440fed85f9@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-23-c6017f9662cac029d0139f440fed85f9@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$9fz8oeiARM9MSWrtIOxDfw$nXVz64viH3bOvxNOPeNmrT146Vf9GmLvXiw6FlVsQLg", ~U[2026-10-14 18:30:14Z], "Load Test User 23 Very Long Display Name bulk-23-423b762b", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "3fe30dc9-3cb3-4bab-a7f4-864fc0389a5f"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "3fe30dc9-3cb3-4bab-a7f4-864fc0389a5f"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-24-2dcb272906019e2a99599c95a742c65a@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-24-2dcb272906019e2a99599c95a742c65a@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$7iiCY4sYCwXui2Hbn75Wtg$+fmQVo3TvUIxRTonuvaGesn3ZD29aP+HtPjriOiz3uY", ~U[2026-10-14 18:30:14Z], "Load Test User 24 Very Long Display Name bulk-24-c039ae17", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "ef611150-c2e8-4a4e-bf23-ad7cfff73c64"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "ef611150-c2e8-4a4e-bf23-ad7cfff73c64"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-25-b2c34648dc6b936f4ae7b418bd13dfc4@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.4ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-25-b2c34648dc6b936f4ae7b418bd13dfc4@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$fAySmyn0ai/ZBp3Z0QU+rg$fP4Hwrk0Uzp2C1UAlZrzpLrn8goD2PX3P0rC96qUnTI", ~U[2026-10-14 18:30:14Z], "Load Test User 25 Very Long Display Name bulk-25-6203a666", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "c420b884-7648-4a6d-83d4-2557fdd67265"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "c420b884-7648-4a6d-83d4-2557fdd67265"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-26-126fb1ace2b10b5b5d06a7eed3b6f08a@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.4ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-26-126fb1ace2b10b5b5d06a7eed3b6f08a@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$a0YRsFfko8GuIoijU72wKg$FrYvk16Byadd2bf/FtV0uvQ7HcHDm9kfV3A8iaBv66U", ~U[2026-10-14 18:30:14Z], "Load Test User 26 Very Long Display Name bulk-26-00b8de14", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "cb1c3518-8db8-4158-aead-9e97e27832e1"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "cb1c3518-8db8-4158-aead-9e97e27832e1"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-27-403ab9be8b629e330ac96a7376a09198@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-27-403ab9be8b629e330ac96a7376a09198@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$HdhoXiRN5wNJ4xkDP6k1Yw$6nxND/gj/9Oq5dOtI5379IUHIPc0Gs4mpmfwHv9E4U0", ~U[2026-10-14 18:30:14Z], "Load Test User 27 Very Long Display Name bulk-27-38d80188", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "89a8629e-ca1f-4dbb-882f-6a5341a86196"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "89a8629e-ca1f-4dbb-882f-6a5341a86196"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-28-6d2ac485600c7f772a8c43fad85bd0e1@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-28-6d2ac485600c7f772a8c43fad85bd0e1@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$3prkKQVDXkFTA5xyG79yXA$cWqu9w1CvylHdKo3zw42QXZrJg+02qH+4fmVLv5+cfA", ~U[2026-10-14 18:30:14Z], "Load Test User 28 Very Long Display Name bulk-28-ccece0a3", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "3c589cd5-ec5b-4164-851b-662cc10378a2"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "3c589cd5-ec5b-4164-851b-662cc10378a2"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-29-38d8ddd10bd50a0ca1076223615cd81e@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.4ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-29-38d8ddd10bd50a0ca1076223615cd81e@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$i62r70dEvJaZM21LkxHSpA$hGCzOxMG7YlgN2iZQV6bScMdAPqWC+de7fYPWynNrDU", ~U[2026-10-14 18:30:14Z], "Load Test User 29 Very Long Display Name bulk-29-96ce3877", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "8d786f96-b4f9-482c-b916-2339ab3d8132"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "8d786f96-b4f9-482c-b916-2339ab3d8132"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-30-f53993728c22c0c00426eee4a15adbc7@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-30-f53993728c22c0c00426eee4a15adbc7@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$AC025Y7MIXcuWI53gWP3zA$1bdD6pc3hmPdQDPtiyknCEoLKy1reokqcTnAFniiBa0", ~U[2026-10-14 18:30:14Z], "Load Test User 30 Very Long Display Name bulk-30-153780a5", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "0d8cc1fd-26c7-4ec0-be93-43bbe3774ab1"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "0d8cc1fd-26c7-4ec0-be93-43bbe3774ab1"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-31-381e3883288547540a0163f49ae0fbad@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.4ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-31-381e3883288547540a0163f49ae0fbad@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$IlCjm57DFxZkcYtcQZ9+cQ$qjQQx+kgnE/2XxUP6wCUrUvq8LDJyIToMPB6Coljm8A", ~U[2026-10-14 18:30:14Z], "Load Test User 31 Very Long Display Name bulk-31-e04536c3", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "97ed509b-1f9d-4469-b347-09b9906efcdc"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.4ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "97ed509b-1f9d-4469-b347-09b9906efcdc"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-32-a72681954389c865c6e505f7c1419b01@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.5ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-32-a72681954389c865c6e505f7c1419b01@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$nRWLTN3BEBi7o8qaimiwfQ$NvJaU+KRR6GNDjo8j4EriD9jtcEvTXMtbaL5V5+8f+k", ~U[2026-10-14 18:30:14Z], "Load Test User 32 Very Long Display Name bulk-32-3ac79ca8", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "f18e1de0-0a87-4808-bb21-1a9a8152cb99"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.4ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "f18e1de0-0a87-4808-bb21-1a9a8152cb99"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-33-ec53dc99b3505c27066510a0b31aacbe@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-33-ec53dc99b3505c27066510a0b31aacbe@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$qmaRKa4I4DaYH2YDamzCIg$9lvh+Z7I7cKzB3k/FImZyCq6tVl3ZWrUFcLvUD12k6M", ~U[2026-10-14 18:30:14Z], "Load Test User 33 Very Long Display Name bulk-33-e76098e4", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "5200ea2d-5641-4f4f-8268-66e271a0cb78"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "5200ea2d-5641-4f4f-8268-66e271a0cb78"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.4ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-34-f0573ebac67a1c404130d326706baaec@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.4ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-34-f0573ebac67a1c404130d326706baaec@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$dyCrhmOSXE0nV5QmY9vzZg$wqrHw/N21/b/xcc0qCPkqdj4O1VFBJWk6n4LytouvAo", ~U[2026-10-14 18:30:14Z], "Load Test User 34 Very Long Display Name bulk-34-e2121a97", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "f58ce2cf-0959-473a-b063-cac7e0267ef5"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "f58ce2cf-0959-473a-b063-cac7e0267ef5"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-35-8cfd40b4a6ec4c202f342baf502c723a@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-35-8cfd40b4a6ec4c202f342baf502c723a@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$/gpiyjhJrCKcfnkW54872g$1wg+XgP8IIx1q5qoE3rD+M/ZmSUxf8wymT85IGyxJqo", ~U[2026-10-14 18:30:14Z], "Load Test User 35 Very Long Display Name bulk-35-81349439", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "f0abbb16-3ff4-4e78-afd3-23c44ca94af0"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "f0abbb16-3ff4-4e78-afd3-23c44ca94af0"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-36-d766edaeb218564a7217313e4a7fc3a0@demo.tasklane.test"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-36-d766edaeb218564a7217313e4a7fc3a0@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$uUPzXr8eU/egZYNJw53uGA$S89y4xA1Q1Ycb/snvQxf175IzaCEIv5XpyLcRweiZaU", ~U[2026-10-14 18:30:14Z], "Load Test User 36 Very Long Display Name bulk-36-b48e4850", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "89226ef8-8f87-4cae-834a-12a3e120f4f3"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="users" db=0.3ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "89226ef8-8f87-4cae-834a-12a3e120f4f3"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK db=0.7ms
+commit []
+[90m↳ Example.Demo.Seeds.seed_bulk_users/0, at: lib/example/demo/seeds.ex:124[0m
+[debug] QUERY OK source="users" db=1.0ms queue=0.8ms idle=118.7ms
+SELECT count(*) FROM "auth"."users" AS u0 WHERE (u0."email" = $1) ["loadtest-i18n-rtl@demo.tasklane.test"]
+[90m↳ Example.Demo.Seeds.seed_bulk_users/0, at: lib/example/demo/seeds.ex:177[0m
+[debug] QUERY OK source="users" db=1.8ms idle=120.7ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["loadtest-i18n-rtl@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.4ms idle=124.0ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.8ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["loadtest-i18n-rtl@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$lXm9BjM1R4BH0635xHi9xQ$fi6MZepJAKtYuktjQPWC/nRSCiEquEKzqHH/iiWWK8A", ~U[2026-10-14 18:30:14Z], "张三李四 مستخدم café résumé 🌏 Test", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "98ddaa8e-43cf-4bd3-a3f8-b73c830b1f08"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.6ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=1.2ms queue=0.7ms idle=127.1ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "98ddaa8e-43cf-4bd3-a3f8-b73c830b1f08"]
+[90m↳ Example.Demo.Seeds.seed_bulk_users/0, at: lib/example/demo/seeds.ex:190[0m
+[debug] QUERY OK source="users" db=2.1ms idle=130.0ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["admin@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.4ms idle=133.8ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.9ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["admin@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$fE2rJUVjmGXwEnaJEij4bQ$Kw9uEVeHBsrhv3thqeeop4JbTtq3f1JFNs3vSynDNDk", ~U[2026-10-14 18:30:14Z], "Admin (operator)", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "051c74b0-2af3-4f6a-927a-9c9065773530"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.5ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=1.0ms queue=0.7ms idle=136.8ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "051c74b0-2af3-4f6a-927a-9c9065773530"]
+[90m↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259[0m
+[debug] QUERY OK source="users" db=1.5ms idle=138.0ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["alice@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.3ms idle=131.2ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.5ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["alice@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$YToVRCcX9efC6fq+Z5CieQ$GjOaNsvyHQu1rR7fcA8oWR7V3wubLpLxzro6VwOfO3I", ~U[2026-10-14 18:30:14Z], "Alice", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "adf3a890-74f7-4139-9c55-2ab26a41d7e4"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.5ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.5ms idle=25.4ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "adf3a890-74f7-4139-9c55-2ab26a41d7e4"]
+[90m↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259[0m
+[debug] QUERY OK source="users" db=0.7ms idle=24.1ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["bob@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.3ms idle=24.2ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.4ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["bob@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$XZd0AJQv11nvoJ1I0kWw0Q$9zSx+mDUzrfZGuJLaDqRUtR3ZvUNf1Ek7mW5PR1DZ80", ~U[2026-10-14 18:30:14Z], "Bob", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "107a7e7b-e2f3-4caf-996e-552f779d4660"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=1.3ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.7ms queue=0.4ms idle=22.2ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "107a7e7b-e2f3-4caf-996e-552f779d4660"]
+[90m↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259[0m
+[debug] QUERY OK source="users" db=0.9ms idle=21.5ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["carol@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.3ms idle=20.2ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.4ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["carol@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$NQUZPMBpVSWFd/4cipMMnA$lIn3GnYhVTpelxcdWqhZ3R1dRj2Sbme87zQEXV9Noe8", ~U[2026-10-14 18:30:14Z], "Carol", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "a173076d-b39b-4ce4-8bc9-8645f3c0c564"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.5ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.8ms queue=0.4ms idle=17.5ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "a173076d-b39b-4ce4-8bc9-8645f3c0c564"]
+[90m↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259[0m
+[debug] QUERY OK source="users" db=0.9ms idle=17.0ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["dave@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.3ms idle=17.5ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["dave@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$lCmD5jaxtFJcVDzLvzV2fw$IaS+/W92B8FZrphCl4xgNFEck2AAvcYm67KNS3D18Fo", ~U[2026-10-14 18:30:14Z], "Dave", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "c5407c2c-53c6-4530-9bf1-0cf169758b16"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.5ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.6ms queue=1.0ms idle=16.2ms
+UPDATE "auth"."users" SET "locked_at" = $1, "failed_login_attempts" = $2, "updated_at" = $3 WHERE "id" = $4 [~U[2026-05-14 09:00:00Z], 5, ~U[2026-10-14 18:30:14Z], "c5407c2c-53c6-4530-9bf1-0cf169758b16"]
+[90m↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:260[0m
+[debug] QUERY OK source="users" db=0.5ms queue=0.3ms idle=17.4ms
+UPDATE "auth"."users" SET "hashed_password" = $1, "updated_at" = $2 WHERE "id" = $3 [nil, ~U[2026-10-14 18:30:14Z], "c5407c2c-53c6-4530-9bf1-0cf169758b16"]
+[90m↳ anonymous fn/1 in Example.Demo.Seeds.seed_users/0, at: lib/example/demo/seeds.ex:203[0m
+[debug] QUERY OK source="users" db=0.3ms idle=17.5ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["frank@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.3ms idle=15.1ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["frank@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$hK/p8q1BvMIq58rp23mfjw$7byrQfWCSzAJ8rZ1RbEhevz3jldRljSrRerzgF1HlaE", ~U[2026-10-14 18:30:14Z], "Frank", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "86044103-276f-4899-b0f1-47e7a1477038"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.6ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.6ms idle=15.4ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "86044103-276f-4899-b0f1-47e7a1477038"]
+[90m↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259[0m
+[debug] QUERY OK source="users" db=0.5ms queue=0.4ms idle=15.0ms
+UPDATE "auth"."users" SET "deleted_at" = $1, "scheduled_deletion_at" = $2, "updated_at" = $3 WHERE "id" = $4 [~U[2026-05-16 08:00:00Z], ~U[2026-05-30 08:00:00Z], ~U[2026-10-14 18:30:14Z], "86044103-276f-4899-b0f1-47e7a1477038"]
+[90m↳ anonymous fn/1 in Example.Demo.Seeds.seed_users/0, at: lib/example/demo/seeds.ex:203[0m
+[debug] QUERY OK source="users" db=0.3ms idle=12.8ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["morgan@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.2ms idle=13.0ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["morgan@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$fscWj4Sk/48YXSx4K5q2VQ$OYOWYWGjZwNT7G1eDnldo5NUf+Rzye6vjpaS0wGTB9Q", ~U[2026-10-14 18:30:14Z], "Morgan (org admin)", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "7a0fca89-70e0-40df-b058-d6d76d27e31f"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=1.2ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.5ms idle=14.0ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "7a0fca89-70e0-40df-b058-d6d76d27e31f"]
+[90m↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259[0m
+[debug] QUERY OK source="users" db=0.3ms idle=11.7ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["pat@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.3ms idle=11.4ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["pat@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$jRnITR9VzaRHz6/OTbH85Q$0SpuSW+bcaPduZqGTPnePmUc09MXqrPDd5uutwUuT5k", ~U[2026-10-14 18:30:14Z], "Pat", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "e2ae9563-0cf8-49ae-9cad-9dbfedea99f1"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.4ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.4ms queue=0.3ms idle=11.9ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "e2ae9563-0cf8-49ae-9cad-9dbfedea99f1"]
+[90m↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259[0m
+[debug] QUERY OK source="users" db=0.3ms idle=12.2ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["grace@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.2ms idle=11.3ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["grace@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$Goso7ADxQqQG97vZM0ZUrg$CSPDwRQUZPPWtxwP9JUrGSmAgKq+VWKQ4dsTYHFiLzo", ~U[2026-10-14 18:30:14Z], "Grace", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "8c739ded-a3d6-4d2c-be27-2b7be03d4bd3"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.4ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.4ms idle=11.8ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "8c739ded-a3d6-4d2c-be27-2b7be03d4bd3"]
+[90m↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259[0m
+[debug] QUERY OK source="users" db=0.4ms idle=11.3ms
+UPDATE "auth"."users" SET "deleted_at" = $1, "scheduled_deletion_at" = $2, "updated_at" = $3 WHERE "id" = $4 [~U[2026-05-16 08:00:00Z], ~U[2026-05-30 08:00:00Z], ~U[2026-10-14 18:30:14Z], "8c739ded-a3d6-4d2c-be27-2b7be03d4bd3"]
+[90m↳ anonymous fn/1 in Example.Demo.Seeds.seed_users/0, at: lib/example/demo/seeds.ex:203[0m
+[debug] QUERY OK source="users" db=0.3ms idle=11.3ms
+SELECT TRUE FROM "auth"."users" AS u0 WHERE (u0."email" = $1) LIMIT 1 ["zoe@demo.tasklane.test"]
+[90m↳ Ecto.Changeset.unsafe_validate_unique/4, at: lib/ecto/changeset.ex:2750[0m
+[debug] QUERY OK db=0.2ms idle=9.7ms
+begin []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.3ms
+INSERT INTO "auth"."users" ("email","must_change_password","hashed_password","password_changed_at","display_name","failed_login_attempts","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ["zoe@demo.tasklane.test", false, "$argon2id$v=19$m=4096,t=2,p=4$jgW96H392zqlxumhL+coGQ$0a6k6sBmgcV/QofpEYIE7dkB1JaCm4zVycZ8SJVtS0I", ~U[2026-10-14 18:30:14Z], "Zoe", 0, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "998c0e94-f2e6-4e28-8d82-4725f994e488"]
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK db=0.4ms
+commit []
+[90m↳ anonymous fn/3 in Sigra.Auth.register/3, at: lib/sigra/auth.ex:160[0m
+[debug] QUERY OK source="users" db=0.4ms idle=10.4ms
+UPDATE "auth"."users" SET "confirmed_at" = $1, "updated_at" = $2 WHERE "id" = $3 [~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "998c0e94-f2e6-4e28-8d82-4725f994e488"]
+[90m↳ Example.Demo.Seeds.patch_user_state/2, at: lib/example/demo/seeds.ex:259[0m
+[debug] QUERY OK source="organizations" db=0.5ms queue=0.5ms idle=11.8ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 WHERE (o0."slug" = $1) ["acme-corp"]
+[90m↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:343[0m
+[debug] QUERY OK source="organizations" db=1.0ms queue=0.3ms idle=10.5ms
+INSERT INTO "auth"."organizations" ("name","slug","personal","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING ["Acme Corp", "acme-corp", false, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9"]
+[90m↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:350[0m
+[debug] QUERY OK source="organizations" db=0.9ms idle=11.2ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 WHERE (o0."slug" = $1) ["beta-labs"]
+[90m↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:343[0m
+[debug] QUERY OK source="organizations" db=0.6ms queue=0.3ms idle=11.7ms
+INSERT INTO "auth"."organizations" ("name","slug","personal","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING ["Beta Labs", "beta-labs", false, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "71ce4b69-01d3-46cc-89b6-5a6ed4207d8f"]
+[90m↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:350[0m
+[debug] QUERY OK source="organizations" db=0.9ms idle=10.5ms
+SELECT o0."id", o0."name", o0."slug", o0."deleted_at", o0."personal", o0."owner_user_id", o0."inserted_at", o0."updated_at" FROM "auth"."organizations" AS o0 WHERE (o0."slug" = $1) ["ghost-org"]
+[90m↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:343[0m
+[debug] QUERY OK source="organizations" db=0.6ms queue=0.4ms idle=11.0ms
+INSERT INTO "auth"."organizations" ("name","slug","personal","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING ["Ghost Org", "ghost-org", false, ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "1d47900a-25f6-45b4-b46c-69c6c9dbfabe"]
+[90m↳ Example.Demo.Seeds.upsert_organization/2, at: lib/example/demo/seeds.ex:350[0m
+[debug] QUERY OK source="organization_memberships" db=1.1ms queue=0.4ms idle=11.8ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING ["051c74b0-2af3-4f6a-927a-9c9065773530", :owner, "5c50de52-fed2-47c2-b435-ca40a6ef60e9", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "2b75520f-23ee-4941-b5b8-537bfbc8569b"]
+[90m↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:371[0m
+[debug] QUERY OK source="organization_memberships" db=0.8ms queue=1.1ms idle=13.0ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING ["7a0fca89-70e0-40df-b058-d6d76d27e31f", :admin, "5c50de52-fed2-47c2-b435-ca40a6ef60e9", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "07345bf8-c969-4d10-aa38-9dcefa5c2b40"]
+[90m↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:372[0m
+[debug] QUERY OK source="organization_memberships" db=0.9ms queue=1.1ms idle=12.7ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING ["adf3a890-74f7-4139-9c55-2ab26a41d7e4", :member, "5c50de52-fed2-47c2-b435-ca40a6ef60e9", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "140fd7f7-0f4e-4212-ac84-1c55544f142b"]
+[90m↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:373[0m
+[debug] QUERY OK source="organization_memberships" db=0.8ms queue=0.4ms idle=14.4ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING ["a173076d-b39b-4ce4-8bc9-8645f3c0c564", :member, "5c50de52-fed2-47c2-b435-ca40a6ef60e9", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "a3d0f6ca-3bf0-4733-9932-879a94a5e03e"]
+[90m↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:374[0m
+[debug] QUERY OK source="organization_memberships" db=0.7ms queue=0.3ms idle=13.3ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING ["c5407c2c-53c6-4530-9bf1-0cf169758b16", :member, "5c50de52-fed2-47c2-b435-ca40a6ef60e9", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "a21b0ff3-fc84-4463-bf7c-f6030172a001"]
+[90m↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:375[0m
+[debug] QUERY OK source="organization_memberships" db=0.7ms queue=0.3ms idle=12.9ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING ["8c739ded-a3d6-4d2c-be27-2b7be03d4bd3", :member, "5c50de52-fed2-47c2-b435-ca40a6ef60e9", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "fabfc642-23df-4807-b527-881befcd3c8d"]
+[90m↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:376[0m
+[debug] QUERY OK source="organization_memberships" db=0.5ms queue=0.3ms idle=13.0ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING ["051c74b0-2af3-4f6a-927a-9c9065773530", :member, "71ce4b69-01d3-46cc-89b6-5a6ed4207d8f", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "3f6a73c2-0db6-4223-99c7-2a1974d01f6f"]
+[90m↳ Example.Demo.Seeds.seed_memberships/3, at: lib/example/demo/seeds.ex:385[0m
+[debug] QUERY OK source="organization_memberships" db=0.6ms queue=0.3ms idle=12.9ms
+INSERT INTO "auth"."organization_memberships" ("user_id","role","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT ("user_id","organization_id") DO NOTHING ["107a7e7b-e2f3-4caf-996e-552f779d4660", :owner, "71ce4b69-01d3-46cc-89b6-5a6ed4207d8f", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "5e48c7f8-ea5e-4f76-aa99-838e9d606df9"]
+[90m↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:71[0m
+[debug] QUERY OK source="organization_invitations" db=0.4ms queue=0.3ms idle=13.0ms
+SELECT o0."id", o0."email", o0."role", o0."hashed_token", o0."accepted_at", o0."revoked_at", o0."expires_at", o0."organization_id", o0."invited_by_id", o0."accepted_by_id", o0."revoked_by_id", o0."inserted_at", o0."updated_at" FROM "auth"."organization_invitations" AS o0 WHERE ((((o0."organization_id" = $1) AND (o0."email" = $2)) AND (o0."accepted_at" IS NULL)) AND (o0."revoked_at" IS NULL)) ["5c50de52-fed2-47c2-b435-ca40a6ef60e9", "invited@demo.tasklane.test"]
+[90m↳ Example.Demo.Seeds.seed_invitation/1, at: lib/example/demo/seeds.ex:405[0m
+[debug] QUERY OK source="organization_invitations" db=0.8ms queue=0.3ms idle=12.7ms
+INSERT INTO "auth"."organization_invitations" ("role","expires_at","email","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7) [:member, ~U[2099-06-30 00:00:00Z], "invited@demo.tasklane.test", "5c50de52-fed2-47c2-b435-ca40a6ef60e9", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "278e2cb5-c107-46fa-9e13-80d88e397ca1"]
+[90m↳ Example.Demo.Seeds.seed_invitation/1, at: lib/example/demo/seeds.ex:423[0m
+[debug] QUERY OK source="organization_invitations" db=0.9ms idle=12.4ms
+SELECT o0."id", o0."email", o0."role", o0."hashed_token", o0."accepted_at", o0."revoked_at", o0."expires_at", o0."organization_id", o0."invited_by_id", o0."accepted_by_id", o0."revoked_by_id", o0."inserted_at", o0."updated_at" FROM "auth"."organization_invitations" AS o0 WHERE ((((o0."organization_id" = $1) AND (o0."email" = $2)) AND (o0."accepted_at" IS NULL)) AND (o0."revoked_at" IS NULL)) ["5c50de52-fed2-47c2-b435-ca40a6ef60e9", "expired-invite@demo.tasklane.test"]
+[90m↳ Example.Demo.Seeds.seed_invitation/1, at: lib/example/demo/seeds.ex:433[0m
+[debug] QUERY OK source="organization_invitations" db=0.6ms queue=0.4ms idle=11.4ms
+INSERT INTO "auth"."organization_invitations" ("role","expires_at","email","organization_id","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7) [:member, ~U[2026-01-01 00:00:00Z], "expired-invite@demo.tasklane.test", "5c50de52-fed2-47c2-b435-ca40a6ef60e9", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "aab1b41d-d164-4402-901a-d1f5226a6ea5"]
+[90m↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:72[0m
+[debug] QUERY OK source="user_mfa_credentials" db=0.7ms queue=0.3ms idle=10.5ms
+INSERT INTO "auth"."user_mfa_credentials" ("type","user_id","enabled_at","failed_attempts","encrypted_secret","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("user_id","type") DO NOTHING ["totp", "051c74b0-2af3-4f6a-927a-9c9065773530", ~U[2026-04-01 10:00:00.000000Z], 0, <<20, 144, 191, 228, 105, 252, 77, 113, 154, 241, 50, 43, 184, 120, 89, 64, 92, 73, 76, 86>>, ~U[2026-10-14 18:30:14.507097Z], ~U[2026-10-14 18:30:14.507097Z], "b2a46916-7d31-4e17-8dcb-f1f473fbe714"]
+[90m↳ Example.Demo.Seeds.seed_mfa_credentials/1, at: lib/example/demo/seeds.ex:463[0m
+[debug] QUERY OK source="user_mfa_credentials" db=0.5ms queue=0.3ms idle=10.3ms
+INSERT INTO "auth"."user_mfa_credentials" ("type","user_id","enabled_at","failed_attempts","encrypted_secret","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("user_id","type") DO NOTHING ["totp", "107a7e7b-e2f3-4caf-996e-552f779d4660", ~U[2026-04-01 10:00:00.000000Z], 0, <<20, 144, 191, 228, 105, 252, 77, 113, 154, 241, 50, 43, 184, 120, 89, 64, 92, 73, 76, 86>>, ~U[2026-10-14 18:30:14.508281Z], ~U[2026-10-14 18:30:14.508281Z], "869e9184-46a1-418d-9ba0-32532b6cae2e"]
+[90m↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:73[0m
+[debug] QUERY OK source="user_passkeys" db=0.6ms queue=0.3ms idle=10.1ms
+INSERT INTO "auth"."user_passkeys" ("user_id","public_key","credential_id","sign_count","nickname","transports","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT ("credential_id") DO NOTHING ["051c74b0-2af3-4f6a-927a-9c9065773530", <<228, 249, 17, 127, 20, 136, 219, 247, 171, 44, 228, 214, 102, 156, 113, 14, 181, 13, 228, 236, 111, 30, 227, 33, 224, 59, 217, 213, 232, 31, 193, 235>>, <<141, 160, 58, 31, 98, 191, 255, 234, 4, 169, 103, 22, 146, 211, 153, 182, 69, 19, 179, 176, 99, 98, 108, 235, 235, 102, 172, 220, 6, 8, 245, 64>>, 0, "Demo Security Key", [], ~U[2026-10-14 18:30:14.509253Z], ~U[2026-10-14 18:30:14.509253Z], "3b04bd26-c7e6-4d52-aa4c-6943dec39e23"]
+[90m↳ Example.Demo.Seeds.seed_passkey/1, at: lib/example/demo/seeds.ex:487[0m
+[debug] QUERY OK source="user_passkeys" db=0.5ms queue=0.3ms idle=10.0ms
+INSERT INTO "auth"."user_passkeys" ("user_id","public_key","credential_id","sign_count","nickname","transports","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT ("credential_id") DO NOTHING ["e2ae9563-0cf8-49ae-9cad-9dbfedea99f1", <<118, 72, 179, 53, 32, 231, 138, 148, 236, 87, 129, 240, 9, 187, 165, 218, 77, 237, 167, 128, 226, 7, 10, 119, 118, 24, 94, 23, 107, 202, 182, 142>>, <<117, 73, 189, 29, 40, 176, 223, 95, 225, 95, 103, 130, 227, 186, 116, 97, 115, 126, 253, 237, 251, 254, 78, 178, 230, 166, 2, 99, 114, 162, 249, 29>>, 0, "Demo Security Key", [], ~U[2026-10-14 18:30:14.510393Z], ~U[2026-10-14 18:30:14.510393Z], "f683a100-833b-4507-a56f-100dde74aa7e"]
+[90m↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:74[0m
+[debug] QUERY OK source="user_sessions" db=0.9ms queue=0.4ms idle=11.4ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","inserted_at","user_agent","last_active_at","hashed_token","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("hashed_token") DO NOTHING ["standard", "203.0.113.10", "051c74b0-2af3-4f6a-927a-9c9065773530", ~U[2026-05-15 12:00:00.000000Z], "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4) AppleWebKit/605.1.15", ~U[2026-05-15 12:00:00.000000Z], <<98, 131, 137, 105, 76, 250, 136, 34, 26, 225, 45, 46, 9, 71, 68, 27, 46, 13, 100, 80, 95, 98, 42, 48, 107, 75, 112, 103, 199, 116, 26, 83>>, "48613b1f-4989-4198-a8e8-7d437bf87ac4"]
+[90m↳ Enum."-each/2-lists^foreach/1-0-"/2, at: lib/enum.ex:961[0m
+[debug] QUERY OK source="user_sessions" db=0.8ms queue=0.3ms idle=11.8ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","inserted_at","user_agent","last_active_at","hashed_token","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("hashed_token") DO NOTHING ["standard", "198.51.100.22", "051c74b0-2af3-4f6a-927a-9c9065773530", ~U[2026-05-14 12:00:00.000000Z], "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0", ~U[2026-05-14 12:00:00.000000Z], <<109, 80, 77, 160, 73, 41, 248, 5, 246, 215, 39, 192, 87, 71, 163, 21, 193, 87, 74, 58, 40, 98, 203, 135, 193, 159, 0, 207, 13, 33, 160, 206>>, "b89f344b-6795-4c4e-8984-99ff2e0d7f35"]
+[90m↳ Enum."-each/2-lists^foreach/1-0-"/2, at: lib/enum.ex:961[0m
+[debug] QUERY OK source="user_sessions" db=1.0ms queue=0.4ms idle=12.1ms
+INSERT INTO "auth"."user_sessions" ("type","ip","user_id","inserted_at","user_agent","last_active_at","hashed_token","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("hashed_token") DO NOTHING ["standard", "192.0.2.44", "051c74b0-2af3-4f6a-927a-9c9065773530", ~U[2026-05-12 12:00:00.000000Z], "Mozilla/5.0 (X11; Linux x86_64) Firefox/125.0", ~U[2026-05-12 12:00:00.000000Z], <<50, 0, 228, 116, 37, 248, 141, 112, 215, 143, 97, 34, 182, 219, 116, 219, 170, 159, 119, 52, 108, 153, 166, 134, 134, 13, 43, 156, 36, 47, 184, 166>>, "d7fd453a-6470-4274-8a29-acd184e6f2dd"]
+[90m↳ Enum."-each/2-lists^foreach/1-0-"/2, at: lib/enum.ex:961[0m
+[debug] QUERY OK source="enterprise_connections" db=0.5ms queue=0.7ms idle=12.4ms
+SELECT e0."id", e0."protocol", e0."status", e0."display_name", e0."login_hint_domains", e0."last_validated_at", e0."last_validation_error", e0."organization_id", e0."oidc_settings", e0."inserted_at", e0."updated_at" FROM "auth"."enterprise_connections" AS e0 WHERE (((e0."organization_id" = $1) AND (e0."display_name" = $2)) AND (e0."status" = $3)) ["5c50de52-fed2-47c2-b435-ca40a6ef60e9", "Acme Corp SSO", :active]
+[90m↳ Example.Demo.Seeds.seed_enterprise_connection/1, at: lib/example/demo/seeds.ex:580[0m
+[debug] QUERY OK db=0.2ms idle=12.8ms
+begin []
+[90m↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:76[0m
+[debug] QUERY OK source="enterprise_connections" db=0.7ms
+INSERT INTO "auth"."enterprise_connections" ("status","protocol","organization_id","display_name","oidc_settings","login_hint_domains","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [:active, :oidc, "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "Acme Corp SSO", %Example.Accounts.EnterpriseConnectionOIDCSettings{id: "7068604a-1328-4754-b5a3-4b08ff24f1e4", issuer: "https://sso.acme-demo.example", discovery_document_uri: nil, client_id: "acme-demo-client", encrypted_client_secret: "demo-secret-not-real", client_authentication_method: "client_secret_basic", scopes: ["openid", "profile", "email"]}, [], ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "a52f188b-dac4-4065-ae73-048d299e6d26"]
+[90m↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:76[0m
+[debug] QUERY OK db=1.9ms
+commit []
+[90m↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:76[0m
+[debug] QUERY OK source="user_identities" db=1.1ms queue=0.6ms idle=15.1ms
+INSERT INTO "auth"."user_identities" ("metadata","user_id","provider","provider_uid","provider_email","inserted_at","updated_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT ("user_id","provider") DO NOTHING [%{}, "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "github", "carol-gh-demo-uid", "carol@demo.tasklane.test", ~U[2026-10-14 18:30:14Z], ~U[2026-10-14 18:30:14Z], "3d8f28ab-8d44-4957-a37f-27b7855f7e02"]
+[90m↳ Example.Demo.Seeds.run/0, at: lib/example/demo/seeds.ex:77[0m
+[debug] QUERY OK source="audit_events" db=1.0ms queue=0.6ms idle=15.9ms
+SELECT count(*) FROM "auth"."audit_events" AS a0 WHERE (a0."effective_user_id" = ANY($1)) [["051c74b0-2af3-4f6a-927a-9c9065773530", "adf3a890-74f7-4139-9c55-2ab26a41d7e4", "107a7e7b-e2f3-4caf-996e-552f779d4660", "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "c5407c2c-53c6-4530-9bf1-0cf169758b16", "86044103-276f-4899-b0f1-47e7a1477038", "8c739ded-a3d6-4d2c-be27-2b7be03d4bd3", "7a0fca89-70e0-40df-b058-d6d76d27e31f", "e2ae9563-0cf8-49ae-9cad-9dbfedea99f1", "998c0e94-f2e6-4e28-8d82-4725f994e488"]]
+[90m↳ Example.Demo.Seeds.seed_audit_events/2, at: lib/example/demo/seeds.ex:811[0m
+[debug] QUERY OK db=1.7ms idle=16.7ms
+begin []
+[90m↳ Example.Demo.Seeds.insert_audit_batch/3, at: lib/example/demo/seeds.ex:827[0m
+[debug] QUERY OK source="audit_events" db=0.8ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "auth.login.success", ~U[2026-05-15 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.527827Z], "cf3cc5fa-089e-4aea-bdcc-bfe7da3be56a"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=1.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "auth.login.success", ~U[2026-05-14 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.529482Z], "00fb23d2-62df-4998-ad0d-06a8d9bcabcb"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.5ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "auth.login.success", ~U[2026-05-13 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.531008Z], "8fd372f3-0991-4d1f-abe0-3c7c43601b5d"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "auth.login.failure", ~U[2026-05-12 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "failure", "user", ~U[2026-10-14 18:30:14.531680Z], "05fa9f69-f6fd-46a6-97b4-0f1cbf8f6b91"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "auth.login.failure", ~U[2026-05-11 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "failure", "user", ~U[2026-10-14 18:30:14.532141Z], "6fa24147-0168-4919-9b3c-e220195046c5"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "mfa.enroll.success", ~U[2026-05-10 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.532518Z], "013b95a5-82da-4234-9d59-251fa0e9451b"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=1.5ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "session.create", ~U[2026-05-09 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.533009Z], "9363b22c-3ea4-49b7-a0f0-e3581cb47ca9"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "session.create", ~U[2026-05-08 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.534626Z], "c1943710-6fcb-42ee-bec2-8142e4644716"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "session.revoke_all", ~U[2026-05-07 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.534957Z], "e30dd2a5-e472-4715-9a3b-ab3c813a08f8"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "admin.impersonation.start", ~U[2026-05-06 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.535334Z], "64043915-668b-4953-850a-e5aac306e25a"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "admin.impersonation.stop", ~U[2026-05-05 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.535642Z], "79f469d6-513d-4f84-81ba-3bf59189ba8b"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "mfa.disable", ~U[2026-05-04 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.535942Z], "bf63228a-9c55-4465-8be6-a1590f92a6e1"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "mfa.regenerate_backup_codes", ~U[2026-05-03 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.536480Z], "cceff06d-5c2b-4cb1-be9c-c5cc85dc5707"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "auth.login.failure", ~U[2026-05-02 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "failure", "user", ~U[2026-10-14 18:30:14.536927Z], "680df62e-6016-4803-8d65-27980a789726"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "session.create", ~U[2026-05-01 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.537417Z], "7bca2905-e83e-4605-8ae7-e110aef2d82c"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.6ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "mfa.enroll.success", ~U[2026-04-30 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.537844Z], "36809e06-c023-4837-b74b-399a27b7508e"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "auth.login.success", ~U[2026-04-29 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.538516Z], "066d2912-e386-40fa-b1a4-758b0d92aa36"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "session.revoke_all", ~U[2026-04-28 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.539005Z], "eacb75d2-c0fc-445d-ac6b-c3cbffdf95c5"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=1.0ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "auth.login.success", ~U[2026-04-11 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.539445Z], "23585812-c379-4c54-beff-f37b8775dfc0"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "session.create", ~U[2026-04-10 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.540541Z], "58e68d5c-f488-4a26-86d9-d394495760f1"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "mfa.regenerate_backup_codes", ~U[2026-04-09 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.540917Z], "3c92da7a-5a9a-48b6-b192-8b9b090c605c"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "admin.impersonation.start", ~U[2026-04-08 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.541422Z], "055dde26-8f71-423f-887a-a65d48ed712b"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "auth.login.failure", ~U[2026-04-07 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "failure", "user", ~U[2026-10-14 18:30:14.541763Z], "60a6100a-843d-4fb7-a3b4-c618195284d3"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "session.revoke_all", ~U[2026-04-06 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.542067Z], "245edcbd-9ae8-494c-a187-0ed5b9022ba5"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "auth.login.failure", ~U[2026-04-05 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "error", "user", ~U[2026-10-14 18:30:14.542354Z], "dde7c818-a3ce-4985-a4b3-465163003288"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "mfa.disable", ~U[2026-04-04 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.542650Z], "8bb40091-936c-4850-b108-410e704dc2a3"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","outcome","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) [%{}, "admin.impersonation.stop", ~U[2026-04-03 12:00:00.000000Z], "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", ~U[2026-10-14 18:30:14.542928Z], "73661531-871e-4c87-88a0-f9857b2b7f87"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.5ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "auth.login.success", ~U[2026-04-27 12:00:00.000000Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "adf3a890-74f7-4139-9c55-2ab26a41d7e4", "adf3a890-74f7-4139-9c55-2ab26a41d7e4", "adf3a890-74f7-4139-9c55-2ab26a41d7e4", "success", "user", "user", ~U[2026-10-14 18:30:14.543227Z], "bf502f4c-8e36-4d14-a507-385b61cbc235"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "admin.impersonation.start", ~U[2026-04-26 12:00:00.000000Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "051c74b0-2af3-4f6a-927a-9c9065773530", "adf3a890-74f7-4139-9c55-2ab26a41d7e4", "adf3a890-74f7-4139-9c55-2ab26a41d7e4", "success", "user", "user", ~U[2026-10-14 18:30:14.545486Z], "940498e0-8667-49d9-b031-ee562e48c1fc"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.5ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "admin.impersonation.stop", ~U[2026-04-25 12:00:00.000000Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "051c74b0-2af3-4f6a-927a-9c9065773530", "adf3a890-74f7-4139-9c55-2ab26a41d7e4", "adf3a890-74f7-4139-9c55-2ab26a41d7e4", "success", "user", "user", ~U[2026-10-14 18:30:14.546008Z], "6c4107cd-42b1-4854-836d-94155e4a8d72"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.4ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "mfa.enroll.success", ~U[2026-04-24 12:00:00.000000Z], "71ce4b69-01d3-46cc-89b6-5a6ed4207d8f", "107a7e7b-e2f3-4caf-996e-552f779d4660", "107a7e7b-e2f3-4caf-996e-552f779d4660", "107a7e7b-e2f3-4caf-996e-552f779d4660", "success", "user", "user", ~U[2026-10-14 18:30:14.546631Z], "38740e71-8306-4b64-96e9-011738154b29"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "auth.login.success", ~U[2026-04-23 12:00:00.000000Z], "71ce4b69-01d3-46cc-89b6-5a6ed4207d8f", "107a7e7b-e2f3-4caf-996e-552f779d4660", "107a7e7b-e2f3-4caf-996e-552f779d4660", "107a7e7b-e2f3-4caf-996e-552f779d4660", "success", "user", "user", ~U[2026-10-14 18:30:14.547157Z], "77afb9cf-edb5-40d8-8855-c791d4da8174"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.9ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "auth.oauth.link", ~U[2026-04-22 12:00:00.000000Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "success", "user", "user", ~U[2026-10-14 18:30:14.547549Z], "0f205a04-52af-4953-90c8-53ba57079e90"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "auth.login.success", ~U[2026-04-21 12:00:00.000000Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "success", "user", "user", ~U[2026-10-14 18:30:14.548585Z], "dff87131-33a5-4ef5-8708-99f8e02071f7"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "auth.login.failure", ~U[2026-04-20 12:00:00.000000Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "c5407c2c-53c6-4530-9bf1-0cf169758b16", "c5407c2c-53c6-4530-9bf1-0cf169758b16", "c5407c2c-53c6-4530-9bf1-0cf169758b16", "failure", "user", "user", ~U[2026-10-14 18:30:14.548939Z], "7d61e7db-12b3-4530-be25-d78234d62a71"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "auth.lockout.start", ~U[2026-04-19 12:00:00.000000Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "c5407c2c-53c6-4530-9bf1-0cf169758b16", "c5407c2c-53c6-4530-9bf1-0cf169758b16", "c5407c2c-53c6-4530-9bf1-0cf169758b16", "failure", "user", "user", ~U[2026-10-14 18:30:14.549278Z], "c8c3de2a-7418-49b9-ac9c-f5d31f2a33be"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [%{}, "account.deletion.schedule", ~U[2026-04-18 12:00:00.000000Z], "86044103-276f-4899-b0f1-47e7a1477038", "86044103-276f-4899-b0f1-47e7a1477038", "86044103-276f-4899-b0f1-47e7a1477038", "success", "user", "user", ~U[2026-10-14 18:30:14.549615Z], "b64c0771-cbcd-4d65-9363-bd47979b389e"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.9ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "session.create", ~U[2026-04-17 12:00:00.000000Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", "user", ~U[2026-10-14 18:30:14.550266Z], "3d3e9236-594c-4400-8d8a-7688d67b7f27"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "session.create", ~U[2026-04-16 12:00:00.000000Z], "71ce4b69-01d3-46cc-89b6-5a6ed4207d8f", "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "051c74b0-2af3-4f6a-927a-9c9065773530", "success", "user", "user", ~U[2026-10-14 18:30:14.551570Z], "0b1674f5-a481-4a61-a8ab-ec4ca94235fe"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [%{}, "auth.password.change", ~U[2026-04-15 12:00:00.000000Z], "e2ae9563-0cf8-49ae-9cad-9dbfedea99f1", "e2ae9563-0cf8-49ae-9cad-9dbfedea99f1", "e2ae9563-0cf8-49ae-9cad-9dbfedea99f1", "success", "user", "user", ~U[2026-10-14 18:30:14.551888Z], "84b08d7e-ea4c-4c8f-b60a-698111ba83e3"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) [%{}, "auth.magic_link.sent", ~U[2026-04-14 12:00:00.000000Z], "e2ae9563-0cf8-49ae-9cad-9dbfedea99f1", "e2ae9563-0cf8-49ae-9cad-9dbfedea99f1", "e2ae9563-0cf8-49ae-9cad-9dbfedea99f1", "success", "user", "user", ~U[2026-10-14 18:30:14.552495Z], "685101d5-5c76-4314-8a77-6817fa294aeb"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.3ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "api.token.create", ~U[2026-04-13 12:00:00.000000Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "8c739ded-a3d6-4d2c-be27-2b7be03d4bd3", "8c739ded-a3d6-4d2c-be27-2b7be03d4bd3", "8c739ded-a3d6-4d2c-be27-2b7be03d4bd3", "success", "user", "user", ~U[2026-10-14 18:30:14.552795Z], "cd421aa9-35dc-4f9f-85d7-2844827be99d"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+[debug] QUERY OK source="audit_events" db=0.2ms
+INSERT INTO "auth"."audit_events" ("metadata","action","occurred_at","organization_id","actor_id","effective_user_id","target_id","outcome","target_type","actor_type","inserted_at","id") VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) [%{}, "auth.oauth.link", ~U[2026-04-12 12:00:00.000000Z], "5c50de52-fed2-47c2-b435-ca40a6ef60e9", "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "a173076d-b39b-4ce4-8bc9-8645f3c0c564", "success", "user", "user", ~U[2026-10-14 18:30:14.553485Z], "75aa5874-9fd2-4e06-8dd6-21cd4a01c07c"]
+[90m↳ anonymous fn/3 in Ecto.Adapters.SQL.checkout_or_transaction/4, at: lib/ecto/adapters/sql.ex:1473[0m
+
+=== Demo Credentials ===
+[REDACTED seeded demo credentials]

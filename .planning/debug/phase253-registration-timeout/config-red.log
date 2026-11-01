@@ -1,0 +1,123 @@
+Running ExUnit with seed: 319256, max_cases: 36
+
+
+
+  1) test fixed-source CI servers disable hot code reloading and retain development routes (Sigra.Planning.Phase253CIStaticRuntimeTest)
+     test/sigra/planning/phase_253_ci_static_runtime_test.exs:21
+     Assertion with == failed
+     code:  assert config[:example][ExampleWeb.Endpoint][:code_reloader] == false
+     left:  true
+     right: false
+     stacktrace:
+       test/sigra/planning/phase_253_ci_static_runtime_test.exs:24: anonymous fn/2 in Sigra.Planning.Phase253CIStaticRuntimeTest."test fixed-source CI servers disable hot code reloading and retain development routes"/1
+       (elixir 1.19.5) lib/enum.ex:2520: Enum."-reduce/3-lists^foldl/2-0-"/3
+       test/sigra/planning/phase_253_ci_static_runtime_test.exs:22: (test)
+
+
+
+  2) test the CI setting changes only the reloader configuration (Sigra.Planning.Phase253CIStaticRuntimeTest)
+     test/sigra/planning/phase_253_ci_static_runtime_test.exs:36
+     Assertion with == failed
+     code:  assert put_in(local, [:example, ExampleWeb.Endpoint, :code_reloader], false) == ci
+     left:  [
+              logger: [
+                default_formatter: [format: "[$level] $message\n"]
+              ],
+              phoenix: [
+                stacktrace_depth: 20,
+                plug_init_mode: :runtime
+              ],
+              phoenix_live_view: [
+                debug_heex_annotations: true,
+                debug_attributes: true,
+                enable_expensive_runtime_checks: true
+              ],
+              example: [
+                {Example.Repo,
+                 [
+                   username: "postgres",
+                   password: "postgres",
+                   hostname: "localhost",
+                   port: 5432,
+                   database: "example_dev",
+                   stacktrace: true,
+                   show_sensitive_data_on_connection_error: true,
+                   pool_size: 10
+                 ]},
+                {ExampleWeb.Endpoint,
+                 [
+                   http: [ip: {127, 0, 0, 1}, port: 4011],
+                   check_origin: false,
+                   code_reloader: false,
+                   reloadable_apps: [:example, :sigra],
+                   debug_errors: true,
+                   secret_key_base: "mOKn1H2AvPQiYaRIJDUU2R2Zwbm4HADb5KXl2nLFxcA4nCwO9DXLCkIo7zMFperi",
+                   watchers: [],
+                   live_reload: [
+                     web_console_logger: true,
+                     patterns: [~r/priv\/static\/(?!uploads\/).*\.(js|css|png|jpeg|jpg|gif|svg)$/E,
+                      ~r/priv\/gettext\/.*\.po$/E,
+                      ~r/lib\/example_web\/router\.ex$/E,
+                      ~r/lib\/example_web\/(controllers|live|components)\/.*\.(ex|heex)$/E]
+                   ]
+                 ]},
+                {:dev_routes, true},
+                {Example.Mailer, [adapter: Swoosh.Adapters.Local]}
+              ],
+              swoosh: [api_client: false],
+              argon2_elixir: [t_cost: 2, m_cost: 12]
+            ]
+     right: [
+              logger: [
+                default_formatter: [format: "[$level] $message\n"]
+              ],
+              phoenix: [
+                stacktrace_depth: 20,
+                plug_init_mode: :runtime
+              ],
+              phoenix_live_view: [
+                debug_heex_annotations: true,
+                debug_attributes: true,
+                enable_expensive_runtime_checks: true
+              ],
+              example: [
+                {Example.Repo,
+                 [
+                   username: "postgres",
+                   password: "postgres",
+                   hostname: "localhost",
+                   port: 5432,
+                   database: "example_dev",
+                   stacktrace: true,
+                   show_sensitive_data_on_connection_error: true,
+                   pool_size: 10
+                 ]},
+                {ExampleWeb.Endpoint,
+                 [
+                   http: [ip: {127, 0, 0, 1}, port: 4011],
+                   check_origin: false,
+                   code_reloader: true,
+                   reloadable_apps: [:example, :sigra],
+                   debug_errors: true,
+                   secret_key_base: "mOKn1H2AvPQiYaRIJDUU2R2Zwbm4HADb5KXl2nLFxcA4nCwO9DXLCkIo7zMFperi",
+                   watchers: [],
+                   live_reload: [
+                     web_console_logger: true,
+                     patterns: [~r/priv\/static\/(?!uploads\/).*\.(js|css|png|jpeg|jpg|gif|svg)$/E,
+                      ~r/priv\/gettext\/.*\.po$/E,
+                      ~r/lib\/example_web\/router\.ex$/E,
+                      ~r/lib\/example_web\/(controllers|live|components)\/.*\.(ex|heex)$/E]
+                   ]
+                 ]},
+                {:dev_routes, true},
+                {Example.Mailer, [adapter: Swoosh.Adapters.Local]}
+              ],
+              swoosh: [api_client: false],
+              argon2_elixir: [t_cost: 2, m_cost: 12]
+            ]
+     stacktrace:
+       test/sigra/planning/phase_253_ci_static_runtime_test.exs:39: (test)
+
+.
+Finished in 0.1 seconds (0.09s on load, 0.00s async, 0.01s sync)
+3 tests, 2 failures

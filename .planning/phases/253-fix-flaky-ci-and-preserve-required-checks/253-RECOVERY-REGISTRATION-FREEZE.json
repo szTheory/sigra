@@ -1,0 +1,571 @@
+{
+  "schema_version": "sigra.phase253.registration-recovery-freeze/v1",
+  "status": "frozen_before_results",
+  "frozen_at": "2026-10-13T15:40:16.591Z",
+  "source": {
+    "repository": "szTheory/sigra",
+    "checkout_head": "6be4b5332060595ebd528122a9f6d030bcc8788b",
+    "tracked_worktree_clean": true,
+    "execution_checkout": "current clean checkout; each app/database/context is created fresh per frozen slot",
+    "blobs": {
+      "scripts/ci/ci-registration-repro.sh": "2da1ba66a7a56270a9c7e3d619edb0162aa6b91b",
+      "scripts/ci/ci-registration-recovery.mjs": "c068464e71ddf12daad7a498c4f478a29a9028fb",
+      "scripts/ci/ci-registration-recovery.test.mjs": "549421c4d91643b0ddad70d2dee116ac55d91b11",
+      "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+      "test/example/priv/playwright/tests/admin-eval.spec.ts": "6540493e78121f134867445dffc7010afcd85815",
+      "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+      "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+      ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+    },
+    "playwright_lock_version": "1.59.1",
+    "host_dependency_versions": {
+      "ecto_sql": "3.13.5",
+      "phoenix_live_view": "1.1.28"
+    }
+  },
+  "tools": {
+    "node": "v26.10.0",
+    "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]",
+    "playwright_cli_version_required": "1.59.1",
+    "ecto_sql": "3.13.5",
+    "phoenix_live_view": "1.1.28"
+  },
+  "selection": {
+    "spec": "tests/admin-eval.spec.ts",
+    "test_title": "render bundle: board-mg-9/populated",
+    "account_selection": "board-mg-9/populated",
+    "projects": [
+      "admin-eval",
+      "admin-eval-mobile",
+      "admin-eval-dark"
+    ],
+    "retries": 0,
+    "workers": 1,
+    "fully_parallel": false,
+    "trace": "retain-on-failure",
+    "isolated_database_per_slot": true,
+    "isolated_context_per_slot": true,
+    "five_ci_browser_seams": [
+      {
+        "seam": "admin_behavior",
+        "step_id": "admin_behavior",
+        "specs": [
+          "tests/admin-user-operations.spec.ts",
+          "tests/impersonation.spec.ts",
+          "tests/admin-audit.spec.ts",
+          "tests/admin-theme.spec.ts",
+          "tests/admin-coherence-sweep.spec.ts",
+          "tests/admin-modal-interaction.spec.ts",
+          "tests/admin-flow-platform-admin.spec.ts",
+          "tests/admin-flow-support-investigator.spec.ts",
+          "tests/admin-flow-org-admin.spec.ts"
+        ],
+        "projects": [
+          "chromium"
+        ],
+        "retries": 0,
+        "body": "same selected spec list for --list and execution"
+      },
+      {
+        "seam": "admin_checkpoints",
+        "step_id": "admin_checkpoints",
+        "specs": [
+          "tests/admin-checkpoints.spec.ts"
+        ],
+        "projects": [
+          "admin-checkpoints-chromium",
+          "admin-checkpoints-mobile",
+          "admin-checkpoints-dark"
+        ],
+        "retries": 0,
+        "body": "same selected spec and project list for --list and execution"
+      },
+      {
+        "seam": "design_gallery",
+        "step_ids": [
+          "design_gallery",
+          "design_gallery_snapshots"
+        ],
+        "specs": [
+          "tests/admin-design.spec.ts"
+        ],
+        "pull_request": {
+          "projects": [
+            "admin-design-chromium",
+            "admin-design-mobile",
+            "admin-design-dark"
+          ],
+          "grep_invert": "@snapshot",
+          "retries": 0
+        },
+        "non_pull_request": [
+          {
+            "projects": [
+              "admin-design-chromium",
+              "admin-design-mobile",
+              "admin-design-dark"
+            ],
+            "grep": "@snapshot",
+            "retries": 0
+          },
+          {
+            "projects": [
+              "admin-design-chromium",
+              "admin-design-mobile",
+              "admin-design-dark"
+            ],
+            "grep_invert": "@snapshot",
+            "retries": 0
+          }
+        ],
+        "body": "PR behavior and non-PR snapshots plus behavior are distinct native selections"
+      },
+      {
+        "seam": "non_admin_smoke",
+        "step_id": "non_admin_smoke",
+        "specs": [
+          "tests/golden-path.spec.ts",
+          "tests/ga-uat-shift-left.spec.ts",
+          "tests/passkeys-hooks.spec.ts",
+          "tests/organizations.spec.ts",
+          "tests/passkey-login.spec.ts",
+          "tests/passkey-options.spec.ts"
+        ],
+        "projects": [
+          "chromium",
+          "mobile"
+        ],
+        "retries": 0,
+        "body": "configured project selection for same listed and executed spec list"
+      },
+      {
+        "seam": "demo_showcase",
+        "step_id": "demo_showcase",
+        "specs": [
+          "tests/demo-showcase.spec.ts"
+        ],
+        "projects": [
+          "demo-showcase-chromium"
+        ],
+        "retries": 0,
+        "body": "same selected spec and project for --list and execution"
+      }
+    ],
+    "planned_control_contracts": {
+      "first_bundle": "D-08/D-09/D-10: five named native cases per project; each has a frozen expected pass/failure.",
+      "second_bundle": "D-09/D-10: three named cases per project with fresh database/context and passing-trace cleanup.",
+      "no_silent_missing_selectors": "Every selected case must appear in the native Playwright report; a missing selector halts evidence."
+    }
+  },
+  "historical": {
+    "original_freeze_sha256": "9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994",
+    "original_evidence_sha256": "b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51",
+    "startup_receipt_path": ".planning/debug/phase253-setup-final-20261013T125238Z/manifest.json",
+    "startup_receipt_sha256": "11b6553779a14dd6103319de319c6cca42b60007ae42a29204e876a13cf89467",
+    "original_status": "diagnosis_incomplete",
+    "original_reproduction_allowance": "exhausted; not reused",
+    "preceding_order": "unknown",
+    "preceding_order_reason": "The archived record names the failed project and selected test but has no preceding test order."
+  },
+  "superseded_unlaunched_freezes": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE-REVISION-01.json",
+      "sha256": "b20adf12b7b07ede9d11a85fd813d90c6c3f4bd7fcdf38eaf564797f06baf5db",
+      "commit": "31c966de7f5f4486cf936e83d38406764a1130bb"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE-REVISION-02.json",
+      "sha256": "e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00",
+      "commit": "e402569ad2205a99a2a63fa86aa1956896331ad5"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE-REVISION-03.json",
+      "sha256": "e57467bb0ce7b57337cd36dd67922d4c63582710c17dcd7073a5be9348a8aa00",
+      "commit": "094dc5a7913a24fd0126e321a9a854eec7bf8130"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE-REVISION-04.json",
+      "sha256": "127c445addd23c59d871670e6b06f0b9c42714ecccecfb482e4b628483ce228a",
+      "commit": "e813c4223"
+    }
+  ],
+  "ledger": {
+    "slots": [
+      {
+        "id": "D19-DIAG-01",
+        "sequence": 1,
+        "kind": "diagnostic",
+        "stage": "D19",
+        "project": "admin-eval",
+        "max_duration_ms": 120000,
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "test_title": "render bundle: board-mg-9/populated",
+          "project": "admin-eval"
+        }
+      },
+      {
+        "id": "D19-DIAG-02",
+        "sequence": 2,
+        "kind": "diagnostic",
+        "stage": "D19",
+        "project": "admin-eval-mobile",
+        "max_duration_ms": 120000,
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "test_title": "render bundle: board-mg-9/populated",
+          "project": "admin-eval-mobile"
+        }
+      },
+      {
+        "id": "D19-DIAG-03",
+        "sequence": 3,
+        "kind": "diagnostic",
+        "stage": "D19",
+        "project": "admin-eval-dark",
+        "max_duration_ms": 120000,
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "test_title": "render bundle: board-mg-9/populated",
+          "project": "admin-eval-dark"
+        }
+      },
+      {
+        "id": "D19-CONTROL-01",
+        "sequence": 4,
+        "kind": "control",
+        "stage": "D19",
+        "project": "admin-eval",
+        "round": "first",
+        "named_cases": [
+          {
+            "title": "registration waits for explicitly released LiveView readiness",
+            "expected": "pass after signal release"
+          },
+          {
+            "title": "registration stops when LiveView readiness is never released",
+            "expected": "bounded expected failure"
+          },
+          {
+            "title": "registration fails when the readiness wait is deliberately broken",
+            "expected": "assertion failure with retained trace"
+          },
+          {
+            "title": "registration detects a deliberate same-account collision",
+            "expected": "collision is detected and recorded"
+          },
+          {
+            "title": "registration retains the first forced assertion failure trace",
+            "expected": "assertion failure with useful trace and original exit"
+          }
+        ],
+        "max_duration_ms": 120000,
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "project": "admin-eval",
+          "body": "Plan 10 frozen named browser control bundle"
+        }
+      },
+      {
+        "id": "D19-CONTROL-02",
+        "sequence": 5,
+        "kind": "control",
+        "stage": "D19",
+        "project": "admin-eval-mobile",
+        "round": "first",
+        "named_cases": [
+          {
+            "title": "registration waits for explicitly released LiveView readiness",
+            "expected": "pass after signal release"
+          },
+          {
+            "title": "registration stops when LiveView readiness is never released",
+            "expected": "bounded expected failure"
+          },
+          {
+            "title": "registration fails when the readiness wait is deliberately broken",
+            "expected": "assertion failure with retained trace"
+          },
+          {
+            "title": "registration detects a deliberate same-account collision",
+            "expected": "collision is detected and recorded"
+          },
+          {
+            "title": "registration retains the first forced assertion failure trace",
+            "expected": "assertion failure with useful trace and original exit"
+          }
+        ],
+        "max_duration_ms": 120000,
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "project": "admin-eval-mobile",
+          "body": "Plan 10 frozen named browser control bundle"
+        }
+      },
+      {
+        "id": "D19-CONTROL-03",
+        "sequence": 6,
+        "kind": "control",
+        "stage": "D19",
+        "project": "admin-eval-dark",
+        "round": "first",
+        "named_cases": [
+          {
+            "title": "registration waits for explicitly released LiveView readiness",
+            "expected": "pass after signal release"
+          },
+          {
+            "title": "registration stops when LiveView readiness is never released",
+            "expected": "bounded expected failure"
+          },
+          {
+            "title": "registration fails when the readiness wait is deliberately broken",
+            "expected": "assertion failure with retained trace"
+          },
+          {
+            "title": "registration detects a deliberate same-account collision",
+            "expected": "collision is detected and recorded"
+          },
+          {
+            "title": "registration retains the first forced assertion failure trace",
+            "expected": "assertion failure with useful trace and original exit"
+          }
+        ],
+        "max_duration_ms": 120000,
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "project": "admin-eval-dark",
+          "body": "Plan 10 frozen named browser control bundle"
+        }
+      },
+      {
+        "id": "D19-CONTROL-04",
+        "sequence": 7,
+        "kind": "control",
+        "stage": "D19",
+        "project": "admin-eval",
+        "round": "second",
+        "named_cases": [
+          {
+            "title": "registration starts from a fresh database and context",
+            "expected": "pass with a new database and context"
+          },
+          {
+            "title": "registration discards trace after a passing control",
+            "expected": "pass and no trace artifact"
+          },
+          {
+            "title": "registration regression passes after an evidenced repair",
+            "expected": "pass only after a cause-backed repair; otherwise slot expires"
+          }
+        ],
+        "max_duration_ms": 120000,
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "project": "admin-eval",
+          "body": "Plan 10 frozen named browser control bundle"
+        }
+      },
+      {
+        "id": "D19-CONTROL-05",
+        "sequence": 8,
+        "kind": "control",
+        "stage": "D19",
+        "project": "admin-eval-mobile",
+        "round": "second",
+        "named_cases": [
+          {
+            "title": "registration starts from a fresh database and context",
+            "expected": "pass with a new database and context"
+          },
+          {
+            "title": "registration discards trace after a passing control",
+            "expected": "pass and no trace artifact"
+          },
+          {
+            "title": "registration regression passes after an evidenced repair",
+            "expected": "pass only after a cause-backed repair; otherwise slot expires"
+          }
+        ],
+        "max_duration_ms": 120000,
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "project": "admin-eval-mobile",
+          "body": "Plan 10 frozen named browser control bundle"
+        }
+      },
+      {
+        "id": "D19-CONTROL-06",
+        "sequence": 9,
+        "kind": "control",
+        "stage": "D19",
+        "project": "admin-eval-dark",
+        "round": "second",
+        "named_cases": [
+          {
+            "title": "registration starts from a fresh database and context",
+            "expected": "pass with a new database and context"
+          },
+          {
+            "title": "registration discards trace after a passing control",
+            "expected": "pass and no trace artifact"
+          },
+          {
+            "title": "registration regression passes after an evidenced repair",
+            "expected": "pass only after a cause-backed repair; otherwise slot expires"
+          }
+        ],
+        "max_duration_ms": 120000,
+        "selection": {
+          "spec": "tests/admin-eval.spec.ts",
+          "project": "admin-eval-dark",
+          "body": "Plan 10 frozen named browser control bundle"
+        }
+      },
+      {
+        "id": "D19-INFRA-RETRY",
+        "kind": "infrastructure_retry",
+        "stage": "shared",
+        "flexible": true,
+        "requires_independent_diagnosis": true,
+        "max_duration_ms": 120000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-1",
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval",
+        "repeat": 1,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-2",
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval",
+        "repeat": 2,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-3",
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval",
+        "repeat": 3,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-mobile-1",
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-mobile",
+        "repeat": 1,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-mobile-2",
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-mobile",
+        "repeat": 2,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-mobile-3",
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-mobile",
+        "repeat": 3,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-dark-1",
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-dark",
+        "repeat": 1,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-dark-2",
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-dark",
+        "repeat": 2,
+        "max_duration_ms": 240000
+      },
+      {
+        "id": "D20-ACCEPT-admin-eval-dark-3",
+        "kind": "acceptance",
+        "stage": "D20",
+        "project": "admin-eval-dark",
+        "repeat": 3,
+        "max_duration_ms": 240000
+      }
+    ],
+    "max_launches": 19,
+    "max_charged_duration_ms": 3480000,
+    "prelaunch_setup": {
+      "components": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-PREFLIGHT-SETUP.json",
+          "sha256": "5d8afa2039c70e434f16b1cbfa411097a796cb10e41b05bc0e452e869d9deef0",
+          "duration_ms": 1344,
+          "purpose": "locked Playwright npm ci restore"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-RUNNER-PREFLIGHT-FAILURE.json",
+          "sha256": "4edd9fa286ef148268a0016dbe282618d9890f9ce53ece23b7c9f177cf8932b0",
+          "duration_ms": 146,
+          "purpose": "runner timeout preflight failure before child process startup"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-RUNNER-DIRECTORY-COLLISION.json",
+          "sha256": "b7136b9c95d04528283b22a8192b2ee2514bbf2d84c5c062f4f3ffefa2304bc4",
+          "duration_ms": 177,
+          "purpose": "runner raw-directory collision before child process startup"
+        }
+      ],
+      "duration_ms": 1667,
+      "charged_to_slot": "D19-DIAG-01"
+    },
+    "control_round_order": [
+      "first bundle: admin-eval, admin-eval-mobile, admin-eval-dark",
+      "second bundle: admin-eval, admin-eval-mobile, admin-eval-dark"
+    ],
+    "d19": {
+      "max_launches": 10,
+      "max_charged_duration_ms": 1200000,
+      "diagnostic_and_control_slots": 9,
+      "max_minutes_per_slot": 2
+    },
+    "d20": {
+      "max_launches": 10,
+      "max_charged_duration_ms": 2400000,
+      "acceptance_slots": 9,
+      "max_minutes_per_slot": 4
+    },
+    "retry": {
+      "count": 1,
+      "requires_independent_diagnosis": true,
+      "maximum_charged_minutes": 4,
+      "charged_to_occurrence_stage": true
+    },
+    "rules": [
+      "All setup, boot, browser, cleanup and failed-attempt elapsed time is charged to the slot and cumulative ledger.",
+      "Stop before launch unless its frozen slot and full reserved time fit within every applicable remaining cap.",
+      "Plan 09 may consume only D19-DIAG-01 through D19-DIAG-03; Plan 10 controls and acceptance remain reserved.",
+      "Unused slots expire. No reset, borrowing, retry wrapper, implicit retry, or extra Playwright command is allowed.",
+      "The optional retry is only for an independently diagnosed infrastructure failure and is never automatic."
+    ]
+  },
+  "stop_conditions": [
+    "source mismatch",
+    "report/log/trace/drop missing or digest mismatch",
+    "deterministic failure",
+    "slot limit",
+    "time limit",
+    "uncertain infrastructure classification"
+  ],
+  "freeze_sha256": "4f6f0708979d3418ff19941ac41f23409a5ea9af1cd01f509abb92c6939383fc"
+}

@@ -1,0 +1,22 @@
+{
+  ".planning/STATE.md": {
+    "commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+    "sha256": "401c078ce301681cd5fc54e75361352ecad1c832f173ec5df0b6104bcaad7606",
+    "readback_verified": true
+  },
+  ".planning/state.json": {
+    "commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+    "sha256": "ff49ed71f9c1a6b495de55261c3d0e96cf9c57a03d8f62ddae29df695fe5b9f4",
+    "readback_verified": true
+  },
+  ".planning/HANDOFF.json": {
+    "commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+    "sha256": "2402d2a33589b6a07c26d161db3c03f5a011abf511605fc6e9cafcae83d29d84",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+    "commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+    "sha256": "6a7b62d19156450b2629faaa064b7a7da45e1dfcbe6887690ac2b8b637a2dd37",
+    "readback_verified": true
+  }
+}

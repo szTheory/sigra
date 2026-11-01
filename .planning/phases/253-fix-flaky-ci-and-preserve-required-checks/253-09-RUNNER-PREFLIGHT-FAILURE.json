@@ -1,0 +1,16 @@
+{
+  "schema_version": "sigra.phase253.registration-runner-preflight-failure/v1",
+  "recorded_at": "2026-10-13T14:56:50.740Z",
+  "command": "bash scripts/ci/ci-registration-repro.sh --run-recovery .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json --output .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json",
+  "exit_code": 3,
+  "stderr": "The value of \"timeout\" is out of range. It must be an integer. Received 118654.22791698575\n",
+  "tool_reported_wall_time_ms": 146,
+  "slot": "D19-DIAG-01",
+  "classification": "runner_preflight_error",
+  "child_processes_spawned": [],
+  "database_setup_started": false,
+  "application_started": false,
+  "browser_launches": 0,
+  "project_outcome": "not_run",
+  "accounting": "The runner failed before any database/app/browser child process started. Charge 146 ms to the first D19 diagnostic slot as prelaunch setup; the browser launch remains unused."
+}

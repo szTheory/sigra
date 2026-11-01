@@ -1,0 +1,20 @@
+{
+  "command": "node --test --test-reporter=tap --test-name-pattern='saved desktop and mobile|slot usage counters|null, empty, and fake|forged, mismatched, duplicated|dirty config|attempt directory collisions|occupied localhost|complete seeded demo credentials block' scripts/ci/ci-registration-recovery.test.mjs",
+  "exitCode": 0,
+  "topLevelTestsPassed": 8,
+  "checks": [
+    "The accepted desktop retry and mobile native reports pass through the actual shell verifier.",
+    "Null, empty, fake, singleton wrong-project, duplicate-slot, source and config drift, missing report/drop, changed log digest, byte-variant title, expected/result status mismatch, CLI exit disagreement, and over-count/over-time receipts reject.",
+    "A mismatched used_slots ledger now rejects.",
+    "An occupied localhost fixture port is detected; no browser starts.",
+    "An existing attempt directory is rejected without changing its saved marker."
+  ],
+  "additionalFocusedCommand": "node --test --test-reporter=tap --test-name-pattern='readiness fails immediately|each diagnostic uses its own physical Mix build' scripts/ci/ci-registration-recovery.test.mjs",
+  "additionalFocusedExitCode": 0,
+  "additionalFocusedTestsPassed": 2,
+  "additionalChecks": [
+    "An app process that has already exited cannot be mistaken for HTTP readiness.",
+    "Inherited PORT and MIX_BUILD_PATH values from another compiled endpoint are overridden by the frozen project port and unique per-attempt build path."
+  ],
+  "semanticAssessment": "The validation used copied saved native receipt files in temporary directories and hermetic localhost/process fixtures. No app, database, browser, new native slot, GitHub request, or external service was started."
+}

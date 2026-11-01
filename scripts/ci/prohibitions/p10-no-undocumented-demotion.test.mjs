@@ -32,6 +32,53 @@ const ci = stripYamlComments(readRepoFile('.github/workflows/ci.yml'));
 const blocks = jobBlocks(ci);
 const NON_PR = /github\.event_name != 'pull_request'/;
 
+test('the terminal browser aggregate is absent from the docs-only body inventory', () => {
+  assert.equal(rows.filter((row) => row.id === 'example_playwright_smoke').length, 0,
+    'the unconditional terminal aggregate is not a docs-only browser body');
+});
+
+function assertBrowserBodyParity(manifestRows, workflow) {
+  assert.ok(!manifestRows.some((row) => row.id === 'example_playwright_smoke'),
+    'terminal aggregate must not be documented as a skipped body');
+  const producer = jobBlocks(stripYamlComments(workflow)).find(([id]) => id === 'example_playwright_shard');
+  assert.ok(producer, 'browser producer missing');
+  const bodies = producer[1].split(/\n {6}- /).filter((part) => /npx playwright test/.test(part));
+  assert.equal(bodies.length, 6, 'six selected browser body steps must remain populated');
+  const ids = new Set();
+  for (const body of bodies) {
+    const id = /^ {8}id: (\S+)\s*$/m.exec(body)?.[1];
+    assert.ok(id, 'selected browser body has no stable id');
+    assert.ok(!ids.has(id), 'duplicate browser body id');
+    ids.add(id);
+    const matches = manifestRows.filter((row) => row.kind === 'step' && row.id === id && row.parentJobId === 'example_playwright_shard');
+    assert.equal(matches.length, 1, `browser body ${id} requires exactly one manifest row`);
+    const condition = /^ {8}if: (.+)$/m.exec(body)?.[1];
+    assert.equal(normalizeExpr(matches[0].gate), normalizeExpr(condition), `browser body ${id} gate drift`);
+  }
+  const documented = manifestRows.filter((row) => row.kind === 'step' && row.parentJobId === 'example_playwright_shard').map((row) => row.id);
+  assert.deepEqual([...ids].sort(), documented.sort(), 'stale browser body inventory');
+}
+
+test('every selected browser body has exact step and condition parity', () => assertBrowserBodyParity(rows, ci));
+
+const VERIFIED_DOCS_SKIP = "!(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')";
+test('browser body skips require actual successful PR classification', () => {
+  for (const row of rows.filter((row) => row.kind === 'step' && row.parentJobId === 'example_playwright_shard')) {
+    assert.ok(normalizeExpr(row.gate).includes(VERIFIED_DOCS_SKIP), `${row.id} can skip on an unverified classifier claim`);
+  }
+});
+
+test('old aggregate claim and missing stale or changed body conditions fail parity', () => {
+  const body = rows.find((row) => row.id === 'non_admin_smoke');
+  assert.ok(body);
+  for (const bad of [
+    [...rows, { ...body, kind: 'job', id: 'example_playwright_smoke' }],
+    rows.filter((row) => row.id !== body.id),
+    rows.map((row) => row === body ? { ...row, id: 'stale_body' } : row),
+    rows.map((row) => row === body ? { ...row, gate: 'true' } : row),
+  ]) assert.throws(() => assertBrowserBodyParity(bad, ci));
+});
+
 /**
  * Locate a STEP's own `if:` expression by its `id:` line, scoped to the text
  * before the next step boundary (` {6}- name:`) or the end of the block.

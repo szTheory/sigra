@@ -1,0 +1,13 @@
+{
+  "schema": "sigra.phase253.proof-bundle-approval/v1",
+  "decision": "pending",
+  "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "bundle_sha256": "SHA256_OF_BUNDLE_JSON_AFTER_USER_APPROVAL",
+  "sections": [
+    "canary",
+    "docs_and_prs"
+  ],
+  "approved_at_epoch": null,
+  "expires_epoch": null,
+  "decision_text": null
+}

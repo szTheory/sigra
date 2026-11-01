@@ -1,0 +1,12 @@
+{
+  "schema_version": "sigra.phase253.registration-shared-retry/v1",
+  "status": "reserved",
+  "retry_count": 1,
+  "budget": 1,
+  "charge_before_ms": 33884,
+  "max_duration_ms": 120000,
+  "source_commit": "edab42a060bdf3361fbdaa4ea56dc48150444762",
+  "original_evidence_sha256": "0d1054b4628fd2287f89447f10644fa7a650dc15d43ca9d29eb5c025eb1b4960",
+  "review_sha256": "fd84291efe6a38673888e9d6e677219f6bc7ef1ae6ea6cfa061a3b4437f3bcbc",
+  "slot_id": "R-INFRA-RETRY-DESKTOP"
+}

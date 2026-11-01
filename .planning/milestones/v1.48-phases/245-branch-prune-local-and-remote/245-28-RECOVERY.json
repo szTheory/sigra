@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-28",
+  "outcome": "blocked",
+  "failed_stage": "task1_coordinator_admission",
+  "admission_attempts": 1,
+  "failed_predicates": [
+    {
+      "code": "coordinator_admission_gate_busy_or_stale",
+      "stage": "coordinator_commit_admission",
+      "reason": "The single authorized coordinator run refused admission. The immediately preceding and subsequent read-only status checks reported a verified coordinator, free lock, zero transaction leases, absent gate directory, and absent lock owner record. Per Plan 245-28, admission was not retried and no gate or lock was removed or repaired.",
+      "command": "PATH=/usr/bin:/bin:$PATH bash scripts/maintainers/repo-mutation-coordinator.sh run --repo . --operation phase245-plan28-exact-recovery -- /bin/bash -c '<exact HEAD, staged-path and digest assertions; add only the Plan 27 records; git commit --only the two scripts and two records>'",
+      "exit_code": 1,
+      "stderr": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155); repo-mutation-coordinator: FAIL: coordinator_admission_gate_busy_or_stale"
+    }
+  ],
+  "preflight": {
+    "head": "46d1a08d1717904236ad72bb31514affffcd1c72",
+    "staged_paths": [
+      "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs",
+      "scripts/maintainers/prune-stale-branches.sh"
+    ],
+    "staged_binary_diff_sha256": "755b3456a91d439430a9f48f04560d1353d7991889958df3bb8c8308e45b7f5c",
+    "index_blobs_match_plan_pins": true,
+    "index_blobs_match_worktree": true,
+    "plan27_result_sha256": "c9645d850fc17dae1250b921f804bc800c2030beac5fa0a6cd59265200964663",
+    "plan27_summary_sha256": "808c4b7697bb6c3e0fdec74bc93fe14ccd7a03524e0454cf9392d7f2c58ebe65",
+    "planning_preflight_sha256": "3080a22b540f42aac1c003a14412e2bdbaad20e72700fbb5a0690ea33c4ac506",
+    "planning_preflight_sidecar_matches": true,
+    "named_regression": "passed; current-contract cumulative passes carry a tracking deletion into a guarded origin deletion",
+    "public_plan23_readiness": "passed",
+    "cached_diff_check": "passed",
+    "coordinator_status_before_attempt": {
+      "verified": true,
+      "lock": "free",
+      "transaction_leases": 0,
+      "gate_directory": "absent"
+    },
+    "admission_ownership_observation": "The collaboration roster showed only the parent orchestrator and this executor; no peer executor was active. OS process enumeration was denied by the environment."
+  },
+  "post_refusal": {
+    "head_unchanged": true,
+    "head": "46d1a08d1717904236ad72bb31514affffcd1c72",
+    "staged_paths_unchanged": true,
+    "staged_binary_diff_sha256": "755b3456a91d439430a9f48f04560d1353d7991889958df3bb8c8308e45b7f5c",
+    "index_blobs_match_worktree": true,
+    "coordinator_status": {
+      "verified": true,
+      "lock": "free",
+      "transaction_leases": 0,
+      "gate_directory": "absent",
+      "owner_record": "absent"
+    }
+  },
+  "task_disposition": {
+    "task1": "blocked before commit; Plan 27 staged source files remain unchanged",
+    "task2": "not started",
+    "plan16_supersession": "not written",
+    "planning_receipt": "byte-preserved; SHA-256 sidecar verified",
+    "production_ref_operations": 0,
+    "repo_04_status": "open"
+  }
+}

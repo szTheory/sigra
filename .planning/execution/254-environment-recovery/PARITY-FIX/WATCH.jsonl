@@ -1,0 +1,15 @@
+{"at": "2026-10-24T00:53:17.232097+00:00", "kind": "started", "runs": [{"attempt": 1, "role": "before", "run_id": 40046955449}, {"attempt": 1, "role": "after", "run_id": 40047078287}]}
+{"at": "2026-10-24T00:54:18.265030+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40046955449, "status": "in_progress"}
+{"at": "2026-10-24T00:54:19.337745+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40047078287, "status": "in_progress"}
+{"at": "2026-10-24T00:55:20.356755+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40046955449, "status": "in_progress"}
+{"at": "2026-10-24T00:55:21.381301+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40047078287, "status": "in_progress"}
+{"at": "2026-10-24T00:56:22.573946+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40046955449, "status": "in_progress"}
+{"at": "2026-10-24T00:56:23.599594+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40047078287, "status": "in_progress"}
+{"at": "2026-10-24T00:57:24.731412+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40046955449, "status": "in_progress"}
+{"at": "2026-10-24T00:57:25.879623+00:00", "attempt": 1, "conclusion": "success", "kind": "status", "role": "after", "run_id": 40047078287, "status": "completed"}
+{"at": "2026-10-24T00:58:00.212573+00:00", "collection_exit_code": 0, "kind": "captured", "role": "after", "source_bundle": ".planning/execution/254-environment-recovery/PARITY-FIX/RAW-after"}
+{"at": "2026-10-24T00:58:02.175787+00:00", "commit": "a65f3d42129ae0f8023e265edb1148c9b9c05f73", "files": 151, "kind": "preserved", "ref": "refs/evidence/phase254-parity-preparation-after-attempt-1", "role": "after"}
+{"at": "2026-10-24T00:59:03.178672+00:00", "attempt": 1, "conclusion": "success", "kind": "status", "role": "before", "run_id": 40046955449, "status": "completed"}
+{"at": "2026-10-24T00:59:27.214150+00:00", "collection_exit_code": 0, "kind": "captured", "role": "before", "source_bundle": ".planning/execution/254-environment-recovery/PARITY-FIX/RAW-before"}
+{"at": "2026-10-24T00:59:29.460171+00:00", "commit": "63b446288c1c8b2fa0d61ebc679ff7c653da7ae4", "files": 241, "kind": "preserved", "ref": "refs/evidence/phase254-parity-preparation-before-attempt-1", "role": "before"}
+{"at": "2026-10-24T00:59:29.460456+00:00", "completed": ["after", "before"], "kind": "finished", "measured_samples": 0}

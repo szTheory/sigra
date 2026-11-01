@@ -1,0 +1,10 @@
+{
+  "command": "bash scripts/ci/ci-run-metrics.test.sh --diagnosis-only",
+  "exitCode": 1,
+  "output": "test_archived_test_z_preserves_red_and_passing_test_d (__main__.DiagnosisContract.test_archived_test_z_preserves_red_and_passing_test_d) ... FAIL\n\n======================================================================\nFAIL: test_archived_test_z_preserves_red_and_passing_test_d (__main__.DiagnosisContract.test_archived_test_z_preserves_red_and_passing_test_d)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<stdin>\", line 14, in test_archived_test_z_preserves_red_and_passing_test_d\nAssertionError: 2 != 0 : saved-family diagnosis must succeed: ci-run-metrics: FAIL: unknown arg: --diagnose-v1\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.009s\n\nFAILED (failures=1)\n",
+  "targetTest": "test_archived_test_z_preserves_red_and_passing_test_d",
+  "targetFile": "scripts/ci/ci-run-metrics.test.sh",
+  "expected": "saved-family diagnosis succeeds and identifies historical Test Z with the original red outcome",
+  "actual": "opt-in diagnosis command is not implemented",
+  "semanticAssessment": "Target executed and failed at the planned CLI return-code assertion; unknown --diagnose-v1 is the absent planned behavior."
+}

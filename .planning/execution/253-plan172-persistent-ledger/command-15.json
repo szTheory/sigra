@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-B",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/runtime/ci-hosted-transport.py",
+    "--allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/publication-allocation.json",
+    "--ledger",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/publication-ledger.json",
+    "--request",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/publication-request-15.json",
+    "--output",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/publication-request-15-receipt.json",
+    "--body-output",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/publication-request-15-body.json"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+}

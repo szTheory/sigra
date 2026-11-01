@@ -1,0 +1,174 @@
+{
+  "acceptance_samples": 0,
+  "browser_blocker_path": "attempts/04/BROWSER-BLOCKER.json",
+  "browser_blocker_sha256": "c777ac1cfe688f3aac5c626c5d88e57f478aba7c55fcffadb260d8b326e4731c",
+  "browser_owners": {
+    "admin_behavior": {
+      "candidate": {
+        "product_identities": null,
+        "reason": "fail-fast stopped before this owner/source because the first control owner could not meet the Ubuntu OS-dependency prerequisite",
+        "source_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+        "stage": "not_run",
+        "status": "blocked"
+      },
+      "control": {
+        "cleanup": {
+          "database_drop_recorded": true,
+          "server_stopped": true,
+          "task_local_cache_removed": true
+        },
+        "exit_code": 1,
+        "reason": "the helper could not read /etc/os-release on macOS; helper requires Ubuntu 24.04 amd64 before it can install Linux packages",
+        "safe_receipts": {
+          "browser_result_path": ".gsd/255.1-repaired-work/native-4894w2nn/browser-control-admin_behavior.json",
+          "browser_result_sha256": "59001f76bcccf9f85516a0b77e8dfa7e193f646e6dab3dee04b1ea7291784b3f",
+          "command_record_path": ".gsd/255.1-repaired-work/native-4894w2nn/diagnostics-control-admin_behavior/repaired-control-admin_behavior-os-deps/record.json",
+          "command_record_sha256": "818f1c31b033de896ad8464bf528384e6b6168023839e35ada11f733598707ee",
+          "os_deps_report_path": ".gsd/255.1-repaired-work/native-4894w2nn/runner-temp-control-admin_behavior/playwright-os-deps.json",
+          "os_deps_report_sha256": "a9401d4bafa1563e1df58ecb7f708260731d39e3ac63fef26029f063567132e2"
+        },
+        "source_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+        "stage": "playwright-os-deps",
+        "status": "blocked"
+      }
+    },
+    "admin_checkpoints": {
+      "candidate": {
+        "product_identities": null,
+        "reason": "fail-fast stopped before this owner/source because the first control owner could not meet the Ubuntu OS-dependency prerequisite",
+        "source_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+        "stage": "not_run",
+        "status": "blocked"
+      },
+      "control": {
+        "product_identities": null,
+        "reason": "fail-fast stopped before this owner/source because the first control owner could not meet the Ubuntu OS-dependency prerequisite",
+        "source_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+        "stage": "not_run",
+        "status": "blocked"
+      }
+    },
+    "demo_showcase": {
+      "candidate": {
+        "product_identities": null,
+        "reason": "fail-fast stopped before this owner/source because the first control owner could not meet the Ubuntu OS-dependency prerequisite",
+        "source_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+        "stage": "not_run",
+        "status": "blocked"
+      },
+      "control": {
+        "product_identities": null,
+        "reason": "fail-fast stopped before this owner/source because the first control owner could not meet the Ubuntu OS-dependency prerequisite",
+        "source_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+        "stage": "not_run",
+        "status": "blocked"
+      }
+    },
+    "design_gallery": {
+      "candidate": {
+        "product_identities": null,
+        "reason": "fail-fast stopped before this owner/source because the first control owner could not meet the Ubuntu OS-dependency prerequisite",
+        "source_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+        "stage": "not_run",
+        "status": "blocked"
+      },
+      "control": {
+        "product_identities": null,
+        "reason": "fail-fast stopped before this owner/source because the first control owner could not meet the Ubuntu OS-dependency prerequisite",
+        "source_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+        "stage": "not_run",
+        "status": "blocked"
+      }
+    },
+    "non_admin_smoke": {
+      "candidate": {
+        "product_identities": null,
+        "reason": "fail-fast stopped before this owner/source because the first control owner could not meet the Ubuntu OS-dependency prerequisite",
+        "source_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+        "stage": "not_run",
+        "status": "blocked"
+      },
+      "control": {
+        "product_identities": null,
+        "reason": "fail-fast stopped before this owner/source because the first control owner could not meet the Ubuntu OS-dependency prerequisite",
+        "source_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+        "stage": "not_run",
+        "status": "blocked"
+      }
+    }
+  },
+  "hosted_delivery_gaps": [
+    "No hosted artifact API producer origin was collected.",
+    "No hosted required-check terminal result was collected.",
+    "No acceptance samples were authorized."
+  ],
+  "hosted_origin_available": false,
+  "hosted_status": "blocked",
+  "library": {
+    "evidence_path": "attempts/04/LIBRARY-PARITY.json",
+    "evidence_sha256": "f84f23ea438c9c7012e99db7de2a9585f411d78ae84e5559d0f5ad21fae3031d",
+    "receivers": {
+      "dep_off": {
+        "candidate_excluded": 2647,
+        "candidate_seed": 175096,
+        "candidate_skipped": 0,
+        "candidate_tests": 65,
+        "control_excluded": 2647,
+        "control_seed": 793410,
+        "control_skipped": 0,
+        "control_tests": 65,
+        "status": "passed"
+      },
+      "ordinary": {
+        "candidate_excluded": 22,
+        "candidate_seed": 375660,
+        "candidate_skipped": 12,
+        "candidate_tests": 2690,
+        "control_excluded": 22,
+        "control_seed": 122531,
+        "control_skipped": 12,
+        "control_tests": 2690,
+        "status": "passed"
+      },
+      "scaffold": {
+        "candidate_excluded": 0,
+        "candidate_seed": 26992,
+        "candidate_skipped": 0,
+        "candidate_tests": 22,
+        "control_excluded": 0,
+        "control_seed": 90315,
+        "control_skipped": 0,
+        "control_tests": 22,
+        "status": "passed"
+      }
+    },
+    "status": "passed"
+  },
+  "local_status": "blocked",
+  "prior_native_attempts": {
+    "canonical_first": "EQUIVALENT-WORK.json",
+    "first": "attempts/02/EQUIVALENT-WORK.json",
+    "source_refresh_retry": "attempts/03/EQUIVALENT-WORK.json"
+  },
+  "schema_version": "sigra.repaired-work-checkpoint/v1",
+  "sources": {
+    "candidate": {
+      "archive_sha256": "6192d086c9e35367ce6aeab4d8e395e3a5a6c6122b678e10ced367936a43ca03",
+      "clean_before": null,
+      "source_sha": "60058d465e171183aa6ea86f247cd6644337ebcb",
+      "tree_sha": "b54541670f25457684707f2fbb888bcdc7e9ba51"
+    },
+    "control": {
+      "archive_sha256": "0405585e6a3577a6054b3f93f085dab965f7dac3c484570accb220b6b97cf13e",
+      "clean_before": null,
+      "source_sha": "ada01b374c92da790857d9b826cf633a799e654a",
+      "tree_sha": "cee215875eaae458ea3c88c1cb51addb4a19440c"
+    }
+  },
+  "status": "blocked",
+  "validation_errors": [
+    "browser_owner_matrix_blocked_linux_os_dependencies",
+    "hosted_origin_unavailable",
+    "hosted_terminal_unavailable"
+  ]
+}

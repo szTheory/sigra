@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "method": "symmetric_environment_transport_recovery",
+  "patches": {
+    "before": {
+      "base_sha": "7e8cf6ac845ef4f5dbeb5ca63f45632bca954560",
+      "path": ".planning/execution/254-environment-recovery/PREPARATION/before.patch",
+      "sha256": "4c9d8d00635315a54a66bd907259051f15f417d774d3d8bae872375d1fddd7b3",
+      "allowed_paths": [
+        ".github/actions/example-playwright-boot/action.yml",
+        ".github/workflows/ci.yml",
+        "scripts/ci/ci-apt-transfer-probe.sh",
+        "scripts/ci/ci-apt-transfer-probe.test.py",
+        "scripts/ci/ci-playwright-os-deps.py",
+        "scripts/ci/ci-playwright-os-deps.test.py",
+        "scripts/ci/ci-runner-image.mjs",
+        "scripts/ci/ci-runner-image.test.mjs"
+      ]
+    },
+    "after": {
+      "base_sha": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+      "path": ".planning/execution/254-environment-recovery/PREPARATION/after.patch",
+      "sha256": "dc0c08b147f91ff694062a2542197483cdb8bd01c3092f87e82026e5c69d2cb4",
+      "allowed_paths": [
+        ".github/actions/example-playwright-boot/action.yml",
+        ".github/workflows/ci.yml",
+        "scripts/ci/ci-apt-transfer-probe.sh",
+        "scripts/ci/ci-apt-transfer-probe.test.py",
+        "scripts/ci/ci-measure-workflow.test.mjs",
+        "scripts/ci/ci-playwright-os-deps.py",
+        "scripts/ci/ci-playwright-os-deps.test.py",
+        "scripts/ci/ci-prep-profile.mjs",
+        "scripts/ci/ci-prep-semantics.test.mjs",
+        "scripts/ci/ci-runner-image.mjs",
+        "scripts/ci/ci-runner-image.test.mjs"
+      ]
+    }
+  },
+  "inventory_sources": {
+    "before": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+    "after": "da6401170e4295cba8099fd6f3ec348c6867de47"
+  },
+  "diagnosis": ".planning/execution/254-environment-recovery/DIAGNOSTIC-RESULT.json",
+  "source_playwright_trees_unchanged": true,
+  "preparation_recipe": {
+    "new_initial_real_PR_invocations": 2,
+    "one_per_condition": true,
+    "trigger_retries": 0,
+    "maximum_minutes": 60,
+    "maximum_http_requests": 600
+  },
+  "no_original_allowance_renewed": true,
+  "no_measured_sample_started": true,
+  "thresholds_and_allwarm_and_image_equality_unchanged": true
+}

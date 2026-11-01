@@ -1,0 +1,24 @@
+test_approved_entrypoint_collects_closes_and_refuses_restart (test_entrypoint.Entry.test_approved_entrypoint_collects_closes_and_refuses_restart) ... ok
+test_entrypoint_closes_after_http_429_without_retry (test_entrypoint.Entry.test_entrypoint_closes_after_http_429_without_retry) ... ok
+test_actual_empty_listing_recovered_without_workflow_query_or_pr_create (test_recovery.Recovery.test_actual_empty_listing_recovered_without_workflow_query_or_pr_create) ... ok
+test_closed_or_pending_rows_never_retried (test_recovery.Recovery.test_closed_or_pending_rows_never_retried) ... ok
+test_guard_rejects_post_and_extra_keys_and_wrong_sequence (test_recovery.Recovery.test_guard_rejects_post_and_extra_keys_and_wrong_sequence) ... ok
+test_incomplete_inventories_rejected (test_recovery.Recovery.test_incomplete_inventories_rejected) ... ok
+test_live_start_requires_new_approval_without_network (test_recovery.Recovery.test_live_start_requires_new_approval_without_network) ... ok
+test_low_core_stops_after_rate_read (test_recovery.Recovery.test_low_core_stops_after_rate_read) ... ok
+test_pr_changed_before_or_after_run_rejected (test_recovery.Recovery.test_pr_changed_before_or_after_run_rejected) ... ok
+test_seven_request_ceiling (test_recovery.Recovery.test_seven_request_ceiling) ... ok
+test_terminal_failure_is_not_relabelled_success (test_recovery.Recovery.test_terminal_failure_is_not_relabelled_success) ... ok
+test_terminal_success_still_requires_browser_and_docs_evidence (test_recovery.Recovery.test_terminal_success_still_requires_browser_and_docs_evidence) ... ok
+test_transport_allocation_and_exact_get_paths (test_recovery.Recovery.test_transport_allocation_and_exact_get_paths) ... ok
+test_unrelated_job_rejected (test_recovery.Recovery.test_unrelated_job_rejected) ... ok
+test_verifier_rejects_tampered_request_clock_category_hash_and_source (test_recovery.Recovery.test_verifier_rejects_tampered_request_clock_category_hash_and_source) ... ok
+test_verifier_rejects_truncated_extended_and_premature_ledgers (test_recovery.Recovery.test_verifier_rejects_truncated_extended_and_premature_ledgers) ... ok
+test_wrong_run_or_rerun_rejected (test_recovery.Recovery.test_wrong_run_or_rerun_rejected) ... ok
+test_actual_pipeline_403_429_and_core_stop_do_not_retry (test_transport.Pipeline.test_actual_pipeline_403_429_and_core_stop_do_not_retry) ... ok
+test_actual_pipeline_predebits_seven_gets_and_refuses_eighth (test_transport.Pipeline.test_actual_pipeline_predebits_seven_gets_and_refuses_eighth) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.165s
+
+OK

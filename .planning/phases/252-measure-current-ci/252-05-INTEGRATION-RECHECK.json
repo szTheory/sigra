@@ -1,0 +1,36 @@
+{
+  "phase": "252",
+  "observed_at_utc": "2026-10-12T19:41:59.941246+00:00",
+  "source_head": "7625b9f141de1d5109eb702785165ba151a09cdb",
+  "original_failure_record": "252-05-MIX-CI-DIAGNOSTIC.json",
+  "diagnosis": "Local compiled build omitted Sigra.Audit.Forwarders.Threadline while optional Threadline dependency was available. A force recompilation restored the module without source changes.",
+  "repair_command": "MIX_ENV=test mix compile --force --warnings-as-errors",
+  "focused_result": {
+    "tests": 6,
+    "failures": 0
+  },
+  "full_command": "PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test mix ci",
+  "full_exit_code": 0,
+  "full_log_sha256": "b377517e768e95d8f28228ed155af393a4091c45199d5352d01714b0aa6457cf",
+  "test_summaries": [
+    "33 doctests, 3 properties, 2651 tests, 0 failures, 12 skipped (22 excluded)",
+    "65 tests, 0 failures (2644 excluded)"
+  ],
+  "cache_permissions": "Initial default-sandbox retry failed writing existing Hex registry; authorized cache-access retry exited zero.",
+  "application_source_changed": false,
+  "collector_result": {
+    "passed": 39,
+    "failed": 0
+  },
+  "node_result": {
+    "passed": 5,
+    "failed": 0
+  },
+  "actionlint_exit": 0,
+  "prior_deferred_revision": {
+    "commit": "7625b9f141de1d5109eb702785165ba151a09cdb",
+    "sha256": "ff3e93a85a7812bdf891a871e45170f4053afd0908934ddc6ac17df9432774a4",
+    "byte_exact_readback": true
+  },
+  "phase_verification_status": "not_started"
+}

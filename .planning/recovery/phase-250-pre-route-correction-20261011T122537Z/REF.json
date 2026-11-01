@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T12:25:37Z",
+  "repository_head": "9ccec6c5b89f6417d1c2320603c9efd3be8983a6",
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "status_at_capture": "M .planning/HANDOFF.json",
+      "sha256": "4320d67eebb3bd66ce422b781d9c153213b16d21546ce4fd281faaf34e96cadf",
+      "recovery_path": ".planning/recovery/phase-250-pre-route-correction-20261011T122537Z/.planning/HANDOFF.json",
+      "recovery_sha256": "4320d67eebb3bd66ce422b781d9c153213b16d21546ce4fd281faaf34e96cadf",
+      "bytes": 69953
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status_at_capture": "M .planning/STATE.md",
+      "sha256": "b44b2372474b31d013c3f3069d12441358aff7de68195c2962d7828b716b682f",
+      "recovery_path": ".planning/recovery/phase-250-pre-route-correction-20261011T122537Z/.planning/STATE.md",
+      "recovery_sha256": "b44b2372474b31d013c3f3069d12441358aff7de68195c2962d7828b716b682f",
+      "bytes": 167463
+    },
+    {
+      "path": ".planning/state.json",
+      "status_at_capture": "M .planning/state.json",
+      "sha256": "29daf38a7845b66a0bb5979ac5f0e9a11f5c0515f392e1795f81d1e18fb10a52",
+      "recovery_path": ".planning/recovery/phase-250-pre-route-correction-20261011T122537Z/.planning/state.json",
+      "recovery_sha256": "29daf38a7845b66a0bb5979ac5f0e9a11f5c0515f392e1795f81d1e18fb10a52",
+      "bytes": 5223
+    }
+  ]
+}

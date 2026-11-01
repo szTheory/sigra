@@ -1,0 +1,40 @@
+2107: 2026-10-21T18:24:30.1357648Z   ✓  40 [chromium] › tests/admin-user-operations.spec.ts:73:7 › Phase 31 admin user operations browser contract (D-04 1/2) › @smoke search -> filter -> open user -> revoke session keeps scope visible (12.5s)
+2108: 2026-10-21T18:24:42.1505850Z   ✓  41 [chromium] › tests/admin-user-operations.spec.ts:161:7 › Phase 31 admin user operations browser contract (D-04 1/2) › global admins can pivot from user detail into an organization-scoped view (12.0s)
+2109: 2026-10-21T18:24:51.0959592Z   ✓  42 [chromium] › tests/impersonation.spec.ts:70:7 › Phase 31 admin impersonation browser contract (D-04 3) › stale sudo redirects the impersonation start action through password confirmation (8.9s)
+2110: 2026-10-21T18:25:10.7589784Z   ✓  43 [chromium] › tests/impersonation.spec.ts:91:7 › Phase 31 admin impersonation browser contract (D-04 3) › fresh sudo enables impersonation start, persistent banner visibility, and stop from a non-admin page (19.7s)
+2111: 2026-10-21T18:25:10.8087182Z 
+2112: 2026-10-21T18:25:10.8092082Z 
+2113: 2026-10-21T18:25:10.8102654Z   1) [chromium] › tests/admin-audit.spec.ts:77:7 › Phase 31 admin audit browser contract (D-04 4) › global investigation and org-scoped per-user export keep filter semantics aligned 
+2114: 2026-10-21T18:25:10.8103834Z 
+2115: 2026-10-21T18:25:10.8104849Z     Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+2116: 2026-10-21T18:25:10.8105351Z 
+2117: 2026-10-21T18:25:10.8105817Z     Expected: [32m"http://localhost:4001/admin/audit?action_prefix=admin.impersonation"[39m
+2118: 2026-10-21T18:25:10.8107245Z     Received: [31m"http://localhost:4001/admin/audit?action_prefix=admin.impersonation[7m&order_by=inserted_at&order_direction=desc&page_size=25[27m"[39m
+2119: 2026-10-21T18:25:10.8107988Z     Timeout:  15000ms
+2120: 2026-10-21T18:25:10.8108147Z 
+2121: 2026-10-21T18:25:10.8108250Z     Call log:
+2122: 2026-10-21T18:25:10.8108628Z     [2m  - Expect "toHaveURL" with timeout 15000ms[22m
+2123: 2026-10-21T18:25:10.8109584Z     [2m    19 × unexpected value "http://localhost:4001/admin/audit?action_prefix=admin.impersonation&order_by=inserted_at&order_direction=desc&page_size=25"[22m
+2124: 2026-10-21T18:25:10.8110194Z 
+2125: 2026-10-21T18:25:10.8110205Z 
+2126: 2026-10-21T18:25:10.8110479Z       127 |     await page.getByRole('button', { name: 'Apply filters' }).click();
+2127: 2026-10-21T18:25:10.8110957Z       128 |     await waitForLiveViewReady(page);
+2128: 2026-10-21T18:25:10.8111422Z     > 129 |     await expect(page).toHaveURL(connectedAuditUrl);
+2129: 2026-10-21T18:25:10.8111801Z           |                        ^
+2130: 2026-10-21T18:25:10.8112072Z       130 |     expect(
+2131: 2026-10-21T18:25:10.8112523Z       131 |       await page.locator('#admin-audit-desktop-results tbody tr').allInnerTexts(),
+2132: 2026-10-21T18:25:10.8113012Z       132 |     ).toEqual(connectedRows);
+2133: 2026-10-21T18:25:10.8113592Z         at /home/runner/work/sigra/sigra/test/example/priv/playwright/tests/admin-audit.spec.ts:129:24
+2134: 2026-10-21T18:25:10.8114004Z 
+2135: 2026-10-21T18:25:10.8114440Z     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+2136: 2026-10-21T18:25:10.8115635Z     test-results/admin-audit-Phase-31-admin-acc5c-ep-filter-semantics-aligned-chromium/test-failed-1.png
+2137: 2026-10-21T18:25:10.8117014Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2138: 2026-10-21T18:25:10.8117565Z 
+2139: 2026-10-21T18:25:10.8118442Z     Error Context: test-results/admin-audit-Phase-31-admin-acc5c-ep-filter-semantics-aligned-chromium/error-context.md
+2140: 2026-10-21T18:25:10.8119322Z 
+2141: 2026-10-21T18:25:10.8119540Z   1 failed
+2142: 2026-10-21T18:25:10.8121288Z     [chromium] › tests/admin-audit.spec.ts:77:7 › Phase 31 admin audit browser contract (D-04 4) › global investigation and org-scoped per-user export keep filter semantics aligned 
+2143: 2026-10-21T18:25:10.8122710Z   42 passed (6.2m)
+2144: 2026-10-21T18:25:10.9724494Z ##[error]Process completed with exit code 1.
+2145: 2026-10-21T18:25:10.9867584Z ##[group]Run node scripts/ci/ci-browser-records.mjs --record \
+2146: 2026-10-21T18:25:10.9868101Z [36;1mnode scripts/ci/ci-browser-records.mjs --record \[0m

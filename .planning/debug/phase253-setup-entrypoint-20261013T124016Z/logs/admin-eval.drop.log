@@ -1,0 +1,11 @@
+==> jose
+Compiling 113 files (.erl)
+Compiling 8 files (.ex)
+
+== Compilation error in file lib/jose/jwk.ex ==
+** (RuntimeError) error parsing file /var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-setup-7shKCY/build-admin-eval/lib/jose/include/jose_jwk.hrl, got: {:error, :enoent}
+    (elixir 1.19.5) lib/record/extractor.ex:88: Record.Extractor.read_file/2
+    (elixir 1.19.5) lib/record/extractor.ex:54: Record.Extractor.extract_record/2
+    lib/jose/jwk.ex:8: (module)
+    lib/jose/jwk.ex:3: (file)
+could not compile dependency :jose, "mix compile" failed. Errors may have been logged above. You can recompile this dependency with "mix deps.compile jose --force", update it with "mix deps.update jose" or clean it with "mix deps.clean jose"

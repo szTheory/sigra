@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "phase": "246",
+  "recorded_at_utc": "2026-10-06T23:58:31Z",
+  "baseline_source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+  "integrated_commit": "4df425a62",
+  "candidate": {
+    "worktree": "/private/tmp/sigra-phase-246-03-ci",
+    "scope": "Three planning contract tests plus ten already-written public 1.5.0 install-document corrections; no dirty Phase 244 workflow or Playwright changes",
+    "patch_path": "/private/tmp/sigra-phase-246-repair.patch",
+    "patch_sha256": "1ac0077ec056b9fe166bbc95e682b2b3eb42276676b362b94cc310345d029e42",
+    "files_changed": 13,
+    "diff_check": "passed"
+  },
+  "reproduction": {
+    "command": "MIX_ENV=test mix test test/sigra/planning/phase_232_playwright_economics_test.exs test/sigra/planning/phase_236_evidence_provenance_guard_test.exs test/sigra/planning/phase_242_shift_left_contract_test.exs",
+    "before": {"tests": 14, "failures": 4},
+    "after": {"tests": 14, "failures": 0}
+  },
+  "full_gate": {
+    "preparation": "mix clean",
+    "command": "MIX_ENV=test mix ci",
+    "environment": "outside the enclosing tool sandbox, allowing Phase 235 nested sandbox-exec fixtures",
+    "exit_code": 0,
+    "doctests": 33,
+    "properties": 3,
+    "tests": 2623,
+    "failures": 0,
+    "skipped": 12,
+    "excluded": 22,
+    "dependency_off_guard": {"tests": 65, "failures": 0},
+    "log_path": "/private/tmp/sigra-phase-246-repaired-ci-unsandboxed.log",
+    "log_sha256": "affec5f7b976c07c2916d00f4047d223c9696d837f2d18bce693906bc60d268b"
+  },
+  "enclosed_sandbox_attempt": {
+    "exit_code": 2,
+    "reported_contract_failures": 0,
+    "environmental_failures": 2,
+    "diagnostic": "Phase 235 nested sandbox-exec returned Operation not permitted (exit 71)",
+    "log_path": "/private/tmp/sigra-phase-246-repaired-ci.log"
+  }
+}

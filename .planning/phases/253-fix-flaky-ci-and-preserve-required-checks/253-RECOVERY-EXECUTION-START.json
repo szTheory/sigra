@@ -1,0 +1,36 @@
+{
+  "started_at": "2026-10-13T14:12:24.905483+00:00",
+  "capture_ref": "d041542e5f94bc4c91da14a1124573c5c40085b2",
+  "sdk_state_preservation": [
+    {
+      "path": ".planning/STATE.md",
+      "ref": "2145ebb6b6b879c54b8cd4f8e1b4f711265677aa",
+      "sha256": "4755a46a468e22d2c837f3803a8069d4b0a4db0c74208625540c8372f02f24a5",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/state.json",
+      "ref": "2145ebb6b6b879c54b8cd4f8e1b4f711265677aa",
+      "sha256": "cf08b0e66588496f3594510c5068b55e0262ac9d66895a8b4029067530818c94",
+      "exact_readback": true
+    }
+  ],
+  "partial_state_restoration_ref": "93402db87bfb57a54b58fedb8e4d8afab5b729d1",
+  "restored_detailed_state_from": "d041542e5f94bc4c91da14a1124573c5c40085b2",
+  "workflow": "253 --gaps-only",
+  "worktrees": false,
+  "executor": "gsd-executor",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "current_plan": "253-09",
+  "pending": [
+    "253-09",
+    "253-11",
+    "253-10",
+    "253-12",
+    "253-13",
+    "253-14"
+  ],
+  "requirements_accepted": false,
+  "phase_verification": "not_started"
+}

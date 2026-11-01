@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-24T22:52:09.781283+00:00",
+  "status": "passed",
+  "scope": "Local development checks only; zero hosted acceptance samples. PR source feasibility remains blocked.",
+  "implementation_sha256": "125cb750fc33d4683d2bbf247dcfa0b6de91ebd9fdb013c155b3f8ccbcebb08f",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-B",
+        "scripts/ci/ci-repaired-comparison.test.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.243,
+      "log": "CHECK-1.log",
+      "log_sha256": "fcecbac46049fd8bec5b563d087352b725988dd31f7f557d119bbb1a32371f17"
+    },
+    {
+      "argv": [
+        "node",
+        "--test",
+        "scripts/ci/ci-prep-semantics.test.mjs",
+        "scripts/ci/ci-measure-workflow.test.mjs"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.101,
+      "log": "CHECK-2.log",
+      "log_sha256": "0ba3dd6f9e89eeaf8e35203abd525d0f13884755c54e4e3654574660d466c851"
+    },
+    {
+      "argv": [
+        "bash",
+        "scripts/ci/ci-run-metrics-comparison.test.sh"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 51.22,
+      "log": "CHECK-3.log",
+      "log_sha256": "d82de4b2f88975da9e7950ab46c4a327ead79dbc48edca77d332596374ed7b36"
+    }
+  ]
+}

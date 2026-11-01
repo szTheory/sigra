@@ -1,0 +1,13 @@
+{
+  "block": false,
+  "passed": true,
+  "enabled": true,
+  "table": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIREL-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIREL-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n| CONTEXT.md | D-22 | \u2713 Covered |\n| CONTEXT.md | D-23 | \u2713 Covered |\n| CONTEXT.md | D-24 | \u2713 Covered |\n\n\u2713 All 26 items covered by plans\n",
+  "summary": "\u2713 All 26 items covered by plans",
+  "counts": {
+    "total": 26,
+    "covered": 26,
+    "uncovered": 0
+  },
+  "message": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIREL-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIREL-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n| CONTEXT.md | D-22 | \u2713 Covered |\n| CONTEXT.md | D-23 | \u2713 Covered |\n| CONTEXT.md | D-24 | \u2713 Covered |\n\n\u2713 All 26 items covered by plans\n"
+}

@@ -1,0 +1,10 @@
+{
+  "purpose": "Write-ahead recovery copy before aligning GSD state route after the v1.49 milestone audit.",
+  "captured_at": "2026-10-11T17:09:28Z",
+  "source_path": ".planning/STATE.md",
+  "source_git_status": "M .planning/STATE.md",
+  "source_sha256": "79cece3c0e399516b592dcc39641bf7340ce7051f084d562c43b42cb6d67585f",
+  "recovery_copy": "STATE.md",
+  "recovery_copy_sha256": "79cece3c0e399516b592dcc39641bf7340ce7051f084d562c43b42cb6d67585f",
+  "readback_verified": true
+}

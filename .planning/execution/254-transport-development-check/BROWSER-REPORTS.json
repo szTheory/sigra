@@ -1,0 +1,193 @@
+{
+  "status": "passed",
+  "executed_browser_cases": 108,
+  "owner_execution_counts": {
+    "admin_behavior": 43,
+    "admin_checkpoints": 3,
+    "demo_showcase": 4,
+    "design_gallery": 42,
+    "non_admin_smoke": 16
+  },
+  "reports": {
+    "example-playwright-admin_behavior-40054033393": [
+      {
+        "file": "RAW-after/raw/families/40054033393-attempt-1/artifacts/12544322593/admin-behavior.json",
+        "test_cases": 43,
+        "stats": {
+          "startTime": "2026-10-24T02:26:37.360Z",
+          "duration": 57717.689,
+          "expected": 43,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "statuses": {
+          "expected": 43
+        },
+        "kind": "execution",
+        "sha256": "79cdb693ea8caf76080da227eecaba01dde455e4800e47a37328d71dab8e5645"
+      },
+      {
+        "file": "RAW-after/raw/families/40054033393-attempt-1/artifacts/12544322593/playwright-report/admin-behavior.selection.json",
+        "test_cases": 43,
+        "stats": {
+          "startTime": "2026-10-24T02:26:35.794Z",
+          "duration": 590.5560000000002,
+          "expected": 0,
+          "skipped": 43,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "statuses": {
+          "skipped": 43
+        },
+        "kind": "selection_inventory",
+        "sha256": "0200526304ea27da5a66c1e01deb70a7722e1fc40209b438bc980577dd853b47"
+      }
+    ],
+    "example-playwright-admin_checkpoints-40054033393": [
+      {
+        "file": "RAW-after/raw/families/40054033393-attempt-1/artifacts/12544896436/admin-checkpoints.json",
+        "test_cases": 3,
+        "stats": {
+          "startTime": "2026-10-24T02:26:28.273Z",
+          "duration": 56484.389,
+          "expected": 3,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "statuses": {
+          "expected": 3
+        },
+        "kind": "execution",
+        "sha256": "af8673c9d444d1f70c6b4eeda3aac8309cd340e6763f1d1d093e81774d8e1d41"
+      },
+      {
+        "file": "RAW-after/raw/families/40054033393-attempt-1/artifacts/12544896436/playwright-report/admin-checkpoints.selection.json",
+        "test_cases": 3,
+        "stats": {
+          "startTime": "2026-10-24T02:26:27.136Z",
+          "duration": 173.125,
+          "expected": 0,
+          "skipped": 3,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "statuses": {
+          "skipped": 3
+        },
+        "kind": "selection_inventory",
+        "sha256": "4389fb38d838a2d4ef316cbd0f98d4a22e15cdeed9767a17c2e30335d8c83033"
+      }
+    ],
+    "example-playwright-demo_showcase-40054033393": [
+      {
+        "file": "RAW-after/raw/families/40054033393-attempt-1/artifacts/12544656985/demo-showcase.json",
+        "test_cases": 4,
+        "stats": {
+          "startTime": "2026-10-24T02:26:05.212Z",
+          "duration": 7160.93,
+          "expected": 4,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "statuses": {
+          "expected": 4
+        },
+        "kind": "execution",
+        "sha256": "c6f02c1846fa2da799c8d8c73e968d11af3538431782f22e0ef8f03bddb3a2ac"
+      },
+      {
+        "file": "RAW-after/raw/families/40054033393-attempt-1/artifacts/12544656985/playwright-report/demo-showcase.selection.json",
+        "test_cases": 4,
+        "stats": {
+          "startTime": "2026-10-24T02:26:04.561Z",
+          "duration": 108.11000000000007,
+          "expected": 0,
+          "skipped": 4,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "statuses": {
+          "skipped": 4
+        },
+        "kind": "selection_inventory",
+        "sha256": "0c742848d71d5cc3fab32e92bc94a55747ed3019d272e13886cd9df7c6a05096"
+      }
+    ],
+    "example-playwright-design_gallery-40054033393": [
+      {
+        "file": "RAW-after/raw/families/40054033393-attempt-1/artifacts/12544342311/design-gallery-pr-behavior.json",
+        "test_cases": 42,
+        "stats": {
+          "startTime": "2026-10-24T02:26:10.091Z",
+          "duration": 67411.8,
+          "expected": 42,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "statuses": {
+          "expected": 42
+        },
+        "kind": "execution",
+        "sha256": "ba16fcc8723060daed7dd16cce5576584f7a6712834bc8c1be363c3928b19a50"
+      },
+      {
+        "file": "RAW-after/raw/families/40054033393-attempt-1/artifacts/12544342311/playwright-report/design-gallery-pr-behavior.selection.json",
+        "test_cases": 42,
+        "stats": {
+          "startTime": "2026-10-24T02:26:08.900Z",
+          "duration": 232.10199999999998,
+          "expected": 0,
+          "skipped": 42,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "statuses": {
+          "skipped": 42
+        },
+        "kind": "selection_inventory",
+        "sha256": "32bc2b600edbfd5356299eeb14efd60bcc23b2b7caeaf38fdc39dbc229cfee48"
+      }
+    ],
+    "example-playwright-non_admin_smoke-40054033393": [
+      {
+        "file": "RAW-after/raw/families/40054033393-attempt-1/artifacts/12544224372/non-admin-smoke.json",
+        "test_cases": 16,
+        "stats": {
+          "startTime": "2026-10-24T02:26:40.988Z",
+          "duration": 58144.314,
+          "expected": 16,
+          "skipped": 0,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "statuses": {
+          "expected": 16
+        },
+        "kind": "execution",
+        "sha256": "938a5c10edd95810eee22ca32bbbd5394e1cd277e8c6a0b12d079e9fd359f463"
+      },
+      {
+        "file": "RAW-after/raw/families/40054033393-attempt-1/artifacts/12544224372/playwright-report/non-admin-smoke.selection.json",
+        "test_cases": 16,
+        "stats": {
+          "startTime": "2026-10-24T02:26:39.747Z",
+          "duration": 274.8420000000001,
+          "expected": 0,
+          "skipped": 16,
+          "unexpected": 0,
+          "flaky": 0
+        },
+        "statuses": {
+          "skipped": 16
+        },
+        "kind": "selection_inventory",
+        "sha256": "c8c60ca16b404eec792f981f4ba1a9fa0866955cfc9c60b20fc690fda3022a87"
+      }
+    ]
+  }
+}

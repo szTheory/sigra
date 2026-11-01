@@ -1,0 +1,9 @@
+{
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "project": "admin-eval-dark",
+  "title": "render bundle: board-mg-9/populated",
+  "browser_invocations": 1,
+  "outcome": "browser_passed_pending_host_validation",
+  "warmup_status": 302,
+  "browser_exit": 0
+}

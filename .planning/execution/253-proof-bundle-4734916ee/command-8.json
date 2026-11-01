@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/runtime/ci-git-publication.py",
+    "--verify-publication",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-4734916ee/publication-receipt.json",
+    "--require-live-origin"
+  ],
+  "exit": 0,
+  "stdout": "publication receipt valid\n",
+  "stderr": ""
+}

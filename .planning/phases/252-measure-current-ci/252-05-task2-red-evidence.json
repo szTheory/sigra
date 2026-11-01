@@ -1,0 +1,10 @@
+{
+  "command": "node --test --test-reporter=tap scripts/ci/ci-run-metrics-replay.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: snapshot replay emits explicit zero-sample unknowns and distinct cost dimensions\nnot ok 1 - snapshot replay emits explicit zero-sample unknowns and distinct cost dimensions\n  ---\n  duration_ms: 90.361416\n  type: 'test'\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-run-metrics-replay.test.mjs:12:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    + actual - expected\n    \n    + undefined\n    - 'insufficient_data'\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 'insufficient_data'\n  actual: undefined\n  operator: 'strictEqual'\n  stack: |-\n    at TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-run-metrics-replay.test.mjs:42:12)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 127.795167",
+  "targetTest": "snapshot replay emits explicit zero-sample unknowns and distinct cost dimensions",
+  "targetFile": "scripts/ci/ci-run-metrics-replay.test.mjs",
+  "expected": "An empty but source-valid snapshot exposes explicit insufficient_data and unknown statuses instead of omitting the ranking fields or reporting zero cost.",
+  "actual": "The replay output omits ranked_by_wait, so the targeted status assertion receives undefined.",
+  "semanticAssessment": "The target test executed and failed on the planned replay-output assertion. Snapshot construction and CLI invocation succeeded; there were no fixture, import, syntax, or discovery errors."
+}

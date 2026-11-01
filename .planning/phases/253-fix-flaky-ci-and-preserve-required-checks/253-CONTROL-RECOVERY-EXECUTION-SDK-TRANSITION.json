@@ -1,0 +1,17 @@
+{
+  "schema": "sigra.phase253.control-recovery-execution-sdk/v1",
+  "command": "state.begin-phase",
+  "prior_commit": "7915aa826",
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "f107ea26bd5cb384dceb712edf8e6123b10dfe5002109608d6db285dc827fb01",
+      "bytes": 17587
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "e858b156d72151cf1a857882b7f33f7b43974d5c8ee61de5bfe17c1a3bc852b0",
+      "bytes": 768
+    }
+  ]
+}

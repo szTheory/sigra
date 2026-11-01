@@ -1,0 +1,307 @@
+{
+  "schema_version": "sigra.phase253.registration-control-freeze/v1",
+  "status": "frozen_before_results",
+  "frozen_at": "2026-10-13T22:03:22.755Z",
+  "source": {
+    "repository": "szTheory/sigra",
+    "checkout_head": "35b49354050660a0f808291e2422de108834ef87",
+    "blobs": {
+      "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+      "scripts/ci/ci-registration-recovery.mjs": "9a97675dab6fd8f2d7037101eb3203b668f06de8",
+      "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+      "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+      "test/example/priv/playwright/tests/admin-eval.spec.ts": "a9c9ff153634284c97a4428f8984015c91bccfbe",
+      "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+      "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+      "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+      ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+    }
+  },
+  "prior_artifacts": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json",
+      "sha256": "a2ca73dbdad8b4e00766d28b98f7841a9ac2233e7c481ea7fda309b5a310fdfb",
+      "role": "accepted sanitized Plan 15 retry and mobile proof"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-FREEZE-REVISION-03.json",
+      "sha256": "0a418e66508a60e75b3db74a35a563b9c5313032cfc7e3a889f041e76628ca6e",
+      "role": "Plan 15 source freeze"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+      "sha256": "0d1054b4628fd2287f89447f10644fa7a650dc15d43ca9d29eb5c025eb1b4960",
+      "role": "immutable initial failed desktop receipt"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-INFRASTRUCTURE-RETRY-REVIEW.json",
+      "sha256": "fd84291efe6a38673888e9d6e677219f6bc7ef1ae6ea6cfa061a3b4437f3bcbc",
+      "role": "independent infrastructure retry classification"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-SHARED-RETRY-USED.json",
+      "sha256": "a36f4625aad92e02521acc95013e7db18b36a7d2d8b454c3559ca2f02ce98ef9",
+      "role": "consumed one-use shared retry marker"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json",
+      "sha256": "cb97baa38d43ad59f3370114d9b493959264079d4a29e076e7e3b816741c9122",
+      "role": "earlier historical 3,768 ms failure receipt"
+    }
+  ],
+  "prior_ledger": {
+    "original_historical_ms": 3768,
+    "initial_failed_desktop_ms": 30116,
+    "shared_retry_ms": 46803,
+    "mobile_ms": 40993,
+    "total_charged_ms": 121680,
+    "physical_browser_launches": 3,
+    "consumed_shared_retry_count": 1,
+    "prior_used_slots": [
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE"
+    ]
+  },
+  "ledger": {
+    "slots": [
+      {
+        "id": "R-DIAG-CONTROL-DARK",
+        "sequence": 1,
+        "owner_plan": 16,
+        "kind": "diagnostic_with_controls",
+        "stage": "first",
+        "project": "admin-eval-dark",
+        "max_duration_ms": 120000,
+        "selected_titles": [
+          "render bundle: board-mg-9/populated",
+          "registration waits for explicitly released LiveView readiness",
+          "registration stops when LiveView readiness is never released",
+          "registration fails when the readiness wait is deliberately broken",
+          "registration detects a deliberate same-account collision",
+          "registration retains the first forced assertion failure trace"
+        ],
+        "argv": [
+          "--project=admin-eval-dark",
+          "--grep=(render bundle: board-mg-9/populated|registration waits for explicitly released LiveView readiness|registration stops when LiveView readiness is never released|registration fails when the readiness wait is deliberately broken|registration detects a deliberate same-account collision|registration retains the first forced assertion failure trace)",
+          "--workers=1",
+          "--retries=0",
+          "--trace=retain-on-failure"
+        ],
+        "expected": {
+          "render bundle: board-mg-9/populated": "pass",
+          "registration waits for explicitly released LiveView readiness": "pass",
+          "registration stops when LiveView readiness is never released": "expected_failure",
+          "registration fails when the readiness wait is deliberately broken": "expected_failure",
+          "registration detects a deliberate same-account collision": "pass",
+          "registration retains the first forced assertion failure trace": "expected_failure"
+        }
+      },
+      {
+        "id": "R-CONTROL-FIRST-DESKTOP",
+        "sequence": 2,
+        "owner_plan": 16,
+        "kind": "control",
+        "stage": "first",
+        "project": "admin-eval",
+        "max_duration_ms": 120000,
+        "selected_titles": [
+          "registration waits for explicitly released LiveView readiness",
+          "registration stops when LiveView readiness is never released",
+          "registration fails when the readiness wait is deliberately broken",
+          "registration detects a deliberate same-account collision",
+          "registration retains the first forced assertion failure trace"
+        ],
+        "argv": [
+          "--project=admin-eval",
+          "--grep=(registration waits for explicitly released LiveView readiness|registration stops when LiveView readiness is never released|registration fails when the readiness wait is deliberately broken|registration detects a deliberate same-account collision|registration retains the first forced assertion failure trace)",
+          "--workers=1",
+          "--retries=0",
+          "--trace=retain-on-failure"
+        ],
+        "expected": {
+          "registration waits for explicitly released LiveView readiness": "pass",
+          "registration stops when LiveView readiness is never released": "expected_failure",
+          "registration fails when the readiness wait is deliberately broken": "expected_failure",
+          "registration detects a deliberate same-account collision": "pass",
+          "registration retains the first forced assertion failure trace": "expected_failure"
+        }
+      },
+      {
+        "id": "R-CONTROL-FIRST-MOBILE",
+        "sequence": 3,
+        "owner_plan": 16,
+        "kind": "control",
+        "stage": "first",
+        "project": "admin-eval-mobile",
+        "max_duration_ms": 120000,
+        "selected_titles": [
+          "registration waits for explicitly released LiveView readiness",
+          "registration stops when LiveView readiness is never released",
+          "registration fails when the readiness wait is deliberately broken",
+          "registration detects a deliberate same-account collision",
+          "registration retains the first forced assertion failure trace"
+        ],
+        "argv": [
+          "--project=admin-eval-mobile",
+          "--grep=(registration waits for explicitly released LiveView readiness|registration stops when LiveView readiness is never released|registration fails when the readiness wait is deliberately broken|registration detects a deliberate same-account collision|registration retains the first forced assertion failure trace)",
+          "--workers=1",
+          "--retries=0",
+          "--trace=retain-on-failure"
+        ],
+        "expected": {
+          "registration waits for explicitly released LiveView readiness": "pass",
+          "registration stops when LiveView readiness is never released": "expected_failure",
+          "registration fails when the readiness wait is deliberately broken": "expected_failure",
+          "registration detects a deliberate same-account collision": "pass",
+          "registration retains the first forced assertion failure trace": "expected_failure"
+        }
+      },
+      {
+        "id": "R-CONTROL-SECOND-DESKTOP",
+        "sequence": 4,
+        "owner_plan": 16,
+        "kind": "control",
+        "stage": "second",
+        "project": "admin-eval",
+        "max_duration_ms": 120000,
+        "selected_titles": [
+          "registration starts from a fresh database and context",
+          "registration discards trace after a passing control"
+        ],
+        "pending_titles": [
+          "registration regression passes after an evidenced repair"
+        ],
+        "argv": [
+          "--project=admin-eval",
+          "--grep=(registration starts from a fresh database and context|registration discards trace after a passing control)",
+          "--workers=1",
+          "--retries=0",
+          "--trace=retain-on-failure"
+        ],
+        "expected": {
+          "registration starts from a fresh database and context": "pass",
+          "registration discards trace after a passing control": "pass"
+        }
+      },
+      {
+        "id": "R-CONTROL-SECOND-MOBILE",
+        "sequence": 5,
+        "owner_plan": 16,
+        "kind": "control",
+        "stage": "second",
+        "project": "admin-eval-mobile",
+        "max_duration_ms": 120000,
+        "selected_titles": [
+          "registration starts from a fresh database and context",
+          "registration discards trace after a passing control"
+        ],
+        "pending_titles": [
+          "registration regression passes after an evidenced repair"
+        ],
+        "argv": [
+          "--project=admin-eval-mobile",
+          "--grep=(registration starts from a fresh database and context|registration discards trace after a passing control)",
+          "--workers=1",
+          "--retries=0",
+          "--trace=retain-on-failure"
+        ],
+        "expected": {
+          "registration starts from a fresh database and context": "pass",
+          "registration discards trace after a passing control": "pass"
+        }
+      },
+      {
+        "id": "R-CONTROL-SECOND-DARK",
+        "sequence": 6,
+        "owner_plan": 16,
+        "kind": "control",
+        "stage": "second",
+        "project": "admin-eval-dark",
+        "max_duration_ms": 120000,
+        "selected_titles": [
+          "registration starts from a fresh database and context",
+          "registration discards trace after a passing control"
+        ],
+        "pending_titles": [
+          "registration regression passes after an evidenced repair"
+        ],
+        "argv": [
+          "--project=admin-eval-dark",
+          "--grep=(registration starts from a fresh database and context|registration discards trace after a passing control)",
+          "--workers=1",
+          "--retries=0",
+          "--trace=retain-on-failure"
+        ],
+        "expected": {
+          "registration starts from a fresh database and context": "pass",
+          "registration discards trace after a passing control": "pass"
+        }
+      }
+    ],
+    "total_browser_launch_ceiling": 18,
+    "d19": {
+      "cap_ms": 1200000,
+      "remaining_commands": 6,
+      "each_max_duration_ms": 120000,
+      "reserve_ms": 720000,
+      "infrastructure_retry_available": false
+    },
+    "d20": {
+      "cap_ms": 2160000,
+      "acceptance_slots_reserved": 9,
+      "each_max_duration_ms": 240000,
+      "retry_available": false
+    },
+    "shared_cap_ms": 3480000,
+    "no_capacity_added": true
+  },
+  "selection": {
+    "spec": "tests/admin-eval.spec.ts",
+    "workers": 1,
+    "retries": 0,
+    "trace": "retain-on-failure",
+    "fully_parallel": false,
+    "dark_combined_original_title": "render bundle: board-mg-9/populated",
+    "first_titles": [
+      "registration waits for explicitly released LiveView readiness",
+      "registration stops when LiveView readiness is never released",
+      "registration fails when the readiness wait is deliberately broken",
+      "registration detects a deliberate same-account collision",
+      "registration retains the first forced assertion failure trace"
+    ],
+    "second_active_titles": [
+      "registration starts from a fresh database and context",
+      "registration discards trace after a passing control"
+    ],
+    "second_pending_title": "registration regression passes after an evidenced repair",
+    "projects": [
+      "admin-eval",
+      "admin-eval-mobile",
+      "admin-eval-dark"
+    ]
+  },
+  "exunit_ownership": {
+    "source_blobs": {
+      "test/example/test/support/data_case.ex": "f16111b2f09b8382961ec66ffffd7ee57cb2c1d1",
+      "test/support/postgres_case.ex": "e58e1b9095d7c541b67f450198445e920ec6e70b"
+    },
+    "observed_boundary": "Browser controls use a live MIX_ENV=dev database; ExUnit continues to use the existing Sandbox owner and allowance lifecycle. No ExUnit suite or seed ran in Plan 16."
+  },
+  "tools": {
+    "playwright_required": "1.59.1",
+    "ecto_sql": "3.13.5",
+    "phoenix_live_view": "1.1.28",
+    "observed_from_accepted_plan15_native_attempt": true
+  },
+  "stop_conditions": [
+    "source or prior receipt mismatch",
+    "unused 120,000 ms reserve does not fit",
+    "setup/readiness/drop/build cleanup failure",
+    "native report/trace mismatch",
+    "unexpected skip or assertion",
+    "collision or database/context identity mismatch",
+    "shared launch ceiling or D-19 clock exhaustion"
+  ],
+  "freeze_sha256": "bc11e55db19b01d8cdd38fc2d9f260757be439aa815566af4e15cb84456246e2"
+}

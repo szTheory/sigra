@@ -1,0 +1,6 @@
+Compiling 161 files (.ex)
+Generated sigra app
+Generating docs...
+View html docs at "doc/index.html"
+View markdown docs at "doc/llms.txt"
+PASS: generated docs index matches Git-indexed doc/llms.txt

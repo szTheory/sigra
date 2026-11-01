@@ -1,0 +1,31 @@
+{
+  "ref": "refs/evidence/phase254-before-live-parity-running-state",
+  "commit": "f66d32198c60c4a20d9093d280da6a2f3b9a6750",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "40b1a702b5e5794c87348da59ac5a73324aa62c6f2f646c910976e29114a3234",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "61a9ec996512fff91ae816dd86bf7cc0c6497b77faca4a5dbcc0f1a773ebaf98",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "57049668ea9196b214f16c186c5d642605088109acf2c4ee2eeea342eb349600",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/254-CONTINUATION.json",
+      "status": "clean",
+      "sha256": "ce5a89e7b475ca6510f77e49ca580f1aaebaebeccd1782a0c35cc659dc94f587",
+      "readback_verified": true
+    }
+  ],
+  "readback_verified": true
+}

@@ -1,0 +1,37 @@
+{
+  ".planning/STATE.md": {
+    "commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
+    "sha256": "e3fad1192aa83a13910803aa605cf0f40f60df2edbcfab05ee34fc1a1f2bd317",
+    "readback_verified": true
+  },
+  ".planning/state.json": {
+    "commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
+    "sha256": "490b29db3af1df50b5bf1f73088908c8f8c96ea14c357edb0d551b599e098700",
+    "readback_verified": true
+  },
+  ".planning/HANDOFF.json": {
+    "commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
+    "sha256": "bb53aafeb568987becea8c0ebd623dae423e221d1990ff567b117b8f01dc4338",
+    "readback_verified": true
+  },
+  ".planning/REQUIREMENTS.md": {
+    "commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
+    "sha256": "5f3c20567c4c59ecb451a8d6b9f00139d96112e085314c6d184e7df6d58fd863",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+    "commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
+    "sha256": "a39d04b07766907af709852802b022a89117fee919a8117fd92b3ff0b1d600ab",
+    "readback_verified": true
+  },
+  ".planning/execution/253-registration-order-recovery/README.md": {
+    "commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
+    "sha256": "d70d6d964b8d16294fc34a156fdef9927bae03ef53664706eb3d0ea5d5ead505",
+    "readback_verified": true
+  },
+  ".planning/execution/253-registration-order-recovery/CHECKS.json": {
+    "commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
+    "sha256": "473763a86ae256e06405217f1ab61167afcc4664ed91e49de7c6992e0943ec7a",
+    "readback_verified": true
+  }
+}

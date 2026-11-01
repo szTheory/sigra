@@ -1,0 +1,37 @@
+{
+  ".planning/STATE.md": {
+    "commit": "6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5",
+    "sha256": "c42730401ff197598d91b9b03d251cf159254846c8d567809cb6973dfcfe6957",
+    "readback_verified": true
+  },
+  ".planning/state.json": {
+    "commit": "6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5",
+    "sha256": "f9c16da5232aeb29455c4dd450af9f98b2835daa13b40ae88744fc80b96fbe17",
+    "readback_verified": true
+  },
+  ".planning/HANDOFF.json": {
+    "commit": "6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5",
+    "sha256": "93b3778c5a21855dd448d4b5601cdf90705ae6e5ab384af995c07d038cd2e2b5",
+    "readback_verified": true
+  },
+  ".planning/execution/253-CONTINUATION.json": {
+    "commit": "6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5",
+    "sha256": "e91e7e30f9948f58b24c47d336f9e3ae3642d00b84d28fbdb8f16f7c58086254",
+    "readback_verified": true
+  },
+  ".planning/debug/phase253-registration-timeout.md": {
+    "commit": "6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5",
+    "sha256": "2323d36b085f7923878e3181508f525e391b0d75bf091ff78d9f809b24c6be42",
+    "readback_verified": true
+  },
+  ".planning/debug/phase253-registration-timeout/REPORT.md": {
+    "commit": "6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5",
+    "sha256": "1ba791ae9be6759fd514e5f18ac01c63d2e83982f7ccbf47fb59bfa4b9cfe9da",
+    "readback_verified": true
+  },
+  ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CURRENT-REQUIREMENT-REVIEW.md": {
+    "commit": "6a0b66f014e4b51ff6d3ca6cf43de8459d0a1ca5",
+    "sha256": "9b0cdb2d35708de860c1ad2e8befc7aa1529bcaf1941e41db0502a7f4ae171e8",
+    "readback_verified": true
+  }
+}

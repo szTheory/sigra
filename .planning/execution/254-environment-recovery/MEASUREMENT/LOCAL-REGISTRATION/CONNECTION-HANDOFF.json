@@ -1,0 +1,8 @@
+{
+  "scope": "isolated local archive only",
+  "source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "file": "/tmp/sigra254-baseline-registration-bk90_9ri/test/example/priv/static/assets/js/app.js",
+  "before_sha256": "77fe65190f721b8e87c34154a850ee5c145a34a8ddfa119b0b63ccbaaaa572e2",
+  "after_sha256": "a4621cbb6407ac8296e9a29f783bf4168906a72670d3652e966eca66c381a3bc",
+  "change": "guard old physical callbacks and reset channel errors after deliberate old connection close before new transport"
+}

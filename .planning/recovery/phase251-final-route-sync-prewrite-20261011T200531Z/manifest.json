@@ -1,0 +1,20 @@
+{
+  "purpose": "Exact current Phase 251 state and handoff bytes before removing stale checker-pending route text",
+  "captured_at": "2026-10-11T20:05:31Z",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "git_status": "M .planning/STATE.md",
+      "sha256": "fc31d179fddedc32859309dbb6f5b8034a62f664faa26e88f0a27635a9dbd3d7",
+      "bytes": 8947,
+      "recovery_path": ".planning/recovery/phase251-final-route-sync-prewrite-20261011T200531Z/.planning/STATE.md"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "git_status": "M .planning/HANDOFF.json",
+      "sha256": "b29bc13b0cb62f4bb304cc1e69709b155980f1f95cd88583c3d87522111fa67f",
+      "bytes": 78903,
+      "recovery_path": ".planning/recovery/phase251-final-route-sync-prewrite-20261011T200531Z/.planning/HANDOFF.json"
+    }
+  ]
+}

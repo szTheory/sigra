@@ -1,0 +1,71 @@
+TAP version 13
+# Subtest: reporter records startup errors before any test-end events
+not ok 1 - reporter records startup errors before any test-end events
+  ---
+  duration_ms: 11.238667
+  location: '/Users/jon/projects/sigra/scripts/ci/ci-browser-diagnostics.test.mjs:21:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'context_not_created'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'context_not_created'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-browser-diagnostics.test.mjs:33:12)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    node:internal/test_runner/harness:255:12
+    node:internal/process/task_queues:140:7
+    AsyncResource.runInAsyncScope (node:async_hooks:206:9)
+    AsyncResource.runMicrotask (node:internal/process/task_queues:137:8)
+  ...
+# Subtest: reporter marks browser-launch failures as missing-context evidence
+not ok 2 - reporter marks browser-launch failures as missing-context evidence
+  ---
+  duration_ms: 4.744833
+  location: '/Users/jon/projects/sigra/scripts/ci/ci-browser-diagnostics.test.mjs:37:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+    
+    + undefined
+    - 'context_not_created'
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'context_not_created'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-browser-diagnostics.test.mjs:44:12)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: onTestEnd preserves the established schema while adding invocation identity
+ok 3 - onTestEnd preserves the established schema while adding invocation identity
+  ---
+  duration_ms: 5.125292
+  ...
+# Subtest: local reproduction exposes retained native failure, startup and termination modes
+ok 4 - local reproduction exposes retained native failure, startup and termination modes
+  ---
+  duration_ms: 54.216834
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 2
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 107.017458

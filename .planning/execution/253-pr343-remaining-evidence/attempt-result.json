@@ -1,0 +1,17 @@
+{
+  "ci_launch_status": "run_ids_discovered",
+  "docs_pr_creation_count": 1,
+  "ledger_sha256": "b2067bc960a8538ecfc1191b433ce69431f299dfa5e3b0b1f991739026f0f0a9",
+  "state": {
+    "closed": true,
+    "closed_epoch": 1792696300,
+    "preserved_ledger_sha256": "b2067bc960a8538ecfc1191b433ce69431f299dfa5e3b0b1f991739026f0f0a9",
+    "proposal_sha256": "88645f424b4913c9a8c7609def7f5d4890065c5b0deaa7f3e1b334b053699c6d",
+    "started_epoch": 1792695959,
+    "status": "collected-and-independently-verified"
+  },
+  "workflow_run_discovery_count": 1,
+  "workflow_run_ids_discovered": [
+    "39837182521"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "commit": "a5167a9bf00d82c1d43226d788559c1b11fba545",
+  "initial_capture_boundary": "No dirty .planning paths; only pre-existing untracked scripts/ci/__pycache__/",
+  "preserved_revision": "Generated state.begin-phase output, before custom state refresh",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "22dd9eac6798b21551ac957636a7507c83570b7d0596b7db74de6f448bdafe1a",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "fde922a24a0b2284fcdf2f82efdff56a543455060d2e7c64e40d870007cb0c7e",
+      "read_back_equal": true
+    }
+  ],
+  "prior_custom_state_source": "92275024483f"
+}

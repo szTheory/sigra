@@ -1,0 +1,10 @@
+{
+  "command": "bash scripts/ci/honest-skip-verdict.test.sh --unit-contract",
+  "exitCode": 1,
+  "output": "test_classifier_failure_cannot_authorize_docs_only_skips (__main__.UnitOwner.test_classifier_failure_cannot_authorize_docs_only_skips) ... FAIL\ntest_unit_body_omission_cannot_produce_green (__main__.UnitOwner.test_unit_body_omission_cannot_produce_green) ... ok\ntest_unit_negative_outcomes_are_preserved (__main__.UnitOwner.test_unit_negative_outcomes_are_preserved) ... ok\ntest_unit_result_is_owned_by_actual_verdict (__main__.UnitOwner.test_unit_result_is_owned_by_actual_verdict) ... ok\n\n======================================================================\nFAIL: test_classifier_failure_cannot_authorize_docs_only_skips (__main__.UnitOwner.test_classifier_failure_cannot_authorize_docs_only_skips)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<stdin>\", line 47, in test_classifier_failure_cannot_authorize_docs_only_skips\nAssertionError: 2 != 1 : honest-skip-verdict: FAIL: unknown arg: --classifier-result\n\n----------------------------------------------------------------------\nRan 4 tests in 0.661s\n\nFAILED (failures=1)",
+  "targetTest": "test_classifier_failure_cannot_authorize_docs_only_skips",
+  "targetFile": "scripts/ci/honest-skip-verdict.test.sh",
+  "expected": "A failed changes classifier with docs_only=true must be rejected as an unverified exemption, even if all reported lanes are green.",
+  "actual": "The helper has no classifier-result input and exits 2 on the unsupported argument before it can reject the claim.",
+  "semanticAssessment": "The intended unit test ran and failed because the helper does not accept or validate the classification result. No import/setup errors occurred, and the existing controls passed."
+}

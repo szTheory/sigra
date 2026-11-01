@@ -1,0 +1,208 @@
+Running ExUnit with seed: 473452, max_cases: 36
+Excluding tags: [:scaffold]
+
+...........................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+12:34:24.777 [error] OAuth callback for google: provider returned no email
+...................
+12:34:24.823 [error] OAuth UID/email mismatch: provider_uid provider_uid_123 maps to user 42 but email oauth@example.com belongs to user 99
+....
+12:34:24.823 [error] OAuth callback for google: provider returned no email
+...................................................................................................................................................................................
+
+  1) test 198-06: dep-off has one cleanup harness and no inline destructive alias (Sigra.Planning.Phase198ContributorDxContractTest)
+     test/sigra/planning/phase_198_contributor_dx_contract_test.exs:89
+     Assertion with =~ failed
+     code:  assert dep_off =~ "cmd bash scripts/ci/sigra-dep-off.sh"
+     left:  "\n        \"cmd python3 scripts/ci/ci-mix-receivers.py leg dep-off -- bash scripts/ci/sigra-dep-off.sh\"\n      "
+     right: "cmd bash scripts/ci/sigra-dep-off.sh"
+     stacktrace:
+       test/sigra/planning/phase_198_contributor_dx_contract_test.exs:98: (test)
+
+
+
+  2) test 198-01: mix ci has the ordered seven-leg contributor gate exactly once (Sigra.Planning.Phase198ContributorDxContractTest)
+     test/sigra/planning/phase_198_contributor_dx_contract_test.exs:25
+     Assertion with == failed
+     code:  assert Enum.map(Regex.scan(~r/"([^"]+)"/, entry), fn [_, leg] -> leg end) == expected
+     left:  ["format --check-formatted", "deps.get --check-locked",
+             "deps.unlock --check-unused",
+             "compile --warnings-as-errors",
+             "cmd python3 scripts/ci/ci-mix-receivers.py leg ordinary -- mix test --exclude scaffold",
+             "ci.install_golden", "sigra.dep_off"]
+     right: ["format --check-formatted", "deps.get --check-locked",
+             "deps.unlock --check-unused",
+             "compile --warnings-as-errors",
+             "test --exclude scaffold", "ci.install_golden",
+             "sigra.dep_off"]
+     stacktrace:
+       test/sigra/planning/phase_198_contributor_dx_contract_test.exs:38: (test)
+
+.********.........................................................................
+12:34:25.079 [warning] [Sigra] Hammer rate limiter unavailable, failing open
+.........................
+12:34:25.091 [error] OAuth callback for google: provider returned no email
+.................
+12:34:25.092 [info] The function passed as a handler with ID "test-oauth-login" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.............
+12:34:25.126 [info] The function passed as a handler with ID "test-oauth-register" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+............................................................................................................................................................................................................................................................................
+12:34:25.358 [info] The function passed as a handler with ID "test-rate-limited" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+...........................................................................................
+12:34:25.421 [error] OAuth callback for google: provider returned no email
+.......
+12:34:25.421 [error] OAuth authorize_url failed for failing: %{reason: :provider_error}
+................................................................................................................................................................................................................................................................................................................................................****.......................................................................................................................................
+[DX-02] getting-started.md reading estimate: 18.45 min total (2090 words / 10.45 min prose + 24 code blocks / 8.0 min skim)
+...........................................................................................................................................................................................................................................................................................................................
+12:34:26.169 [info] The function passed as a handler with ID "test-event-#Reference<0.660092736.713555974.95999>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+..................
+12:34:26.214 [info] The function passed as a handler with ID "test-exception-#Reference<0.660092736.713555978.95033>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+......................
+12:34:26.237 [info] [Sigra] auth.login.stop %{} %{user_id: 1, failed_attempts_before: 0}
+...........
+12:34:26.242 [info] The function passed as a handler with ID "test-event-defaults-#Reference<0.660092736.713555969.144906>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.............................................
+12:34:26.319 [info] The function passed as a handler with ID "test-span-#Reference<0.660092736.713555971.99191>" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.............................................................
+
+  3) test authenticated strict pass is reconciled exactly into FAST-01 and its residual (Sigra.Planning.Phase235Fast01SourceCompleteContractTest)
+     test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:169
+     ** (MatchError) no match of right hand side value:
+
+         {"sandbox-exec: sandbox_apply: Operation not permitted\n", 71}
+
+     code: {banner, 0} = System.cmd("bash", [@verifier], stderr_to_stdout: true)
+     stacktrace:
+       test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:170: (test)
+
+...........................................
+
+  4) test semantic fixture parsing stays isolated from the authenticated default path (Sigra.Planning.Phase235Fast01SourceCompleteContractTest)
+     test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:143
+     match (=) failed
+     code:  assert {"source_complete_offline_attestation_verified\n", 0} =
+              System.cmd("bash", [@verifier], stderr_to_stdout: true)
+     left:  {"source_complete_offline_attestation_verified\n", 0}
+     right: {"sandbox-exec: sandbox_apply: Operation not permitted\n", 71}
+     stacktrace:
+       test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:149: (test)
+
+................................................................................................................................................................................................................................................................................................................
+
+  5) test scaffold modules have one explicit ci.install_golden receiver and are excluded from broad test (Sigra.Planning.Phase233LibraryEconomicsContractTest)
+     test/sigra/planning/phase_233_library_economics_contract_test.exs:49
+     Assertion with == failed
+     code:  assert ci_legs(mix_exs) == [
+              "format --check-formatted",
+              "deps.get --check-locked",
+              "deps.unlock --check-unused",
+              "compile --warnings-as-errors",
+              "test --exclude scaffold",
+              "ci.install_golden",
+              "sigra.dep_off"
+            ]
+     left:  ["format --check-formatted", "deps.get --check-locked",
+             "deps.unlock --check-unused",
+             "compile --warnings-as-errors",
+             "cmd python3 scripts/ci/ci-mix-receivers.py leg ordinary -- mix test --exclude scaffold",
+             "ci.install_golden", "sigra.dep_off"]
+     right: ["format --check-formatted", "deps.get --check-locked",
+             "deps.unlock --check-unused",
+             "compile --warnings-as-errors",
+             "test --exclude scaffold", "ci.install_golden",
+             "sigra.dep_off"]
+     stacktrace:
+       test/sigra/planning/phase_233_library_economics_contract_test.exs:57: (test)
+
+..........................................................
+12:34:27.428 [info] The function passed as a handler with ID "backfill-test-9606" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+..
+12:34:27.431 [info] The function passed as a handler with ID "backfill-done-23436" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+...............
+12:34:27.472 [info] The function passed as a handler with ID "audit-ms-rollback-34562" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+12:34:27.682 [info] The function passed as a handler with ID "audit-ms-34626" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.........
+12:34:27.797 [info] The function passed as a handler with ID {Sigra.AuditTelemetryTest, #Reference<0.660092736.713555973.108684>} is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+12:34:27.798 [info] The function passed as a handler with ID {Sigra.AuditTelemetryTest, #Reference<0.660092736.713555973.108695>} is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+..........................................
+12:34:28.155 [info] The function passed as a handler with ID "test-forward-error-3" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+12:34:28.157 [warning] [Sigra.Audit.Forwarders.Threadline] Caught exit: :boom
+.
+12:34:28.159 [info] The function passed as a handler with ID "test-forward-error-2" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+12:34:28.160 [warning] [Sigra.Audit.Forwarders.Threadline] Rescued RuntimeError: injected failure
+.
+12:34:28.161 [info] The function passed as a handler with ID "test-forward-error-4" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+12:34:28.161 [warning] [Sigra.Audit.Forwarders.Threadline] Caught throw: :nope
+.
+12:34:28.163 [info] The function passed as a handler with ID "test-forward-ok-6" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+12:34:28.165 [info] The function passed as a handler with ID "test-forward-ok-1" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+.
+12:34:28.168 [info] The function passed as a handler with ID "test-forward-error-5" is a local function.
+This means that it is either an anonymous function or a capture of a function without a module specified. That may cause a performance penalty when calling that handler. For more details see the note in `telemetry:attach/4` documentation.
+
+https://hexdocs.pm/telemetry/telemetry.html#attach/4
+
+12:34:28.169 [warning] [Sigra.Audit.Forwarders.Threadline] Rescued RuntimeError: forced Threadline failure
+...................................................................................................
+Finished in 4.0 seconds (2.7s async, 1.2s sync)
+33 doctests, 3 properties, 2659 tests, 5 failures, 12 skipped (22 excluded)

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T12:07:57Z",
+  "controller": {
+    "id": 38137539834,
+    "attempt": 1,
+    "workflow_id": 380517406,
+    "path": ".github/workflows/release-receipt-canary-controller.yml",
+    "event": "workflow_dispatch",
+    "ref": "refs/heads/main",
+    "sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "conclusion": "failure",
+    "started_at": "2026-10-11T11:58:59Z",
+    "completed_at": "2026-10-11T12:03:23Z",
+    "duration_seconds": 264,
+    "job_id": 114464403556,
+    "failed_step": "Read-only preflight and exact-run orchestration"
+  },
+  "source_failure": {
+    "id": 38137550871,
+    "attempt": 1,
+    "workflow_id": 380517407,
+    "path": ".github/workflows/release-receipt-canary.yml",
+    "event": "workflow_dispatch",
+    "ref": "refs/heads/main",
+    "sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "conclusion": "failure",
+    "created_at": "2026-10-11T11:59:08Z",
+    "updated_at": "2026-10-11T11:59:22Z",
+    "artifact_id": 11701436633
+  },
+  "source_cancellation": {
+    "id": 38137614523,
+    "attempt": 1,
+    "workflow_id": 380517407,
+    "path": ".github/workflows/release-receipt-canary.yml",
+    "event": "workflow_dispatch",
+    "ref": "refs/heads/main",
+    "sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "conclusion": "cancelled",
+    "created_at": "2026-10-11T12:00:12Z",
+    "updated_at": "2026-10-11T12:01:30Z"
+  },
+  "observer": {
+    "id": 38137756922,
+    "attempt": 1,
+    "workflow_id": 379162190,
+    "path": ".github/workflows/release-run-observer.yml",
+    "event": "workflow_dispatch",
+    "ref": "refs/heads/main",
+    "sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "conclusion": "success",
+    "created_at": "2026-10-11T12:02:18Z",
+    "updated_at": "2026-10-11T12:02:30Z",
+    "artifact_id": 11702216188
+  },
+  "outcome": {
+    "hosted_failure_receipt": "present_and_validated",
+    "hosted_cancellation_receipt": "present_and_validated",
+    "observer_receipt": "present_and_validated",
+    "controller_artifact_download": "failed",
+    "receipt_pair_validation": "passed",
+    "source_bound_proof_validation": "passed",
+    "additional_dispatches": 0,
+    "retries_authorized": false,
+    "credential_values_recorded": false
+  }
+}

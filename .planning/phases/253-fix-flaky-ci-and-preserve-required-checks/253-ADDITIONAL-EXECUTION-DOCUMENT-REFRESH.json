@@ -1,0 +1,63 @@
+{
+  "schema_version": "sigra.phase253.document-refresh/v1",
+  "recorded_at": "2026-10-13T23:30:15.910446+00:00",
+  "purpose": "Add normal spacing and readable numbers to current state and roadmap text; route, counts and failed outcomes unchanged.",
+  "prior_exact_readbacks": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "commit": "85260df027b1f56bab623dff1907e993fb8ec970",
+      "sha256": "da3a3c717fbe9015c8cf91edc807062395559c33ab4dfa66e2ac53a8dafdd194",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": "clean",
+      "commit": "85260df027b1f56bab623dff1907e993fb8ec970",
+      "sha256": "bc3adeef165e80f81d2a1e36b794ce3feac01d249b70444f83ab24d4f295d8f2",
+      "readback_exact": true
+    }
+  ],
+  "after_hashes": {
+    ".planning/STATE.md": "bd24652b166f7eea94bf8e87628c6ebd76a242c203516ff60524fc3794befcc3",
+    ".planning/ROADMAP.md": "3a1a1218606b299c3edefda2064c1672f09a5d70f6597499eeaab7c6e940fd01"
+  },
+  "metadata_verification": {
+    "status": "passed",
+    "checks": {
+      "root_and_branch": true,
+      "json_parse": true,
+      "current_routes": true,
+      "markdown_route": true,
+      "progress_counts": true,
+      "no_runnable_plan_or_pending_approval": true,
+      "no_phase_acceptance": true,
+      "finite_native_charge": true,
+      "publication_projection": true,
+      "requirements_not_accepted": true,
+      "roadmap_counts_and_route": true,
+      "prior_bytes_.planning/STATE.md": true,
+      "prior_bytes_.planning/state.json": true,
+      "prior_bytes_.planning/HANDOFF.json": true,
+      "prior_bytes_.planning/ROADMAP.md": true,
+      "prior_bytes_.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json": true,
+      "config_bytes": true,
+      "config_unstaged": true,
+      "captured_paths_unchanged_except_preserved_shared_state": true,
+      "native_bytes_.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json": true,
+      "native_bytes_.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json": true,
+      "native_bytes_.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json": true,
+      "requirement_checkboxes_open": true,
+      "later_phases_pending": true,
+      "blocked_summaries_absent": true
+    },
+    "check_count": 25,
+    "phase252_unchanged_paths": 94,
+    "initial_capture_unchanged_paths": 263,
+    "all_25_plans_unchanged": true,
+    "completed_plan_count": 10,
+    "phase_verification_status": "not_started",
+    "next_command": "$gsd-plan-phase 253"
+  },
+  "exit_code": 0
+}

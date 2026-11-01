@@ -1,0 +1,318 @@
+{
+  "schema": "sigra.phase253.hosted-canary-execution/v1",
+  "plan": "253-170",
+  "status": "complete",
+  "approval_text": "yes u can run it",
+  "operator": "Codex, explicitly authorized by Jon in conversation",
+  "entry": {
+    "head": "19b1a2a3bf34f1f196b3a9db3ec99d64fc949b56",
+    "approval_text": "yes u can run it",
+    "files": {
+      "config.json": {
+        "sha256": "225737694e79b502993ffa4a64a8e437d758711432aca20da8caa18ef3e52f7c",
+        "bytes": 1821
+      },
+      "state.json": {
+        "sha256": "3fa108a202240b22c94c88d3cd45f0646c978426ff480e969312a324212c00ee",
+        "bytes": 115905
+      },
+      "STATE.md": {
+        "sha256": "2325cbff0ef8c1eba1926ba1fe9d9354b0f33fc0fe33ec058c6e038c78cf170a",
+        "bytes": 34149
+      },
+      "HANDOFF.json": {
+        "sha256": "c95df4a1a9c5699a447dcbb7657dab26aad229c7fbc1ed8bfeab4e1c5bc33b08",
+        "bytes": 184599
+      }
+    }
+  },
+  "budget": {
+    "accounted_max_requests": 120,
+    "new_measured_max_requests": 117,
+    "max_requests": 117,
+    "request_count": 85,
+    "max_jobs": 45,
+    "actual_jobs": 37,
+    "max_minutes": 60,
+    "started_epoch": 1792604616,
+    "elapsed_seconds": 832
+  },
+  "categories": {
+    "artifact_downloads": {
+      "used": 10,
+      "limit": 12
+    },
+    "artifact_metadata": {
+      "used": 6,
+      "limit": 7
+    },
+    "attempt_jobs": {
+      "used": 7,
+      "limit": 7
+    },
+    "cancellation": {
+      "used": 1,
+      "limit": 1
+    },
+    "dispatch": {
+      "used": 7,
+      "limit": 7
+    },
+    "failure_logs": {
+      "used": 6,
+      "limit": 6
+    },
+    "infrastructure_retry": {
+      "used": 0,
+      "limit": 5
+    },
+    "pre_watch_rate": {
+      "used": 7,
+      "limit": 7
+    },
+    "preflight": {
+      "used": 7,
+      "limit": 16
+    },
+    "publication": {
+      "used": 19,
+      "limit": 24
+    },
+    "run_discovery": {
+      "used": 7,
+      "limit": 7
+    },
+    "terminal_polls": {
+      "used": 8,
+      "limit": 18
+    }
+  },
+  "runs": {
+    "full-pass": {
+      "run_id": "39646563957",
+      "conclusion": "success"
+    },
+    "docs-only": {
+      "run_id": "39646864198",
+      "conclusion": "success"
+    },
+    "actual-failure": {
+      "run_id": "39647090310",
+      "conclusion": "failure"
+    },
+    "missing-seam": {
+      "run_id": "39647319381",
+      "conclusion": "failure"
+    },
+    "unexpected-skip": {
+      "run_id": "39647556494",
+      "conclusion": "failure"
+    },
+    "cancelled": {
+      "run_id": "39647788924",
+      "conclusion": "cancelled"
+    }
+  },
+  "verifier": {
+    "run_id": "39648174669",
+    "status": "passed"
+  },
+  "preflight": {
+    "total_count": 277,
+    "pages": 3,
+    "projected_pages": 4,
+    "actual_names_and_counts": {
+      "Publish Playwright site": 5,
+      "Docs-only receipt (FAST-05 true-branch evidence, not a merge gate)": 24,
+      "Tag namespace ruleset drift (live vs committed, not a merge gate)": 24,
+      "Demotion receipt (non-PR executed-set evidence, not a merge gate)": 24,
+      "Notify on red ci-gate (release-lane-rot)": 6,
+      "ci-gate": 6,
+      "Example Playwright smoke (full lifecycle)": 6,
+      "Library tests": 6,
+      "Install smoke (fresh phx.new + sigra.install)": 6,
+      "Example unit smoke (ExUnit + ConnTest)": 6,
+      "Example Playwright shard (design_gallery)": 6,
+      "Example HTTP smoke (boot + curl critical routes)": 6,
+      "Example Playwright shard (admin_checkpoints)": 6,
+      "Example Playwright shard (demo_showcase)": 6,
+      "Example Playwright shard (admin_behavior)": 6,
+      "Example Playwright shard (non_admin_smoke)": 6,
+      "Library tests (dep-off \u2014 Threadline absent)": 6,
+      "Recapture admin-checkpoint baselines (in-CI)": 6,
+      "Upgrade smoke (published source series -> local candidate)": 6,
+      "Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)": 6,
+      "Recapture admin-design baselines (in-CI)": 6,
+      "Generated admin Playwright smoke": 6,
+      "Library tests shard": 6,
+      "Install golden + idempotency contract (subprocess harness)": 6,
+      "Fast checks (milestone/installer/contracts/snapshot/ledger guards)": 6,
+      "Detect docs-only change": 6,
+      "Install matrix (flag combinations)": 6,
+      "Release ref guard": 6,
+      "Nightly probe (forced-failure self-test)": 6,
+      "Passkeys manual fallback smoke": 6,
+      "Install matrix (flag combinations) (--no-organizations)": 6,
+      "Install matrix (flag combinations) (--no-passkeys)": 6,
+      "Passkeys opt-out smoke": 6,
+      "Install matrix (flag combinations) (--no-organizations --no-passkeys)": 6,
+      "Dependabot": 11,
+      "Record cancelled release or canary run": 1,
+      "Notify on release-please publish/gate failure": 1,
+      "Record terminal release result": 1,
+      "Write the exact generated index and confirm fresh CI": 1,
+      "Publish to Hex.pm": 1,
+      "Verify CI is green on release SHA": 1,
+      "Build release candidate docs without write credentials": 1,
+      ".github/dependabot.yml": 1,
+      "Release Please": 1
+    },
+    "links": [
+      [
+        {
+          "destination": {
+            "has_query": true,
+            "host": "api.github.com",
+            "path": "/repositories/1207487684/commits/09df342a82e03c3d5d40173c912b70e827f7eadc/check-runs",
+            "port": null
+          },
+          "rel": "next"
+        },
+        {
+          "destination": {
+            "has_query": true,
+            "host": "api.github.com",
+            "path": "/repositories/1207487684/commits/09df342a82e03c3d5d40173c912b70e827f7eadc/check-runs",
+            "port": null
+          },
+          "rel": "last"
+        }
+      ],
+      [
+        {
+          "destination": {
+            "has_query": true,
+            "host": "api.github.com",
+            "path": "/repositories/1207487684/commits/09df342a82e03c3d5d40173c912b70e827f7eadc/check-runs",
+            "port": null
+          },
+          "rel": "prev"
+        },
+        {
+          "destination": {
+            "has_query": true,
+            "host": "api.github.com",
+            "path": "/repositories/1207487684/commits/09df342a82e03c3d5d40173c912b70e827f7eadc/check-runs",
+            "port": null
+          },
+          "rel": "next"
+        },
+        {
+          "destination": {
+            "has_query": true,
+            "host": "api.github.com",
+            "path": "/repositories/1207487684/commits/09df342a82e03c3d5d40173c912b70e827f7eadc/check-runs",
+            "port": null
+          },
+          "rel": "last"
+        },
+        {
+          "destination": {
+            "has_query": true,
+            "host": "api.github.com",
+            "path": "/repositories/1207487684/commits/09df342a82e03c3d5d40173c912b70e827f7eadc/check-runs",
+            "port": null
+          },
+          "rel": "first"
+        }
+      ],
+      [
+        {
+          "destination": {
+            "has_query": true,
+            "host": "api.github.com",
+            "path": "/repositories/1207487684/commits/09df342a82e03c3d5d40173c912b70e827f7eadc/check-runs",
+            "port": null
+          },
+          "rel": "prev"
+        },
+        {
+          "destination": {
+            "has_query": true,
+            "host": "api.github.com",
+            "path": "/repositories/1207487684/commits/09df342a82e03c3d5d40173c912b70e827f7eadc/check-runs",
+            "port": null
+          },
+          "rel": "first"
+        }
+      ]
+    ]
+  },
+  "redirect_hops": [
+    {
+      "route": "artifact_zip",
+      "host": "productionresultssa17.blob.core.windows.net",
+      "hop": 1,
+      "count": 1
+    },
+    {
+      "route": "artifact_zip",
+      "host": "productionresultssa14.blob.core.windows.net",
+      "hop": 1,
+      "count": 1
+    },
+    {
+      "route": "run_logs",
+      "host": "results-receiver.actions.githubusercontent.com",
+      "hop": 1,
+      "count": 3
+    },
+    {
+      "route": "artifact_zip",
+      "host": "productionresultssa18.blob.core.windows.net",
+      "hop": 1,
+      "count": 1
+    },
+    {
+      "route": "artifact_zip",
+      "host": "productionresultssa1.blob.core.windows.net",
+      "hop": 1,
+      "count": 1
+    },
+    {
+      "route": "artifact_zip",
+      "host": "productionresultssa3.blob.core.windows.net",
+      "hop": 1,
+      "count": 1
+    }
+  ],
+  "sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION-R13.json": "7f78c451eef4f8d1c42abf9e01d18258fa7faf4345fa7f91806be80cc9848de8",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R13-PREFLIGHT-effective-rules.json": "be0842c45869a3874be18438b085374418aae5b7abd442bb8df946dd9b202051",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R13-PREFLIGHT-registered-workflow.json": "963957343ba110ce175bd31d6551e7a8ce3f11d2fbfec453a7922d268c9726cd",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-RECEIPT-R13.json": "da44d088757e7862ba262bf0210f1409200caf9801f3c3eae315819f64a80c55",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R13-PREFLIGHT-check-runs.json": "af0923c831ee2c772c0f643598579fec33f1f973f711756a1733c99d551d0bb3",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R13.json": "e15f52f16a8630c15ec892d7cb3edac0cff2b5bfb7c11aadeb7c95d637d401c2",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R13-PREFLIGHT-rate.json": "ee2b3f8c1bf5076d8b1ea21ebe66265a1e77463ebcf6de5a7ce3077a0b1940fd",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R13-PREFLIGHT-legacy-protection.json": "d6020ee3b0852c3deb66c66d159cc80caabeaa66ee301778307a2a18d486450d",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-EVIDENCE-R13.json": "d77f7a8cdbbd190fad9fd43be4f260b6066e0f2bf9712bbb43e69740a133888c",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ACTION-APPROVAL-R13.json": "af2e2ba12cd6f109eb786fbc5a5587ee1ff68b58f96e118d9e4cd240e422a456"
+  },
+  "raw_evidence": {
+    ".planning/execution/253-170/entry.json": "168e4876e6a76b4d049456049330c6076c2316436fae89b4fbb4a8ce31c32636",
+    ".planning/execution/253-170/task4-verify.sh": "5ffb065ea2fc84746d5b2a605a3e78b73e1077d85f7edbeba980eccdc39ec415",
+    ".planning/execution/253-170/task2.log": "4b3f3735f7a4c0430192875a2d813059bc448c8a5a79997db061fad17134cfb0",
+    ".planning/execution/253-170/self-check.log": "bec88ba449f88016e575d016420e25e5a9e77475266dad4ddf4f3c35c603cf06",
+    ".planning/execution/253-170/task4.log": "23112d54a333dec676340173f8a54b8bc45a0ffc85bbdadaed827aa410b2fa8b",
+    ".planning/execution/253-170/task2-verify.sh": "032d81485a42e0a03074189ecd3440e7c4d10bd6cb0c7ef93827c14013501c9b",
+    ".planning/execution/253-170/live-step2.log": "74fd334dc10c02999bc1d1a2d389618802f974da208de86be1543278676af05d",
+    ".planning/execution/253-170/live-step1.log": "dd4dcec4a9953af3760e4577f7af1178886646686953402ae551dcb5edbb4642"
+  },
+  "acceptance179_reruns": 0,
+  "budgets_renewed": false,
+  "phase_verification_status": "not_started",
+  "next_plan": "253-171",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 7",
+  "next_command_conditional": true,
+  "required_decision": "Separate docs_and_prs approval; not covered by canary approval"
+}

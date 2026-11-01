@@ -1,0 +1,37 @@
+{
+  "schema": "sigra.phase253.control-recovery-wave-checks/v1",
+  "wave": 1,
+  "plan": "253-26",
+  "source_head": "1fb97545dc3bb7b959df5199fb74847df5dfcee6",
+  "node20_tests": {
+    "passed": 11,
+    "failed": 0
+  },
+  "assessment_check_exit": 0,
+  "schema_drift": {
+    "block": false,
+    "drift_detected": false
+  },
+  "codebase_drift": {
+    "block": false,
+    "skipped": true,
+    "reason": "no-structure-md"
+  },
+  "ui_safety_gate": {
+    "argv": [
+      "check",
+      "ui-safety-gate",
+      "253",
+      "--raw"
+    ],
+    "frontend": false,
+    "hasUiFiles": false,
+    "hasUiSpec": false,
+    "block": false
+  },
+  "command_resolution_diagnostic": "The hook query label ui.safety-gate is not a direct installed CLI verb. Installed check ui-safety-gate 253 executes its actual gate; prior unsupported spellings were rejected, not counted as successful. Audit CLI uses --check-assessment, not --check.",
+  "ready_plans": [
+    "253-27"
+  ],
+  "phase_verification": "not_started"
+}

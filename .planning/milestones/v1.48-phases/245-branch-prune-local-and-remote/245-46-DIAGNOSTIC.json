@@ -1,0 +1,547 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": 46,
+  "status": "blocked_unlocalized",
+  "captured_at_utc": "2026-10-05T22:18:36.006Z",
+  "operation": "public tracking --apply in disposable production-cardinality fixtures",
+  "command": {
+    "executable": "node",
+    "argv": [
+      "--test",
+      "--test-name-pattern=production-scale tracking source latency",
+      "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs"
+    ]
+  },
+  "fixture": {
+    "local_ref_count": 155,
+    "origin_ref_count": 360,
+    "open_pr_count": 14,
+    "identities": "synthetic and unique; 14 distinct PR numbers, head refs, and head commit OIDs",
+    "scenarios": [
+      {
+        "name": "held_github_rest_page",
+        "source_counts": {
+          "local_ref_count": 155,
+          "origin_ref_count": 360,
+          "open_pr_count": 14
+        },
+        "delay_ms": 0,
+        "watchdog_ms": {
+          "silence": 1500,
+          "total": 10000
+        },
+        "outcome": {
+          "status": null,
+          "signal": "SIGINT",
+          "interrupted": {
+            "at": "2026-10-05T22:15:52.385Z",
+            "reason": "silence_limit",
+            "signal": "SIGINT"
+          },
+          "target_after": "exact_present"
+        },
+        "local_refs_exact_except_target": true,
+        "origin_refs_unchanged": true,
+        "elapsed_source_ms": 1087.535625
+      },
+      {
+        "name": "zero_latency",
+        "source_counts": {
+          "local_ref_count": 155,
+          "origin_ref_count": 360,
+          "open_pr_count": 14
+        },
+        "delay_ms": 0,
+        "watchdog_ms": {
+          "silence": 90000,
+          "total": 180000
+        },
+        "outcome": {
+          "status": 0,
+          "signal": null,
+          "interrupted": null,
+          "target_after": "absent"
+        },
+        "local_refs_exact_except_target": true,
+        "origin_refs_unchanged": true,
+        "elapsed_source_ms": 620.7932089999999
+      },
+      {
+        "name": "injected_35ms_per_source_call",
+        "source_counts": {
+          "local_ref_count": 155,
+          "origin_ref_count": 360,
+          "open_pr_count": 14
+        },
+        "delay_ms": 35,
+        "watchdog_ms": {
+          "silence": 90000,
+          "total": 180000
+        },
+        "outcome": {
+          "status": 0,
+          "signal": null,
+          "interrupted": null,
+          "target_after": "absent"
+        },
+        "local_refs_exact_except_target": true,
+        "origin_refs_unchanged": true,
+        "elapsed_source_ms": 1325.2080009999997
+      }
+    ]
+  },
+  "external_source_spans": [
+    {
+      "scenario": "held_github_rest_page",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654230531517666",
+      "ended_ns": "1654230581632041",
+      "elapsed_ms": 50.114375,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "held_github_rest_page",
+      "stage": "github_rest_paging",
+      "endpoint": "api rate_limit",
+      "started_ns": "1654230627945708",
+      "ended_ns": "1654230647927250",
+      "elapsed_ms": 19.981542,
+      "status": 0,
+      "row_count": 0,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "held_github_rest_page",
+      "stage": "github_cli",
+      "endpoint": "pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository",
+      "started_ns": "1654230686520000",
+      "ended_ns": "1654230709947083",
+      "elapsed_ms": 23.427083,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "held_github_rest_page",
+      "stage": "github_rest_paging",
+      "endpoint": "api /repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+      "started_ns": "1654230755792750",
+      "ended_ns": "1654231749805375",
+      "elapsed_ms": 994.012625,
+      "status": 129,
+      "row_count": 0,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654232134540875",
+      "ended_ns": "1654232183229833",
+      "elapsed_ms": 48.688958,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "github_rest_paging",
+      "endpoint": "api rate_limit",
+      "started_ns": "1654232227816625",
+      "ended_ns": "1654232246646583",
+      "elapsed_ms": 18.829958,
+      "status": 0,
+      "row_count": 0,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "github_cli",
+      "endpoint": "pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository",
+      "started_ns": "1654232285373708",
+      "ended_ns": "1654232306454000",
+      "elapsed_ms": 21.080292,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "github_rest_paging",
+      "endpoint": "api /repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+      "started_ns": "1654232345501500",
+      "ended_ns": "1654232366703291",
+      "elapsed_ms": 21.201791,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654240934145666",
+      "ended_ns": "1654240988988750",
+      "elapsed_ms": 54.843084,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654263173464250",
+      "ended_ns": "1654263236018708",
+      "elapsed_ms": 62.554458,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654268967244875",
+      "ended_ns": "1654269016289000",
+      "elapsed_ms": 49.044125,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654290639172958",
+      "ended_ns": "1654290688787250",
+      "elapsed_ms": 49.614292,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654290957809583",
+      "ended_ns": "1654291006044041",
+      "elapsed_ms": 48.234458,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "github_rest_paging",
+      "endpoint": "api rate_limit",
+      "started_ns": "1654291049058166",
+      "ended_ns": "1654291073499125",
+      "elapsed_ms": 24.440959,
+      "status": 0,
+      "row_count": 0,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "github_cli",
+      "endpoint": "pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository",
+      "started_ns": "1654291114008083",
+      "ended_ns": "1654291134928041",
+      "elapsed_ms": 20.919958,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "github_rest_paging",
+      "endpoint": "api /repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+      "started_ns": "1654291174995125",
+      "ended_ns": "1654291196701333",
+      "elapsed_ms": 21.706208,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654292098865791",
+      "ended_ns": "1654292149079583",
+      "elapsed_ms": 50.213792,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654292505902208",
+      "ended_ns": "1654292564451208",
+      "elapsed_ms": 58.549,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "github_rest_paging",
+      "endpoint": "api rate_limit",
+      "started_ns": "1654292617775416",
+      "ended_ns": "1654292639686041",
+      "elapsed_ms": 21.910625,
+      "status": 0,
+      "row_count": 0,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "github_cli",
+      "endpoint": "pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository",
+      "started_ns": "1654292686723416",
+      "ended_ns": "1654292710353750",
+      "elapsed_ms": 23.630334,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "zero_latency",
+      "stage": "github_rest_paging",
+      "endpoint": "api /repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+      "started_ns": "1654292755184708",
+      "ended_ns": "1654292780515625",
+      "elapsed_ms": 25.330917,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 0
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654332749268416",
+      "ended_ns": "1654332842678500",
+      "elapsed_ms": 93.410084,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "github_rest_paging",
+      "endpoint": "api rate_limit",
+      "started_ns": "1654332887731166",
+      "ended_ns": "1654332949628208",
+      "elapsed_ms": 61.897042,
+      "status": 0,
+      "row_count": 0,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "github_cli",
+      "endpoint": "pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository",
+      "started_ns": "1654332989272250",
+      "ended_ns": "1654333049429916",
+      "elapsed_ms": 60.157666,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "github_rest_paging",
+      "endpoint": "api /repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+      "started_ns": "1654333088944541",
+      "ended_ns": "1654333152931125",
+      "elapsed_ms": 63.986584,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654341381152083",
+      "ended_ns": "1654341487784166",
+      "elapsed_ms": 106.632083,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654363780936958",
+      "ended_ns": "1654363881155416",
+      "elapsed_ms": 100.218458,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654369669223166",
+      "ended_ns": "1654369761790375",
+      "elapsed_ms": 92.567209,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654391595290875",
+      "ended_ns": "1654391686640708",
+      "elapsed_ms": 91.349833,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654391950466500",
+      "ended_ns": "1654392045352166",
+      "elapsed_ms": 94.885666,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "github_rest_paging",
+      "endpoint": "api rate_limit",
+      "started_ns": "1654392097666333",
+      "ended_ns": "1654392159949583",
+      "elapsed_ms": 62.28325,
+      "status": 0,
+      "row_count": 0,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "github_cli",
+      "endpoint": "pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository",
+      "started_ns": "1654392201184583",
+      "ended_ns": "1654392263491375",
+      "elapsed_ms": 62.306792,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "github_rest_paging",
+      "endpoint": "api /repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+      "started_ns": "1654392306737291",
+      "ended_ns": "1654392372354375",
+      "elapsed_ms": 65.617084,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654393273229041",
+      "ended_ns": "1654393366263708",
+      "elapsed_ms": 93.034667,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "git_transport_ls_remote",
+      "endpoint": "",
+      "started_ns": "1654393754577333",
+      "ended_ns": "1654393847161375",
+      "elapsed_ms": 92.584042,
+      "status": 0,
+      "row_count": 360,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "github_rest_paging",
+      "endpoint": "api rate_limit",
+      "started_ns": "1654393893533375",
+      "ended_ns": "1654393951276750",
+      "elapsed_ms": 57.743375,
+      "status": 0,
+      "row_count": 0,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "github_cli",
+      "endpoint": "pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid,headRepository",
+      "started_ns": "1654393990464125",
+      "ended_ns": "1654394053086541",
+      "elapsed_ms": 62.622416,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 35
+    },
+    {
+      "scenario": "injected_35ms_per_source_call",
+      "stage": "github_rest_paging",
+      "endpoint": "api /repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+      "started_ns": "1654394091877875",
+      "ended_ns": "1654394155789625",
+      "elapsed_ms": 63.91175,
+      "status": 0,
+      "row_count": 14,
+      "injected_latency_ms": 35
+    }
+  ],
+  "latency_summary": {
+    "injected_per_call_ms": 35,
+    "delayed_source_call_count": 17,
+    "delayed_source_elapsed_ms": 1325.2080009999997,
+    "stages": [
+      "git_transport_ls_remote",
+      "github_cli",
+      "github_rest_paging"
+    ],
+    "interpretation": "Synthetic external-source delay is measured but cannot be linked causally to Plan 44, which recorded no production stage spans."
+  },
+  "cause": {
+    "kind": "synthetic_latency_only",
+    "stage": "fixture_external_sources",
+    "bounded_ms": 1325.2080009999997
+  },
+  "regression": {
+    "red_observed": false,
+    "green_observed": false,
+    "passed": false,
+    "reason": "No deterministic operator defect was reproduced; no repair was attempted."
+  },
+  "production_ref_operations": 0,
+  "production_refs_unchanged": true,
+  "plan45_result_sha256": "78d227ea6ffc5cd16e9c3518623ef727bb8442501bcdac96a7c52f595e2761b0",
+  "plan45_result_bytes_unchanged": true,
+  "repo_04_status": "open",
+  "live_admission_permitted": false,
+  "blockers": [
+    "fixture_latency_not_linked_to_plan44_production_stage",
+    "no_reproduced_operator_defect"
+  ],
+  "next_missing_signal": "A production-stage trace for Plan 44 is required to identify whether REST paging, Git transport, local validation, or coordinator work caused its 600713 ms silence."
+}

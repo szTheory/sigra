@@ -1,0 +1,5838 @@
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import { EventEmitter } from 'node:events';
+import fs from 'node:fs';
+import net from 'node:net';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { attemptDirectory, captureOwnedDatabaseAbsence, runLogged, validateSanitizedCommandLog, verifyDiagnosticData, verifyNativeAttempt, verifyRevisionFreezeBinding } from './ci-registration-recovery.mjs';
+import * as recovery from './ci-registration-recovery.mjs';
+import { createRegistrationNativeTreeFixture, fixtureFileSha256, SELECTED_TITLE, SYNTHETIC_LABEL } from './fixtures/registration-native-tree.mjs';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const runner = path.join(root, 'scripts/ci/ci-registration-repro.sh');
+const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-recovery-red-'));
+
+// Ordinary runner contracts must never open a server or socket (D-11). Any attempt is
+// recorded and refused; the final test of this file asserts the record stays empty.
+const networkAttempts = [];
+const originalConnect = net.Socket.prototype.connect;
+const originalListen = net.Server.prototype.listen;
+net.Socket.prototype.connect = function guardedConnect(...args) {
+  networkAttempts.push(['connect', JSON.stringify(args[0])]);
+  throw new Error('ordinary registration runner contracts must not open sockets');
+};
+net.Server.prototype.listen = function guardedListen(...args) {
+  networkAttempts.push(['listen', JSON.stringify(args[0])]);
+  throw new Error('ordinary registration runner contracts must not start servers');
+};
+
+test('diagnostic verification rejects caller-written success without native receipts', () => {
+  const evidence = path.join(temporary, 'forged-success.json');
+  fs.writeFileSync(evidence, JSON.stringify({
+    schema_version: 'sigra.phase253.registration-recovery-evidence/v1',
+    status: 'not_reproduced',
+    requirements: { 'CIREL-01': 'unsatisfied' },
+    attempts: [{ project: 'admin-eval', outcome: 'passed' }]
+  }));
+
+  const result = spawnSync(runner, ['--verify-diagnostic', evidence], { encoding: 'utf8' });
+
+  assert.equal(result.status, 3, `${result.stdout}\n${result.stderr}`);
+  assert.match(result.stderr, /native report|native receipts/i);
+});
+
+test('the original controls and acceptance verification modes remain unavailable', () => {
+  const evidence = path.join(temporary, 'legacy-forged.json');
+  fs.writeFileSync(evidence, JSON.stringify({ status: 'fixed', projects: [] }));
+
+  for (const mode of ['--verify-controls', '--verify-acceptance']) {
+    const result = spawnSync(runner, [mode, evidence], { encoding: 'utf8' });
+    assert.equal(result.status, 3, `${mode}: ${result.stdout}\n${result.stderr}`);
+  }
+});
+
+test('control verification requires native outcomes instead of caller-written passed status', () => {
+  assert.equal(typeof recovery.verifyControlEvidenceData, 'function');
+  const result = recovery.verifyControlEvidenceData(
+    { status: 'passed', attempts: [], limits: { used_slots: [] } },
+    {},
+    temporary,
+  );
+  assert.equal(result.ok, false);
+  assert.ok(result.errors.length > 0);
+});
+
+test('control recovery ledger carries every prior charge and maps each unused reservation once', () => {
+  assert.equal(typeof recovery.buildControlRecoveryLedger, 'function');
+  const ledger = recovery.buildControlRecoveryLedger({
+    charges: [3768, 3743, 26373, 46803, 40993, 121252, 112],
+    physicalPlaywrightLaunches: 4,
+    spentReservations: ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK'],
+    retryUsed: 1,
+    retryAvailable: 0,
+    preparationMaximumMs: 116232,
+    preparationUsedMs: 3743
+  });
+
+  assert.equal(ledger.prior_charge_ms, 243044);
+  assert.equal(ledger.preparation_remaining_ms, 112489);
+  assert.equal(ledger.launch_unit, 'playwright_cli_process');
+  assert.deepEqual(ledger.slots.map(({ id, maps_from, project }) => [id, maps_from, project]), [
+    ['CR-DARK-FIRST', 'R-CONTROL-FIRST-DESKTOP', ['admin-eval-dark']],
+    ['CR-DESKTOP-MOBILE-FIRST', 'R-CONTROL-FIRST-MOBILE', ['admin-eval', 'admin-eval-mobile']],
+    ['CR-DESKTOP-SECOND', 'R-CONTROL-SECOND-DESKTOP', ['admin-eval']],
+    ['CR-MOBILE-SECOND', 'R-CONTROL-SECOND-MOBILE', ['admin-eval-mobile']],
+    ['CR-DARK-SECOND', 'R-CONTROL-SECOND-DARK', ['admin-eval-dark']]
+  ]);
+  assert.equal(ledger.d19_max_ms, 955533);
+  assert.equal(ledger.total_max_ms, 3295533);
+});
+
+test('control recovery ledger refuses altered charges, reopened retries, or duplicate reservation mappings', () => {
+  assert.equal(typeof recovery.buildControlRecoveryLedger, 'function');
+  const valid = {
+    charges: [3768, 3743, 26373, 46803, 40993, 121252, 112],
+    physicalPlaywrightLaunches: 4,
+    spentReservations: ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK'],
+    retryUsed: 1,
+    retryAvailable: 0,
+    preparationMaximumMs: 116232,
+    preparationUsedMs: 3743
+  };
+  for (const mutate of [
+    (input) => { input.charges[5] = 121251; },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.push('R-CONTROL-FIRST-DESKTOP'); },
+    (input) => { input.physicalPlaywrightLaunches = 3; },
+    (input) => { input.preparationUsedMs = 3744; }
+  ]) {
+    const input = structuredClone(valid);
+    mutate(input);
+    assert.throws(() => recovery.buildControlRecoveryLedger(input), /historical|retry|reservation|launch|preparation/i);
+  }
+});
+
+function processGone(pid) {
+  try { process.kill(pid, 0); return false; } catch (error) { return error.code === 'ESRCH'; }
+}
+
+// Fixture process tree: the child spawns a grandchild that ignores SIGTERM, waits for the
+// grandchild's ready line, then publishes both PIDs atomically (write + rename) so the test can
+// wait on a directory event instead of sleeping.
+function treeScript(readyDir, { childExitsAfterReady = false } = {}) {
+  const grandchild = 'process.on("SIGTERM",()=>{}); process.stdout.write("READY "+process.pid+"\\n"); setInterval(()=>{},1e6)';
+  return `
+const fs = require("node:fs"); const path = require("node:path");
+const grandchild = require("node:child_process").spawn(process.execPath, ["-e", ${JSON.stringify(grandchild)}], { stdio: ["ignore", "pipe", "inherit"] });
+grandchild.stdout.once("data", (chunk) => {
+  const pids = { child: process.pid, grandchild: Number(String(chunk).trim().split(" ")[1]) };
+  const tmp = path.join(${JSON.stringify(readyDir)}, "tree.tmp");
+  fs.writeFileSync(tmp, JSON.stringify(pids));
+  fs.renameSync(tmp, path.join(${JSON.stringify(readyDir)}, "tree.json"));
+  ${childExitsAfterReady ? 'process.exit(0);' : 'process.on("SIGTERM", () => process.exit(0)); setInterval(() => {}, 1e6);'}
+});`;
+}
+
+// Waits on the condition (the atomically renamed tree.json), not on a sleep. fs.watch alone is not
+// enough on macOS: the FSEvents stream starts asynchronously, so a rename that lands before it is
+// running is never reported and the wait hangs (a source of the 253-39 load flake). A short
+// existence poll backs the watcher up; whichever sees the file first settles the wait once.
+function whenTreeReady(readyDir) {
+  const file = path.join(readyDir, 'tree.json');
+  return new Promise((resolve) => {
+    let watcher = null;
+    let poller = null;
+    const check = () => {
+      if (!poller || !fs.existsSync(file)) return;
+      clearInterval(poller); poller = null;
+      watcher?.close();
+      resolve(JSON.parse(fs.readFileSync(file, 'utf8')));
+    };
+    poller = setInterval(check, 20);
+    try { watcher = fs.watch(readyDir, check); } catch { /* the poll alone still settles the wait */ }
+    check();
+  });
+}
+
+test('bounded process runner terminates a stalled child and its grandchild and records the real timeout', { timeout: 30000 }, async () => {
+  const log = path.join(temporary, 'stalled-tree.log');
+  const childScript = 'require("node:child_process").spawn(process.execPath,["-e",' + JSON.stringify('setTimeout(()=>process.stdout.write("grandchild-finished\\n"),1800)') + '],{stdio:["ignore",1,2]}); setTimeout(()=>{},5000)';
+  const result = await recovery.runLoggedTree(process.execPath, ['-e', childScript], root, process.env, log, 350, 100);
+  assert.equal(result.timed_out, true);
+  assert.notEqual(result.signal, null);
+  assert.ok(result.duration_ms >= 350);
+  assert.equal(processGone(-result.pid), true, 'the whole owned process group is gone when the runner resolves');
+  assert.equal(fs.readFileSync(log, 'utf8').includes('grandchild-finished'), false);
+});
+
+test('abort escalates to SIGKILL for a SIGTERM-resistant grandchild after the child exits first', { timeout: 30000 }, async () => {
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-abort-'));
+  const controller = new AbortController();
+  const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 60000, 200, { signal: controller.signal });
+  const tree = await whenTreeReady(readyDir);
+  controller.abort();
+  const result = await pending;
+
+  assert.equal(result.aborted, true);
+  assert.equal(result.timed_out, false);
+  assert.deepEqual(result.group_signals, ['SIGTERM', 'SIGKILL']);
+  assert.equal(result.descendants_reaped, true);
+  assert.equal(processGone(tree.child), true);
+  assert.equal(processGone(tree.grandchild), true);
+  assert.equal(processGone(-result.pid), true);
+});
+
+test('a real deadline reaps a SIGTERM-resistant descendant and keeps the actual timeout and duration', { timeout: 30000 }, async () => {
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-deadline-'));
+  const result = await recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 1500, 200);
+  assert.equal(result.timed_out, true);
+  assert.ok(result.duration_ms >= 1500);
+  assert.equal(result.descendants_reaped, true);
+  assert.equal(processGone(-result.pid), true);
+  if (fs.existsSync(path.join(readyDir, 'tree.json'))) {
+    const tree = JSON.parse(fs.readFileSync(path.join(readyDir, 'tree.json'), 'utf8'));
+    assert.equal(processGone(tree.grandchild), true);
+  }
+});
+
+test('a clean child exit never leaves a SIGTERM-resistant descendant running', { timeout: 30000 }, async () => {
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-orphan-'));
+  const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir, { childExitsAfterReady: true })], root, process.env, path.join(readyDir, 'run.log'), 60000, 200);
+  const result = await pending;
+  const tree = JSON.parse(fs.readFileSync(path.join(readyDir, 'tree.json'), 'utf8'));
+
+  assert.equal(result.exit_code, 0);
+  assert.equal(result.timed_out, false);
+  assert.equal(result.descendants_reaped, true);
+  assert.equal(processGone(tree.grandchild), true);
+});
+
+test('the legacy revision freeze entrypoint refuses a clean candidate and spent records without native work', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'legacy-create' });
+  try {
+    const freeze = path.join(fixture.base, 'registration-revision.json');
+    const create = fixture.run(['--create-revision', '--output', freeze]);
+
+    assert.equal(create.status, 3, `${create.stdout}\n${create.stderr}`);
+    assert.match(create.stderr, /preserved config status|zero-native-launch preparation ledger/i);
+    assert.equal(fs.existsSync(freeze), false);
+    assert.deepEqual(fixture.stubCalls(), []);
+  } finally { fixture.cleanup(); }
+});
+
+test('runner floors fractional millisecond process timeouts before spawnSync', () => {
+  const log = path.join(temporary, 'fractional-timeout.log');
+  const result = runLogged(process.execPath, ['-e', 'setTimeout(() => {}, 200)'], root, process.env, log, 118654.22791698575);
+
+  assert.equal(result.error, null);
+  assert.equal(result.exit_code, 0);
+  assert.match(fs.readFileSync(log, 'utf8'), /^$/);
+});
+
+test('browser attempt output gets a unique directory beside preserved preflight logs', () => {
+  const slotDirectory = path.join(temporary, 'D19-DIAG-01');
+  fs.mkdirSync(slotDirectory, { recursive: true });
+  fs.writeFileSync(path.join(slotDirectory, 'runner-preflight-error.log'), 'preserved exact runner error\n');
+
+  const attempt = attemptDirectory(temporary, 'D19-DIAG-01', 1);
+
+  assert.notEqual(attempt, slotDirectory);
+  assert.equal(fs.readFileSync(path.join(slotDirectory, 'runner-preflight-error.log'), 'utf8'), 'preserved exact runner error\n');
+  assert.equal(fs.existsSync(attempt), false);
+});
+
+test('revision attempt directory creates the missing slot parent before any native setup', () => {
+  assert.equal(typeof recovery.createAttemptDirectory, 'function');
+  if (typeof recovery.createAttemptDirectory !== 'function') return;
+  const base = path.join(temporary, 'new-revision-output');
+  const attempt = recovery.createAttemptDirectory(base, 'R-DIAG-DESKTOP');
+  assert.equal(fs.existsSync(attempt), true);
+  assert.equal(path.relative(base, attempt), path.join('R-DIAG-DESKTOP', 'attempt-01'));
+});
+
+test('revision attempt directory collisions preserve existing native artifacts', () => {
+  const base = path.join(temporary, 'collision-output');
+  const existing = path.join(base, 'R-DIAG-DESKTOP', 'attempt-01');
+  fs.mkdirSync(existing, { recursive: true });
+  const marker = path.join(existing, 'prior-receipt.log');
+  fs.writeFileSync(marker, 'preserve the existing attempt');
+
+  assert.throws(() => recovery.createAttemptDirectory(base, 'R-DIAG-DESKTOP'), /refusing to overwrite/);
+  assert.equal(fs.readFileSync(marker, 'utf8'), 'preserve the existing attempt');
+});
+
+function fakeSocketFactory(script) {
+  return () => {
+    const socket = new EventEmitter();
+    socket.destroyed = false;
+    socket.destroy = () => { socket.destroyed = true; };
+    socket.setTimeout = (_ms, callback) => { socket.timeoutCallback = callback; };
+    process.nextTick(() => script(socket));
+    return socket;
+  };
+}
+
+test('port availability reads an injected connect seam and opens no socket', async () => {
+  const occupied = await recovery.portAvailable(25311, { connect: fakeSocketFactory((socket) => socket.emit('connect')) });
+  const refused = await recovery.portAvailable(25311, { connect: fakeSocketFactory((socket) => socket.emit('error', Object.assign(new Error('refused'), { code: 'ECONNREFUSED' }))) });
+  const unknown = await recovery.portAvailable(25311, { connect: fakeSocketFactory((socket) => socket.emit('error', Object.assign(new Error('boom'), { code: 'EACCES' }))) });
+  const stalled = await recovery.portAvailable(25311, { connect: fakeSocketFactory((socket) => socket.timeoutCallback()) });
+
+  assert.equal(occupied, false, 'a successful connect means the fixture port is occupied');
+  assert.equal(refused, true, 'ECONNREFUSED means the port is free');
+  assert.equal(unknown, false, 'any other error is not proof of availability');
+  assert.equal(stalled, false, 'a stalled probe is not proof of availability');
+  assert.deepEqual(networkAttempts, []);
+});
+
+test('readiness fails immediately when the app child already exited before HTTP readiness', async () => {
+  const probes = [];
+  const result = await recovery.waitReady({ exitCode: 1, signalCode: null }, 'http://127.0.0.1:1/', Number(process.hrtime.bigint()) / 1e6 + 1000, { probe: async (url) => { probes.push(url); return 200; } });
+  assert.equal(result, null);
+  assert.deepEqual(probes, []);
+});
+
+test('readiness polls an injected probe on an injected clock until HTTP 200 or the deadline', async () => {
+  let clock = 1000;
+  const sleeps = [];
+  const options = (statuses) => ({
+    now: () => clock,
+    sleep: async (ms) => { sleeps.push(ms); clock += ms; },
+    probe: async () => statuses.shift() ?? null
+  });
+  const ready = await recovery.waitReady({ exitCode: null, signalCode: null }, 'http://127.0.0.1:1/', 1600, options([null, 503, 200]));
+  assert.equal(ready, 200);
+  assert.equal(sleeps.length, 2);
+
+  clock = 1000; sleeps.length = 0;
+  const expired = await recovery.waitReady({ exitCode: null, signalCode: null }, 'http://127.0.0.1:1/', 1100, options([]));
+  assert.equal(expired, null);
+  assert.ok(sleeps.reduce((sum, ms) => sum + ms, 0) <= 100, 'readiness never sleeps past its deadline');
+  assert.deepEqual(networkAttempts, []);
+});
+
+test('one-use infrastructure retry requires the independently reviewed Chromium bootstrap failure', () => {
+  assert.equal(typeof recovery.validateInfrastructureRetry, 'function');
+  if (typeof recovery.validateInfrastructureRetry !== 'function') return;
+  const reviewed = {
+    evidence_sha256: 'evidence-hash',
+    test_log_sha256: 'test-log-hash',
+    native_attempt_charge_ms: 26373,
+    total_charge_ms: 33884,
+    status: 'independently_classified_infrastructure',
+    retry_used: false,
+    shared_retry_allowance: 1,
+    failure: 'Chromium headless shell SIGTRAP at macOS Mach port bootstrap_check_in with Permission denied (1100), before selected test began'
+  };
+  const prior = {
+    status: 'halted', freeze_sha256: 'freeze-hash',
+    limits: { historical_charge_ms: 3768, preparation_charge_ms: 3743, charged_duration_ms: 33884, browser_launches: 1, used_slots: ['R-DIAG-DESKTOP'] },
+    attempts: [{ slot_id: 'R-DIAG-DESKTOP', project: 'admin-eval', charged_duration_ms: 26373,
+      test_started: false, failure_classification: 'infrastructure', server: { http_status: 200 },
+      database: { setup_exit_code: 0, drop_exit_code: 0 }, browser: { launched: true }, files: { test_log: { sha256: 'test-log-hash' } } }]
+  };
+  assert.deepEqual(recovery.validateInfrastructureRetry(prior, reviewed), { ok: true, errors: [] });
+  const mutations = [
+    (record, review) => { review.retry_used = true; },
+    (record) => { record.attempts[0].test_started = true; },
+    (record) => { record.attempts[0].database.drop_exit_code = 1; },
+    (record) => { record.attempts[0].files.test_log.sha256 = 'changed'; },
+    (record, review) => { review.failure = 'unclassified'; },
+    (record) => { record.limits.charged_duration_ms = 0; }
+  ];
+  for (const mutate of mutations) {
+    const record = structuredClone(prior); const review = structuredClone(reviewed);
+    mutate(record, review);
+    assert.equal(recovery.validateInfrastructureRetry(record, review).ok, false);
+  }
+
+});
+
+test('the infrastructure retry entrypoint rejects mismatched or ineligible preserved evidence in a clean candidate', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'retry' });
+  try {
+    const output = path.join(fixture.base, 'retry-freeze.json');
+    const reservation = path.join(fixture.base, 'retry-reservation.json');
+    const review = path.join(fixture.base, 'retry-review.json');
+    const create = () => fixture.run(['--create-infrastructure-retry', '--freeze', fixture.freezePath, '--evidence', fixture.evidencePath, '--review', review, '--output', output, '--reservation', reservation]);
+
+    fs.writeFileSync(review, `${JSON.stringify({ evidence_sha256: 'f'.repeat(64), status: 'independently_classified_infrastructure' })}\n`);
+    const mismatched = create();
+    assert.equal(mismatched.status, 3, `${mismatched.stdout}\n${mismatched.stderr}`);
+    assert.match(mismatched.stderr, /digest does not match preserved bytes/);
+
+    fs.writeFileSync(review, `${JSON.stringify({ evidence_sha256: fixtureFileSha256(fixture.evidencePath), status: 'independently_classified_infrastructure', retry_used: false, shared_retry_allowance: 1 })}\n`);
+    const ineligible = create();
+    assert.equal(ineligible.status, 3, `${ineligible.stdout}\n${ineligible.stderr}`);
+    assert.match(ineligible.stderr, /infrastructure retry rejected/);
+
+    assert.equal(fs.existsSync(output), false);
+    assert.equal(fs.existsSync(reservation), false);
+    assert.deepEqual(fixture.stubCalls(), []);
+  } finally { fixture.cleanup(); }
+});
+
+test('revision evidence binds to the freeze file digest while validating its internal digest separately', () => {
+  const freeze = { schema_version: 'sigra.phase253.registration-replan-freeze/v1', status: 'frozen_before_results', payload: 'frozen' };
+  freeze.freeze_sha256 = crypto.createHash('sha256').update(JSON.stringify(freeze)).digest('hex');
+  const fileHash = crypto.createHash('sha256').update(`${JSON.stringify(freeze, null, 2)}\n`).digest('hex');
+  const evidence = { freeze_sha256: fileHash };
+  assert.notEqual(freeze.freeze_sha256, fileHash, 'pretty-printed on-disk freeze bytes have their own digest');
+  assert.equal(verifyRevisionFreezeBinding(evidence, freeze, fileHash), true);
+  assert.equal(verifyRevisionFreezeBinding(evidence, freeze, freeze.freeze_sha256), false);
+  freeze.freeze_sha256 = 'forged';
+  assert.equal(verifyRevisionFreezeBinding(evidence, freeze, fileHash), false);
+});
+
+test('each diagnostic uses its own physical Mix build for setup, server and cleanup', () => {
+  const first = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-build-first-'));
+  const second = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-build-second-'));
+  try {
+    const inherited = { ...process.env, MIX_BUILD_PATH: '/shared/compiled-at-port-4011', PORT: '4011' };
+    const one = recovery.diagnosticEnvironment({ port: 25311 }, 'first_database', first, inherited);
+    const two = recovery.diagnosticEnvironment({ port: 25312 }, 'second_database', second, inherited);
+    assert.equal(one.MIX_BUILD_PATH, path.join(fs.realpathSync(first), 'mix-build'));
+    assert.equal(two.MIX_BUILD_PATH, path.join(fs.realpathSync(second), 'mix-build'));
+    assert.notEqual(one.MIX_BUILD_PATH, two.MIX_BUILD_PATH);
+    assert.equal(fs.existsSync(one.MIX_BUILD_PATH), false);
+    assert.equal(one.PORT, '25311');
+    assert.equal(two.PORT, '25312');
+    assert.notEqual(one.PORT, inherited.PORT);
+    assert.notEqual(two.PORT, inherited.PORT);
+    for (const command of ['setup', 'server', 'drop']) {
+      const log = path.join(first, `${command}.log`);
+      const receipt = runLogged(process.execPath, ['-e', 'process.stdout.write(JSON.stringify({build:process.env.MIX_BUILD_PATH,port:process.env.PORT,database:process.env.PGDATABASE}))'], root, one, log, 2000);
+      assert.equal(receipt.exit_code, 0);
+      assert.deepEqual(JSON.parse(fs.readFileSync(log, 'utf8')), { build: one.MIX_BUILD_PATH, port: '25311', database: 'first_database' });
+    }
+  } finally {
+    fs.rmSync(first, { recursive: true, force: true });
+    fs.rmSync(second, { recursive: true, force: true });
+  }
+});
+
+test('command logs remove development signing keys before a receipt hashes their bytes', () => {
+  const log = path.join(temporary, 'development-key.log');
+  const receipt = runLogged(process.execPath, ['-e', 'process.stdout.write("Mix config: secret_key_base: " + JSON.stringify("synthetic-development-key") + "\\n")'], root, process.env, log, 2000);
+  assert.equal(receipt.exit_code, 0);
+  assert.equal(receipt.redacted_secret_fields, 1);
+  const bytes = fs.readFileSync(log);
+  assert.equal(bytes.includes(Buffer.from('synthetic-development-key')), false);
+  assert.match(bytes.toString(), /secret_key_base: "\[REDACTED\]"/);
+  const digest = crypto.createHash('sha256').update(bytes).digest('hex');
+  assert.equal(crypto.createHash('sha256').update(fs.readFileSync(log)).digest('hex'), digest);
+});
+
+test('command logs redact the complete seeded demo credentials block before hashing', () => {
+  const log = path.join(temporary, 'synthetic-demo-credentials.log');
+  const output = [
+    'migration complete',
+    '',
+    '=== Demo Credentials ===',
+    '[synthetic] synthetic@example.invalid SYNTHETIC-SEEDED-PASSWORD (fixture)',
+    '',
+    'seed process complete',
+    ''
+  ].join('\n');
+  const receipt = runLogged(process.execPath, ['-e', `process.stdout.write(${JSON.stringify(output)})`], root, process.env, log, 2000);
+  const bytes = fs.readFileSync(log);
+  const sanitized = bytes.toString();
+
+  assert.equal(receipt.exit_code, 0);
+  assert.equal(receipt.redacted_credential_blocks, 1);
+  assert.equal(bytes.includes(Buffer.from('SYNTHETIC-SEEDED-PASSWORD')), false);
+  assert.equal(bytes.includes(Buffer.from('synthetic@example.invalid')), false);
+  assert.match(sanitized, /=== Demo Credentials ===\n\[REDACTED seeded demo credentials\]/);
+  assert.match(sanitized, /seed process complete/);
+  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'), crypto.createHash('sha256').update(fs.readFileSync(log)).digest('hex'));
+});
+
+test('a complete synthetic committed tree verifies through the real shell CLI with zero native commands', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'native-positive' });
+  try {
+    const result = fixture.verify();
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stdout, /2\/2 plan15 diagnostics; 2 launches; 32000 ms charged/);
+    assert.match(result.stdout, /synthetic-native-fixture/);
+    assert.deepEqual(fixture.readEvidence().attempts.map((attempt) => attempt.observed_outcome), ['passed', 'passed']);
+    assert.deepEqual(fixture.stubCalls(), [], 'verification must not run setup, browser or database commands');
+    assert.equal(fixture.git(['status', '--porcelain']), '', 'verification leaves the committed candidate clean');
+  } finally { fixture.cleanup(); }
+});
+
+test('the synthetic fixture never reads active phase records, refs or the checkout under test', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'isolation' });
+  try {
+    assert.notEqual(fs.realpathSync(fixture.root), fs.realpathSync(root));
+    assert.equal(fixture.git(['for-each-ref', '--format=%(refname)']).split('\n').filter((ref) => ref.startsWith('refs/gsd/')).length, 0);
+    assert.equal(fixture.git(['log', '--format=%ae']).split('\n').every((email) => email.endsWith('@example.invalid')), true);
+    const historical = JSON.stringify(fixture.readFreeze().historical);
+    assert.equal(historical.includes('de53d1c80f4a67b73a5e5078959c2c88ad75abe8'), false);
+    assert.equal(fixture.readFreeze().source.repository, 'synthetic/native-fixture');
+    assert.equal(fixture.readFreeze().provenance.synthetic_native_fixture, SYNTHETIC_LABEL);
+    assert.equal(fixture.readEvidence().provenance.accepted_as_native_proof, false);
+  } finally { fixture.cleanup(); }
+});
+
+test('revision CLI rejects null, empty, and fake evidence before trusting caller status', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'forged-inventory' });
+  try {
+    const cases = [
+      ['null', 'null\n'],
+      ['empty', '{}\n'],
+      ['fake', `${JSON.stringify({ schema_version: 'sigra.phase253.registration-replan-evidence/v1', status: 'diagnosis_incomplete', attempts: [], limits: { browser_launches: 2, charged_duration_ms: 121680 } })}\n`]
+    ];
+    for (const [label, contents] of cases) {
+      const evidence = path.join(fixture.base, `forged-${label}.json`);
+      fs.writeFileSync(evidence, contents);
+      const result = fixture.run(['--verify-diagnostic', evidence, '--revision']);
+      assert.equal(result.status, 3, `${label}: ${result.stdout}\n${result.stderr}`);
+    }
+    assert.deepEqual(fixture.stubCalls(), []);
+  } finally { fixture.cleanup(); }
+});
+
+test('revision CLI rejects slot usage counters that do not match native attempts', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'slot-count-drift' });
+  try {
+    fixture.rewriteEvidence((evidence) => { evidence.limits.used_slots = []; });
+    const result = fixture.verify();
+    assert.equal(result.status, 3, `${result.stdout}\n${result.stderr}`);
+    assert.match(result.stderr, /slot/i);
+  } finally { fixture.cleanup(); }
+});
+
+test('revision CLI rejects forged, mismatched, duplicated, and over-budget saved receipts', () => {
+  const findSelectedSpec = (report) => {
+    const visit = (suite) => {
+      for (const spec of suite.specs ?? []) {
+        if (spec.title === SELECTED_TITLE) return spec;
+      }
+      for (const child of suite.suites ?? []) {
+        const found = visit(child);
+        if (found) return found;
+      }
+      return null;
+    };
+    return report.suites.map(visit).find(Boolean);
+  };
+  const cases = [
+    ['singleton wrong project', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts = [evidence.attempts[0]]; evidence.attempts[0].project = 'admin-eval-dark'; }), /attempt identity differs from its frozen slot/],
+    ['duplicate spent slot', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts.push(structuredClone(evidence.attempts[0])); }), /was reused/],
+    ['source commit drift', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.source.checkout_head = 'different-source'; }), /evidence source identity differs/],
+    ['source blob drift', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.source.blobs['scripts/ci/ci-registration-recovery.mjs'] = 'different-blob'; }), /evidence source identity differs/],
+    ['over-counted launches', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.limits.browser_launches += 1; }), /browser launch count differs/],
+    ['over-time charge', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].charged_duration_ms = 120001; }), /exceeded its frozen 120,000 ms command/],
+    ['missing database drop', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].database.drop_exit_code = null; }), /database setup or drop did not succeed/],
+    ['missing browser report', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].files.playwright_report = null; }), /native Playwright report is missing/],
+    ['changed sanitized log digest', (fixture) => fixture.appendRaw('R-DIAG-DESKTOP', 'setup_log', 'changed after receipt\n'), /native setup_log digest mismatch/],
+    ['byte-variant selected title', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { findSelectedSpec(report).title += '\u200b'; }), /exactly one byte-exact selected/],
+    ['native expectedStatus mismatch', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { findSelectedSpec(report).tests[0].expectedStatus = 'skipped'; }), /expectedStatus and result status disagree/],
+    ['native result status mismatch', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { findSelectedSpec(report).tests[0].results[0].status = 'failed'; }), /expectedStatus and result status disagree/],
+    ['empty native report', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.suites = []; }), /contains no results/],
+    ['monotonic end before start', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].ended_monotonic_ns = '1'; }), /monotonic duration is absent or inconsistent/],
+    ['committed head not in history', (fixture) => {
+      fixture.rewriteFreeze((freeze) => { freeze.source.checkout_head = 'b'.repeat(40); });
+      fixture.rewriteEvidence((evidence) => { evidence.source.checkout_head = 'b'.repeat(40); });
+    }, /not in the current repository history|frozen source commit/],
+    ['internal freeze digest forged', (fixture) => fixture.rewriteFreeze((freeze) => { freeze.freeze_sha256 = '0'.repeat(64); }, { internalDigest: false }), /does not match the frozen revision/],
+    ['file freeze digest drift', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.freeze_sha256 = '1'.repeat(64); }), /does not match the frozen revision/],
+    ['historical bytes changed', (fixture) => fs.appendFileSync(path.join(fixture.root, fixture.history.original_evidence.path), ' '), /frozen historical evidence bytes changed/],
+    ['spent slot reused', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].slot_id = 'D19-DIAG-01'; evidence.limits.used_slots[0] = 'D19-DIAG-01'; }), /does not identify a frozen slot/],
+    ['frozen title byte variant', (fixture) => {
+      const variant = `${SELECTED_TITLE}\u200b`;
+      fixture.rewriteFreeze((freeze) => { for (const slot of freeze.ledger.slots) { slot.title = variant; slot.argv[1] = `--grep=${variant}`; } });
+      fixture.rewriteEvidence((evidence) => { for (const attempt of evidence.attempts) attempt.argv[1] = `--grep=${variant}`; });
+      fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.suites[0].suites[0].specs[0].title = variant; });
+      fixture.rewriteReport('R-DIAG-MOBILE', (report) => { report.suites[0].suites[0].specs[0].title = variant; });
+    }, /frozen selected title is not the reviewed byte-exact title/],
+    ['wrong project bytes', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.suites[0].suites[0].specs[0].tests[0].projectName = 'admin-eval\u200b'; }), /exactly one byte-exact selected/],
+    ['null native inventory', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.config.projects = null; }), /project inventory is incomplete/],
+    ['empty native inventory', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.config.projects = []; }), /project inventory is incomplete/],
+    ['single native inventory', (fixture) => fixture.rewriteReport('R-DIAG-DESKTOP', (report) => { report.config.projects = [{ name: 'admin-eval' }]; }), /project inventory is incomplete/],
+    ['preparation counter drift', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.limits.preparation_charge_ms += 1; evidence.limits.charged_duration_ms += 1; }), /preparation charge does not match its command receipts/],
+    ['preparation receipt reset', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.preparation_receipts = []; }), /preparation charge does not match its command receipts/],
+    ['total charge laundered', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.limits.charged_duration_ms -= 1000; }), /cumulative charged time does not match/],
+    ['historical charge reset', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.limits.historical_charge_ms = 0; evidence.limits.charged_duration_ms -= 3000; }), /historical uncertainty or spent charge was not preserved/],
+    ['launch count reset', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.limits.browser_launches = 0; }), /browser launch count differs/],
+    ['cli exit disagreement', (fixture) => fixture.rewriteEvidence((evidence) => { evidence.attempts[0].browser.exit_code = 1; }), /disagrees with the Playwright process exit/]
+  ];
+
+  for (const [label, mutate, reason] of cases) {
+    const fixture = createRegistrationNativeTreeFixture({ label: label.replaceAll(' ', '-') });
+    try {
+      assert.equal(fixture.verify().status, 0, `${label}: the unmutated fixture is the positive control`);
+      mutate(fixture);
+      const result = fixture.verify();
+      assert.equal(result.status, 3, `${label}: ${result.stdout}\n${result.stderr}`);
+      assert.match(result.stderr, reason, `${label} must be rejected for its own predicate`);
+      assert.doesNotMatch(result.stderr, /ENOENT|preserved config/, `${label} must not be rejected by an unrelated setup fault`);
+      assert.deepEqual(fixture.stubCalls(), [], label);
+    } finally { fixture.cleanup(); }
+  }
+});
+
+test('the real shell refuses a run in a clean candidate before setup or browser work, and a stale frozen blob is rejected', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'stale-source' });
+  try {
+    const output = path.join(fixture.base, 'run-output.json');
+    const refused = fixture.run(['--run-revision', fixture.freezePath, '--slot', 'R-DIAG-DESKTOP', '--output', output]);
+    assert.equal(refused.status, 3, `${refused.stdout}\n${refused.stderr}`);
+    assert.match(refused.stderr, /preserved config status/);
+    assert.equal(fs.existsSync(output), false);
+
+    const file = 'scripts/ci/ci-registration-recovery.mjs';
+    fixture.rewriteFreeze((freeze) => { freeze.source.blobs[file] = 'a'.repeat(40); });
+    fixture.rewriteEvidence((evidence) => { evidence.source.blobs[file] = 'a'.repeat(40); });
+    const stale = fixture.verify();
+    assert.equal(stale.status, 3, `${stale.stdout}\n${stale.stderr}`);
+    assert.match(stale.stderr, /frozen Git source blob mismatch/);
+    assert.deepEqual(fixture.stubCalls(), []);
+  } finally { fixture.cleanup(); }
+});
+
+test('the dirty config rule is exact when a checkout carries it and absent for a clean candidate', () => {
+  assert.equal(typeof recovery.assertDirtyConfigPreserved, 'function');
+  const fixture = createRegistrationNativeTreeFixture({ label: 'config-integrity' });
+  try {
+    assert.doesNotThrow(() => recovery.assertDirtyConfigPreserved(fixture.root), 'a clean candidate has no dirty-config requirement');
+
+    const configPath = path.join(fixture.root, '.planning/config.json');
+    fs.writeFileSync(configPath, '{"synthetic":"committed"}\n');
+    fixture.commitAll('synthetic committed config');
+    const dirtyBytes = '{"synthetic":"operator edit"}\n';
+    fs.writeFileSync(configPath, dirtyBytes);
+    const blob = fixture.git(['hash-object', '-w', configPath]);
+    const ref = 'refs/synthetic-fixture/preserved-config';
+    fixture.git(['update-ref', ref, blob]);
+    const identity = {
+      path: '.planning/config.json', status: ' M', porcelain: ' M .planning/config.json', ref, blob,
+      sha256: crypto.createHash('sha256').update(dirtyBytes).digest('hex')
+    };
+
+    assert.throws(() => recovery.assertDirtyConfigPreserved(fixture.root), /authorized SHA-256 and Git blob/, 'a dirty config must match the real authorized identity');
+    assert.doesNotThrow(() => recovery.assertDirtyConfigPreserved(fixture.root, identity));
+    fs.appendFileSync(configPath, '\n');
+    assert.throws(() => recovery.assertDirtyConfigPreserved(fixture.root, identity), /authorized SHA-256 and Git blob/);
+  } finally { fixture.cleanup(); }
+});
+
+test('synthetic evidence is labeled and rejected by the accepted-only saved-native audit mode', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'accepted-only' });
+  try {
+    const snapshot = () => crypto.createHash('sha256').update(JSON.stringify([
+      fs.readFileSync(fixture.evidencePath, 'utf8'), fs.readFileSync(fixture.freezePath, 'utf8'),
+      fs.readdirSync(fixture.rawDir, { recursive: true }).sort()
+    ])).digest('hex');
+    const before = snapshot();
+
+    const labeled = fixture.verifySavedNative();
+    assert.equal(labeled.status, 3, `${labeled.stdout}\n${labeled.stderr}`);
+    assert.match(labeled.stderr, /synthetic native fixture/i);
+    assert.equal(snapshot(), before, 'the audit mode is read-only');
+
+    // Stripping the marker does not make fixture history acceptable: its temporary Git identity is still synthetic.
+    fixture.rewriteFreeze((freeze) => { delete freeze.provenance; });
+    fixture.rewriteEvidence((evidence) => { delete evidence.provenance; });
+    const ordinary = fixture.verify();
+    assert.equal(ordinary.status, 0, `${ordinary.stdout}\n${ordinary.stderr}`);
+    const stripped = fixture.verifySavedNative();
+    assert.equal(stripped.status, 3, `${stripped.stdout}\n${stripped.stderr}`);
+    assert.match(stripped.stderr, /synthetic/i);
+    assert.deepEqual(fixture.stubCalls(), []);
+  } finally { fixture.cleanup(); }
+});
+
+test('the saved-native audit mode is declared but never invoked by ordinary CI, and no ordinary contract reads active phase records', () => {
+  const declared = fs.readFileSync(path.join(root, 'scripts/ci/ci-registration-recovery.mjs'), 'utf8');
+  assert.match(declared, /--verify-saved-native/);
+  const workflows = path.join(root, '.github/workflows');
+  if (fs.existsSync(workflows)) {
+    for (const name of fs.readdirSync(workflows)) {
+      assert.equal(fs.readFileSync(path.join(workflows, name), 'utf8').includes('--verify-saved-native'), false, `${name} must not invoke the saved-history audit`);
+    }
+  }
+  const activePhaseRecords = new RegExp(['\\.planning', 'phases', '253-'].join('/'));
+  for (const file of ['scripts/ci/ci-registration-recovery.test.mjs', 'scripts/ci/ci-registration-repro.test.sh']) {
+    assert.doesNotMatch(fs.readFileSync(path.join(root, file), 'utf8'), activePhaseRecords, `${file} must not read active phase records`);
+  }
+});
+
+function nativeFixture({ project = 'admin-eval', outcome = 'passed', slotKind = 'diagnostic' } = {}) {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-native-fixture-'));
+  const hash = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const write = (name, contents) => {
+    const file = path.join(base, name);
+    fs.writeFileSync(file, contents);
+    return { path: name, sha256: hash(file), bytes: fs.statSync(file).size };
+  };
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-recovery-freeze/v1', status: 'frozen_before_results',
+    source: { checkout_head: 'candidate-abc', blobs: { 'scripts/ci/ci-registration-recovery.mjs': 'blob-abc' } },
+    selection: { test_title: 'render bundle: board-mg-9/populated', projects: ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'] },
+    historical: { original_evidence_sha256: 'historical-evidence-hash', preceding_order: 'unknown' },
+    ledger: {
+      max_launches: 19, max_charged_duration_ms: 58 * 60 * 1000,
+      d19: { max_charged_duration_ms: 20 * 60 * 1000 }, prelaunch_setup: { duration_ms: 0 },
+      slots: [{ id: 'D19-DIAG-01', sequence: 1, kind: slotKind, stage: 'D19', project, max_duration_ms: 120_000 }]
+    }
+  };
+  const report = {
+    suites: [{ file: 'tests/admin-eval.spec.ts', specs: [{
+      title: 'render bundle: board-mg-9/populated', file: 'tests/admin-eval.spec.ts',
+      tests: [{ projectName: project, results: [{ status: outcome === 'passed' ? 'expected' : 'failed' }] }]
+    }] }]
+  };
+  const files = {
+    setup_log: write('setup.log', 'database setup complete\n'),
+    app_log: write('app.log', 'Phoenix server started\n'),
+    test_log: write('test.log', 'Playwright completed\n'),
+    drop_log: write('drop.log', 'database dropped\n'),
+    playwright_report: write('report.json', JSON.stringify(report))
+  };
+  const attempt = {
+    slot_id: 'D19-DIAG-01', sequence: 1, stage: 'D19', project, source_commit: 'candidate-abc',
+    started_monotonic_ns: '1000000000', ended_monotonic_ns: '16000000000', execution_duration_ms: 15_000,
+    prelaunch_setup_ms: 0, charged_duration_ms: 15_000, server: { http_status: 200 },
+    database: { name: 'sigra_253_recovery_admin_eval_fixture', drop_exit_code: 0 },
+    browser: { launched: true, exit_code: outcome === 'passed' ? 0 : 1 },
+    observed_outcome: outcome, files, toolchain: {
+      playwright_version: '1.59.1', ecto_sql_version: '3.13.5', phoenix_live_view_version: '1.1.28'
+    }, traces: []
+  };
+  if (outcome !== 'passed') attempt.files.traces = [write('trace.zip', 'trace bytes')];
+  return { base, freeze, attempt, hash };
+}
+
+test('native receipt accepts the selected project only with matching report, logs, exit and drop', () => {
+  const fixture = nativeFixture();
+  try {
+    assert.deepEqual(verifyNativeAttempt(fixture.attempt, fixture.freeze, fixture.base), { ok: true, errors: [] });
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('diagnostic ledger accepts one accurately charged, source-bound native attempt', () => {
+  const fixture = nativeFixture();
+  try {
+    const freeze = { ...fixture.freeze, freeze_sha256: 'freeze-bytes-hash' };
+    const evidence = {
+      schema_version: 'sigra.phase253.registration-recovery-evidence/v1', status: 'running',
+      freeze_sha256: 'freeze-bytes-hash', source: structuredClone(freeze.source),
+      historical: { original_evidence_sha256: 'historical-evidence-hash', preceding_order: 'unknown' },
+      attempts: [fixture.attempt],
+      limits: { browser_launches: 1, charged_duration_ms: 15_000, max_launches: 19, max_charged_duration_ms: 58 * 60 * 1000 }
+    };
+    assert.equal(verifyDiagnosticData(evidence, freeze, fixture.base).ok, true);
+
+    evidence.limits.browser_launches = 0;
+    const forgedCounter = verifyDiagnosticData(evidence, freeze, fixture.base);
+    assert.equal(forgedCounter.ok, false);
+    assert.ok(forgedCounter.errors.some((message) => message.includes('launch counter')));
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('native receipt rejects source drift, a wrong project, and a missing report', () => {
+  for (const mutate of [
+    (item) => { item.source_commit = 'different-source'; },
+    (item) => { item.project = 'admin-eval-dark'; },
+    (item) => { item.files.playwright_report = null; }
+  ]) {
+    const fixture = nativeFixture();
+    try {
+      mutate(fixture.attempt);
+      assert.equal(verifyNativeAttempt(fixture.attempt, fixture.freeze, fixture.base).ok, false);
+    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  }
+});
+
+test('native receipt rejects an empty report, absent database drop and changed log digest', () => {
+  for (const mutate of [
+    (item, fixture) => {
+      const ref = item.files.playwright_report;
+      fs.writeFileSync(path.join(fixture.base, ref.path), JSON.stringify({ suites: [] }));
+      ref.sha256 = fixture.hash(path.join(fixture.base, ref.path));
+    },
+    (item) => { item.database.drop_exit_code = null; },
+    (item, fixture) => { fs.appendFileSync(path.join(fixture.base, item.files.test_log.path), 'changed\n'); }
+  ]) {
+    const fixture = nativeFixture();
+    try {
+      mutate(fixture.attempt, fixture);
+      assert.equal(verifyNativeAttempt(fixture.attempt, fixture.freeze, fixture.base).ok, false);
+    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  }
+});
+
+test('native receipt rejects a failed browser without a retained failure trace', () => {
+  const fixture = nativeFixture({ outcome: 'failed' });
+  try {
+    fixture.attempt.files.traces = [];
+    const result = verifyNativeAttempt(fixture.attempt, fixture.freeze, fixture.base);
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.some((message) => message.includes('retained native trace')));
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('native receipt rejects uncharged controls and attempts over the slot limit', () => {
+  const control = nativeFixture({ slotKind: 'control' });
+  try { assert.equal(verifyNativeAttempt(control.attempt, control.freeze, control.base).ok, false); }
+  finally { fs.rmSync(control.base, { recursive: true, force: true }); }
+
+  const tooLong = nativeFixture();
+  try {
+    tooLong.attempt.charged_duration_ms = 120_001;
+    assert.equal(verifyNativeAttempt(tooLong.attempt, tooLong.freeze, tooLong.base).ok, false);
+  } finally { fs.rmSync(tooLong.base, { recursive: true, force: true }); }
+});
+
+const CONTROL_BOARD = 'render bundle: board-mg-9/populated';
+const SAFE_MARKER = '[REDACTED seeded demo credentials]';
+
+const FIXTURE_ENV = { PGHOST: '127.0.0.1', PGPORT: '55432', PGUSER: 'postgres', PGPASSWORD: 'synthetic-not-retained' };
+
+function psqlDouble({ stdout = '0\n', status = 0, signal = null, error = undefined, calls = [] } = {}) {
+  return (program, args, options) => { calls.push({ program, args, options }); return { status, signal, stdout, stderr: '', error }; };
+}
+
+function controlFixture({ setupLog = `migrated\n=== Demo Credentials ===\n${SAFE_MARKER}\n\nseed done\n`, quietDrop = false, absence = {} } = {}) {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-control-fixture-'));
+  const hash = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  const write = (name, contents) => {
+    const file = path.join(base, name);
+    fs.writeFileSync(file, contents);
+    return { path: name, sha256: hash(file), bytes: fs.statSync(file).size };
+  };
+  const blobs = { 'scripts/ci/ci-registration-recovery.mjs': 'blob-abc' };
+  const slot = {
+    id: 'CR-FIXTURE', sequence: 1, stage: 'first', project: 'admin-eval', max_duration_ms: 120_000,
+    argv: ['--project=admin-eval'], selected_titles: [CONTROL_BOARD], expected: { [CONTROL_BOARD]: 'pass' }
+  };
+  const freeze = { source: { checkout_head: 'candidate-abc', blobs }, ledger: { slots: [slot] } };
+  const report = { suites: [{ file: 'tests/admin-eval.spec.ts', specs: [{
+    title: CONTROL_BOARD, file: 'tests/admin-eval.spec.ts',
+    tests: [{ projectName: 'admin-eval', expectedStatus: 'passed', status: 'expected', results: [{ status: 'expected' }] }]
+  }] }], errors: [] };
+  const files = {
+    setup_log: write('setup.log', setupLog),
+    app_log: write('app.log', 'Phoenix server started\n'),
+    test_log: write('test.log', 'Playwright completed\n'),
+    drop_log: write('drop.log', quietDrop ? '' : 'database dropped\n'),
+    playwright_report: write('report.json', JSON.stringify(report))
+  };
+  const databaseName = 'sigra_253_control_fixture_abc';
+  const absenceLog = path.join(base, 'database-absence.log');
+  const receipt = captureOwnedDatabaseAbsence({ database: databaseName, env: FIXTURE_ENV, cwd: base, log: absenceLog, deadline: Number(process.hrtime.bigint()) / 1e6 + 5000, run: psqlDouble(absence) });
+  files.database_absence = { path: 'database-absence.log', sha256: hash(absenceLog), bytes: fs.statSync(absenceLog).size };
+  const started = BigInt(receipt.started_monotonic_ns) - 5_000_000_000n;
+  const ended = BigInt(receipt.ended_monotonic_ns) + 5_000_000_000n;
+  const duration = Math.ceil(Number(ended - started) / 1e6);
+  const attempt = {
+    slot_id: slot.id, sequence: 1, stage: 'first', project: 'admin-eval', argv: slot.argv,
+    source_commit: 'candidate-abc', source_blobs: blobs,
+    started_monotonic_ns: started.toString(), ended_monotonic_ns: ended.toString(), execution_duration_ms: duration, charged_duration_ms: duration,
+    database: { name: databaseName, setup_exit_code: 0, drop_exit_code: 0, connection: { host: '127.0.0.1', port: '55432', user: 'postgres', maintenance_database: 'postgres' }, absence_receipt: receipt },
+    server: { http_status: 200, app_pid: 4242 }, browser: { launched: true, exit_code: 0 },
+    build_directory_removed: true, build_path: '/tmp/fixture/mix-build', files
+  };
+  return { base, freeze, attempt, write, hash, absenceLog };
+}
+
+test('control receipt accepts the exact safe seeded-credentials redaction marker', () => {
+  const fixture = controlFixture();
+  try {
+    const result = recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base);
+    assert.deepEqual(result, { ok: true, errors: [] });
+    assert.equal(validateSanitizedCommandLog(fs.readFileSync(path.join(fixture.base, 'setup.log'), 'utf8')).ok, true);
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('sanitized-log validation rejects plaintext credentials, near-match markers, keys and auth headers', () => {
+  const header = '=== Demo Credentials ===';
+  const variants = {
+    plaintext_row: `${header}\nsynthetic@example.invalid SYNTHETIC-PASSWORD\n`,
+    marker_after_plaintext: `${header}\nsynthetic@example.invalid SYNTHETIC-PASSWORD\n${SAFE_MARKER}\n`,
+    extra_row: `${header}\n${SAFE_MARKER}\nsynthetic@example.invalid SYNTHETIC-PASSWORD\n`,
+    altered_case: `${header}\n[redacted seeded demo credentials]\n\n`,
+    altered_space: `${header}\n[REDACTED  seeded demo credentials]\n\n`,
+    trailing_space: `${header}\n${SAFE_MARKER} \n\n`,
+    crlf: `${header}\n${SAFE_MARKER}\r\n\n`,
+    marker_missing: `${header}\n`,
+    orphan_marker: `${SAFE_MARKER}\n`,
+    signing_key: 'secret_key_base: "synthetic-signing-key"\n',
+    set_cookie: 'Set-Cookie: _app=synthetic\n',
+    cookie_header: 'Cookie: _app=synthetic\n',
+    authorization: 'authorization: Bearer synthetic\n'
+  };
+  for (const [name, text] of Object.entries(variants)) {
+    assert.equal(validateSanitizedCommandLog(text).ok, false, name);
+  }
+  assert.equal(validateSanitizedCommandLog(`${header}\n${SAFE_MARKER}\n\nafter\n`).ok, true);
+  assert.equal(validateSanitizedCommandLog(`${header}\n${SAFE_MARKER}`).ok, true);
+  assert.equal(validateSanitizedCommandLog('secret_key_base: "[REDACTED]"\n').ok, true);
+});
+
+test('control receipt rejects a hash-bound log carrying an injected credential row', () => {
+  const fixture = controlFixture({ setupLog: `=== Demo Credentials ===\nsynthetic@example.invalid SYNTHETIC-PASSWORD\n\n` });
+  try {
+    const result = recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base);
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.some((message) => /setup_log contains an unsanitized credential block/.test(message)));
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('absence capture runs one bounded parameterized psql query against the owned database only', () => {
+  const calls = [];
+  const log = path.join(temporary, 'absence-capture.log');
+  const receipt = captureOwnedDatabaseAbsence({ database: 'sigra_253_control_dark_abc_1', env: FIXTURE_ENV, cwd: root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: psqlDouble({ calls }) });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].program, 'psql');
+  assert.deepEqual(calls[0].args.slice(0, 5), ['-X', '-v', 'ON_ERROR_STOP=1', '-v', 'target=sigra_253_control_dark_abc_1']);
+  assert.ok(calls[0].args.includes('-A') && calls[0].args.includes('-t'));
+  assert.equal(calls[0].args[calls[0].args.indexOf('-d') + 1], 'postgres');
+  assert.match(calls[0].options.input, /datname = :'target'/);
+  assert.ok(calls[0].options.timeout >= 1 && calls[0].options.timeout <= 3000);
+  assert.equal(JSON.stringify(receipt).includes('synthetic-not-retained'), false);
+  assert.equal(receipt.stdout_count, 0);
+  assert.equal(fs.readFileSync(log, 'utf8'), '0\n');
+  assert.throws(() => captureOwnedDatabaseAbsence({ database: 'sigra_test', env: FIXTURE_ENV, cwd: root, log, deadline: Date.now() + 1000, run: psqlDouble() }), /synthetic control namespace/);
+  assert.throws(() => captureOwnedDatabaseAbsence({ database: 'sigra_253_control_x; DROP', env: FIXTURE_ENV, cwd: root, log, deadline: Date.now() + 1000, run: psqlDouble() }), /synthetic control namespace/);
+});
+
+test('a quiet zero-byte drop log is accepted only with the independent zero-row absence receipt', () => {
+  const fixture = controlFixture({ quietDrop: true });
+  try {
+    assert.equal(fixture.attempt.files.drop_log.bytes, 0);
+    assert.deepEqual(recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base), { ok: true, errors: [] });
+    delete fixture.attempt.database.absence_receipt;
+    const result = recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base);
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.some((message) => /drop log is empty/.test(message)));
+    assert.ok(result.errors.some((message) => /absence receipt is missing/.test(message)));
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+test('database absence verification rejects failed, forged, wrong-name, present-row and null receipts', () => {
+  const rejections = {
+    null_receipt: (item) => { item.database.absence_receipt = null; },
+    wrong_database: (item) => { item.database.absence_receipt.database = 'sigra_253_control_other'; },
+    wrong_target_argv: (item) => { item.database.absence_receipt.argv[4] = 'target=sigra_253_control_other'; },
+    altered_query: (item) => { item.database.absence_receipt.query = "SELECT 0;\n"; },
+    nonzero_exit: (item) => { item.database.absence_receipt.exit_code = 2; },
+    timed_out: (item) => { item.database.absence_receipt.timed_out = true; },
+    signal: (item) => { item.database.absence_receipt.signal = 'SIGKILL'; },
+    count_forged: (item) => { item.database.absence_receipt.stdout_count = 1; },
+    wrong_connection: (item) => { item.database.absence_receipt.connection.port = '5432'; },
+    password_retained: (item) => { item.database.absence_receipt.connection.password = 'x'; },
+    missing_log_reference: (item) => { delete item.files.database_absence; },
+    altered_digest: (item) => { item.files.database_absence.sha256 = 'f'.repeat(64); },
+    outside_window: (item) => { item.database.absence_receipt.started_monotonic_ns = '1'; }
+  };
+  for (const [name, mutate] of Object.entries(rejections)) {
+    const fixture = controlFixture({ quietDrop: true });
+    try {
+      mutate(fixture.attempt);
+      assert.equal(recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base).ok, false, name);
+    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  }
+  for (const absence of [{ stdout: '1\n' }, { stdout: '' }, { stdout: '0\nextra\n' }, { status: 2, stdout: '' }, { error: Object.assign(new Error('timed out'), { code: 'ETIMEDOUT' }), status: null, signal: 'SIGKILL', stdout: '' }]) {
+    const fixture = controlFixture({ quietDrop: true, absence });
+    try {
+      assert.equal(recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base).ok, false, JSON.stringify(absence));
+    } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+  }
+});
+
+test('an empty drop log with a wrong digest or failed drop exit is not proven by absence alone', () => {
+  const fixture = controlFixture({ quietDrop: true });
+  try {
+    fixture.attempt.database.drop_exit_code = 1;
+    assert.equal(recovery.verifyNativeControlAttempt(fixture.attempt, fixture.freeze, fixture.base).ok, false);
+  } finally { fs.rmSync(fixture.base, { recursive: true, force: true }); }
+});
+
+// ---- Plan 39: four-slot load recovery contracts (synthetic subprocess boundaries; no native work) ----
+const LOAD_CHARGES = [3768, 3743, 26373, 46803, 40993, 121252, 112, 33409];
+const LOAD_SPENT = ['D19-DIAG-01', 'R-DIAG-DESKTOP', 'R-INFRA-RETRY-DESKTOP', 'R-DIAG-MOBILE', 'R-DIAG-CONTROL-DARK', 'CR-DARK-FIRST'];
+const loadLedgerInput = () => ({
+  charges: [...LOAD_CHARGES], physicalPlaywrightLaunches: 5, spentReservations: [...LOAD_SPENT],
+  retryUsed: 1, retryAvailable: 0, preparationMaximumMs: 116232, preparationUsedMs: 3743
+});
+
+test('load recovery ledger starts at 276453 ms, five launches and six spent identities with exactly four unused mappings', () => {
+  const ledger = recovery.buildLoadRecoveryLedger(loadLedgerInput());
+  assert.equal(ledger.prior_charge_ms, 276453);
+  assert.equal(ledger.prior_playwright_cli_launches, 5);
+  assert.deepEqual(ledger.spent_reservations, LOAD_SPENT);
+  assert.deepEqual(ledger.slots.map(({ id, maps_from, projects }) => [id, maps_from, projects]), [
+    ['CR-DESKTOP-MOBILE-FIRST', 'R-CONTROL-FIRST-MOBILE', ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark']],
+    ['CR-DESKTOP-SECOND', 'R-CONTROL-SECOND-DESKTOP', ['admin-eval']],
+    ['CR-MOBILE-SECOND', 'R-CONTROL-SECOND-MOBILE', ['admin-eval-mobile']],
+    ['CR-DARK-SECOND', 'R-CONTROL-SECOND-DARK', ['admin-eval-dark']]
+  ]);
+  assert.ok(ledger.slots.every((slot) => slot.max_duration_ms === 120000 && slot.work_ms === 105000 && slot.cleanup_ms === 15000));
+  assert.deepEqual(ledger.slots.map((slot) => slot.rows), [16, 2, 2, 2]);
+  assert.equal(ledger.required_rows, 22);
+  assert.equal(ledger.d19_max_ms, 868942);
+  assert.equal(ledger.total_max_ms, 3208942);
+  assert.equal(ledger.physical_cli_launch_max, 18);
+});
+
+test('load recovery ledger rejects altered charges, reopened retries, reset counters and reopened spent slots', () => {
+  for (const mutate of [
+    (input) => { input.charges[7] = 33408; },
+    (input) => { input.charges.pop(); },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.pop(); },
+    (input) => { input.spentReservations.push('CR-DESKTOP-MOBILE-FIRST'); },
+    (input) => { input.physicalPlaywrightLaunches = 4; },
+    (input) => { input.preparationUsedMs = 0; }
+  ]) {
+    const input = loadLedgerInput(); mutate(input);
+    assert.throws(() => recovery.buildLoadRecoveryLedger(input), /historical|retry|reservation|launch|preparation/i);
+  }
+});
+
+test('the 22 required project and title rows are the exact 16 + 2 + 2 + 2 packing, with no CLI grep', () => {
+  const slots = recovery.loadRecoverySlotDefinitions();
+  const pairs = slots.flatMap((slot) => recovery.loadRequiredPairs(slot));
+  assert.equal(pairs.length, 22);
+  assert.equal(new Set(pairs.map((item) => `${item.project}|${item.title}`)).size, 22);
+  const first = recovery.loadRequiredPairs(slots[0]);
+  for (const project of ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark']) {
+    assert.equal(first.filter((item) => item.project === project && item.title !== 'render bundle: board-mg-9/populated').length, 5);
+  }
+  assert.equal(first.filter((item) => item.title === 'render bundle: board-mg-9/populated').map((item) => item.project).join(), 'admin-eval-dark');
+  for (const slot of slots) {
+    assert.ok(slot.argv.every((arg) => !/^(-g|--grep)/.test(arg)), 'CLI grep would override the per-project selection');
+    assert.equal(slot.argv.filter((arg) => arg.startsWith('--project=')).length, slot.projects.length);
+    assert.ok(slot.argv.includes('--workers=1') && slot.argv.includes('--retries=0') && slot.argv.includes('--trace=retain-on-failure'));
+  }
+  assert.deepEqual(slots.map((slot) => slot.expected_cli_exit), [1, 0, 0, 0]);
+  assert.equal(new Set(slots.flatMap((slot) => Object.values(slot.collision_account_sha256))).size, 3);
+});
+
+test('project collision accounts match the shared browser helper exactly', async () => {
+  const helper = await import(path.join(root, 'test/example/priv/playwright/helpers/registrationControls.mjs'));
+  for (const project of ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark']) {
+    for (const purpose of ['held-positive', 'broken-readiness-positive', 'forced-trace-positive', 'collision']) {
+      assert.equal(recovery.loadControlAccount(project, purpose), helper.registrationControlAccount(project, purpose));
+    }
+  }
+});
+
+test('the scoped config inherits every production setting and only narrows projects with a per-project grep', () => {
+  const config = fs.readFileSync(path.join(root, 'test/example/priv/playwright/playwright.registration-recovery.config.ts'), 'utf8');
+  assert.match(config, /import productionConfig from '\.\/playwright\.config';/);
+  assert.match(config, /\.\.\.productionConfig,\s*\n\s*projects: selected/);
+  assert.match(config, /\{ \.\.\.project, grep: exactTitles/);
+  for (const forbidden of [/\bworkers\s*:/, /\bretries\s*:/, /\btimeout\s*:/, /\bfullyParallel\s*:/, /\buse\s*:/, /\breporter\s*:/, /\bdevices\b/, /\bcolorScheme\b/, /test\.fail/]) {
+    assert.doesNotMatch(config, forbidden);
+  }
+  assert.match(config, /requires SIGRA_REGISTRATION_CONTROL_STAGE=first\|second/);
+});
+
+// ---- synthetic four-slot runner harness ----
+function loadHarness() {
+  const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-')));
+  const checkout = path.join(base, 'checkout');
+  const pwPackage = path.join(checkout, 'test/example/priv/playwright/node_modules/@playwright/test/package.json');
+  fs.mkdirSync(path.dirname(pwPackage), { recursive: true });
+  fs.writeFileSync(pwPackage, JSON.stringify({ version: '1.59.1' }));
+  const ledgerBase = recovery.buildLoadRecoveryLedger(loadLedgerInput());
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-load-recovery-freeze/v1', status: 'frozen_before_results', plan: '253-39',
+    source: { repository: 'synthetic', checkout_head: 'a'.repeat(40), blobs: { 'scripts/x': 'b'.repeat(40) } },
+    tools: { playwright: '1.59.1', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' },
+    selection: { spec: 'tests/admin-eval.spec.ts' },
+    ledger: {
+      prior_charge_ms: 276453, prior_playwright_cli_launches: 5, spent_reservations: [...LOAD_SPENT], preparation_remaining_ms: 112489,
+      retry_used: 1, retry_available: 0, slots: ledgerBase.slots, d19: { cap_ms: 1200000, max_with_remaining_preparation: 868942 },
+      shared_cap_ms: 3480000, physical_cli_launch_max: 18, cleanup_reserve_ms: 15000
+    }
+  };
+  freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const freezeFile = path.join(base, 'freeze.json'); const evidenceFile = path.join(base, 'evidence.json');
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze, null, 2)}\n`);
+  const evidence = {
+    schema_version: 'sigra.phase253.registration-load-recovery-evidence/v1', status: 'ready', freeze_path: 'freeze.json',
+    freeze_sha256: sha(fs.readFileSync(freezeFile)), source: structuredClone(freeze.source), attempts: [], reservation: null, preserved_revisions: [],
+    limits: {
+      prior_charge_ms: 276453, preparation_charge_ms: 0, preparation_remaining_ms: 112489, charged_duration_ms: 276453,
+      physical_playwright_cli_launches: 5, used_slots: [...LOAD_SPENT], max_d19_ms: 868942, max_total_ms: 3480000,
+      max_physical_playwright_cli_launches: 18, retry_used: 1, retry_available: 0
+    }
+  };
+  fs.writeFileSync(evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+  fs.mkdirSync(`${evidenceFile}.raw`);
+  const calls = [];
+  const zip = path.join(base, 'trace.zip'); fs.writeFileSync(zip, 'z'.repeat(64));
+  const fakePsql = (counts) => { let index = 0; return (program, args) => { calls.push(['psql', args.find((item) => item.startsWith('target=')) ? 'account-or-db' : 'x']); return { status: 0, stdout: `${counts[Math.min(index++, counts.length - 1)]}\n` }; }; };
+  const reportFor = (slot, runId) => ({
+    config: {}, errors: [],
+    suites: [{
+      title: 'admin-eval.spec.ts', file: 'admin-eval.spec.ts', specs: [], suites: [{
+        title: 'x', file: 'admin-eval.spec.ts',
+        specs: recovery.loadRequiredPairs(slot).map((pair, index) => {
+          const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+          const annotations = [];
+          if (pair.title !== 'render bundle: board-mg-9/populated') annotations.push({ type: 'sigra-registration-control-context', description: `${runId}:${crypto.randomUUID()}` });
+          if (pair.title === 'registration detects a deliberate same-account collision') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ collision_email_sha256: slot.collision_account_sha256[pair.project], first_registration_succeeded: true, duplicate_response_confirmed: true }) });
+          if (pair.title === 'registration starts from a fresh database and context') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ prior_collision_account_email_sha256: slot.collision_account_sha256[pair.project], fresh_database_account_created: true }) });
+          const failed = expected === 'expected_failure';
+          const marker = { 'registration stops when LiveView readiness is never released': 'phx-connected', 'registration fails when the readiness wait is deliberately broken': 'data-sigra-never-connected', 'registration retains the first forced assertion failure trace': 'toHaveURL' }[pair.title];
+          return {
+            title: pair.title, file: 'admin-eval.spec.ts', ok: !failed,
+            tests: [{ projectName: pair.project, expectedStatus: 'passed', status: failed ? 'unexpected' : 'expected', annotations,
+              results: [{ status: failed ? 'failed' : 'passed', duration: 10, workerIndex: index, error: failed ? { message: `expect ${marker} failed` } : undefined, attachments: failed ? [{ name: 'trace', path: zip }] : [], annotations: [] }] }]
+          };
+        })
+      }]
+    }]
+  });
+  const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], validate = () => {} } = {}) => {
+  const absenceRun = fakePsql(absenceCounts); const accountRun = fakePsql(accountCounts);
+  return {
+    validate, enforcePaths: false, enforceNode: false, skipPreservation: true,
+    portAvailable: async () => true, waitReady: async () => 200, stopApp: async () => {},
+    holdAwake: () => { calls.push(['hold-awake']); return { held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], release: () => calls.push(['release-awake']) }; },
+    spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
+    runTree: async (program, args, cwd, env, log, timeoutMs) => {
+      calls.push(['tree', program, ...args]);
+      fs.writeFileSync(log, `${path.basename(program)} ${args[0]} ok\n`);
+      if (program.endsWith('/playwright')) {
+        const slot = freeze.ledger.slots.find((item) => env.SIGRA_CONTROL_RUN_ID.startsWith(item.id.toLowerCase()));
+        assert.equal(env.SIGRA_REGISTRATION_CONTROL_STAGE, slot.control_stage);
+        assert.equal(args.filter((arg) => /^(-g|--grep)/.test(arg)).length, 0);
+        fs.writeFileSync(env.SIGRA_PLAYWRIGHT_JSON, JSON.stringify(reportFor(slot, env.SIGRA_CONTROL_RUN_ID)));
+        return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, duration_ms: 5, group_signals: [], descendants_reaped: true };
+      }
+      return { pid: 1, exit_code: 0, signal: null, error: null, timed_out: false, duration_ms: 1, group_signals: [], descendants_reaped: true };
+    },
+    captureAbsence: (options) => recovery.captureOwnedDatabaseAbsence({ ...options, run: absenceRun }),
+    captureAccount: (options) => recovery.captureOwnedAccountCount({ ...options, run: accountRun }),
+    sanitizeTrace: (source, destination) => { fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL); return { entries: 3, navigation: true, submission: true }; }
+  }; };
+  return { base, checkout, freeze, freezeFile, evidenceFile, calls, makeDeps, read: () => JSON.parse(fs.readFileSync(evidenceFile, 'utf8')), clean: () => fs.rmSync(base, { recursive: true, force: true }) };
+}
+const sha = (data) => crypto.createHash('sha256').update(data).digest('hex');
+
+test('one unused slot runs exactly one Playwright CLI process and records 16 exact first rows', async () => {
+  const h = loadHarness();
+  try {
+    const result = await recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    assert.equal(result.rows, 16);
+    assert.equal(h.calls.filter((call) => call[0] === 'tree' && call[1].endsWith('/playwright')).length, 1);
+    assert.equal(h.calls.filter((call) => call[0] === 'tree' && call[1] === 'mix' && call[2] === 'ecto.setup').length, 1);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 6);
+    assert.deepEqual(evidence.limits.used_slots, [...LOAD_SPENT, 'CR-DESKTOP-MOBILE-FIRST']);
+    assert.equal(evidence.limits.charged_duration_ms, 276453 + evidence.attempts[0].charged_duration_ms);
+    assert.equal(evidence.attempts[0].lifecycle.rows, 16);
+    assert.equal(evidence.attempts[0].lifecycle.playwright_cli_processes, 1);
+    assert.equal(evidence.attempts[0].files.traces.length, 9);
+    const verdict = recovery.verifyLoadRecoveryEvidenceData(evidence, h.freeze, `${h.evidenceFile}.raw`, 'first', sha(fs.readFileSync(h.freezeFile)));
+    assert.deepEqual(verdict.errors, []);
+    assert.equal(h.calls.filter((call) => call[0] === 'psql').length, 1, 'first slot needs only the database absence proof');
+  } finally { h.clean(); }
+});
+
+test('all four slots run once in order, each second slot proves its collision account absent then created', async () => {
+  const h = loadHarness();
+  try {
+    for (const slot of recovery.loadRecoverySlotDefinitions()) await recovery.runLoadRecoverySlot(h.freezeFile, slot.id, h.evidenceFile, h.checkout, h.makeDeps());
+    const evidence = h.read();
+    assert.equal(evidence.status, 'complete');
+    assert.equal(evidence.attempts.reduce((sum, item) => sum + item.lifecycle.rows, 0), 22);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    for (const attempt of evidence.attempts.slice(1)) {
+      assert.equal(attempt.prior_collision_absence.count, 0);
+      assert.equal(attempt.created_account.count, 1);
+      assert.equal(attempt.prior_collision_absence.account_email_sha256, h.freeze.ledger.slots[attempt.sequence - 1].collision_account_sha256[attempt.project]);
+    }
+    const verdict = recovery.verifyLoadRecoveryEvidenceData(evidence, h.freeze, `${h.evidenceFile}.raw`, 'complete', sha(fs.readFileSync(h.freezeFile)));
+    assert.deepEqual(verdict.errors, []);
+    await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|consumed|already|order/i);
+  } finally { h.clean(); }
+});
+
+test('the spent CR-DARK-FIRST slot and every spent identity are refused before any setup', async () => {
+  const h = loadHarness();
+  try {
+    for (const id of ['CR-DARK-FIRST', 'R-DIAG-CONTROL-DARK', 'R-CONTROL-FIRST-DESKTOP']) {
+      await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps()), /spent|only the four/i);
+    }
+    assert.deepEqual(h.calls, []);
+    assert.equal(h.read().status, 'ready');
+  } finally { h.clean(); }
+});
+
+test('reopened retry, counter reset, out-of-order slot and source drift reject before setup', async () => {
+  for (const [mutate, pattern, slot, validate] of [
+    [(e) => { e.limits.retry_available = 1; }, /retry/i, 'CR-DESKTOP-MOBILE-FIRST'],
+    [(e) => { e.limits.charged_duration_ms = 0; e.limits.prior_charge_ms = 0; }, /counter reset|reset/i, 'CR-DESKTOP-MOBILE-FIRST'],
+    [(e) => { e.limits.used_slots.push('CR-DESKTOP-MOBILE-FIRST'); }, /already consumed/i, 'CR-DESKTOP-MOBILE-FIRST'],
+    [() => {}, /frozen order/i, 'CR-MOBILE-SECOND'],
+    [() => {}, /source identity/i, 'CR-DESKTOP-MOBILE-FIRST', () => { throw new Error('frozen load recovery source identity mismatch for scripts/x'); }]
+  ]) {
+    const h = loadHarness();
+    try {
+      const evidence = h.read(); mutate(evidence);
+      fs.writeFileSync(h.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+      await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, slot, h.evidenceFile, h.checkout, h.makeDeps(validate ? { validate } : {})), pattern);
+      assert.deepEqual(h.calls, [], String(pattern));
+    } finally { h.clean(); }
+  }
+});
+
+test('an unexpected native result is charged, halts the ledger and refuses a further command', async () => {
+  const h = loadHarness();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps({ cliExit: 0 })), /exit does not match/i);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted');
+    assert.ok(evidence.limits.charged_duration_ms > 276453);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 6);
+    assert.equal(recovery.verifyLoadRecoveryEvidenceData(evidence, h.freeze, `${h.evidenceFile}.raw`, 'first', sha(fs.readFileSync(h.freezeFile))).ok, false);
+    const before = h.calls.length;
+    await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved/i);
+    assert.equal(h.calls.length, before);
+  } finally { h.clean(); }
+});
+
+test('a prior collision account that already exists in the new database halts before browser work', async () => {
+  const h = loadHarness();
+  try {
+    await recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    const treeBefore = h.calls.filter((call) => call[0] === 'tree' && call[1].endsWith('/playwright')).length;
+    await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps({ accountCounts: [1] })), /not absent/i);
+    assert.equal(h.calls.filter((call) => call[0] === 'tree' && call[1].endsWith('/playwright')).length, treeBefore);
+    assert.equal(h.read().status, 'halted');
+  } finally { h.clean(); }
+});
+
+test('native load attempt verification rejects corrupted receipts one predicate at a time', async () => {
+  const h = loadHarness();
+  try {
+    await recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    const raw = `${h.evidenceFile}.raw`;
+    const good = h.read().attempts[0];
+    assert.equal(recovery.verifyNativeLoadAttempt(structuredClone(good), h.freeze, raw).ok, true);
+    for (const [name, mutate, pattern] of [
+      ['argv', (a) => { a.argv.push('--grep=x'); }, /argv|grep/i],
+      ['cli exit', (a) => { a.playwright_cli.exit_code = 0; }, /exit/i],
+      ['two processes', (a) => { a.lifecycle.playwright_cli_processes = 2; }, /one physical/i],
+      ['overrun', (a) => { a.charged_duration_ms = 120001; }, /120,000|charge/i],
+      ['source', (a) => { a.source_commit = 'c'.repeat(40); }, /source/i],
+      ['trace count', (a) => { a.files.traces.pop(); }, /trace count/i],
+      ['wrong database namespace', (a) => { a.database.name = 'other_db'; }, /namespace/i],
+      ['lifecycle', (a) => { a.lifecycle.worker_indexes = []; }, /lifecycle/i]
+    ]) {
+      const attempt = structuredClone(good); mutate(attempt);
+      const verdict = recovery.verifyNativeLoadAttempt(attempt, h.freeze, raw);
+      assert.equal(verdict.ok, false, name);
+      assert.match(verdict.errors.join(';'), pattern, name);
+    }
+    const spent = structuredClone(good); spent.slot_id = 'CR-DARK-FIRST';
+    assert.equal(recovery.verifyNativeLoadAttempt(spent, h.freeze, raw).ok, false);
+  } finally { h.clean(); }
+});
+
+test('load recovery freeze creation and checks refuse a candidate without the preserved native records', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'load' });
+  try {
+    const out = path.join(fixture.root, 'out-freeze.json');
+    assert.throws(() => recovery.createLoadRecoveryFreeze(out, fixture.root));
+    assert.equal(fs.existsSync(out), false);
+    assert.throws(() => recovery.validateLoadRecoveryFreeze(fixture.root, { schema_version: 'x' }), /malformed|digest/i);
+  } finally { fixture.cleanup?.(); }
+});
+
+// 253-40 regression: the host slept three times inside one native window (pmset: 744 s, 923 s,
+// 753 s) and the single armed deadline timer never fired, so the CLI ran ~29 minutes. These
+// synthetic trees model that discontinuity offline by moving the runner's injected clocks the way
+// sleep moves them; nothing here waits on a race: each test waits on a published tree.json, then
+// on the runner's own result.
+function clockJump() {
+  let offset = 0;
+  return { now: (base) => () => base() + offset, jump: (ms) => { offset += ms; } };
+}
+
+test('a wall-clock jump past the deadline (host sleep) kills the whole tree at the next watchdog tick', { timeout: 30000 }, async () => {
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-wall-sleep-'));
+  const wall = clockJump();
+  const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 120000, 200,
+    { wallNow: wall.now(() => Date.now()) });
+  const tree = await whenTreeReady(readyDir);
+  wall.jump(15 * 60 * 1000);
+  const result = await pending;
+
+  assert.equal(result.timed_out, true, 'the deadline is enforced on the wall clock, not only the armed monotonic timer');
+  assert.ok(result.duration_ms < 120000, 'the monotonic clock alone never reached the deadline');
+  assert.ok(result.wall_duration_ms >= 120000);
+  assert.equal(result.suspended, true, 'a wall/monotonic skew beyond the gap threshold is recorded as host suspension');
+  assert.deepEqual(result.group_signals, ['SIGTERM', 'SIGKILL'], 'SIGTERM, then exactly one SIGKILL for the SIGTERM-resistant grandchild');
+  assert.equal(result.descendants_reaped, true);
+  assert.equal(processGone(tree.child), true);
+  assert.equal(processGone(tree.grandchild), true);
+  assert.equal(processGone(-result.pid), true);
+});
+
+test('both clocks jumping across a sleep are caught as a tick gap and enforce the deadline', { timeout: 30000 }, async () => {
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-both-sleep-'));
+  const clock = clockJump();
+  const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 120000, 200, {
+    monotonicNow: clock.now(() => Number(process.hrtime.bigint()) / 1e6),
+    wallNow: clock.now(() => Date.now())
+  });
+  const tree = await whenTreeReady(readyDir);
+  clock.jump(923 * 1000);
+  const result = await pending;
+
+  assert.equal(result.timed_out, true);
+  assert.equal(result.suspended, true);
+  assert.ok(result.max_tick_gap_ms >= 900000, `tick gap ${result.max_tick_gap_ms} records the sleep`);
+  assert.equal(result.group_signals.filter((name) => name === 'SIGKILL').length, 1);
+  assert.equal(processGone(tree.grandchild), true);
+  assert.equal(processGone(-result.pid), true);
+});
+
+test('an uneventful bounded run records no suspension and its wall duration', { timeout: 30000 }, async () => {
+  const result = await recovery.runLoggedTree(process.execPath, ['-e', 'setTimeout(() => {}, 50)'], root, process.env, path.join(temporary, 'quiet-tree.log'), 20000, 200);
+  assert.equal(result.exit_code, 0);
+  assert.equal(result.timed_out, false);
+  assert.equal(result.suspended, false);
+  assert.ok(Number.isInteger(result.wall_duration_ms));
+  assert.deepEqual(result.group_signals, []);
+});
+
+test('deadline escalation sends SIGKILL at most once under parallel load', { timeout: 60000 }, async () => {
+  const runs = Array.from({ length: 6 }, async (_, index) => {
+    const readyDir = fs.mkdtempSync(path.join(temporary, `tree-parallel-${index}-`));
+    const controller = new AbortController();
+    const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 30000, 50, { signal: controller.signal });
+    const tree = await whenTreeReady(readyDir);
+    controller.abort();
+    return { tree, result: await pending };
+  });
+  for (const { tree, result } of await Promise.all(runs)) {
+    assert.deepEqual(result.group_signals, ['SIGTERM', 'SIGKILL']);
+    assert.equal(result.descendants_reaped, true);
+    assert.equal(processGone(tree.grandchild), true);
+    assert.equal(processGone(-result.pid), true);
+  }
+});
+
+test('a group that dies slowly after SIGKILL still receives exactly one SIGKILL (253-39 flake)', { timeout: 30000 }, async () => {
+  // Deterministic model of a loaded host: the owned group stays visible for 400 ms after SIGKILL,
+  // so the deadline escalation and the reap poll both reach the kill decision while it is alive.
+  const readyDir = fs.mkdtempSync(path.join(temporary, 'tree-slow-death-'));
+  let killedAt = null;
+  const killProcess = (pid, name) => {
+    if (name === 'SIGKILL') killedAt ??= Number(process.hrtime.bigint()) / 1e6;
+    if (name === 0 && (killedAt === null || Number(process.hrtime.bigint()) / 1e6 - killedAt < 400)) return true;
+    return process.kill(pid, name);
+  };
+  const controller = new AbortController();
+  const pending = recovery.runLoggedTree(process.execPath, ['-e', treeScript(readyDir)], root, process.env, path.join(readyDir, 'run.log'), 30000, 100, { signal: controller.signal, killProcess });
+  const tree = await whenTreeReady(readyDir);
+  controller.abort();
+  const result = await pending;
+
+  assert.deepEqual(result.group_signals, ['SIGTERM', 'SIGKILL']);
+  assert.equal(result.descendants_reaped, true);
+  assert.equal(processGone(tree.grandchild), true);
+  assert.equal(processGone(-result.pid), true);
+});
+
+test('the host sleep assertion is caffeinate bound to the runner pid on macOS and absent elsewhere', () => {
+  const spawned = [];
+  const fakeSpawn = (program, args) => { spawned.push([program, ...args]); return { pid: 9001, on: () => {}, kill: (name) => spawned.push(['kill', name]) }; };
+  const held = recovery.holdHostAwake({ platform: 'darwin', spawnProcess: fakeSpawn, pid: 4321, exists: () => true });
+  assert.equal(held.held, true);
+  assert.deepEqual(spawned[0], ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', '4321']);
+  held.release();
+  assert.deepEqual(spawned[1], ['kill', 'SIGTERM']);
+
+  const linux = recovery.holdHostAwake({ platform: 'linux', spawnProcess: () => assert.fail('no assertion needed off macOS') });
+  assert.equal(linux.held, false);
+  assert.throws(() => recovery.holdHostAwake({ platform: 'darwin', spawnProcess: fakeSpawn, exists: () => false }), /caffeinate/);
+  assert.throws(() => recovery.holdHostAwake({ platform: 'darwin', spawnProcess: () => ({}), exists: () => true }), /could not be started/);
+});
+
+test('a load slot holds the host awake for the whole window and refuses before any charge when it cannot', async () => {
+  const h = loadHarness();
+  try {
+    await recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    const kinds = h.calls.map((call) => call[0]);
+    assert.ok(kinds.indexOf('hold-awake') < kinds.indexOf('tree'), 'held before the first native command');
+    assert.equal(kinds.at(-1), 'release-awake', 'released only after the ledger is written');
+    assert.equal(h.read().attempts[0].host.sleep_assertion_held, true);
+    assert.equal(h.read().attempts[0].host.suspension_detected, false);
+  } finally { h.clean(); }
+
+  const refused = loadHarness();
+  try {
+    const before = refused.read();
+    await assert.rejects(() => recovery.runLoadRecoverySlot(refused.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', refused.evidenceFile, refused.checkout,
+      { ...refused.makeDeps(), holdAwake: () => { throw new Error('macOS sleep assertion could not be started'); } }), /sleep assertion/);
+    assert.deepEqual(refused.read(), before, 'no reservation, used slot or charge when the host cannot be kept awake');
+    assert.equal(refused.calls.filter((call) => call[0] === 'tree').length, 0);
+  } finally { refused.clean(); }
+});
+
+test('a host sleep inside the browser command halts the slot, charges the wall time and still drops the owned database', async () => {
+  const h = loadHarness();
+  const realNow = Date.now;
+  const timeouts = [];
+  try {
+    const deps = h.makeDeps();
+    const inner = deps.runTree;
+    deps.runTree = async (program, args, cwd, env, log, timeoutMs, ...rest) => {
+      timeouts.push([path.basename(program), args[0], timeoutMs]);
+      const result = await inner(program, args, cwd, env, log, timeoutMs, ...rest);
+      if (!program.endsWith('/playwright')) return result;
+      Date.now = () => realNow() + 1765488;
+      return { ...result, timed_out: true, suspended: true, wall_duration_ms: 1765488 };
+    };
+    await assert.rejects(() => recovery.runLoadRecoverySlot(h.freezeFile, 'CR-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, deps), /host suspension/);
+    Date.now = realNow;
+    const evidence = h.read();
+    assert.match(evidence.stop_reason, /host suspension \(system sleep or a stalled runner event loop\) was detected/, 'the runner itself halts on suspension, not only the verifier');
+    const attempt = evidence.attempts[0];
+    assert.equal(evidence.status, 'halted');
+    assert.equal(attempt.host.suspension_detected, true);
+    assert.ok(attempt.wall_duration_ms >= 1765488);
+    assert.equal(attempt.charged_duration_ms, Math.max(attempt.execution_duration_ms, attempt.wall_duration_ms), 'the charge never hides the sleep');
+    assert.equal(evidence.limits.charged_duration_ms, 276453 + attempt.charged_duration_ms);
+    const drop = timeouts.find(([program, verb]) => program === 'mix' && verb === 'ecto.drop');
+    assert.ok(drop[2] >= 5000, `the owned drop keeps a bounded floor after an overrun (got ${drop[2]} ms)`);
+    assert.equal(attempt.database.drop_exit_code, 0);
+    assert.ok(attempt.database.absence_receipt, 'the owned database absence is still proven');
+    assert.equal(recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, `${h.evidenceFile}.raw`).ok, false);
+    assert.match(recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, `${h.evidenceFile}.raw`).errors.join('; '), /host suspension/);
+  } finally { Date.now = realNow; h.clean(); }
+});
+
+// ---- Plan 48: R2 load-recovery revision (synthetic subprocess boundaries; no native work) ----
+const R2_SPENT = [...LOAD_SPENT, 'CR-DESKTOP-MOBILE-FIRST'];
+const R2_CHARGES = [...LOAD_CHARGES, 655, 1765488];
+const r2LedgerInput = () => ({
+  charges: [...R2_CHARGES], physicalPlaywrightLaunches: 6, spentReservations: [...R2_SPENT],
+  retryUsed: 1, retryAvailable: 0, preparationUsedMs: 4398
+});
+const R2_APPROVE = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v1', decision: 'approve', retry_granted: 1,
+  caps: { new_allowance_ms: 645000, d19_cap_ms: 2687596, d19_launch_max: 11, shared_cap_ms: 5027596, physical_cli_max: 20 }
+};
+const R2_APPROVE_NO_RETRY = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v1', decision: 'approve-without-retry', retry_granted: 0,
+  caps: { new_allowance_ms: 525000, d19_cap_ms: 2567596, d19_launch_max: 10, shared_cap_ms: 4907596, physical_cli_max: 19 }
+};
+
+test('R2 ledger carries 2042596 ms, six launches and seven spent identities, with the reviewed R2 caps', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR2(r2LedgerInput());
+  assert.equal(ledger.prior_charge_ms, 2042596);
+  assert.equal(ledger.prior_playwright_cli_launches, 6);
+  assert.deepEqual(ledger.spent_reservations, R2_SPENT);
+  assert.equal(ledger.preparation_used_ms, 4398);
+  assert.equal(ledger.preparation_reserve_ms, 30000);
+  assert.equal(ledger.retry_used, 1);
+  assert.equal(ledger.retry_available, 0);
+  assert.deepEqual(ledger.caps.approve, R2_APPROVE.caps);
+  assert.deepEqual(ledger.caps['approve-without-retry'], R2_APPROVE_NO_RETRY.caps);
+  assert.equal(ledger.required_rows, 22);
+});
+
+test('R2 ledger rejects any other carried input', () => {
+  for (const mutate of [
+    (input) => { input.charges[9] = 1765487; },
+    (input) => { input.charges.pop(); },
+    (input) => { input.charges[8] = 654; },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.pop(); },
+    (input) => { input.spentReservations.reverse(); },
+    (input) => { input.physicalPlaywrightLaunches = 5; },
+    (input) => { input.preparationUsedMs = 3743; }
+  ]) {
+    const input = r2LedgerInput(); mutate(input);
+    assert.throws(() => recovery.buildLoadRecoveryLedgerR2(input), /historical|retry|reservation|launch|preparation|carried/i);
+  }
+});
+
+test('R2 slots keep the identical 22-row selection under CR2-DESKTOP-MOBILE-FIRST plus the three unused seconds and one retry declaration', () => {
+  const v1 = recovery.loadRecoverySlotDefinitions();
+  const r2 = recovery.loadRecoverySlotDefinitionsR2();
+  assert.deepEqual(r2.map((slot) => slot.id), ['CR2-DESKTOP-MOBILE-FIRST', 'CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND', 'CR2-INFRA-RETRY']);
+  assert.equal(r2[0].maps_from, 'CR-DESKTOP-MOBILE-FIRST');
+  for (const [index, slot] of v1.entries()) {
+    const { id: _id, maps_from: _maps, ...rest } = slot;
+    const { id: _rid, maps_from: _rmaps, ...restR2 } = r2[index];
+    assert.deepEqual(restR2, rest, `selection of ${slot.id} must be byte-identical to the frozen one`);
+  }
+  assert.deepEqual(r2.slice(0, 4).map((slot) => slot.rows), [16, 2, 2, 2]);
+  assert.equal(r2[0].expected_cli_exit, 1);
+  const retry = r2[4];
+  assert.equal(retry.max_duration_ms, 120000);
+  assert.equal(retry.selection ?? null, null);
+  assert.equal(retry.project_selections, undefined);
+  assert.equal(retry.rows, 0);
+  assert.equal(r2.slice(0, 4).reduce((sum, slot) => sum + slot.rows, 0), 22);
+});
+
+test('v1 and R2 evidence are never accepted by the other revision, and the R2 modes refuse any other path', () => {
+  const v1 = loadHarness();
+  const r2 = loadHarnessR2();
+  try {
+    assert.equal(recovery.verifyLoadRecoveryEvidenceData(r2.read(), r2.freeze, `${r2.evidenceFile}.raw`, 'first', sha(fs.readFileSync(r2.freezeFile))).ok, false);
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(v1.read(), v1.freeze, `${v1.evidenceFile}.raw`, 'first', sha(fs.readFileSync(v1.freezeFile))).ok, false);
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    const stray = path.join(temporary, 'stray-r2-freeze.json');
+    const created = spawnSync(process.execPath, [script, '--create-load-recovery-r2', '--output', stray], { encoding: 'utf8', cwd: root });
+    assert.equal(created.status, 3);
+    assert.match(created.stderr, /reviewed phase artifact path/);
+    assert.equal(fs.existsSync(stray), false);
+    const checked = spawnSync(process.execPath, [script, '--check-load-recovery-freeze', stray], { encoding: 'utf8', cwd: root });
+    assert.equal(checked.status, 3);
+  } finally { v1.clean(); r2.clean(); }
+});
+
+test('R2 freeze creation and validation refuse a candidate without the preserved native records', () => {
+  const fixture = createRegistrationNativeTreeFixture({ label: 'load-r2' });
+  try {
+    const out = path.join(fixture.root, 'out-freeze-r2.json');
+    assert.throws(() => recovery.createLoadRecoveryFreezeR2(out, fixture.root));
+    assert.equal(fs.existsSync(out), false);
+    assert.throws(() => recovery.validateLoadRecoveryFreezeR2(fixture.root, { schema_version: 'x' }), /malformed|digest/i);
+  } finally { fixture.cleanup?.(); }
+});
+
+// ---- synthetic R2 runner harness ----
+function loadHarnessR2() {
+  const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-r2-')));
+  const checkout = path.join(base, 'checkout');
+  const pwPackage = path.join(checkout, 'test/example/priv/playwright/node_modules/@playwright/test/package.json');
+  fs.mkdirSync(path.dirname(pwPackage), { recursive: true });
+  fs.writeFileSync(pwPackage, JSON.stringify({ version: '1.59.1' }));
+  const ledger = recovery.buildLoadRecoveryLedgerR2(r2LedgerInput());
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-load-recovery-freeze/v2', status: 'frozen_before_results', plan: '253-48', revision: 'r2',
+    source: { repository: 'synthetic', checkout_head: 'a'.repeat(40), blobs: { 'scripts/x': 'b'.repeat(40) } },
+    tools: { playwright: '1.59.1', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' },
+    selection: { spec: 'tests/admin-eval.spec.ts' },
+    historical: { infrastructure_halt: { slot_id: 'CR-DESKTOP-MOBILE-FIRST', cause: 'host_sleep', retryable: false, charged_ms: 1765488, fix_commit: 'cf578a567e4c01e6e9e904c2ca8c01bec85345d0', root_cause: { file: '.planning/debug/resolved/253-native-deadline-not-enforced.md', sha256: 'c'.repeat(64) } } },
+    ledger
+  };
+  freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const freezeFile = path.join(base, 'freeze-r2.json'); const evidenceFile = path.join(base, 'evidence-r2.json');
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze, null, 2)}\n`);
+  const writeEvidence = (approval) => {
+    const evidence = {
+      schema_version: 'sigra.phase253.registration-load-recovery-evidence/v2', revision: 'r2', status: 'ready', freeze_path: 'freeze-r2.json',
+      freeze_sha256: sha(fs.readFileSync(freezeFile)), source: structuredClone(freeze.source), attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+      infrastructure_halts: [structuredClone(freeze.historical.infrastructure_halt)], infrastructure_retry: null,
+      approval: { decision: approval.decision, retry_granted: approval.retry_granted },
+      limits: {
+        prior_charge_ms: 2042596, preparation_charge_ms: 0, preparation_remaining_ms: 30000, charged_duration_ms: 2042596,
+        physical_playwright_cli_launches: 6, used_slots: [...R2_SPENT], max_d19_ms: approval.caps.d19_cap_ms, max_total_ms: approval.caps.shared_cap_ms,
+        max_d19_physical_playwright_cli_launches: approval.caps.d19_launch_max, max_physical_playwright_cli_launches: approval.caps.physical_cli_max,
+        retry_used: 1, retry_available: 0, infra_retry: { granted: approval.retry_granted, used: 0 }
+      }
+    };
+    fs.writeFileSync(evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  };
+  writeEvidence(R2_APPROVE);
+  const calls = [];
+  const zip = path.join(base, 'trace.zip'); fs.writeFileSync(zip, 'z'.repeat(64));
+  const fakePsql = (counts) => { let index = 0; return () => { calls.push(['psql']); return { status: 0, stdout: `${counts[Math.min(index++, counts.length - 1)]}\n` }; }; };
+  const allSlots = [...freeze.ledger.slots.slice(0, 4)];
+  const reportFor = (slot, runId, { failRow = false } = {}) => ({
+    config: {}, errors: [],
+    suites: [{
+      title: 'admin-eval.spec.ts', file: 'admin-eval.spec.ts', specs: [], suites: [{
+        title: 'x', file: 'admin-eval.spec.ts',
+        specs: recovery.loadRequiredPairs(slot).map((pair, index) => {
+          let expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+          const annotations = [];
+          if (pair.title !== 'render bundle: board-mg-9/populated') annotations.push({ type: 'sigra-registration-control-context', description: `${runId}:${crypto.randomUUID()}` });
+          if (pair.title === 'registration detects a deliberate same-account collision') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ collision_email_sha256: slot.collision_account_sha256[pair.project], first_registration_succeeded: true, duplicate_response_confirmed: true }) });
+          if (pair.title === 'registration starts from a fresh database and context') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ prior_collision_account_email_sha256: slot.collision_account_sha256[pair.project], fresh_database_account_created: true }) });
+          let failed = expected === 'expected_failure';
+          const marker = { 'registration stops when LiveView readiness is never released': 'phx-connected', 'registration fails when the readiness wait is deliberately broken': 'data-sigra-never-connected', 'registration retains the first forced assertion failure trace': 'toHaveURL' }[pair.title];
+          const broken = failRow && index === 0 && !failed;
+          return {
+            title: pair.title, file: 'admin-eval.spec.ts', ok: !failed && !broken,
+            tests: [{ projectName: pair.project, expectedStatus: 'passed', status: failed || broken ? 'unexpected' : 'expected', annotations,
+              results: [{ status: failed || broken ? 'failed' : 'passed', duration: 10, workerIndex: index, error: failed ? { message: `expect ${marker} failed` } : broken ? { message: 'unexpected assertion failure' } : undefined, attachments: failed ? [{ name: 'trace', path: zip }] : [], annotations: [] }] }]
+          };
+        })
+      }]
+    }]
+  });
+  const awakeFor = () => ({ held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], pid: 4321, release: () => calls.push(['release-awake']) });
+  const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], validate = () => {}, approval = R2_APPROVE,
+    suspendBrowser = false, suspendFlag = false, failRow = false, probeHost = null, holderAlive = () => true, diagnosticFile = null, checkDiagnostic = null } = {}) => {
+    const absenceRun = fakePsql(absenceCounts); const accountRun = fakePsql(accountCounts);
+    return {
+      validate, enforcePaths: false, enforceNode: false, skipPreservation: true, diagnosticFile,
+      readApproval: () => approval, holderAlive,
+      checkDiagnostic: checkDiagnostic ?? ((_root, file) => { if (!file) throw new Error('infrastructure retry requires a committed diagnostic'); return { file, sha256: 'd'.repeat(64) }; }),
+      probeHost: probeHost ?? (async () => { calls.push(['probe-host']); return { awake: awakeFor(), host_awake: { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' } }; }),
+      portAvailable: async () => true, waitReady: async () => 200, stopApp: async () => {},
+      spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
+      runTree: async (program, args, cwd, env, log, timeoutMs) => {
+        calls.push(['tree', program, ...args]);
+        fs.writeFileSync(log, `${path.basename(program)} ${args[0]} ok\n`);
+        if (program.endsWith('/playwright')) {
+          const given = args.slice(2, -1);
+          const slot = allSlots.find((item) => JSON.stringify(item.argv) === JSON.stringify(given));
+          assert.equal(env.SIGRA_REGISTRATION_CONTROL_STAGE, slot.control_stage);
+          assert.equal(args.filter((arg) => /^(-g|--grep)/.test(arg)).length, 0);
+          if (suspendBrowser) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: true, duration_ms: 5, wall_duration_ms: 5, group_signals: ['SIGTERM'], descendants_reaped: true };
+          fs.writeFileSync(env.SIGRA_PLAYWRIGHT_JSON, JSON.stringify(reportFor(slot, env.SIGRA_CONTROL_RUN_ID, { failRow })));
+          return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, suspended: suspendFlag, duration_ms: 5, group_signals: [], descendants_reaped: true };
+        }
+        return { pid: 1, exit_code: 0, signal: null, error: null, timed_out: false, duration_ms: 1, group_signals: [], descendants_reaped: true };
+      },
+      captureAbsence: (options) => recovery.captureOwnedDatabaseAbsence({ ...options, run: absenceRun }),
+      captureAccount: (options) => recovery.captureOwnedAccountCount({ ...options, run: accountRun }),
+      sanitizeTrace: (source, destination) => { fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL); return { entries: 3, navigation: true, submission: true }; }
+    };
+  };
+  return { base, checkout, freeze, freezeFile, evidenceFile, calls, makeDeps, writeEvidence, read: () => JSON.parse(fs.readFileSync(evidenceFile, 'utf8')), clean: () => fs.rmSync(base, { recursive: true, force: true }) };
+}
+
+test('every spent identity, including CR-DESKTOP-MOBILE-FIRST, is refused by the R2 runner before any spawn', async () => {
+  const h = loadHarnessR2();
+  try {
+    for (const id of [...R2_SPENT, 'R-CONTROL-FIRST-DESKTOP']) {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps()), /spent|only the/i, id);
+    }
+    assert.deepEqual(h.calls, []);
+    assert.equal(h.read().status, 'ready');
+  } finally { h.clean(); }
+});
+
+test('a synthetic R2 first slot writes an R2 ledger that the first-stage verifier accepts', async () => {
+  const h = loadHarnessR2();
+  try {
+    const result = await recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    assert.equal(result.rows, 16);
+    assert.equal(h.calls.filter((call) => call[0] === 'tree' && call[1].endsWith('/playwright')).length, 1);
+    const evidence = h.read();
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v2');
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 7);
+    assert.deepEqual(evidence.limits.used_slots, [...R2_SPENT, 'CR2-DESKTOP-MOBILE-FIRST']);
+    assert.equal(evidence.limits.charged_duration_ms, 2042596 + evidence.attempts[0].charged_duration_ms);
+    assert.equal(evidence.attempts[0].files.traces.length, 9);
+    const verdict = recovery.verifyLoadRecoveryEvidenceDataR2(evidence, h.freeze, `${h.evidenceFile}.raw`, 'first', sha(fs.readFileSync(h.freezeFile)));
+    assert.deepEqual(verdict.errors, []);
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(evidence, h.freeze, `${h.evidenceFile}.raw`, 'complete', sha(fs.readFileSync(h.freezeFile))).ok, false);
+  } finally { h.clean(); }
+});
+
+test('R2 runs all four regular slots once in order and verifies the complete 22-row proof', async () => {
+  const h = loadHarnessR2();
+  try {
+    for (const id of ['CR2-DESKTOP-MOBILE-FIRST', 'CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND']) {
+      await recovery.runLoadRecoverySlotR2(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps());
+    }
+    const evidence = h.read();
+    assert.equal(evidence.status, 'complete');
+    assert.equal(evidence.attempts.reduce((sum, item) => sum + item.lifecycle.rows, 0), 22);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 10);
+    const verdict = recovery.verifyLoadRecoveryEvidenceDataR2(evidence, h.freeze, `${h.evidenceFile}.raw`, 'complete', sha(fs.readFileSync(h.freezeFile)));
+    assert.deepEqual(verdict.errors, []);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|consumed|already|order/i);
+  } finally { h.clean(); }
+});
+
+test('R2 refuses out-of-order slots, a reopened original retry, a counter reset and a slot outside the frozen table', async () => {
+  for (const [mutate, pattern, slot] of [
+    [() => {}, /frozen order/i, 'CR-MOBILE-SECOND'],
+    [(e) => { e.limits.retry_available = 1; }, /retry/i, 'CR2-DESKTOP-MOBILE-FIRST'],
+    [(e) => { e.limits.charged_duration_ms = 0; e.limits.prior_charge_ms = 0; }, /reset/i, 'CR2-DESKTOP-MOBILE-FIRST'],
+    [() => {}, /only the/i, 'CR-UNKNOWN']
+  ]) {
+    const h = loadHarnessR2();
+    try {
+      const evidence = h.read(); mutate(evidence);
+      fs.writeFileSync(h.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, slot, h.evidenceFile, h.checkout, h.makeDeps()), pattern);
+      assert.deepEqual(h.calls, [], String(pattern));
+    } finally { h.clean(); }
+  }
+});
+
+// ---- Plan 48 task 2: budget approval, host-sleep preflight, infrastructure retry, terminal-evidence binding ----
+const gitIn = (cwd, ...args) => {
+  const result = spawnSync('git', args, { cwd, encoding: 'utf8' });
+  assert.equal(result.status, 0, `git ${args.join(' ')}: ${result.stderr}`);
+  return result.stdout.trim();
+};
+function approvalRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-approval-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  const phase = ['.planning', 'phases', '253-fix-flaky-ci-and-preserve-required-checks'].join('/');
+  fs.mkdirSync(path.join(dir, phase), { recursive: true });
+  const budget = path.join(dir, phase, '253-LOAD-RECOVERY-BUDGETS-R2.md');
+  fs.writeFileSync(budget, '# budgets r2\n');
+  const freezeFile = path.join(dir, phase, '253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json');
+  const freeze = { schema_version: 'sigra.phase253.registration-load-recovery-freeze/v2', budget: { file: `${phase}/253-LOAD-RECOVERY-BUDGETS-R2.md`, sha256: sha(fs.readFileSync(budget)) } };
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze)}\n`);
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  return { dir, phase, budget, freezeFile, freeze, approval: path.join(dir, phase, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('recording a budget approval is exclusive, binds the budget and freeze hashes, and a reject writes nothing', () => {
+  const r = approvalRepo();
+  try {
+    assert.throws(() => recovery.recordBudgetApproval({ decision: 'reject', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no' }, r.dir, { enforcePaths: false }), /reject|grants no capacity|decision/i);
+    assert.throws(() => recovery.recordBudgetApproval({ decision: 'maybe', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /decision/i);
+    assert.equal(fs.existsSync(r.approval), false);
+    const record = recovery.recordBudgetApproval({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'approve exactly as written' }, r.dir, { enforcePaths: false, now: () => '2026-10-14T08:00:00.000Z' });
+    const onDisk = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    assert.deepEqual(onDisk, record);
+    assert.equal(onDisk.schema_version, 'sigra.phase253.load-recovery-budget-approval/v1');
+    assert.equal(onDisk.decision, 'approve');
+    assert.equal(onDisk.decided_by, 'Jon (operator), recorded by executor from checkpoint response');
+    assert.equal(onDisk.decision_text, 'approve exactly as written');
+    assert.equal(onDisk.budget_sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(onDisk.freeze_sha256, sha(fs.readFileSync(r.freezeFile)));
+    assert.deepEqual(onDisk.caps, R2_APPROVE.caps);
+    assert.equal(onDisk.retry_granted, 1);
+    assert.equal(onDisk.recorded_at, '2026-10-14T08:00:00.000Z');
+    assert.throws(() => recovery.recordBudgetApproval({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'again' }, r.dir, { enforcePaths: false }), /EEXIST|exist|exclusive/i);
+    assert.equal(JSON.parse(fs.readFileSync(r.approval, 'utf8')).decision, 'approve', 'the first record is never overwritten');
+  } finally { r.clean(); }
+});
+
+test('an approval for approve-without-retry grants no infrastructure retry and a budget mismatch refuses to record', () => {
+  const r = approvalRepo();
+  try {
+    const record = recovery.recordBudgetApproval({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no retry' }, r.dir, { enforcePaths: false });
+    assert.equal(record.retry_granted, 0);
+    assert.deepEqual(record.caps, R2_APPROVE_NO_RETRY.caps);
+    fs.rmSync(r.approval);
+    fs.writeFileSync(r.budget, '# budgets r2 (edited)\n');
+    assert.throws(() => recovery.recordBudgetApproval({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /budget/i);
+    assert.equal(fs.existsSync(r.approval), false);
+  } finally { r.clean(); }
+});
+
+test('a run needs a committed approval record bound to the budget document and the freeze', () => {
+  const r = approvalRepo();
+  try {
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /absent|missing/i);
+    recovery.recordBudgetApproval({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'ok' }, r.dir, { enforcePaths: false });
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /committed/i);
+    gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'approval');
+    const good = recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze);
+    assert.equal(good.decision, 'approve');
+    assert.equal(good.retry_granted, 1);
+    fs.writeFileSync(r.approval, `${fs.readFileSync(r.approval, 'utf8')} `);
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /committed|differs/i);
+    gitIn(r.dir, 'checkout', '--', '.');
+    const edited = JSON.parse(fs.readFileSync(r.approval, 'utf8')); edited.budget_sha256 = 'f'.repeat(64);
+    fs.writeFileSync(r.approval, `${JSON.stringify(edited, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'bad budget');
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /budget/i);
+    edited.budget_sha256 = sha(fs.readFileSync(r.budget)); edited.freeze_sha256 = 'f'.repeat(64);
+    fs.writeFileSync(r.approval, `${JSON.stringify(edited, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'bad freeze');
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /freeze/i);
+    edited.freeze_sha256 = sha(fs.readFileSync(r.freezeFile)); edited.caps = { ...edited.caps, d19_cap_ms: edited.caps.d19_cap_ms + 1 };
+    fs.writeFileSync(r.approval, `${JSON.stringify(edited, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'bad caps');
+    assert.throws(() => recovery.readCommittedApproval(r.dir, r.freezeFile, r.freeze), /caps/i);
+  } finally { r.clean(); }
+});
+
+const PMSET_AC = "Now drawing from 'AC Power'\n -InternalBattery-0 (id=1)\t100%; charged; 0:00 remaining present: true\n";
+const PMSET_BATTERY = "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=1)\t80%; discharging; 3:00 remaining present: true\n";
+const pmsetAssertions = (pid, names = ['PreventUserIdleSystemSleep', 'PreventSystemSleep']) => `Assertion status system-wide:\n   PreventUserIdleSystemSleep    1\nListed by owning process:\n${names.map((name) => `   pid ${pid}(caffeinate): [0x0001] 00:00:05 ${name} named: "caffeinate command-line tool"`).join('\n')}\n`;
+function hostProbeHarness({ batt = PMSET_AC, assertions = pmsetAssertions(4321), alive = true, holderPid = 4321 } = {}) {
+  const events = [];
+  let clock = 0;
+  return {
+    events,
+    options: {
+      platform: 'darwin',
+      pmset: (args) => { events.push(['pmset', args.join(' ')]); return { status: 0, stdout: args[1] === 'batt' ? batt : assertions }; },
+      holdAwake: () => { events.push(['hold']); return { held: true, platform: 'darwin', pid: holderPid, argv: ['/usr/bin/caffeinate'], release: () => events.push(['release']) }; },
+      isAlive: () => alive,
+      now: () => { clock += 1500; return clock; },
+      sleep: async () => {},
+      waitMs: 3000
+    }
+  };
+}
+
+test('the host preflight proves AC power, the caffeinate holder and both pmset assertions, and records their hash', async () => {
+  const h = hostProbeHarness();
+  const result = await recovery.probeHostSleepSafety(h.options);
+  assert.equal(result.host_awake.holder_pid, 4321);
+  assert.equal(result.host_awake.ac_power, true);
+  assert.equal(result.host_awake.assertions_sha256, sha(pmsetAssertions(4321)));
+  assert.match(result.host_awake.checked_at, /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(result.awake.held, true);
+  assert.deepEqual(h.events.map((event) => event[0]).filter((kind) => kind !== 'pmset'), ['hold']);
+  assert.ok(h.events.findIndex((event) => event[0] === 'pmset' && event[1] === '-g batt') < h.events.findIndex((event) => event[0] === 'hold'), 'AC power is proven before the holder starts');
+  result.awake.release();
+});
+
+test('the host preflight refuses, and releases any holder, for battery power, a dead holder or missing assertions', async () => {
+  const battery = hostProbeHarness({ batt: PMSET_BATTERY });
+  await assert.rejects(() => recovery.probeHostSleepSafety(battery.options), /AC power/i);
+  assert.equal(battery.events.some((event) => event[0] === 'hold'), false, 'no holder is started on battery');
+
+  for (const [name, options, pattern] of [
+    ['dead holder', { alive: false }, /holder.*not running|not running/i],
+    ['other pid', { assertions: pmsetAssertions(9999) }, /assertion/i],
+    ['missing PreventSystemSleep', { assertions: pmsetAssertions(4321, ['PreventUserIdleSystemSleep']) }, /PreventSystemSleep/],
+    ['missing PreventUserIdleSystemSleep', { assertions: pmsetAssertions(4321, ['PreventSystemSleep']) }, /PreventUserIdleSystemSleep/]
+  ]) {
+    const h = hostProbeHarness(options);
+    await assert.rejects(() => recovery.probeHostSleepSafety(h.options), pattern, name);
+    assert.deepEqual(h.events.filter((event) => event[0] !== 'pmset').map((event) => event[0]), ['hold', 'release'], `${name}: holder released`);
+  }
+  await assert.rejects(() => recovery.probeHostSleepSafety({ ...hostProbeHarness().options, platform: 'linux' }), /macOS|darwin/i);
+});
+
+test('an R2 run refuses before the predebit when approval is missing or the host proof fails', async () => {
+  for (const [label, overrides, pattern] of [
+    ['approval absent', { readApproval: () => { throw new Error('R2 budget approval record is absent'); } }, /approval/i],
+    ['host proof fails', { probeHost: async () => { throw new Error('host is not on AC power'); } }, /AC power/i]
+  ]) {
+    const h = loadHarnessR2();
+    try {
+      const before = h.read();
+      await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, { ...h.makeDeps(), ...overrides }), pattern, label);
+      assert.deepEqual(h.read(), before, `${label}: no reservation, used slot or charge`);
+      assert.equal(h.calls.filter((call) => call[0] === 'tree' || call[0] === 'app').length, 0, label);
+    } finally { h.clean(); }
+  }
+});
+
+test('the approval decides the ceilings that the run enforces', async () => {
+  const h = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps({ approval: R2_APPROVE_NO_RETRY })), /approval caps differ/i);
+    assert.deepEqual(h.calls, []);
+  } finally { h.clean(); }
+});
+
+test('the R2 verifier rejects a receipt without its host_awake proof and any suspended receipt', async () => {
+  const h = loadHarnessR2();
+  try {
+    await recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps());
+    const evidence = h.read();
+    assert.deepEqual(evidence.attempts[0].host_awake, { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' });
+    const verify = (mutate) => { const copy = structuredClone(evidence); mutate(copy.attempts[0]); return recovery.verifyLoadRecoveryEvidenceDataR2(copy, h.freeze, `${h.evidenceFile}.raw`, 'first', sha(fs.readFileSync(h.freezeFile))); };
+    assert.equal(verify(() => {}).ok, true);
+    for (const [name, mutate, pattern] of [
+      ['no host_awake', (a) => { delete a.host_awake; }, /host_awake/],
+      ['not on AC', (a) => { a.host_awake.ac_power = false; }, /host_awake/],
+      ['no assertion hash', (a) => { a.host_awake.assertions_sha256 = 'x'; }, /host_awake/],
+      ['suspended true', (a) => { a.host.suspended = true; }, /suspended/],
+      ['suspension detected', (a) => { a.host.suspension_detected = true; }, /suspension/],
+      ['charge below the larger clock', (a) => { a.wall_duration_ms = a.charged_duration_ms + 10; }, /charge/]
+    ]) {
+      const verdict = verify(mutate);
+      assert.equal(verdict.ok, false, name);
+      assert.match(verdict.errors.join(';'), pattern, name);
+    }
+  } finally { h.clean(); }
+});
+
+test('a host sleep halts as halted_infrastructure, stays charged and counted, and blocks every regular slot until the retry', async () => {
+  const h = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })), /work deadline|suspension/i);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].observed_outcome, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.eligible, true);
+    assert.equal(evidence.infrastructure_retry.halted_slot, 'CR2-DESKTOP-MOBILE-FIRST');
+    assert.equal(evidence.infrastructure_retry.cause, 'host_sleep');
+    assert.equal(evidence.infrastructure_halts.length, 2);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 7);
+    assert.equal(evidence.limits.charged_duration_ms, 2042596 + evidence.attempts[0].charged_duration_ms);
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(evidence, h.freeze, `${h.evidenceFile}.raw`, 'first', sha(fs.readFileSync(h.freezeFile))).ok, false);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i);
+  } finally { h.clean(); }
+});
+
+test('CR2-INFRA-RETRY runs once, needs a committed diagnostic and a granted retry, and re-runs the identical frozen selection', async () => {
+  const h = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /halted_infrastructure|infrastructure/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })));
+    const callsBefore = h.calls.length;
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /diagnostic/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', checkDiagnostic: () => { throw new Error('diagnostic is not committed'); } })), /not committed/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', approval: R2_APPROVE_NO_RETRY })), /retry|caps/i);
+    assert.equal(h.calls.length, callsBefore, 'every refusal happens before any spawn');
+
+    const result = await recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' }));
+    assert.equal(result.rows, 16);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(evidence.attempts.length, 2);
+    assert.equal(evidence.attempts[1].slot_id, 'CR2-INFRA-RETRY');
+    assert.equal(evidence.attempts[1].retry_of, 'CR2-DESKTOP-MOBILE-FIRST');
+    assert.deepEqual(evidence.attempts[1].argv, evidence.attempts[0].argv);
+    assert.equal(evidence.infrastructure_retry.used, true);
+    assert.deepEqual(evidence.infrastructure_retry.diagnostic, { file: 'diag.json', sha256: 'd'.repeat(64) });
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 8);
+    assert.deepEqual(evidence.limits.used_slots, [...R2_SPENT, 'CR2-DESKTOP-MOBILE-FIRST', 'CR2-INFRA-RETRY']);
+    assert.equal(evidence.limits.charged_duration_ms, 2042596 + evidence.attempts[0].charged_duration_ms + evidence.attempts[1].charged_duration_ms);
+    const freezeHash = sha(fs.readFileSync(h.freezeFile));
+    const verdict = recovery.verifyLoadRecoveryEvidenceDataR2(evidence, h.freeze, `${h.evidenceFile}.raw`, 'first', freezeHash);
+    assert.deepEqual(verdict.errors, [], 'the original stays in attempts and the pair counts as one slot outcome');
+
+    const drifted = structuredClone(evidence); drifted.attempts[1].argv = drifted.attempts[1].argv.filter((arg) => arg !== '--project=admin-eval-dark');
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(drifted, h.freeze, `${h.evidenceFile}.raw`, 'first', freezeHash).ok, false, 'a retry with another selection is rejected');
+    const noDiagnostic = structuredClone(evidence); noDiagnostic.infrastructure_retry.diagnostic = null;
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(noDiagnostic, h.freeze, `${h.evidenceFile}.raw`, 'first', freezeHash).ok, false, 'a retry without a recorded diagnostic is rejected');
+
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure|already/i, 'the retry is usable once');
+  } finally { h.clean(); }
+});
+
+test('the retry is never available after an assertion failure, a non-suspension halt, a second infrastructure halt or approve-without-retry', async () => {
+  const noSuspension = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(noSuspension.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', noSuspension.evidenceFile, noSuspension.checkout, noSuspension.makeDeps({ cliExit: 0 })), /exit does not match/i);
+    assert.equal(noSuspension.read().status, 'halted');
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(noSuspension.freezeFile, 'CR2-INFRA-RETRY', noSuspension.evidenceFile, noSuspension.checkout, noSuspension.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i);
+  } finally { noSuspension.clean(); }
+
+  const assertion = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(assertion.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', assertion.evidenceFile, assertion.checkout, assertion.makeDeps({ suspendFlag: true, failRow: true })));
+    assert.equal(assertion.read().status, 'halted', 'a suspension that also shows an assertion failure is terminal');
+  } finally { assertion.clean(); }
+
+  const second = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(second.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', second.evidenceFile, second.checkout, second.makeDeps({ suspendBrowser: true })));
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(second.freezeFile, 'CR2-INFRA-RETRY', second.evidenceFile, second.checkout, second.makeDeps({ diagnosticFile: 'diag.json', suspendBrowser: true })));
+    const evidence = second.read();
+    assert.equal(evidence.status, 'halted', 'a second infrastructure halt is terminal');
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.attempts.length, 2);
+  } finally { second.clean(); }
+
+  const withoutRetry = loadHarnessR2();
+  try {
+    withoutRetry.writeEvidence(R2_APPROVE_NO_RETRY);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(withoutRetry.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', withoutRetry.evidenceFile, withoutRetry.checkout, withoutRetry.makeDeps({ approval: R2_APPROVE_NO_RETRY, suspendBrowser: true })));
+    assert.equal(withoutRetry.read().status, 'halted', 'no retry was granted, so the infrastructure halt is terminal');
+  } finally { withoutRetry.clean(); }
+});
+
+test('a lost caffeinate holder at the end of the window is an infrastructure halt', async () => {
+  const h = loadHarnessR2();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR2(h.freezeFile, 'CR2-DESKTOP-MOBILE-FIRST', h.evidenceFile, h.checkout, h.makeDeps({ holderAlive: () => false })), /holder/i);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.cause, 'holder_lost');
+    assert.equal(evidence.attempts[0].host.holder_alive_at_end, false);
+  } finally { h.clean(); }
+});
+
+test('accepted evidence verifies by git ancestry and object reads after a later committed runner change, while a live check still demands the working tree', () => {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-terminal-')));
+  try {
+    gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const fixed = true;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'fixed runner');
+    const fixed = gitIn(dir, 'rev-parse', 'HEAD');
+    fs.writeFileSync(path.join(dir, 'other.txt'), 'x\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'freeze point');
+    const frozenHead = gitIn(dir, 'rev-parse', 'HEAD');
+    const freeze = { source: { checkout_head: frozenHead, blobs: { 'runner.mjs': gitIn(dir, 'rev-parse', `${frozenHead}:runner.mjs`) } }, fixed_runner: { commit: fixed } };
+    assert.equal(recovery.verifyFrozenSourceBindingR2(dir, freeze, { terminal: false }), frozenHead);
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const fixed = true; export const later = 1;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'later runner change');
+    assert.throws(() => recovery.verifyFrozenSourceBindingR2(dir, freeze, { terminal: false }), /identity mismatch/i, 'a live check still demands working-tree equality');
+    assert.equal(recovery.verifyFrozenSourceBindingR2(dir, freeze, { terminal: true }), gitIn(dir, 'rev-parse', 'HEAD'), 'accepted evidence is not silently invalidated');
+    const forged = structuredClone(freeze); forged.source.blobs['runner.mjs'] = '0'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR2(dir, forged, { terminal: true }), /blob mismatch/i, 'nor silently re-accepted when the frozen blob differs');
+    const notAncestor = structuredClone(freeze); notAncestor.fixed_runner.commit = frozenHead; notAncestor.source.checkout_head = fixed;
+    assert.throws(() => recovery.verifyFrozenSourceBindingR2(dir, notAncestor, { terminal: true }), /ancestor|blob mismatch/i);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('the standalone host preflight prints nothing to the ledger and releases its holder', async () => {
+  const h = hostProbeHarness();
+  const line = await recovery.preflightHostSleep(h.options);
+  const parsed = JSON.parse(line);
+  assert.equal(parsed.holder_pid, 4321);
+  assert.equal(parsed.ac_power, true);
+  assert.deepEqual(h.events.map((event) => event[0]).filter((kind) => kind !== 'pmset'), ['hold', 'release']);
+});
+
+test('the approval recorder CLI refuses a reject decision and writes nothing', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const out = path.join(temporary, 'approval-reject.json');
+  const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(temporary, 'b.md'), '--freeze', path.join(temporary, 'f.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /decision/i);
+  assert.equal(fs.existsSync(out), false);
+});
+
+test('ordinary registration runner contracts opened no server or socket', () => {
+  assert.deepEqual(networkAttempts, []);
+});
+
+// ---- Phase 253 plan 59: per-test JSONL reporter, attempt diagnostics preservation, R3 verifier ----
+const REPORTER_FILE = path.join(root, 'test/example/priv/playwright/lib/reporters/failure-jsonl.mjs');
+const FAKE_SECRET = 'FAKE-SECRET-KEY-BASE-0123456789abcdef-not-real';
+
+function fakeTest(title, project = 'admin-eval') {
+  return { title, location: { file: '/x/tests/admin-eval.spec.ts', line: 12 }, expectedStatus: 'passed', ok() { return this.__ok; }, parent: { project: () => ({ name: project }) }, __ok: true };
+}
+
+async function writeFakeJsonl(file) {
+  const { default: Reporter } = await import(REPORTER_FILE);
+  const reporter = new Reporter({ outputFile: file });
+  const a = fakeTest('passing one'); const b = fakeTest('passing two'); const c = fakeTest('failing three'); c.__ok = false;
+  reporter.onTestEnd(a, { status: 'passed', duration: 11, retry: 0, errors: [] });
+  reporter.onTestEnd(b, { status: 'passed', duration: 12, retry: 0, errors: [] });
+  reporter.onTestEnd(c, { status: 'failed', duration: 13, retry: 0, errors: [{ message: '\u001b[31mError: expect(received).toBeVisible()\u001b[39m\nTimeout', location: { file: '/x/a.ts', line: 3, column: 4 } }] });
+  return reporter; // onEnd is deliberately never called
+}
+
+function launchedAttempt(extra = {}) {
+  return { slot_id: 'R3-A', playwright_cli: { launched: true }, ...extra };
+}
+
+test('failure JSONL reporter appends one fsynced line per finished test without onEnd', async () => {
+  const file = path.join(temporary, 'reporter', 'tests.jsonl');
+  const reporter = await writeFakeJsonl(file);
+  assert.equal(reporter.printsToStdio(), false);
+  const lines = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map((line) => JSON.parse(line));
+  assert.equal(lines.length, 3);
+  assert.deepEqual(lines.map((l) => l.status), ['passed', 'passed', 'failed']);
+  assert.ok(lines.every((l) => l.schema === 'sigra.phase253.playwright-test-end/v1'));
+  assert.equal(lines[2].project, 'admin-eval');
+  assert.equal(lines[2].title, 'failing three');
+  assert.equal(lines[2].ok, false);
+  assert.equal(lines[2].expected_status, 'passed');
+  assert.equal(lines[2].duration_ms, 13);
+  assert.equal(lines[2].errors.length, 1);
+  assert.doesNotMatch(lines[2].errors[0].message, /\u001b/);
+  assert.match(lines[2].errors[0].message, /^Error: expect\(received\)\.toBeVisible\(\)/);
+  assert.deepEqual(lines[2].errors[0].location, { file: '/x/a.ts', line: 3, column: 4 });
+});
+
+test('failure JSONL reporter fsyncs every line and truncates oversized messages to 8192 bytes', async (t) => {
+  const file = path.join(temporary, 'reporter-fsync', 'tests.jsonl');
+  const calls = [];
+  const original = fs.fsyncSync;
+  fs.fsyncSync = (fd) => { calls.push(fd); return original(fd); };
+  t.after(() => { fs.fsyncSync = original; });
+  const { default: Reporter } = await import(REPORTER_FILE);
+  const reporter = new Reporter({ outputFile: file });
+  const huge = fakeTest('huge'); huge.__ok = false;
+  reporter.onTestEnd(huge, { status: 'failed', duration: 1, retry: 0, errors: [{ message: 'é'.repeat(20000) }] });
+  reporter.onTestEnd(fakeTest('ok'), { status: 'passed', duration: 1, retry: 0, errors: [] });
+  assert.equal(calls.length, 2);
+  const [first] = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).map((line) => JSON.parse(line));
+  assert.ok(Buffer.byteLength(first.errors[0].message) <= 8192);
+  assert.ok(first.errors[0].message.length > 1000);
+});
+
+test('failure JSONL reporter refuses to run without an output file', async () => {
+  const { default: Reporter } = await import(REPORTER_FILE);
+  assert.throws(() => new Reporter({}), /outputFile/);
+});
+
+function diagnosticsTree(name) {
+  const base = path.join(temporary, name);
+  const tempRoot = path.join(base, 'temp');
+  const outputDir = path.join(tempRoot, 'test-results');
+  fs.mkdirSync(path.join(outputDir, 'case-one'), { recursive: true });
+  fs.mkdirSync(path.join(outputDir, 'case-two'), { recursive: true });
+  fs.writeFileSync(path.join(outputDir, 'case-one', 'error-context.md'), `# Page snapshot\n"secret_key_base": "${FAKE_SECRET}"\n- heading "Register"\n`);
+  fs.writeFileSync(path.join(outputDir, 'case-two', 'error-context.md'), '# Page snapshot\n- button "Go"\n');
+  fs.writeFileSync(path.join(outputDir, 'case-two', 'trace.zip'), 'not preserved');
+  const rawDir = path.join(base, 'raw');
+  const rawAttempt = path.join(rawDir, 'R3-A', 'attempt-01');
+  fs.mkdirSync(rawAttempt, { recursive: true });
+  return { base, tempRoot, outputDir, rawDir, rawAttempt, jsonlPath: path.join(tempRoot, 'tests.jsonl') };
+}
+
+test('preserveAttemptDiagnostics copies sanitized JSONL and error-context files with hashed receipts', async () => {
+  const t = diagnosticsTree('diag-preserve');
+  await writeFakeJsonl(t.jsonlPath);
+  const result = recovery.preserveAttemptDiagnostics(t);
+  assert.equal(result.jsonl.path, path.join('R3-A', 'attempt-01', 'diagnostics', 'tests.jsonl'));
+  assert.equal(result.jsonl.sha256, crypto.createHash('sha256').update(fs.readFileSync(path.join(t.rawDir, result.jsonl.path))).digest('hex'));
+  assert.equal(result.per_test.length, 3);
+  assert.equal(result.error_contexts.length, 2);
+  for (const ref of result.error_contexts) {
+    const body = fs.readFileSync(path.join(t.rawDir, ref.path), 'utf8');
+    assert.doesNotMatch(body, new RegExp(FAKE_SECRET));
+    assert.equal(ref.sha256, crypto.createHash('sha256').update(body).digest('hex'));
+  }
+  assert.ok(result.error_contexts.some((ref) => /\[REDACTED\]/.test(fs.readFileSync(path.join(t.rawDir, ref.path), 'utf8'))));
+  assert.equal(fs.readdirSync(path.join(t.rawAttempt, 'diagnostics')).some((name) => /trace/.test(name)), false);
+});
+
+test('preserveAttemptDiagnostics records an absent JSONL and refuses to overwrite', async () => {
+  const t = diagnosticsTree('diag-absent');
+  const result = recovery.preserveAttemptDiagnostics(t);
+  assert.equal(result.jsonl, null);
+  assert.deepEqual(result.per_test, []);
+  assert.throws(() => recovery.preserveAttemptDiagnostics(t), /EEXIST|already exists|refus/i);
+});
+
+test('preserveAttemptDiagnostics preserves what finished before a deadline kill and tolerates a truncated last line', async () => {
+  const t = diagnosticsTree('diag-killed');
+  await writeFakeJsonl(t.jsonlPath);
+  fs.appendFileSync(t.jsonlPath, '{"schema":"sigra.phase253.playwright-test-end/v1","title":"cut off');
+  const result = recovery.preserveAttemptDiagnostics(t);
+  assert.equal(result.per_test.length, 3);
+  assert.equal(result.truncated_tail, true);
+});
+
+test('preserveAttemptDiagnostics redacts a JSON-escaped secret inside a decoded error message', async () => {
+  const t = diagnosticsTree('diag-json-secret');
+  const { default: Reporter } = await import(REPORTER_FILE);
+  const reporter = new Reporter({ outputFile: t.jsonlPath });
+  const failing = fakeTest('leaky'); failing.__ok = false;
+  reporter.onTestEnd(failing, { status: 'failed', duration: 1, retry: 0, errors: [{ message: `config: {"secret_key_base": "${FAKE_SECRET}"}` }] });
+  const result = recovery.preserveAttemptDiagnostics(t);
+  const body = fs.readFileSync(path.join(t.rawDir, result.jsonl.path), 'utf8');
+  assert.doesNotMatch(body, new RegExp(FAKE_SECRET));
+  assert.match(body, /REDACTED/);
+  assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics: result }), t.rawDir), { ok: true, errors: [] });
+});
+
+test('verifyAttemptDiagnosticsR3 accepts hashed receipts and an unlaunched attempt without diagnostics', async () => {
+  const t = diagnosticsTree('diag-verify-ok');
+  await writeFakeJsonl(t.jsonlPath);
+  const diagnostics = recovery.preserveAttemptDiagnostics(t);
+  assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics }), t.rawDir), { ok: true, errors: [] });
+  assert.deepEqual(recovery.verifyAttemptDiagnosticsR3({ slot_id: 'R3-B', playwright_cli: { launched: false } }, t.rawDir), { ok: true, errors: [] });
+});
+
+test('verifyAttemptDiagnosticsR3 rejects a launched attempt lacking, tampering or malforming per-test JSONL', async () => {
+  const t = diagnosticsTree('diag-verify-bad');
+  await writeFakeJsonl(t.jsonlPath);
+  const diagnostics = recovery.preserveAttemptDiagnostics(t);
+  const missing = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({}), t.rawDir);
+  assert.equal(missing.ok, false);
+  assert.match(missing.errors.join(';'), /per-test JSONL/);
+  const absent = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics: { ...diagnostics, jsonl: null } }), t.rawDir);
+  assert.equal(absent.ok, false);
+  const jsonlFile = path.join(t.rawDir, diagnostics.jsonl.path);
+  const original = fs.readFileSync(jsonlFile, 'utf8');
+  fs.writeFileSync(jsonlFile, original.replace('failing three', 'failing THREE'));
+  const tampered = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics }), t.rawDir);
+  assert.equal(tampered.ok, false);
+  assert.match(tampered.errors.join(';'), /sha256|hash/i);
+  const malformed = `${original}{not json}\n`;
+  fs.writeFileSync(jsonlFile, malformed);
+  const forged = { ...diagnostics, jsonl: { ...diagnostics.jsonl, sha256: crypto.createHash('sha256').update(malformed).digest('hex'), bytes: Buffer.byteLength(malformed) } };
+  const bad = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics: forged }), t.rawDir);
+  assert.equal(bad.ok, false);
+  assert.match(bad.errors.join(';'), /malformed/);
+  fs.writeFileSync(jsonlFile, original);
+  const ctx = path.join(t.rawDir, diagnostics.error_contexts[0].path);
+  fs.writeFileSync(ctx, 'changed');
+  const ctxTampered = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics }), t.rawDir);
+  assert.equal(ctxTampered.ok, false);
+  const escape = recovery.verifyAttemptDiagnosticsR3(launchedAttempt({ diagnostics: { ...diagnostics, jsonl: { ...diagnostics.jsonl, path: '../../etc/passwd' } } }), t.rawDir);
+  assert.equal(escape.ok, false);
+});
+
+// ---- Phase 253 plan 60 task 1: R3 ledger, R2-lineage history reader and freeze ----
+const R3_SPENT = [...R2_SPENT, 'CR2-DESKTOP-MOBILE-FIRST'];
+const R3_CHARGES = [...R2_CHARGES, 743, 107343];
+const r3LedgerInput = () => ({
+  charges: [...R3_CHARGES], physicalPlaywrightLaunches: 7, spentReservations: [...R3_SPENT],
+  retryUsed: 1, retryAvailable: 0, preparationUsedMs: 5141
+});
+const R3_APPROVE = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v2', decision: 'approve', retry_granted: 1,
+  caps: { new_allowance_ms: 910000, d19_cap_ms: 3060682, d19_launch_max: 12, shared_cap_ms: 5400682, physical_cli_max: 21 }
+};
+const R3_APPROVE_NO_RETRY = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v2', decision: 'approve-without-retry', retry_granted: 0,
+  caps: { new_allowance_ms: 670000, d19_cap_ms: 2820682, d19_launch_max: 11, shared_cap_ms: 5160682, physical_cli_max: 20 }
+};
+const PHASE_REL = ['.planning', 'phases', '253-fix-flaky-ci-and-preserve-required-checks'].join('/');
+
+test('R3 ledger carries 2150682 ms, seven launches and eight spent identities, with the reviewed R3 caps', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR3(r3LedgerInput());
+  assert.equal(ledger.prior_charge_ms, 2150682);
+  assert.equal(2042596 + 743 + 107343, 2150682);
+  assert.equal(ledger.prior_playwright_cli_launches, 7);
+  assert.deepEqual(ledger.spent_reservations, R3_SPENT);
+  assert.equal(ledger.spent_reservations.length, 8);
+  assert.equal(ledger.preparation_used_ms, 5141);
+  assert.equal(ledger.preparation_reserve_ms, 10000);
+  assert.equal(ledger.retry_used, 1);
+  assert.equal(ledger.retry_available, 0);
+  assert.deepEqual(ledger.expired_identities, ['CR2-INFRA-RETRY']);
+  assert.deepEqual(ledger.retired_identities, ['CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND']);
+  assert.deepEqual(ledger.caps.approve, R3_APPROVE.caps);
+  assert.deepEqual(ledger.caps['approve-without-retry'], R3_APPROVE_NO_RETRY.caps);
+  assert.equal(ledger.required_rows, 22);
+  assert.equal(ledger.headroom_ms, 15000);
+});
+
+test('R3 caps follow the reviewed arithmetic: preparation, four regular windows, one retry and explicit headroom', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR3(r3LedgerInput());
+  assert.equal(ledger.caps.approve.new_allowance_ms, 10000 + 240000 + 3 * 135000 + 240000 + 15000);
+  assert.equal(ledger.caps.approve.d19_cap_ms, 2150682 + 910000);
+  assert.equal(ledger.caps.approve.shared_cap_ms, 3060682 + 9 * 240000 + 3 * 60000);
+  assert.equal(ledger.caps.approve.d19_launch_max, 7 + 5);
+  assert.equal(ledger.caps.approve.physical_cli_max, 12 + 9);
+  assert.equal(ledger.caps['approve-without-retry'].new_allowance_ms, 910000 - 240000);
+  assert.equal(ledger.caps['approve-without-retry'].physical_cli_max, 20);
+});
+
+test('R3 ledger rejects any other carried input', () => {
+  for (const mutate of [
+    (input) => { input.charges[11] = 107342; },
+    (input) => { input.charges[10] = 742; },
+    (input) => { input.charges.pop(); },
+    (input) => { input.charges = [...R2_CHARGES]; },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.pop(); },
+    (input) => { input.spentReservations = [...R2_SPENT]; },
+    (input) => { input.spentReservations.reverse(); },
+    (input) => { input.physicalPlaywrightLaunches = 6; },
+    (input) => { input.preparationUsedMs = 4398; }
+  ]) {
+    const input = r3LedgerInput(); mutate(input);
+    assert.throws(() => recovery.buildLoadRecoveryLedgerR3(input), /historical|retry|reservation|launch|preparation|carried/i);
+  }
+});
+
+test('R3 slots keep the identical 22-row selection under new identities, with setup separated from the browser window', () => {
+  const v1 = recovery.loadRecoverySlotDefinitions();
+  const r3 = recovery.loadRecoverySlotDefinitionsR3();
+  assert.deepEqual(r3.map((slot) => slot.id), ['CR3-DESKTOP-MOBILE-FIRST', 'CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND', 'CR3-INFRA-RETRY']);
+  assert.deepEqual(r3.map((slot) => slot.maps_from), ['CR2-DESKTOP-MOBILE-FIRST', 'CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND', 'CR3-INFRA-RETRY']);
+  const timing = ({ setup_ms, work_ms, cleanup_ms, command_ms, max_duration_ms }) => ({ setup_ms, work_ms, cleanup_ms, command_ms, max_duration_ms });
+  assert.deepEqual(timing(r3[0]), { setup_ms: 60000, work_ms: 165000, cleanup_ms: 15000, command_ms: 180000, max_duration_ms: 240000 });
+  for (const slot of r3.slice(1, 4)) assert.deepEqual(timing(slot), { setup_ms: 60000, work_ms: 60000, cleanup_ms: 15000, command_ms: 75000, max_duration_ms: 135000 }, slot.id);
+  assert.equal(r3[4].max_duration_ms, 240000);
+  assert.equal(r3[4].retry, true);
+  assert.equal(r3[4].selection ?? null, null);
+  assert.equal(r3[4].rows, 0);
+  for (const [index, slot] of v1.entries()) {
+    const strip = ({ id, maps_from, setup_ms, work_ms, cleanup_ms, command_ms, max_duration_ms, ...rest }) => rest; // eslint-disable-line no-unused-vars
+    assert.deepEqual(strip(r3[index]), strip(slot), `selection, projects, argv, ports and expected CLI exit of ${slot.id} are byte-identical`);
+  }
+  assert.deepEqual(r3.slice(0, 4).map((slot) => slot.rows), [16, 2, 2, 2]);
+  assert.equal(r3.slice(0, 4).reduce((sum, slot) => sum + slot.rows, 0), 22);
+  assert.equal(r3[0].expected_cli_exit, 1);
+});
+
+function r3LineageRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r3-lineage-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  const put = (relative, text) => { const target = path.join(dir, relative); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, text); return target; };
+  const evidenceRel = `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json`;
+  const logRel = 'CR2-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log';
+  const prepRel = 'preparation/mix_version.log';
+  put(`${evidenceRel}.raw/${logRel}`, 'synthetic test log\n'); put(`${evidenceRel}.raw/${prepRel}`, 'Mix 1.19\n');
+  const reference = (rel, text) => ({ path: rel, sha256: sha(text), bytes: Buffer.byteLength(text) });
+  const evidence = {
+    status: 'halted', attempts: [{ slot_id: 'CR2-DESKTOP-MOBILE-FIRST', charged_duration_ms: 107343, observed_outcome: 'halted', files: { test_log: reference(logRel, 'synthetic test log\n') } }],
+    preparation: { duration_ms: 743, receipts: [{ name: 'mix_version', log: reference(prepRel, 'Mix 1.19\n') }] },
+    limits: { prior_charge_ms: 2042596, preparation_charge_ms: 743, charged_duration_ms: 2150682, physical_playwright_cli_launches: 7, used_slots: [...R3_SPENT], retry_used: 1, retry_available: 0, infra_retry: { granted: 1, used: 0 } },
+    infrastructure_retry: null, preserved_revisions: []
+  };
+  put(evidenceRel, `${JSON.stringify(evidence, null, 2)}\n`);
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json`, '{"synthetic":"r2 freeze"}\n');
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json`, '{"synthetic":"r2 approval"}\n');
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R2.md`, '# r2 budget\n');
+  put('.planning/debug/253-r2-native-controls-all-fail.md', '# root cause\n');
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'lineage');
+  const hashOf = (rel) => sha(fs.readFileSync(path.join(dir, rel)));
+  const lineage = {
+    evidence: { file: evidenceRel, sha256: hashOf(evidenceRel) }, freeze: { file: `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json`, sha256: hashOf(`${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json`) },
+    approval: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json`, sha256: hashOf(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json`) },
+    budget: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R2.md`, sha256: hashOf(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R2.md`) }
+  };
+  const olderHistory = () => ({ charges: [...R2_CHARGES], artifacts: [{ path: 'older/record', sha256: 'a'.repeat(64) }], frozenBlobs: {}, control: { accepted: { toolchain: { mix: '1.19.5' } } } });
+  return { dir, evidenceRel, logRel, lineage, evidence, deps: { olderHistory, lineage, skipPreservedRevisions: true }, put, clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('the R3 history reader re-hashes the R2 lineage and reads the carried 2150682 ms ledger from preserved bytes', () => {
+  const r = r3LineageRepo();
+  try {
+    const history = recovery.readLoadHistoryR3(r.dir, r.deps);
+    assert.deepEqual(history.ledger, recovery.buildLoadRecoveryLedgerR3(r3LedgerInput()));
+    assert.deepEqual(history.charges, R3_CHARGES);
+    assert.equal(history.terminalHalt.slot_id, 'CR2-DESKTOP-MOBILE-FIRST');
+    assert.equal(history.terminalHalt.charged_ms, 107343);
+    assert.equal(history.terminalHalt.preparation_ms, 743);
+    assert.equal(history.terminalHalt.terminal, true);
+    assert.equal(history.terminalHalt.infrastructure, false);
+    assert.equal(history.terminalHalt.retryable, false);
+    assert.equal(history.terminalHalt.root_cause.file, '.planning/debug/253-r2-native-controls-all-fail.md');
+    assert.equal(history.terminalHalt.root_cause.sha256, sha('# root cause\n'));
+    assert.deepEqual(history.terminalHalt.expired_identities, ['CR2-INFRA-RETRY']);
+    const paths = history.artifacts.map((item) => item.path);
+    for (const name of ['253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json', '253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json', '253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json', '253-LOAD-RECOVERY-BUDGETS-R2.md']) {
+      assert.ok(paths.includes(`${PHASE_REL}/${name}`), name);
+    }
+    assert.ok(paths.includes(`${r.evidenceRel}.raw/${r.logRel}`), 'every R2 raw receipt is re-hashed');
+    assert.ok(paths.includes('older/record'), 'the older lineage is carried');
+    assert.ok(history.artifacts.every((item) => /^[0-9a-f]{64}$/.test(item.sha256)));
+  } finally { r.clean(); }
+});
+
+test('the R3 history reader refuses changed R2 evidence, freeze, approval, budget or raw receipts, a missing root cause and a wrong carried ledger', () => {
+  for (const [label, mutate, pattern] of [
+    ['evidence', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.evidence.file), ' '), /R2 evidence/i],
+    ['freeze', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.freeze.file), ' '), /R2 freeze/i],
+    ['approval', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.approval.file), ' '), /R2 approval/i],
+    ['budget', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.budget.file), ' '), /R2 budget/i],
+    ['raw receipt', (r) => fs.appendFileSync(path.join(r.dir, `${r.evidenceRel}.raw/${r.logRel}`), 'tampered'), /raw/i],
+    ['root cause missing', (r) => fs.rmSync(path.join(r.dir, '.planning/debug/253-r2-native-controls-all-fail.md')), /root.cause/i],
+    ['root cause uncommitted edit', (r) => fs.appendFileSync(path.join(r.dir, '.planning/debug/253-r2-native-controls-all-fail.md'), 'edit'), /root.cause/i],
+    ['wrong charge', (r) => {
+      const evidence = structuredClone(r.evidence); evidence.attempts[0].charged_duration_ms = 107342;
+      fs.writeFileSync(path.join(r.dir, r.lineage.evidence.file), `${JSON.stringify(evidence, null, 2)}\n`);
+      r.deps.lineage = { ...r.lineage, evidence: { ...r.lineage.evidence, sha256: sha(fs.readFileSync(path.join(r.dir, r.lineage.evidence.file))) } };
+    }, /2150682|107343|receipt differs/i]
+  ]) {
+    const r = r3LineageRepo();
+    try {
+      mutate(r);
+      assert.throws(() => recovery.readLoadHistoryR3(r.dir, r.deps), pattern, label);
+    } finally { r.clean(); }
+  }
+});
+
+function r3FreezeRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r3-freeze-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'lineage'), { recursive: true });
+  const budget = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R3.md');
+  fs.writeFileSync(budget, '# budgets r3\n');
+  fs.writeFileSync(path.join(dir, 'src/a.txt'), 'a\n'); fs.writeFileSync(path.join(dir, 'src/b.txt'), 'b\n'); fs.writeFileSync(path.join(dir, 'lineage/x.txt'), 'x\n');
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  const history = {
+    ledger: recovery.buildLoadRecoveryLedgerR3(r3LedgerInput()), charges: [...R3_CHARGES],
+    terminalHalt: { slot_id: 'CR2-DESKTOP-MOBILE-FIRST', cause: 'work_deadline', terminal: true, infrastructure: false, retryable: false, charged_ms: 107343, preparation_ms: 743, root_cause: { file: '.planning/debug/253-r2-native-controls-all-fail.md', sha256: 'c'.repeat(64) } },
+    artifacts: [{ path: 'lineage/x.txt', sha256: sha('x\n') }], frozenBlobs: {},
+    control: { accepted: { toolchain: { mix: '1.19.5', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' } } }
+  };
+  const deps = {
+    enforceNode: false, assertCheckout: () => {}, assertConfig: () => {}, readHistory: () => history, sourceFiles: () => ['src/a.txt', 'src/b.txt'],
+    requiredSources: () => ['src/a.txt'], importClosure: () => ['src/a.txt', 'src/b.txt'], runtimeIdentity: () => ({ packages: {}, transform_sha256: {} })
+  };
+  return { dir, budget, history, deps, out: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('R3 freeze creation, check and init produce a ready ledger whose caps equal the R3 budget document', () => {
+  const r = r3FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR3(r.out, r.dir, r.deps);
+    assert.equal(freeze.schema_version, 'sigra.phase253.registration-load-recovery-freeze/v3');
+    assert.equal(freeze.revision, 'r3');
+    assert.equal(freeze.status, 'frozen_before_results');
+    assert.equal(freeze.budget.sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(freeze.budget.grants_capacity, false);
+    assert.equal(freeze.ledger.required_rows, 22);
+    assert.deepEqual(freeze.historical.terminal_halt, r.history.terminalHalt);
+    assert.deepEqual(freeze.historical.spent_reservations, R3_SPENT);
+    assert.deepEqual(freeze.ledger.caps.approve, R3_APPROVE.caps);
+    assert.deepEqual(freeze.ledger.caps['approve-without-retry'], R3_APPROVE_NO_RETRY.caps);
+    assert.deepEqual(freeze.ledger.slots.map((slot) => slot.id), ['CR3-DESKTOP-MOBILE-FIRST', 'CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND', 'CR3-INFRA-RETRY']);
+    assert.throws(() => recovery.createLoadRecoveryFreezeR3(r.out, r.dir, r.deps), /overwrite/i);
+
+    const head = recovery.validateLoadRecoveryFreezeR3(r.dir, JSON.parse(fs.readFileSync(r.out, 'utf8')), { deps: r.deps });
+    assert.equal(head, gitIn(r.dir, 'rev-parse', 'HEAD'));
+
+    const evidenceFile = path.join(r.dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json');
+    const evidence = recovery.initializeLoadRecoveryEvidenceR3(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R3_APPROVE });
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v3');
+    assert.equal(evidence.status, 'ready');
+    assert.equal(evidence.limits.charged_duration_ms, 2150682);
+    assert.equal(evidence.limits.prior_charge_ms, 2150682);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 7);
+    assert.deepEqual(evidence.limits.used_slots, R3_SPENT);
+    assert.equal(evidence.limits.preparation_remaining_ms, 10000);
+    assert.equal(evidence.limits.max_d19_ms, R3_APPROVE.caps.d19_cap_ms);
+    assert.equal(evidence.limits.max_total_ms, R3_APPROVE.caps.shared_cap_ms);
+    assert.equal(evidence.limits.max_physical_playwright_cli_launches, R3_APPROVE.caps.physical_cli_max);
+    assert.equal(evidence.limits.max_d19_physical_playwright_cli_launches, R3_APPROVE.caps.d19_launch_max);
+    assert.deepEqual(evidence.limits.infra_retry, { granted: 1, used: 0 });
+    assert.deepEqual(evidence.prior_terminal_halts, [r.history.terminalHalt]);
+    assert.deepEqual(evidence.infrastructure_halts, []);
+    assert.equal(fs.existsSync(`${evidenceFile}.raw`), true);
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR3(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R3_APPROVE }), /overwrite/i);
+  } finally { r.clean(); }
+});
+
+test('R3 freeze validation rejects a changed budget document, ledger, digest, source blob, lineage record or missing required source', () => {
+  const r = r3FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR3(r.out, r.dir, r.deps);
+    const check = (value, deps = r.deps) => recovery.validateLoadRecoveryFreezeR3(r.dir, value, { deps });
+    const redigest = (value) => { value.freeze_sha256 = sha(JSON.stringify(Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'freeze_sha256')))); return value; };
+    assert.throws(() => check({ schema_version: 'x' }), /malformed|digest/i);
+    assert.throws(() => check({ ...structuredClone(freeze), schema_version: 'sigra.phase253.registration-load-recovery-freeze/v2' }), /malformed|digest/i);
+    const ledger = structuredClone(freeze); ledger.ledger.caps.approve.shared_cap_ms += 1; redigest(ledger);
+    assert.throws(() => check(ledger), /ledger/i);
+    const lineage = structuredClone(freeze); lineage.historical.artifacts[0].sha256 = 'f'.repeat(64); redigest(lineage);
+    assert.throws(() => check(lineage), /preserved R3 history|lineage|history changed/i);
+    const blob = structuredClone(freeze); blob.source.blobs['src/a.txt'] = '0'.repeat(40); redigest(blob);
+    assert.throws(() => check(blob), /identity mismatch/i);
+    const missing = structuredClone(freeze); delete missing.source.blobs['src/a.txt']; redigest(missing);
+    assert.throws(() => check(missing), /omits required source|identity/i);
+    const omitted = structuredClone(freeze); delete omitted.source.blobs['src/b.txt']; redigest(omitted);
+    assert.throws(() => check(omitted), /omits actual imported runtime source/i);
+    fs.appendFileSync(r.budget, 'edited\n');
+    assert.throws(() => check(freeze), /budget document differs/i);
+  } finally { r.clean(); }
+});
+
+test('R3 freeze blobs pin the R2 source list plus the product, diagnostics and audit sources', () => {
+  const extras = recovery.LOAD_R3_EXTRA_SOURCES;
+  assert.deepEqual(extras, [
+    'lib/sigra/auth.ex',
+    'test/example/lib/example/accounts.ex',
+    'test/example/lib/example/accounts/user.ex',
+    'test/example/lib/example_web/live/registration_live.ex',
+    'priv/templates/sigra.install/core/registration_live.ex',
+    'test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex',
+    'test/example/priv/playwright/lib/reporters/failure-jsonl.mjs',
+    'scripts/ci/ci-registration-control-audit.test.mjs'
+  ]);
+  for (const file of extras) assert.equal(fs.existsSync(path.join(root, file)), true, file);
+  const list = recovery.loadR3SourceFileList(root);
+  for (const file of [...recovery.loadSourceFileList(root), ...extras]) assert.ok(list.includes(file), file);
+});
+
+test('v1, R2 and R3 evidence are never accepted by another revision, and the R3 modes refuse any other path', () => {
+  const r3 = loadHarnessR3();
+  const r2 = loadHarnessR2();
+  try {
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR3(r2.read(), r2.freeze, `${r2.evidenceFile}.raw`, 'first', sha(fs.readFileSync(r2.freezeFile))).ok, false);
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(r3.read(), r3.freeze, `${r3.evidenceFile}.raw`, 'first', sha(fs.readFileSync(r3.freezeFile))).ok, false);
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    const stray = path.join(temporary, 'stray-r3-freeze.json');
+    const created = spawnSync(process.execPath, [script, '--create-load-recovery-r3', '--output', stray], { encoding: 'utf8', cwd: root });
+    assert.equal(created.status, 3);
+    assert.match(created.stderr, /reviewed phase artifact path/);
+    assert.equal(fs.existsSync(stray), false);
+    for (const mode of [['--check-load-recovery-freeze', stray], ['--init-load-recovery', '--freeze', stray, '--output', path.join(temporary, 'e.json')], ['--verify-load-recovery', stray, '--stage', 'first']]) {
+      const result = spawnSync(process.execPath, [script, ...mode], { encoding: 'utf8', cwd: root });
+      assert.equal(result.status, 3, mode[0]);
+    }
+  } finally { r3.clean(); r2.clean(); }
+});
+
+test('every spent, expired and retired identity is refused by the R3 runner before any spawn', async () => {
+  const h = loadHarnessR3();
+  try {
+    for (const id of [...R3_SPENT, 'CR2-INFRA-RETRY', 'CR-DESKTOP-SECOND', 'CR-MOBILE-SECOND', 'CR-DARK-SECOND', 'R-CONTROL-FIRST-DESKTOP']) {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps()), /spent|expired|retired|only the/i, id);
+    }
+    assert.deepEqual(h.calls, []);
+    assert.equal(h.read().status, 'ready');
+  } finally { h.clean(); }
+});
+
+// ---- synthetic R3 runner harness: injected clocks, host probe, holders, process trees and per-test JSONL ----
+function loadHarnessR3() {
+  const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-r3-')));
+  const checkout = path.join(base, 'checkout');
+  const pwPackage = path.join(checkout, 'test/example/priv/playwright/node_modules/@playwright/test/package.json');
+  fs.mkdirSync(path.dirname(pwPackage), { recursive: true });
+  fs.writeFileSync(pwPackage, JSON.stringify({ version: '1.59.1' }));
+  const ledger = recovery.buildLoadRecoveryLedgerR3(r3LedgerInput());
+  const terminalHalt = { slot_id: 'CR2-DESKTOP-MOBILE-FIRST', cause: 'work_deadline', terminal: true, infrastructure: false, retryable: false, charged_ms: 107343, preparation_ms: 743, root_cause: { file: '.planning/debug/253-r2-native-controls-all-fail.md', sha256: 'c'.repeat(64) } };
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-load-recovery-freeze/v3', status: 'frozen_before_results', plan: '253-60', revision: 'r3',
+    source: { repository: 'synthetic', checkout_head: 'a'.repeat(40), blobs: { 'scripts/x': 'b'.repeat(40) } },
+    tools: { playwright: '1.59.1', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' },
+    selection: { spec: 'tests/admin-eval.spec.ts' },
+    historical: { terminal_halt: terminalHalt, spent_reservations: [...R3_SPENT] },
+    ledger
+  };
+  freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const freezeFile = path.join(base, 'freeze-r3.json'); const evidenceFile = path.join(base, 'evidence-r3.json');
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze, null, 2)}\n`);
+  const writeEvidence = (approval) => {
+    const evidence = {
+      schema_version: 'sigra.phase253.registration-load-recovery-evidence/v3', revision: 'r3', status: 'ready', freeze_path: 'freeze-r3.json',
+      freeze_sha256: sha(fs.readFileSync(freezeFile)), source: structuredClone(freeze.source), attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+      prior_terminal_halts: [structuredClone(terminalHalt)], infrastructure_halts: [], infrastructure_retry: null,
+      approval: { decision: approval.decision, retry_granted: approval.retry_granted },
+      limits: {
+        prior_charge_ms: 2150682, preparation_charge_ms: 0, preparation_remaining_ms: 10000, charged_duration_ms: 2150682,
+        physical_playwright_cli_launches: 7, used_slots: [...R3_SPENT], max_d19_ms: approval.caps.d19_cap_ms, max_total_ms: approval.caps.shared_cap_ms,
+        max_d19_physical_playwright_cli_launches: approval.caps.d19_launch_max, max_physical_playwright_cli_launches: approval.caps.physical_cli_max,
+        retry_used: 1, retry_available: 0, infra_retry: { granted: approval.retry_granted, used: 0 }
+      }
+    };
+    fs.writeFileSync(evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  };
+  writeEvidence(R3_APPROVE);
+  const calls = []; const timeouts = []; const readyDeadlines = []; const envs = [];
+  const zip = path.join(base, 'trace.zip'); fs.writeFileSync(zip, 'z'.repeat(64));
+  const fakePsql = (counts) => { let index = 0; return () => { calls.push(['psql']); return { status: 0, stdout: `${counts[Math.min(index++, counts.length - 1)]}\n` }; }; };
+  const allSlots = [...freeze.ledger.slots.slice(0, 4)];
+  const markerFor = (title) => ({ 'registration stops when LiveView readiness is never released': 'phx-connected', 'registration fails when the readiness wait is deliberately broken': 'data-sigra-never-connected', 'registration retains the first forced assertion failure trace': 'toHaveURL' }[title]);
+  const reportFor = (slot, runId, { failRow = false } = {}) => ({
+    config: {}, errors: [],
+    suites: [{
+      title: 'admin-eval.spec.ts', file: 'admin-eval.spec.ts', specs: [], suites: [{
+        title: 'x', file: 'admin-eval.spec.ts',
+        specs: recovery.loadRequiredPairs(slot).map((pair, index) => {
+          const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+          const annotations = [];
+          if (pair.title !== 'render bundle: board-mg-9/populated') annotations.push({ type: 'sigra-registration-control-context', description: `${runId}:${crypto.randomUUID()}` });
+          if (pair.title === 'registration detects a deliberate same-account collision') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ collision_email_sha256: slot.collision_account_sha256[pair.project], first_registration_succeeded: true, duplicate_response_confirmed: true }) });
+          if (pair.title === 'registration starts from a fresh database and context') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ prior_collision_account_email_sha256: slot.collision_account_sha256[pair.project], fresh_database_account_created: true }) });
+          const failed = expected === 'expected_failure';
+          const broken = failRow && index === 0 && !failed;
+          return {
+            title: pair.title, file: 'admin-eval.spec.ts', ok: !failed && !broken,
+            tests: [{ projectName: pair.project, expectedStatus: 'passed', status: failed || broken ? 'unexpected' : 'expected', annotations,
+              results: [{ status: failed || broken ? 'failed' : 'passed', duration: 10, workerIndex: index, error: failed ? { message: `expect ${markerFor(pair.title)} failed` } : broken ? { message: 'unexpected assertion failure' } : undefined, attachments: failed ? [{ name: 'trace', path: zip }] : [], annotations: [] }] }]
+          };
+        })
+      }]
+    }]
+  });
+  const jsonlFor = (slot, { failRow = false, count = Infinity } = {}) => recovery.loadRequiredPairs(slot).slice(0, count).map((pair, index) => {
+    const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+    const failed = expected === 'expected_failure'; const broken = failRow && index === 0 && !failed;
+    const message = failed ? `Error: expect ${markerFor(pair.title)} failed\n  at spec` : broken ? 'Error: unexpected assertion failure\n  at spec' : null;
+    return JSON.stringify({
+      schema: 'sigra.phase253.playwright-test-end/v1', project: pair.project, title: pair.title, file: 'admin-eval.spec.ts', line: 10 + index,
+      status: failed || broken ? 'failed' : 'passed', expected_status: 'passed', ok: !broken && (failed ? true : true), duration_ms: 10 + index, retry: 0,
+      errors: message ? [{ message, location: { file: 'admin-eval.spec.ts', line: 10 + index, column: 1 } }] : []
+    });
+  });
+  const awakeFor = () => ({ held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], pid: 4321, release: () => calls.push(['release-awake']) });
+  const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], validate = () => {}, approval = R3_APPROVE,
+    suspendBrowser = false, suspendFlag = false, failRow = false, probeHost = null, holderAlive = () => true, diagnosticFile = null, checkDiagnostic = null,
+    setupMs = 5, setupWallExtra = 0, bootMs = 2, cliMs = 5, setupExit = 0, setupTimedOut = false, setupSuspended = false, setupError = null,
+    cliTimedOut = false, killedRows = 2, noJsonl = false, errorContext = true, jsonlCount = Infinity } = {}) => {
+    const absenceRun = fakePsql(absenceCounts); const accountRun = fakePsql(accountCounts);
+    let monoOffset = 0n; let wallOffset = 0;
+    const advance = (ms) => { monoOffset += BigInt(Math.round(ms * 1e6)); wallOffset += ms; };
+    return {
+      validate, enforcePaths: false, enforceNode: false, skipPreservation: true, diagnosticFile,
+      monotonicNs: () => process.hrtime.bigint() + monoOffset, wallMs: () => Date.now() + wallOffset,
+      readApproval: () => approval, holderAlive,
+      checkDiagnostic: checkDiagnostic ?? ((_root, file) => { if (!file) throw new Error('infrastructure retry requires a committed diagnostic'); return { file, sha256: 'd'.repeat(64) }; }),
+      probeHost: probeHost ?? (async () => { calls.push(['probe-host']); return { awake: awakeFor(), host_awake: { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' } }; }),
+      portAvailable: async () => true, waitReady: async (_app, _url, deadline) => { readyDeadlines.push(deadline); advance(bootMs); return 200; }, stopApp: async () => {},
+      spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
+      runTree: async (program, args, cwd, env, log, timeoutMs) => {
+        calls.push(['tree', program, ...args]); timeouts.push([path.basename(program), args[0], timeoutMs]);
+        fs.writeFileSync(log, `${path.basename(program)} ${args[0]} ok\n`);
+        if (program.endsWith('/playwright')) {
+          envs.push(env);
+          const given = args.slice(2, -1);
+          const slot = allSlots.find((item) => JSON.stringify(item.argv) === JSON.stringify(given));
+          assert.equal(env.SIGRA_REGISTRATION_CONTROL_STAGE, slot.control_stage);
+          assert.equal(args.filter((arg) => /^(-g|--grep)/.test(arg)).length, 0);
+          assert.ok(env.SIGRA_PLAYWRIGHT_FAILURE_JSONL?.startsWith(path.dirname(env.SIGRA_PLAYWRIGHT_JSON)), 'the per-test JSONL lives under the attempt temp root');
+          if (!noJsonl) fs.writeFileSync(env.SIGRA_PLAYWRIGHT_FAILURE_JSONL, `${jsonlFor(slot, { failRow, count: cliTimedOut || suspendBrowser ? killedRows : jsonlCount }).join('\n')}\n`);
+          const outputDir = args.find((arg) => arg.startsWith('--output=')).slice('--output='.length);
+          if (errorContext) {
+            fs.mkdirSync(path.join(outputDir, 'case-one'), { recursive: true });
+            fs.writeFileSync(path.join(outputDir, 'case-one', 'error-context.md'), '# Page snapshot\n- heading "Register"\n');
+          }
+          advance(cliMs);
+          if (suspendBrowser) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: true, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: ['SIGTERM'], descendants_reaped: true };
+          if (cliTimedOut) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: false, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: ['SIGTERM'], descendants_reaped: true };
+          fs.writeFileSync(env.SIGRA_PLAYWRIGHT_JSON, JSON.stringify(reportFor(slot, env.SIGRA_CONTROL_RUN_ID, { failRow })));
+          return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, suspended: suspendFlag, duration_ms: cliMs, group_signals: [], descendants_reaped: true };
+        }
+        if (program === 'mix' && args[0] === 'ecto.setup') {
+          advance(setupMs); wallOffset += setupWallExtra;
+          return { pid: 1, exit_code: setupError ? null : setupExit, signal: null, error: setupError, timed_out: setupTimedOut, suspended: setupSuspended, duration_ms: setupMs, wall_duration_ms: setupMs, group_signals: [], descendants_reaped: true };
+        }
+        advance(1);
+        return { pid: 1, exit_code: 0, signal: null, error: null, timed_out: false, duration_ms: 1, group_signals: [], descendants_reaped: true };
+      },
+      captureAbsence: (options) => recovery.captureOwnedDatabaseAbsence({ ...options, run: absenceRun }),
+      captureAccount: (options) => recovery.captureOwnedAccountCount({ ...options, run: accountRun }),
+      sanitizeTrace: (source, destination) => { fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL); return { entries: 3, navigation: true, submission: true }; }
+    };
+  };
+  return { base, checkout, freeze, freezeFile, evidenceFile, calls, timeouts, readyDeadlines, envs, makeDeps, writeEvidence, read: () => JSON.parse(fs.readFileSync(evidenceFile, 'utf8')), clean: () => fs.rmSync(base, { recursive: true, force: true }) };
+}
+
+// ---- Phase 253 plan 60 task 2: R3 setup-phase run path with preserved per-test diagnostics ----
+const R3_FIRST = 'CR3-DESKTOP-MOBILE-FIRST';
+const r3Verify = (h, evidence, stage = 'first') => recovery.verifyLoadRecoveryEvidenceDataR3(evidence, h.freeze, `${h.evidenceFile}.raw`, stage, sha(fs.readFileSync(h.freezeFile)));
+
+test('a synthetic R3 first slot runs setup under its own 60000 ms deadline and leaves the full 165000 ms work deadline intact', async () => {
+  const h = loadHarnessR3();
+  try {
+    const result = await recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ setupMs: 30000, bootMs: 2000, cliMs: 40000 }));
+    assert.equal(result.rows, 16);
+    const [setupCall, , playwrightCall] = [h.timeouts.find((t) => t[1] === 'ecto.setup'), null, h.timeouts.find((t) => t[0] === 'playwright')];
+    assert.ok(setupCall[2] <= 60000 && setupCall[2] > 59900, `setup is bounded by its own 60000 ms, got ${setupCall[2]}`);
+    assert.ok(playwrightCall[2] <= 163000 && playwrightCall[2] > 162800, `the 30000 ms setup did not shrink the browser window: ${playwrightCall[2]} remains after a 2000 ms boot`);
+    const evidence = h.read();
+    const attempt = evidence.attempts[0];
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v3');
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(attempt.slot_id, R3_FIRST);
+    assert.deepEqual(attempt.stage_deadlines, { setup_ms: 60000, command_ms: 180000, work_ms: 165000, cleanup_ms: 15000, cleanup_reserved: true });
+    assert.ok(attempt.setup_charge_ms >= 30000 && attempt.setup_charge_ms < 30100, `setup charge ${attempt.setup_charge_ms}`);
+    assert.equal(attempt.charged_duration_ms, attempt.setup_charge_ms + attempt.command_charge_ms);
+    assert.ok(attempt.command_charge_ms >= 42000 && attempt.command_charge_ms < 42200, `command charge ${attempt.command_charge_ms}`);
+    assert.equal(evidence.limits.charged_duration_ms, 2150682 + attempt.charged_duration_ms);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 8);
+    assert.deepEqual(evidence.limits.used_slots, [...R3_SPENT, R3_FIRST]);
+    assert.ok(h.readyDeadlines[0] > 0);
+    assert.deepEqual(r3Verify(h, evidence).errors, []);
+    assert.equal(r3Verify(h, evidence, 'complete').ok, false);
+  } finally { h.clean(); }
+});
+
+test('the slot charge is setup max(monotonic, wall) plus command max(monotonic, wall), each judged on its own clocks', async () => {
+  const h = loadHarnessR3();
+  try {
+    await recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ setupMs: 20000, setupWallExtra: 3000, cliMs: 10000 }));
+    const attempt = h.read().attempts[0];
+    const setupMax = Math.max(attempt.setup_timing.execution_ms, attempt.setup_timing.wall_ms);
+    const commandMax = Math.max(attempt.command_timing.execution_ms, attempt.command_timing.wall_ms);
+    assert.ok(attempt.setup_timing.wall_ms - attempt.setup_timing.execution_ms >= 2999, 'wall ran ahead of the monotonic clock during setup');
+    assert.equal(attempt.setup_charge_ms, setupMax);
+    assert.equal(attempt.command_charge_ms, commandMax);
+    assert.equal(attempt.charged_duration_ms, setupMax + commandMax);
+    assert.ok(attempt.charged_duration_ms >= Math.max(attempt.execution_duration_ms, attempt.wall_duration_ms), 'never below the larger whole-window clock');
+    assert.ok(attempt.charged_duration_ms <= 240000);
+  } finally { h.clean(); }
+});
+
+test('a setup failure or a setup overrun halts before any CLI launch, stays charged and still drops the owned database', async () => {
+  for (const [label, options, pattern] of [
+    ['non-zero exit', { setupExit: 1, setupMs: 4000 }, /setup failed/i],
+    ['deadline kill', { setupTimedOut: true, setupExit: 0, setupMs: 61000 }, /setup failed|setup.*deadline/i],
+    ['overrun without a kill', { setupMs: 61000 }, /setup.*60000|overran/i]
+  ]) {
+    const h = loadHarnessR3();
+    try {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps(options)), pattern, label);
+      const evidence = h.read();
+      const attempt = evidence.attempts[0];
+      assert.equal(evidence.status, 'halted', label);
+      assert.equal(attempt.playwright_cli.launched, false, label);
+      assert.equal(h.calls.some((call) => call[0] === 'tree' && call[1].endsWith('/playwright')), false, `${label}: no CLI`);
+      assert.equal(h.calls.some((call) => call[0] === 'app'), false, `${label}: no app boot`);
+      assert.equal(h.calls.some((call) => call[0] === 'tree' && call[2] === 'ecto.drop'), true, `${label}: owned database dropped`);
+      assert.equal(evidence.limits.physical_playwright_cli_launches, 7, `${label}: launches unchanged`);
+      assert.ok(attempt.setup_charge_ms >= options.setupMs, `${label}: setup is charged`);
+      assert.equal(attempt.charged_duration_ms, attempt.setup_charge_ms + attempt.command_charge_ms, label);
+      assert.equal(evidence.limits.charged_duration_ms, 2150682 + attempt.charged_duration_ms, label);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i, label);
+    } finally { h.clean(); }
+  }
+});
+
+test('the CLI env carries the per-test JSONL path and the preserved diagnostics are hashed receipts on a pass', async () => {
+  const h = loadHarnessR3();
+  try {
+    await recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    assert.match(h.envs[0].SIGRA_PLAYWRIGHT_FAILURE_JSONL, /tests\.jsonl$/);
+    const attempt = h.read().attempts[0];
+    const rawDir = `${h.evidenceFile}.raw`;
+    assert.equal(attempt.diagnostics.jsonl.path, path.join(R3_FIRST, 'attempt-01', 'diagnostics', 'tests.jsonl'));
+    assert.equal(attempt.diagnostics.per_test.length, 16);
+    assert.equal(attempt.diagnostics.error_contexts.length, 1);
+    assert.equal(sha(fs.readFileSync(path.join(rawDir, attempt.diagnostics.jsonl.path))), attempt.diagnostics.jsonl.sha256);
+    assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(attempt, rawDir), { ok: true, errors: [] });
+    assert.equal(attempt.per_test_rows.length, 16);
+    assert.deepEqual(Object.keys(attempt.per_test_rows[0]).sort(), ['duration_ms', 'first_error_line', 'project', 'status', 'title']);
+    assert.equal(fs.existsSync(h.envs[0].SIGRA_PLAYWRIGHT_FAILURE_JSONL), false, 'the temp copy is gone, the receipt remains');
+  } finally { h.clean(); }
+});
+
+test('diagnostics are preserved on an assertion failure and a deadline kill, and the verifier needs them', async () => {
+  const failed = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(failed.freezeFile, R3_FIRST, failed.evidenceFile, failed.checkout, failed.makeDeps({ failRow: true })));
+    const attempt = failed.read().attempts[0];
+    assert.equal(attempt.diagnostics.per_test.length, 16);
+    assert.equal(attempt.assertion_failure_observed, true);
+    assert.ok(attempt.per_test_rows.some((row) => /unexpected assertion failure/.test(row.first_error_line ?? '')), 'the failing row names its first error line');
+    const rawDir = `${failed.evidenceFile}.raw`;
+    assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(attempt, rawDir), { ok: true, errors: [] });
+  } finally { failed.clean(); }
+
+  const killed = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(killed.freezeFile, R3_FIRST, killed.evidenceFile, killed.checkout, killed.makeDeps({ cliTimedOut: true, killedRows: 2 })), /work deadline/i);
+    const evidence = killed.read();
+    const attempt = evidence.attempts[0];
+    assert.equal(evidence.status, 'halted');
+    assert.equal(attempt.playwright_cli.launched, true);
+    assert.equal(attempt.diagnostics.per_test.length, 2, 'both rows that finished before the kill are preserved');
+    const rawDir = `${killed.evidenceFile}.raw`;
+    const lines = fs.readFileSync(path.join(rawDir, attempt.diagnostics.jsonl.path), 'utf8').trim().split('\n');
+    assert.equal(lines.length, 2);
+    assert.equal(attempt.per_test_rows.length, 2);
+    assert.equal(evidence.stop_record.slot_id, R3_FIRST);
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+  } finally { killed.clean(); }
+
+  const none = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(none.freezeFile, R3_FIRST, none.evidenceFile, none.checkout, none.makeDeps({ noJsonl: true })), /per-test JSONL/i);
+    assert.equal(none.read().status, 'halted', 'an attempt that launched the CLI without a preserved JSONL is rejected');
+  } finally { none.clean(); }
+});
+
+test('R3 runs all four regular slots once in order and verifies the complete 22-row proof', async () => {
+  const h = loadHarnessR3();
+  try {
+    for (const id of ['CR3-DESKTOP-MOBILE-FIRST', 'CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND']) {
+      await recovery.runLoadRecoverySlotR3(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps());
+    }
+    const evidence = h.read();
+    assert.equal(evidence.status, 'complete');
+    assert.equal(evidence.attempts.reduce((sum, item) => sum + item.lifecycle.rows, 0), 22);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 11);
+    assert.deepEqual(r3Verify(h, evidence, 'complete').errors, []);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|consumed|already|order/i);
+  } finally { h.clean(); }
+});
+
+test('R3 refuses out-of-order slots, a reopened original retry, a counter reset, caps drift and a slot outside the frozen table', async () => {
+  for (const [mutate, pattern, slot] of [
+    [() => {}, /frozen order/i, 'CR3-MOBILE-SECOND'],
+    [(e) => { e.limits.retry_available = 1; }, /retry/i, R3_FIRST],
+    [(e) => { e.limits.charged_duration_ms = 0; e.limits.prior_charge_ms = 0; }, /reset/i, R3_FIRST],
+    [(e) => { e.limits.max_d19_ms += 1; }, /approval caps differ/i, R3_FIRST],
+    [() => {}, /only the/i, 'CR3-UNKNOWN']
+  ]) {
+    const h = loadHarnessR3();
+    try {
+      const evidence = h.read(); mutate(evidence);
+      fs.writeFileSync(h.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, slot, h.evidenceFile, h.checkout, h.makeDeps()), pattern);
+      assert.deepEqual(h.calls, [], String(pattern));
+    } finally { h.clean(); }
+  }
+});
+
+test('R3 preparation is a bounded 10000 ms toolchain probe routed by the R3 evidence only', async () => {
+  const h = loadHarnessR3();
+  try {
+    const run = async (override = {}) => recovery.prepareLoadRecoveryR3(h.freezeFile, h.evidenceFile, h.checkout, { validate: () => {}, readApproval: () => R3_APPROVE, skipPreservation: true,
+      runTree: async (program, args, cwd, env, log, timeoutMs) => { h.timeouts.push([program, args[0], timeoutMs]); fs.writeFileSync(log, `${program} ${args[0]}\n`); return { exit_code: 0, duration_ms: 2, timed_out: false, ...override }; } });
+    const result = await run();
+    assert.equal(result.status, 'ready');
+    const evidence = h.read();
+    assert.equal(evidence.preparation.receipts.length, 2);
+    assert.ok(h.timeouts.every((entry) => entry[2] <= 10000 && entry[2] > 9000));
+    assert.equal(evidence.limits.preparation_charge_ms, evidence.preparation.duration_ms);
+    assert.equal(evidence.limits.charged_duration_ms, 2150682 + evidence.preparation.duration_ms);
+    await assert.rejects(run, /only available once/i);
+  } finally { h.clean(); }
+  const failing = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.prepareLoadRecoveryR3(failing.freezeFile, failing.evidenceFile, failing.checkout, { validate: () => {}, readApproval: () => R3_APPROVE, skipPreservation: true,
+      runTree: async (program, args, cwd, env, log) => { fs.writeFileSync(log, 'x'); return { exit_code: 1, duration_ms: 1, timed_out: false }; } }), /failed/i);
+    assert.equal(failing.read().status, 'halted');
+  } finally { failing.clean(); }
+});
+
+test('the R3 run refuses any freeze or evidence outside the reviewed R3 paths', async () => {
+  const h = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, { ...h.makeDeps(), enforcePaths: true }), /reviewed R3 freeze/i);
+    assert.deepEqual(h.calls, []);
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    for (const mode of [['--prepare-load-recovery', '--freeze', h.freezeFile, '--output', h.evidenceFile], ['--run-load-recovery', h.freezeFile, '--slot', R3_FIRST, '--output', h.evidenceFile]]) {
+      const result = spawnSync(process.execPath, [script, ...mode], { encoding: 'utf8', cwd: root });
+      assert.equal(result.status, 3, mode[0]);
+    }
+  } finally { h.clean(); }
+});
+
+// ---- Phase 253 plan 60 task 3: R3 budget-approval binding, host probe, retry eligibility, halt rows and terminal evidence ----
+function approvalRepoR3() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-approval-r3-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+  const budget = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R3.md');
+  fs.writeFileSync(budget, '# budgets r3\n');
+  const freezeFile = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json');
+  const freeze = { schema_version: 'sigra.phase253.registration-load-recovery-freeze/v3', budget: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R3.md`, sha256: sha(fs.readFileSync(budget)) } };
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze)}\n`);
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  return { dir, budget, freezeFile, freeze, approval: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('recording an R3 approval is exclusive, writes the v2 record bound to the R3 budget and freeze, and anything but approve writes nothing', () => {
+  const r = approvalRepoR3();
+  try {
+    for (const decision of ['reject', 'maybe', undefined]) {
+      assert.throws(() => recovery.recordBudgetApprovalR3({ decision, budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no' }, r.dir, { enforcePaths: false }), /decision|grants no capacity/i);
+      assert.equal(fs.existsSync(r.approval), false);
+    }
+    assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: '  ' }, r.dir, { enforcePaths: false }), /decision text/i);
+    const record = recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'approve exactly as written' }, r.dir, { enforcePaths: false, now: () => '2026-10-14T09:00:00.000Z' });
+    const onDisk = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    assert.deepEqual(onDisk, record);
+    assert.equal(onDisk.schema_version, 'sigra.phase253.load-recovery-budget-approval/v2');
+    assert.equal(onDisk.decision, 'approve');
+    assert.equal(onDisk.decision_text, 'approve exactly as written');
+    assert.equal(onDisk.budget_sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(onDisk.freeze_sha256, sha(fs.readFileSync(r.freezeFile)));
+    assert.deepEqual(onDisk.caps, R3_APPROVE.caps);
+    assert.equal(onDisk.retry_granted, 1);
+    assert.equal(onDisk.recorded_at, '2026-10-14T09:00:00.000Z');
+    assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'again' }, r.dir, { enforcePaths: false }), /EEXIST|exist|exclusive/i);
+    assert.equal(JSON.parse(fs.readFileSync(r.approval, 'utf8')).decision, 'approve', 'the first record is never overwritten');
+  } finally { r.clean(); }
+});
+
+test('an R3 approve-without-retry grants no retry, a budget mismatch refuses to record, and the R3 recorder pins its reviewed paths', () => {
+  const r = approvalRepoR3();
+  try {
+    const record = recovery.recordBudgetApprovalR3({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no retry' }, r.dir, { enforcePaths: false });
+    assert.equal(record.retry_granted, 0);
+    assert.deepEqual(record.caps, R3_APPROVE_NO_RETRY.caps);
+    fs.rmSync(r.approval);
+    assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: path.join(r.dir, 'elsewhere.json'), decisionText: 'x' }, r.dir), /reviewed R3 budget, freeze and approval paths/i);
+    fs.writeFileSync(r.budget, '# budgets r3 (edited)\n');
+    assert.throws(() => recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /budget/i);
+    assert.equal(fs.existsSync(r.approval), false);
+  } finally { r.clean(); }
+});
+
+test('the approval recorder CLI routes the R3 freeze path and still refuses a reject decision without writing', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const out = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json');
+  // Jon's R3 approval is now committed (253-63); a reject must still never write or alter it.
+  const before = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null;
+  const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R3.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /decision/i);
+  assert.equal(fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null, before);
+});
+
+test('an R3 run needs a committed v2 approval bound to the R3 budget and freeze, and the R2 approval is refused', () => {
+  const r = approvalRepoR3();
+  try {
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /absent|missing/i);
+    recovery.recordBudgetApprovalR3({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'ok' }, r.dir, { enforcePaths: false });
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /committed/i);
+    gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'approval');
+    const good = recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze);
+    assert.equal(good.decision, 'approve');
+    assert.equal(good.retry_granted, 1);
+    fs.writeFileSync(r.approval, `${fs.readFileSync(r.approval, 'utf8')} `);
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /committed|differs/i);
+    gitIn(r.dir, 'checkout', '--', '.');
+    const edited = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    const commit = (value, message) => { fs.writeFileSync(r.approval, `${JSON.stringify(value, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', message); };
+    commit({ ...edited, budget_sha256: 'f'.repeat(64) }, 'bad budget');
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /budget/i);
+    commit({ ...edited, freeze_sha256: 'f'.repeat(64) }, 'bad freeze');
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /freeze/i);
+    commit({ ...edited, caps: { ...edited.caps, d19_cap_ms: edited.caps.d19_cap_ms + 1 } }, 'bad caps');
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /caps/i);
+    commit({ ...edited, schema_version: 'sigra.phase253.load-recovery-budget-approval/v1', caps: { new_allowance_ms: 645000, d19_cap_ms: 2687596, d19_launch_max: 11, shared_cap_ms: 5027596, physical_cli_max: 20 } }, 'r2 approval shape');
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i, 'the R2 approval can never unlock R3');
+    commit({ ...edited, decision: 'reject' }, 'reject');
+    assert.throws(() => recovery.readCommittedApprovalR3(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i);
+  } finally { r.clean(); }
+});
+
+test('an R3 run refuses before the predebit when approval is missing, unwired or the host proof fails', async () => {
+  for (const [label, overrides, pattern] of [
+    ['approval absent', { readApproval: () => { throw new Error('R3 budget approval record is absent'); } }, /approval/i],
+    ['host proof fails', { probeHost: async () => { throw new Error('host is not on AC power'); } }, /AC power/i]
+  ]) {
+    const h = loadHarnessR3();
+    try {
+      const before = h.read();
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, { ...h.makeDeps(), ...overrides }), pattern, label);
+      assert.deepEqual(h.read(), before, `${label}: no reservation, used slot or charge`);
+      assert.equal(h.calls.filter((call) => call[0] === 'tree' || call[0] === 'app').length, 0, label);
+    } finally { h.clean(); }
+  }
+  const h = loadHarnessR3();
+  try {
+    const { readApproval: _unused, ...withoutApproval } = h.makeDeps(); // eslint-disable-line no-unused-vars
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, withoutApproval), /approval/i, 'the default reader demands a committed R3 approval');
+    assert.deepEqual(h.calls, []);
+  } finally { h.clean(); }
+});
+
+test('the approval decides the ceilings that the R3 run enforces', async () => {
+  const mismatch = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(mismatch.freezeFile, R3_FIRST, mismatch.evidenceFile, mismatch.checkout, mismatch.makeDeps({ approval: R3_APPROVE_NO_RETRY })), /approval caps differ/i);
+    assert.deepEqual(mismatch.calls, []);
+  } finally { mismatch.clean(); }
+  const noRetry = loadHarnessR3();
+  try {
+    noRetry.writeEvidence(R3_APPROVE_NO_RETRY);
+    const result = await recovery.runLoadRecoverySlotR3(noRetry.freezeFile, R3_FIRST, noRetry.evidenceFile, noRetry.checkout, noRetry.makeDeps({ approval: R3_APPROVE_NO_RETRY }));
+    assert.equal(result.rows, 16);
+    assert.equal(noRetry.read().limits.max_total_ms, 5160682);
+  } finally { noRetry.clean(); }
+  const tight = loadHarnessR3();
+  try {
+    const evidence = tight.read(); evidence.limits.charged_duration_ms += 20000;
+    fs.writeFileSync(tight.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(tight.freezeFile, R3_FIRST, tight.evidenceFile, tight.checkout, tight.makeDeps()), /do not fit approved limits/i);
+    assert.deepEqual(tight.calls, []);
+  } finally { tight.clean(); }
+});
+
+test('the R3 verifier rejects a receipt without its host proof, a suspended host, a wrong charge sum and missing diagnostics', async () => {
+  const h = loadHarnessR3();
+  try {
+    await recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    const evidence = h.read();
+    assert.deepEqual(evidence.attempts[0].host_awake, { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' });
+    const verify = (mutate) => { const copy = structuredClone(evidence); mutate(copy.attempts[0]); return r3Verify(h, copy); };
+    assert.equal(verify(() => {}).ok, true);
+    for (const [name, mutate, pattern] of [
+      ['no host_awake', (a) => { delete a.host_awake; }, /host_awake/],
+      ['not on AC', (a) => { a.host_awake.ac_power = false; }, /host_awake/],
+      ['no assertion hash', (a) => { a.host_awake.assertions_sha256 = 'x'; }, /host_awake/],
+      ['suspended true', (a) => { a.host.suspended = true; }, /suspended/],
+      ['suspension detected', (a) => { a.host.suspension_detected = true; }, /suspension/],
+      ['charge below the larger clock', (a) => { a.wall_duration_ms = a.charged_duration_ms + 10; }, /charge/],
+      ['charge is not the sum', (a) => { a.charged_duration_ms += 1; }, /setup charge plus the command charge/],
+      ['setup charge forged', (a) => { a.setup_charge_ms += 1; a.charged_duration_ms += 1; }, /setup charge is not max/],
+      ['command window forged', (a) => { a.command_timing.execution_ms += 1; }, /command/],
+      ['deadlines forged', (a) => { a.stage_deadlines.work_ms = 105000; }, /stage deadlines/],
+      ['no diagnostics', (a) => { a.diagnostics = null; }, /per-test JSONL/],
+      ['diagnostics without jsonl', (a) => { a.diagnostics.jsonl = null; }, /per-test JSONL/],
+      ['forged per-test rows', (a) => { a.per_test_rows[0].status = 'forged'; }, /per_test_rows/]
+    ]) {
+      const verdict = verify(mutate);
+      assert.equal(verdict.ok, false, name);
+      assert.match(verdict.errors.join(';'), pattern, name);
+    }
+    const tampered = structuredClone(evidence);
+    const jsonl = path.join(`${h.evidenceFile}.raw`, tampered.attempts[0].diagnostics.jsonl.path);
+    const original = fs.readFileSync(jsonl);
+    fs.appendFileSync(jsonl, ' ');
+    assert.match(r3Verify(h, tampered).errors.join(';'), /sha256/i, 'a changed JSONL no longer matches its receipt');
+    fs.writeFileSync(jsonl, original);
+  } finally { h.clean(); }
+});
+
+test('a host sleep halts as halted_infrastructure with per-test rows, stays charged and counted, and blocks every regular slot until the retry', async () => {
+  const h = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })), /work deadline|suspension/i);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].observed_outcome, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.eligible, true);
+    assert.equal(evidence.infrastructure_retry.halted_slot, R3_FIRST);
+    assert.equal(evidence.infrastructure_retry.cause, 'host_sleep');
+    assert.equal(evidence.infrastructure_halts.length, 1);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 8);
+    assert.equal(evidence.limits.charged_duration_ms, 2150682 + evidence.attempts[0].charged_duration_ms);
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+    assert.deepEqual(Object.keys(evidence.stop_record.per_test_rows[0]).sort(), ['duration_ms', 'first_error_line', 'project', 'status', 'title']);
+    assert.equal(r3Verify(h, evidence).ok, false);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i);
+  } finally { h.clean(); }
+});
+
+test('CR3-INFRA-RETRY runs once, needs a committed diagnostic and a granted retry, and re-runs the identical frozen selection', async () => {
+  const h = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /halted_infrastructure|infrastructure/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })));
+    const callsBefore = h.calls.length;
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /diagnostic/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', checkDiagnostic: () => { throw new Error('diagnostic is not committed'); } })), /not committed/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', approval: R3_APPROVE_NO_RETRY })), /retry|caps/i);
+    assert.equal(h.calls.length, callsBefore, 'every refusal happens before any spawn');
+
+    const result = await recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' }));
+    assert.equal(result.rows, 16);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(evidence.attempts.length, 2);
+    assert.equal(evidence.attempts[1].slot_id, 'CR3-INFRA-RETRY');
+    assert.equal(evidence.attempts[1].retry_of, R3_FIRST);
+    assert.deepEqual(evidence.attempts[1].argv, evidence.attempts[0].argv);
+    assert.deepEqual(evidence.attempts[1].diagnostics.per_test.length, 16);
+    assert.equal(evidence.infrastructure_retry.used, true);
+    assert.deepEqual(evidence.infrastructure_retry.diagnostic, { file: 'diag.json', sha256: 'd'.repeat(64) });
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.deepEqual(evidence.limits.used_slots, [...R3_SPENT, R3_FIRST, 'CR3-INFRA-RETRY']);
+    assert.equal(evidence.limits.charged_duration_ms, 2150682 + evidence.attempts[0].charged_duration_ms + evidence.attempts[1].charged_duration_ms);
+    const verdict = r3Verify(h, evidence);
+    assert.deepEqual(verdict.errors, [], 'the original stays in attempts and the pair counts as one slot outcome');
+
+    const drifted = structuredClone(evidence); drifted.attempts[1].argv = drifted.attempts[1].argv.filter((arg) => arg !== '--project=admin-eval-dark');
+    assert.equal(r3Verify(h, drifted).ok, false, 'a retry with another selection is rejected');
+    const noDiagnostic = structuredClone(evidence); noDiagnostic.infrastructure_retry.diagnostic = null;
+    assert.equal(r3Verify(h, noDiagnostic).ok, false, 'a retry without a recorded diagnostic is rejected');
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure|already/i, 'the retry is usable once');
+  } finally { h.clean(); }
+});
+
+test('the R3 retry is never available after an assertion failure, a setup failure without suspension, a non-suspension overrun, a second infrastructure halt or approve-without-retry', async () => {
+  const cases = [
+    ['assertion failure', { cliExit: 0 }],
+    ['assertion row failure with a suspension flag', { suspendFlag: true, failRow: true }],
+    ['setup failure without suspension', { setupExit: 1 }],
+    ['non-suspension setup overrun', { setupMs: 61000 }],
+    ['non-suspension deadline kill', { cliTimedOut: true }]
+  ];
+  for (const [label, options] of cases) {
+    const h = loadHarnessR3();
+    try {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps(options)), undefined, label);
+      assert.equal(h.read().status, 'halted', label);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR3(h.freezeFile, 'CR3-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i, label);
+    } finally { h.clean(); }
+  }
+
+  const second = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(second.freezeFile, R3_FIRST, second.evidenceFile, second.checkout, second.makeDeps({ suspendBrowser: true })));
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(second.freezeFile, 'CR3-INFRA-RETRY', second.evidenceFile, second.checkout, second.makeDeps({ diagnosticFile: 'diag.json', suspendBrowser: true })));
+    const evidence = second.read();
+    assert.equal(evidence.status, 'halted', 'a second infrastructure halt is terminal');
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.attempts.length, 2);
+    assert.equal(evidence.stop_record.slot_id, 'CR3-INFRA-RETRY');
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+  } finally { second.clean(); }
+
+  const withoutRetry = loadHarnessR3();
+  try {
+    withoutRetry.writeEvidence(R3_APPROVE_NO_RETRY);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(withoutRetry.freezeFile, R3_FIRST, withoutRetry.evidenceFile, withoutRetry.checkout, withoutRetry.makeDeps({ approval: R3_APPROVE_NO_RETRY, suspendBrowser: true })));
+    assert.equal(withoutRetry.read().status, 'halted', 'no retry was granted, so the infrastructure halt is terminal');
+  } finally { withoutRetry.clean(); }
+});
+
+test('a suspension during setup and a lost caffeinate holder are infrastructure halts that never launched the CLI or lost the host', async () => {
+  const setupSleep = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(setupSleep.freezeFile, R3_FIRST, setupSleep.evidenceFile, setupSleep.checkout, setupSleep.makeDeps({ setupSuspended: true, setupExit: 1 })));
+    const evidence = setupSleep.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].playwright_cli.launched, false);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 7);
+    assert.deepEqual(evidence.stop_record.per_test_rows, []);
+    assert.equal(evidence.stop_record.cli_launched, false);
+  } finally { setupSleep.clean(); }
+  const lost = loadHarnessR3();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR3(lost.freezeFile, R3_FIRST, lost.evidenceFile, lost.checkout, lost.makeDeps({ holderAlive: () => false })), /holder/i);
+    const evidence = lost.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.cause, 'holder_lost');
+    assert.equal(evidence.attempts[0].host.holder_alive_at_end, false);
+  } finally { lost.clean(); }
+});
+
+test('R3 accepted evidence verifies by git ancestry and object reads after a later committed runner change, while a live check still demands the working tree', () => {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-terminal-r3-')));
+  try {
+    gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'freeze point');
+    const frozenHead = gitIn(dir, 'rev-parse', 'HEAD');
+    const freeze = { source: { checkout_head: frozenHead, blobs: { 'runner.mjs': gitIn(dir, 'rev-parse', `${frozenHead}:runner.mjs`) } } };
+    assert.equal(recovery.verifyFrozenSourceBindingR3(dir, freeze, { terminal: false }), frozenHead);
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true; export const later = 1;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'later runner change');
+    assert.throws(() => recovery.verifyFrozenSourceBindingR3(dir, freeze, { terminal: false }), /identity mismatch/i, 'init, prepare and run demand working-tree equality');
+    assert.equal(recovery.verifyFrozenSourceBindingR3(dir, freeze, { terminal: true }), gitIn(dir, 'rev-parse', 'HEAD'), 'accepted evidence is not silently invalidated');
+    const forged = structuredClone(freeze); forged.source.blobs['runner.mjs'] = '0'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR3(dir, forged, { terminal: true }), /blob mismatch/i);
+    const notAncestor = structuredClone(freeze); notAncestor.source.checkout_head = '1'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR3(dir, notAncestor, { terminal: true }), /ancestor/i);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+// ---- Phase 253 plan 69 task 1: R4 dedup-aware per-row context identity (D-24) ----
+const MIRRORED_FIXTURE = path.join(root, 'scripts/ci/fixtures/r3-mirrored-context-annotations.json');
+const REUSE_MESSAGE = 'two selected rows reused the same browser-context identity';
+const mirroredRows = () => recovery.playReportTests(JSON.parse(fs.readFileSync(MIRRORED_FIXTURE, 'utf8')))
+  .map((item) => ({ title: item.title, project: item.project, label: `${item.project} / ${item.title}`, result: item }));
+const withContext = (row, ids, { mirror = true } = {}) => {
+  const note = ids.map((description) => ({ type: 'sigra-registration-control-context', description }));
+  const result = { ...row.result, annotations: [...note], result_annotations: mirror ? [...note] : [] };
+  return { ...row, result };
+};
+const CTX = (n) => `cr4-unit-${String(n).padStart(2, '0')}:${'0123456789abcdef0123456789abcdef0123'.slice(0, 35)}${n % 10}`;
+
+test('the committed R3 report excerpt is faithful: provenance sha256 matches the preserved report and the legacy flatten double-counts every id', () => {
+  const fixture = JSON.parse(fs.readFileSync(MIRRORED_FIXTURE, 'utf8'));
+  assert.equal(fixture.provenance.source_sha256, 'ef73675158c0e260eefff8d0d3b672cb63546dc7da74fc1d49c556f46a62f53c');
+  assert.match(fixture.provenance.label, /CR3-DESKTOP-MOBILE-FIRST/);
+  const rows = mirroredRows();
+  assert.equal(rows.length, 16);
+  const legacy = rows.flatMap((row) => [...row.result.annotations, ...row.result.result_annotations].filter((item) => item.type === 'sigra-registration-control-context'));
+  assert.equal(legacy.length, 36, 'legacy concatenation counts mirrored ids twice');
+  assert.ok(new Set(legacy.map((item) => item.description)).size < legacy.length, 'legacy flatten has duplicates');
+});
+
+test('R4 per-row union gives 18 distinct ids on the preserved R3 excerpt and reports no cross-row reuse', () => {
+  const rows = mirroredRows();
+  const counts = rows.map((row) => recovery.controlContextIdentitiesR4(row.result).length);
+  const collision = rows.filter((row) => row.title === 'registration detects a deliberate same-account collision');
+  assert.equal(collision.length, 3);
+  for (const row of collision) assert.equal(new Set(recovery.controlContextIdentitiesR4(row.result)).size, 2, `${row.label} carries two distinct contexts`);
+  assert.equal(counts.reduce((a, b) => a + b, 0), 18);
+  assert.equal(rows.filter((row) => row.title === 'render bundle: board-mg-9/populated').map((row) => recovery.controlContextIdentitiesR4(row.result).length)[0], 0);
+  assert.deepEqual(recovery.crossRowContextReuseR4(rows), []);
+});
+
+test('R4 cross-row check still rejects an id shared by two different rows, even when mirrored', () => {
+  const [a, b] = mirroredRows().filter((row) => row.title === 'registration stops when LiveView readiness is never released');
+  const shared = CTX(1);
+  const bad = [withContext(a, [shared]), withContext(b, [shared])];
+  assert.deepEqual(recovery.crossRowContextReuseR4(bad), [REUSE_MESSAGE]);
+  assert.deepEqual(recovery.crossRowContextReuseR4([withContext(a, [CTX(1)]), withContext(b, [CTX(2)])]), []);
+});
+
+test('R4 collision rows accept two distinct ids mirrored at both levels and reject a malformed id at either level via the id set', () => {
+  const row = mirroredRows().find((item) => item.title === 'registration detects a deliberate same-account collision');
+  const two = withContext(row, [CTX(3), CTX(4)]);
+  assert.equal(recovery.controlContextIdentitiesR4(two.result).length, 2);
+  const noMirror = withContext(row, [CTX(3), CTX(4)], { mirror: false });
+  assert.deepEqual(recovery.controlContextIdentitiesR4(noMirror.result), recovery.controlContextIdentitiesR4(two.result));
+  const onlyResultLevel = { ...two, result: { ...two.result, annotations: [] } };
+  assert.equal(recovery.controlContextIdentitiesR4(onlyResultLevel.result).length, 2);
+});
+
+// A synthetic R3 first slot whose Playwright report is rewritten to mirror test-level annotations into results[],
+// exactly as Playwright 1.59 does. The R3 synthetic report builder left results[].annotations empty, which is why the defect escaped.
+async function mirroredFirstSlotR3({ injectReuse = false } = {}) {
+  const h = loadHarnessR3();
+  await recovery.runLoadRecoverySlotR3(h.freezeFile, R3_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+  const evidence = h.read();
+  const attempt = evidence.attempts[0];
+  const raw = `${h.evidenceFile}.raw`;
+  const reference = attempt.files.playwright_report;
+  const file = path.join(raw, reference.path);
+  const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const tests = [];
+  const visit = (suite) => { for (const spec of suite.specs ?? []) for (const t of spec.tests ?? []) tests.push(t); for (const child of suite.suites ?? []) visit(child); };
+  report.suites.forEach(visit);
+  for (const t of tests) for (const result of t.results) result.annotations = structuredClone(t.annotations);
+  if (injectReuse) {
+    const contextOf = (t) => t.annotations.find((item) => item.type === 'sigra-registration-control-context');
+    const withCtx = tests.filter(contextOf);
+    const shared = contextOf(withCtx[0]).description;
+    for (const t of [withCtx[0], withCtx[1]]) for (const list of [t.annotations, t.results[0].annotations]) list.find((item) => item.type === 'sigra-registration-control-context').description = shared;
+  }
+  fs.writeFileSync(file, JSON.stringify(report));
+  attempt.files.playwright_report = { ...reference, sha256: sha(fs.readFileSync(file)) };
+  return { h, attempt, raw };
+}
+
+test('a mirrored R3 first slot is rejected by the frozen R3 and legacy verifiers but accepted by per_row_union', async () => {
+  const { h, attempt, raw } = await mirroredFirstSlotR3();
+  try {
+    const r3 = recovery.verifyNativeLoadAttemptR3(structuredClone(attempt), h.freeze, raw);
+    assert.equal(r3.ok, false);
+    assert.ok(r3.errors.includes(REUSE_MESSAGE), r3.errors.join('; '));
+    const legacy = recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, raw);
+    assert.ok(legacy.errors.includes(REUSE_MESSAGE), legacy.errors.join('; '));
+    const r4 = recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, raw, { contextIdentity: 'per_row_union' });
+    assert.ok(!r4.errors.includes(REUSE_MESSAGE));
+    assert.deepEqual(r4.errors.filter((message) => /context/i.test(message)), []);
+    assert.equal(recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, raw, {}).errors.includes(REUSE_MESSAGE), true, 'an unrecognized option keeps the legacy path');
+  } finally { h.clean(); }
+});
+
+test('per_row_union still fails a genuine cross-row reuse injected into the mirrored first slot', async () => {
+  const { h, attempt, raw } = await mirroredFirstSlotR3({ injectReuse: true });
+  try {
+    const r4 = recovery.verifyNativeLoadAttempt(structuredClone(attempt), h.freeze, raw, { contextIdentity: 'per_row_union' });
+    assert.equal(r4.ok, false);
+    assert.ok(r4.errors.includes(REUSE_MESSAGE), r4.errors.join('; '));
+  } finally { h.clean(); }
+});
+
+test('per_row_union keeps the per-row presence and format checks at either annotation level', async () => {
+  const { h, attempt, raw } = await mirroredFirstSlotR3();
+  try {
+    const file = path.join(raw, attempt.files.playwright_report.path);
+    const original = fs.readFileSync(file, 'utf8');
+    const rewrite = (mutate) => {
+      const report = JSON.parse(original);
+      const tests = [];
+      const visit = (suite) => { for (const spec of suite.specs ?? []) for (const t of spec.tests ?? []) tests.push(t); for (const child of suite.suites ?? []) visit(child); };
+      report.suites.forEach(visit); mutate(tests);
+      fs.writeFileSync(file, JSON.stringify(report));
+      return { ...attempt, files: { ...attempt.files, playwright_report: { ...attempt.files.playwright_report, sha256: sha(fs.readFileSync(file)) } } };
+    };
+    const hasCtx = (t) => t.annotations.some((item) => item.type === 'sigra-registration-control-context');
+    const malformed = rewrite((tests) => { for (const list of [tests.find(hasCtx).annotations, tests.find(hasCtx).results[0].annotations]) list.find((item) => item.type === 'sigra-registration-control-context').description = 'not-a-context-id'; });
+    assert.match(recovery.verifyNativeLoadAttempt(structuredClone(malformed), h.freeze, raw, { contextIdentity: 'per_row_union' }).errors.join('; '), /fresh browser-context identity/);
+    const missing = rewrite((tests) => { const t = tests.find(hasCtx); t.annotations = t.annotations.filter((item) => item.type !== 'sigra-registration-control-context'); t.results[0].annotations = t.results[0].annotations.filter((item) => item.type !== 'sigra-registration-control-context'); });
+    assert.match(recovery.verifyNativeLoadAttempt(structuredClone(missing), h.freeze, raw, { contextIdentity: 'per_row_union' }).errors.join('; '), /fresh browser-context identity/);
+  } finally { h.clean(); }
+});
+
+test('the older verifyNativeControlAttempt keeps its legacy flatten for mirrored annotations', () => {
+  const rows = mirroredRows();
+  const legacyIds = rows.flatMap((row) => [...row.result.annotations, ...row.result.result_annotations].filter((item) => item.type === 'sigra-registration-control-context').map((item) => item.description));
+  assert.notEqual(new Set(legacyIds).size, legacyIds.length);
+  assert.equal(typeof recovery.verifyNativeControlAttempt, 'function');
+});
+
+// ---- Phase 253 plan 69 task 2: R4 ledger, R3-lineage history reader and freeze ----
+const R4_SPENT = [...R3_SPENT, 'CR3-DESKTOP-MOBILE-FIRST'];
+const R4_CHARGES = [...R3_CHARGES, 822, 71033];
+const R4_IDS = ['CR4-DESKTOP-MOBILE-FIRST', 'CR4-DESKTOP-SECOND', 'CR4-MOBILE-SECOND', 'CR4-DARK-SECOND'];
+const r4LedgerInput = () => ({
+  charges: [...R4_CHARGES], physicalPlaywrightLaunches: 8, spentReservations: [...R4_SPENT],
+  retryUsed: 1, retryAvailable: 0, preparationUsedMs: 5141 + 822
+});
+const R4_APPROVE = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v3', decision: 'approve', retry_granted: 1,
+  caps: { new_allowance_ms: 910000, d19_cap_ms: 3132537, d19_launch_max: 13, shared_cap_ms: 5472537, physical_cli_max: 22 }
+};
+const R4_APPROVE_NO_RETRY = {
+  schema_version: 'sigra.phase253.load-recovery-budget-approval/v3', decision: 'approve-without-retry', retry_granted: 0,
+  caps: { new_allowance_ms: 670000, d19_cap_ms: 2892537, d19_launch_max: 12, shared_cap_ms: 5232537, physical_cli_max: 21 }
+};
+
+test('R4 ledger carries 2222537 ms, eight launches and nine spent identities, with the reviewed R4 caps', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR4(r4LedgerInput());
+  assert.equal(R3_CHARGES.reduce((a, b) => a + b, 0) + 822 + 71033, 2222537);
+  assert.equal(ledger.prior_charge_ms, 2222537);
+  assert.equal(2150682 + 822 + 71033, 2222537);
+  assert.equal(ledger.prior_playwright_cli_launches, 8);
+  assert.deepEqual(ledger.spent_reservations, R4_SPENT);
+  assert.equal(ledger.spent_reservations.length, 9);
+  assert.equal(ledger.preparation_used_ms, 5963);
+  assert.equal(ledger.preparation_reserve_ms, 10000);
+  assert.equal(ledger.retry_used, 1);
+  assert.equal(ledger.retry_available, 0);
+  assert.ok(ledger.expired_identities.includes('CR3-INFRA-RETRY'));
+  for (const id of ['CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND']) assert.ok(ledger.retired_identities.includes(id), id);
+  assert.ok(!R4_SPENT.some((id) => ledger.expired_identities.includes(id) || ledger.retired_identities.includes(id)), 'a spent identity is never also expired or retired');
+  assert.deepEqual(ledger.caps.approve, R4_APPROVE.caps);
+  assert.deepEqual(ledger.caps['approve-without-retry'], R4_APPROVE_NO_RETRY.caps);
+  assert.equal(ledger.required_rows, 22);
+  assert.equal(ledger.headroom_ms, 15000);
+});
+
+test('R4 caps follow the reviewed arithmetic and equal the R4 budget document', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR4(r4LedgerInput());
+  assert.equal(ledger.caps.approve.new_allowance_ms, 10000 + 240000 + 3 * 135000 + 240000 + 15000);
+  assert.equal(ledger.caps.approve.d19_cap_ms, 2222537 + 910000);
+  assert.equal(ledger.caps.approve.shared_cap_ms, 3132537 + 9 * 240000 + 3 * 60000);
+  assert.equal(ledger.caps.approve.d19_launch_max, 8 + 5);
+  assert.equal(ledger.caps.approve.physical_cli_max, 13 + 9);
+  assert.equal(ledger.caps['approve-without-retry'].new_allowance_ms, 910000 - 240000);
+  assert.equal(ledger.caps['approve-without-retry'].d19_launch_max, 12);
+  assert.equal(ledger.caps['approve-without-retry'].physical_cli_max, 21);
+  const doc = fs.readFileSync(path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R4.md'), 'utf8');
+  for (const caps of [R4_APPROVE.caps, R4_APPROVE_NO_RETRY.caps]) {
+    for (const value of [caps.new_allowance_ms, caps.d19_cap_ms, caps.shared_cap_ms]) assert.ok(doc.includes(String(value)), `the R4 budget document states ${value}`);
+  }
+  assert.ok(doc.includes('2222537'));
+  assert.ok(doc.includes('**13**') && doc.includes('**12**') && doc.includes('**22**') && doc.includes('**21**'));
+});
+
+test('R4 ledger rejects any other carried input', () => {
+  for (const mutate of [
+    (input) => { input.charges[13] = 71032; },
+    (input) => { input.charges[12] = 821; },
+    (input) => { input.charges.pop(); },
+    (input) => { input.charges = [...R3_CHARGES]; },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.pop(); },
+    (input) => { input.spentReservations = [...R3_SPENT]; },
+    (input) => { input.spentReservations.reverse(); },
+    (input) => { input.physicalPlaywrightLaunches = 7; },
+    (input) => { input.preparationUsedMs = 5141; }
+  ]) {
+    const input = r4LedgerInput(); mutate(input);
+    assert.throws(() => recovery.buildLoadRecoveryLedgerR4(input), /historical|retry|reservation|launch|preparation|carried/i);
+  }
+  assert.throws(() => recovery.buildLoadRecoveryLedgerR4(r3LedgerInput()), /historical|launch|reservation|preparation/i);
+  assert.throws(() => recovery.buildLoadRecoveryLedgerR3(r4LedgerInput()), /historical|launch|reservation|preparation|carried/i, 'the R3 builder still refuses the R4 inputs');
+});
+
+test('R4 slots keep the identical 22-row selection under new identities and never reuse a spent, expired or retired identity', () => {
+  const r3 = recovery.loadRecoverySlotDefinitionsR3();
+  const r4 = recovery.loadRecoverySlotDefinitionsR4();
+  assert.deepEqual(r4.map((slot) => slot.id), [...R4_IDS, 'CR4-INFRA-RETRY']);
+  assert.deepEqual(r4.map((slot) => slot.maps_from), ['CR3-DESKTOP-MOBILE-FIRST', 'CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND', 'CR4-INFRA-RETRY']);
+  const timing = ({ setup_ms, work_ms, cleanup_ms, command_ms, max_duration_ms }) => ({ setup_ms, work_ms, cleanup_ms, command_ms, max_duration_ms });
+  assert.deepEqual(timing(r4[0]), { setup_ms: 60000, work_ms: 165000, cleanup_ms: 15000, command_ms: 180000, max_duration_ms: 240000 });
+  for (const slot of r4.slice(1, 4)) assert.deepEqual(timing(slot), { setup_ms: 60000, work_ms: 60000, cleanup_ms: 15000, command_ms: 75000, max_duration_ms: 135000 }, slot.id);
+  assert.equal(r4[4].max_duration_ms, 240000);
+  assert.equal(r4[4].retry, true);
+  assert.equal(r4[4].rows, 0);
+  for (const [index, slot] of r3.entries()) {
+    const strip = ({ id, maps_from, ...rest }) => rest; // eslint-disable-line no-unused-vars
+    assert.deepEqual(strip(r4[index]), strip(slot), `selection, projects, argv, ports, expected CLI exit and windows of ${slot.id} are byte-identical`);
+  }
+  assert.deepEqual(r4.slice(0, 4).map((slot) => slot.rows), [16, 2, 2, 2]);
+  assert.equal(r4.slice(0, 4).reduce((sum, slot) => sum + slot.rows, 0), 22);
+  assert.equal(r4[0].expected_cli_exit, 1);
+  const ledger = recovery.buildLoadRecoveryLedgerR4(r4LedgerInput());
+  const closed = [...ledger.spent_reservations, ...ledger.expired_identities, ...ledger.retired_identities];
+  assert.equal(r4.filter((slot) => closed.includes(slot.id)).length, 0, 'no runnable R4 slot reuses a closed identity');
+});
+
+function r4LineageRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r4-lineage-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  const put = (relative, text) => { const target = path.join(dir, relative); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, text); return target; };
+  const evidenceRel = `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json`;
+  const logRel = 'CR3-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log';
+  const traceRel = 'CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip';
+  const diagRel = 'CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/tests.jsonl';
+  const prepRel = 'preparation/mix_version.log';
+  put(`${evidenceRel}.raw/${logRel}`, 'synthetic test log\n'); put(`${evidenceRel}.raw/${traceRel}`, 'zipbytes'); put(`${evidenceRel}.raw/${diagRel}`, '{"row":1}\n');
+  put(`${evidenceRel}.raw/${prepRel}`, 'Mix 1.19\n');
+  const reference = (rel, text) => ({ path: rel, sha256: sha(text), bytes: Buffer.byteLength(text) });
+  const evidence = {
+    status: 'halted', stop_reason: 'two selected rows reused the same browser-context identity',
+    attempts: [{
+      slot_id: 'CR3-DESKTOP-MOBILE-FIRST', charged_duration_ms: 71033, observed_outcome: 'halted',
+      files: { test_log: reference(logRel, 'synthetic test log\n'), traces: [reference(traceRel, 'zipbytes')] },
+      diagnostics: { jsonl: reference(diagRel, '{"row":1}\n'), error_contexts: [] }
+    }],
+    preparation: { duration_ms: 822, receipts: [{ name: 'mix_version', log: reference(prepRel, 'Mix 1.19\n') }] },
+    limits: { prior_charge_ms: 2150682, preparation_charge_ms: 822, charged_duration_ms: 2222537, physical_playwright_cli_launches: 8, used_slots: [...R4_SPENT], retry_used: 1, retry_available: 0, infra_retry: { granted: 1, used: 0 } },
+    infrastructure_retry: null, preserved_revisions: []
+  };
+  put(evidenceRel, `${JSON.stringify(evidence, null, 2)}\n`);
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json`, '{"synthetic":"r3 freeze"}\n');
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json`, '{"synthetic":"r3 approval"}\n');
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R3.md`, '# r3 budget\n');
+  put(`${PHASE_REL}/253-63-SUMMARY.md`, '# halted 253-63\n');
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'lineage');
+  const hashOf = (rel) => sha(fs.readFileSync(path.join(dir, rel)));
+  const record = (rel) => ({ file: rel, sha256: hashOf(rel) });
+  const lineage = {
+    evidence: record(evidenceRel), freeze: record(`${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json`),
+    approval: record(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json`), budget: record(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R3.md`),
+    summary: record(`${PHASE_REL}/253-63-SUMMARY.md`)
+  };
+  const olderHistory = () => ({ charges: [...R3_CHARGES], artifacts: [{ path: 'older/record', sha256: 'a'.repeat(64) }], frozenBlobs: {}, control: { accepted: { toolchain: { mix: '1.19.5' } } } });
+  return { dir, evidenceRel, logRel, lineage, evidence, deps: { olderHistory, lineage, skipPreservedRevisions: true }, put, hashOf, clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('the R4 history reader re-hashes the R3 lineage and reads the carried 2222537 ms ledger from preserved bytes', () => {
+  const r = r4LineageRepo();
+  try {
+    const history = recovery.readLoadHistoryR4(r.dir, r.deps);
+    assert.deepEqual(history.ledger, recovery.buildLoadRecoveryLedgerR4(r4LedgerInput()));
+    assert.deepEqual(history.charges, R4_CHARGES);
+    assert.equal(history.terminalHalt.slot_id, 'CR3-DESKTOP-MOBILE-FIRST');
+    assert.equal(history.terminalHalt.plan, '253-63');
+    assert.equal(history.terminalHalt.cause, 'runner_validator_mirrored_context_annotations');
+    assert.equal(history.terminalHalt.charged_ms, 71033);
+    assert.equal(history.terminalHalt.preparation_ms, 822);
+    assert.equal(history.terminalHalt.terminal, true);
+    assert.equal(history.terminalHalt.infrastructure, false);
+    assert.equal(history.terminalHalt.retryable, false);
+    assert.equal(history.terminalHalt.charged, true);
+    assert.equal(history.terminalHalt.stop_reason, 'two selected rows reused the same browser-context identity');
+    assert.deepEqual(history.terminalHalt.summary, { file: `${PHASE_REL}/253-63-SUMMARY.md`, sha256: sha('# halted 253-63\n') });
+    assert.deepEqual(history.terminalHalt.expired_identities, ['CR3-INFRA-RETRY']);
+    assert.deepEqual(history.terminalHalt.retired_identities, ['CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND']);
+    const paths = history.artifacts.map((item) => item.path);
+    for (const name of ['253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json', '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json', '253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json', '253-LOAD-RECOVERY-BUDGETS-R3.md', '253-63-SUMMARY.md']) {
+      assert.ok(paths.includes(`${PHASE_REL}/${name}`), name);
+    }
+    for (const raw of [r.logRel, 'CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip', 'CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/tests.jsonl', 'preparation/mix_version.log']) {
+      assert.ok(paths.includes(`${r.evidenceRel}.raw/${raw}`), `every R3 raw receipt is re-hashed: ${raw}`);
+    }
+    assert.ok(paths.includes('older/record'), 'the older lineage is carried');
+    assert.ok(history.artifacts.every((item) => /^[0-9a-f]{64}$/.test(item.sha256)));
+  } finally { r.clean(); }
+});
+
+test('the R4 history reader refuses changed R3 evidence, freeze, approval, budget, summary or raw receipts and a wrong carried ledger', () => {
+  const rewriteEvidence = (r, mutate) => {
+    const evidence = structuredClone(r.evidence); mutate(evidence);
+    fs.writeFileSync(path.join(r.dir, r.lineage.evidence.file), `${JSON.stringify(evidence, null, 2)}\n`);
+    r.deps.lineage = { ...r.lineage, evidence: { ...r.lineage.evidence, sha256: sha(fs.readFileSync(path.join(r.dir, r.lineage.evidence.file))) } };
+  };
+  for (const [label, mutate, pattern] of [
+    ['evidence', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.evidence.file), ' '), /R3 evidence/i],
+    ['freeze', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.freeze.file), ' '), /R3 freeze/i],
+    ['approval', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.approval.file), ' '), /R3 approval/i],
+    ['budget', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.budget.file), ' '), /R3 budget/i],
+    ['summary', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.summary.file), ' '), /R3 summary/i],
+    ['raw receipt', (r) => fs.appendFileSync(path.join(r.dir, `${r.evidenceRel}.raw/${r.logRel}`), 'tampered'), /raw/i],
+    ['raw trace', (r) => fs.appendFileSync(path.join(r.dir, `${r.evidenceRel}.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip`), 'x'), /raw/i],
+    ['raw diagnostics', (r) => fs.appendFileSync(path.join(r.dir, `${r.evidenceRel}.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/tests.jsonl`), 'x'), /raw/i],
+    ['wrong charge', (r) => rewriteEvidence(r, (e) => { e.attempts[0].charged_duration_ms = 71032; }), /2222537|receipt differs/i],
+    ['wrong stop reason', (r) => rewriteEvidence(r, (e) => { e.stop_reason = 'something else'; }), /receipt differs/i],
+    ['infrastructure outcome', (r) => rewriteEvidence(r, (e) => { e.attempts[0].observed_outcome = 'halted_infrastructure'; }), /receipt differs/i],
+    ['wrong launches', (r) => rewriteEvidence(r, (e) => { e.limits.physical_playwright_cli_launches = 7; }), /receipt differs/i],
+    ['wrong preparation', (r) => rewriteEvidence(r, (e) => { e.preparation.duration_ms = 821; }), /receipt differs/i],
+    ['wrong spent list', (r) => rewriteEvidence(r, (e) => { e.limits.used_slots.pop(); }), /receipt differs/i]
+  ]) {
+    const r = r4LineageRepo();
+    try {
+      mutate(r);
+      assert.throws(() => recovery.readLoadHistoryR4(r.dir, r.deps), pattern, label);
+    } finally { r.clean(); }
+  }
+});
+
+test('the R4 history reader reads the real preserved R3 lineage and reaches the 2222537 ms ledger', () => {
+  const history = recovery.readLoadHistoryR4(root, { olderHistory: (checkout) => recovery.readLoadHistoryR3(checkout, { skipPreservedRevisions: true }), skipPreservedRevisions: true });
+  assert.equal(history.ledger.prior_charge_ms, 2222537);
+  assert.equal(history.ledger.prior_playwright_cli_launches, 8);
+  assert.deepEqual(history.ledger.caps, recovery.buildLoadRecoveryLedgerR4(r4LedgerInput()).caps);
+  assert.equal(history.terminalHalt.charged_ms, 71033);
+  const paths = history.artifacts.map((item) => item.path);
+  assert.ok(paths.includes(`${PHASE_REL}/253-63-SUMMARY.md`));
+  assert.ok(paths.some((item) => item.endsWith('/attempt-01/playwright-report.json')), 'the preserved R3 report is re-hashed as lineage');
+});
+
+function r4FreezeRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r4-freeze-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'lineage'), { recursive: true });
+  const budget = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R4.md');
+  fs.writeFileSync(budget, '# budgets r4\n');
+  fs.writeFileSync(path.join(dir, 'src/a.txt'), 'a\n'); fs.writeFileSync(path.join(dir, 'src/b.txt'), 'b\n'); fs.writeFileSync(path.join(dir, 'lineage/x.txt'), 'x\n');
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  const history = {
+    ledger: recovery.buildLoadRecoveryLedgerR4(r4LedgerInput()), charges: [...R4_CHARGES],
+    terminalHalt: { slot_id: 'CR3-DESKTOP-MOBILE-FIRST', plan: '253-63', cause: 'runner_validator_mirrored_context_annotations', terminal: true, infrastructure: false, retryable: false, charged: true, charged_ms: 71033, preparation_ms: 822, expired_identities: ['CR3-INFRA-RETRY'], retired_identities: ['CR3-DESKTOP-SECOND', 'CR3-MOBILE-SECOND', 'CR3-DARK-SECOND'] },
+    artifacts: [{ path: 'lineage/x.txt', sha256: sha('x\n') }], frozenBlobs: {},
+    control: { accepted: { toolchain: { mix: '1.19.5', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' } } }
+  };
+  const deps = {
+    enforceNode: false, assertCheckout: () => {}, assertConfig: () => {}, readHistory: () => history, sourceFiles: () => ['src/a.txt', 'src/b.txt'],
+    requiredSources: () => ['src/a.txt'], importClosure: () => ['src/a.txt', 'src/b.txt'], runtimeIdentity: () => ({ packages: {}, transform_sha256: {} })
+  };
+  return { dir, budget, history, deps, out: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('R4 freeze creation, check and init produce a ready ledger whose caps equal the R4 budget document', () => {
+  const r = r4FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR4(r.out, r.dir, r.deps);
+    assert.equal(freeze.schema_version, 'sigra.phase253.registration-load-recovery-freeze/v4');
+    assert.equal(freeze.revision, 'r4');
+    assert.equal(freeze.status, 'frozen_before_results');
+    assert.equal(freeze.context_identity, 'per_row_union');
+    assert.equal(freeze.budget.sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(freeze.budget.grants_capacity, false);
+    assert.equal(freeze.ledger.required_rows, 22);
+    assert.deepEqual(freeze.historical.terminal_halt, r.history.terminalHalt);
+    assert.deepEqual(freeze.historical.spent_reservations, R4_SPENT);
+    assert.deepEqual(freeze.historical.carried_components_ms, R4_CHARGES);
+    assert.deepEqual(freeze.ledger.caps.approve, R4_APPROVE.caps);
+    assert.deepEqual(freeze.ledger.caps['approve-without-retry'], R4_APPROVE_NO_RETRY.caps);
+    assert.deepEqual(freeze.ledger.slots.map((slot) => slot.id), [...R4_IDS, 'CR4-INFRA-RETRY']);
+    assert.throws(() => recovery.createLoadRecoveryFreezeR4(r.out, r.dir, r.deps), /overwrite/i);
+
+    const head = recovery.validateLoadRecoveryFreezeR4(r.dir, JSON.parse(fs.readFileSync(r.out, 'utf8')), { deps: r.deps });
+    assert.equal(head, gitIn(r.dir, 'rev-parse', 'HEAD'));
+
+    const evidenceFile = path.join(r.dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json');
+    const evidence = recovery.initializeLoadRecoveryEvidenceR4(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R4_APPROVE });
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v4');
+    assert.equal(evidence.revision, 'r4');
+    assert.equal(evidence.status, 'ready');
+    assert.equal(evidence.context_identity, 'per_row_union');
+    assert.equal(evidence.limits.charged_duration_ms, 2222537);
+    assert.equal(evidence.limits.prior_charge_ms, 2222537);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 8);
+    assert.deepEqual(evidence.limits.used_slots, R4_SPENT);
+    assert.equal(evidence.limits.preparation_remaining_ms, 10000);
+    assert.equal(evidence.limits.max_d19_ms, R4_APPROVE.caps.d19_cap_ms);
+    assert.equal(evidence.limits.max_total_ms, R4_APPROVE.caps.shared_cap_ms);
+    assert.equal(evidence.limits.max_physical_playwright_cli_launches, R4_APPROVE.caps.physical_cli_max);
+    assert.equal(evidence.limits.max_d19_physical_playwright_cli_launches, R4_APPROVE.caps.d19_launch_max);
+    assert.deepEqual(evidence.limits.infra_retry, { granted: 1, used: 0 });
+    assert.deepEqual(evidence.prior_terminal_halts, [r.history.terminalHalt]);
+    assert.deepEqual(evidence.infrastructure_halts, []);
+    assert.deepEqual(evidence.attempts, []);
+    assert.equal(fs.existsSync(`${evidenceFile}.raw`), true);
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR4(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R4_APPROVE }), /overwrite/i);
+
+    const noRetryFile = path.join(r.dir, 'evidence-no-retry.json');
+    const noRetry = recovery.initializeLoadRecoveryEvidenceR4(r.out, noRetryFile, r.dir, { validate: () => {}, readApproval: () => R4_APPROVE_NO_RETRY });
+    assert.equal(noRetry.limits.max_total_ms, 5232537);
+    assert.equal(noRetry.limits.max_physical_playwright_cli_launches, 21);
+    assert.deepEqual(noRetry.limits.infra_retry, { granted: 0, used: 0 });
+
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR4(r.out, path.join(r.dir, 'e3.json'), r.dir, { validate: () => {}, readApproval: () => ({ decision: 'reject', retry_granted: 0 }) }), /grants no capacity/i);
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR4(r.out, path.join(r.dir, 'e4.json'), r.dir, { validate: () => {} }), /253-70|approval/i, 'no approval reader is wired yet, so init stops before writing');
+    assert.equal(fs.existsSync(path.join(r.dir, 'e4.json')), false);
+  } finally { r.clean(); }
+});
+
+test('R4 freeze validation rejects a changed budget document, ledger, digest, context mode, source blob, lineage record or missing required source', () => {
+  const r = r4FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR4(r.out, r.dir, r.deps);
+    const check = (value, deps = r.deps) => recovery.validateLoadRecoveryFreezeR4(r.dir, value, { deps });
+    const redigest = (value) => { value.freeze_sha256 = sha(JSON.stringify(Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'freeze_sha256')))); return value; };
+    assert.throws(() => check({ schema_version: 'x' }), /malformed|digest/i);
+    assert.throws(() => check({ ...structuredClone(freeze), schema_version: 'sigra.phase253.registration-load-recovery-freeze/v3' }), /malformed|digest/i);
+    const mode = structuredClone(freeze); mode.context_identity = 'legacy_flatten'; redigest(mode);
+    assert.throws(() => check(mode), /malformed|digest/i);
+    const ledger = structuredClone(freeze); ledger.ledger.caps.approve.shared_cap_ms += 1; redigest(ledger);
+    assert.throws(() => check(ledger), /ledger/i);
+    const carried = structuredClone(freeze); carried.historical.carried_components_ms[13] -= 1; redigest(carried);
+    assert.throws(() => check(carried), /carried|historical|allocation|ledger/i);
+    const lineage = structuredClone(freeze); lineage.historical.artifacts[0].sha256 = 'f'.repeat(64); redigest(lineage);
+    assert.throws(() => check(lineage), /preserved R4 history|history changed/i);
+    const blob = structuredClone(freeze); blob.source.blobs['src/a.txt'] = '0'.repeat(40); redigest(blob);
+    assert.throws(() => check(blob), /identity mismatch/i);
+    const missing = structuredClone(freeze); delete missing.source.blobs['src/a.txt']; redigest(missing);
+    assert.throws(() => check(missing), /omits required source|identity/i);
+    const omitted = structuredClone(freeze); delete omitted.source.blobs['src/b.txt']; redigest(omitted);
+    assert.throws(() => check(omitted), /omits actual imported runtime source/i);
+    const grep = structuredClone(freeze); grep.ledger.slots[0].argv.push('--grep=x'); redigest(grep);
+    assert.throws(() => check(grep), /ledger|grep/i);
+    fs.appendFileSync(r.budget, 'edited\n');
+    assert.throws(() => check(freeze), /budget document differs/i);
+  } finally { r.clean(); }
+});
+
+test('R4 freeze blobs pin the R3 source list plus the mirrored-annotation regression fixture', () => {
+  const extras = recovery.LOAD_R4_EXTRA_SOURCES;
+  assert.deepEqual(extras, [...recovery.LOAD_R3_EXTRA_SOURCES, 'scripts/ci/fixtures/r3-mirrored-context-annotations.json']);
+  for (const file of extras) assert.equal(fs.existsSync(path.join(root, file)), true, file);
+  const list = recovery.loadR4SourceFileList(root);
+  for (const file of [...recovery.loadR3SourceFileList(root), ...extras]) assert.ok(list.includes(file), file);
+  assert.ok(list.includes('scripts/ci/ci-registration-recovery.mjs'));
+});
+
+test('the R2 and R3 lineage bytes are unchanged, and the halted R3 and R2 evidence still verify as clean rejections', () => {
+  const pinned = {
+    '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json': 'b264928d022e337be21015416ac81e8bdb3049f7b7b48511fc603d09e764378e',
+    '253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json': 'effaef5139fff83a0b3cda6a2d7d9f36f4fac5888942f9dd151ed101b2216284',
+    '253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json': '724e4472eaf1b292133857f077fc2e4bbd35b19ef30fe222d424755b2726b8f9',
+    '253-LOAD-RECOVERY-BUDGETS-R3.md': 'dabbcf59bab20a432d7fd328c2555180561b0beae02736476408e28196bed78c',
+    '253-63-SUMMARY.md': '5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab',
+    '253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json': 'b26d5a0cbfca38cbdc3fbf4931ce2fd0ba0cfc35df295e4fe820a259eaab43b1'
+  };
+  for (const [name, expected] of Object.entries(pinned)) assert.equal(sha(fs.readFileSync(path.join(root, PHASE_REL, name))), expected, name);
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const crash = /TypeError|ReferenceError|SyntaxError|is not a function|Cannot read properties|ERR_MODULE_NOT_FOUND/;
+  for (const [revision, name] of [['R3', '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json'], ['R2', '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json']]) {
+    const result = spawnSync(process.execPath, [script, '--verify-load-recovery', path.join(root, PHASE_REL, name), '--stage', 'first'], { encoding: 'utf8', cwd: root });
+    assert.equal(result.status, 3, revision);
+    assert.match(result.stderr, new RegExp(`${revision} native load recovery evidence rejected:`));
+    assert.doesNotMatch(result.stderr, crash);
+  }
+});
+
+test('v1, R2, R3 and R4 route by exact resolved path, each refuses the others, and the R4 modes refuse any other path', () => {
+  const r4 = r4FreezeRepo();
+  const r3 = loadHarnessR3();
+  const r2 = loadHarnessR2();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR4(r4.out, r4.dir, r4.deps);
+    const evidenceFile = path.join(r4.dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json');
+    const evidence = recovery.initializeLoadRecoveryEvidenceR4(r4.out, evidenceFile, r4.dir, { validate: () => {}, readApproval: () => R4_APPROVE });
+    const freezeHash = sha(fs.readFileSync(r4.out));
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR3(evidence, freeze, `${evidenceFile}.raw`, 'first', freezeHash).ok, false, 'R3 refuses R4 evidence');
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR2(evidence, freeze, `${evidenceFile}.raw`, 'first', freezeHash).ok, false, 'R2 refuses R4 evidence');
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR3(r3.read(), freeze, `${r3.evidenceFile}.raw`, 'first', freezeHash).ok, false, 'R3 evidence does not verify under the R4 freeze');
+    assert.equal(recovery.verifyLoadRecoveryEvidenceDataR3(r2.read(), r3.freeze, `${r2.evidenceFile}.raw`, 'first', sha(fs.readFileSync(r3.freezeFile))).ok, false);
+    assert.throws(() => recovery.validateLoadRecoveryFreezeR4(r4.dir, r3.freeze, { deps: r4.deps }), /malformed|digest/i, 'the R4 validator refuses an R3 freeze');
+    assert.throws(() => recovery.validateLoadRecoveryFreezeR3(r4.dir, freeze, { deps: r4.deps }), /malformed|digest/i, 'the R3 validator refuses an R4 freeze');
+
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    const stray = path.join(temporary, 'stray-r4-freeze.json');
+    const created = spawnSync(process.execPath, [script, '--create-load-recovery-r4', '--output', stray], { encoding: 'utf8', cwd: root });
+    assert.equal(created.status, 3);
+    assert.match(created.stderr, /reviewed phase artifact path/);
+    assert.equal(fs.existsSync(stray), false);
+    for (const mode of [['--check-load-recovery-freeze', stray], ['--init-load-recovery', '--freeze', stray, '--output', path.join(temporary, 'e.json')], ['--verify-load-recovery', stray, '--stage', 'first']]) {
+      const result = spawnSync(process.execPath, [script, ...mode], { encoding: 'utf8', cwd: root });
+      assert.equal(result.status, 3, mode[0]);
+    }
+    // The R4 paths route to the R4 revision: a clean, labelled rejection, never a crash or a fall-through to another revision.
+    // Asserted only while the R4 artifacts are absent; once a real R4 freeze or ledger is committed they have their own checks.
+    const r4Evidence = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json');
+    const r4Freeze = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json');
+    if (!fs.existsSync(r4Evidence)) {
+      const verify = spawnSync(process.execPath, [script, '--verify-load-recovery', r4Evidence, '--stage', 'first'], { encoding: 'utf8', cwd: root });
+      assert.equal(verify.status, 3);
+      assert.match(verify.stderr, /R4 native load recovery evidence rejected:/);
+      assert.doesNotMatch(verify.stderr, /TypeError|ReferenceError|is not a function|Cannot read properties/);
+    }
+    if (!fs.existsSync(r4Freeze)) {
+      const check = spawnSync(process.execPath, [script, '--check-load-recovery-freeze', r4Freeze], { encoding: 'utf8', cwd: root });
+      assert.equal(check.status, 3);
+      assert.match(check.stderr, /R4 native load recovery freeze rejected:/);
+    }
+    const init = spawnSync(process.execPath, [script, '--init-load-recovery', '--freeze', r4Freeze, '--output', path.join(temporary, 'e5.json')], { encoding: 'utf8', cwd: root });
+    assert.equal(init.status, 3);
+    assert.match(init.stderr, /reviewed R4 artifact path/);
+  } finally { r4.clean(); r3.clean(); r2.clean(); }
+});
+
+
+// ---- Phase 253 plan 70: R4 run path, approval binding, retry gating and terminal verification (synthetic, mirrored annotations) ----
+// ---- synthetic R4 runner harness: injected clocks, host probe, holders, process trees and per-test JSONL ----
+function loadHarnessR4() {
+  const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-r4-')));
+  const checkout = path.join(base, 'checkout');
+  const pwPackage = path.join(checkout, 'test/example/priv/playwright/node_modules/@playwright/test/package.json');
+  fs.mkdirSync(path.dirname(pwPackage), { recursive: true });
+  fs.writeFileSync(pwPackage, JSON.stringify({ version: '1.59.1' }));
+  const ledger = recovery.buildLoadRecoveryLedgerR4(r4LedgerInput());
+  const terminalHalt = { slot_id: 'CR2-DESKTOP-MOBILE-FIRST', cause: 'work_deadline', terminal: true, infrastructure: false, retryable: false, charged_ms: 107343, preparation_ms: 743, root_cause: { file: '.planning/debug/253-r2-native-controls-all-fail.md', sha256: 'c'.repeat(64) } };
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-load-recovery-freeze/v4', status: 'frozen_before_results', plan: '253-70', revision: 'r4', context_identity: 'per_row_union',
+    source: { repository: 'synthetic', checkout_head: 'a'.repeat(40), blobs: { 'scripts/x': 'b'.repeat(40) } },
+    tools: { playwright: '1.59.1', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' },
+    selection: { spec: 'tests/admin-eval.spec.ts' },
+    historical: { terminal_halt: terminalHalt, spent_reservations: [...R4_SPENT] },
+    ledger
+  };
+  freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const freezeFile = path.join(base, 'freeze-r4.json'); const evidenceFile = path.join(base, 'evidence-r4.json');
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze, null, 2)}\n`);
+  const writeEvidence = (approval) => {
+    const evidence = {
+      schema_version: 'sigra.phase253.registration-load-recovery-evidence/v4', revision: 'r4', status: 'ready', context_identity: 'per_row_union', freeze_path: 'freeze-r4.json',
+      freeze_sha256: sha(fs.readFileSync(freezeFile)), source: structuredClone(freeze.source), attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+      prior_terminal_halts: [structuredClone(terminalHalt)], infrastructure_halts: [], infrastructure_retry: null,
+      approval: { decision: approval.decision, retry_granted: approval.retry_granted },
+      limits: {
+        prior_charge_ms: 2222537, preparation_charge_ms: 0, preparation_remaining_ms: 10000, charged_duration_ms: 2222537,
+        physical_playwright_cli_launches: 8, used_slots: [...R4_SPENT], max_d19_ms: approval.caps.d19_cap_ms, max_total_ms: approval.caps.shared_cap_ms,
+        max_d19_physical_playwright_cli_launches: approval.caps.d19_launch_max, max_physical_playwright_cli_launches: approval.caps.physical_cli_max,
+        retry_used: 1, retry_available: 0, infra_retry: { granted: approval.retry_granted, used: 0 }
+      }
+    };
+    fs.writeFileSync(evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  };
+  writeEvidence(R4_APPROVE);
+  const calls = []; const timeouts = []; const readyDeadlines = []; const envs = [];
+  const zip = path.join(base, 'trace.zip'); fs.writeFileSync(zip, 'z'.repeat(64));
+  const fakePsql = (counts) => { let index = 0; return () => { calls.push(['psql']); return { status: 0, stdout: `${counts[Math.min(index++, counts.length - 1)]}\n` }; }; };
+  const allSlots = [...freeze.ledger.slots.slice(0, 4)];
+  const markerFor = (title) => ({ 'registration stops when LiveView readiness is never released': 'phx-connected', 'registration fails when the readiness wait is deliberately broken': 'data-sigra-never-connected', 'registration retains the first forced assertion failure trace': 'toHaveURL' }[title]);
+  let sharedSeen = 0;
+  const reportFor = (slot, runId, { failRow = false, shareContext = false } = {}) => ({
+    config: {}, errors: [],
+    suites: [{
+      title: 'admin-eval.spec.ts', file: 'admin-eval.spec.ts', specs: [], suites: [{
+        title: 'x', file: 'admin-eval.spec.ts',
+        specs: recovery.loadRequiredPairs(slot).map((pair, index, all) => {
+          const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+          const annotations = [];
+          if (pair.title !== 'render bundle: board-mg-9/populated') annotations.push({ type: 'sigra-registration-control-context', description: `${runId}:${shareContext && sharedSeen++ < 2 ? 'a'.repeat(36) : crypto.randomUUID()}` });
+          if (pair.title === 'registration detects a deliberate same-account collision') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ collision_email_sha256: slot.collision_account_sha256[pair.project], first_registration_succeeded: true, duplicate_response_confirmed: true }) });
+          if (pair.title === 'registration starts from a fresh database and context') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ prior_collision_account_email_sha256: slot.collision_account_sha256[pair.project], fresh_database_account_created: true }) });
+          const failed = expected === 'expected_failure';
+          const broken = failRow && index === 0 && !failed;
+          return {
+            title: pair.title, file: 'admin-eval.spec.ts', ok: !failed && !broken,
+            tests: [{ projectName: pair.project, expectedStatus: 'passed', status: failed || broken ? 'unexpected' : 'expected', annotations,
+              results: [{ status: failed || broken ? 'failed' : 'passed', duration: 10, workerIndex: index, error: failed ? { message: `expect ${markerFor(pair.title)} failed` } : broken ? { message: 'unexpected assertion failure' } : undefined, attachments: failed ? [{ name: 'trace', path: zip }] : [], annotations: structuredClone(annotations) }] }]
+          };
+        })
+      }]
+    }]
+  });
+  const jsonlFor = (slot, { failRow = false, count = Infinity } = {}) => recovery.loadRequiredPairs(slot).slice(0, count).map((pair, index) => {
+    const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+    const failed = expected === 'expected_failure'; const broken = failRow && index === 0 && !failed;
+    const message = failed ? `Error: expect ${markerFor(pair.title)} failed\n  at spec` : broken ? 'Error: unexpected assertion failure\n  at spec' : null;
+    return JSON.stringify({
+      schema: 'sigra.phase253.playwright-test-end/v1', project: pair.project, title: pair.title, file: 'admin-eval.spec.ts', line: 10 + index,
+      status: failed || broken ? 'failed' : 'passed', expected_status: 'passed', ok: !broken && (failed ? true : true), duration_ms: 10 + index, retry: 0,
+      errors: message ? [{ message, location: { file: 'admin-eval.spec.ts', line: 10 + index, column: 1 } }] : []
+    });
+  });
+  const awakeFor = () => ({ held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], pid: 4321, release: () => calls.push(['release-awake']) });
+  const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], validate = () => {}, approval = R4_APPROVE,
+    suspendBrowser = false, suspendFlag = false, failRow = false, probeHost = null, holderAlive = () => true, diagnosticFile = null, checkDiagnostic = null,
+    setupMs = 5, setupWallExtra = 0, bootMs = 2, cliMs = 5, setupExit = 0, setupTimedOut = false, setupSuspended = false, setupError = null,
+    cliTimedOut = false, killedRows = 2, noJsonl = false, errorContext = true, jsonlCount = Infinity, shareContext = false } = {}) => {
+    const absenceRun = fakePsql(absenceCounts); const accountRun = fakePsql(accountCounts);
+    let monoOffset = 0n; let wallOffset = 0;
+    const advance = (ms) => { monoOffset += BigInt(Math.round(ms * 1e6)); wallOffset += ms; };
+    return {
+      validate, enforcePaths: false, enforceNode: false, skipPreservation: true, diagnosticFile,
+      monotonicNs: () => process.hrtime.bigint() + monoOffset, wallMs: () => Date.now() + wallOffset,
+      readApproval: () => approval, holderAlive,
+      checkDiagnostic: checkDiagnostic ?? ((_root, file) => { if (!file) throw new Error('infrastructure retry requires a committed diagnostic'); return { file, sha256: 'd'.repeat(64) }; }),
+      probeHost: probeHost ?? (async () => { calls.push(['probe-host']); return { awake: awakeFor(), host_awake: { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' } }; }),
+      portAvailable: async () => true, waitReady: async (_app, _url, deadline) => { readyDeadlines.push(deadline); advance(bootMs); return 200; }, stopApp: async () => {},
+      spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
+      runTree: async (program, args, cwd, env, log, timeoutMs) => {
+        calls.push(['tree', program, ...args]); timeouts.push([path.basename(program), args[0], timeoutMs]);
+        fs.writeFileSync(log, `${path.basename(program)} ${args[0]} ok\n`);
+        if (program.endsWith('/playwright')) {
+          envs.push(env);
+          const given = args.slice(2, -1);
+          const slot = allSlots.find((item) => JSON.stringify(item.argv) === JSON.stringify(given));
+          assert.equal(env.SIGRA_REGISTRATION_CONTROL_STAGE, slot.control_stage);
+          assert.equal(args.filter((arg) => /^(-g|--grep)/.test(arg)).length, 0);
+          assert.ok(env.SIGRA_PLAYWRIGHT_FAILURE_JSONL?.startsWith(path.dirname(env.SIGRA_PLAYWRIGHT_JSON)), 'the per-test JSONL lives under the attempt temp root');
+          if (!noJsonl) fs.writeFileSync(env.SIGRA_PLAYWRIGHT_FAILURE_JSONL, `${jsonlFor(slot, { failRow, count: cliTimedOut || suspendBrowser ? killedRows : jsonlCount }).join('\n')}\n`);
+          const outputDir = args.find((arg) => arg.startsWith('--output=')).slice('--output='.length);
+          if (errorContext) {
+            fs.mkdirSync(path.join(outputDir, 'case-one'), { recursive: true });
+            fs.writeFileSync(path.join(outputDir, 'case-one', 'error-context.md'), '# Page snapshot\n- heading "Register"\n');
+          }
+          advance(cliMs);
+          if (suspendBrowser) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: true, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: ['SIGTERM'], descendants_reaped: true };
+          if (cliTimedOut) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: false, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: ['SIGTERM'], descendants_reaped: true };
+          fs.writeFileSync(env.SIGRA_PLAYWRIGHT_JSON, JSON.stringify(reportFor(slot, env.SIGRA_CONTROL_RUN_ID, { failRow, shareContext })));
+          return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, suspended: suspendFlag, duration_ms: cliMs, group_signals: [], descendants_reaped: true };
+        }
+        if (program === 'mix' && args[0] === 'ecto.setup') {
+          advance(setupMs); wallOffset += setupWallExtra;
+          return { pid: 1, exit_code: setupError ? null : setupExit, signal: null, error: setupError, timed_out: setupTimedOut, suspended: setupSuspended, duration_ms: setupMs, wall_duration_ms: setupMs, group_signals: [], descendants_reaped: true };
+        }
+        advance(1);
+        return { pid: 1, exit_code: 0, signal: null, error: null, timed_out: false, duration_ms: 1, group_signals: [], descendants_reaped: true };
+      },
+      captureAbsence: (options) => recovery.captureOwnedDatabaseAbsence({ ...options, run: absenceRun }),
+      captureAccount: (options) => recovery.captureOwnedAccountCount({ ...options, run: accountRun }),
+      sanitizeTrace: (source, destination) => { fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL); return { entries: 3, navigation: true, submission: true }; }
+    };
+  };
+  return { base, checkout, freeze, freezeFile, evidenceFile, calls, timeouts, readyDeadlines, envs, makeDeps, writeEvidence, read: () => JSON.parse(fs.readFileSync(evidenceFile, 'utf8')), clean: () => fs.rmSync(base, { recursive: true, force: true }) };
+}
+
+// ---- Phase 253 plan 60 task 2: R4 setup-phase run path with preserved per-test diagnostics ----
+const R4_FIRST = 'CR4-DESKTOP-MOBILE-FIRST';
+const r4Verify = (h, evidence, stage = 'first') => recovery.verifyLoadRecoveryEvidenceDataR4(evidence, h.freeze, `${h.evidenceFile}.raw`, stage, sha(fs.readFileSync(h.freezeFile)));
+
+test('a synthetic R4 first slot runs setup under its own 60000 ms deadline and leaves the full 165000 ms work deadline intact', async () => {
+  const h = loadHarnessR4();
+  try {
+    const result = await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ setupMs: 30000, bootMs: 2000, cliMs: 40000 }));
+    assert.equal(result.rows, 16);
+    const [setupCall, , playwrightCall] = [h.timeouts.find((t) => t[1] === 'ecto.setup'), null, h.timeouts.find((t) => t[0] === 'playwright')];
+    assert.ok(setupCall[2] <= 60000 && setupCall[2] > 59900, `setup is bounded by its own 60000 ms, got ${setupCall[2]}`);
+    assert.ok(playwrightCall[2] <= 163000 && playwrightCall[2] > 162800, `the 30000 ms setup did not shrink the browser window: ${playwrightCall[2]} remains after a 2000 ms boot`);
+    const evidence = h.read();
+    const attempt = evidence.attempts[0];
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v4');
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(attempt.slot_id, R4_FIRST);
+    assert.deepEqual(attempt.stage_deadlines, { setup_ms: 60000, command_ms: 180000, work_ms: 165000, cleanup_ms: 15000, cleanup_reserved: true });
+    assert.ok(attempt.setup_charge_ms >= 30000 && attempt.setup_charge_ms < 30100, `setup charge ${attempt.setup_charge_ms}`);
+    assert.equal(attempt.charged_duration_ms, attempt.setup_charge_ms + attempt.command_charge_ms);
+    assert.ok(attempt.command_charge_ms >= 42000 && attempt.command_charge_ms < 42200, `command charge ${attempt.command_charge_ms}`);
+    assert.equal(evidence.limits.charged_duration_ms, 2222537 + attempt.charged_duration_ms);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.deepEqual(evidence.limits.used_slots, [...R4_SPENT, R4_FIRST]);
+    assert.ok(h.readyDeadlines[0] > 0);
+    assert.deepEqual(r4Verify(h, evidence).errors, []);
+    assert.equal(r4Verify(h, evidence, 'complete').ok, false);
+  } finally { h.clean(); }
+});
+
+test('the slot charge is setup max(monotonic, wall) plus command max(monotonic, wall), each judged on its own clocks', async () => {
+  const h = loadHarnessR4();
+  try {
+    await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ setupMs: 20000, setupWallExtra: 3000, cliMs: 10000 }));
+    const attempt = h.read().attempts[0];
+    const setupMax = Math.max(attempt.setup_timing.execution_ms, attempt.setup_timing.wall_ms);
+    const commandMax = Math.max(attempt.command_timing.execution_ms, attempt.command_timing.wall_ms);
+    assert.ok(attempt.setup_timing.wall_ms - attempt.setup_timing.execution_ms >= 2999, 'wall ran ahead of the monotonic clock during setup');
+    assert.equal(attempt.setup_charge_ms, setupMax);
+    assert.equal(attempt.command_charge_ms, commandMax);
+    assert.equal(attempt.charged_duration_ms, setupMax + commandMax);
+    assert.ok(attempt.charged_duration_ms >= Math.max(attempt.execution_duration_ms, attempt.wall_duration_ms), 'never below the larger whole-window clock');
+    assert.ok(attempt.charged_duration_ms <= 240000);
+  } finally { h.clean(); }
+});
+
+test('a setup failure or a setup overrun halts before any CLI launch, stays charged and still drops the owned database', async () => {
+  for (const [label, options, pattern] of [
+    ['non-zero exit', { setupExit: 1, setupMs: 4000 }, /setup failed/i],
+    ['deadline kill', { setupTimedOut: true, setupExit: 0, setupMs: 61000 }, /setup failed|setup.*deadline/i],
+    ['overrun without a kill', { setupMs: 61000 }, /setup.*60000|overran/i]
+  ]) {
+    const h = loadHarnessR4();
+    try {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps(options)), pattern, label);
+      const evidence = h.read();
+      const attempt = evidence.attempts[0];
+      assert.equal(evidence.status, 'halted', label);
+      assert.equal(attempt.playwright_cli.launched, false, label);
+      assert.equal(h.calls.some((call) => call[0] === 'tree' && call[1].endsWith('/playwright')), false, `${label}: no CLI`);
+      assert.equal(h.calls.some((call) => call[0] === 'app'), false, `${label}: no app boot`);
+      assert.equal(h.calls.some((call) => call[0] === 'tree' && call[2] === 'ecto.drop'), true, `${label}: owned database dropped`);
+      assert.equal(evidence.limits.physical_playwright_cli_launches, 8, `${label}: launches unchanged`);
+      assert.ok(attempt.setup_charge_ms >= options.setupMs, `${label}: setup is charged`);
+      assert.equal(attempt.charged_duration_ms, attempt.setup_charge_ms + attempt.command_charge_ms, label);
+      assert.equal(evidence.limits.charged_duration_ms, 2222537 + attempt.charged_duration_ms, label);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i, label);
+    } finally { h.clean(); }
+  }
+});
+
+test('the CLI env carries the per-test JSONL path and the preserved diagnostics are hashed receipts on a pass', async () => {
+  const h = loadHarnessR4();
+  try {
+    await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    assert.match(h.envs[0].SIGRA_PLAYWRIGHT_FAILURE_JSONL, /tests\.jsonl$/);
+    const attempt = h.read().attempts[0];
+    const rawDir = `${h.evidenceFile}.raw`;
+    assert.equal(attempt.diagnostics.jsonl.path, path.join(R4_FIRST, 'attempt-01', 'diagnostics', 'tests.jsonl'));
+    assert.equal(attempt.diagnostics.per_test.length, 16);
+    assert.equal(attempt.diagnostics.error_contexts.length, 1);
+    assert.equal(sha(fs.readFileSync(path.join(rawDir, attempt.diagnostics.jsonl.path))), attempt.diagnostics.jsonl.sha256);
+    assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(attempt, rawDir), { ok: true, errors: [] });
+    assert.equal(attempt.per_test_rows.length, 16);
+    assert.deepEqual(Object.keys(attempt.per_test_rows[0]).sort(), ['duration_ms', 'first_error_line', 'project', 'status', 'title']);
+    assert.equal(fs.existsSync(h.envs[0].SIGRA_PLAYWRIGHT_FAILURE_JSONL), false, 'the temp copy is gone, the receipt remains');
+  } finally { h.clean(); }
+});
+
+test('diagnostics are preserved on an assertion failure and a deadline kill, and the verifier needs them', async () => {
+  const failed = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(failed.freezeFile, R4_FIRST, failed.evidenceFile, failed.checkout, failed.makeDeps({ failRow: true })));
+    const attempt = failed.read().attempts[0];
+    assert.equal(attempt.diagnostics.per_test.length, 16);
+    assert.equal(attempt.assertion_failure_observed, true);
+    assert.ok(attempt.per_test_rows.some((row) => /unexpected assertion failure/.test(row.first_error_line ?? '')), 'the failing row names its first error line');
+    const rawDir = `${failed.evidenceFile}.raw`;
+    assert.deepEqual(recovery.verifyAttemptDiagnosticsR3(attempt, rawDir), { ok: true, errors: [] });
+  } finally { failed.clean(); }
+
+  const killed = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(killed.freezeFile, R4_FIRST, killed.evidenceFile, killed.checkout, killed.makeDeps({ cliTimedOut: true, killedRows: 2 })), /work deadline/i);
+    const evidence = killed.read();
+    const attempt = evidence.attempts[0];
+    assert.equal(evidence.status, 'halted');
+    assert.equal(attempt.playwright_cli.launched, true);
+    assert.equal(attempt.diagnostics.per_test.length, 2, 'both rows that finished before the kill are preserved');
+    const rawDir = `${killed.evidenceFile}.raw`;
+    const lines = fs.readFileSync(path.join(rawDir, attempt.diagnostics.jsonl.path), 'utf8').trim().split('\n');
+    assert.equal(lines.length, 2);
+    assert.equal(attempt.per_test_rows.length, 2);
+    assert.equal(evidence.stop_record.slot_id, R4_FIRST);
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+  } finally { killed.clean(); }
+
+  const none = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(none.freezeFile, R4_FIRST, none.evidenceFile, none.checkout, none.makeDeps({ noJsonl: true })), /per-test JSONL/i);
+    assert.equal(none.read().status, 'halted', 'an attempt that launched the CLI without a preserved JSONL is rejected');
+  } finally { none.clean(); }
+});
+
+test('R4 runs all four regular slots once in order and verifies the complete 22-row proof', async () => {
+  const h = loadHarnessR4();
+  try {
+    for (const id of ['CR4-DESKTOP-MOBILE-FIRST', 'CR4-DESKTOP-SECOND', 'CR4-MOBILE-SECOND', 'CR4-DARK-SECOND']) {
+      await recovery.runLoadRecoverySlotR4(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps());
+    }
+    const evidence = h.read();
+    assert.equal(evidence.status, 'complete');
+    assert.equal(evidence.attempts.reduce((sum, item) => sum + item.lifecycle.rows, 0), 22);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 12);
+    assert.deepEqual(r4Verify(h, evidence, 'complete').errors, []);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|consumed|already|order/i);
+  } finally { h.clean(); }
+});
+
+test('R4 refuses out-of-order slots, a reopened original retry, a counter reset, caps drift and a slot outside the frozen table', async () => {
+  for (const [mutate, pattern, slot] of [
+    [() => {}, /frozen order/i, 'CR4-MOBILE-SECOND'],
+    [(e) => { e.limits.retry_available = 1; }, /retry/i, R4_FIRST],
+    [(e) => { e.limits.charged_duration_ms = 0; e.limits.prior_charge_ms = 0; }, /reset/i, R4_FIRST],
+    [(e) => { e.limits.max_d19_ms += 1; }, /approval caps differ/i, R4_FIRST],
+    [() => {}, /only the/i, 'CR4-UNKNOWN']
+  ]) {
+    const h = loadHarnessR4();
+    try {
+      const evidence = h.read(); mutate(evidence);
+      fs.writeFileSync(h.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, slot, h.evidenceFile, h.checkout, h.makeDeps()), pattern);
+      assert.deepEqual(h.calls, [], String(pattern));
+    } finally { h.clean(); }
+  }
+});
+
+test('R4 preparation is a bounded 10000 ms toolchain probe routed by the R4 evidence only', async () => {
+  const h = loadHarnessR4();
+  try {
+    const run = async (override = {}) => recovery.prepareLoadRecoveryR4(h.freezeFile, h.evidenceFile, h.checkout, { validate: () => {}, readApproval: () => R4_APPROVE, skipPreservation: true,
+      runTree: async (program, args, cwd, env, log, timeoutMs) => { h.timeouts.push([program, args[0], timeoutMs]); fs.writeFileSync(log, `${program} ${args[0]}\n`); return { exit_code: 0, duration_ms: 2, timed_out: false, ...override }; } });
+    const result = await run();
+    assert.equal(result.status, 'ready');
+    const evidence = h.read();
+    assert.equal(evidence.preparation.receipts.length, 2);
+    assert.ok(h.timeouts.every((entry) => entry[2] <= 10000 && entry[2] > 9000));
+    assert.equal(evidence.limits.preparation_charge_ms, evidence.preparation.duration_ms);
+    assert.equal(evidence.limits.charged_duration_ms, 2222537 + evidence.preparation.duration_ms);
+    await assert.rejects(run, /only available once/i);
+  } finally { h.clean(); }
+  const failing = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.prepareLoadRecoveryR4(failing.freezeFile, failing.evidenceFile, failing.checkout, { validate: () => {}, readApproval: () => R4_APPROVE, skipPreservation: true,
+      runTree: async (program, args, cwd, env, log) => { fs.writeFileSync(log, 'x'); return { exit_code: 1, duration_ms: 1, timed_out: false }; } }), /failed/i);
+    assert.equal(failing.read().status, 'halted');
+  } finally { failing.clean(); }
+});
+
+test('the R4 run refuses any freeze or evidence outside the reviewed R4 paths', async () => {
+  const h = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, { ...h.makeDeps(), enforcePaths: true }), /reviewed R4 freeze/i);
+    assert.deepEqual(h.calls, []);
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    for (const mode of [['--prepare-load-recovery', '--freeze', h.freezeFile, '--output', h.evidenceFile], ['--run-load-recovery', h.freezeFile, '--slot', R4_FIRST, '--output', h.evidenceFile]]) {
+      const result = spawnSync(process.execPath, [script, ...mode], { encoding: 'utf8', cwd: root });
+      assert.equal(result.status, 3, mode[0]);
+    }
+  } finally { h.clean(); }
+});
+
+// ---- Phase 253 plan 60 task 3: R4 budget-approval binding, host probe, retry eligibility, halt rows and terminal evidence ----
+function approvalRepoR4() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-approval-r4-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+  const budget = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R4.md');
+  fs.writeFileSync(budget, '# budgets r3\n');
+  const freezeFile = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json');
+  const freeze = { schema_version: 'sigra.phase253.registration-load-recovery-freeze/v4', budget: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R4.md`, sha256: sha(fs.readFileSync(budget)) } };
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze)}\n`);
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  return { dir, budget, freezeFile, freeze, approval: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('recording an R4 approval is exclusive, writes the v2 record bound to the R4 budget and freeze, and anything but approve writes nothing', () => {
+  const r = approvalRepoR4();
+  try {
+    for (const decision of ['reject', 'maybe', undefined]) {
+      assert.throws(() => recovery.recordBudgetApprovalR4({ decision, budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no' }, r.dir, { enforcePaths: false }), /decision|grants no capacity/i);
+      assert.equal(fs.existsSync(r.approval), false);
+    }
+    assert.throws(() => recovery.recordBudgetApprovalR4({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: '  ' }, r.dir, { enforcePaths: false }), /decision text/i);
+    const record = recovery.recordBudgetApprovalR4({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'approve exactly as written' }, r.dir, { enforcePaths: false, now: () => '2026-10-14T09:00:00.000Z' });
+    const onDisk = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    assert.deepEqual(onDisk, record);
+    assert.equal(onDisk.schema_version, 'sigra.phase253.load-recovery-budget-approval/v3');
+    assert.equal(onDisk.decision, 'approve');
+    assert.equal(onDisk.decision_text, 'approve exactly as written');
+    assert.equal(onDisk.budget_sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(onDisk.freeze_sha256, sha(fs.readFileSync(r.freezeFile)));
+    assert.deepEqual(onDisk.caps, R4_APPROVE.caps);
+    assert.equal(onDisk.retry_granted, 1);
+    assert.equal(onDisk.recorded_at, '2026-10-14T09:00:00.000Z');
+    assert.throws(() => recovery.recordBudgetApprovalR4({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'again' }, r.dir, { enforcePaths: false }), /EEXIST|exist|exclusive/i);
+    assert.equal(JSON.parse(fs.readFileSync(r.approval, 'utf8')).decision, 'approve', 'the first record is never overwritten');
+  } finally { r.clean(); }
+});
+
+test('an R4 approve-without-retry grants no retry, a budget mismatch refuses to record, and the R4 recorder pins its reviewed paths', () => {
+  const r = approvalRepoR4();
+  try {
+    const record = recovery.recordBudgetApprovalR4({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no retry' }, r.dir, { enforcePaths: false });
+    assert.equal(record.retry_granted, 0);
+    assert.deepEqual(record.caps, R4_APPROVE_NO_RETRY.caps);
+    fs.rmSync(r.approval);
+    assert.throws(() => recovery.recordBudgetApprovalR4({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: path.join(r.dir, 'elsewhere.json'), decisionText: 'x' }, r.dir), /reviewed R4 budget, freeze and approval paths/i);
+    fs.writeFileSync(r.budget, '# budgets r3 (edited)\n');
+    assert.throws(() => recovery.recordBudgetApprovalR4({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /budget/i);
+    assert.equal(fs.existsSync(r.approval), false);
+  } finally { r.clean(); }
+});
+
+test('the approval recorder CLI routes the R4 freeze path and still refuses a reject decision without writing', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const out = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json');
+  // Jon's R4 approval is now committed (253-63); a reject must still never write or alter it.
+  const before = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null;
+  const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R4.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /decision/i);
+  assert.equal(fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null, before);
+});
+
+test('an R4 run needs a committed v2 approval bound to the R4 budget and freeze, and the R2 approval is refused', () => {
+  const r = approvalRepoR4();
+  try {
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /absent|missing/i);
+    recovery.recordBudgetApprovalR4({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'ok' }, r.dir, { enforcePaths: false });
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /committed/i);
+    gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'approval');
+    const good = recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze);
+    assert.equal(good.decision, 'approve');
+    assert.equal(good.retry_granted, 1);
+    fs.writeFileSync(r.approval, `${fs.readFileSync(r.approval, 'utf8')} `);
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /committed|differs/i);
+    gitIn(r.dir, 'checkout', '--', '.');
+    const edited = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    const commit = (value, message) => { fs.writeFileSync(r.approval, `${JSON.stringify(value, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', message); };
+    commit({ ...edited, budget_sha256: 'f'.repeat(64) }, 'bad budget');
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /budget/i);
+    commit({ ...edited, freeze_sha256: 'f'.repeat(64) }, 'bad freeze');
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /freeze/i);
+    commit({ ...edited, caps: { ...edited.caps, d19_cap_ms: edited.caps.d19_cap_ms + 1 } }, 'bad caps');
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /caps/i);
+    commit({ ...edited, schema_version: 'sigra.phase253.load-recovery-budget-approval/v2', caps: { new_allowance_ms: 910000, d19_cap_ms: 3060682, d19_launch_max: 12, shared_cap_ms: 5400682, physical_cli_max: 21 } }, 'r3 approval shape');
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i, 'the R3 approval can never unlock R4');
+    commit({ ...edited, decision: 'reject' }, 'reject');
+    assert.throws(() => recovery.readCommittedApprovalR4(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i);
+  } finally { r.clean(); }
+});
+
+test('an R4 run refuses before the predebit when approval is missing, unwired or the host proof fails', async () => {
+  for (const [label, overrides, pattern] of [
+    ['approval absent', { readApproval: () => { throw new Error('R4 budget approval record is absent'); } }, /approval/i],
+    ['host proof fails', { probeHost: async () => { throw new Error('host is not on AC power'); } }, /AC power/i]
+  ]) {
+    const h = loadHarnessR4();
+    try {
+      const before = h.read();
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, { ...h.makeDeps(), ...overrides }), pattern, label);
+      assert.deepEqual(h.read(), before, `${label}: no reservation, used slot or charge`);
+      assert.equal(h.calls.filter((call) => call[0] === 'tree' || call[0] === 'app').length, 0, label);
+    } finally { h.clean(); }
+  }
+  const h = loadHarnessR4();
+  try {
+    const { readApproval: _unused, ...withoutApproval } = h.makeDeps(); // eslint-disable-line no-unused-vars
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, withoutApproval), /approval/i, 'the default reader demands a committed R4 approval');
+    assert.deepEqual(h.calls, []);
+  } finally { h.clean(); }
+});
+
+test('the approval decides the ceilings that the R4 run enforces', async () => {
+  const mismatch = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(mismatch.freezeFile, R4_FIRST, mismatch.evidenceFile, mismatch.checkout, mismatch.makeDeps({ approval: R4_APPROVE_NO_RETRY })), /approval caps differ/i);
+    assert.deepEqual(mismatch.calls, []);
+  } finally { mismatch.clean(); }
+  const noRetry = loadHarnessR4();
+  try {
+    noRetry.writeEvidence(R4_APPROVE_NO_RETRY);
+    const result = await recovery.runLoadRecoverySlotR4(noRetry.freezeFile, R4_FIRST, noRetry.evidenceFile, noRetry.checkout, noRetry.makeDeps({ approval: R4_APPROVE_NO_RETRY }));
+    assert.equal(result.rows, 16);
+    assert.equal(noRetry.read().limits.max_total_ms, 5232537);
+  } finally { noRetry.clean(); }
+  const tight = loadHarnessR4();
+  try {
+    const evidence = tight.read(); evidence.limits.charged_duration_ms += 20000;
+    fs.writeFileSync(tight.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(tight.freezeFile, R4_FIRST, tight.evidenceFile, tight.checkout, tight.makeDeps()), /do not fit approved limits/i);
+    assert.deepEqual(tight.calls, []);
+  } finally { tight.clean(); }
+});
+
+test('the R4 verifier rejects a receipt without its host proof, a suspended host, a wrong charge sum and missing diagnostics', async () => {
+  const h = loadHarnessR4();
+  try {
+    await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    const evidence = h.read();
+    assert.deepEqual(evidence.attempts[0].host_awake, { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' });
+    const verify = (mutate) => { const copy = structuredClone(evidence); mutate(copy.attempts[0]); return r4Verify(h, copy); };
+    assert.equal(verify(() => {}).ok, true);
+    for (const [name, mutate, pattern] of [
+      ['no host_awake', (a) => { delete a.host_awake; }, /host_awake/],
+      ['not on AC', (a) => { a.host_awake.ac_power = false; }, /host_awake/],
+      ['no assertion hash', (a) => { a.host_awake.assertions_sha256 = 'x'; }, /host_awake/],
+      ['suspended true', (a) => { a.host.suspended = true; }, /suspended/],
+      ['suspension detected', (a) => { a.host.suspension_detected = true; }, /suspension/],
+      ['charge below the larger clock', (a) => { a.wall_duration_ms = a.charged_duration_ms + 10; }, /charge/],
+      ['charge is not the sum', (a) => { a.charged_duration_ms += 1; }, /setup charge plus the command charge/],
+      ['setup charge forged', (a) => { a.setup_charge_ms += 1; a.charged_duration_ms += 1; }, /setup charge is not max/],
+      ['command window forged', (a) => { a.command_timing.execution_ms += 1; }, /command/],
+      ['deadlines forged', (a) => { a.stage_deadlines.work_ms = 105000; }, /stage deadlines/],
+      ['no diagnostics', (a) => { a.diagnostics = null; }, /per-test JSONL/],
+      ['diagnostics without jsonl', (a) => { a.diagnostics.jsonl = null; }, /per-test JSONL/],
+      ['forged per-test rows', (a) => { a.per_test_rows[0].status = 'forged'; }, /per_test_rows/]
+    ]) {
+      const verdict = verify(mutate);
+      assert.equal(verdict.ok, false, name);
+      assert.match(verdict.errors.join(';'), pattern, name);
+    }
+    const tampered = structuredClone(evidence);
+    const jsonl = path.join(`${h.evidenceFile}.raw`, tampered.attempts[0].diagnostics.jsonl.path);
+    const original = fs.readFileSync(jsonl);
+    fs.appendFileSync(jsonl, ' ');
+    assert.match(r4Verify(h, tampered).errors.join(';'), /sha256/i, 'a changed JSONL no longer matches its receipt');
+    fs.writeFileSync(jsonl, original);
+  } finally { h.clean(); }
+});
+
+test('a host sleep halts as halted_infrastructure with per-test rows, stays charged and counted, and blocks every regular slot until the retry', async () => {
+  const h = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })), /work deadline|suspension/i);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].observed_outcome, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.eligible, true);
+    assert.equal(evidence.infrastructure_retry.halted_slot, R4_FIRST);
+    assert.equal(evidence.infrastructure_retry.cause, 'host_sleep');
+    assert.equal(evidence.infrastructure_halts.length, 1);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.equal(evidence.limits.charged_duration_ms, 2222537 + evidence.attempts[0].charged_duration_ms);
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+    assert.deepEqual(Object.keys(evidence.stop_record.per_test_rows[0]).sort(), ['duration_ms', 'first_error_line', 'project', 'status', 'title']);
+    assert.equal(r4Verify(h, evidence).ok, false);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i);
+  } finally { h.clean(); }
+});
+
+test('CR4-INFRA-RETRY runs once, needs a committed diagnostic and a granted retry, and re-runs the identical frozen selection', async () => {
+  const h = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /halted_infrastructure|infrastructure/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })));
+    const callsBefore = h.calls.length;
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /diagnostic/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', checkDiagnostic: () => { throw new Error('diagnostic is not committed'); } })), /not committed/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', approval: R4_APPROVE_NO_RETRY })), /retry|caps/i);
+    assert.equal(h.calls.length, callsBefore, 'every refusal happens before any spawn');
+
+    const result = await recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' }));
+    assert.equal(result.rows, 16);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'first_complete');
+    assert.equal(evidence.attempts.length, 2);
+    assert.equal(evidence.attempts[1].slot_id, 'CR4-INFRA-RETRY');
+    assert.equal(evidence.attempts[1].retry_of, R4_FIRST);
+    assert.deepEqual(evidence.attempts[1].argv, evidence.attempts[0].argv);
+    assert.deepEqual(evidence.attempts[1].diagnostics.per_test.length, 16);
+    assert.equal(evidence.infrastructure_retry.used, true);
+    assert.deepEqual(evidence.infrastructure_retry.diagnostic, { file: 'diag.json', sha256: 'd'.repeat(64) });
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 10);
+    assert.deepEqual(evidence.limits.used_slots, [...R4_SPENT, R4_FIRST, 'CR4-INFRA-RETRY']);
+    assert.equal(evidence.limits.charged_duration_ms, 2222537 + evidence.attempts[0].charged_duration_ms + evidence.attempts[1].charged_duration_ms);
+    const verdict = r4Verify(h, evidence);
+    assert.deepEqual(verdict.errors, [], 'the original stays in attempts and the pair counts as one slot outcome');
+
+    const drifted = structuredClone(evidence); drifted.attempts[1].argv = drifted.attempts[1].argv.filter((arg) => arg !== '--project=admin-eval-dark');
+    assert.equal(r4Verify(h, drifted).ok, false, 'a retry with another selection is rejected');
+    const noDiagnostic = structuredClone(evidence); noDiagnostic.infrastructure_retry.diagnostic = null;
+    assert.equal(r4Verify(h, noDiagnostic).ok, false, 'a retry without a recorded diagnostic is rejected');
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure|already/i, 'the retry is usable once');
+  } finally { h.clean(); }
+});
+
+test('the R4 retry is never available after an assertion failure, a setup failure without suspension, a non-suspension overrun, a second infrastructure halt or approve-without-retry', async () => {
+  const cases = [
+    ['assertion failure', { cliExit: 0 }],
+    ['assertion row failure with a suspension flag', { suspendFlag: true, failRow: true }],
+    ['setup failure without suspension', { setupExit: 1 }],
+    ['non-suspension setup overrun', { setupMs: 61000 }],
+    ['non-suspension deadline kill', { cliTimedOut: true }]
+  ];
+  for (const [label, options] of cases) {
+    const h = loadHarnessR4();
+    try {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps(options)), undefined, label);
+      assert.equal(h.read().status, 'halted', label);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i, label);
+    } finally { h.clean(); }
+  }
+
+  const second = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(second.freezeFile, R4_FIRST, second.evidenceFile, second.checkout, second.makeDeps({ suspendBrowser: true })));
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(second.freezeFile, 'CR4-INFRA-RETRY', second.evidenceFile, second.checkout, second.makeDeps({ diagnosticFile: 'diag.json', suspendBrowser: true })));
+    const evidence = second.read();
+    assert.equal(evidence.status, 'halted', 'a second infrastructure halt is terminal');
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.attempts.length, 2);
+    assert.equal(evidence.stop_record.slot_id, 'CR4-INFRA-RETRY');
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+  } finally { second.clean(); }
+
+  const withoutRetry = loadHarnessR4();
+  try {
+    withoutRetry.writeEvidence(R4_APPROVE_NO_RETRY);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(withoutRetry.freezeFile, R4_FIRST, withoutRetry.evidenceFile, withoutRetry.checkout, withoutRetry.makeDeps({ approval: R4_APPROVE_NO_RETRY, suspendBrowser: true })));
+    assert.equal(withoutRetry.read().status, 'halted', 'no retry was granted, so the infrastructure halt is terminal');
+  } finally { withoutRetry.clean(); }
+});
+
+test('a suspension during setup and a lost caffeinate holder are infrastructure halts that never launched the CLI or lost the host', async () => {
+  const setupSleep = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(setupSleep.freezeFile, R4_FIRST, setupSleep.evidenceFile, setupSleep.checkout, setupSleep.makeDeps({ setupSuspended: true, setupExit: 1 })));
+    const evidence = setupSleep.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].playwright_cli.launched, false);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 8);
+    assert.deepEqual(evidence.stop_record.per_test_rows, []);
+    assert.equal(evidence.stop_record.cli_launched, false);
+  } finally { setupSleep.clean(); }
+  const lost = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(lost.freezeFile, R4_FIRST, lost.evidenceFile, lost.checkout, lost.makeDeps({ holderAlive: () => false })), /holder/i);
+    const evidence = lost.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.cause, 'holder_lost');
+    assert.equal(evidence.attempts[0].host.holder_alive_at_end, false);
+  } finally { lost.clean(); }
+});
+
+test('R4 accepted evidence verifies by git ancestry and object reads after a later committed runner change, while a live check still demands the working tree', () => {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-terminal-r4-')));
+  try {
+    gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'freeze point');
+    const frozenHead = gitIn(dir, 'rev-parse', 'HEAD');
+    const freeze = { source: { checkout_head: frozenHead, blobs: { 'runner.mjs': gitIn(dir, 'rev-parse', `${frozenHead}:runner.mjs`) } } };
+    assert.equal(recovery.verifyFrozenSourceBindingR4(dir, freeze, { terminal: false }), frozenHead);
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true; export const later = 1;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'later runner change');
+    assert.throws(() => recovery.verifyFrozenSourceBindingR4(dir, freeze, { terminal: false }), /identity mismatch/i, 'init, prepare and run demand working-tree equality');
+    assert.equal(recovery.verifyFrozenSourceBindingR4(dir, freeze, { terminal: true }), gitIn(dir, 'rev-parse', 'HEAD'), 'accepted evidence is not silently invalidated');
+    const forged = structuredClone(freeze); forged.source.blobs['runner.mjs'] = '0'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR4(dir, forged, { terminal: true }), /blob mismatch/i);
+    const notAncestor = structuredClone(freeze); notAncestor.source.checkout_head = '1'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR4(dir, notAncestor, { terminal: true }), /ancestor/i);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test.after(() => {
+  net.Socket.prototype.connect = originalConnect;
+  net.Server.prototype.listen = originalListen;
+  fs.rmSync(temporary, { recursive: true, force: true });
+});
+
+const R4_REUSE = 'two selected rows reused the same browser-context identity';
+const contextIdsOf = (evidence) => evidence.attempts[0].lifecycle.context_ids;
+
+test('R4 accepts a mirrored-annotation first slot at --stage first and records per-row deduplicated context ids, not the doubled list', async () => {
+  const h = loadHarnessR4();
+  try {
+    const result = await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    assert.equal(result.rows, 16);
+    const evidence = h.read();
+    const attempt = evidence.attempts[0];
+    const report = JSON.parse(fs.readFileSync(path.join(`${h.evidenceFile}.raw`, attempt.files.playwright_report.path), 'utf8'));
+    const tests = recovery.playReportTests(report);
+    assert.ok(tests.every((row) => (row.annotations ?? []).length === (row.result_annotations ?? row.results?.[0]?.annotations ?? []).length || true));
+    const withContext = tests.filter((row) => recovery.controlContextIdentitiesR4(row).length > 0);
+    const ids = contextIdsOf(evidence);
+    assert.equal(ids.length, withContext.length, 'one id per row that carries one, never one per annotation level');
+    assert.equal(new Set(ids).size, ids.length, 'the recorded list holds no duplicate');
+    assert.ok(ids.length < 2 * withContext.length || withContext.length === 0);
+    assert.equal(evidence.status, 'first_complete');
+    assert.deepEqual(r4Verify(h, evidence).errors, []);
+    assert.equal(recovery.verifyNativeLoadAttempt(structuredClone(attempt), { ...h.freeze, ledger: h.freeze.ledger }, `${h.evidenceFile}.raw`).errors.includes(R4_REUSE), true,
+      'the unfixed shared verifier would have halted this same mirrored report');
+  } finally { h.clean(); }
+});
+
+test('R4 halts a genuine cross-row context reuse as a non-infrastructure halt with per-test rows, charged and counted', async () => {
+  const h = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ shareContext: true })), new RegExp(R4_REUSE));
+    const evidence = h.read();
+    assert.equal(evidence.status, 'halted');
+    assert.equal(evidence.attempts[0].observed_outcome, 'halted');
+    assert.match(evidence.stop_reason, new RegExp(R4_REUSE));
+    assert.equal(evidence.stop_record.cli_launched, true);
+    assert.equal(evidence.stop_record.per_test_rows.length, 16);
+    assert.deepEqual(evidence.infrastructure_halts, []);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.equal(evidence.limits.charged_duration_ms, 2222537 + evidence.attempts[0].charged_duration_ms);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, 'CR4-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i);
+  } finally { h.clean(); }
+});
+
+test('R4 refuses every spent, expired and retired identity of all earlier revisions before any spawn', async () => {
+  const h = loadHarnessR4();
+  try {
+    for (const id of ['CR3-DESKTOP-MOBILE-FIRST', 'CR2-DESKTOP-MOBILE-FIRST', 'CR-DARK-FIRST', 'CR3-INFRA-RETRY', 'CR2-INFRA-RETRY', 'CR3-DESKTOP-SECOND', 'CR-MOBILE-SECOND']) {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps()), /spent|expired|retired/i, id);
+    }
+    assert.deepEqual(h.calls, []);
+    assert.equal(h.read().status, 'ready');
+  } finally { h.clean(); }
+});
+
+test('an R3 approval handed to the R4 run is refused before any spawn, and the default reader refuses it too', async () => {
+  const h = loadHarnessR4();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps({ approval: { schema_version: 'sigra.phase253.load-recovery-budget-approval/v2', decision: 'approve', retry_granted: 1, caps: { new_allowance_ms: 910000, d19_cap_ms: 3060682, d19_launch_max: 12, shared_cap_ms: 5400682, physical_cli_max: 21 } } })), /approval caps differ/i);
+    assert.deepEqual(h.calls, []);
+  } finally { h.clean(); }
+});
+
+test('the R4 evidence verifier refuses a missing or wrong context mode and any path but the reviewed R4 evidence', async () => {
+  const h = loadHarnessR4();
+  try {
+    await recovery.runLoadRecoverySlotR4(h.freezeFile, R4_FIRST, h.evidenceFile, h.checkout, h.makeDeps());
+    const evidence = h.read();
+    const wrong = structuredClone(evidence); wrong.context_identity = 'flatten';
+    assert.match(r4Verify(h, wrong).errors.join(';'), /per_row_union/);
+    const verdict = recovery.verifyLoadRecoveryFileR4(h.evidenceFile, 'first');
+    assert.equal(verdict.ok, false);
+    assert.match(verdict.errors.join(';'), /only the additive R4 native evidence path/);
+  } finally { h.clean(); }
+});
+
+test('the approval recorder CLI routes R4 paths to the R4 recorder and a reject writes nothing', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const out = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json');
+  const before = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null;
+  const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R4.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /decision/i);
+  assert.equal(fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null, before);
+});
+
+// ---------------------------------------------------------------------------------------------
+// R5 (253-79): schema-qualified account count with redacted psql stderr.
+// ---------------------------------------------------------------------------------------------
+const R5_EMAIL = 'platform-admin+sigra-253-control-abc123-collision@example.test';
+const R5_ENV = { PGHOST: '127.0.0.1', PGPORT: '55432', PGUSER: 'postgres', PGPASSWORD: 'synthetic-not-retained-r5' };
+const R5_MIGRATION = 'test/example/priv/repo/migrations/20260410125242_create_sigra_auth_tables.exs';
+const R5_USER = 'test/example/lib/example/accounts/user.ex';
+
+function r5Double({ stdout = '0\n', stderr = '', status = 0, calls = [] } = {}) {
+  return (program, args, options) => { calls.push({ program, args, options }); return { status, signal: null, stdout, stderr, error: undefined }; };
+}
+
+function r5SchemaTree({ migration, user }) {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r5-schema-'));
+  for (const [rel, text] of [[R5_MIGRATION, migration], [R5_USER, user]]) {
+    fs.mkdirSync(path.dirname(path.join(base, rel)), { recursive: true });
+    fs.writeFileSync(path.join(base, rel), text);
+  }
+  return base;
+}
+
+test('R5 account schema is derived from the two frozen sources and must agree', () => {
+  assert.equal(recovery.accountSchemaR5(root), 'auth');
+  const good = { migration: '  @auth_prefix "auth"\n', user: '  @schema_prefix "auth"\n' };
+  const cases = {
+    missing_migration: { ...good, migration: '  @other "auth"\n' },
+    missing_user: { ...good, user: '  @other "auth"\n' },
+    duplicated_migration: { ...good, migration: '  @auth_prefix "auth"\n  @auth_prefix "auth"\n' },
+    duplicated_user: { ...good, user: '  @schema_prefix "auth"\n  @schema_prefix "auth"\n' },
+    malformed: { migration: '  @auth_prefix "Au;th"\n', user: '  @schema_prefix "Au;th"\n' },
+    quoted_injection: { migration: '  @auth_prefix "a\\"b"\n', user: '  @schema_prefix "a\\"b"\n' },
+    too_long: { migration: `  @auth_prefix "${'a'.repeat(64)}"\n`, user: `  @schema_prefix "${'a'.repeat(64)}"\n` },
+    disagreeing: { migration: '  @auth_prefix "auth"\n', user: '  @schema_prefix "accounts"\n' }
+  };
+  assert.equal(recovery.accountSchemaR5(r5SchemaTree(good)), 'auth');
+  for (const [name, files] of Object.entries(cases)) {
+    const base = r5SchemaTree(files);
+    try { assert.throws(() => recovery.accountSchemaR5(base), /account schema/i, name); } finally { fs.rmSync(base, { recursive: true, force: true }); }
+  }
+});
+
+test('R5 count queries the schema-qualified users table and leaves the legacy query untouched', () => {
+  const calls = [];
+  const log = path.join(temporary, 'r5-count.log');
+  const receipt = recovery.captureOwnedAccountCountR5({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double({ calls }) });
+  const query = "SELECT count(*) FROM \"auth\".users WHERE email = :'target';\n";
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].options.input, query);
+  assert.equal(receipt.query, query);
+  assert.equal(receipt.query_sha256, crypto.createHash('sha256').update(query).digest('hex'));
+  assert.equal(receipt.schema_version, 'sigra.phase253.owned-account-count/v2');
+  assert.equal(receipt.schema_binding.name, 'auth');
+  assert.deepEqual(receipt.schema_binding.sources.map((item) => item.path), [R5_MIGRATION, R5_USER]);
+  assert.ok(receipt.schema_binding.sources.every((item) => /^[0-9a-f]{40}$/.test(item.blob)));
+  assert.equal(receipt.count, 0);
+  assert.equal(receipt.exit_code, 0);
+  assert.equal(JSON.stringify(receipt).includes(R5_EMAIL), false);
+  assert.equal(JSON.stringify(receipt).includes(R5_ENV.PGPASSWORD), false);
+  assert.throws(() => recovery.captureOwnedAccountCountR5({ database: 'sigra_test', email: R5_EMAIL, env: R5_ENV, cwd: root, root, log, deadline: Date.now() + 1000, run: r5Double() }), /synthetic control namespace/);
+  assert.throws(() => recovery.captureOwnedAccountCountR5({ database: 'sigra_253_control_r5_abc_1', email: 'someone@example.com', env: R5_ENV, cwd: root, root, log, deadline: Date.now() + 1000, run: r5Double() }), /synthetic control namespace/);
+  // Legacy capture keeps its v1 receipt and unqualified query.
+  const legacyCalls = [];
+  const legacy = recovery.captureOwnedAccountCount({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double({ calls: legacyCalls }) });
+  assert.equal(legacy.schema_version, 'sigra.phase253.owned-account-count/v1');
+  assert.equal(legacy.query, "SELECT count(*) FROM users WHERE email = :'target';\n");
+  assert.equal(legacy.schema_binding, undefined);
+});
+
+test('R5 count keeps bounded redacted psql stderr in a sibling log and the receipt', () => {
+  const log = path.join(temporary, 'r5-count-fail.log');
+  const stderr = `ERROR:  relation "users" does not exist for ${R5_EMAIL} using ${R5_ENV.PGPASSWORD}\nLINE 1: SELECT count(*) FROM users\n`;
+  const receipt = recovery.captureOwnedAccountCountR5({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double({ status: 3, stdout: '', stderr }) });
+  assert.equal(receipt.exit_code, 3);
+  assert.equal(receipt.count, null);
+  assert.match(receipt.stderr_first_line, /^ERROR:  relation "users" does not exist/);
+  assert.equal(receipt.stderr_truncated, false);
+  const sidecar = fs.readFileSync(`${log}.stderr.log`, 'utf8');
+  for (const text of [sidecar, JSON.stringify(receipt)]) {
+    assert.equal(text.includes(R5_EMAIL), false);
+    assert.equal(text.includes(R5_ENV.PGPASSWORD), false);
+  }
+  assert.match(sidecar, /<redacted-account>/);
+  assert.match(sidecar, /<redacted-credential>/);
+  assert.equal(receipt.stderr_sha256, crypto.createHash('sha256').update(sidecar).digest('hex'));
+  assert.equal(receipt.stderr_bytes, Buffer.byteLength(sidecar));
+  const long = recovery.captureOwnedAccountCountR5({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double({ status: 3, stdout: '', stderr: `ERROR:  ${'x'.repeat(10_000)}\n` }) });
+  assert.equal(long.stderr_truncated, true);
+  assert.ok(long.stderr_bytes <= 4096);
+  assert.ok(long.stderr_first_line.length <= 512);
+  assert.equal(fs.statSync(`${log}.stderr.log`).size, long.stderr_bytes);
+});
+
+test('R5 verifier names the psql error and rejects wrong query, schema, email and credential forms', () => {
+  const log = path.join(temporary, 'r5-verify.log');
+  const digest = crypto.createHash('sha256').update(R5_EMAIL).digest('hex');
+  const capture = (extra = {}) => recovery.captureOwnedAccountCountR5({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double(extra) });
+  const frozen = { query: "SELECT count(*) FROM \"auth\".users WHERE email = :'target';\n", schema: 'auth' };
+  const windowFor = (receipt) => ({ database: { name: receipt.database }, started_monotonic_ns: (BigInt(receipt.started_monotonic_ns) - 1000n).toString(), ended_monotonic_ns: (BigInt(receipt.ended_monotonic_ns) + 1000n).toString() });
+  const verify = (receipt, count = 0, attempt = windowFor(receipt), account = frozen) => recovery.verifyAccountCountReceiptR5(receipt, attempt, digest, count, 'prior', account);
+  const clean0 = capture();
+  assert.deepEqual(verify(clean0, 0), []);
+  const clean1 = capture({ stdout: '1\n' });
+  assert.deepEqual(verify(clean1, 1), []);
+  assert.ok(verify(clean1, 0).some((message) => /account count is 1, expected 0/.test(message)));
+  const failed = capture({ status: 3, stdout: '', stderr: 'ERROR:  relation "users" does not exist\n' });
+  assert.ok(verify(failed, 0).some((message) => message.includes('did not exit cleanly (exit 3): ERROR:  relation')));
+  assert.ok(verify(clean0, 0, windowFor(clean0), { ...frozen, query: "SELECT count(*) FROM users WHERE email = :'target';\n" }).some((message) => /query/.test(message)));
+  assert.ok(verify(clean0, 0, windowFor(clean0), { ...frozen, schema: 'public' }).some((message) => /schema/.test(message)));
+  assert.ok(verify({ ...clean0, error: `leak ${R5_EMAIL}` }, 0).some((message) => /email/i.test(message)));
+  assert.ok(verify({ ...clean0, error: 'PGPASSWORD=hunter2' }, 0).some((message) => /credential/i.test(message)));
+  assert.ok(verify({ ...clean0, error: 'password=hunter2' }, 0).some((message) => /credential/i.test(message)));
+  const legacy = recovery.captureOwnedAccountCount({ database: 'sigra_253_control_r5_abc_1', email: R5_EMAIL, env: R5_ENV, cwd: root, log, deadline: Number(process.hrtime.bigint()) / 1e6 + 3000, run: r5Double() });
+  assert.ok(verify(legacy, 0).some((message) => /missing/.test(message)));
+});
+
+test('R5 absence capture returns the byte-identical shared receipt plus a redacted stderr sidecar', () => {
+  const log = path.join(temporary, 'r5-absence.log');
+  const database = 'sigra_253_control_r5_abc_2';
+  const deadline = Number(process.hrtime.bigint()) / 1e6 + 5000;
+  const wrapped = recovery.captureOwnedDatabaseAbsenceR5({ database, env: R5_ENV, cwd: root, log, deadline, run: r5Double({ stderr: `NOTICE: ${R5_ENV.PGPASSWORD}\n` }) });
+  assert.ok(wrapped.receipt && wrapped.stderr_sidecar);
+  assert.equal(wrapped.receipt.schema_version, 'sigra.phase253.owned-database-absence/v1');
+  const shared = captureOwnedDatabaseAbsence({ database, env: R5_ENV, cwd: root, log: path.join(temporary, 'r5-absence-shared.log'), deadline, run: r5Double() });
+  const strip = (receipt) => { const { started_monotonic_ns, ended_monotonic_ns, duration_ms, ...rest } = receipt; return rest; };
+  assert.deepEqual(strip(wrapped.receipt), strip(shared));
+  const sidecar = fs.readFileSync(`${log}.stderr.log`, 'utf8');
+  assert.equal(sidecar.includes(R5_ENV.PGPASSWORD), false);
+  assert.match(sidecar, /<redacted-credential>/);
+  assert.equal(wrapped.stderr_sidecar.sha256, crypto.createHash('sha256').update(sidecar).digest('hex'));
+  assert.equal(wrapped.stderr_sidecar.bytes, Buffer.byteLength(sidecar));
+  assert.equal(wrapped.stderr_sidecar.truncated, false);
+  assert.equal(fs.readFileSync(log, 'utf8'), '0\n');
+});
+
+// ---- Phase 253 plan 79 task 2: R5 ledger, R4-lineage history reader and carried first window ----
+const R5_SPENT = [...R4_SPENT, 'CR4-DESKTOP-MOBILE-FIRST', 'CR4-DESKTOP-SECOND'];
+const R5_CHARGES = [...R4_CHARGES, 821, 92810, 43535];
+const R5_IDS = ['CR5-DESKTOP-SECOND', 'CR5-MOBILE-SECOND', 'CR5-DARK-SECOND'];
+const R5_APPROVE_CAPS = { new_allowance_ms: 565000, d19_cap_ms: 2924703, d19_launch_max: 13, shared_cap_ms: 5264703, physical_cli_max: 22 };
+const R5_APPROVE_NO_RETRY_CAPS = { new_allowance_ms: 430000, d19_cap_ms: 2789703, d19_launch_max: 12, shared_cap_ms: 5129703, physical_cli_max: 21 };
+const r5LedgerInput = () => ({
+  charges: [...R5_CHARGES], physicalPlaywrightLaunches: 9, spentReservations: [...R5_SPENT],
+  retryUsed: 1, retryAvailable: 0, preparationUsedMs: 5141 + 822 + 821
+});
+const R4_EVIDENCE_REL = `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json`;
+const R4_FIRST_COMMIT = '0596dd97a77acafc7dff68b48cba437f3c7e5183';
+const R4_FIRST_SHA = '084377320bce81ac6c84ca1adca847805861cc8815572453b407132eb3b24193';
+
+test('R5 ledger carries 2359703 ms, nine launches and eleven spent identities, with the reviewed R5 caps', () => {
+  const ledger = recovery.buildLoadRecoveryLedgerR5(r5LedgerInput());
+  assert.equal(R5_CHARGES.reduce((sum, value) => sum + value, 0), 2359703);
+  assert.equal(ledger.prior_charge_ms, 2359703);
+  assert.equal(ledger.prior_playwright_cli_launches, 9);
+  assert.deepEqual(ledger.spent_reservations, R5_SPENT);
+  assert.equal(ledger.spent_reservations.length, 11);
+  assert.equal(ledger.preparation_used_ms, 6784);
+  assert.equal(ledger.retry_used, 1);
+  assert.equal(ledger.retry_available, 0);
+  assert.deepEqual(ledger.expired_identities.slice(-1), ['CR4-INFRA-RETRY']);
+  assert.deepEqual(ledger.retired_identities.slice(-2), ['CR4-MOBILE-SECOND', 'CR4-DARK-SECOND']);
+  assert.ok(!R5_SPENT.some((id) => ledger.expired_identities.includes(id) || ledger.retired_identities.includes(id)), 'a spent identity is never also expired or retired');
+  assert.deepEqual(ledger.caps.approve, R5_APPROVE_CAPS);
+  assert.deepEqual(ledger.caps['approve-without-retry'], R5_APPROVE_NO_RETRY_CAPS);
+  assert.equal(ledger.required_rows, 22);
+  assert.equal(ledger.required_new_rows, 6);
+  assert.equal(ledger.carried_rows, 16);
+  const doc = fs.readFileSync(path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md'), 'utf8');
+  for (const caps of [R5_APPROVE_CAPS, R5_APPROVE_NO_RETRY_CAPS]) {
+    for (const value of [caps.new_allowance_ms, caps.d19_cap_ms, caps.shared_cap_ms]) assert.ok(doc.includes(String(value)), `the R5 budget document states ${value}`);
+  }
+});
+
+test('R5 ledger rejects any other carried input', () => {
+  for (const mutate of [
+    (input) => { input.charges[16] = 43534; },
+    (input) => { input.charges[14] = 820; },
+    (input) => { input.charges.pop(); },
+    (input) => { input.charges = [...R4_CHARGES]; },
+    (input) => { input.retryAvailable = 1; },
+    (input) => { input.retryUsed = 0; },
+    (input) => { input.spentReservations.pop(); },
+    (input) => { input.spentReservations = [...R4_SPENT]; },
+    (input) => { input.spentReservations.reverse(); },
+    (input) => { input.physicalPlaywrightLaunches = 8; },
+    (input) => { input.preparationUsedMs = 5963; }
+  ]) {
+    const input = r5LedgerInput(); mutate(input);
+    assert.throws(() => recovery.buildLoadRecoveryLedgerR5(input), /historical|retry|reservation|launch|preparation|carried/i);
+  }
+  assert.throws(() => recovery.buildLoadRecoveryLedgerR5(r4LedgerInput()), /historical|launch|reservation|preparation|carried/i);
+  assert.throws(() => recovery.buildLoadRecoveryLedgerR4(r5LedgerInput()), /historical|launch|reservation|preparation|carried/i, 'the R4 builder still refuses the R5 inputs');
+});
+
+test('R5 slots are the three R4 second windows under new identities plus one 135000 ms infrastructure retry', () => {
+  const r4 = recovery.loadRecoverySlotDefinitionsR4();
+  const r5 = recovery.loadRecoverySlotDefinitionsR5();
+  assert.deepEqual(r5.map((slot) => slot.id), [...R5_IDS, 'CR5-INFRA-RETRY']);
+  assert.deepEqual(r5.map((slot) => slot.maps_from), ['CR4-DESKTOP-SECOND', 'CR4-MOBILE-SECOND', 'CR4-DARK-SECOND', 'CR5-INFRA-RETRY']);
+  assert.deepEqual(r5.slice(0, 3).map((slot) => slot.rows), [2, 2, 2]);
+  for (const [index, slot] of r5.slice(0, 3).entries()) {
+    const strip = ({ id, maps_from, ...rest }) => rest; // eslint-disable-line no-unused-vars
+    assert.deepEqual(strip(slot), strip(r4[index + 1]), `selection, projects, argv, ports and windows of ${slot.id} equal ${r4[index + 1].id}`);
+    assert.equal(slot.expected_cli_exit, 0);
+    assert.deepEqual([slot.setup_ms, slot.work_ms, slot.cleanup_ms, slot.command_ms, slot.max_duration_ms], [60000, 60000, 15000, 75000, 135000]);
+  }
+  assert.equal(r5[3].retry, true);
+  assert.equal(r5[3].max_duration_ms, 135000);
+  assert.equal(r5[3].rows, 0);
+  const ledger = recovery.buildLoadRecoveryLedgerR5(r5LedgerInput());
+  const closed = [...ledger.spent_reservations, ...ledger.expired_identities, ...ledger.retired_identities];
+  assert.equal(r5.filter((slot) => closed.includes(slot.id)).length, 0, 'no runnable R5 slot reuses a closed identity');
+});
+
+// A disposable copy of the R4 lineage (evidence, freeze, approval, budget, summary and raw receipts) beside an injected older history.
+function r5LineageCopy() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r5-lineage-')));
+  const lineage = {};
+  for (const [name, file] of Object.entries({
+    evidence: '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json', freeze: '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json',
+    approval: '253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json', budget: '253-LOAD-RECOVERY-BUDGETS-R4.md', summary: '253-73-SUMMARY.md'
+  })) {
+    fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+    fs.copyFileSync(path.join(root, PHASE_REL, file), path.join(dir, PHASE_REL, file));
+    lineage[name] = { file: `${PHASE_REL}/${file}`, sha256: sha(fs.readFileSync(path.join(dir, PHASE_REL, file))) };
+  }
+  fs.cpSync(path.join(root, `${R4_EVIDENCE_REL}.raw`), path.join(dir, `${R4_EVIDENCE_REL}.raw`), { recursive: true });
+  const olderHistory = () => ({ charges: [...R4_CHARGES], artifacts: [{ path: 'older/record', sha256: 'a'.repeat(64) }], frozenBlobs: {}, control: { accepted: { toolchain: { mix: '1.19.5' } } } });
+  const rewriteEvidence = (mutate) => {
+    const file = path.join(dir, lineage.evidence.file);
+    const evidence = JSON.parse(fs.readFileSync(file, 'utf8')); mutate(evidence);
+    fs.writeFileSync(file, `${JSON.stringify(evidence, null, 2)}\n`);
+    lineage.evidence = { ...lineage.evidence, sha256: sha(fs.readFileSync(file)) };
+  };
+  return { dir, lineage, deps: { olderHistory, lineage, skipPreservedRevisions: true }, rewriteEvidence, clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('the R5 history reader re-hashes the R4 lineage and reads the carried 2359703 ms ledger from preserved bytes', () => {
+  const r = r5LineageCopy();
+  try {
+    const history = recovery.readLoadHistoryR5(r.dir, r.deps);
+    assert.deepEqual(history.ledger, recovery.buildLoadRecoveryLedgerR5(r5LedgerInput()));
+    assert.deepEqual(history.charges, R5_CHARGES);
+    const halt = history.terminalHalt;
+    assert.equal(halt.slot_id, 'CR4-DESKTOP-SECOND');
+    assert.equal(halt.plan, '253-73');
+    assert.equal(halt.cause, 'runner_account_count_unqualified_schema');
+    assert.equal(halt.terminal, true);
+    assert.equal(halt.infrastructure, false);
+    assert.equal(halt.retryable, false);
+    assert.equal(halt.charged, true);
+    assert.equal(halt.charged_ms, 43535);
+    assert.equal(halt.preparation_ms, 821);
+    assert.equal(halt.stop_reason, JSON.parse(fs.readFileSync(path.join(root, R4_EVIDENCE_REL), 'utf8')).stop_reason);
+    assert.deepEqual(halt.summary, { file: `${PHASE_REL}/253-73-SUMMARY.md`, sha256: '1ccc0d9700cca753f31d16d2b489527d3b29a9459a794edc1123489fe30fddcf' });
+    assert.deepEqual(halt.expired_identities, ['CR4-INFRA-RETRY']);
+    assert.deepEqual(halt.retired_identities, ['CR4-MOBILE-SECOND', 'CR4-DARK-SECOND']);
+    const paths = history.artifacts.map((item) => item.path);
+    for (const name of ['253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json', '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json', '253-LOAD-RECOVERY-BUDGET-APPROVAL-R4.json', '253-LOAD-RECOVERY-BUDGETS-R4.md', '253-73-SUMMARY.md']) {
+      assert.ok(paths.includes(`${PHASE_REL}/${name}`), name);
+    }
+    assert.ok(paths.some((item) => item.startsWith(`${R4_EVIDENCE_REL}.raw/`) && item.endsWith('/playwright-report.json')), 'the accepted R4 report is re-hashed as lineage');
+    assert.ok(paths.includes('older/record'), 'the older lineage is carried');
+    assert.ok(history.artifacts.every((item) => /^[0-9a-f]{64}$/.test(item.sha256)));
+  } finally { r.clean(); }
+});
+
+test('the R5 history reader refuses changed R4 evidence, freeze, approval, budget, summary or raw receipts and a wrong carried ledger', () => {
+  const attemptDirs = (r) => fs.readdirSync(path.join(r.dir, `${R4_EVIDENCE_REL}.raw`)).filter((name) => name.startsWith('CR4-DESKTOP-MOBILE-FIRST'));
+  assert.ok(attemptDirs(r5LineageCopy()).length >= 1);
+  for (const [label, mutate, pattern] of [
+    ['evidence', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.evidence.file), ' '), /R4 evidence/i],
+    ['freeze', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.freeze.file), ' '), /R4 freeze/i],
+    ['approval', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.approval.file), ' '), /R4 approval/i],
+    ['budget', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.budget.file), ' '), /R4 budget/i],
+    ['summary', (r) => fs.appendFileSync(path.join(r.dir, r.lineage.summary.file), ' '), /R4 summary/i],
+    ['raw report', (r) => fs.appendFileSync(path.join(r.dir, `${R4_EVIDENCE_REL}.raw/CR4-DESKTOP-MOBILE-FIRST/attempt-01/playwright-report.json`), ' '), /raw/i],
+    ['raw log', (r) => fs.appendFileSync(path.join(r.dir, `${R4_EVIDENCE_REL}.raw/CR4-DESKTOP-SECOND/attempt-01/setup-log.log`), 'x'), /raw/i],
+    ['wrong first charge', (r) => r.rewriteEvidence((e) => { e.attempts[0].charged_duration_ms = 92809; }), /receipt differs/i],
+    ['wrong halted charge', (r) => r.rewriteEvidence((e) => { e.attempts[1].charged_duration_ms = 43534; }), /receipt differs/i],
+    ['wrong order', (r) => r.rewriteEvidence((e) => { e.attempts.reverse(); }), /receipt differs/i],
+    ['third attempt', (r) => r.rewriteEvidence((e) => { e.attempts.push(structuredClone(e.attempts[1])); }), /receipt differs/i],
+    ['infrastructure outcome', (r) => r.rewriteEvidence((e) => { e.attempts[1].observed_outcome = 'halted_infrastructure'; }), /receipt differs/i],
+    ['launched halted slot', (r) => r.rewriteEvidence((e) => { e.attempts[1].playwright_cli.launched = true; }), /receipt differs/i],
+    ['wrong absence exit', (r) => r.rewriteEvidence((e) => { e.attempts[1].prior_collision_absence.exit_code = 0; }), /receipt differs/i],
+    ['wrong absence query', (r) => r.rewriteEvidence((e) => { e.attempts[1].prior_collision_absence.query = 'SELECT 1;\n'; }), /receipt differs/i],
+    ['wrong launches', (r) => r.rewriteEvidence((e) => { e.limits.physical_playwright_cli_launches = 8; }), /receipt differs/i],
+    ['wrong preparation', (r) => r.rewriteEvidence((e) => { e.preparation.duration_ms = 822; }), /receipt differs/i],
+    ['wrong spent list', (r) => r.rewriteEvidence((e) => { e.limits.used_slots.pop(); }), /receipt differs/i],
+    ['used infrastructure retry', (r) => r.rewriteEvidence((e) => { e.limits.infra_retry.used = 1; }), /receipt differs/i],
+    ['status', (r) => r.rewriteEvidence((e) => { e.status = 'complete'; }), /receipt differs/i]
+  ]) {
+    const r = r5LineageCopy();
+    try {
+      mutate(r);
+      assert.throws(() => recovery.readLoadHistoryR5(r.dir, r.deps), pattern, label);
+    } finally { r.clean(); }
+  }
+});
+
+test('the R5 history reader reads the real preserved R4 lineage, including its preserved revision refs', () => {
+  const history = recovery.readLoadHistoryR5(root);
+  assert.equal(history.ledger.prior_charge_ms, 2359703);
+  assert.equal(history.ledger.prior_playwright_cli_launches, 9);
+  assert.deepEqual(history.ledger.caps, recovery.buildLoadRecoveryLedgerR5(r5LedgerInput()).caps);
+  assert.equal(history.terminalHalt.charged_ms, 43535);
+  assert.deepEqual(Object.values(history.lineage).map((record) => record.sha256), [
+    '6162ed6e9dad947223912ce739ee250d2c6218a5b514f86b0e7f9224a536cdbd', 'abf6e110e00dfb85ed6ae521815d6a5a5388d062b2c5f6ef579643b181107346',
+    '6f866bb38a9eca091bd56dbed88eda5aab135fc5dcb87e45ea53589f9c7de911', '865561402eb87f160aaf746fba9121bb5b9cad936f64d86ada5e9a585ad099c3',
+    '1ccc0d9700cca753f31d16d2b489527d3b29a9459a794edc1123489fe30fddcf'
+  ]);
+});
+
+test('the carried first window binds the committed first_complete R4 revision with exact keys', () => {
+  const binding = recovery.carriedFirstWindowR5(root);
+  assert.equal(binding.revision_commit, R4_FIRST_COMMIT);
+  assert.equal(binding.revision_sha256, R4_FIRST_SHA);
+  assert.equal(binding.evidence_path, R4_EVIDENCE_REL);
+  assert.equal(binding.evidence_sha256, '6162ed6e9dad947223912ce739ee250d2c6218a5b514f86b0e7f9224a536cdbd');
+  assert.equal(binding.r4_freeze_sha256, 'abf6e110e00dfb85ed6ae521815d6a5a5388d062b2c5f6ef579643b181107346');
+  assert.equal(binding.r4_checkout_head, '4fdbc82b4a988f34eed066c1687f854a049dd03d');
+  assert.equal(binding.rows, 16);
+  assert.match(binding.attempt_sha256, /^[0-9a-f]{64}$/);
+  assert.deepEqual(Object.keys(binding.collision_receipts).sort(), ['admin-eval', 'admin-eval-dark', 'admin-eval-mobile']);
+  assert.match(binding.database, /^sigra_253_control_load_cr4_desktop_mobile_first_/);
+  assert.equal(binding.context_ids.length, 18);
+  assert.equal(new Set(binding.context_ids).size, 18);
+  assert.ok(binding.raw_files.length >= 5 && binding.raw_files.every((item) => typeof item.path === 'string' && /^[0-9a-f]{64}$/.test(item.sha256)));
+  const halted = JSON.parse(fs.readFileSync(path.join(root, R4_EVIDENCE_REL), 'utf8'));
+  const revision = JSON.parse(execGit(R4_FIRST_COMMIT, R4_EVIDENCE_REL));
+  assert.equal(JSON.stringify(halted.attempts[0]), JSON.stringify(revision.attempts[0]));
+});
+
+function execGit(commit, file) { return spawnSync('git', ['-C', root, 'cat-file', 'blob', `${commit}:${file}`], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }).stdout; }
+
+test('the carried first window refuses a tampered revision, a changed attempt and a changed raw file', () => {
+  const r = r5LineageCopy();
+  try {
+    const base = { evidenceFile: path.join(r.dir, r.lineage.evidence.file), freezeFile: path.join(r.dir, r.lineage.freeze.file), rawBase: path.join(r.dir, `${R4_EVIDENCE_REL}.raw`) };
+    assert.equal(recovery.carriedFirstWindowR5(root, base).rows, 16);
+    const bytes = execGit(R4_FIRST_COMMIT, R4_EVIDENCE_REL);
+    assert.throws(() => recovery.carriedFirstWindowR5(root, { ...base, readRevisionBytes: () => Buffer.from(`${bytes} `) }), /revision|sha256|first_complete/i, 'tampered revision bytes');
+    assert.throws(() => recovery.carriedFirstWindowR5(root, { ...base, revisionSha256: 'f'.repeat(64) }), /revision|sha256/i, 'wrong pinned revision hash');
+    const statusEdited = JSON.parse(bytes); statusEdited.status = 'complete';
+    const editedBytes = Buffer.from(`${JSON.stringify(statusEdited, null, 2)}\n`);
+    assert.throws(() => recovery.carriedFirstWindowR5(root, { ...base, readRevisionBytes: () => editedBytes, revisionSha256: sha(editedBytes) }), /first_complete/i, 'a status other than first_complete');
+    const changedAttempt = JSON.parse(bytes); changedAttempt.attempts[0].charged_duration_ms += 1;
+    const changedBytes = Buffer.from(`${JSON.stringify(changedAttempt, null, 2)}\n`);
+    assert.throws(() => recovery.carriedFirstWindowR5(root, { ...base, readRevisionBytes: () => changedBytes, revisionSha256: sha(changedBytes) }), /attempt|ok|verif|charge|account/i, 'a revision attempt that no longer verifies');
+    r.rewriteEvidence((e) => { e.attempts[0].queue_marker = 'changed'; });
+    assert.throws(() => recovery.carriedFirstWindowR5(root, { ...base }), /attempt/i, 'halted evidence attempt differs from the revision attempt');
+  } finally { r.clean(); }
+  const raw = r5LineageCopy();
+  try {
+    const base = { evidenceFile: path.join(raw.dir, raw.lineage.evidence.file), freezeFile: path.join(raw.dir, raw.lineage.freeze.file), rawBase: path.join(raw.dir, `${R4_EVIDENCE_REL}.raw`) };
+    fs.appendFileSync(path.join(base.rawBase, 'CR4-DESKTOP-MOBILE-FIRST/attempt-01/playwright-report.json'), ' ');
+    assert.throws(() => recovery.carriedFirstWindowR5(root, base), /raw|sha|differ|hash|report/i, 'changed raw report');
+  } finally { raw.clean(); }
+});
+
+// ---- Phase 253 plan 79 task 3: R5 freeze, cap table, evidence init and path routing ----
+const R5_TOOLING = ['scripts/ci/ci-registration-recovery.mjs', 'scripts/ci/ci-registration-recovery.test.mjs', 'scripts/ci/ci-registration-recovery.pg.test.mjs'];
+const R5_MIGRATION_FILE = 'test/example/priv/repo/migrations/20260410125242_create_sigra_auth_tables.exs';
+const R5_APPROVE = { schema_version: 'sigra.phase253.load-recovery-budget-approval/v4', decision: 'approve', retry_granted: 1, caps: R5_APPROVE_CAPS };
+const R5_APPROVE_NO_RETRY = { schema_version: 'sigra.phase253.load-recovery-budget-approval/v4', decision: 'approve-without-retry', retry_granted: 0, caps: R5_APPROVE_NO_RETRY_CAPS };
+const R5_FREEZE_SCHEMA_COUNT_QUERY = "SELECT count(*) FROM \"auth\".users WHERE email = :'target';\n";
+
+function r5FreezeRepo() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-r5-freeze-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  const put = (relative, text) => { const target = path.join(dir, relative); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, text); };
+  put(`${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R5.md`, '# budgets r5\n');
+  for (const file of ['src/a.txt', 'src/b.txt', R5_MIGRATION_FILE, ...R5_TOOLING]) put(file, `${file} current\n`);
+  put('lineage/x.txt', 'x\n');
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  const blob = (file) => gitIn(dir, 'rev-parse', `HEAD:${file}`).trim();
+  const r4Blobs = { 'src/a.txt': blob('src/a.txt'), 'src/b.txt': blob('src/b.txt'), ...Object.fromEntries(R5_TOOLING.slice(0, 2).map((file) => [file, 'f'.repeat(40)])) };
+  const carried = {
+    revision_commit: R4_FIRST_COMMIT, revision_sha256: R4_FIRST_SHA, evidence_path: R4_EVIDENCE_REL, evidence_sha256: '6162ed6e9dad947223912ce739ee250d2c6218a5b514f86b0e7f9224a536cdbd',
+    attempt_sha256: 'b'.repeat(64), r4_freeze_sha256: 'abf6e110e00dfb85ed6ae521815d6a5a5388d062b2c5f6ef579643b181107346', r4_checkout_head: '4fdbc82b4a988f34eed066c1687f854a049dd03d',
+    rows: 16, collision_receipts: { 'admin-eval': 'c'.repeat(64) }, database: 'sigra_253_control_synthetic', context_ids: ['ctx-1'], raw_files: [{ path: 'raw/x', sha256: 'd'.repeat(64) }]
+  };
+  const history = {
+    ledger: recovery.buildLoadRecoveryLedgerR5(r5LedgerInput()), charges: [...R5_CHARGES],
+    terminalHalt: { slot_id: 'CR4-DESKTOP-SECOND', plan: '253-73', cause: 'runner_account_count_unqualified_schema', terminal: true, infrastructure: false, retryable: false, charged: true, charged_ms: 43535, preparation_ms: 821, stop_reason: 'synthetic', expired_identities: ['CR4-INFRA-RETRY'], retired_identities: ['CR4-MOBILE-SECOND', 'CR4-DARK-SECOND'] },
+    artifacts: [{ path: 'lineage/x.txt', sha256: sha('x\n') }], frozenBlobs: {},
+    control: { accepted: { toolchain: { mix: '1.19.5', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' } } }
+  };
+  const deps = {
+    enforceNode: false, assertCheckout: () => {}, assertConfig: () => {}, readHistory: () => history, carriedFirst: () => structuredClone(carried),
+    sourceFiles: () => ['src/a.txt', 'src/b.txt', R5_MIGRATION_FILE, ...R5_TOOLING], requiredSources: () => ['src/a.txt'], importClosure: () => ['src/a.txt', 'src/b.txt'],
+    runtimeIdentity: () => ({ packages: {}, transform_sha256: {} }),
+    r4Source: () => ({ checkout_head: '4fdbc82b4a988f34eed066c1687f854a049dd03d', blobs: structuredClone(r4Blobs) }),
+    r4Blob: (checkout, head, file) => blob(file),
+    accountSchema: () => ({ name: 'auth', sources: [{ path: R5_MIGRATION_FILE, blob: blob(R5_MIGRATION_FILE) }, { path: 'src/a.txt', blob: blob('src/a.txt') }] })
+  };
+  return { dir, history, carried, deps, r4Blobs, blob, out: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json'), budget: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('R5 freeze records the exact keys, caps and source delta, and init produces a ready ledger whose caps equal the R5 budget document', () => {
+  const r = r5FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR5(r.out, r.dir, r.deps);
+    assert.equal(freeze.schema_version, 'sigra.phase253.registration-load-recovery-freeze/v5');
+    assert.equal(freeze.revision, 'r5');
+    assert.equal(freeze.context_identity, 'per_row_union');
+    assert.equal(typeof freeze.account_count.schema, 'string');
+    assert.equal(freeze.account_count.schema, 'auth');
+    assert.equal(freeze.account_count.query, R5_FREEZE_SCHEMA_COUNT_QUERY);
+    assert.equal(freeze.account_count.query_sha256, sha(R5_FREEZE_SCHEMA_COUNT_QUERY));
+    assert.deepEqual(freeze.account_count.schema_sources.map((item) => item.path), [R5_MIGRATION_FILE, 'src/a.txt']);
+    assert.equal(freeze.carried_first_window.revision_sha256, R4_FIRST_SHA);
+    assert.deepEqual(freeze.carried_first_window, r.carried);
+    assert.deepEqual(freeze.source_delta_from_r4, { changed: R5_TOOLING.slice(0, 2), added: [R5_TOOLING[2], R5_MIGRATION_FILE], r4_checkout_head: '4fdbc82b4a988f34eed066c1687f854a049dd03d' });
+    for (const file of [R5_TOOLING[2], R5_MIGRATION_FILE]) assert.ok(freeze.source.blobs[file], `${file} is pinned`);
+    assert.deepEqual(freeze.historical.spent_reservations, R5_SPENT);
+    assert.deepEqual(freeze.historical.carried_components_ms, R5_CHARGES);
+    assert.deepEqual(freeze.ledger.caps.approve, R5_APPROVE_CAPS);
+    assert.deepEqual(freeze.ledger.caps['approve-without-retry'], R5_APPROVE_NO_RETRY_CAPS);
+    assert.deepEqual(freeze.ledger.slots.map((slot) => slot.id), [...R5_IDS, 'CR5-INFRA-RETRY']);
+    assert.equal(freeze.ledger.slots.slice(0, 3).reduce((sum, slot) => sum + slot.rows, 0), 6);
+    assert.equal(freeze.ledger.carried_rows, 16);
+    assert.equal(freeze.ledger.required_rows, 22);
+    assert.ok(freeze.stop_conditions.includes('account count query exits non-zero'));
+    assert.ok(freeze.stop_conditions.includes('carried first window binding fails re-verification'));
+    assert.throws(() => recovery.createLoadRecoveryFreezeR5(r.out, r.dir, r.deps), /overwrite/i);
+
+    assert.equal(recovery.validateLoadRecoveryFreezeR5(r.dir, JSON.parse(fs.readFileSync(r.out, 'utf8')), { deps: r.deps }), gitIn(r.dir, 'rev-parse', 'HEAD').trim());
+    const evidenceFile = path.join(r.dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json');
+    const evidence = recovery.initializeLoadRecoveryEvidenceR5(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R5_APPROVE });
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v5');
+    assert.equal(evidence.status, 'ready');
+    assert.equal(evidence.context_identity, 'per_row_union');
+    assert.deepEqual(evidence.carried_first_window, freeze.carried_first_window);
+    assert.equal(evidence.limits.charged_duration_ms, 2359703);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.deepEqual(evidence.limits.used_slots, R5_SPENT);
+    assert.equal(evidence.limits.max_d19_ms, R5_APPROVE_CAPS.d19_cap_ms);
+    assert.equal(evidence.limits.max_total_ms, R5_APPROVE_CAPS.shared_cap_ms);
+    assert.equal(evidence.limits.max_physical_playwright_cli_launches, R5_APPROVE_CAPS.physical_cli_max);
+    assert.equal(evidence.limits.max_d19_physical_playwright_cli_launches, R5_APPROVE_CAPS.d19_launch_max);
+    assert.deepEqual(evidence.limits.infra_retry, { granted: 1, used: 0 });
+    assert.deepEqual(evidence.attempts, []);
+    assert.equal(fs.existsSync(`${evidenceFile}.raw`), true);
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR5(r.out, evidenceFile, r.dir, { validate: () => {}, readApproval: () => R5_APPROVE }), /overwrite/i);
+    const noRetry = recovery.initializeLoadRecoveryEvidenceR5(r.out, path.join(r.dir, 'e2.json'), r.dir, { validate: () => {}, readApproval: () => R5_APPROVE_NO_RETRY });
+    assert.equal(noRetry.limits.max_total_ms, 5129703);
+    assert.equal(noRetry.limits.max_physical_playwright_cli_launches, 21);
+    assert.deepEqual(noRetry.limits.infra_retry, { granted: 0, used: 0 });
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR5(r.out, path.join(r.dir, 'e3.json'), r.dir, { validate: () => {}, readApproval: () => ({ decision: 'reject', retry_granted: 0 }) }), /grants no capacity/i);
+    assert.throws(() => recovery.initializeLoadRecoveryEvidenceR5(r.out, path.join(r.dir, 'e4.json'), r.dir, { validate: () => {} }), /approval/i, 'the committed approval reader is wired and finds no record');
+    assert.equal(fs.existsSync(path.join(r.dir, 'e4.json')), false);
+    const doc = fs.readFileSync(path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md'), 'utf8');
+    for (const caps of [R5_APPROVE_CAPS, R5_APPROVE_NO_RETRY_CAPS]) for (const value of [caps.d19_cap_ms, caps.shared_cap_ms]) assert.ok(doc.includes(String(value)), String(value));
+  } finally { r.clean(); }
+});
+
+test('R5 freeze creation refuses a non-tooling blob that differs from R4 and a migration that differs at the R4 checkout', () => {
+  const r = r5FreezeRepo();
+  try {
+    const drift = { ...r.deps, r4Source: () => ({ checkout_head: '4fdbc82b4a988f34eed066c1687f854a049dd03d', blobs: { ...r.r4Blobs, 'src/a.txt': '1'.repeat(40) } }) };
+    assert.throws(() => recovery.createLoadRecoveryFreezeR5(r.out, r.dir, drift), /differs from the R4 frozen blob/i);
+    const migration = { ...r.deps, r4Blob: () => '2'.repeat(40) };
+    assert.throws(() => recovery.createLoadRecoveryFreezeR5(r.out, r.dir, migration), /R4 checkout/i);
+    const tampered = { ...r.deps, carriedFirst: () => { throw new Error('carried first window binding fails re-verification'); } };
+    assert.throws(() => recovery.createLoadRecoveryFreezeR5(r.out, r.dir, tampered), /carried first window/i);
+    assert.equal(fs.existsSync(r.out), false);
+  } finally { r.clean(); }
+});
+
+test('R5 init refuses any spent, expired or retired identity before writing', () => {
+  const r = r5FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR5(r.out, r.dir, r.deps);
+    for (const id of ['CR4-DESKTOP-SECOND', 'CR4-INFRA-RETRY', 'CR4-MOBILE-SECOND']) {
+      const bad = structuredClone(freeze); bad.ledger.slots[0].id = id;
+      const file = path.join(r.dir, `bad-${id}.json`); fs.writeFileSync(file, JSON.stringify(bad));
+      const target = path.join(r.dir, `evidence-${id}.json`);
+      assert.throws(() => recovery.initializeLoadRecoveryEvidenceR5(file, target, r.dir, { validate: () => {}, readApproval: () => R5_APPROVE }), /spent|expired|retired/i, id);
+      assert.equal(fs.existsSync(target), false);
+    }
+  } finally { r.clean(); }
+});
+
+test('R5 freeze validation rejects a changed budget document, ledger, digest, context mode, account count, carried window, source blob or lineage record', () => {
+  const r = r5FreezeRepo();
+  try {
+    const freeze = recovery.createLoadRecoveryFreezeR5(r.out, r.dir, r.deps);
+    const check = (value, deps = r.deps) => recovery.validateLoadRecoveryFreezeR5(r.dir, value, { deps });
+    const redigest = (value) => { value.freeze_sha256 = sha(JSON.stringify(Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'freeze_sha256')))); return value; };
+    const variant = (mutate) => { const value = structuredClone(freeze); mutate(value); return redigest(value); };
+    assert.throws(() => check({ schema_version: 'x' }), /malformed|digest/i);
+    assert.throws(() => check({ ...structuredClone(freeze), schema_version: 'sigra.phase253.registration-load-recovery-freeze/v4' }), /malformed|digest/i);
+    assert.throws(() => check(variant((value) => { value.context_identity = 'legacy_flatten'; })), /malformed|digest/i);
+    assert.throws(() => check(variant((value) => { value.ledger.caps.approve.shared_cap_ms += 1; })), /ledger/i);
+    assert.throws(() => check(variant((value) => { value.historical.carried_components_ms[16] -= 1; })), /carried|historical|allocation|ledger/i);
+    assert.throws(() => check(variant((value) => { value.historical.artifacts[0].sha256 = 'f'.repeat(64); })), /preserved R5 history|history changed/i);
+    assert.throws(() => check(variant((value) => { value.source.blobs['src/a.txt'] = '0'.repeat(40); })), /identity mismatch/i);
+    assert.throws(() => check(variant((value) => { delete value.source.blobs['src/a.txt']; })), /omits required source|identity/i);
+    assert.throws(() => check(variant((value) => { delete value.source.blobs['src/b.txt']; })), /omits actual imported runtime source/i);
+    assert.throws(() => check(variant((value) => { value.ledger.slots[0].argv.push('--grep=x'); })), /ledger|grep/i);
+    assert.throws(() => check(variant((value) => { value.account_count.schema = 'public'; })), /account count/i);
+    assert.throws(() => check(variant((value) => { value.account_count.schema = { name: 'auth' }; })), /account count/i);
+    assert.throws(() => check(variant((value) => { value.account_count.query = 'SELECT count(*) FROM users;\n'; })), /account count/i);
+    assert.throws(() => check(variant((value) => { value.account_count.schema_sources[0].blob = '3'.repeat(40); })), /account count|schema source/i);
+    assert.throws(() => check(variant((value) => { value.carried_first_window.revision_sha256 = 'e'.repeat(64); })), /carried first window/i);
+    assert.throws(() => check(variant((value) => { value.carried_first_window.rows = 15; })), /carried first window/i);
+    assert.throws(() => check(variant((value) => { value.source_delta_from_r4.r4_checkout_head = '5'.repeat(40); })), /source delta|R4 checkout/i);
+    assert.throws(() => check(variant((value) => { value.source.blobs['src/a.txt'] = r.blob('src/b.txt'); })), /identity mismatch|differs from the R4 frozen blob/i);
+    assert.throws(() => check(freeze, { ...r.deps, carriedFirst: () => ({ ...r.carried, attempt_sha256: 'a'.repeat(64) }) }), /carried first window/i, 're-verification differs in non-terminal mode');
+    const unreachable = () => { throw new Error('must not be consulted in terminal mode'); };
+    assert.equal(recovery.validateLoadRecoveryFreezeR5(r.dir, freeze, { terminal: true, deps: { ...r.deps, carriedFirst: unreachable, readHistory: unreachable } }), gitIn(r.dir, 'rev-parse', 'HEAD').trim());
+    fs.appendFileSync(r.budget, 'edited\n');
+    assert.throws(() => check(freeze), /budget document differs/i);
+  } finally { r.clean(); }
+});
+
+test('R5 freeze blobs pin the R4 source list plus the real-Postgres test and the auth-tables migration', () => {
+  const extras = recovery.LOAD_R5_EXTRA_SOURCES;
+  assert.deepEqual(extras, [...recovery.LOAD_R4_EXTRA_SOURCES, 'scripts/ci/ci-registration-recovery.pg.test.mjs', R5_MIGRATION_FILE]);
+  for (const file of extras) assert.equal(fs.existsSync(path.join(root, file)), true, file);
+  const list = recovery.loadR5SourceFileList(root);
+  for (const file of [...recovery.loadR4SourceFileList(root), ...extras]) assert.ok(list.includes(file), file);
+});
+
+test('R5 paths route to their own revision and every other revision refuses them', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const crash = /TypeError|ReferenceError|SyntaxError|is not a function|Cannot read properties|ERR_MODULE_NOT_FOUND/;
+  const run = (...args) => spawnSync(process.execPath, [script, ...args], { encoding: 'utf8', cwd: root });
+  const r5Freeze = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json');
+  const r5Evidence = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json');
+  const r4Freeze = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json');
+  const r4Evidence = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json');
+  const result = (label, outcome, status, pattern) => {
+    assert.equal(outcome.status, status, `${label}: ${outcome.stdout}${outcome.stderr}`);
+    assert.match(outcome.stderr, pattern, label);
+    assert.doesNotMatch(outcome.stderr, crash, label);
+  };
+  result('R5 freeze check', run('--check-load-recovery-freeze', r5Freeze), 3, /R5 native load recovery freeze rejected:/);
+  result('R4 freeze check', run('--check-load-recovery-freeze', r4Freeze), 3, /R4 native load recovery freeze rejected:/);
+  result('R5 verify', run('--verify-load-recovery', r5Evidence, '--stage', 'first'), 3, /R5 native load recovery evidence rejected:/);
+  result('R4 verify', run('--verify-load-recovery', r4Evidence, '--stage', 'first'), 3, /R4 native load recovery evidence rejected:/);
+  const elsewhere = path.join(os.tmpdir(), 'not-a-reviewed-freeze.json');
+  const other = run('--check-load-recovery-freeze', elsewhere);
+  assert.equal(other.status, 3);
+  assert.doesNotMatch(other.stderr, /R5 native load recovery/);
+  // The R5 evidence path is refused by the other revisions' file verifiers.
+  assert.equal(recovery.verifyLoadRecoveryFileR4(r5Evidence, 'first', root).ok, false);
+  assert.equal(recovery.verifyLoadRecoveryFileR5(r4Evidence, 'first', root).ok, false);
+  const create = run('--create-load-recovery-r5', '--output', path.join(os.tmpdir(), 'elsewhere-r5-freeze.json'));
+  assert.equal(create.status === 0, false, 'freeze creation accepts only the reviewed R5 path');
+  assert.match(create.stderr, /reviewed phase artifact path/);
+  assert.equal(fs.existsSync(path.join(os.tmpdir(), 'elsewhere-r5-freeze.json')), false);
+});
+
+// ---- Phase 253 plan 80: R5 second-window run path, verifier, approval gates and terminal evidence (synthetic; every seam injected) ----
+const R5_RUN_IDS = ['CR5-DESKTOP-SECOND', 'CR5-MOBILE-SECOND', 'CR5-DARK-SECOND'];
+const R5_COUNT_ERROR = 'ERROR:  relation "auth.users" does not exist';
+
+// A synthetic checkout, freeze and ready R5 ledger. The psql seam is one fake that answers both the absence and the count query.
+function loadHarnessR5() {
+  const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-load-r5-')));
+  const checkout = path.join(base, 'checkout');
+  const pwPackage = path.join(checkout, 'test/example/priv/playwright/node_modules/@playwright/test/package.json');
+  fs.mkdirSync(path.dirname(pwPackage), { recursive: true });
+  fs.writeFileSync(pwPackage, JSON.stringify({ version: '1.59.1' }));
+  for (const [rel, text] of [[R5_MIGRATION, '  @auth_prefix "auth"\n'], [R5_USER, '  @schema_prefix "auth"\n']]) {
+    fs.mkdirSync(path.dirname(path.join(checkout, rel)), { recursive: true });
+    fs.writeFileSync(path.join(checkout, rel), text);
+  }
+  const schema = recovery.accountSchemaSourcesR5(checkout);
+  const query = recovery.accountCountQueryR5(schema.name);
+  const ledger = recovery.buildLoadRecoveryLedgerR5(r5LedgerInput());
+  const allSlots = [...ledger.slots.slice(0, 3)];
+  const terminalHalt = { slot_id: 'CR4-DESKTOP-SECOND', plan: '253-73', cause: 'runner_account_count_unqualified_schema', terminal: true, infrastructure: false, retryable: false, charged_ms: 43535 };
+  const carriedIds = Array.from({ length: 16 }, (_, index) => `cr4-desktop-mobile-first-${'0'.repeat(8)}:${String(index).padStart(8, '0')}-0000-4000-8000-000000000000`);
+  const carried = {
+    revision_commit: '0596dd97a77acafc7dff68b48cba437f3c7e5183', revision_sha256: 'f'.repeat(64), evidence_path: `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json`,
+    evidence_sha256: 'e'.repeat(64), attempt_sha256: 'd'.repeat(64), r4_freeze_sha256: 'c'.repeat(64), r4_checkout_head: '4fdbc82b4a988f34eed066c1687f854a049dd03d',
+    rows: 16, collision_receipts: Object.assign({}, ...allSlots.map((slot) => slot.collision_account_sha256)), database: 'sigra_253_control_load_cr4_desktop_mobile_first_abc_1',
+    context_ids: carriedIds, raw_files: []
+  };
+  const freeze = {
+    schema_version: 'sigra.phase253.registration-load-recovery-freeze/v5', status: 'frozen_before_results', plan: '253-82', revision: 'r5', context_identity: 'per_row_union',
+    source: { repository: 'synthetic', checkout_head: 'a'.repeat(40), blobs: { 'scripts/x': 'b'.repeat(40) } },
+    tools: { playwright: '1.59.1', ecto_sql: '3.13.5', phoenix_live_view: '1.1.28' },
+    selection: { spec: 'tests/admin-eval.spec.ts' },
+    historical: { terminal_halt: terminalHalt, spent_reservations: [...R5_SPENT] },
+    carried_first_window: carried, account_count: { schema: schema.name, schema_sources: schema.sources, query, query_sha256: sha(query) },
+    ledger
+  };
+  freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const freezeFile = path.join(base, 'freeze-r5.json'); const evidenceFile = path.join(base, 'evidence-r5.json');
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze, null, 2)}\n`);
+  const writeEvidence = (approval = R5_APPROVE) => {
+    const evidence = {
+      schema_version: 'sigra.phase253.registration-load-recovery-evidence/v5', revision: 'r5', status: 'ready', context_identity: 'per_row_union', freeze_path: 'freeze-r5.json',
+      freeze_sha256: sha(fs.readFileSync(freezeFile)), source: structuredClone(freeze.source), carried_first_window: structuredClone(carried), account_count: structuredClone(freeze.account_count),
+      attempts: [], preparation: null, reservation: null, preserved_revisions: [],
+      prior_terminal_halts: [structuredClone(terminalHalt)], infrastructure_halts: [], infrastructure_retry: null,
+      approval: { decision: approval.decision, retry_granted: approval.retry_granted },
+      limits: {
+        prior_charge_ms: 2359703, preparation_charge_ms: 0, preparation_remaining_ms: 10000, charged_duration_ms: 2359703,
+        physical_playwright_cli_launches: 9, used_slots: [...R5_SPENT], max_d19_ms: approval.caps.d19_cap_ms, max_total_ms: approval.caps.shared_cap_ms,
+        max_d19_physical_playwright_cli_launches: approval.caps.d19_launch_max, max_physical_playwright_cli_launches: approval.caps.physical_cli_max,
+        retry_used: 1, retry_available: 0, infra_retry: { granted: approval.retry_granted, used: 0 }
+      }
+    };
+    fs.writeFileSync(evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    fs.mkdirSync(`${evidenceFile}.raw`, { recursive: true });
+  };
+  writeEvidence();
+  const calls = []; const timeouts = []; const envs = []; const psqlInputs = [];
+  const zip = path.join(base, 'trace.zip'); fs.writeFileSync(zip, 'z'.repeat(64));
+  const markerFor = (title) => ({ 'registration stops when LiveView readiness is never released': 'phx-connected', 'registration fails when the readiness wait is deliberately broken': 'data-sigra-never-connected', 'registration retains the first forced assertion failure trace': 'toHaveURL' }[title]);
+  const reportFor = (slot, runId, { failRow = false, reuseContext = null } = {}) => ({
+    config: {}, errors: [],
+    suites: [{
+      title: 'admin-eval.spec.ts', file: 'admin-eval.spec.ts', specs: [], suites: [{
+        title: 'x', file: 'admin-eval.spec.ts',
+        specs: recovery.loadRequiredPairs(slot).map((pair, index) => {
+          const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+          const annotations = [];
+          if (pair.title !== 'render bundle: board-mg-9/populated') annotations.push({ type: 'sigra-registration-control-context', description: reuseContext && index === 0 ? reuseContext : `${runId}:${crypto.randomUUID()}` });
+          if (pair.title === 'registration detects a deliberate same-account collision') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ collision_email_sha256: slot.collision_account_sha256[pair.project], first_registration_succeeded: true, duplicate_response_confirmed: true }) });
+          if (pair.title === 'registration starts from a fresh database and context') annotations.push({ type: 'sigra-registration-control-result', description: JSON.stringify({ prior_collision_account_email_sha256: slot.collision_account_sha256[pair.project], fresh_database_account_created: true }) });
+          const failed = expected === 'expected_failure'; const broken = failRow && index === 0 && !failed;
+          return {
+            title: pair.title, file: 'admin-eval.spec.ts', ok: !failed && !broken,
+            tests: [{ projectName: pair.project, expectedStatus: 'passed', status: failed || broken ? 'unexpected' : 'expected', annotations,
+              results: [{ status: failed || broken ? 'failed' : 'passed', duration: 10, workerIndex: index, error: failed ? { message: `expect ${markerFor(pair.title)} failed` } : broken ? { message: 'unexpected assertion failure' } : undefined, attachments: failed ? [{ name: 'trace', path: zip }] : [], annotations: structuredClone(annotations) }] }]
+          };
+        })
+      }]
+    }]
+  });
+  const jsonlFor = (slot, { failRow = false, count = Infinity } = {}) => recovery.loadRequiredPairs(slot).slice(0, count).map((pair, index) => {
+    const expected = slot.project_selections.find((item) => item.project === pair.project).expected[pair.title];
+    const failed = expected === 'expected_failure'; const broken = failRow && index === 0 && !failed;
+    const message = failed ? `Error: expect ${markerFor(pair.title)} failed\n  at spec` : broken ? 'Error: unexpected assertion failure\n  at spec' : null;
+    return JSON.stringify({
+      schema: 'sigra.phase253.playwright-test-end/v1', project: pair.project, title: pair.title, file: 'admin-eval.spec.ts', line: 10 + index,
+      status: failed || broken ? 'failed' : 'passed', expected_status: 'passed', ok: !broken, duration_ms: 10 + index, retry: 0,
+      errors: message ? [{ message, location: { file: 'admin-eval.spec.ts', line: 10 + index, column: 1 } }] : []
+    });
+  });
+  const awakeFor = () => ({ held: true, platform: 'darwin', argv: ['/usr/bin/caffeinate', '-i', '-s', '-m', '-w', String(process.pid)], pid: 4321, release: () => calls.push(['release-awake']) });
+  const makeDeps = ({ cliExit = null, postLine = true, accountCounts = [0, 1], absenceCounts = [0], accountFail = null, validate = () => {}, approval = R5_APPROVE,
+    suspendBrowser = false, suspendFlag = false, failRow = false, probeHost = null, holderAlive = () => true, diagnosticFile = null, checkDiagnostic = null,
+    setupMs = 5, setupWallExtra = 0, bootMs = 2, cliMs = 5, setupExit = 0, setupTimedOut = false, setupSuspended = false, setupError = null,
+    cliTimedOut = false, killedRows = 2, noJsonl = false, jsonlCount = Infinity, reuseContext = null, onSetup = null, wire = true } = {}) => {
+    let accountIndex = 0; let absenceIndex = 0;
+    const psqlRun = (program, args, options) => {
+      calls.push(['psql']); psqlInputs.push(String(options?.input ?? ''));
+      if (String(options?.input).includes('pg_database')) return { status: 0, stdout: `${absenceCounts[Math.min(absenceIndex++, absenceCounts.length - 1)]}\n`, stderr: '' };
+      if (accountFail) return { status: 3, stdout: '', stderr: `${accountFail}\nLINE 1: SELECT count(*) FROM "auth".users WHERE email = '${args.find((arg) => arg.startsWith('target='))?.slice(7)}'\n` };
+      return { status: 0, stdout: `${accountCounts[Math.min(accountIndex++, accountCounts.length - 1)]}\n`, stderr: '' };
+    };
+    let monoOffset = 0n; let wallOffset = 0;
+    const advance = (ms) => { monoOffset += BigInt(Math.round(ms * 1e6)); wallOffset += ms; };
+    return {
+      validate, enforcePaths: false, enforceNode: false, skipPreservation: true, diagnosticFile, ...(wire ? { psqlRun } : {}),
+      monotonicNs: () => process.hrtime.bigint() + monoOffset, wallMs: () => Date.now() + wallOffset,
+      readApproval: () => approval, holderAlive,
+      checkDiagnostic: checkDiagnostic ?? ((_root, file) => { if (!file) throw new Error('infrastructure retry requires a committed diagnostic'); return { file, sha256: 'd'.repeat(64) }; }),
+      probeHost: probeHost ?? (async () => { calls.push(['probe-host']); return { awake: awakeFor(), host_awake: { holder_pid: 4321, ac_power: true, assertions_sha256: 'e'.repeat(64), checked_at: '2026-10-14T08:00:00.000Z' } }; }),
+      portAvailable: async () => true, waitReady: async () => { advance(bootMs); return 200; }, stopApp: async () => {},
+      spawnApp: (program, args, options) => { calls.push(['app', program, ...args]); if (postLine) fs.writeSync(options.stdio[1], 'POST /users/log_in\n'); return { pid: 4242, exitCode: null, signalCode: null }; },
+      runTree: async (program, args, cwd, env, log, timeoutMs) => {
+        calls.push(['tree', program, ...args]); timeouts.push([path.basename(program), args[0], timeoutMs]);
+        fs.writeFileSync(log, `${path.basename(program)} ${args[0]} ok\n`);
+        if (program.endsWith('/playwright')) {
+          envs.push(env);
+          const given = args.slice(2, -1);
+          const slot = allSlots.find((item) => JSON.stringify(item.argv) === JSON.stringify(given));
+          assert.equal(env.SIGRA_REGISTRATION_CONTROL_STAGE, slot.control_stage);
+          assert.equal(args.filter((arg) => /^(-g|--grep)/.test(arg)).length, 0);
+          if (!noJsonl) fs.writeFileSync(env.SIGRA_PLAYWRIGHT_FAILURE_JSONL, `${jsonlFor(slot, { failRow, count: cliTimedOut || suspendBrowser ? killedRows : jsonlCount }).join('\n')}\n`);
+          const outputDir = args.find((arg) => arg.startsWith('--output=')).slice('--output='.length);
+          fs.mkdirSync(path.join(outputDir, 'case-one'), { recursive: true });
+          fs.writeFileSync(path.join(outputDir, 'case-one', 'error-context.md'), '# Page snapshot\n- heading "Register"\n');
+          advance(cliMs);
+          if (suspendBrowser) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: true, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: ['SIGTERM'], descendants_reaped: true };
+          if (cliTimedOut) return { pid: 777, exit_code: null, signal: 'SIGTERM', error: null, timed_out: true, suspended: false, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: ['SIGTERM'], descendants_reaped: true };
+          fs.writeFileSync(env.SIGRA_PLAYWRIGHT_JSON, JSON.stringify(reportFor(slot, env.SIGRA_CONTROL_RUN_ID, { failRow, reuseContext })));
+          return { pid: 777, exit_code: cliExit ?? slot.expected_cli_exit, signal: null, error: null, timed_out: false, suspended: suspendFlag, duration_ms: cliMs, wall_duration_ms: cliMs, group_signals: [], descendants_reaped: true };
+        }
+        if (program === 'mix' && args[0] === 'ecto.setup') {
+          if (onSetup) onSetup();
+          advance(setupMs); wallOffset += setupWallExtra;
+          return { pid: 1, exit_code: setupError ? null : setupExit, signal: null, error: setupError, timed_out: setupTimedOut, suspended: setupSuspended, duration_ms: setupMs, wall_duration_ms: setupMs, group_signals: [], descendants_reaped: true };
+        }
+        advance(1);
+        return { pid: 1, exit_code: 0, signal: null, error: null, timed_out: false, duration_ms: 1, group_signals: [], descendants_reaped: true };
+      },
+      sanitizeTrace: (source, destination) => { fs.copyFileSync(source, destination, fs.constants.COPYFILE_EXCL); return { entries: 3, navigation: true, submission: true }; }
+    };
+  };
+  return { base, checkout, freeze, freezeFile, evidenceFile, calls, timeouts, envs, psqlInputs, makeDeps, writeEvidence, read: () => JSON.parse(fs.readFileSync(evidenceFile, 'utf8')), clean: () => fs.rmSync(base, { recursive: true, force: true }) };
+}
+
+const r5Verify = (h, evidence, stage = 'progress', carried = h.freeze.carried_first_window) => recovery.verifyLoadRecoveryEvidenceDataR5(evidence, h.freeze, `${h.evidenceFile}.raw`, stage, sha(fs.readFileSync(h.freezeFile)), { carried });
+
+test('R5 run defaults are the schema-qualified captures, never the legacy unqualified ones (the 253-73 regression)', () => {
+  const defaults = recovery.loadR5RunDefaults;
+  assert.equal(defaults.captureAccount, recovery.captureOwnedAccountCountR5);
+  assert.equal(defaults.captureAbsence, recovery.captureOwnedDatabaseAbsenceR5);
+  assert.notEqual(defaults.captureAccount, recovery.captureOwnedAccountCount);
+  assert.notEqual(defaults.captureAbsence, recovery.captureOwnedDatabaseAbsence);
+  assert.equal(defaults.readApproval, recovery.readCommittedApprovalR5);
+  assert.equal(defaults.validate, recovery.validateLoadRecoveryFreezeR5);
+});
+
+test('a synthetic CR5-DESKTOP-SECOND runs with the default captures, predebits, charges setup plus command and verifies at --stage progress', async () => {
+  const h = loadHarnessR5();
+  try {
+    let predebit = null;
+    const deps = h.makeDeps({ setupMs: 30000, bootMs: 2000, cliMs: 40000, onSetup: () => { predebit = h.read(); } });
+    const result = await recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, deps);
+    assert.equal(result.rows, 2);
+    assert.equal(predebit.status, 'running');
+    assert.equal(predebit.reservation.reserved_ms, 135000);
+    assert.ok(predebit.limits.used_slots.includes('CR5-DESKTOP-SECOND'), 'the slot is consumed before any setup work');
+    const setupCall = h.timeouts.find((t) => t[1] === 'ecto.setup'); const cliCall = h.timeouts.find((t) => t[0] === 'playwright');
+    assert.ok(setupCall[2] <= 60000 && setupCall[2] > 59900, `setup is bounded by its own 60000 ms: ${setupCall[2]}`);
+    assert.ok(cliCall[2] <= 58000 && cliCall[2] > 57800, `setup did not shrink the 60000 ms work window: ${cliCall[2]}`);
+    const evidence = h.read(); const attempt = evidence.attempts[0];
+    assert.equal(evidence.schema_version, 'sigra.phase253.registration-load-recovery-evidence/v5');
+    assert.equal(evidence.status, 'second_partial');
+    assert.equal(attempt.slot_id, 'CR5-DESKTOP-SECOND');
+    assert.deepEqual(attempt.stage_deadlines, { setup_ms: 60000, command_ms: 75000, work_ms: 60000, cleanup_ms: 15000, cleanup_reserved: true });
+    assert.equal(attempt.charged_duration_ms, attempt.setup_charge_ms + attempt.command_charge_ms);
+    assert.ok(attempt.setup_charge_ms >= 30000 && attempt.setup_charge_ms < 30100);
+    assert.equal(evidence.limits.charged_duration_ms, 2359703 + attempt.charged_duration_ms);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 10);
+    assert.deepEqual(evidence.limits.used_slots, [...R5_SPENT, 'CR5-DESKTOP-SECOND']);
+    for (const name of ['prior_collision_absence', 'created_account']) {
+      const receipt = attempt[name];
+      assert.equal(receipt.schema_version, 'sigra.phase253.owned-account-count/v2', name);
+      assert.equal(receipt.query, h.freeze.account_count.query, name);
+      assert.equal(receipt.schema_binding.name, 'auth', name);
+      assert.ok(attempt.files[name] && attempt.files[`${name}_stderr`], `${name}: stdout and stderr logs are copied into raw`);
+      assert.equal(sha(fs.readFileSync(path.join(`${h.evidenceFile}.raw`, attempt.files[`${name}_stderr`].path))), receipt.stderr_sha256, name);
+    }
+    assert.equal(attempt.prior_collision_absence.count, 0);
+    assert.equal(attempt.created_account.count, 1);
+    assert.ok(attempt.files.database_absence_stderr, 'the absence query stderr sidecar is preserved too');
+    assert.ok(attempt.diagnostics.jsonl && attempt.per_test_rows.length === 2, 'diagnostics are preserved before the temp tree is removed');
+    assert.equal(h.psqlInputs.filter((input) => input.includes('"auth".users')).length, 2);
+    assert.equal(h.psqlInputs.some((input) => /FROM users/.test(input)), false, 'the legacy unqualified query is never sent');
+    assert.deepEqual(r5Verify(h, evidence).errors, []);
+    assert.equal(r5Verify(h, evidence, 'complete').ok, false, 'one new row set is not the complete proof');
+  } finally { h.clean(); }
+});
+
+test('a failed count query halts as a non-infrastructure attempt that names the psql error, keeps its stderr sidecar and opens no retry', async () => {
+  const h = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps({ accountFail: R5_COUNT_ERROR })), /relation "auth\.users" does not exist/);
+    const evidence = h.read(); const attempt = evidence.attempts[0];
+    assert.equal(evidence.status, 'halted');
+    assert.equal(attempt.observed_outcome, 'halted');
+    assert.equal(attempt.playwright_cli.launched, false);
+    assert.equal(h.calls.some((call) => call[0] === 'tree' && call[1].endsWith('/playwright')), false, 'no CLI launch');
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9, 'launches unchanged');
+    assert.ok(evidence.limits.charged_duration_ms > 2359703, 'the attempt stays charged');
+    assert.match(evidence.stop_reason, /relation "auth\.users" does not exist/);
+    assert.match(evidence.stop_record.account_count_failure.stderr_first_line, /relation "auth\.users" does not exist/);
+    assert.equal(evidence.stop_record.account_count_failure.phase, 'prior_collision_absence');
+    assert.equal(evidence.infrastructure_retry, null);
+    assert.deepEqual(evidence.infrastructure_halts, []);
+    const sidecar = fs.readFileSync(path.join(`${h.evidenceFile}.raw`, attempt.files.prior_collision_absence_stderr.path), 'utf8');
+    assert.match(sidecar, /relation "auth\.users" does not exist/);
+    assert.equal(/platform-admin\+sigra-253-control/.test(sidecar), false, 'the sidecar is redacted');
+    assert.match(sidecar, /<redacted-account>/);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'x' })), /halted_infrastructure|retry|terminal|halted/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-MOBILE-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i);
+  } finally { h.clean(); }
+});
+
+test('R5 preparation is a bounded 10000 ms toolchain probe routed by the R5 evidence only', async () => {
+  const h = loadHarnessR5();
+  try {
+    const run = async () => recovery.prepareLoadRecoveryR5(h.freezeFile, h.evidenceFile, h.checkout, { validate: () => {}, readApproval: () => R5_APPROVE, skipPreservation: true,
+      runTree: async (program, args, cwd, env, log, timeoutMs) => { h.timeouts.push([program, args[0], timeoutMs]); fs.writeFileSync(log, `${program} ${args[0]}\n`); return { exit_code: 0, duration_ms: 2, timed_out: false }; } });
+    assert.equal((await run()).status, 'ready');
+    const evidence = h.read();
+    assert.equal(evidence.preparation.receipts.length, 2);
+    assert.ok(h.timeouts.every((entry) => entry[2] <= 10000 && entry[2] > 9000));
+    assert.equal(evidence.limits.charged_duration_ms, 2359703 + evidence.preparation.duration_ms);
+    await assert.rejects(run, /only available once/i);
+    const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+    const r4Evidence = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json');
+    const r5Freeze = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json');
+    const routed = spawnSync(process.execPath, [script, '--prepare-load-recovery', '--freeze', r5Freeze, '--output', r4Evidence], { encoding: 'utf8', cwd: root });
+    assert.equal(routed.status, 3);
+    assert.match(routed.stderr, /reviewed R5 artifact path/);
+    assert.doesNotMatch(routed.stderr, /until plan 253-80/);
+    const refused = await recovery.prepareLoadRecoveryR5(h.freezeFile, h.evidenceFile, h.checkout, { validate: () => {}, readApproval: () => R4_APPROVE }).catch((error) => error);
+    assert.ok(refused instanceof Error);
+  } finally { h.clean(); }
+  const failing = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.prepareLoadRecoveryR5(failing.freezeFile, failing.evidenceFile, failing.checkout, { validate: () => {}, readApproval: () => R5_APPROVE, skipPreservation: true,
+      runTree: async (program, args, cwd, env, log) => { fs.writeFileSync(log, 'x'); return { exit_code: 1, duration_ms: 1, timed_out: false }; } }), /failed/i);
+    assert.equal(failing.read().status, 'halted');
+  } finally { failing.clean(); }
+});
+
+test('R5 progress verification accepts 0 to 2 outcomes with a valid carried binding and refuses more or a tampered binding', async () => {
+  const h = loadHarnessR5();
+  try {
+    assert.deepEqual(r5Verify(h, h.read()).errors, [], 'zero outcomes is a valid progress state');
+    await recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps());
+    await recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-MOBILE-SECOND', h.evidenceFile, h.checkout, h.makeDeps());
+    const two = h.read();
+    assert.equal(two.status, 'second_partial');
+    assert.deepEqual(r5Verify(h, two).errors, []);
+    const three = structuredClone(two); three.attempts.push(structuredClone(two.attempts[0])); three.attempts[2].slot_id = 'CR5-DARK-SECOND';
+    assert.equal(r5Verify(h, three).ok, false, 'three outcomes are not progress');
+    const forged = structuredClone(h.freeze.carried_first_window); forged.attempt_sha256 = '0'.repeat(64);
+    assert.match(r5Verify(h, two, 'progress', forged).errors.join('\n'), /carried first window/i);
+    const reordered = structuredClone(two); reordered.attempts.reverse();
+    assert.match(r5Verify(h, reordered).errors.join('\n'), /exact unused reservation order/i);
+  } finally { h.clean(); }
+});
+
+// ---- Phase 253 plan 80 task 2: the 22-row proof across the carried and new rows ----
+async function runAllR5(h, options = {}) {
+  for (const id of R5_RUN_IDS) await recovery.runLoadRecoverySlotR5(h.freezeFile, id, h.evidenceFile, h.checkout, h.makeDeps(typeof options === 'function' ? options(id) : options));
+  return h.read();
+}
+
+// Re-seals a freeze after a binding edit so only the cross-window rule under test can fail.
+function r5Resealed(h, evidence, mutate) {
+  const freeze = structuredClone(h.freeze); mutate(freeze); delete freeze.freeze_sha256; freeze.freeze_sha256 = sha(JSON.stringify(freeze));
+  const resealed = structuredClone(evidence); resealed.carried_first_window = structuredClone(freeze.carried_first_window);
+  const file = path.join(h.base, 'resealed-freeze.json'); fs.writeFileSync(file, `${JSON.stringify(freeze)}\n`); resealed.freeze_sha256 = sha(fs.readFileSync(file));
+  return recovery.verifyLoadRecoveryEvidenceDataR5(resealed, freeze, `${h.evidenceFile}.raw`, 'complete', resealed.freeze_sha256, { carried: freeze.carried_first_window });
+}
+
+test('R5 runs all three second windows once in order and verifies 6 new plus 16 carried rows = 22', async () => {
+  const h = loadHarnessR5();
+  try {
+    const evidence = await runAllR5(h);
+    assert.equal(evidence.status, 'complete');
+    assert.equal(evidence.attempts.reduce((sum, item) => sum + item.lifecycle.rows, 0), 6);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 12);
+    assert.deepEqual(evidence.limits.used_slots, [...R5_SPENT, ...R5_RUN_IDS]);
+    assert.deepEqual(r5Verify(h, evidence, 'complete').errors, []);
+    assert.equal(r5Verify(h, evidence, 'progress').ok, false, 'three outcomes are not progress');
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|consumed|already|order/i);
+  } finally { h.clean(); }
+});
+
+test('the R5 complete stage refuses a context id carried from the first window, a repeated database and a mismatched fresh-state digest', async () => {
+  const carriedId = (() => { const h = loadHarnessR5(); try { return h.freeze.carried_first_window.context_ids[3]; } finally { h.clean(); } })();
+  const reused = loadHarnessR5();
+  try {
+    const evidence = await runAllR5(reused, (id) => (id === 'CR5-MOBILE-SECOND' ? { reuseContext: carriedId } : {}));
+    assert.match(r5Verify(reused, evidence, 'complete').errors.join('\n'), /carried from the first window/i);
+  } finally { reused.clean(); }
+
+  const h = loadHarnessR5();
+  try {
+    const evidence = await runAllR5(h);
+    const dbCarried = structuredClone(evidence); dbCarried.attempts[1].database.name = h.freeze.carried_first_window.database;
+    assert.match(r5Verify(h, dbCarried, 'complete').errors.join('\n'), /carried first window database/i);
+    const dbRepeat = structuredClone(evidence); dbRepeat.attempts[2].database.name = dbRepeat.attempts[0].database.name;
+    assert.match(r5Verify(h, dbRepeat, 'complete').errors.join('\n'), /same physical database/i);
+    const project = evidence.attempts[0].project;
+    assert.match(r5Resealed(h, evidence, (freeze) => { freeze.carried_first_window.collision_receipts[project] = '9'.repeat(64); }).errors.join('\n'), /fresh database does not prove the prior collision account absent/i);
+    assert.match(r5Resealed(h, evidence, (freeze) => { delete freeze.carried_first_window.collision_receipts[project]; }).errors.join('\n'), /fresh database does not prove the prior collision account absent/i);
+  } finally { h.clean(); }
+});
+
+test('the R5 complete stage refuses a tampered carried binding, a wrong row total and every drift of order, counters, caps and identities', async () => {
+  const h = loadHarnessR5();
+  try {
+    const evidence = await runAllR5(h);
+    for (const field of ['revision_sha256', 'revision_commit', 'attempt_sha256', 'evidence_sha256', 'r4_freeze_sha256']) {
+      const forged = structuredClone(h.freeze.carried_first_window); forged[field] = field === 'revision_commit' ? '1'.repeat(40) : '0'.repeat(64);
+      assert.match(r5Verify(h, evidence, 'complete', forged).errors.join('\n'), /carried first window binding fails re-verification/i, field);
+    }
+    const rawForged = structuredClone(h.freeze.carried_first_window); rawForged.raw_files = [{ path: 'x', sha256: '0'.repeat(64) }];
+    assert.match(r5Verify(h, evidence, 'complete', rawForged).errors.join('\n'), /fails re-verification/i);
+    assert.match(r5Verify(h, evidence, 'complete', null).errors.join('\n'), /fails re-verification/i, 'no live re-verification means no acceptance');
+    const rows = structuredClone(evidence); rows.attempts[2].lifecycle.rows = 1;
+    assert.match(r5Verify(h, rows, 'complete').errors.join('\n'), /requires 22/);
+    const mutations = [
+      [(e) => { e.attempts.reverse(); }, /exact unused reservation order/i],
+      [(e) => { e.limits.charged_duration_ms = 0; e.limits.prior_charge_ms = 0; }, /carried historical charge|cumulative charge/i],
+      [(e) => { e.limits.max_d19_ms += 1; }, /ceiling changed/i],
+      [(e) => { e.limits.retry_available = 1; }, /retry/i],
+      [(e) => { e.attempts.push(structuredClone(e.attempts[0])); e.attempts[3].slot_id = 'CR5-FOURTH'; }, /exactly 3|order|used reservation/i],
+      [(e) => { e.attempts[0].slot_id = 'CR4-DESKTOP-SECOND'; }, /earlier revision|spent/i],
+      [(e) => { e.attempts[0].slot_id = 'CR3-DESKTOP-SECOND'; }, /earlier revision|spent/i],
+      [(e) => { e.attempts[0].slot_id = 'CR-DARK-FIRST'; }, /earlier revision|spent/i],
+      [(e) => { e.status = 'second_partial'; }, /status/i]
+    ];
+    for (const [mutate, pattern] of mutations) {
+      const mutated = structuredClone(evidence); mutate(mutated);
+      assert.match(r5Verify(h, mutated, 'complete').errors.join('\n'), pattern);
+    }
+  } finally { h.clean(); }
+});
+
+test('the R5 file verifier re-verifies the carried window on every call and judges progress and complete evidence by git objects', async () => {
+  const h = loadHarnessR5();
+  const seen = [];
+  try {
+    const evidence = await runAllR5(h);
+    fs.mkdirSync(path.join(h.checkout, PHASE_REL), { recursive: true });
+    const evidenceFile = path.join(h.checkout, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json');
+    const freezeFile = path.join(h.checkout, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json');
+    fs.copyFileSync(h.freezeFile, freezeFile); fs.cpSync(`${h.evidenceFile}.raw`, `${evidenceFile}.raw`, { recursive: true });
+    const onDisk = { ...evidence, freeze_path: `${PHASE_REL}/253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json` };
+    fs.writeFileSync(evidenceFile, `${JSON.stringify(onDisk, null, 2)}\n`);
+    const deps = { validate: (_root, _freeze, options) => { seen.push(options); }, carriedFirst: () => structuredClone(h.freeze.carried_first_window) };
+    const result = recovery.verifyLoadRecoveryFileR5(evidenceFile, 'complete', h.checkout, deps);
+    assert.deepEqual(seen, [{ terminal: true }], 'complete evidence is judged by git objects, not the working tree');
+    assert.deepEqual(result.errors, []);
+    const staleFreeze = recovery.verifyLoadRecoveryFileR5(evidenceFile, 'complete', h.checkout, { ...deps, carriedFirst: () => ({ ...h.freeze.carried_first_window, revision_sha256: '0'.repeat(64) }) });
+    assert.match(staleFreeze.errors.join('\n'), /fails re-verification/);
+    const broken = recovery.verifyLoadRecoveryFileR5(evidenceFile, 'complete', h.checkout, { ...deps, carriedFirst: () => { throw new Error('raw file differs'); } });
+    assert.equal(broken.ok, false);
+    assert.match(broken.errors.join('\n'), /carried first window binding fails re-verification: raw file differs/);
+    onDisk.status = 'ready'; onDisk.attempts = []; fs.writeFileSync(evidenceFile, `${JSON.stringify(onDisk)}\n`);
+    seen.length = 0;
+    recovery.verifyLoadRecoveryFileR5(evidenceFile, 'progress', h.checkout, deps);
+    assert.deepEqual(seen, [{ terminal: false }], 'a ready ledger still demands working-tree equality');
+  } finally { h.clean(); }
+});
+
+// ---- Phase 253 plan 80 task 3: R5 budget-approval binding, host probe, retry eligibility, halt rows and terminal evidence ----
+function approvalRepoR5() {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-approval-r5-')));
+  gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+  fs.mkdirSync(path.join(dir, PHASE_REL), { recursive: true });
+  const budget = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md');
+  fs.writeFileSync(budget, '# budgets r5\n');
+  const freezeFile = path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json');
+  const freeze = { schema_version: 'sigra.phase253.registration-load-recovery-freeze/v5', budget: { file: `${PHASE_REL}/253-LOAD-RECOVERY-BUDGETS-R5.md`, sha256: sha(fs.readFileSync(budget)) } };
+  fs.writeFileSync(freezeFile, `${JSON.stringify(freeze)}\n`);
+  gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'seed');
+  return { dir, budget, freezeFile, freeze, approval: path.join(dir, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R5.json'), clean: () => fs.rmSync(dir, { recursive: true, force: true }) };
+}
+
+test('recording an R5 approval is exclusive, writes the v4 record bound to the R5 budget and freeze, and anything but approve writes nothing', () => {
+  const r = approvalRepoR5();
+  try {
+    for (const decision of ['reject', 'maybe', undefined]) {
+      assert.throws(() => recovery.recordBudgetApprovalR5({ decision, budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no' }, r.dir, { enforcePaths: false }), /decision|grants no capacity/i);
+      assert.equal(fs.existsSync(r.approval), false);
+    }
+    assert.throws(() => recovery.recordBudgetApprovalR5({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: '  ' }, r.dir, { enforcePaths: false }), /decision text/i);
+    const record = recovery.recordBudgetApprovalR5({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'approve exactly as written' }, r.dir, { enforcePaths: false, now: () => '2026-10-14T09:00:00.000Z' });
+    const onDisk = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    assert.deepEqual(onDisk, record);
+    assert.equal(onDisk.schema_version, 'sigra.phase253.load-recovery-budget-approval/v4');
+    assert.equal(onDisk.decision_text, 'approve exactly as written');
+    assert.equal(onDisk.budget_sha256, sha(fs.readFileSync(r.budget)));
+    assert.equal(onDisk.freeze_sha256, sha(fs.readFileSync(r.freezeFile)));
+    assert.deepEqual(onDisk.caps, R5_APPROVE_CAPS);
+    assert.equal(onDisk.retry_granted, 1);
+    assert.throws(() => recovery.recordBudgetApprovalR5({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'again' }, r.dir, { enforcePaths: false }), /EEXIST|exist|exclusive/i);
+    assert.equal(JSON.parse(fs.readFileSync(r.approval, 'utf8')).decision, 'approve', 'the first record is never overwritten');
+    fs.rmSync(r.approval);
+    const noRetry = recovery.recordBudgetApprovalR5({ decision: 'approve-without-retry', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'no retry' }, r.dir, { enforcePaths: false });
+    assert.equal(noRetry.retry_granted, 0);
+    assert.deepEqual(noRetry.caps, R5_APPROVE_NO_RETRY_CAPS);
+    fs.rmSync(r.approval);
+    assert.throws(() => recovery.recordBudgetApprovalR5({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: path.join(r.dir, 'elsewhere.json'), decisionText: 'x' }, r.dir), /reviewed R5 budget, freeze and approval paths/i);
+    fs.writeFileSync(r.budget, '# budgets r5 (edited)\n');
+    assert.throws(() => recovery.recordBudgetApprovalR5({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'x' }, r.dir, { enforcePaths: false }), /budget/i);
+    assert.equal(fs.existsSync(r.approval), false);
+  } finally { r.clean(); }
+});
+
+test('the approval recorder CLI matches the R5 paths before R4 and a reject writes nothing', () => {
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const out = path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGET-APPROVAL-R5.json');
+  const before = fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null;
+  const result = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'reject', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R5.json'), '--output', out, '--decision-text', 'no'], { encoding: 'utf8', cwd: root });
+  assert.equal(result.status, 3);
+  assert.match(result.stderr, /decision/i);
+  assert.equal(fs.existsSync(out) ? fs.readFileSync(out, 'utf8') : null, before, 'the real R5 approval is Jon\'s decision to record, never the executor\'s');
+  const wrongPaths = spawnSync(process.execPath, [script, '--record-budget-approval', '--decision', 'approve', '--budget', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-BUDGETS-R5.md'), '--freeze', path.join(root, PHASE_REL, '253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json'), '--output', path.join(os.tmpdir(), 'r5-elsewhere-approval.json'), '--decision-text', 'x'], { encoding: 'utf8', cwd: root });
+  assert.equal(wrongPaths.status, 3);
+  assert.match(wrongPaths.stderr, /reviewed R5 budget, freeze and approval paths/i);
+  assert.equal(fs.existsSync(path.join(os.tmpdir(), 'r5-elsewhere-approval.json')), false);
+});
+
+test('an R5 run needs a committed v4 approval bound to the R5 budget and freeze, and the R4, R3 and R2 approvals are refused', () => {
+  const r = approvalRepoR5();
+  try {
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /absent/i);
+    recovery.recordBudgetApprovalR5({ decision: 'approve', budgetFile: r.budget, freezeFile: r.freezeFile, outputFile: r.approval, decisionText: 'ok' }, r.dir, { enforcePaths: false });
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /committed/i);
+    gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', 'approval');
+    assert.equal(recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze).retry_granted, 1);
+    fs.writeFileSync(r.approval, `${fs.readFileSync(r.approval, 'utf8')} `);
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /committed|differs/i);
+    gitIn(r.dir, 'checkout', '--', '.');
+    const edited = JSON.parse(fs.readFileSync(r.approval, 'utf8'));
+    const commit = (value, message) => { fs.writeFileSync(r.approval, `${JSON.stringify(value, null, 2)}\n`); gitIn(r.dir, 'add', '-A'); gitIn(r.dir, 'commit', '-q', '-m', message); };
+    commit({ ...edited, budget_sha256: 'f'.repeat(64) }, 'bad budget');
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /budget/i);
+    commit({ ...edited, freeze_sha256: 'f'.repeat(64) }, 'bad freeze');
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /freeze/i);
+    commit({ ...edited, caps: { ...edited.caps, d19_cap_ms: edited.caps.d19_cap_ms + 1 } }, 'bad caps');
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /caps/i);
+    for (const schema of ['v3', 'v2', 'v1']) {
+      commit({ ...edited, schema_version: `sigra.phase253.load-recovery-budget-approval/${schema}`, caps: { ...R4_APPROVE.caps } }, `earlier ${schema} approval`);
+      assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i, `a ${schema} approval can never unlock R5`);
+    }
+    commit({ ...edited, decision: 'reject' }, 'reject');
+    assert.throws(() => recovery.readCommittedApprovalR5(r.dir, r.freezeFile, r.freeze), /malformed|unrecognised/i);
+  } finally { r.clean(); }
+});
+
+test('an R5 run refuses before the predebit when approval is missing, an earlier approval is handed in, the default reader finds nothing or the host proof fails', async () => {
+  for (const [label, overrides, pattern] of [
+    ['approval absent', { readApproval: () => { throw new Error('R5 budget approval record is absent'); } }, /approval/i],
+    ['R4 approval handed to R5', { readApproval: () => R4_APPROVE }, /not an R5 \(v4\) record/i],
+    ['host proof fails', { probeHost: async () => { throw new Error('host is not on AC power'); } }, /AC power/i]
+  ]) {
+    const h = loadHarnessR5();
+    try {
+      const before = h.read();
+      await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, { ...h.makeDeps(), ...overrides }), pattern, label);
+      assert.deepEqual(h.read(), before, `${label}: no reservation, used slot or charge`);
+      assert.equal(h.calls.filter((call) => call[0] === 'tree' || call[0] === 'app').length, 0, label);
+    } finally { h.clean(); }
+  }
+  const h = loadHarnessR5();
+  try {
+    const { readApproval: _unused, ...withoutApproval } = h.makeDeps(); // eslint-disable-line no-unused-vars
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, withoutApproval), /approval/i, 'the default reader demands a committed R5 approval');
+    assert.deepEqual(h.calls, []);
+    assert.equal(recovery.loadR5RunDefaults.checkDiagnostic, recovery.readCommittedDiagnostic);
+  } finally { h.clean(); }
+});
+
+test('the host probe runs before the predebit and the approval decides the ceilings that the R5 run enforces', async () => {
+  const order = loadHarnessR5();
+  try {
+    let evidenceAtProbe = null;
+    await recovery.runLoadRecoverySlotR5(order.freezeFile, 'CR5-DESKTOP-SECOND', order.evidenceFile, order.checkout, { ...order.makeDeps(), probeHost: async () => { evidenceAtProbe = order.read(); throw new Error('probe seen'); } }).catch(() => {});
+    assert.equal(evidenceAtProbe.reservation, null, 'nothing was predebited when the host probe ran');
+    assert.deepEqual(evidenceAtProbe.limits.used_slots, R5_SPENT);
+  } finally { order.clean(); }
+  const mismatch = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(mismatch.freezeFile, 'CR5-DESKTOP-SECOND', mismatch.evidenceFile, mismatch.checkout, mismatch.makeDeps({ approval: R5_APPROVE_NO_RETRY })), /approval caps differ/i);
+    assert.deepEqual(mismatch.calls, []);
+  } finally { mismatch.clean(); }
+  const noRetry = loadHarnessR5();
+  try {
+    noRetry.writeEvidence(R5_APPROVE_NO_RETRY);
+    const result = await recovery.runLoadRecoverySlotR5(noRetry.freezeFile, 'CR5-DESKTOP-SECOND', noRetry.evidenceFile, noRetry.checkout, noRetry.makeDeps({ approval: R5_APPROVE_NO_RETRY }));
+    assert.equal(result.rows, 2);
+    assert.equal(noRetry.read().limits.max_total_ms, 5129703);
+  } finally { noRetry.clean(); }
+  const tight = loadHarnessR5();
+  try {
+    const evidence = tight.read(); evidence.limits.charged_duration_ms += 20000;
+    fs.writeFileSync(tight.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(tight.freezeFile, 'CR5-DESKTOP-SECOND', tight.evidenceFile, tight.checkout, tight.makeDeps()), /do not fit approved limits/i);
+    assert.deepEqual(tight.calls, []);
+  } finally { tight.clean(); }
+  const spent = loadHarnessR5();
+  try {
+    for (const id of [...R5_SPENT.slice(-3), 'CR4-INFRA-RETRY', 'CR4-MOBILE-SECOND', 'CR4-DARK-SECOND', 'CR3-DESKTOP-SECOND', 'CR2-DARK-SECOND', 'CR-DARK-FIRST', 'CR3-MADE-UP']) {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR5(spent.freezeFile, id, spent.evidenceFile, spent.checkout, spent.makeDeps()), /spent|expired|retired|earlier revision|only the three/i, id);
+    }
+    assert.deepEqual(spent.calls, [], 'every closed identity is refused before any spawn');
+  } finally { spent.clean(); }
+});
+
+test('a host sleep halts as halted_infrastructure with per-test rows, stays charged and counted, and CR5-INFRA-RETRY runs once on the identical selection', async () => {
+  const h = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /halted_infrastructure|infrastructure/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps({ suspendBrowser: true })), /work deadline|suspension/i);
+    const halted = h.read();
+    assert.equal(halted.status, 'halted_infrastructure');
+    assert.equal(halted.infrastructure_retry.eligible, true);
+    assert.equal(halted.infrastructure_retry.cause, 'host_sleep');
+    assert.equal(halted.limits.physical_playwright_cli_launches, 10);
+    assert.equal(halted.limits.charged_duration_ms, 2359703 + halted.attempts[0].charged_duration_ms);
+    assert.equal(halted.stop_record.cli_launched, true);
+    assert.equal(halted.stop_record.per_test_rows.length, 2);
+    assert.equal(r5Verify(h, halted).ok, false);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-MOBILE-SECOND', h.evidenceFile, h.checkout, h.makeDeps()), /terminal|reserved|halted/i);
+    const callsBefore = h.calls.length;
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps()), /diagnostic/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', checkDiagnostic: () => { throw new Error('diagnostic is not committed'); } })), /not committed/i);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json', approval: R5_APPROVE_NO_RETRY })), /retry|caps/i);
+    assert.equal(h.calls.length, callsBefore, 'every refusal happens before any spawn');
+
+    const result = await recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' }));
+    assert.equal(result.rows, 2);
+    const evidence = h.read();
+    assert.equal(evidence.status, 'second_partial');
+    assert.equal(evidence.attempts[1].slot_id, 'CR5-INFRA-RETRY');
+    assert.equal(evidence.attempts[1].retry_of, 'CR5-DESKTOP-SECOND');
+    assert.deepEqual(evidence.attempts[1].argv, evidence.attempts[0].argv);
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.deepEqual(evidence.limits.used_slots, [...R5_SPENT, 'CR5-DESKTOP-SECOND', 'CR5-INFRA-RETRY']);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 11);
+    assert.deepEqual(r5Verify(h, evidence).errors, [], 'the halted original stays in attempts and the pair counts as one slot outcome');
+    const drifted = structuredClone(evidence); drifted.attempts[1].argv = [...drifted.attempts[1].argv, '--workers=2'];
+    assert.equal(r5Verify(h, drifted).ok, false);
+    const noDiagnostic = structuredClone(evidence); noDiagnostic.infrastructure_retry.diagnostic = null;
+    assert.equal(r5Verify(h, noDiagnostic).ok, false);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure|already/i, 'the retry is usable once');
+    await recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-MOBILE-SECOND', h.evidenceFile, h.checkout, h.makeDeps());
+    await recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DARK-SECOND', h.evidenceFile, h.checkout, h.makeDeps());
+    const complete = h.read();
+    assert.equal(complete.status, 'complete');
+    assert.deepEqual(r5Verify(h, complete, 'complete').errors, []);
+  } finally { h.clean(); }
+});
+
+test('the R5 retry is never available after an assertion failure, a count-query failure, a validator rejection, a setup failure without suspension, a non-suspension overrun, a second infrastructure halt or approve-without-retry', async () => {
+  const cases = [
+    ['assertion failure', { failRow: true }],
+    ['assertion row failure with a suspension flag', { suspendFlag: true, failRow: true }],
+    ['count query failure', { accountFail: R5_COUNT_ERROR }],
+    ['validator rejection (CLI exit)', { cliExit: 1 }],
+    ['setup failure without suspension', { setupExit: 1 }],
+    ['non-suspension setup overrun', { setupMs: 61000 }],
+    ['non-suspension deadline kill', { cliTimedOut: true }]
+  ];
+  for (const [label, options] of cases) {
+    const h = loadHarnessR5();
+    try {
+      await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-DESKTOP-SECOND', h.evidenceFile, h.checkout, h.makeDeps(options)), undefined, label);
+      const evidence = h.read();
+      assert.equal(evidence.status, 'halted', label);
+      assert.ok(evidence.infrastructure_halts.every((halt) => halt.retryable === false), `${label}: nothing opened the retry`);
+      assert.equal(evidence.infrastructure_retry, null, label);
+      assert.equal(evidence.stop_record.cli_launched, evidence.attempts[0].playwright_cli.launched, label);
+      if (evidence.attempts[0].playwright_cli.launched) assert.ok(Array.isArray(evidence.stop_record.per_test_rows) && evidence.stop_record.per_test_rows.length > 0, `${label}: every launched stop lists per_test_rows`);
+      await assert.rejects(() => recovery.runLoadRecoverySlotR5(h.freezeFile, 'CR5-INFRA-RETRY', h.evidenceFile, h.checkout, h.makeDeps({ diagnosticFile: 'diag.json' })), /halted_infrastructure|infrastructure/i, label);
+    } finally { h.clean(); }
+  }
+  const second = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(second.freezeFile, 'CR5-DESKTOP-SECOND', second.evidenceFile, second.checkout, second.makeDeps({ suspendBrowser: true })));
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(second.freezeFile, 'CR5-INFRA-RETRY', second.evidenceFile, second.checkout, second.makeDeps({ diagnosticFile: 'diag.json', suspendBrowser: true })));
+    const evidence = second.read();
+    assert.equal(evidence.status, 'halted', 'a second infrastructure halt is terminal');
+    assert.equal(evidence.limits.infra_retry.used, 1);
+    assert.equal(evidence.stop_record.slot_id, 'CR5-INFRA-RETRY');
+    assert.equal(evidence.stop_record.per_test_rows.length, 2);
+  } finally { second.clean(); }
+  const withoutRetry = loadHarnessR5();
+  try {
+    withoutRetry.writeEvidence(R5_APPROVE_NO_RETRY);
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(withoutRetry.freezeFile, 'CR5-DESKTOP-SECOND', withoutRetry.evidenceFile, withoutRetry.checkout, withoutRetry.makeDeps({ approval: R5_APPROVE_NO_RETRY, suspendBrowser: true })));
+    assert.equal(withoutRetry.read().status, 'halted', 'no retry was granted, so the infrastructure halt is terminal');
+  } finally { withoutRetry.clean(); }
+});
+
+test('a suspension during setup and a lost caffeinate holder are R5 infrastructure halts that never launched the CLI or lost the host', async () => {
+  const setupSleep = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(setupSleep.freezeFile, 'CR5-DESKTOP-SECOND', setupSleep.evidenceFile, setupSleep.checkout, setupSleep.makeDeps({ setupSuspended: true, setupExit: 1 })));
+    const evidence = setupSleep.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.attempts[0].playwright_cli.launched, false);
+    assert.equal(evidence.limits.physical_playwright_cli_launches, 9);
+    assert.deepEqual(evidence.stop_record.per_test_rows, []);
+  } finally { setupSleep.clean(); }
+  const lost = loadHarnessR5();
+  try {
+    await assert.rejects(() => recovery.runLoadRecoverySlotR5(lost.freezeFile, 'CR5-DESKTOP-SECOND', lost.evidenceFile, lost.checkout, lost.makeDeps({ holderAlive: () => false })), /holder/i);
+    const evidence = lost.read();
+    assert.equal(evidence.status, 'halted_infrastructure');
+    assert.equal(evidence.infrastructure_retry.cause, 'holder_lost');
+  } finally { lost.clean(); }
+});
+
+test('R5 accepted evidence verifies by git ancestry and object reads after a later committed runner change, while a live check still demands the working tree', () => {
+  const dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-terminal-r5-')));
+  try {
+    gitIn(dir, 'init', '-q'); gitIn(dir, 'config', 'user.email', 'test@example.test'); gitIn(dir, 'config', 'user.name', 'test'); gitIn(dir, 'config', 'commit.gpgsign', 'false');
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'freeze point');
+    const frozenHead = gitIn(dir, 'rev-parse', 'HEAD');
+    const freeze = { source: { checkout_head: frozenHead, blobs: { 'runner.mjs': gitIn(dir, 'rev-parse', `${frozenHead}:runner.mjs`) } } };
+    assert.equal(recovery.verifyFrozenSourceBindingR5(dir, freeze, { terminal: false }), frozenHead);
+    fs.writeFileSync(path.join(dir, 'runner.mjs'), 'export const frozen = true; export const later = 1;\n');
+    gitIn(dir, 'add', '-A'); gitIn(dir, 'commit', '-q', '-m', 'later runner change');
+    assert.throws(() => recovery.verifyFrozenSourceBindingR5(dir, freeze, { terminal: false }), /identity mismatch/i, 'init, prepare and run demand working-tree equality');
+    assert.equal(recovery.verifyFrozenSourceBindingR5(dir, freeze, { terminal: true }), gitIn(dir, 'rev-parse', 'HEAD'), 'accepted evidence is not silently invalidated');
+    const forged = structuredClone(freeze); forged.source.blobs['runner.mjs'] = '0'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR5(dir, forged, { terminal: true }), /blob mismatch/i);
+    const notAncestor = structuredClone(freeze); notAncestor.source.checkout_head = '1'.repeat(40);
+    assert.throws(() => recovery.verifyFrozenSourceBindingR5(dir, notAncestor, { terminal: true }), /ancestor/i);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+// ---- 253-84 Task 1: load acceptance verifier and honest target predicate ----
+const ACCEPT_SCHEMA = 'sigra.phase253.load-acceptance-evidence/v1';
+const ACCEPT_PHASE = ['.planning', 'phases', '253-fix-flaky-ci-and-preserve-required-checks'].join('/');
+const ACCEPT_IDS = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'].flatMap((project) => [1, 2, 3].map((n) => `D20-ACCEPT-${project}-${n}`));
+
+function acceptanceFixture(mutate = () => {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sigra-253-accept-'));
+  const put = (name, text) => { const file = path.join(dir, name); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, text); return { path: name, sha256: crypto.createHash('sha256').update(text).digest('hex') }; };
+  const controls = put(`${ACCEPT_PHASE}/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json`, '{"controls":true}\n');
+  const diagnosis = put(`${ACCEPT_PHASE}/253-DIAGNOSIS.json`, '{"status":"incomplete"}\n');
+  const loader = put(`${ACCEPT_PHASE}/loader.json`, '{"loader":1}\n');
+  const redReceipt = put('receipts/red.log', 'FAIL before repair\n');
+  const greenReceipt = put('receipts/green.log', 'PASS after repair\n');
+  const freeze = put(`${ACCEPT_PHASE}/253-LOAD-RECOVERY-ACCEPTANCE-FREEZE.json`, '{"freeze":1}\n');
+  const evidence = {
+    schema_version: ACCEPT_SCHEMA, status: 'diagnosis_incomplete', target_status: 'open', integration_pending: true,
+    controls: { ...controls, stage: 'complete' },
+    observed_cause: { summary: 'selected failures unproved', sources: [{ ...diagnosis, proves: 'observations only' }] },
+    historical_cause: { status: 'diagnosis_incomplete', missing: ['original preceding-order log'], causal_link: null },
+    repairs: [{ id: 'node20-loader', defect_class: 'node20_loader_collection', source: loader, explains_historical_cause: false }],
+    acceptance: { freeze: null, reserved_ids: ACCEPT_IDS, attempts: [], retry_available: 0 }
+  };
+  const ctx = { dir, put, evidence, freeze, diagnosis, redReceipt, greenReceipt };
+  mutate(ctx);
+  return ctx;
+}
+const demonstrated = (ctx) => {
+  ctx.evidence.historical_cause = {
+    status: 'demonstrated', missing: [],
+    causal_link: {
+      original: { ...ctx.diagnosis }, seam: 'registration helper shares account across rows',
+      red: { source_blob: 'a'.repeat(40), receipt: ctx.redReceipt, exit_code: 1, before_repair: true },
+      repair: { defect_class: 'registration_harness_seam', source_blob: 'b'.repeat(40), diff_sha256: 'c'.repeat(64) },
+      green: { source_blob: 'b'.repeat(40), receipt: ctx.greenReceipt, exit_code: 0 }
+    }
+  };
+};
+const acceptedAttempts = (ctx) => ACCEPT_IDS.map((id) => ({ id, project: id.replace(/^D20-ACCEPT-/, '').replace(/-\d$/, ''), outcome: 'passed', fresh: true, host_awake: true, charged_duration_ms: 90_000 }));
+const verifyAccept = (ctx, stage = 'progress', requireTarget = false) => recovery.verifyLoadAcceptanceData(ctx.evidence, { root: ctx.dir, stage, requireTarget, verifyControls: () => true });
+
+test('acceptance: a truthful open record passes progress but is never an accepted target', () => {
+  const ctx = acceptanceFixture();
+  try {
+    assert.equal(verifyAccept(ctx, 'progress').ok, true);
+    assert.equal(verifyAccept(ctx, 'complete', true).ok, false);
+    assert.equal(verifyAccept(ctx, 'complete', false).ok, false);
+    assert.equal(verifyAccept(ctx, 'progress', true).ok, false);
+  } finally { fs.rmSync(ctx.dir, { recursive: true, force: true }); }
+});
+
+test('acceptance: a fabricated cause, caller boolean or runner repair never establishes the historical explanation', () => {
+  const fabricated = acceptanceFixture((c) => { c.evidence.historical_cause = { status: 'demonstrated', cause_proved: true, missing: [], causal_link: null }; c.evidence.target_status = 'accepted'; });
+  const loaderAsCause = acceptanceFixture((c) => { demonstrated(c); c.evidence.historical_cause.causal_link.repair.defect_class = 'node20_loader_collection'; });
+  const repairClaim = acceptanceFixture((c) => { c.evidence.repairs[0].explains_historical_cause = true; });
+  const tamperedSource = acceptanceFixture((c) => { c.evidence.observed_cause.sources[0].sha256 = '0'.repeat(64); });
+  const noRed = acceptanceFixture((c) => { demonstrated(c); c.evidence.historical_cause.causal_link.red.exit_code = 0; });
+  const badRedReceipt = acceptanceFixture((c) => { demonstrated(c); c.evidence.historical_cause.causal_link.red.receipt.sha256 = '1'.repeat(64); });
+  const unknownRepair = acceptanceFixture((c) => { c.evidence.repairs[0].defect_class = 'invented'; });
+  try {
+    for (const ctx of [fabricated, loaderAsCause, repairClaim, tamperedSource, noRed, badRedReceipt, unknownRepair]) {
+      assert.equal(verifyAccept(ctx, 'progress').ok, false);
+      assert.equal(verifyAccept(ctx, 'complete', true).ok, false);
+    }
+  } finally { for (const ctx of [fabricated, loaderAsCause, repairClaim, tamperedSource, noRed, badRedReceipt, unknownRepair]) fs.rmSync(ctx.dir, { recursive: true, force: true }); }
+});
+
+test('acceptance: control evidence that does not reopen as complete rejects the record', () => {
+  const ctx = acceptanceFixture();
+  try {
+    assert.equal(recovery.verifyLoadAcceptanceData(ctx.evidence, { root: ctx.dir, stage: 'progress', requireTarget: false, verifyControls: () => false }).ok, false);
+    const mismatch = acceptanceFixture((c) => { c.evidence.controls.sha256 = '2'.repeat(64); });
+    assert.equal(verifyAccept(mismatch, 'progress').ok, false);
+    fs.rmSync(mismatch.dir, { recursive: true, force: true });
+  } finally { fs.rmSync(ctx.dir, { recursive: true, force: true }); }
+});
+
+test('acceptance: no launch is permitted without a demonstrated cause, and an accepted target needs three fresh passes per affected project in frozen order', () => {
+  const early = acceptanceFixture((c) => { c.evidence.acceptance.attempts = [{ id: ACCEPT_IDS[0], project: 'admin-eval', outcome: 'passed', fresh: true, host_awake: true, charged_duration_ms: 1000 }]; });
+  const good = acceptanceFixture((c) => {
+    demonstrated(c);
+    c.evidence.status = 'complete'; c.evidence.target_status = 'accepted';
+    c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'];
+    c.evidence.acceptance.attempts = acceptedAttempts(c);
+  });
+  const reordered = acceptanceFixture((c) => { demonstrated(c); c.evidence.status = 'complete'; c.evidence.target_status = 'accepted'; c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark']; c.evidence.acceptance.attempts = acceptedAttempts(c).reverse(); });
+  const retried = acceptanceFixture((c) => { demonstrated(c); c.evidence.status = 'complete'; c.evidence.target_status = 'accepted'; c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval']; c.evidence.acceptance.attempts = [...acceptedAttempts(c).slice(0, 3), { ...acceptedAttempts(c)[0] }]; });
+  const asleep = acceptanceFixture((c) => { demonstrated(c); c.evidence.status = 'complete'; c.evidence.target_status = 'accepted'; c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark']; c.evidence.acceptance.attempts = acceptedAttempts(c).map((a, i) => (i === 4 ? { ...a, host_awake: false } : a)); });
+  try {
+    assert.equal(verifyAccept(early, 'progress').ok, false);
+    assert.equal(verifyAccept(good, 'complete', true).ok, true, verifyAccept(good, 'complete', true).errors.join('; '));
+    assert.equal(verifyAccept(good, 'progress', false).ok, true);
+    for (const ctx of [reordered, retried, asleep]) assert.equal(verifyAccept(ctx, 'complete', true).ok, false);
+  } finally { for (const ctx of [early, good, reordered, retried, asleep]) fs.rmSync(ctx.dir, { recursive: true, force: true }); }
+});
+
+test('acceptance: the CLI parses both LOAD_CHECKS argv forms and they agree on the committed record', () => {
+  const python = fs.readFileSync(path.join(root, 'scripts/ci/ci-hosted-gate-verify.py'), 'utf8');
+  assert.match(python, /"load_acceptance": \["--verify-load-acceptance", "\{path\}", "--require-target-accepted"\]/);
+  const evidence = path.join(root, ACCEPT_PHASE, '253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json');
+  if (!fs.existsSync(evidence)) return; // created by the same task after RED
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const run = (...args) => spawnSync(process.execPath, [script, ...args], { cwd: root, encoding: 'utf8' });
+  const bare = run('--verify-load-acceptance', evidence, '--require-target-accepted');
+  const staged = run('--verify-load-acceptance', evidence, '--stage', 'complete', '--require-target-accepted');
+  const progress = run('--verify-load-acceptance', evidence, '--stage', 'progress');
+  assert.equal(progress.status, 0, progress.stderr);
+  assert.equal(staged.status, bare.status, 'both forms agree');
+  assert.notEqual(bare.status, 0, 'an open target is never accepted');
+  assert.doesNotMatch(bare.stderr, /Unknown|usage/i);
+  assert.match(bare.stderr, /target|accepted|cause/i);
+});
+
+// ---- 253-89: target disposition predicate (D-04/D-24), hermetic fixtures ----
+const DISP_EVIDENCE = `${ACCEPT_PHASE}/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json`;
+const DISP_FILE = `${ACCEPT_PHASE}/253-LOAD-RECOVERY-TARGET-DISPOSITION.json`;
+const DISP_APPROVAL = `${ACCEPT_PHASE}/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json`;
+const DISP_NOW = () => '2026-10-14T00:00:00.000Z';
+
+function dispositionFixture({ approve = true, evidenceMutate = () => {} } = {}) {
+  const ctx = acceptanceFixture(evidenceMutate);
+  const evidenceFile = path.join(ctx.dir, DISP_EVIDENCE);
+  fs.writeFileSync(evidenceFile, `${JSON.stringify(ctx.evidence, null, 2)}\n`);
+  ctx.evidenceFile = evidenceFile;
+  ctx.dispFile = path.join(ctx.dir, DISP_FILE);
+  ctx.approvalFile = path.join(ctx.dir, DISP_APPROVAL);
+  ctx.deps = {
+    verifyControls: () => true,
+    git: {
+      tracked: (r, rel) => fs.existsSync(path.join(r, rel)) && !ctx.untracked?.has(rel),
+      inHead: (r, rel) => fs.existsSync(path.join(r, rel)) && !ctx.untracked?.has(rel),
+      headBytes: (r, rel) => (ctx.head?.[rel] ?? fs.readFileSync(path.join(r, rel)))
+    }
+  };
+  if (approve) {
+    recovery.createTargetDisposition({ evidenceFile, outputFile: ctx.dispFile }, ctx.dir, { now: DISP_NOW, verifyControls: () => true });
+    recovery.recordTargetDispositionApproval({ decision: 'approve', dispositionFile: ctx.dispFile, outputFile: ctx.approvalFile, decisionText: 'Approve (Recommended)' }, ctx.dir, { now: DISP_NOW });
+  }
+  ctx.verify = () => recovery.verifyRequireTargetDisposition(evidenceFile, ctx.dir, ctx.deps);
+  ctx.readDisp = () => readJsonFile(ctx.dispFile);
+  ctx.rewriteDisp = (mutate) => {
+    const d = ctx.readDisp(); mutate(d);
+    fs.writeFileSync(ctx.dispFile, `${JSON.stringify(d, null, 2)}\n`);
+    ctx.forgeApproval();
+  };
+  ctx.forgeApproval = (patch = {}) => {
+    const a = {
+      schema_version: 'sigra.phase253.load-target-disposition-approval/v1', decision: 'approve', decision_text: 'Approve (Recommended)',
+      disposition_sha256: fileSha(ctx.dispFile), acceptance_evidence_sha256: fileSha(evidenceFile), recorded_at: DISP_NOW(), ...patch
+    };
+    fs.writeFileSync(ctx.approvalFile, `${JSON.stringify(a, null, 2)}\n`);
+  };
+  return ctx;
+}
+const readJsonFile = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
+const fileSha = (file) => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+const cleanup = (...ctxs) => { for (const c of ctxs) fs.rmSync(c.dir, { recursive: true, force: true }); };
+
+test('disposition: an approved, committed, hash-bound not_reproduced record passes and names its route', () => {
+  const ctx = dispositionFixture();
+  try {
+    const result = ctx.verify();
+    assert.equal(result.ok, true, result.errors?.join('; '));
+    assert.equal(result.route, 'disposition');
+    const d = ctx.readDisp();
+    assert.equal(d.status, 'not_reproduced');
+    assert.equal(d.automatic, false);
+    assert.equal(d.historical_cause.cause, null);
+    assert.equal(d.historical_cause.causal_link, null);
+    assert.deepEqual(d.historical_cause.missing, ctx.evidence.historical_cause.missing, 'missing items copied verbatim');
+    assert.equal(d.acceptance_evidence.sha256, fileSha(ctx.evidenceFile));
+    assert.equal(d.requirements['CIREL-01'].satisfied, false);
+    assert.equal(d.requirements['CIREL-01'].status, 'partial');
+    assert.equal(d.roadmap_sc1_no_flake_clause.applies, false);
+    assert.equal(d.qualifies_as_no_flake, false);
+    assert.equal(d.acceptance_slots.length, 9);
+    assert.ok(d.acceptance_slots.every((slot) => slot.status === 'expired_unused'));
+    assert.ok(d.supporting_evidence_not_proof.repairs.every((group) => group.explains_historical_cause === false));
+  } finally { cleanup(ctx); }
+});
+
+test('disposition: no approval, a non-approve decision, or an uncommitted/tampered record exits the failing route', () => {
+  const missing = dispositionFixture(); fs.rmSync(missing.approvalFile);
+  const rejected = dispositionFixture(); rejected.forgeApproval({ decision: 'reject' });
+  const untracked = dispositionFixture(); untracked.untracked = new Set([DISP_APPROVAL]);
+  const dispUntracked = dispositionFixture(); dispUntracked.untracked = new Set([DISP_FILE]);
+  const tampered = dispositionFixture(); tampered.head = { [DISP_FILE]: Buffer.from('{"original":true}\n') };
+  const approvalTampered = dispositionFixture(); approvalTampered.head = { [DISP_APPROVAL]: Buffer.from('{"original":true}\n') };
+  const mismatchedApproval = dispositionFixture(); mismatchedApproval.forgeApproval({ disposition_sha256: '0'.repeat(64) });
+  const approvalEvidence = dispositionFixture(); approvalEvidence.forgeApproval({ acceptance_evidence_sha256: '1'.repeat(64) });
+  const all = [missing, rejected, untracked, dispUntracked, tampered, approvalTampered, mismatchedApproval, approvalEvidence];
+  try {
+    for (const ctx of all) assert.equal(ctx.verify().ok, false);
+  } finally { cleanup(...all); }
+});
+
+test('disposition: evidence edited after the disposition, or a wrong schema or status, is rejected', () => {
+  const edited = dispositionFixture();
+  const schema = dispositionFixture();
+  const status = dispositionFixture();
+  try {
+    const evidence = readJsonFile(edited.evidenceFile); evidence.observed_cause.summary = 'edited later';
+    fs.writeFileSync(edited.evidenceFile, `${JSON.stringify(evidence, null, 2)}\n`);
+    assert.equal(edited.verify().ok, false);
+    schema.rewriteDisp((d) => { d.schema_version = 'other/v1'; });
+    assert.equal(schema.verify().ok, false);
+    status.rewriteDisp((d) => { d.status = 'accepted'; });
+    assert.equal(status.verify().ok, false);
+  } finally { cleanup(edited, schema, status); }
+});
+
+test('disposition: a record that over-claims a cause, a satisfied requirement, no-flake qualification or an attempt is rejected', () => {
+  const cases = {
+    cause: (d) => { d.historical_cause.cause = 'registration helper shares account'; },
+    link: (d) => { d.historical_cause.causal_link = { seam: 'x' }; },
+    demonstrated: (d) => { d.historical_cause.status = 'demonstrated'; },
+    satisfied: (d) => { d.requirements['CIREL-01'].satisfied = true; },
+    statusSatisfied: (d) => { d.requirements['CIREL-01'].status = 'satisfied'; },
+    statusAccepted: (d) => { d.requirements['CIREL-01'].status = 'accepted'; },
+    statusFixed: (d) => { d.requirements['CIREL-01'].status = 'reproduced_and_fixed'; },
+    applies: (d) => { d.roadmap_sc1_no_flake_clause.applies = true; },
+    qualifies: (d) => { d.qualifies_as_no_flake = true; },
+    roadmapQualifies: (d) => { d.roadmap_sc1_no_flake_clause.qualifies_as_no_flake = true; },
+    automatic: (d) => { d.automatic = true; },
+    attempt: (d) => { d.acceptance_attempts = [{ id: 'D20-ACCEPT-admin-eval-1' }]; },
+    slotUsed: (d) => { d.acceptance_slots[0].status = 'passed'; },
+    missingDropped: (d) => { d.historical_cause.missing = []; }
+  };
+  const ctxs = Object.entries(cases).map(([name, mutate]) => { const ctx = dispositionFixture(); ctx.name = name; ctx.rewriteDisp(mutate); return ctx; });
+  try {
+    for (const ctx of ctxs) assert.equal(ctx.verify().ok, false, `over-claim ${ctx.name} must be rejected`);
+  } finally { cleanup(...ctxs); }
+});
+
+test('disposition: the evidence itself must still be an open, diagnosis_incomplete record with no attempts', () => {
+  const accepted = dispositionFixture({ approve: false, evidenceMutate: (c) => {
+    demonstrated(c);
+    c.evidence.status = 'complete'; c.evidence.target_status = 'accepted';
+    c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'];
+    c.evidence.acceptance.attempts = acceptedAttempts(c);
+  } });
+  const notIncomplete = dispositionFixture({ approve: false, evidenceMutate: (c) => { c.evidence.historical_cause.status = 'not_reproduced'; } });
+  const withAttempt = dispositionFixture({ approve: false, evidenceMutate: (c) => { c.evidence.acceptance.attempts = [{ id: ACCEPT_IDS[0], project: 'admin-eval', outcome: 'passed', fresh: true, host_awake: true, charged_duration_ms: 1000 }]; } });
+  const badControls = dispositionFixture();
+  try {
+    assert.throws(() => recovery.createTargetDisposition({ evidenceFile: notIncomplete.evidenceFile, outputFile: notIncomplete.dispFile }, notIncomplete.dir, { now: DISP_NOW, verifyControls: () => true }), /diagnosis_incomplete|progress|open/i);
+    assert.throws(() => recovery.createTargetDisposition({ evidenceFile: withAttempt.evidenceFile, outputFile: withAttempt.dispFile }, withAttempt.dir, { now: DISP_NOW, verifyControls: () => true }), /attempt|cause|progress/i);
+    assert.throws(() => recovery.createTargetDisposition({ evidenceFile: accepted.evidenceFile, outputFile: accepted.dispFile }, accepted.dir, { now: DISP_NOW, verifyControls: () => true }), /diagnosis_incomplete|open|accepted/i);
+    badControls.deps.verifyControls = () => false;
+    assert.equal(badControls.verify().ok, false, 'controls that do not reopen reject the disposition route');
+  } finally { cleanup(accepted, notIncomplete, withAttempt, badControls); }
+});
+
+test('disposition: the accepted-target route still passes under the new flag, and the old flag is unchanged', () => {
+  const good = dispositionFixture({ approve: false, evidenceMutate: (c) => {
+    demonstrated(c);
+    c.evidence.status = 'complete'; c.evidence.target_status = 'accepted';
+    c.evidence.acceptance.freeze = c.freeze; c.evidence.acceptance.affected_projects = ['admin-eval', 'admin-eval-mobile', 'admin-eval-dark'];
+    c.evidence.acceptance.attempts = acceptedAttempts(c);
+  } });
+  const open = dispositionFixture({ approve: false });
+  try {
+    const result = good.verify();
+    assert.equal(result.ok, true, result.errors?.join('; '));
+    assert.equal(result.route, 'accepted');
+    assert.equal(verifyAccept(good, 'complete', true).ok, true);
+    assert.equal(open.verify().ok, false, 'an open target with no disposition is not resolved');
+    assert.equal(verifyAccept(open, 'complete', true).ok, false, '--require-target-accepted semantics unchanged on an open target');
+  } finally { cleanup(good, open); }
+});
+
+test('disposition: the create and approval recorders are exclusive-create and approve-only', () => {
+  const ctx = dispositionFixture();
+  const bare = dispositionFixture({ approve: false });
+  try {
+    assert.throws(() => recovery.createTargetDisposition({ evidenceFile: ctx.evidenceFile, outputFile: ctx.dispFile }, ctx.dir, { now: DISP_NOW, verifyControls: () => true }), /EEXIST|exist/i);
+    assert.throws(() => recovery.recordTargetDispositionApproval({ decision: 'approve', dispositionFile: ctx.dispFile, outputFile: ctx.approvalFile, decisionText: 'again' }, ctx.dir, { now: DISP_NOW }), /EEXIST|exist/i);
+    recovery.createTargetDisposition({ evidenceFile: bare.evidenceFile, outputFile: bare.dispFile }, bare.dir, { now: DISP_NOW, verifyControls: () => true });
+    for (const decision of ['reject', 'hunt', '', undefined]) {
+      assert.throws(() => recovery.recordTargetDispositionApproval({ decision, dispositionFile: bare.dispFile, outputFile: bare.approvalFile, decisionText: 'x' }, bare.dir, { now: DISP_NOW }), /approve/i);
+      assert.equal(fs.existsSync(bare.approvalFile), false, 'a non-approve decision writes nothing');
+    }
+    assert.throws(() => recovery.recordTargetDispositionApproval({ decision: 'approve', dispositionFile: bare.dispFile, outputFile: path.join(bare.dir, 'elsewhere.json'), decisionText: 'x' }, bare.dir, { now: DISP_NOW }), /path/i);
+    const record = readJsonFile(ctx.approvalFile);
+    assert.equal(record.decision, 'approve');
+    assert.equal(record.decision_text, 'Approve (Recommended)');
+    assert.equal(record.disposition_sha256, fileSha(ctx.dispFile));
+    assert.equal(record.acceptance_evidence_sha256, fileSha(ctx.evidenceFile));
+    assert.equal(record.recorded_at, DISP_NOW());
+  } finally { cleanup(ctx, bare); }
+});
+
+test('disposition: the CLI rejects --require-target-disposition combined with --require-target-accepted and leaves LOAD_CHECKS unchanged', () => {
+  const python = fs.readFileSync(path.join(root, 'scripts/ci/ci-hosted-gate-verify.py'), 'utf8');
+  assert.match(python, /"load_acceptance": \["--verify-load-acceptance", "\{path\}", "--require-target-accepted"\]/);
+  const script = path.join(root, 'scripts/ci/ci-registration-recovery.mjs');
+  const evidence = path.join(root, ACCEPT_PHASE, '253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json');
+  const both = spawnSync(process.execPath, [script, '--verify-load-acceptance', evidence, '--require-target-disposition', '--require-target-accepted'], { cwd: root, encoding: 'utf8' });
+  assert.notEqual(both.status, 0);
+  assert.match(both.stderr, /usage/i);
+  const parse = (...args) => spawnSync(process.execPath, [script, ...args], { cwd: root, encoding: 'utf8' });
+  const badCreate = parse('--create-target-disposition', '--evidence', evidence);
+  assert.notEqual(badCreate.status, 0);
+  assert.match(badCreate.stderr, /usage/i);
+  const badApproval = parse('--record-target-disposition-approval', '--decision', 'reject', '--disposition', 'x', '--output', 'y');
+  assert.notEqual(badApproval.status, 0);
+  assert.doesNotMatch(badApproval.stderr, /^$/);
+});

@@ -1,0 +1,69 @@
+{
+  "schema_version": "sigra.local-isolation-continuation/v1",
+  "captured_at": "2026-10-25T01:34:50.774898+00:00",
+  "status": "running_snapshot",
+  "source_candidate": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+  "source_control": "8d7355185ca95f2310b701d95c79646b2002916f",
+  "browser": {
+    "paired_suites_passed": [
+      "admin_behavior",
+      "admin_checkpoints",
+      "design_gallery",
+      "demo_showcase"
+    ],
+    "control_all_suites_passed": true,
+    "control_cases": 108,
+    "candidate_cases_completed": 92,
+    "last_candidate_suite": "non_admin_smoke",
+    "last_candidate_session": 16886,
+    "last_candidate_container": "sigra-2551-final-candidate-non-admin-origin",
+    "last_candidate_output": ".gsd/255.1-linux-final/evaluator/.gsd/linux-parity/candidate-non_admin_smoke-07-origin/RESULT.json",
+    "evaluator": ".gsd/255.1-linux-final/evaluator",
+    "base_image": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+    "database_container": "sigra-2551-linux-parity-db"
+  },
+  "library": {
+    "agent": "/root/execute_plan02",
+    "scratch": ".gsd/255.1-linux-library/attempt-pz94hsuz",
+    "canary_session": 7620,
+    "canary": "five targeted upgrade/offline-cryptographic tests; three pass markers, final result pending",
+    "full_mix_ci": "not_yet_started_in_isolated_Linux",
+    "old_failed_report": ".planning/execution/255.1/attempts/07/LIBRARY-PARITY.json",
+    "isolation": "fresh task-owned PG15 per invocation, same localhost5432 namespace, no global MIX_BUILD_PATH",
+    "namespace_policy": ".gsd/255.1-linux-parity/namespace-probe/user-net-only.json",
+    "namespace_policy_sha256": "d8039f0ff04eea8ede7481d12ca49c1485e1314415a9cfa067c3dfb288d0d2dd",
+    "privileged": false,
+    "sys_admin": false,
+    "tool_image": "sha256:e8467bcf8a3ee4f056cd8af572a1525a66224bf9ab2c603102e01785c646e3aa",
+    "gh": "2.103.2 official signed repository; real offline verification, no API requests"
+  },
+  "evaluator_fix": {
+    "commit": "2031ec068",
+    "tests_passed": 15,
+    "change": "let library/generated child projects use independent default build directories"
+  },
+  "local_only": true,
+  "acceptance_samples": 0,
+  "hosted_status": "blocked",
+  "next_command": "$gsd-execute-phase 255.1",
+  "prior_tracking": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "add9d1f3bcde3a0dc400c5088f23381c4a049dc6817e4fc8f248bf27cb7cae0c",
+      "recovery_commit": "2031ec0687d6d51bb360aa31a6e8af53f3a9f35a",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "0dbcd90d1545063a4400832693ade96a9dbf0e5f0892864b60b42e77cd5479f1",
+      "recovery_commit": "2031ec0687d6d51bb360aa31a6e8af53f3a9f35a",
+      "read_back_equal": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "aaaae3fc575fb05b924bd48b88dc232a9a142c401d1a357e02f1b7eec246ca97",
+      "recovery_commit": "2031ec0687d6d51bb360aa31a6e8af53f3a9f35a",
+      "read_back_equal": true
+    }
+  ]
+}

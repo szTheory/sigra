@@ -1,0 +1,5 @@
+{
+  "returncode": 0,
+  "stderr": "",
+  "stdout": "{\n  \"accepted_live\": true,\n  \"category_counts\": {\n    \"artifact_downloads\": 20,\n    \"artifact_metadata\": 1,\n    \"attempt_jobs\": 1,\n    \"docs_publication\": 14,\n    \"native_checks\": 1,\n    \"pr_create\": 1,\n    \"pr_identity\": 5,\n    \"pre_watch_rate\": 1,\n    \"preflight\": 5,\n    \"run_discovery\": 2,\n    \"terminal_polls\": 5\n  },\n  \"family\": \"docs-only\",\n  \"head_sha\": \"a4c2b64119fa89ada8a6dbbe1f729a24fb6bfc21\",\n  \"merge_sha\": \"348be045bc434b62702a1457222235df8b60bf84\",\n  \"pr_number\": 344,\n  \"requests\": 56,\n  \"run_attempt\": 1,\n  \"run_id\": 39837182521,\n  \"status\": \"pr_family_verified\",\n  \"window_id\": \"gsd/253-pr343-remaining-evidence-proposed-1\"\n}\n"
+}

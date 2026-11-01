@@ -1,0 +1,31 @@
+{
+  "ref": "refs/gsd/phase253-maintenance-routing-draft",
+  "commit": "938288650be4252cd122b7268c2c79b07a3a7d3a",
+  "shared_paths": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "b6a9972f74a072e5363c1341cb5a847c0ea1b4f59f23e8a530835433c8d453d4",
+      "bytes": 28820,
+      "blob": "cef401ca7bf56577c2f2b4cb4fadf159d788992f"
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "db1c6856d9d85f3237c20fc694c36d7bf289ca5ceedd808a66b7c63bf2e8721e",
+      "bytes": 104333,
+      "blob": "823c3728a0da95eaa388b4a83989a416ea98f430"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "85987b6d278b999155f6a72305d13b3db69db569e3df39e762260aa118bdd7eb",
+      "bytes": 173207,
+      "blob": "f7ff4027b78bf95b2dc2f68105b527e12dbe7c67"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "sha256": "bab7ca55eb3a998684ec666ba0dea60c6cd6b5d53f3d22827160d4e119738d47",
+      "bytes": 28583,
+      "blob": "63003cb3c8039899ea50f39929ca3223f3acd1d5"
+    }
+  ],
+  "readback_verified_before_replacement": true
+}

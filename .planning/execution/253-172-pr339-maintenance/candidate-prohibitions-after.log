@@ -1,0 +1,734 @@
+TAP version 13
+# Subtest: the ledger exposes enough captured observations to assert against
+ok 1 - the ledger exposes enough captured observations to assert against
+  ---
+  duration_ms: 1.711083
+  type: 'test'
+  ...
+# Subtest: the committed instrument is named somewhere in the ledger
+ok 2 - the committed instrument is named somewhere in the ledger
+  ---
+  duration_ms: 0.097875
+  type: 'test'
+  ...
+# Subtest: every captured slot records the command that produced its numbers
+ok 3 - every captured slot records the command that produced its numbers
+  ---
+  duration_ms: 0.125667
+  type: 'test'
+  ...
+# Subtest: duration claims inside a captured slot sit alongside that slot run ID
+ok 4 - duration claims inside a captured slot sit alongside that slot run ID
+  ---
+  duration_ms: 0.125875
+  type: 'test'
+  ...
+# Subtest: the full-page axe test is declared exactly once
+ok 5 - the full-page axe test is declared exactly once
+  ---
+  duration_ms: 0.535625
+  type: 'test'
+  ...
+# Subtest: the axe test carries no @snapshot tag
+ok 6 - the axe test carries no @snapshot tag
+  ---
+  duration_ms: 0.163167
+  type: 'test'
+  ...
+# Subtest: the scan is full-document — no element scoping was introduced
+ok 7 - the scan is full-document — no element scoping was introduced
+  ---
+  duration_ms: 0.111916
+  type: 'test'
+  ...
+# Subtest: all three design projects still run the spec on the PR lane
+ok 8 - all three design projects still run the spec on the PR lane
+  ---
+  duration_ms: 3.117333
+  type: 'test'
+  ...
+# Subtest: captured slots exist for the receiving lane to be observed in
+ok 9 - captured slots exist for the receiving lane to be observed in
+  ---
+  duration_ms: 0.372375
+  type: 'test'
+  ...
+# Subtest: the gallery snapshot lane is observed executing, not skipped
+ok 10 - the gallery snapshot lane is observed executing, not skipped
+  ---
+  duration_ms: 1.115709
+  type: 'test'
+  ...
+# Subtest: a non-zero executed test count is on the record for the demoted work
+ok 11 - a non-zero executed test count is on the record for the demoted work
+  ---
+  duration_ms: 0.240541
+  type: 'test'
+  ...
+# Subtest: a top-level concurrency block is declared
+ok 12 - a top-level concurrency block is declared
+  ---
+  duration_ms: 0.432125
+  type: 'test'
+  ...
+# Subtest: the concurrency group keys non-PR events on their own run id
+ok 13 - the concurrency group keys non-PR events on their own run id
+  ---
+  duration_ms: 0.260458
+  type: 'test'
+  ...
+# Subtest: cancel-in-progress is a bare boolean, never an expression
+ok 14 - cancel-in-progress is a bare boolean, never an expression
+  ---
+  duration_ms: 0.119917
+  type: 'test'
+  ...
+# Subtest: no release-path event is excluded from the run-id fallback
+ok 15 - no release-path event is excluded from the run-id fallback
+  ---
+  duration_ms: 0.092417
+  type: 'test'
+  ...
+# Subtest: the admin_eval_render lane still exists
+ok 16 - the admin_eval_render lane still exists
+  ---
+  duration_ms: 0.374209
+  type: 'test'
+  ...
+# Subtest: it is demoted off the pull_request lane, not merely disabled
+ok 17 - it is demoted off the pull_request lane, not merely disabled
+  ---
+  duration_ms: 0.226
+  type: 'test'
+  ...
+# Subtest: the job-level mask cannot be reinstated (D-11 step 4, forward-only ratchet)
+ok 18 - the job-level mask cannot be reinstated (D-11 step 4, forward-only ratchet)
+  ---
+  duration_ms: 0.148209
+  type: 'test'
+  ...
+# Subtest: the step-level artifact-upload flag under id: admin_eval_harness is retained (D-13)
+ok 19 - the step-level artifact-upload flag under id: admin_eval_harness is retained (D-13)
+  ---
+  duration_ms: 0.192333
+  type: 'test'
+  ...
+# Subtest: the workflow parse locates every lane this prohibition names
+ok 20 - the workflow parse locates every lane this prohibition names
+  ---
+  duration_ms: 1.277084
+  type: 'test'
+  ...
+# Subtest: lanes whose guards read .planning and guides carry no docs_only reference
+ok 21 - lanes whose guards read .planning and guides carry no docs_only reference
+  ---
+  duration_ms: 0.691917
+  type: 'test'
+  ...
+# Subtest: those same lanes do not depend on the changes job
+ok 22 - those same lanes do not depend on the changes job
+  ---
+  duration_ms: 1.364542
+  type: 'test'
+  ...
+# Subtest: the honest-skip section exists and is substantive
+ok 23 - the honest-skip section exists and is substantive
+  ---
+  duration_ms: 0.819875
+  type: 'test'
+  ...
+# Subtest: all three tiers are enumerated
+ok 24 - all three tiers are enumerated
+  ---
+  duration_ms: 0.165542
+  type: 'test'
+  ...
+# Subtest: the prose enumerates the same tier-B constructs as the manifest
+ok 25 - the prose enumerates the same tier-B constructs as the manifest
+  ---
+  duration_ms: 0.325708
+  type: 'test'
+  ...
+# Subtest: the run labels a docs-only green in its own log
+ok 26 - the run labels a docs-only green in its own log
+  ---
+  duration_ms: 2.542708
+  type: 'test'
+  ...
+# Subtest: no line-number, file-count or duration rot surface is reintroduced
+ok 27 - no line-number, file-count or duration rot surface is reintroduced
+  ---
+  duration_ms: 0.50225
+  type: 'test'
+  ...
+# Subtest: the ledger discusses the browser cache at all
+ok 28 - the ledger discusses the browser cache at all
+  ---
+  duration_ms: 0.382291
+  type: 'test'
+  ...
+# Subtest: a cache HIT and a cache MISS are both on the record
+ok 29 - a cache HIT and a cache MISS are both on the record
+  ---
+  duration_ms: 0.154625
+  type: 'test'
+  ...
+# Subtest: the measured install-step durations are recorded for both branches
+ok 30 - the measured install-step durations are recorded for both branches
+  ---
+  duration_ms: 0.227792
+  type: 'test'
+  ...
+# Subtest: the specific ~62s saving overclaim is not made
+ok 31 - the specific ~62s saving overclaim is not made
+  ---
+  duration_ms: 0.408542
+  type: 'test'
+  ...
+# Subtest: the job walk finds a realistic number of runner jobs
+ok 32 - the job walk finds a realistic number of runner jobs
+  ---
+  duration_ms: 0.356791
+  type: 'test'
+  ...
+# Subtest: every runner job declares exactly one timeout-minutes
+ok 33 - every runner job declares exactly one timeout-minutes
+  ---
+  duration_ms: 0.308583
+  type: 'test'
+  ...
+# Subtest: no ceiling is tight enough to truncate a run, and none is absurdly loose
+ok 34 - no ceiling is tight enough to truncate a run, and none is absurdly loose
+  ---
+  duration_ms: 1.572625
+  type: 'test'
+  ...
+# Subtest: the two measured poles stay pinned above their observed maxima
+ok 35 - the two measured poles stay pinned above their observed maxima
+  ---
+  duration_ms: 0.2745
+  type: 'test'
+  ...
+# Subtest: the terminal browser aggregate is absent from the docs-only body inventory
+ok 36 - the terminal browser aggregate is absent from the docs-only body inventory
+  ---
+  duration_ms: 0.449292
+  type: 'test'
+  ...
+# Subtest: every selected browser body has exact step and condition parity
+ok 37 - every selected browser body has exact step and condition parity
+  ---
+  duration_ms: 2.224292
+  type: 'test'
+  ...
+# Subtest: browser body skips require actual successful PR classification
+ok 38 - browser body skips require actual successful PR classification
+  ---
+  duration_ms: 0.082541
+  type: 'test'
+  ...
+# Subtest: old aggregate claim and missing stale or changed body conditions fail parity
+ok 39 - old aggregate claim and missing stale or changed body conditions fail parity
+  ---
+  duration_ms: 3.613167
+  type: 'test'
+  ...
+# Subtest: the manifest parses to a populated, tiered enumeration
+ok 40 - the manifest parses to a populated, tiered enumeration
+  ---
+  duration_ms: 0.101459
+  type: 'test'
+  ...
+# Subtest: every manifest id resolves to a real construct in ci.yml
+ok 41 - every manifest id resolves to a real construct in ci.yml
+  ---
+  duration_ms: 0.876583
+  type: 'test'
+  ...
+# Subtest: every step row names a parent that is itself a manifest job row
+ok 42 - every step row names a parent that is itself a manifest job row
+  ---
+  duration_ms: 0.083042
+  type: 'test'
+  ...
+# Subtest: display_name matches the construct name ci.yml actually declares
+ok 43 - display_name matches the construct name ci.yml actually declares
+  ---
+  duration_ms: 1.883916
+  type: 'test'
+  ...
+# Subtest: gate column matches the if: expression ci.yml actually declares (Phase 231 GATE-02 / GATE-03)
+ok 44 - gate column matches the if: expression ci.yml actually declares (Phase 231 GATE-02 / GATE-03)
+  ---
+  duration_ms: 0.628208
+  type: 'test'
+  ...
+# Subtest: no manifest gate string references a branch name or a literal commit SHA (Phase 231 GATE-03)
+ok 45 - no manifest gate string references a branch name or a literal commit SHA (Phase 231 GATE-03)
+  ---
+  duration_ms: 0.176583
+  type: 'test'
+  ...
+# Subtest: no event-gated job in ci.yml is missing from the manifest
+ok 46 - no event-gated job in ci.yml is missing from the manifest
+  ---
+  duration_ms: 0.234833
+  type: 'test'
+  ...
+# Subtest: the lanes that must never be gated are absent from the manifest
+ok 47 - the lanes that must never be gated are absent from the manifest
+  ---
+  duration_ms: 0.047125
+  type: 'test'
+  ...
+# Subtest: the ledger declares at least one restatement section
+ok 48 - the ledger declares at least one restatement section
+  ---
+  duration_ms: 0.411375
+  type: 'test'
+  ...
+# Subtest: every restatement names the success criterion it restates
+ok 49 - every restatement names the success criterion it restates
+  ---
+  duration_ms: 0.132125
+  type: 'test'
+  ...
+# Subtest: every restatement carries evidence, not just an assertion
+ok 50 - every restatement carries evidence, not just an assertion
+  ---
+  duration_ms: 0.228959
+  type: 'test'
+  ...
+# Subtest: the retained source ledger matches its recorded bytes
+ok 51 - the retained source ledger matches its recorded bytes
+  ---
+  duration_ms: 0.864125
+  type: 'test'
+  ...
+# Subtest: Phase 230 evidence ledger: the parse finds a non-trivial set of observation slots
+ok 52 - Phase 230 evidence ledger: the parse finds a non-trivial set of observation slots
+  ---
+  duration_ms: 0.09475
+  type: 'test'
+  ...
+# Subtest: Phase 230 evidence ledger: every slot declares a Status in the allowed grammar
+ok 53 - Phase 230 evidence ledger: every slot declares a Status in the allowed grammar
+  ---
+  duration_ms: 0.167125
+  type: 'test'
+  ...
+# Subtest: Phase 230 evidence ledger: every captured slot names at least one Status run ID
+ok 54 - Phase 230 evidence ledger: every captured slot names at least one Status run ID
+  ---
+  duration_ms: 0.091083
+  type: 'test'
+  ...
+# Subtest: Phase 230 evidence ledger: every captured slot records a producing command
+ok 55 - Phase 230 evidence ledger: every captured slot records a producing command
+  ---
+  duration_ms: 0.123209
+  type: 'test'
+  ...
+# Subtest: Phase 230 evidence ledger: each captured Status run ID is corroborated in its slot body
+ok 56 - Phase 230 evidence ledger: each captured Status run ID is corroborated in its slot body
+  ---
+  duration_ms: 0.08725
+  type: 'test'
+  ...
+# Subtest: Phase 230 evidence ledger: each pending slot books its obligation instead of claiming a number
+ok 57 - Phase 230 evidence ledger: each pending slot books its obligation instead of claiming a number
+  ---
+  duration_ms: 0.066625
+  type: 'test'
+  ...
+# Subtest: Phase 236 evidence ledger: the parse finds a non-trivial set of observation slots
+ok 58 - Phase 236 evidence ledger: the parse finds a non-trivial set of observation slots
+  ---
+  duration_ms: 0.048
+  type: 'test'
+  ...
+# Subtest: Phase 236 evidence ledger: every slot declares a Status in the allowed grammar
+ok 59 - Phase 236 evidence ledger: every slot declares a Status in the allowed grammar
+  ---
+  duration_ms: 0.052625
+  type: 'test'
+  ...
+# Subtest: Phase 236 evidence ledger: every captured slot names at least one Status run ID
+ok 60 - Phase 236 evidence ledger: every captured slot names at least one Status run ID
+  ---
+  duration_ms: 0.082667
+  type: 'test'
+  ...
+# Subtest: Phase 236 evidence ledger: every captured slot records a producing command
+ok 61 - Phase 236 evidence ledger: every captured slot records a producing command
+  ---
+  duration_ms: 0.051542
+  type: 'test'
+  ...
+# Subtest: Phase 236 evidence ledger: each captured Status run ID is corroborated in its slot body
+ok 62 - Phase 236 evidence ledger: each captured Status run ID is corroborated in its slot body
+  ---
+  duration_ms: 0.043125
+  type: 'test'
+  ...
+# Subtest: Phase 236 evidence ledger: each pending slot books its obligation instead of claiming a number
+ok 63 - Phase 236 evidence ledger: each pending slot books its obligation instead of claiming a number
+  ---
+  duration_ms: 0.046292
+  type: 'test'
+  ...
+# Subtest: the manifest yields the demoted constructs this rule applies to
+ok 64 - the manifest yields the demoted constructs this rule applies to
+  ---
+  duration_ms: 0.394666
+  type: 'test'
+  ...
+# Subtest: every demoted construct appears in a captured observation slot
+ok 65 - every demoted construct appears in a captured observation slot
+  ---
+  duration_ms: 0.143959
+  type: 'test'
+  ...
+# Subtest: no demoted construct is recorded as skipped on the receiving lane
+ok 66 - no demoted construct is recorded as skipped on the receiving lane
+  ---
+  duration_ms: 0.183416
+  type: 'test'
+  ...
+# Subtest: parse floor: the subject contains at least two `.className` property reads
+ok 67 - parse floor: the subject contains at least two `.className` property reads
+  ---
+  duration_ms: 0.465958
+  type: 'test'
+  ...
+# Subtest: no `.className` property read is followed by a string-method invocation
+ok 68 - no `.className` property read is followed by a string-method invocation
+  ---
+  duration_ms: 0.416459
+  type: 'test'
+  ...
+# Subtest: D-12 negative control: the two safe truthiness reads at ~176 and ~237 survive
+ok 69 - D-12 negative control: the two safe truthiness reads at ~176 and ~237 survive
+  ---
+  duration_ms: 0.124042
+  type: 'test'
+  ...
+# Subtest: the parse locates the publish job and its step list is non-empty
+ok 70 - the parse locates the publish job and its step list is non-empty
+  ---
+  duration_ms: 0.711791
+  type: 'test'
+  ...
+# Subtest: a demo-seeds step exists, unconditional, strictly between DB setup and app boot
+ok 71 - a demo-seeds step exists, unconditional, strictly between DB setup and app boot
+  ---
+  duration_ms: 0.210042
+  type: 'test'
+  ...
+# Subtest: negative control: a fixture omitting the seeds step fails the guard
+ok 72 - negative control: a fixture omitting the seeds step fails the guard
+  ---
+  duration_ms: 0.219709
+  type: 'test'
+  ...
+# Subtest: negative control: a fixture whose seeds step sits after boot fails the guard
+ok 73 - negative control: a fixture whose seeds step sits after boot fails the guard
+  ---
+  duration_ms: 0.064583
+  type: 'test'
+  ...
+# Subtest: the parse locates the demotion_receipt job and its Verdict step body
+ok 74 - the parse locates the demotion_receipt job and its Verdict step body
+  ---
+  duration_ms: 0.388958
+  type: 'test'
+  ...
+# Subtest: no trigger-dependent early exit and no warn-instead-of-fail branch survives
+ok 75 - no trigger-dependent early exit and no warn-instead-of-fail branch survives
+  ---
+  duration_ms: 0.191166
+  type: 'test'
+  ...
+# Subtest: the GATE-03 boundary note at the top of the file is byte-unchanged
+ok 76 - the GATE-03 boundary note at the top of the file is byte-unchanged
+  ---
+  duration_ms: 0.089375
+  type: 'test'
+  ...
+# Subtest: negative control: a fixture reintroducing a trigger-dependent early exit fails the guard
+ok 77 - negative control: a fixture reintroducing a trigger-dependent early exit fails the guard
+  ---
+  duration_ms: 0.054417
+  type: 'test'
+  ...
+# Subtest: the config parse locates a `retries:` line at all (non-vacuity floor)
+ok 78 - the config parse locates a `retries:` line at all (non-vacuity floor)
+  ---
+  duration_ms: 0.499
+  type: 'test'
+  ...
+# Subtest: the spec walk finds at least 10 tests/*.spec.ts files (non-vacuity floor)
+ok 79 - the spec walk finds at least 10 tests/*.spec.ts files (non-vacuity floor)
+  ---
+  duration_ms: 0.088125
+  type: 'test'
+  ...
+# Subtest: the config subject carries no retry wrapper
+ok 80 - the config subject carries no retry wrapper
+  ---
+  duration_ms: 0.237375
+  type: 'test'
+  ...
+# Subtest: no tests/*.spec.ts file carries a retry wrapper
+ok 81 - no tests/*.spec.ts file carries a retry wrapper
+  ---
+  duration_ms: 0.700709
+  type: 'test'
+  ...
+# Subtest: negative control: a fixture reintroducing a retry wrapper fails the guard
+ok 82 - negative control: a fixture reintroducing a retry wrapper fails the guard
+  ---
+  duration_ms: 0.299541
+  type: 'test'
+  ...
+# R1 measured=337 baseline=337 pass=decrease-or-equal zero-is-not-the-target
+# R2 measured=220 baseline=220 pass=decrease-or-equal zero-is-not-the-target
+# R3 measured=58 baseline=58 pass=decrease-or-equal zero-is-not-the-target
+# Subtest: R1: narrower Phase-237 vocabulary in lib doc ranges does not increase
+ok 83 - R1: narrower Phase-237 vocabulary in lib doc ranges does not increase
+  ---
+  duration_ms: 15.810167
+  type: 'test'
+  ...
+# Subtest: R2: wide Phase-239 V3 vocabulary in lib comment-only lines does not increase
+ok 84 - R2: wide Phase-239 V3 vocabulary in lib comment-only lines does not increase
+  ---
+  duration_ms: 12.118584
+  type: 'test'
+  ...
+# Subtest: R3: literal .planning/ occurrences in packaged docs do not increase
+ok 85 - R3: literal .planning/ occurrences in packaged docs do not increase
+  ---
+  duration_ms: 5.5885
+  type: 'test'
+  ...
+# doc_ranges=655 total_hits=337 distinct_sites=254 distinct_files=69
+# Subtest: tracked lib/ doc ranges contain no zero-at-HEAD planning-artifact tokens
+ok 86 - tracked lib/ doc ranges contain no zero-at-HEAD planning-artifact tokens
+  ---
+  duration_ms: 16.454875
+  type: 'test'
+  ...
+# Subtest: doc-range walker distinguishes an instrument failure from a dirty surface
+ok 87 - doc-range walker distinguishes an instrument failure from a dirty surface
+  ---
+  duration_ms: 0.059917
+  type: 'test'
+  ...
+# Subtest: D-30 parity manifest pins every accepted and rejected fixture to Phase-237 totals
+ok 88 - D-30 parity manifest pins every accepted and rejected fixture to Phase-237 totals
+  ---
+  duration_ms: 0.711083
+  type: 'test'
+  ...
+# Subtest: D-30 parity compares the real doc-range total to the committed R1 baseline
+ok 89 - D-30 parity compares the real doc-range total to the committed R1 baseline
+  ---
+  duration_ms: 8.1625
+  type: 'test'
+  ...
+# tier=planning-paths
+# hits=0
+# allowlisted=0
+# hits_outside_allowlist=0
+# control_defmodule=286
+# files_measured=280
+# Subtest: tracked lib/ and priv/templates/ contain no literal .planning/ path
+ok 90 - tracked lib/ and priv/templates/ contain no literal .planning/ path
+  ---
+  duration_ms: 45.8955
+  type: 'test'
+  ...
+# tier=priv-templates
+# hits=2
+# allowlisted=2
+# hits_outside_allowlist=0
+# control_defmodule=98
+# files_measured=119
+# Subtest: tracked priv/templates/ contain no V3 bookkeeping vocabulary outside the allowlist
+ok 91 - tracked priv/templates/ contain no V3 bookkeeping vocabulary outside the allowlist
+  ---
+  duration_ms: 42.81975
+  type: 'test'
+  ...
+# Subtest: an allowlisted SVG token does not suppress a second bookkeeping token on its line
+ok 92 - an allowlisted SVG token does not suppress a second bookkeeping token on its line
+  ---
+  duration_ms: 0.524166
+  type: 'test'
+  ...
+# Subtest: floor: a non-object value produces a named message, not a silent pass
+ok 93 - floor: a non-object value produces a named message, not a silent pass
+  ---
+  duration_ms: 0.468875
+  type: 'test'
+  ...
+# Subtest: floor: an object with no `target` field produces a named message
+ok 94 - floor: an object with no `target` field produces a named message
+  ---
+  duration_ms: 0.191167
+  type: 'test'
+  ...
+# Subtest: floor: an object with an empty or missing `rules` array produces a named message
+ok 95 - floor: an object with an empty or missing `rules` array produces a named message
+  ---
+  duration_ms: 0.092125
+  type: 'test'
+  ...
+# Subtest: the snapshot parse produced an object with a target field at all (non-vacuity floor)
+ok 96 - the snapshot parse produced an object with a target field at all (non-vacuity floor)
+  ---
+  duration_ms: 0.055833
+  type: 'test'
+  ...
+# Subtest: the committed snapshot produces null (every asserted field matches the landed Tier-2 shape)
+ok 97 - the committed snapshot produces null (every asserted field matches the landed Tier-2 shape)
+  ---
+  duration_ms: 0.045542
+  type: 'test'
+  ...
+# Subtest: a snapshot whose target is not the tag target produces a named message
+ok 98 - a snapshot whose target is not the tag target produces a named message
+  ---
+  duration_ms: 0.052584
+  type: 'test'
+  ...
+# Subtest: a snapshot whose enforcement value is not active produces a named message
+ok 99 - a snapshot whose enforcement value is not active produces a named message
+  ---
+  duration_ms: 0.041917
+  type: 'test'
+  ...
+# Subtest: a snapshot whose include conditions no longer scope refs/tags/v* produces a named message
+ok 100 - a snapshot whose include conditions no longer scope refs/tags/v* produces a named message
+  ---
+  duration_ms: 0.050916
+  type: 'test'
+  ...
+# Subtest: a snapshot whose single rule has a changed type (Tier-2's analogue of a changed operator) produces a named message
+ok 101 - a snapshot whose single rule has a changed type (Tier-2's analogue of a changed operator) produces a named message
+  ---
+  duration_ms: 0.051
+  type: 'test'
+  ...
+# Subtest: a snapshot whose exclude conditions were emptied (Tier-2's analogue of a flipped negate value) produces a named message
+ok 102 - a snapshot whose exclude conditions were emptied (Tier-2's analogue of a flipped negate value) produces a named message
+  ---
+  duration_ms: 0.074417
+  type: 'test'
+  ...
+# Subtest: a snapshot whose exclude glob value changed (Tier-2's analogue of a changed pattern) produces a named message
+ok 103 - a snapshot whose exclude glob value changed (Tier-2's analogue of a changed pattern) produces a named message
+  ---
+  duration_ms: 0.04725
+  type: 'test'
+  ...
+# Subtest: a snapshot with an empty rules array produces a named message
+ok 104 - a snapshot with an empty rules array produces a named message
+  ---
+  duration_ms: 0.13925
+  type: 'test'
+  ...
+# Subtest: a snapshot carrying a deletion rule produces a named message
+ok 105 - a snapshot carrying a deletion rule produces a named message
+  ---
+  duration_ms: 0.051667
+  type: 'test'
+  ...
+# Subtest: altering the bypass actor list (referenced only by a runtime-joined name, so this behavior test itself never trips the guard file's own bypass-field textual gate) still produces null, because that field is deliberately not asserted
+ok 106 - altering the bypass actor list (referenced only by a runtime-joined name, so this behavior test itself never trips the guard file's own bypass-field textual gate) still produces null, because that field is deliberately not asserted
+  ---
+  duration_ms: 0.183
+  type: 'test'
+  ...
+# Subtest: negative control: an inline object carrying the branch target fails the guard
+ok 107 - negative control: an inline object carrying the branch target fails the guard
+  ---
+  duration_ms: 0.084167
+  type: 'test'
+  ...
+# Subtest: the committed known-bad fixture also fails the guard (secondary artifact, not the subject)
+ok 108 - the committed known-bad fixture also fails the guard (secondary artifact, not the subject)
+  ---
+  duration_ms: 0.135125
+  type: 'test'
+  ...
+# Subtest: floor: an evidence ledger that parses to zero slots produces a named message, not a pass
+ok 109 - floor: an evidence ledger that parses to zero slots produces a named message, not a pass
+  ---
+  duration_ms: 0.241
+  type: 'test'
+  ...
+# Subtest: negative control: an inline malformed ledger fails the ledger grammar checker
+ok 110 - negative control: an inline malformed ledger fails the ledger grammar checker
+  ---
+  duration_ms: 0.128709
+  type: 'test'
+  ...
+# Subtest: the Phase 238 evidence ledger (read via the archive-aware path, as a secondary artifact) passes its own grammar check
+ok 111 - the Phase 238 evidence ledger (read via the archive-aware path, as a secondary artifact) passes its own grammar check
+  ---
+  duration_ms: 0.477958
+  type: 'test'
+  ...
+# Subtest: the evidence job step list matches ci.yml generated_admin_playwright_smoke
+ok 112 - the evidence job step list matches ci.yml generated_admin_playwright_smoke
+  ---
+  duration_ms: 1.451166
+  type: 'test'
+  ...
+# Subtest: non-vacuity floor: both parses find steps and the acceptance-smoke invocation
+ok 113 - non-vacuity floor: both parses find steps and the acceptance-smoke invocation
+  ---
+  duration_ms: 0.17225
+  type: 'test'
+  ...
+# Subtest: negative control: the committed drift fixture fails the guard
+ok 114 - negative control: the committed drift fixture fails the guard
+  ---
+  duration_ms: 0.375708
+  type: 'test'
+  ...
+# Subtest: missing stale and duplicate active ids cannot satisfy documentation parity
+ok 115 - missing stale and duplicate active ids cannot satisfy documentation parity
+  ---
+  duration_ms: 0.988333
+  type: 'test'
+  ...
+# Subtest: the manifest and honest-skip section are non-vacuously available
+ok 116 - the manifest and honest-skip section are non-vacuously available
+  ---
+  duration_ms: 0.143
+  type: 'test'
+  ...
+# Subtest: the active honest-skip inventory exactly matches manifest ids and required step parents
+ok 117 - the active honest-skip inventory exactly matches manifest ids and required step parents
+  ---
+  duration_ms: 0.665875
+  type: 'test'
+  ...
+# Subtest: p10 continues to own the three delegated ci.yml parity legs
+ok 118 - p10 continues to own the three delegated ci.yml parity legs
+  ---
+  duration_ms: 0.063208
+  type: 'test'
+  ...
+1..118
+# tests 118
+# suites 0
+# pass 118
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 145.824791

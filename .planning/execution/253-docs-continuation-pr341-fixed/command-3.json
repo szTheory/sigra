@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-B",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341-fixed/runtime/ci-hosted-gate-verify.py",
+    "--mode",
+    "pr",
+    "--family",
+    "docs-only",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341-fixed/docs-only-evidence.json"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "hosted-gate-verify: FAIL: actual terminal run conclusion is not success\n"
+}

@@ -1,0 +1,41 @@
+Compiling 1 file (.ex)
+Generated registration_reloader_probe app
+debugger_starting
+debugger_interpreting_handler
+debugger_handler_interpreted
+awaiting_loader_breakpoint
+loader_breakpoint_reached
+awaiting_loader_breakpoint
+loader_breakpoint_reached
+actual_reloader_probe_finished
+    warning: :code.lib_dir/2 is deprecated. This functionality will be removed in a future release
+    │
+ 16 │     source_path = Path.join(to_string(:code.lib_dir(:kernel, :src)), "error_handler.erl")
+    │                                             ~
+    │
+    └─ .planning/debug/phase253-registration-timeout/interleaving_probe.exs:16:45: RegistrationLoaderInterleaving.run/3
+
+    warning: incompatible types given to Kernel.hd/1:
+
+        hd(__STACKTRACE__)
+
+    given types:
+
+        -empty_list()- or non_empty_list(
+            {atom(), atom(), integer() or list(term()),
+             list({:error_info, map()} or {:file, list(integer())} or {:line, integer()})} or
+              {fun(), integer() or list(term()),
+               list({:error_info, map()} or {:file, list(integer())} or {:line, integer()})}
+          )
+
+    but expected one of:
+
+        non_empty_list(term(), term())
+
+    typing violation found at:
+    │
+ 57 │               first_stack_frame: inspect(hd(__STACKTRACE__))}
+    │                                          ~
+    │
+    └─ .planning/debug/phase253-registration-timeout/interleaving_probe.exs:57:42: RegistrationLoaderInterleaving.run/3
+

@@ -1,0 +1,141 @@
+{
+  "schema_version": "sigra.phase253.shape-probe-requests/v1",
+  "repository": "szTheory/sigra",
+  "window_id": "253-127-probe-window-1",
+  "max_requests": 8,
+  "max_elapsed_seconds": 600,
+  "max_response_bytes": 4194304,
+  "max_pages": 2,
+  "max_hops": 2,
+  "category_limits": {
+    "preflight": 1,
+    "cancelled_shape": 3,
+    "job_log_shape": 1,
+    "failure_logs": 3
+  },
+  "download_hosts": [
+    "pipelines.actions.githubusercontent.com",
+    "productionresultssa0.blob.core.windows.net",
+    "productionresultssa1.blob.core.windows.net",
+    "productionresultssa2.blob.core.windows.net",
+    "productionresultssa3.blob.core.windows.net",
+    "productionresultssa4.blob.core.windows.net",
+    "productionresultssa5.blob.core.windows.net",
+    "productionresultssa6.blob.core.windows.net",
+    "productionresultssa7.blob.core.windows.net",
+    "productionresultssa8.blob.core.windows.net",
+    "productionresultssa9.blob.core.windows.net",
+    "productionresultssa10.blob.core.windows.net",
+    "productionresultssa11.blob.core.windows.net",
+    "productionresultssa12.blob.core.windows.net",
+    "productionresultssa13.blob.core.windows.net",
+    "productionresultssa14.blob.core.windows.net",
+    "productionresultssa15.blob.core.windows.net",
+    "productionresultssa16.blob.core.windows.net",
+    "productionresultssa17.blob.core.windows.net",
+    "productionresultssa18.blob.core.windows.net",
+    "productionresultssa19.blob.core.windows.net",
+    "productionresultssa20.blob.core.windows.net",
+    "productionresultssa21.blob.core.windows.net",
+    "productionresultssa22.blob.core.windows.net",
+    "productionresultssa23.blob.core.windows.net",
+    "productionresultssa24.blob.core.windows.net",
+    "productionresultssa25.blob.core.windows.net",
+    "productionresultssa26.blob.core.windows.net",
+    "productionresultssa27.blob.core.windows.net",
+    "productionresultssa28.blob.core.windows.net",
+    "productionresultssa29.blob.core.windows.net",
+    "productionresultssa30.blob.core.windows.net",
+    "productionresultssa31.blob.core.windows.net",
+    "productionresultssa32.blob.core.windows.net",
+    "productionresultssa33.blob.core.windows.net",
+    "productionresultssa34.blob.core.windows.net",
+    "productionresultssa35.blob.core.windows.net",
+    "productionresultssa36.blob.core.windows.net",
+    "productionresultssa37.blob.core.windows.net",
+    "productionresultssa38.blob.core.windows.net",
+    "productionresultssa39.blob.core.windows.net",
+    "productionresultssa40.blob.core.windows.net",
+    "results-receiver.actions.githubusercontent.com"
+  ],
+  "source_pointers": [
+    {
+      "path": ".planning/phases/252-measure-current-ci/252-BASELINE.json",
+      "sha256": "f397a4624c1a18e5418795b00b3e7510fab34bd858f9540f2f76f2c386319843",
+      "pointer": "/failure_analysis/families/5/run"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json",
+      "sha256": "3b0dd91e85612a973012bbcdadcc925afa3b1dc5cbe4b95a1c5349c6ed226c33",
+      "sequence": 45
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-HTTP-LEDGER-R10.json",
+      "sha256": "3b0dd91e85612a973012bbcdadcc925afa3b1dc5cbe4b95a1c5349c6ed226c33",
+      "sequence": 47
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-ALLOCATION-R10.json",
+      "sha256": "19f88204483b94e70f5e7d717dee94c285ba22e8b61eb0290c581b1d00e49edb",
+      "pointer": "/download_hosts"
+    }
+  ],
+  "driver_commit": "82a5c3b52e7a78a8ba4a4e0a6f8fb71b58483b1b",
+  "requests": [
+    {
+      "id": "rate",
+      "route_id": "rate_limit",
+      "method": "GET",
+      "category": "preflight",
+      "params": {},
+      "query": {},
+      "mode": "one"
+    },
+    {
+      "id": "cancelled-run",
+      "route_id": "run",
+      "method": "GET",
+      "category": "cancelled_shape",
+      "params": {
+        "run_id": 38141825287
+      },
+      "query": {},
+      "mode": "one"
+    },
+    {
+      "id": "cancelled-jobs",
+      "route_id": "run_jobs",
+      "method": "GET",
+      "category": "cancelled_shape",
+      "params": {
+        "run_id": 38141825287
+      },
+      "query": {
+        "per_page": 100
+      },
+      "mode": "pages"
+    },
+    {
+      "id": "job-log-redirect",
+      "route_id": "job_logs",
+      "method": "GET",
+      "category": "job_log_shape",
+      "params": {
+        "job_id": 117183276622
+      },
+      "query": {},
+      "mode": "one"
+    },
+    {
+      "id": "run-log-chain",
+      "route_id": "run_logs",
+      "method": "GET",
+      "category": "failure_logs",
+      "params": {
+        "run_id": 38963239851
+      },
+      "query": {},
+      "mode": "follow"
+    }
+  ]
+}

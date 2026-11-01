@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "frontmatter.validate",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md",
+      "--schema",
+      "plan-gap-closure"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+    "stderr": ""
+  },
+  "structure": {
+    "argv": [
+      "node",
+      "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+      "query",
+      "verify.plan-structure",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [\n    \"[plan-criteria R4] A fallible `git` in a non-final pipeline stage is swallowed \u2014 the pipeline reports the last stage's status, so a broken command reads as clean. Capture the status first.\"\n  ],\n  \"task_count\": 2,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: Derive PUBLICATION-R13 and FREEZE-R13 on the fetched main, offline, with the parent, identity, approval and ledger controls\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 2: Rehearse both offline gates on the committed FREEZE-R13 and run the frozen-state regression\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+    "stderr": ""
+  }
+}

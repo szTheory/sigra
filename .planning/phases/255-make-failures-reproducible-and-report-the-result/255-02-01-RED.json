@@ -1,0 +1,10 @@
+{
+  "command": "NO_COLOR=1 python3 -B scripts/ci/ci-command-record.test.py -k test_primary_failure_survives_failing_cleanup_with_exact_streams_and_record",
+  "exitCode": 1,
+  "output": "test_primary_failure_survives_failing_cleanup_with_exact_streams_and_record (__main__.CommandRecordTest.test_primary_failure_survives_failing_cleanup_with_exact_streams_and_record) ... FAIL\n\n======================================================================\nFAIL: test_primary_failure_survives_failing_cleanup_with_exact_streams_and_record (__main__.CommandRecordTest.test_primary_failure_survives_failing_cleanup_with_exact_streams_and_record)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jon/projects/sigra/scripts/ci/ci-command-record.test.py\", line 40, in test_primary_failure_survives_failing_cleanup_with_exact_streams_and_record\n    self.assertEqual(42, result.returncode)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 42 != 2\n\n----------------------------------------------------------------------\nRan 1 test in 0.042s\n\nFAILED (failures=1)\n",
+  "targetTest": "test_primary_failure_survives_failing_cleanup_with_exact_streams_and_record",
+  "targetFile": "scripts/ci/ci-command-record.test.py",
+  "expected": "Recorder returns the child exit code 42, records cleanup exit 7, and writes exact stdout/stderr files.",
+  "actual": "The recorder is not present yet, so the wrapper command exits 2 before retaining any command outcome.",
+  "semanticAssessment": "The named unittest target ran and failed at the assertion that expects caller status 42; observed status was 2 because the planned recorder implementation is absent. The failure is the planned behavior, not a test import or setup error."
+}

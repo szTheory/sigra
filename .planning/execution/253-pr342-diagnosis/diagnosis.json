@@ -1,0 +1,85 @@
+{
+  "schema": "sigra.phase253.pr342-diagnosis/v1",
+  "created_at": "2026-10-22T02:58:11.784066+00:00",
+  "status": "offline_repairs_verified_hosted_docs_unaccepted",
+  "approval_commit": "8e765edc1",
+  "decision_text": "what do u rec? do that i approve",
+  "attempt_commit": "72103017d5fddd0e84d0e9f4ee0552f53d52468d",
+  "bundle_sha256": "8ce91280fbf7f89b7a665903d28d0cf97495994f3d9fe733ae94d238271e97f5",
+  "pr": 342,
+  "run_id": 39711884498,
+  "run_conclusion": "failure",
+  "tested_merge_sha": "a79f96b9fb3a46396e8e87fe848ba757b1de32fb",
+  "requests": 53,
+  "seconds": 761,
+  "workflow_dispatches": 0,
+  "pr_creations": 1,
+  "ci_launches": 1,
+  "reruns": 0,
+  "window_closed": true,
+  "closed_windows_reopened": 0,
+  "failed_jobs": [
+    {
+      "name": "Generated admin Playwright smoke",
+      "id": 119604907249,
+      "failed_steps": [
+        "Run generated admin acceptance smoke"
+      ]
+    },
+    {
+      "name": "Library tests shard",
+      "id": 119604907328,
+      "failed_steps": [
+        "Run contributor CI gate"
+      ]
+    },
+    {
+      "name": "Library tests",
+      "id": 119605570893,
+      "failed_steps": [
+        "Require the library suite owner to pass"
+      ]
+    },
+    {
+      "name": "ci-gate",
+      "id": 119608376647,
+      "failed_steps": [
+        "Honest-skip verdict (GATE-03)"
+      ]
+    }
+  ],
+  "diagnostic_connector_calls": 3,
+  "diagnostic_connector_http_count": "not exposed; not included in measured acceptance windows",
+  "diagnostic_artifact_downloads_from_connector_file_host": 1,
+  "library_diagnosis": "Actual docs fixture adds a base-branch filter; exact [main] assertion fails. Four native tests reproduce one failure with the saved actual workflow.",
+  "admin_diagnosis": "CI timed out on connected LiveView selector on two rendered admin pages. Local harness can start with missing app.js after asynchronous asset download failure. The original two cases pass unchanged with assets ready. Synchronous assets.build now completes before server/browser startup.",
+  "admin_cause_limit": "Hosted server log was not uploaded; the precise hosted socket failure is not proven. Asset build barrier is locally verified; no hosted repair success is claimed.",
+  "local_tool_setup": "Official pinned esbuild0.25.4 tarball supplied from local cache by wrapper only at assets.build; actual mix command ran. Earlier focused diagnostic used cached0.25.11; full final smoke used0.25.4.",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted_docs_ci_failed"
+  },
+  "phase_verification_status": "not_started",
+  "normal_pr341_retained": true,
+  "historical_halts_unchanged": 29,
+  "plan179_replayed": false,
+  "product_changes": {
+    "scripts/ci/admin-acceptance-smoke.sh": "d01cd6cafd6de3ae14db37a34465de872cc7f34361f634c1e8f9eb4ba86aa028",
+    "test/sigra/planning/phase_146_release_validation_test.exs": "6eaa99fd7588b560f60e2c3fad3ac1e27b23923036b6592423a5477bceb0057b"
+  },
+  "checks": {
+    "library_actual_workflow_red": "4tests1failure",
+    "library_actual_workflow_green": "4tests0failures",
+    "library_production_workflow_green": "4tests0failures",
+    "removed_main_rejected": true,
+    "mainish_rejected": true,
+    "native_contracts": "10tests0failures",
+    "original_two_browser_cases": "2passed1.3s",
+    "full_generated_host": "8passed1intentional_skip; confirmation1passed; revocation1passed; exit0",
+    "bash_syntax": true,
+    "diff_check": true,
+    "original_hosted_bytes_readback": true
+  },
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_action": "Continue Plan172 inline with offline repaired-source and docs-variant validation; prepare a concrete minimal hosted-proof proposal only after offline checks. Existing window is closed. No new CI is authorized by this record; no quick task or numbered repair plan."
+}

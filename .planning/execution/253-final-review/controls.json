@@ -1,0 +1,513 @@
+{
+  "status": "completed_controls_reverified_no_new_runtime_needed",
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "verifier_command": [
+    "node",
+    "scripts/ci/ci-registration-recovery.mjs",
+    "--verify-load-recovery",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json",
+    "--stage",
+    "complete"
+  ],
+  "verifier_exit": 0,
+  "verifier_stdout": "R5 native load recovery verified: 3 new commands; 12/22 CLI launches; 2461131 ms cumulative; retry_available=0",
+  "evidence": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json",
+  "evidence_sha256": "14df65778c6e1ab924d0ed5430937383af95c499c1f00468028910eda9d9f9a1",
+  "carried_first_revision": "0596dd97a77acafc7dff68b48cba437f3c7e5183",
+  "source_comparisons": [
+    {
+      "source": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "path": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+      "sha256": "486bd089fd306c0b1ce6961c6e571eca604b9aaee325b9fce07b8c16fd4aae49",
+      "unchanged": true
+    },
+    {
+      "source": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "path": "test/example/priv/playwright/helpers/registrationControls.mjs",
+      "sha256": "8bcc6de89d303c0ca69fa6fb482cb7a377ec1eba2754966d3d441cfe83a11018",
+      "unchanged": true
+    },
+    {
+      "source": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "path": "test/example/priv/playwright/helpers/adminFlows.ts",
+      "sha256": "8b7908ae53d3307dca09e0dc8c048561ba8813057ea8796b97db7da802b7f7f4",
+      "unchanged": true
+    },
+    {
+      "source": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "path": "test/example/priv/playwright/playwright.registration-recovery.config.ts",
+      "sha256": "e6e654d778e19ddb5673e1a2c8483a155ec308adc7f3e315ec1c28cab7369efb",
+      "unchanged": true
+    },
+    {
+      "source": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "path": "test/example/lib/example_web/live/registration_live.ex",
+      "sha256": "ee455657311687ac9235371f438c5c202a74fd96519174de83469b332309ab97",
+      "unchanged": true
+    },
+    {
+      "source": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "path": "test/example/lib/example/accounts.ex",
+      "sha256": "29426d8484a87c94c84427f8f5b6354bbec8f3b085d45fbeea2083252d71de61",
+      "unchanged": true
+    },
+    {
+      "source": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "path": "test/example/lib/example/accounts/user.ex",
+      "sha256": "3a0945fd076219c7d4b2a273cfa21af1fee3a5ff3653b76b5b85fa58760105dd",
+      "unchanged": true
+    },
+    {
+      "source": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "path": "lib/sigra/auth.ex",
+      "sha256": "c4913da27811a307189f031d38f5fdc11d8f62e8a8bdccba653eac4defa50208",
+      "unchanged": true
+    },
+    {
+      "source": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "path": "test/example/priv/playwright/package-lock.json",
+      "sha256": "fe47b376881df4fe68b5e91248f1d80d721adbbe4aad701a715acee8c6acd1f5",
+      "unchanged": true
+    },
+    {
+      "source": "1784a7745378d3d3f335bbff61732be2dcdf14a8",
+      "path": "test/example/mix.lock",
+      "sha256": "79d82423147d7c237781dbc51ddd765b702a81215f673649656084f4aa835d85",
+      "unchanged": true
+    },
+    {
+      "source": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "path": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+      "sha256": "486bd089fd306c0b1ce6961c6e571eca604b9aaee325b9fce07b8c16fd4aae49",
+      "unchanged": true
+    },
+    {
+      "source": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "path": "test/example/priv/playwright/helpers/registrationControls.mjs",
+      "sha256": "8bcc6de89d303c0ca69fa6fb482cb7a377ec1eba2754966d3d441cfe83a11018",
+      "unchanged": true
+    },
+    {
+      "source": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "path": "test/example/priv/playwright/helpers/adminFlows.ts",
+      "sha256": "8b7908ae53d3307dca09e0dc8c048561ba8813057ea8796b97db7da802b7f7f4",
+      "unchanged": true
+    },
+    {
+      "source": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "path": "test/example/priv/playwright/playwright.registration-recovery.config.ts",
+      "sha256": "e6e654d778e19ddb5673e1a2c8483a155ec308adc7f3e315ec1c28cab7369efb",
+      "unchanged": true
+    },
+    {
+      "source": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "path": "test/example/lib/example_web/live/registration_live.ex",
+      "sha256": "ee455657311687ac9235371f438c5c202a74fd96519174de83469b332309ab97",
+      "unchanged": true
+    },
+    {
+      "source": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "path": "test/example/lib/example/accounts.ex",
+      "sha256": "29426d8484a87c94c84427f8f5b6354bbec8f3b085d45fbeea2083252d71de61",
+      "unchanged": true
+    },
+    {
+      "source": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "path": "test/example/lib/example/accounts/user.ex",
+      "sha256": "3a0945fd076219c7d4b2a273cfa21af1fee3a5ff3653b76b5b85fa58760105dd",
+      "unchanged": true
+    },
+    {
+      "source": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "path": "lib/sigra/auth.ex",
+      "sha256": "c4913da27811a307189f031d38f5fdc11d8f62e8a8bdccba653eac4defa50208",
+      "unchanged": true
+    },
+    {
+      "source": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "path": "test/example/priv/playwright/package-lock.json",
+      "sha256": "fe47b376881df4fe68b5e91248f1d80d721adbbe4aad701a715acee8c6acd1f5",
+      "unchanged": true
+    },
+    {
+      "source": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "path": "test/example/mix.lock",
+      "sha256": "79d82423147d7c237781dbc51ddd765b702a81215f673649656084f4aa835d85",
+      "unchanged": true
+    }
+  ],
+  "rows": [
+    {
+      "title": "registration waits for explicitly released LiveView readiness",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration stops when LiveView readiness is never released",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": true
+    },
+    {
+      "title": "registration fails when the readiness wait is deliberately broken",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": true
+    },
+    {
+      "title": "registration detects a deliberate same-account collision",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration retains the first forced assertion failure trace",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": true
+    },
+    {
+      "title": "registration waits for explicitly released LiveView readiness",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration stops when LiveView readiness is never released",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": true
+    },
+    {
+      "title": "registration fails when the readiness wait is deliberately broken",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": true
+    },
+    {
+      "title": "registration detects a deliberate same-account collision",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration retains the first forced assertion failure trace",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": true
+    },
+    {
+      "title": "registration waits for explicitly released LiveView readiness",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration stops when LiveView readiness is never released",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": true
+    },
+    {
+      "title": "registration fails when the readiness wait is deliberately broken",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": true
+    },
+    {
+      "title": "registration detects a deliberate same-account collision",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration retains the first forced assertion failure trace",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "failed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": true
+    },
+    {
+      "title": "render bundle: board-mg-9/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration starts from a fresh database and context",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration discards trace after a passing control",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration starts from a fresh database and context",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration discards trace after a passing control",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration starts from a fresh database and context",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    },
+    {
+      "title": "registration discards trace after a passing control",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0
+        }
+      ],
+      "deliberate_failure": false
+    }
+  ],
+  "total": 22,
+  "positive_rows": 13,
+  "deliberate_negative_rows": 9,
+  "retained_failure_traces": [
+    {
+      "project": "admin-eval",
+      "title": "registration stops when LiveView readiness is never released",
+      "sha256": "b8b9d6c30909c875a52ffed6e7946b0545bf878c69bd91f4c3e52b4337059993"
+    },
+    {
+      "project": "admin-eval",
+      "title": "registration fails when the readiness wait is deliberately broken",
+      "sha256": "f9a5f9c7249ad1f2c2420b0092b94e47b74bf99cc238f8da800e66361b0d48e1"
+    },
+    {
+      "project": "admin-eval",
+      "title": "registration retains the first forced assertion failure trace",
+      "sha256": "91050298375afbbd2154e57f6e9d3da67f4b55e7946ab725c2b96ab01adf1d74"
+    },
+    {
+      "project": "admin-eval-mobile",
+      "title": "registration stops when LiveView readiness is never released",
+      "sha256": "53a2fab80367ff5fa72f3c343f4a39e37990100a5eb0016a9e5a7bc51b4a8ed2"
+    },
+    {
+      "project": "admin-eval-mobile",
+      "title": "registration fails when the readiness wait is deliberately broken",
+      "sha256": "63938d9700bafe5143fea34a5d6ece9ee3f0a5a424d25817dc94242f65b78835"
+    },
+    {
+      "project": "admin-eval-mobile",
+      "title": "registration retains the first forced assertion failure trace",
+      "sha256": "302fee7360f8332cb0465994848371518a3ca3c9936310edefb8eebda278054d"
+    },
+    {
+      "project": "admin-eval-dark",
+      "title": "registration stops when LiveView readiness is never released",
+      "sha256": "db8b1a4e50c87d820645bf285cc78de704aec7e5136fcc19e7fc17e4a5f07089"
+    },
+    {
+      "project": "admin-eval-dark",
+      "title": "registration fails when the readiness wait is deliberately broken",
+      "sha256": "7da9be8a96a9dc0ab8c56c652a4301477760a14e48a7ba31d80588df8a2bb308"
+    },
+    {
+      "project": "admin-eval-dark",
+      "title": "registration retains the first forced assertion failure trace",
+      "sha256": "806967b54bddf324cf0be7a53068d06ee002eaa793f6eb8a02e15b8a65efa896"
+    }
+  ],
+  "passing_second_windows": [
+    {
+      "project": "admin-eval",
+      "database": "sigra_253_control_load_cr5_desktop_second_mv8mgv5f_99593",
+      "before": 0,
+      "after": 1,
+      "account_sha256": "e828059b220dbc7b2f8d4dc7ae3a52a9b62f482c2d7dac3d903206c3fcedac61"
+    },
+    {
+      "project": "admin-eval-mobile",
+      "database": "sigra_253_control_load_cr5_mobile_second_mv8mhx5r_7763",
+      "before": 0,
+      "after": 1,
+      "account_sha256": "1bd742423d99e8657f5c27325ccc3f8d2d5e467edba404f9f7feb278d1b6516d"
+    },
+    {
+      "project": "admin-eval-dark",
+      "database": "sigra_253_control_load_cr5_dark_second_mv8miwvz_13922",
+      "before": 0,
+      "after": 1,
+      "account_sha256": "32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d"
+    }
+  ],
+  "runtime_changes_reviewed": [
+    "CI hot reloading disabled; fresh targeted/integration results cover the changed server",
+    "HTML report moved below playwright-report/html; control source, assertions and trace policy unchanged"
+  ],
+  "current_turn": {
+    "browser_invocations": 0,
+    "app_starts": 0,
+    "database_starts": 0,
+    "ci_launches": 0,
+    "github_requests": 0
+  },
+  "historical_halts_unchanged": true,
+  "old_allowances_reopened": false
+}

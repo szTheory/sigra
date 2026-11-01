@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: diagnostic verification rejects caller-written success without native receipts
+ok 1 - diagnostic verification rejects caller-written success without native receipts
+  ---
+  duration_ms: 57.099125
+  type: 'test'
+  ...
+# Subtest: the original controls and acceptance verification modes remain unavailable
+ok 2 - the original controls and acceptance verification modes remain unavailable
+  ---
+  duration_ms: 20.734917
+  type: 'test'
+  ...
+# Subtest: native receipt accepts the selected project only with matching report, logs, exit and drop
+ok 3 - native receipt accepts the selected project only with matching report, logs, exit and drop
+  ---
+  duration_ms: 2.738459
+  type: 'test'
+  ...
+# Subtest: diagnostic ledger accepts one accurately charged, source-bound native attempt
+ok 4 - diagnostic ledger accepts one accurately charged, source-bound native attempt
+  ---
+  duration_ms: 1.900083
+  type: 'test'
+  ...
+# Subtest: native receipt rejects source drift, a wrong project, and a missing report
+ok 5 - native receipt rejects source drift, a wrong project, and a missing report
+  ---
+  duration_ms: 3.754083
+  type: 'test'
+  ...
+# Subtest: native receipt rejects an empty report, absent database drop and changed log digest
+ok 6 - native receipt rejects an empty report, absent database drop and changed log digest
+  ---
+  duration_ms: 3.951542
+  type: 'test'
+  ...
+# Subtest: native receipt rejects a failed browser without a retained failure trace
+ok 7 - native receipt rejects a failed browser without a retained failure trace
+  ---
+  duration_ms: 1.484041
+  type: 'test'
+  ...
+# Subtest: native receipt rejects uncharged controls and attempts over the slot limit
+ok 8 - native receipt rejects uncharged controls and attempts over the slot limit
+  ---
+  duration_ms: 2.47075
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 162.167125

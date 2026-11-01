@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "25",
+  "status": "admitted",
+  "captured_at": "2026-10-01T14:15:07.030Z",
+  "already_completed_local_deletion": 1,
+  "new_local_delete_count": 0,
+  "readiness": {
+    "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+    "blob": "05621c5c0c313848deefe0fd8493648724289a1f",
+    "sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193"
+  },
+  "preflight": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-25-EXEC-PREFLIGHT.json",
+    "sha256": "c755ef69c801e44e7deb60b8d2b65b226f2e41691cd49cdd282af2e69f31b52f",
+    "verdict": "ready",
+    "plan25_ref_operations": 0
+  },
+  "source_identities": {
+    "plan18": {
+      "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+      "pinned_inputs": [
+        {
+          "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+          "blob": "f915228a4da2ad8555d5c2032248ce9618c04445",
+          "sha256": "2e96192a7beb4ab53dd517a61f31d42ae1534735908eeea26f8d19b3277910d1"
+        },
+        {
+          "commit": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+          "blob": "0e663a0d8610c44dfd5e96c78a2d1190da00c703",
+          "sha256": "20f5083d8a356e056287bc2e54457e48a7cae00cf3b7dee1fbdd9bdb2b037f3e"
+        },
+        {
+          "commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json",
+          "blob": "989c1437c3c046cf9db6071c604d57e2d09f6510",
+          "sha256": "5321690171834d4915e013089410e7522022071d1dfdd997c9ecea763159fd0a"
+        },
+        {
+          "commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
+          "blob": "e8e8ac721785bb3018ddd766135fdefc4308e976",
+          "sha256": "b9d6768fa73f6f095741ac04de6fe6363215d17d11d79ebaae4d3c12741cff29"
+        },
+        {
+          "commit": "fa23ad17265bde33719fa32d87e8a396fcc7cb27",
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-22-FETCH-PROOF.json",
+          "blob": "98911a955d41ac510798be2d2a04c2f319a499d2",
+          "sha256": "b1a444a9094f9f42c159ad317cc987fb6a60f08ae56f969437759126e0ddc489"
+        },
+        {
+          "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+          "blob": "05621c5c0c313848deefe0fd8493648724289a1f",
+          "sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193"
+        },
+        {
+          "commit": "064c40f6937dbd7147179e1b0eb7bd99397ac6b5",
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-RESULT.json",
+          "blob": "142bce047068ac20c30f40ea425de50b5a354aa0",
+          "sha256": "6962a4da249bf61dca8f5f67b20968647a6d050a87de0fad8b4fc6e8c1daf2fb"
+        },
+        {
+          "commit": "064c40f6937dbd7147179e1b0eb7bd99397ac6b5",
+          "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-HANDOFF.json",
+          "blob": "03e65ec0361c003f60bddd9929fb2221ac06252c",
+          "sha256": "833f74a5f00fac654655480a841578d619acb325ae6f08701253931b12579d7c"
+        }
+      ]
+    },
+    "plan19": {
+      "result": {
+        "commit": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+        "blob": "0e663a0d8610c44dfd5e96c78a2d1190da00c703",
+        "sha256": "20f5083d8a356e056287bc2e54457e48a7cae00cf3b7dee1fbdd9bdb2b037f3e"
+      },
+      "admission": {
+        "commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json",
+        "blob": "989c1437c3c046cf9db6071c604d57e2d09f6510",
+        "sha256": "5321690171834d4915e013089410e7522022071d1dfdd997c9ecea763159fd0a"
+      },
+      "allowlist": {
+        "commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+        "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
+        "blob": "e8e8ac721785bb3018ddd766135fdefc4308e976",
+        "sha256": "b9d6768fa73f6f095741ac04de6fe6363215d17d11d79ebaae4d3c12741cff29"
+      },
+      "prior_local_deletions": 1,
+      "deleted_ref": "refs/heads/agent-241-08",
+      "deleted_oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
+      "deleted_object_readable": true
+    }
+  },
+  "tracking_classification": {
+    "total": 51,
+    "admitted": 2,
+    "excluded_missing_prior_admission": 21,
+    "origin_present": 28,
+    "rows": [
+      {
+        "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
+        "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+        "classification": "admitted_exact_prior_row"
+      },
+      {
+        "ref": "refs/remotes/origin/chore/phase-88-uat-evidence",
+        "oid": "dd28b05b6d58b7b26be645a40ba1bb1e3f6283ca",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/chore/playwright-github-pages-ci",
+        "oid": "85a5c62952c21b26a165923abcdd2a4ef014461c",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/ci/phase-235-1-evidence",
+        "oid": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/ci/phase-235-16-source-complete",
+        "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/ci/phase-88-provenance",
+        "oid": "f26212cdf3ed13e1eaf3bb24993ed416f558a5ef",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-30658359487",
+        "oid": "a8382aabafd76522eca1e63c3286980ec320edf7",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/ci/recapture-admin-checkpoints-31043224661",
+        "oid": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/github_actions/actions/attest-build-provenance-4.2.2",
+        "oid": "e101caefbe96923dc23c956f71a4cce5aa780fe7",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/hex/credo-1.7.19",
+        "oid": "39a3790ea829d80f864ffbf1564e97052a4262b3",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/hex/flop_phoenix-0.26.3",
+        "oid": "6e5fdd7dcc3f25c731791b9e3f819f6bd42db8dd",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/hex/hammer-7.4.1",
+        "oid": "77b4259f1dbd3507fab2f9a8c743c5576eeeef3a",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/hex/oban-2.24.0",
+        "oid": "2086bd14372f493a2ec2cf56b56e21b72e5b18cf",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/hex/threadline-0.9.0",
+        "oid": "a7ccd0995d5bd82c9a3c0aa6f9195d266039f14f",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.123.0",
+        "oid": "859a77deb5a000024a5022e7ea28be790c3d4c51",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/axe-core/playwright-4.13.0",
+        "oid": "f67c9115b5aaebc7e38073bef8f1abefd73ae6c9",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/otplib-13.5.0",
+        "oid": "204ce7f59ad2b1a2f709261f69bc35235bdc813c",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.62.1",
+        "oid": "9f5150bd3a000dc122e8c185bf06c102ac720667",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.5.4",
+        "oid": "c06cc1475ca91519765b3792958bcadd9f131601",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/docs/230-phase-complete",
+        "oid": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/docs/phase-240-planning",
+        "oid": "ac827a3bc916fc8b7612cf92956998bb96066e2d",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/elevate-03-wave-v144-pr",
+        "oid": "be55e83360a50427d7ee9fc0633b3a05083aecbc",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/evidence/phase-241-final-head-782328e65c13",
+        "oid": "782328e65c134dc4b1f9bba522190838366bf08d",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/evidence/request-21-f061",
+        "oid": "0a8e5eead47ec541a3489190480d5b846d8c7257",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/fix/chimeway-opaque-recipient-backport-62ceb46",
+        "oid": "b8d71e3af866dd5b3456610cdbfd9dd16904cfb5",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/gh-pages",
+        "oid": "dd671004a276c24fafa8ece80e341706085a999e",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/235-13-producer-manifest-chronology",
+        "oid": "b79ee6ae83e98a4bc638a9a1cbe8812efde3c471",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/237-238-clean-baseline",
+        "oid": "c3b468895365be86bf25aac91d1105498a2648ae",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/238-generated-auth-runtime-proof-evidence",
+        "oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/phase-232-playwright-economics",
+        "oid": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/phase-236-flake-root-cause",
+        "oid": "337538c48b79c358f19a9e1c514a7a373379d353",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/phase-239-priv-templates-sweep",
+        "oid": "5abd3ede7fc11f96a66739e53283f9d5aec3c6ec",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/phase-240-closeout",
+        "oid": "9b4bb4a7f64585e69b2fa55a1266acfb8c9fad4b",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/phase-240-green-main-evidence",
+        "oid": "4429657a725ef5601fe2e0b25cebcd54c314540e",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/phase-241-context",
+        "oid": "e6b63ca1698e23adb99c84f088fc9ad469122496",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/phase-241-plans",
+        "oid": "a38651a37875a340462c647d5f9b1beed30893dd",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/phase-241-research",
+        "oid": "62906d14da1cd4c72e5080c1fa686ba4d6948ca8",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/quick-260918-lfq-bookkeeping",
+        "oid": "daa8b41f3d458c66ecacb7a0276ab8b65ffc38d6",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/quick-green-04-collector-guards",
+        "oid": "cea7098347086166ec3ec6e1a8e0db0403d5b9c0",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/gsd/state-reconcile-241",
+        "oid": "21c6c25a996ec3497cf89b656bcd0759e5176039",
+        "classification": "excluded_no_prior_admission"
+      },
+      {
+        "ref": "refs/remotes/origin/main",
+        "oid": "6f14c04a26dc69125b2aa00f89c3d905b3c4bafa",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-242-execution",
+        "oid": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-242-hex-remediation-infrastructure",
+        "oid": "17f946554e8c9df5279e1aa42636b48fea229962",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/phase-244/measurement",
+        "oid": "f5a4bd060fd24a0f23cf861c00ed692ae6c4c8ac",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/release-please--branches--main",
+        "oid": "70ba005a694540e488a2e705950c4135268642ad",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/v1.1-pr",
+        "oid": "529ed57bec6ff6499ec15681ddfd3772e56c3d28",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+        "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+        "classification": "admitted_exact_prior_row"
+      },
+      {
+        "ref": "refs/remotes/origin/worktree-agent-p242-03",
+        "oid": "907d875f5e0953777ffde0657e59082bf68d9e21",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/worktree-agent-p242-11",
+        "oid": "4472ee78337e088ffc9abf254273f30e34c8d233",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/worktree-agent-p242-13",
+        "oid": "9dec6a76bcda32e481b4b60acd31ed1d8da4168d",
+        "classification": "origin_branch_present"
+      },
+      {
+        "ref": "refs/remotes/origin/worktree-agent-p242-artifacts",
+        "oid": "18a5ce8e7d34fb402545a2fa96e0fd865bb7ce46",
+        "classification": "origin_branch_present"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
+      "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+      "type": "commit",
+      "reason": "live origin branch absent; exact still-present tracking row admitted by Plan 19 and retained in active history"
+    },
+    {
+      "side": "tracking",
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "type": "commit",
+      "reason": "live origin branch absent; exact still-present tracking row admitted by Plan 19 and retained in active history"
+    }
+  ],
+  "blocked_reasons": [],
+  "authoring_attempts": [
+    {
+      "status": "corrected",
+      "failed_attempt": "initial allowlist parse used literal backslash-t separators; generator rejected before evaluating row eligibility or writing admission",
+      "correction": "rewrote exact header/rows with tab-delimited fields and reran independent exact-source checks"
+    }
+  ]
+}

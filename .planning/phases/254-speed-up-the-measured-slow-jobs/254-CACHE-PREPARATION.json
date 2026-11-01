@@ -1,0 +1,28 @@
+{
+  "schema_version": "sigra.phase254.cache-preparation/v1",
+  "status": "blocked_before_preparation_design",
+  "blocked_by": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-PR-PATH-PROOF.json",
+  "reason": "The real pull_request baseline path is not proven. The plan requires stopping before dependent preparation when this prerequisite fails.",
+  "cache_observations": {
+    "frozen_baseline_vector": {
+      "Example Playwright shard:admin_behavior": {"browser_binaries": "hit", "example_deps": "hit"},
+      "Example Playwright shard:admin_checkpoints": {"browser_binaries": "hit", "example_deps": "hit"},
+      "Example Playwright shard:demo_showcase": {"browser_binaries": "hit", "example_deps": "hit"},
+      "Example Playwright shard:design_gallery": {"browser_binaries": "hit", "example_deps": "hit"},
+      "Example Playwright shard:non_admin_smoke": {"browser_binaries": "hit", "example_deps": "hit"},
+      "Library tests shard": {"library_deps": "hit"}
+    },
+    "baseline_observations": 1,
+    "current_candidate_cache_hits": "not_evaluated",
+    "fallback_restore_distinction": "not_evaluated",
+    "runtime_environment_port_key_access": "not_evaluated",
+    "actual_pair_images": "not_evaluated"
+  },
+  "preparation_recipe": null,
+  "preparation_runs": 0,
+  "additional_budget": {
+    "status": "not_requested",
+    "reason": "Do not request warm-up budget while baseline execution feasibility remains blocked."
+  },
+  "collection_forbidden": true
+}

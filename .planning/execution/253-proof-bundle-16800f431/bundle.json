@@ -1,0 +1,259 @@
+{
+  "schema": "sigra.phase253.execution-bundle/v1",
+  "status": "prepared_offline_requires_explicit_hosted_approval",
+  "entry_commit": "a96a80bda6af01ecb69fd8f96a4fa13cd30288cb",
+  "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "product_tree": "1a44d3909ef0811e91a43d85f54e795680691cf3",
+  "parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "original_proposal": ".planning/execution/253-hosted-proof-16800f431/proposal.json",
+  "original_proposal_sha256": "96c9df687447271d7aa254b8b7a763a0af6a622424f29137be2d9348ae76c5fe",
+  "execution_plan": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+    "sha256": "844a328c117e56b1b9b32e56b0cd31f05f53fe8a292cded9f3bc7371ba5ec881"
+  },
+  "refs": [
+    "refs/heads/gsd/253-proof-16800f431-candidate",
+    "refs/heads/gsd/253-proof-16800f431-fixture",
+    "refs/heads/gsd/253-proof-16800f431-docs-base",
+    "refs/heads/gsd/253-proof-16800f431-docs-head"
+  ],
+  "object_identities": {
+    "candidate_helper_commit": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+    "candidate_tree_sha": "28924e64262e3a2acb8bc41278acd5f7b0102abc",
+    "fixture_workflow_commit": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+    "fixture_workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+    "fixture_tree_sha": "4b03073118eddf30b7b299c44446a524dfb2a73c",
+    "server_parent_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "docs_base_commit": "c15752bf40a8fcbd5482f7b3de6c3f48f50b767f",
+    "docs_head_commit": "a7aaeb107bc82a2b4a8ca62dfcbc3536b6de6679",
+    "candidate_ref": "refs/heads/gsd/253-proof-16800f431-candidate",
+    "fixture_ref": "refs/heads/gsd/253-proof-16800f431-fixture",
+    "workflow_path": ".github/workflows/ci.yml",
+    "old_failed_run_id": "38347679431",
+    "old_failed_epoch": 1791909792,
+    "old_failed_halt_seconds": 34,
+    "old_known_commands": 3
+  },
+  "limits": {
+    "canary_requests": 117,
+    "pr_requests": 120,
+    "seconds_per_window": 3600,
+    "jobs": 45,
+    "reruns": 0,
+    "publication_requests": 24,
+    "docs_publication_requests": 14
+  },
+  "outward_actions": {
+    "canary": {
+      "max_requests": 117,
+      "reruns": 0,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "actions": [
+        {
+          "action": "publish_git_objects",
+          "category": "publication",
+          "max_requests": 24,
+          "candidate_commit": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+          "fixture_commit": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+          "manifest": "bound_documents.publication_manifest"
+        },
+        {
+          "action": "create_ref",
+          "ref": "refs/heads/gsd/253-proof-16800f431-candidate",
+          "sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa"
+        },
+        {
+          "action": "create_ref",
+          "ref": "refs/heads/gsd/253-proof-16800f431-fixture",
+          "sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145"
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "full-pass",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "docs-only",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "actual-failure",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "missing-seam",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "unexpected-skip",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "cancelled",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56"
+          }
+        },
+        {
+          "action": "cancel_run",
+          "scenario": "cancelled",
+          "max": 1,
+          "run_identity": {
+            "workflow_id": 259268962,
+            "event": "workflow_dispatch",
+            "head_branch": "gsd/253-proof-16800f431-fixture",
+            "head_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "display_title_prefix": "Phase 253 Gate Canary / cancelled /"
+          }
+        },
+        {
+          "action": "workflow_dispatch",
+          "workflow_id": 259268962,
+          "ref": "gsd/253-proof-16800f431-fixture",
+          "inputs": {
+            "scenario": "verifier",
+            "candidate_sha": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+            "fixture_sha": "2136d4cd77af8da9cc26af78e4a55ba42bc94145",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "matrix_evidence": "compact gzip+base64 receipts of the six verified sources; digest recorded at dispatch"
+          }
+        }
+      ]
+    },
+    "docs_and_prs": {
+      "max_requests": 120,
+      "reruns": 0,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "actions": [
+        {
+          "action": "publish_docs_objects",
+          "category": "docs_publication",
+          "max_requests": 14,
+          "docs_base_commit": "c15752bf40a8fcbd5482f7b3de6c3f48f50b767f",
+          "docs_head_commit": "a7aaeb107bc82a2b4a8ca62dfcbc3536b6de6679",
+          "refs": [
+            {
+              "ref": "refs/heads/gsd/253-proof-16800f431-docs-base",
+              "sha": "c15752bf40a8fcbd5482f7b3de6c3f48f50b767f"
+            },
+            {
+              "ref": "refs/heads/gsd/253-proof-16800f431-docs-head",
+              "sha": "a7aaeb107bc82a2b4a8ca62dfcbc3536b6de6679"
+            }
+          ]
+        },
+        {
+          "action": "pr_create",
+          "family": "normal",
+          "head": "gsd/253-proof-16800f431-candidate",
+          "base": "main",
+          "draft": true
+        },
+        {
+          "action": "pr_create",
+          "family": "docs-only",
+          "head": "gsd/253-proof-16800f431-docs-head",
+          "base": "gsd/253-proof-16800f431-docs-base",
+          "draft": true
+        }
+      ]
+    }
+  },
+  "outward_actions_sha256": {
+    "canary": "0b57be88dd4a681d31da723109332536ed009d5291ca3f4313cdff44ca4a9c9f",
+    "docs_and_prs": "4587e98dc050dc34c6c7aae1081f008aaca6659870715b9bdae25525a1bf562f"
+  },
+  "unallocated": true,
+  "approval_received": false,
+  "network_requests": 0,
+  "ci_launches": 0,
+  "artifacts": {
+    "APPROVAL.md": "0b46270d8e55dbada1e0321e7f2012c653b09b16a8ab4f7da205a62b0754d176",
+    "README.md": "cbc0c3558e4b3ca58289c2678503001542e00daadb90cef0cb7260cb6760a193",
+    "adapter.diff": "9c7a52eb9f1a3c264049e9d6bd8321eaf72028f8ef0c636edbe7c23a3ced7c50",
+    "allocation-templates.json": "9a097aca1ad56706476e0516471ab492278bfb45b5feb5eeef86361d32dfe20d",
+    "approval-template.json": "c2bc1eb7dd116ec39bc973eb9604a0ef392781280919658059dd65cf16e9a758",
+    "canary-freeze.json": "08db38a55a16ef7d13abc96fba61625358fe1dc22083f6e4e2e974f66b18d39a",
+    "helper-origins.json": "9df8e1b0dbd3fb03b0adc5acf999bc169c9c44880f739b2ab0ec8abb0a756627",
+    "object-recipe.json": "e620eb3b72d4297f70b569a738b521a656813cc26c577bb6601cc5405dbfec81",
+    "objects.pack": "268bc1b5ddf53e29cafa845535c22496c5ebd96deaa3dcb0a4c0a059abb126d2",
+    "operator.py": "23340bd49bc99cf2a9271250fe13eaf3a94775beb25d8ce0d3a808b60dba8035",
+    "plan172-current.md": "844a328c117e56b1b9b32e56b0cd31f05f53fe8a292cded9f3bc7371ba5ec881",
+    "plan172-prior.json": "b7cb0b6265dfbdf1ea95bb006940303d2f4b2270af1e769ab213f5da79174387",
+    "prepare.py": "e500b358e6f8e6f907da8cdd34f464ad13330a0de7216211aa8d5bfce2e83679",
+    "preservation.json": "44a974149851f969e24423a35c06095fb1ba74a6bb5c4b2cf0bd5632d28dbc47",
+    "publication.json": "2cadb2374b9a27821d2767b96828452f31e85c9595239143de4bbdb861f519e9",
+    "runtime/ci-browser-records.mjs": "1aadce3c1c34be7193bc191fd6e733c4d7e329d135389dc2143b923e720e890e",
+    "runtime/ci-gate-canary.sh": "0cbc086b3418361126f5bc68e5798401fb4355382e1c77a17fda293acc8132f8",
+    "runtime/ci-git-publication.py": "bd49d727a380a2923f5a66abe49e949d021bd2dc86e6ecb1614c694b39349d29",
+    "runtime/ci-hosted-gate-verify.py": "2aba5e9a6687923827b856d106ec6ea01dcc4dcd15d520eced741bb6b143bcf6",
+    "runtime/ci-hosted-transport.py": "db865c3e82ed986e4fb6c8ad1afd7ea4c1645f498dc596e15ee38dbfcde7c491",
+    "runtime/ci-playwright-report.mjs": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+    "runtime/ci-pr-proof.sh": "e9538a3ea185d695bbaccf9bbf0184e7aa86102aa82e5a6623bd27c6efed3d84",
+    "runtime/ci-registration-recovery.mjs": "28d3efc23515a2b44447c89c444e2adfe087826132d4436dcdfd8dd36c51a1e2",
+    "runtime/execution_guard.py": "e3b5fde77b50fabba182374e4b6589bed5d435a0d6ff68e44a8635d204e2e8b8",
+    "sdk-readiness.json": "33c83b46a1fa73fa1484dcefaca9029729fdcd1a813d2d6d51cadbac1bac7693",
+    "test_bundle.py": "0abda72d33549052ab6da0b834a4942310157591dd8bd8ddb1561e0893886422"
+  },
+  "normal_workflow_next_command": "$gsd-execute-phase 253 --gaps-only",
+  "normal_workflow_route": "After explicit approval: execute this once-only bundle as the current hosted continuation; preserve171 halt, then connect actual new results to172 and perform phase verification. No new quick, progress scan,179 replay, or numbered repair plan."
+}

@@ -1,0 +1,131 @@
+{
+  "status": "incompatible_per_owner_images",
+  "observed_images": {
+    "before": {
+      "Library tests shard": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "Example Playwright shard (non_admin_smoke)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "Example Playwright shard (demo_showcase)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "Example Playwright shard (admin_behavior)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "Example Playwright shard (design_gallery)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261023.334.3"
+      },
+      "Example Playwright shard (admin_checkpoints)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261023.334.3"
+      }
+    },
+    "after": {
+      "Example Playwright shard (non_admin_smoke)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "Example Playwright shard (design_gallery)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "Library tests shard": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "Example Playwright shard (admin_checkpoints)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "Example Playwright shard (demo_showcase)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261023.334.3"
+      },
+      "Example Playwright shard (admin_behavior)": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      }
+    }
+  },
+  "differences": [
+    {
+      "owner": "Example Playwright shard (admin_checkpoints)",
+      "before": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261023.334.3"
+      },
+      "after": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      }
+    },
+    {
+      "owner": "Example Playwright shard (demo_showcase)",
+      "before": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      },
+      "after": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261023.334.3"
+      }
+    },
+    {
+      "owner": "Example Playwright shard (design_gallery)",
+      "before": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261023.334.3"
+      },
+      "after": {
+        "runner_os": "Linux",
+        "runner_arch": "X64",
+        "image_os": "ubuntu24",
+        "image_version": "20261012.334.1"
+      }
+    }
+  ],
+  "legacy_unique_image_sets_can_hide_owner_assignment": true,
+  "current_pair_eligible": false,
+  "source": "actual preparation metadata; the baseline also did not execute two browser bodies"
+}

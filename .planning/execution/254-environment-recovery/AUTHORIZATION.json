@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "status": "authorized_by_current_user_request",
+  "authority": "Current user explicitly asked to resolve and unblock Phase254, reconsider the approach, fan out research and automatically follow the coherent recommendations; they asked to avoid a blocked repair loop.",
+  "scope": "Existing Phase254 environment diagnosis, minimal symmetric CI repair, and bounded verification; no unrelated phase or dependency expansion.",
+  "diagnostic_allowance": {
+    "invocations": 1,
+    "job_minutes": 10,
+    "http_requests": 100,
+    "trigger_retries": 0,
+    "purpose": "One isolated APT configuration/package transfer probe; no full CI, acceptance sample or warm-up substitution."
+  },
+  "historical_allowances": "All four prior preparation invocations and both closed request budgets remain unchanged and spent.",
+  "measured_comparison": "No measured samples or comparison window has started. Existing forty measured invocations remain unspent; no threshold, useful-work or failed-cost waiver is authorized.",
+  "guardrails": ["Do not change main or branch protection", "Do not hide failures or replace measured samples", "Prove the smaller environment check before spending another full preparation run", "Freeze and disclose any revised comparison environment before measurement"]
+}

@@ -1,0 +1,8 @@
+test_sdk_report_rejects_rehashed_fabricated_queries (__main__.SuccessorContractTests.test_sdk_report_rejects_rehashed_fabricated_queries) ... ok
+test_sdk_indexes_require_exact_unique_plan_universe (__main__.SuccessorContractTests.test_sdk_indexes_require_exact_unique_plan_universe) ... ok
+test_installed_sdk_copy_executes_queries_and_proves_full_route (__main__.SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 25.553s
+
+OK

@@ -1,0 +1,229 @@
+{
+  "schema": "sigra.phase253.control-recovery-execution-checks/v1",
+  "source_head_before_closeout": "6e7a08945b6940d613626c56fa81b37e9a4350c2",
+  "total": 55,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "closeout exact 11 implemented,6 halted,18 blocked,35 plans",
+      "passed": true
+    },
+    {
+      "name": "35 canonical plan files preserved",
+      "passed": true
+    },
+    {
+      "name": "25 original plans byte identical",
+      "passed": true
+    },
+    {
+      "name": "94 Phase252 paths byte identical",
+      "passed": true
+    },
+    {
+      "name": "395 captured paths unchanged; only5 scoped shared paths refreshed",
+      "passed": true
+    },
+    {
+      "name": "shared prior exact readback .planning/STATE.md",
+      "passed": true
+    },
+    {
+      "name": "shared prior exact readback .planning/state.json",
+      "passed": true
+    },
+    {
+      "name": "shared prior exact readback .planning/HANDOFF.json",
+      "passed": true
+    },
+    {
+      "name": "shared prior exact readback .planning/ROADMAP.md",
+      "passed": true
+    },
+    {
+      "name": "shared prior exact readback .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-EXECUTION-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "native prior exact ref refs/gsd/phase253-control-recovery-native-evidence/f8296ac13f20ca1b43b8a560a917b7d4964f377de9a462c2a262025d45c68e4d",
+      "passed": true
+    },
+    {
+      "name": "native prior exact ref refs/gsd/phase253-control-recovery-native-evidence/c23f6a529b29edbb745fda4e200c4f1e3ed1ce569baf093d50ca21356b388cf4",
+      "passed": true
+    },
+    {
+      "name": "unrelated config unchanged",
+      "passed": true
+    },
+    {
+      "name": "unrelated config exact durable copy",
+      "passed": true
+    },
+    {
+      "name": "unrelated config unstaged",
+      "passed": true
+    },
+    {
+      "name": "correct branch",
+      "passed": true
+    },
+    {
+      "name": "exact native total and one new launch",
+      "passed": true
+    },
+    {
+      "name": "native remains halted",
+      "passed": true
+    },
+    {
+      "name": "retry remains spent",
+      "passed": true
+    },
+    {
+      "name": "one spent new reservation and four unused regular slots",
+      "passed": true
+    },
+    {
+      "name": "conditional nine acceptance and preparation unchanged",
+      "passed": true
+    },
+    {
+      "name": "native evidence digest exact",
+      "passed": true
+    },
+    {
+      "name": "native freeze digest exact",
+      "passed": true
+    },
+    {
+      "name": "actual saved native file digest playwright_report",
+      "passed": true
+    },
+    {
+      "name": "actual saved native file digest setup_log",
+      "passed": true
+    },
+    {
+      "name": "actual saved native file digest app_log",
+      "passed": true
+    },
+    {
+      "name": "actual saved native file digest test_log",
+      "passed": true
+    },
+    {
+      "name": "actual saved native file digest drop_log",
+      "passed": true
+    },
+    {
+      "name": "native report has real parse5 require/ESM load error",
+      "passed": true
+    },
+    {
+      "name": "native selected tests absent",
+      "passed": true
+    },
+    {
+      "name": "drop exit0 and build directory removed",
+      "passed": true
+    },
+    {
+      "name": "independent database absence is not fabricated",
+      "passed": true
+    },
+    {
+      "name": "sanitized demo marker retained as redaction, not passing native proof",
+      "passed": true
+    },
+    {
+      "name": "freeze missing shared helper recorded honestly",
+      "passed": true
+    },
+    {
+      "name": "installed parse5 matches load diagnostic",
+      "passed": true
+    },
+    {
+      "name": "test log fresh41 pass zero failures",
+      "passed": true
+    },
+    {
+      "name": "native verifier rejects rather than passing",
+      "passed": true
+    },
+    {
+      "name": "Plan26 complete and Plan27 halt summaries committed",
+      "passed": true
+    },
+    {
+      "name": "Plans28\u201335 no summaries/no execution",
+      "passed": true
+    },
+    {
+      "name": "full-phase report absent",
+      "passed": true
+    },
+    {
+      "name": "both requirements unchecked",
+      "passed": true
+    },
+    {
+      "name": "all current route top keys aligned",
+      "passed": true
+    },
+    {
+      "name": "state Markdown front and current route aligned",
+      "passed": true
+    },
+    {
+      "name": "state progress honest17/41 41percent",
+      "passed": true
+    },
+    {
+      "name": "roadmap phase253 unchecked with11/35 incomplete",
+      "passed": true
+    },
+    {
+      "name": "state JSON route and handoff route aligned",
+      "passed": true
+    },
+    {
+      "name": "both later phases pending",
+      "passed": true
+    },
+    {
+      "name": "Phase254 section unchanged",
+      "passed": true
+    },
+    {
+      "name": "Phase255 section unchanged",
+      "passed": true
+    },
+    {
+      "name": "no human/async jobs pending",
+      "passed": true
+    },
+    {
+      "name": "no remote/GitHub work/full-phase completion",
+      "passed": true
+    },
+    {
+      "name": "ready0/plan readiness context exists",
+      "passed": true
+    },
+    {
+      "name": "all10 previous Windows entries preserved",
+      "passed": true
+    },
+    {
+      "name": "all new phase JSON artifacts parse",
+      "passed": true
+    },
+    {
+      "name": "no product edits beyond assigned implementation paths",
+      "passed": true
+    }
+  ],
+  "claim": "Offline Plan26 implemented; Plan27 halted; native evidence rejected; phase incomplete; next plan253"
+}

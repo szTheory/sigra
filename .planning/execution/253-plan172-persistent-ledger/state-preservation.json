@@ -1,0 +1,49 @@
+{
+  "capture_boundary": "5b71797298b2f0c6acf53de6371be9b0aea933b3",
+  "capture_boundary_dirty_paths": [],
+  "prior_shared_state": "afe01a308303ce09c6adceea4f657b66da4790d6",
+  "files": {
+    ".planning/STATE.md": {
+      "commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
+      "path": ".planning/STATE.md",
+      "sha256": "1b0a9e7d59cc92c334ac1575704ea572f1f46af7e34ce0023c36e42df1f41ba5",
+      "exact_readback_verified": true,
+      "status": ""
+    },
+    ".planning/state.json": {
+      "commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
+      "path": ".planning/state.json",
+      "sha256": "7dad13733dd08988bb726958feeab46924a6f7fc96a4eff91b4696b5044334dc",
+      "exact_readback_verified": true,
+      "status": ""
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
+      "path": ".planning/HANDOFF.json",
+      "sha256": "143d91e01dcb3ab162fa18c789324792be9b0ab5eec0636ebb62d232be6625b5",
+      "exact_readback_verified": true,
+      "status": ""
+    },
+    ".planning/execution/253-CONTINUATION.json": {
+      "commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "sha256": "7de61cbcbf75be6d374ea5a143b4068a31fb185d2e4fa57fc2c6214f2f191c36",
+      "exact_readback_verified": true,
+      "status": ""
+    },
+    ".planning/execution/253-172-EXECUTION.json": {
+      "commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
+      "path": ".planning/execution/253-172-EXECUTION.json",
+      "sha256": "55397cc29d4e5eb494ecf04603e06cfcdcee9d73919243811c572cb3eac7de5e",
+      "exact_readback_verified": true,
+      "status": ""
+    },
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md": {
+      "commit": "afe01a308303ce09c6adceea4f657b66da4790d6",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+      "sha256": "2fcc7f302492bfd7ecde2e2f81965c32595888d29ceb1a429f67d06eb44e76b1",
+      "exact_readback_verified": true,
+      "status": ""
+    }
+  }
+}

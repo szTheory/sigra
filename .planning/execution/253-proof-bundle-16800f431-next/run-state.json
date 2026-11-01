@@ -1,0 +1,23 @@
+{
+  "schema": "sigra.phase253.proof-run/v1",
+  "status": "halted",
+  "stage": "closed",
+  "source_sha": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "bundle_sha256": "75b5fd26c059a6083257e0aa68377561ec1ebc62a26c80e1e305849404c95c06",
+  "approval_sha256": "161457d71e7921b09896797fa43d2a49a8b8f09d1deeca26bdea64f60a42126b",
+  "expected_parent": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "started_epoch": 1792620645,
+  "command_count": 9,
+  "parent_verified": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "merge_preflight": {
+    "head": "8e87e1dc2f28d6bbc4623d292fe143f2e005eeaa",
+    "base": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "exit": 0,
+    "clean": true,
+    "conflicts": []
+  },
+  "canary_allocation_sha256": "01235ec1a710d95939af8700f2af0a6e72da12185ac373e90a550f921e0b340d",
+  "canary_started_epoch": 1792620645,
+  "stop": "command failed with exit 1: bash [PosixPath('/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-next/runtime/ci-gate-canary.sh'), '--scenario']",
+  "completed_epoch": 1792620824
+}

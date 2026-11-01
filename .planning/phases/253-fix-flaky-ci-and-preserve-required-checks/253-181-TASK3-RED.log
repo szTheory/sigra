@@ -1,0 +1,15 @@
+test_lifecycle_181_preserves_178_halt_and_reuses_179_180 (__main__.SuccessorContractTests.test_lifecycle_181_preserves_178_halt_and_reuses_179_180) ... FAIL
+
+======================================================================
+FAIL: test_lifecycle_181_preserves_178_halt_and_reuses_179_180 (__main__.SuccessorContractTests.test_lifecycle_181_preserves_178_halt_and_reuses_179_180)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py", line 1193, in test_lifecycle_181_preserves_178_halt_and_reuses_179_180
+    self.assertTrue(callable(validator), "missing source-bound validate_review181 lifecycle gate")
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : missing source-bound validate_review181 lifecycle gate
+
+----------------------------------------------------------------------
+Ran 1 test in 0.018s
+
+FAILED (failures=1)

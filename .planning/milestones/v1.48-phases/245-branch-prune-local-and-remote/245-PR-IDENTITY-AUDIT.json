@@ -1,0 +1,1991 @@
+{
+  "schema_version": 1,
+  "audit_id": "e897a9ea-3808-49bb-8751-1d32207e3424",
+  "captured_at": "2026-09-28T01:16:03.959Z",
+  "repository": "szTheory/sigra",
+  "baseline": {
+    "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+    "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+    "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9",
+    "default_ref": "refs/heads/main",
+    "default_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+    "historical_mismatch_keys": [
+      {
+        "number": 219,
+        "base_ref": "main",
+        "base_sha": "f06137b2ac0e9b2094aa1250e3c036b41e997651"
+      },
+      {
+        "number": 266,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      {
+        "number": 267,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      {
+        "number": 268,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      {
+        "number": 269,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      {
+        "number": 270,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      {
+        "number": 271,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      {
+        "number": 272,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      {
+        "number": 273,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      {
+        "number": 274,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      {
+        "number": 275,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      }
+    ]
+  },
+  "full_open_pr_inventory": {
+    "complete": true,
+    "pages": [
+      {
+        "page": 1,
+        "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+        "requested_at": "2026-09-28T01:15:42.324Z",
+        "completed_at": "2026-09-28T01:15:42.742Z",
+        "status": "ok",
+        "response_status": 200,
+        "item_count": 13,
+        "numbers": [
+          283,
+          275,
+          274,
+          273,
+          272,
+          271,
+          270,
+          269,
+          268,
+          267,
+          266,
+          224,
+          219
+        ],
+        "has_next": false
+      }
+    ],
+    "items": [
+      {
+        "number": 283,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "phase-244/measurement",
+          "sha": "f62e252648db66706cf27c3e37241fcd7b78a3de"
+        }
+      },
+      {
+        "number": 275,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/ex_doc-0.40.4",
+          "sha": "75b00619d287694ac55643584923011538933660"
+        }
+      },
+      {
+        "number": 274,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/threadline-0.10.1",
+          "sha": "714b6e4ef377d81ada327f0b0840cfcf874ffb84"
+        }
+      },
+      {
+        "number": 273,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+          "sha": "e8c028591ccd806180f0ea048ad5278028fc7c0f"
+        }
+      },
+      {
+        "number": 272,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/mox-1.3.2",
+          "sha": "85a9d29f645229c90bd30da8860147591e510aa9"
+        }
+      },
+      {
+        "number": 271,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+          "sha": "8bb65f8f78d726318dad6c81361009dada8b917c"
+        }
+      },
+      {
+        "number": 270,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+          "sha": "bb5416341f08e5547962d42aefbd2c012920180c"
+        }
+      },
+      {
+        "number": 269,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/stream_data-1.4.0",
+          "sha": "c6e0cc4083656155c14213a88de2a5c646516661"
+        }
+      },
+      {
+        "number": 268,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+          "sha": "fcb165adbd4c9d8cc0f09eef1091334495a4700f"
+        }
+      },
+      {
+        "number": 267,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/dialyxir-1.4.8",
+          "sha": "7eb414854c836f8b45784fca3ffb89ad623e8085"
+        }
+      },
+      {
+        "number": 266,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "evidence/phase-241-final-head-cd1e7e1252da",
+          "sha": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6"
+        }
+      },
+      {
+        "number": 224,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "release-please--branches--main",
+          "sha": "276e8c3fc504d2c0497d801083668267327fab84"
+        }
+      },
+      {
+        "number": 219,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "f06137b2ac0e9b2094aa1250e3c036b41e997651"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "gsd/238-generated-auth-runtime-proof-evidence",
+          "sha": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3"
+        }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "key": {
+        "number": 219,
+        "base_ref": "main",
+        "base_sha": "f06137b2ac0e9b2094aa1250e3c036b41e997651"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 219,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "f06137b2ac0e9b2094aa1250e3c036b41e997651"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "gsd/238-generated-auth-runtime-proof-evidence",
+          "sha": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3"
+        }
+      },
+      "current_pr": {
+        "number": 219,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "f06137b2ac0e9b2094aa1250e3c036b41e997651"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "gsd/238-generated-auth-runtime-proof-evidence",
+          "sha": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "gsd/238-generated-auth-runtime-proof-evidence",
+            "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+            "sha": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/gsd%2F238-generated-auth-runtime-proof-evidence"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+            "sha": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/gsd/238-generated-auth-runtime-proof-evidence"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/219",
+          "requested_at": "2026-09-28T01:15:42.743Z",
+          "completed_at": "2026-09-28T01:15:43.347Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:15:43.347Z",
+          "completed_at": "2026-09-28T01:15:44.041Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:15:44.041Z",
+          "completed_at": "2026-09-28T01:15:44.323Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/gsd%2F238-generated-auth-runtime-proof-evidence",
+          "requested_at": "2026-09-28T01:15:44.324Z",
+          "completed_at": "2026-09-28T01:15:44.625Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+          "requested_at": "2026-09-28T01:15:44.625Z",
+          "completed_at": "2026-09-28T01:15:44.882Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/gsd/238-generated-auth-runtime-proof-evidence",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    },
+    {
+      "key": {
+        "number": 266,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 266,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "evidence/phase-241-final-head-cd1e7e1252da",
+          "sha": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6"
+        }
+      },
+      "current_pr": {
+        "number": 266,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "evidence/phase-241-final-head-cd1e7e1252da",
+          "sha": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "evidence/phase-241-final-head-cd1e7e1252da",
+            "ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
+            "sha": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/evidence%2Fphase-241-final-head-cd1e7e1252da"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
+            "sha": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/evidence/phase-241-final-head-cd1e7e1252da"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/266",
+          "requested_at": "2026-09-28T01:15:44.883Z",
+          "completed_at": "2026-09-28T01:15:46.333Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:15:46.333Z",
+          "completed_at": "2026-09-28T01:15:46.657Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:15:46.657Z",
+          "completed_at": "2026-09-28T01:15:46.910Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/evidence%2Fphase-241-final-head-cd1e7e1252da",
+          "requested_at": "2026-09-28T01:15:46.910Z",
+          "completed_at": "2026-09-28T01:15:47.224Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
+          "requested_at": "2026-09-28T01:15:47.224Z",
+          "completed_at": "2026-09-28T01:15:47.481Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/evidence/phase-241-final-head-cd1e7e1252da",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    },
+    {
+      "key": {
+        "number": 267,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 267,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/dialyxir-1.4.8",
+          "sha": "7eb414854c836f8b45784fca3ffb89ad623e8085"
+        }
+      },
+      "current_pr": {
+        "number": 267,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/dialyxir-1.4.8",
+          "sha": "7eb414854c836f8b45784fca3ffb89ad623e8085"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "dependabot/hex/dialyxir-1.4.8",
+            "ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
+            "sha": "7eb414854c836f8b45784fca3ffb89ad623e8085",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fhex%2Fdialyxir-1.4.8"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
+            "sha": "7eb414854c836f8b45784fca3ffb89ad623e8085",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/hex/dialyxir-1.4.8"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/267",
+          "requested_at": "2026-09-28T01:15:47.481Z",
+          "completed_at": "2026-09-28T01:15:48.151Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:15:48.151Z",
+          "completed_at": "2026-09-28T01:15:48.450Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:15:48.450Z",
+          "completed_at": "2026-09-28T01:15:48.698Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fhex%2Fdialyxir-1.4.8",
+          "requested_at": "2026-09-28T01:15:48.698Z",
+          "completed_at": "2026-09-28T01:15:49.002Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/hex/dialyxir-1.4.8",
+          "requested_at": "2026-09-28T01:15:49.002Z",
+          "completed_at": "2026-09-28T01:15:49.278Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/dependabot/hex/dialyxir-1.4.8",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    },
+    {
+      "key": {
+        "number": 268,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 268,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+          "sha": "fcb165adbd4c9d8cc0f09eef1091334495a4700f"
+        }
+      },
+      "current_pr": {
+        "number": 268,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+          "sha": "fcb165adbd4c9d8cc0f09eef1091334495a4700f"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+            "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+            "sha": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fnpm_and_yarn%2Ftest%2Fexample%2Fpriv%2Fplaywright%2Fplaywright%2Ftest-1.63.0"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+            "sha": "fcb165adbd4c9d8cc0f09eef1091334495a4700f",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/268",
+          "requested_at": "2026-09-28T01:15:49.279Z",
+          "completed_at": "2026-09-28T01:15:49.873Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:15:49.873Z",
+          "completed_at": "2026-09-28T01:15:50.197Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:15:50.197Z",
+          "completed_at": "2026-09-28T01:15:50.450Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fnpm_and_yarn%2Ftest%2Fexample%2Fpriv%2Fplaywright%2Fplaywright%2Ftest-1.63.0",
+          "requested_at": "2026-09-28T01:15:50.450Z",
+          "completed_at": "2026-09-28T01:15:50.765Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+          "requested_at": "2026-09-28T01:15:50.765Z",
+          "completed_at": "2026-09-28T01:15:51.002Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    },
+    {
+      "key": {
+        "number": 269,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 269,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/stream_data-1.4.0",
+          "sha": "c6e0cc4083656155c14213a88de2a5c646516661"
+        }
+      },
+      "current_pr": {
+        "number": 269,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/stream_data-1.4.0",
+          "sha": "c6e0cc4083656155c14213a88de2a5c646516661"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "dependabot/hex/stream_data-1.4.0",
+            "ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
+            "sha": "c6e0cc4083656155c14213a88de2a5c646516661",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fhex%2Fstream_data-1.4.0"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
+            "sha": "c6e0cc4083656155c14213a88de2a5c646516661",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/hex/stream_data-1.4.0"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/269",
+          "requested_at": "2026-09-28T01:15:51.002Z",
+          "completed_at": "2026-09-28T01:15:51.655Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:15:51.655Z",
+          "completed_at": "2026-09-28T01:15:51.957Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:15:51.957Z",
+          "completed_at": "2026-09-28T01:15:52.198Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fhex%2Fstream_data-1.4.0",
+          "requested_at": "2026-09-28T01:15:52.198Z",
+          "completed_at": "2026-09-28T01:15:52.565Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/hex/stream_data-1.4.0",
+          "requested_at": "2026-09-28T01:15:52.565Z",
+          "completed_at": "2026-09-28T01:15:52.858Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/dependabot/hex/stream_data-1.4.0",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    },
+    {
+      "key": {
+        "number": 270,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 270,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+          "sha": "bb5416341f08e5547962d42aefbd2c012920180c"
+        }
+      },
+      "current_pr": {
+        "number": 270,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+          "sha": "bb5416341f08e5547962d42aefbd2c012920180c"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+            "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+            "sha": "bb5416341f08e5547962d42aefbd2c012920180c",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fnpm_and_yarn%2Ftest%2Fexample%2Fpriv%2Fplaywright%2Fanthropic-ai%2Fsdk-0.128.0"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+            "sha": "bb5416341f08e5547962d42aefbd2c012920180c",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/270",
+          "requested_at": "2026-09-28T01:15:52.858Z",
+          "completed_at": "2026-09-28T01:15:53.474Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:15:53.474Z",
+          "completed_at": "2026-09-28T01:15:53.812Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:15:53.812Z",
+          "completed_at": "2026-09-28T01:15:54.042Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fnpm_and_yarn%2Ftest%2Fexample%2Fpriv%2Fplaywright%2Fanthropic-ai%2Fsdk-0.128.0",
+          "requested_at": "2026-09-28T01:15:54.042Z",
+          "completed_at": "2026-09-28T01:15:54.368Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+          "requested_at": "2026-09-28T01:15:54.368Z",
+          "completed_at": "2026-09-28T01:15:54.634Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    },
+    {
+      "key": {
+        "number": 271,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 271,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+          "sha": "8bb65f8f78d726318dad6c81361009dada8b917c"
+        }
+      },
+      "current_pr": {
+        "number": 271,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+          "sha": "8bb65f8f78d726318dad6c81361009dada8b917c"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+            "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+            "sha": "8bb65f8f78d726318dad6c81361009dada8b917c",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fnpm_and_yarn%2Ftest%2Fexample%2Fpriv%2Fplaywright%2Fzod-4.6.5"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+            "sha": "8bb65f8f78d726318dad6c81361009dada8b917c",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/271",
+          "requested_at": "2026-09-28T01:15:54.635Z",
+          "completed_at": "2026-09-28T01:15:55.241Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:15:55.241Z",
+          "completed_at": "2026-09-28T01:15:55.548Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:15:55.548Z",
+          "completed_at": "2026-09-28T01:15:55.810Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fnpm_and_yarn%2Ftest%2Fexample%2Fpriv%2Fplaywright%2Fzod-4.6.5",
+          "requested_at": "2026-09-28T01:15:55.810Z",
+          "completed_at": "2026-09-28T01:15:56.132Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+          "requested_at": "2026-09-28T01:15:56.132Z",
+          "completed_at": "2026-09-28T01:15:56.402Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    },
+    {
+      "key": {
+        "number": 272,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 272,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/mox-1.3.2",
+          "sha": "85a9d29f645229c90bd30da8860147591e510aa9"
+        }
+      },
+      "current_pr": {
+        "number": 272,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/mox-1.3.2",
+          "sha": "85a9d29f645229c90bd30da8860147591e510aa9"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "dependabot/hex/mox-1.3.2",
+            "ref": "refs/heads/dependabot/hex/mox-1.3.2",
+            "sha": "85a9d29f645229c90bd30da8860147591e510aa9",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fhex%2Fmox-1.3.2"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/dependabot/hex/mox-1.3.2",
+            "sha": "85a9d29f645229c90bd30da8860147591e510aa9",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/hex/mox-1.3.2"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/272",
+          "requested_at": "2026-09-28T01:15:56.402Z",
+          "completed_at": "2026-09-28T01:15:57.103Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:15:57.103Z",
+          "completed_at": "2026-09-28T01:15:57.408Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:15:57.408Z",
+          "completed_at": "2026-09-28T01:15:57.650Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fhex%2Fmox-1.3.2",
+          "requested_at": "2026-09-28T01:15:57.650Z",
+          "completed_at": "2026-09-28T01:15:57.948Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/hex/mox-1.3.2",
+          "requested_at": "2026-09-28T01:15:57.948Z",
+          "completed_at": "2026-09-28T01:15:58.190Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/dependabot/hex/mox-1.3.2",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    },
+    {
+      "key": {
+        "number": 273,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 273,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+          "sha": "e8c028591ccd806180f0ea048ad5278028fc7c0f"
+        }
+      },
+      "current_pr": {
+        "number": 273,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+          "sha": "e8c028591ccd806180f0ea048ad5278028fc7c0f"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+            "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+            "sha": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fnpm_and_yarn%2Ftest%2Fexample%2Fpriv%2Fplaywright%2Fsimplewebauthn%2Fbrowser-14.0.0"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+            "sha": "e8c028591ccd806180f0ea048ad5278028fc7c0f",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/273",
+          "requested_at": "2026-09-28T01:15:58.190Z",
+          "completed_at": "2026-09-28T01:15:58.755Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:15:58.755Z",
+          "completed_at": "2026-09-28T01:15:59.098Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:15:59.098Z",
+          "completed_at": "2026-09-28T01:15:59.358Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fnpm_and_yarn%2Ftest%2Fexample%2Fpriv%2Fplaywright%2Fsimplewebauthn%2Fbrowser-14.0.0",
+          "requested_at": "2026-09-28T01:15:59.358Z",
+          "completed_at": "2026-09-28T01:15:59.839Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+          "requested_at": "2026-09-28T01:15:59.839Z",
+          "completed_at": "2026-09-28T01:16:00.107Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    },
+    {
+      "key": {
+        "number": 274,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 274,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/threadline-0.10.1",
+          "sha": "714b6e4ef377d81ada327f0b0840cfcf874ffb84"
+        }
+      },
+      "current_pr": {
+        "number": 274,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/threadline-0.10.1",
+          "sha": "714b6e4ef377d81ada327f0b0840cfcf874ffb84"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "dependabot/hex/threadline-0.10.1",
+            "ref": "refs/heads/dependabot/hex/threadline-0.10.1",
+            "sha": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fhex%2Fthreadline-0.10.1"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/dependabot/hex/threadline-0.10.1",
+            "sha": "714b6e4ef377d81ada327f0b0840cfcf874ffb84",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/hex/threadline-0.10.1"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/274",
+          "requested_at": "2026-09-28T01:16:00.108Z",
+          "completed_at": "2026-09-28T01:16:00.941Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:16:00.941Z",
+          "completed_at": "2026-09-28T01:16:01.243Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:16:01.243Z",
+          "completed_at": "2026-09-28T01:16:01.488Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fhex%2Fthreadline-0.10.1",
+          "requested_at": "2026-09-28T01:16:01.488Z",
+          "completed_at": "2026-09-28T01:16:01.779Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/hex/threadline-0.10.1",
+          "requested_at": "2026-09-28T01:16:01.779Z",
+          "completed_at": "2026-09-28T01:16:02.033Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/dependabot/hex/threadline-0.10.1",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    },
+    {
+      "key": {
+        "number": 275,
+        "base_ref": "main",
+        "base_sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+      },
+      "historical_source": {
+        "commit": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+        "state_blob": "913e4d0ab10cfa3b4fb42bd4d347d47f5832dc85",
+        "evidence_blob": "eb9f3fa848e41578bd6f6d03d375f66207bbc8e9"
+      },
+      "current_inventory": {
+        "number": 275,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/ex_doc-0.40.4",
+          "sha": "75b00619d287694ac55643584923011538933660"
+        }
+      },
+      "current_pr": {
+        "number": 275,
+        "state": "OPEN",
+        "base": {
+          "repository": "szTheory/sigra",
+          "ref": "main",
+          "sha": "fed35a4a3725d217486f45a571421dbbf5721765"
+        },
+        "head": {
+          "repository": "szTheory/sigra",
+          "ref": "dependabot/hex/ex_doc-0.40.4",
+          "sha": "75b00619d287694ac55643584923011538933660"
+        }
+      },
+      "exact_refs": {
+        "base": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "main",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/main"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/main",
+            "sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main"
+          }
+        },
+        "head": {
+          "api": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "branch": "dependabot/hex/ex_doc-0.40.4",
+            "ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
+            "sha": "75b00619d287694ac55643584923011538933660",
+            "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fhex%2Fex_doc-0.40.4"
+          },
+          "ls_remote": {
+            "status": "ok",
+            "repository": "szTheory/sigra",
+            "ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
+            "sha": "75b00619d287694ac55643584923011538933660",
+            "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/hex/ex_doc-0.40.4"
+          }
+        }
+      },
+      "provenance": {
+        "inventory": {
+          "page": 1,
+          "endpoint": "repos/szTheory/sigra/pulls?state=open&per_page=100&page=1",
+          "requested_at": "2026-09-28T01:15:42.324Z",
+          "completed_at": "2026-09-28T01:15:42.742Z",
+          "status": "ok",
+          "response_status": 200,
+          "item_count": 13,
+          "numbers": [
+            283,
+            275,
+            274,
+            273,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            224,
+            219
+          ],
+          "has_next": false,
+          "page_complete": true
+        },
+        "detail": {
+          "endpoint": "repos/szTheory/sigra/pulls/275",
+          "requested_at": "2026-09-28T01:16:02.034Z",
+          "completed_at": "2026-09-28T01:16:02.739Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/main",
+          "requested_at": "2026-09-28T01:16:02.739Z",
+          "completed_at": "2026-09-28T01:16:03.062Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "base_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/main",
+          "requested_at": "2026-09-28T01:16:03.062Z",
+          "completed_at": "2026-09-28T01:16:03.327Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/main",
+          "error": null
+        },
+        "head_api": {
+          "endpoint": "repos/szTheory/sigra/git/ref/heads/dependabot%2Fhex%2Fex_doc-0.40.4",
+          "requested_at": "2026-09-28T01:16:03.327Z",
+          "completed_at": "2026-09-28T01:16:03.681Z",
+          "status": "ok",
+          "response_status": 200
+        },
+        "head_ls_remote": {
+          "endpoint": "git ls-remote https://github.com/szTheory/sigra.git refs/heads/dependabot/hex/ex_doc-0.40.4",
+          "requested_at": "2026-09-28T01:16:03.681Z",
+          "completed_at": "2026-09-28T01:16:03.959Z",
+          "status": "ok",
+          "exit_code": 0,
+          "remote_url": "https://github.com/szTheory/sigra.git",
+          "requested_ref": "refs/heads/dependabot/hex/ex_doc-0.40.4",
+          "error": null
+        }
+      },
+      "ancestry": {
+        "historical_sha_readable": null,
+        "historical_sha_is_ancestor": null,
+        "note": "Ancestry is not used to resolve a historical identity mismatch."
+      },
+      "disposition": "unresolved",
+      "unresolved_reasons": [
+        "current_base_github_ref_disagrees_with_pr",
+        "current_base_ls_remote_disagrees_with_pr"
+      ]
+    }
+  ]
+}

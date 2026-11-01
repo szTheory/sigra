@@ -1,0 +1,30 @@
+RECONSTRUCTED FROM TOOL TRANSCRIPT — NOT A DIRECT PROCESS CAPTURE
+
+Command:
+python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits
+
+Exit: 1
+Tests run: 1
+Source chronology: One regex correction had been applied after FAILED-01; the test file still contained the incorrect 25-halt reason expectation. The source hash at this run was not captured at invocation time. No pre-edit run exists. The output below is transcribed from the tool response; no output file was captured directly.
+
+Observed output:
+test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) ...
+  test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) (label='22-halt') ... FAIL
+
+======================================================================
+FAIL: test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) (label='22-halt')
+----------------------------------------------------------------------
+successor.ContractError: 169 executable reconciliation assertion has a stale count
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py", line 976, in test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits
+    with self.assertRaisesRegex(successor.ContractError, reason):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: "25 halt set" does not match "169 executable reconciliation assertion has a stale count"
+
+----------------------------------------------------------------------
+Ran 1 test in 0.576s
+
+FAILED (failures=1)

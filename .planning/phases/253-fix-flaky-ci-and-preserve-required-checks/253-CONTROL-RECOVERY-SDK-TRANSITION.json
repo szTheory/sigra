@@ -1,0 +1,43 @@
+{
+  "schema_version": "sigra.phase253.control-recovery-sdk-transition/v1",
+  "recorded_at": "2026-10-14T00:49:32.859566+00:00",
+  "pre_transition_head": "9f6d154d4da7e1b3ed253e5ceece544bfbe65f31",
+  "prior_shared_preservation": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-SHARED-PRESERVATION.json",
+  "argv": [
+    "node",
+    "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+    "query",
+    "state.planned-phase",
+    "--phase",
+    "253",
+    "--name",
+    "Fix Flaky CI and Preserve Required Checks",
+    "--plans",
+    "35"
+  ],
+  "exit_code": 0,
+  "result": {
+    "updated": [
+      "Current Position",
+      "progress.total_plans",
+      "Current Phase Name",
+      "state_head",
+      "progress.percent"
+    ],
+    "phase": "253",
+    "plan_count": 35
+  },
+  "post_transition": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "fc394daa3ec76dbaf84c24b04b64a443be4bc73abfc2e98198f500057a76f3bb",
+      "status": " M .planning/STATE.md"
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "8ab38a5fa7eaed620aa5d90b07d3509ed043f872a23dac1c9e5af94d62968dd4",
+      "status": " M .planning/state.json"
+    }
+  ],
+  "phase_acceptance": false
+}

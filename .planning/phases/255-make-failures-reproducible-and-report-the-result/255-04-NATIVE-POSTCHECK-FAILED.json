@@ -1,0 +1,55 @@
+{
+  "schema_version": "sigra.browser-local-native/v1",
+  "status": "browser_run_passed_harness_postcheck_failed",
+  "source_identity": {
+    "source_sha": "0e14c9a767ae614795ffdc5c41441ffd86b0ce81",
+    "source_ref": "phase-244-playwright-measurement",
+    "worktree_dirty": true
+  },
+  "runtime": {
+    "node": "v20.19.5",
+    "playwright": "1.59.1",
+    "elixir": "1.19.5",
+    "otp": "28",
+    "host_os": "darwin",
+    "browser_equivalence": "behavior only; Ubuntu 24.04 is required for font/pixel parity"
+  },
+  "native_run": {
+    "command": "python3 -B scripts/ci/ci-browser-local.test.py --native",
+    "seam": "non_admin_smoke",
+    "event": "pull_request",
+    "grep": "full user lifecycle",
+    "runner_exit_code": 0,
+    "selection_matched_execution": true,
+    "identities": [
+      {
+        "project": "chromium",
+        "file": "golden-path.spec.ts",
+        "title": "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge"
+      },
+      {
+        "project": "mobile",
+        "file": "golden-path.spec.ts",
+        "title": "full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge"
+      }
+    ]
+  },
+  "owned_resource_checks_before_harness_failure": {
+    "database_absent_after_cleanup": true,
+    "server_process_stopped": true,
+    "owned_output_root_removed": true,
+    "unrelated_database_fingerprint_before": "171292|jon|true|-1",
+    "unrelated_database_fingerprint_after": "171292|jon|true|-1",
+    "preexisting_sigra_repro_databases_preserved": true,
+    "screenshot_check_reached": false
+  },
+  "harness": {
+    "exit_code": 1,
+    "failure": "The post-run bind probe reported the browser server port unavailable because macOS retained TIME_WAIT connections after the listener stopped.",
+    "corrected_postcondition": "A read-only TCP connect probe on port 64654 found no listener.",
+    "current_worktree_image_status": "no changed PNG/JPG/JPEG/WebP files",
+    "focused_regression": "BrowserLocalSafetyTests.test_time_wait_is_not_reported_as_a_still_listening_server passed.",
+    "whole_native_harness_rerun": false
+  },
+  "scope_note": "The browser runner returned 0 and exact selected identities matched execution. The native harness itself returned nonzero on the TIME_WAIT postcondition; this record does not claim that the full --native command exited 0."
+}

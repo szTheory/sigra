@@ -1,0 +1,9 @@
+[info] Running ExampleWeb.Endpoint with Bandit 1.10.4 at 127.0.0.1:25311 (http)
+[info] Access ExampleWeb.Endpoint at http://localhost:25311
+[info] GET /
+[debug] Processing with ExampleWeb.PageController.home/2
+  Parameters: %{}
+  Pipelines: [:browser]
+[info] Sent 200 in 56ms
+[notice] SIGTERM received - shutting down
+

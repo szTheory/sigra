@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "status": "approved",
+  "method": "symmetric_environment_transport_recovery",
+  "approval": {
+    "source": "Current user explicit recovery/automatic-follow instruction",
+    "scope": "Correct the newly introduced ordinary image metadata gate using documented native image authority, cover the remaining generated-host package installation with the same verified helper, and run the two affected CI sources to completion."
+  },
+  "proposal_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/PROPOSAL.json",
+  "proposal_sha256": "3c10956e8171f91c863ddbb6293cdebea1d6239dab153818dd68a965a4d64ee3",
+  "policy_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/POLICY.json",
+  "policy_sha256": "1f37060d0335a7300c620a36445b6f53933fe235b2459ea34d0ec5914499429a",
+  "preparation_allowance": {
+    "new_initial_full_CI_invocations": 2,
+    "one_fixed_source_update_per_existing_evidence_PR": true,
+    "source_update_retries": 0,
+    "maximum_elapsed_minutes": 60,
+    "maximum_HTTP_requests": 600
+  },
+  "prior_allowances": "All earlier runs and spent budgets remain unchanged. First preserve both previous outcomes; do not label their skipped work as passing.",
+  "measurement": "No sample or window has started. Same40 unspent invocations and original thresholds; canonical native-image equality remains required per owner."
+}

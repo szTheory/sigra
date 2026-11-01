@@ -1,0 +1,11 @@
+{
+  "status": "complete",
+  "request_count": 2,
+  "stop_reason": null,
+  "reset_or_retry_at": "1792794380",
+  "unknown_inputs": [],
+  "requests": [
+    "rate_limit",
+    "/repos/szTheory/sigra/actions/runs/38317383419/rerun"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": "sigra.phase254.environment-repair-preparation/v1",
+  "purpose": "preparation_only_not_measured_acceptance",
+  "authorization_path": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/AUTHORIZATION.json",
+  "authorization_sha256": "db2ac582484bf3e8331150db91df1074df8f34d72877c534a0c7b77426d3c6df",
+  "request_budget_ledger_id": "091b88332ed5e28e89250390a1361aa099b407d1a710660a7d9ce41570eaeadf",
+  "maximum_mutations": 2,
+  "authorized_mutations": [
+    "/repos/szTheory/sigra/git/refs/heads/evidence/phase254-environment-before-20261024",
+    "/repos/szTheory/sigra/git/refs/heads/evidence/phase254-environment-after-20261024"
+  ],
+  "maximum_invocations": 2,
+  "invocation_retries": 0,
+  "maximum_elapsed_minutes": 60,
+  "maximum_total_http_requests": 600,
+  "baseline_application_sha": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+  "baseline_identity": {
+    "application_sha": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+    "tree_sha": "779c0dc6cbbb5671770659c295a3ce3649c42740",
+    "branch": "evidence/phase254-environment-before-20261024",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "preparation_attempt": 1,
+    "reviewed_source": "2b0e51d37184ffb95698dea586eebf3c42a33d85",
+    "workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+    "source_ref": "refs/evidence/phase254-native-authority-source-before"
+  },
+  "candidate_identity": {
+    "application_sha": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
+    "tree_sha": "71f24549e613bc8a6d68c3e396bb28e4626f6812",
+    "branch": "evidence/phase254-environment-after-20261024",
+    "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "preparation_attempt": 1,
+    "reviewed_source": "c074333db2658cb0726a9ee23535e4c43a9f8c64",
+    "workflow_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
+    "source_ref": "refs/evidence/phase254-native-authority-source-after"
+  },
+  "required_contexts": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "original_baseline_history_unchanged": true,
+  "prior_preparation_budget_not_reused": true,
+  "measured_samples": 0,
+  "measurement_window_started_at": null,
+  "runner_image_proof_required": true,
+  "prior_preparation_invocations": 6,
+  "runner_image_proof_policy": "v2_native_file_authority",
+  "source_update_order": [
+    "before",
+    "after"
+  ],
+  "preparation_order": [
+    "before",
+    "after"
+  ]
+}

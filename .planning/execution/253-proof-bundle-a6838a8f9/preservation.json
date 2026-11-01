@@ -1,0 +1,38 @@
+{
+  "entry_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "shared": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean_at_capture",
+      "commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+      "sha256": "96167273d41f42bc10a9be567384303754f00d6731306b897a1fe449f33b6a7b",
+      "bytes": 43056,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean_at_capture",
+      "commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+      "sha256": "3d4383149c92de506d4d4d5159413b4d211584bbb6b5f09dda779545ba37c548",
+      "bytes": 121976,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean_at_capture",
+      "commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+      "sha256": "944d589c8e7d8f8b62b6d1db803f8524f6358ffd3866f7b8c651450ef70f65cd",
+      "bytes": 187523,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "status": "clean_at_capture",
+      "commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+      "sha256": "a2adbcde69ef39ef8c82ae2a631eb42023a58c7688bde2a25675e743949156e3",
+      "bytes": 5956,
+      "readback_verified": true
+    }
+  ],
+  "historical_scope": "All existing phase paths except the explicitly preserved unfinished172 plan, 170/171 records, prior proposal and repair records remain unchanged; verified with Git diff and prior recorded hashes."
+}

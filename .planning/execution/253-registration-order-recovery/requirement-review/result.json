@@ -1,0 +1,118 @@
+{
+  "schema": "sigra.phase253.requirements-uat/v1",
+  "recorded_at": "2026-10-22T20:53:42.575980+00:00",
+  "source_commit": "3626e9abbccb51d46543e667555c1638b4bd835c",
+  "verification_mode": "automated under AGENTS.md; no human UAT or new hosted collection",
+  "CIREL-01": {
+    "status": "blocked_not_reproduced",
+    "satisfied": false,
+    "diagnostic_cases_passed": 161,
+    "original_order_recovered": true,
+    "original_global_prefix_matches": true,
+    "missing": "A demonstrated registration failure and cause, followed by a tested fix and its required fresh repeats",
+    "environment_limits": [
+      "macOS arm64 versus original Ubuntu Linux x64",
+      "local PostgreSQL14.17 versus original workflow PostgreSQL15",
+      "original database snapshot unavailable"
+    ],
+    "strict_original_acceptance_reader_exit": 3,
+    "old_post_fix_slots_expired": 9
+  },
+  "CIREL-02": {
+    "status": "verified",
+    "satisfied": true,
+    "five_required_names": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ],
+    "normal_pr": 343,
+    "normal_run": 39815188159,
+    "normal_browser_groups": 5,
+    "docs_pr": 344,
+    "docs_run": 39837182521,
+    "docs_accepted_live": true,
+    "hosted_injections": [
+      {
+        "scenario": "full-pass",
+        "conclusion": "success",
+        "run_id": "39705689564"
+      },
+      {
+        "scenario": "docs-only",
+        "conclusion": "success",
+        "run_id": "39705846861"
+      },
+      {
+        "scenario": "actual-failure",
+        "conclusion": "failure",
+        "run_id": "39705993934"
+      },
+      {
+        "scenario": "missing-seam",
+        "conclusion": "failure",
+        "run_id": "39706157738"
+      },
+      {
+        "scenario": "unexpected-skip",
+        "conclusion": "failure",
+        "run_id": "39706311517"
+      },
+      {
+        "scenario": "cancelled",
+        "conclusion": "cancelled",
+        "run_id": "39706467176"
+      }
+    ],
+    "separate_verifier_status": "passed",
+    "current_gate_inputs_equal_hosted_inputs": true,
+    "ledgers_kept_separate": true,
+    "single_ledger_pair_acceptance_not_claimed": true,
+    "redundant_check_removals": 0
+  },
+  "fresh_development_checks": {
+    "shell_cases": 21,
+    "unit_owner_tests": 5,
+    "node_tests": 57,
+    "python_tests": 151,
+    "recovery_tests": 14
+  },
+  "uat_status": "partial",
+  "phase_complete": false,
+  "canonical_verification_report": "missing; owned by execute-phase; not manufactured by verify-work",
+  "github_requests_this_review": 0,
+  "browser_launches_this_review": 0,
+  "additional_native_authorized": false,
+  "approval_pending": false,
+  "prior_state": ".planning/execution/253-registration-order-recovery/requirement-review/prior-state.json",
+  "sha256": {
+    "registration-strict.stderr": "8c42146341a5a4f09d65aa996cc4763f0c487e827fdf96d8a82978fae1f0dbc4",
+    "evidence-checks.json": "7b44dc9685398ebae09ab4bff1bee51fc31f3fe1df19f899cec0e547f8a0afe2",
+    "retained-canary.stdout": "e54449630c4e804f8af6c95daac8e6fad62546fda1258495da8a58f377298cef",
+    "source-comparison.stdout": "b9d42a4095088a63240d77b6a7a7f7ad28630c0686ab085784b781e99ff486d3",
+    "retained-canary.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source-comparison.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "registration-strict.stdout": "38789e31a60511bb633e97561373e228dbc5140f0ae8ff683bc9055b7772cf7d",
+    "node.stdout": "4bfb7bcf80e8f46d8e48e66d93fadd72469c911fa61ba024c1faf61ca9acf1ca",
+    "registration-disposition.stdout": "c51d32533f5a6b65741c63b53cd206d4016b447ea968191d69190a903e00a36a",
+    "shell.stdout": "6449f71723669a9a61570ec7d19dfaeaf9891e7eb963a9aec07d43af6fce15f2",
+    "normal-and-docs.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "python.stderr": "27cb45e7f748bf7b3814c041baea24bcfd38b2bcb02089c3832ec9bb85bbb9c8",
+    "python.stdout": "a330ba8d62f07aaaab16709371098f0ebfedd2e227707f97d7307e92a910b0b6",
+    "prior-state.json": "bc12a4c4dbe8779ed5f4475b623667ad73d1a0fb52e1f4326656ce3991144ddf",
+    "shell.stderr": "f7f2a56a67457edef1a65c81340f81e66b7a3e6e8fc8085bca942d0014a0ce0e",
+    "normal-and-docs.stdout": "5b86465a32a566c2e5bbb1349cfdf6d9eafe3ad255dcefdaebb5a7d9f71dacf4",
+    "node.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "registration-disposition.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "phase-completion.stdout": "b425c52f753599e61176480033e33e75536893f96d144738e8a2a5369256055a",
+    "phase-completion.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "uat_commit": "d100e74fa",
+  "native_evidence_commit": "3626e9abb",
+  "phase_completion_predicate_exit": 1,
+  "phase_completion_predicate_passed": false,
+  "requirements_working_sha256": "273a20549f808a7082a7dd9c899ffc839d1e40f400d217544110c45cbed51286",
+  "uat_sha256": "6890eabfb9c8744d99c0588ba697a150572b11c25743703d77b34fb97fb9f58b"
+}

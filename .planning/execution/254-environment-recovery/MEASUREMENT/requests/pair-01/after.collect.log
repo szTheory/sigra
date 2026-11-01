@@ -1,0 +1,3 @@
+snapshot manifest: /Users/jon/projects/sigra/.planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/raw-after/manifest.json
+status: complete; requests: 52
+{"status":"collected","role":"after","registered_families":1,"origin_status":"passed","parity_status":"pending_native_comparison","request_budget_ledger_sha256":"49f8996d5552e7ee8ad0711bb3ad88033b8d0d72f9e8b2d94b7aac9e41b58409"}

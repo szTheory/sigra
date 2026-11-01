@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "checked_at": "2026-10-12T16:15:33.371648+00:00",
+  "claim": "Phase252 discussion complete and forward route ready; implementation and phase verification not started",
+  "checks": [
+    {
+      "name": "GSD state valid, complete, no warnings",
+      "passed": true
+    },
+    {
+      "name": "Planning readiness has context and no blocker",
+      "passed": true
+    },
+    {
+      "name": "Four roadmap phases, no completed work",
+      "passed": true
+    },
+    {
+      "name": "STATE route aligned",
+      "passed": true
+    },
+    {
+      "name": "STATE stays compact",
+      "passed": true
+    },
+    {
+      "name": "JSON state route and phase outcomes aligned",
+      "passed": true
+    },
+    {
+      "name": "Handoff routes and no pending human gate",
+      "passed": true
+    },
+    {
+      "name": "Milestone lifecycle route follows discussion",
+      "passed": true
+    },
+    {
+      "name": "PROJECT.md has current planning route",
+      "passed": true
+    },
+    {
+      "name": "ROADMAP.md has current planning route",
+      "passed": true
+    },
+    {
+      "name": "Approval and unchanged target preserved",
+      "passed": true
+    },
+    {
+      "name": "No phase outcome overstated",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 96611810e .planning/STATE.md",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 96611810e .planning/state.json",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 96611810e .planning/HANDOFF.json",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 96611810e .planning/PROJECT.md",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 96611810e .planning/ROADMAP.md",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 96611810e .planning/v1.50-START.json",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 4faed92f6 .planning/STATE.md",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 4faed92f6 .planning/state.json",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 4faed92f6 .planning/HANDOFF.json",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 4faed92f6 .planning/PROJECT.md",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 4faed92f6 .planning/ROADMAP.md",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 4faed92f6 .planning/v1.50-START.json",
+      "passed": true
+    },
+    {
+      "name": "Prior bytes recoverable 4faed92f6 .planning/phases/252-measure-current-ci/252-DISCUSSION-RECORD.json",
+      "passed": true
+    },
+    {
+      "name": "Discovery bytes intact effective-rules-main.json",
+      "passed": true
+    },
+    {
+      "name": "Discovery bytes intact runs-pull_request.json",
+      "passed": true
+    },
+    {
+      "name": "Discovery bytes intact runs-push-main.json",
+      "passed": true
+    },
+    {
+      "name": "Discovery bytes intact runs-schedule.json",
+      "passed": true
+    },
+    {
+      "name": "Discovery bytes intact representative-pr-jobs.json",
+      "passed": true
+    },
+    {
+      "name": "Discovery bytes intact api-runs-pull_request-get.json",
+      "passed": true
+    },
+    {
+      "name": "Discovery bytes intact api-runs-pull_request.json",
+      "passed": true
+    },
+    {
+      "name": "Discovery bytes intact workflows.json",
+      "passed": true
+    },
+    {
+      "name": "Discovery bytes intact API-ACCESS-NOTES.txt",
+      "passed": true
+    },
+    {
+      "name": "Discovery bytes intact DECISION-PACKET.md",
+      "passed": true
+    },
+    {
+      "name": "All task changes are planning only",
+      "passed": true
+    },
+    {
+      "name": "Protected history/config unchanged AGENTS.md",
+      "passed": true
+    },
+    {
+      "name": "Protected history/config unchanged .planning/REQUIREMENTS.md",
+      "passed": true
+    },
+    {
+      "name": "Protected history/config unchanged .planning/config.json",
+      "passed": true
+    },
+    {
+      "name": "Protected history/config unchanged .planning/milestones/v1.49-MILESTONE-AUDIT.md",
+      "passed": true
+    },
+    {
+      "name": "Protected history/config unchanged .planning/milestones/v1.49-REQUIREMENTS.md",
+      "passed": true
+    },
+    {
+      "name": "Protected history/config unchanged .planning/MILESTONES.md",
+      "passed": true
+    },
+    {
+      "name": "Todo metadata and bodies unchanged",
+      "passed": true
+    },
+    {
+      "name": "No plan or verification file fabricated",
+      "passed": true
+    }
+  ],
+  "all_passed": true,
+  "state_validation": {
+    "valid": true,
+    "warnings": [],
+    "scope": "complete"
+  },
+  "readiness": {
+    "phase_found": true,
+    "phase_number": "252",
+    "phase_status": "Pending",
+    "has_context": true,
+    "has_research": false,
+    "has_plans": false,
+    "plan_count": 0,
+    "context_scope": "complete",
+    "prior_verify_commands": []
+  },
+  "roadmap_summary": {
+    "phase_count": 4,
+    "completed_phases": 0,
+    "total_plans": 0,
+    "total_summaries": 0,
+    "scope": "complete"
+  },
+  "next_command": "$gsd-plan-phase 252",
+  "context_commit": "96611810e2674a7c6318f48f36ae488a35d33c99",
+  "prior_readbacks": 13,
+  "source_manifest_inputs": 10,
+  "requirements_complete": 0,
+  "app_tests_run": false,
+  "ci_dispatched": false,
+  "external_mutations": false,
+  "historical_verification_is_forward_blocker": false
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": "sigra.phase253.paired-actions/v1",
+  "identity": {
+    "candidate_ref": "refs/heads/gsd/253-replan-proof-5e13621e5-candidate"
+  },
+  "outward_actions": {
+    "docs_and_prs": {
+      "max_requests": 120,
+      "reruns": 0,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "actions": [
+        {
+          "action": "publish_docs_objects",
+          "category": "docs_publication",
+          "max_requests": 14,
+          "docs_base_commit": "4524f17e1b791dd4d2c2ae597c053a8e37e8095e",
+          "docs_head_commit": "a4c2b64119fa89ada8a6dbbe1f729a24fb6bfc21",
+          "refs": [
+            {
+              "ref": "refs/heads/gsd/253-replan-proof-5e13621e5-docs-base",
+              "sha": "4524f17e1b791dd4d2c2ae597c053a8e37e8095e"
+            },
+            {
+              "ref": "refs/heads/gsd/253-replan-proof-5e13621e5-docs-head",
+              "sha": "a4c2b64119fa89ada8a6dbbe1f729a24fb6bfc21"
+            }
+          ]
+        },
+        {
+          "action": "pr_create",
+          "family": "normal",
+          "head": "gsd/253-replan-proof-5e13621e5-candidate",
+          "base": "main",
+          "draft": true
+        },
+        {
+          "action": "pr_create",
+          "family": "docs-only",
+          "head": "gsd/253-replan-proof-5e13621e5-docs-head",
+          "base": "gsd/253-replan-proof-5e13621e5-docs-base",
+          "draft": true
+        }
+      ]
+    }
+  },
+  "outward_actions_sha256": {
+    "docs_and_prs": "5912c544cb856f1d1e8ef125a90f091c0bf0e9bb3738e9a5ddefdb29deeb078a"
+  }
+}

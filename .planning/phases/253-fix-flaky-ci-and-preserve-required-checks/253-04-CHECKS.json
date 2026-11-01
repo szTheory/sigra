@@ -1,0 +1,18 @@
+{
+  "plan": "253-04",
+  "source_head": "78bc6ce01567295fff0a6722e26121380e0a0202",
+  "checks": [
+    {
+      "command": "node --test scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs",
+      "exit_code": 0,
+      "passed": 16
+    },
+    {
+      "command": "bash scripts/ci/honest-skip-verdict.test.sh",
+      "exit_code": 0,
+      "passed": 21
+    }
+  ],
+  "log_sha256": "fc74d90642748f5e19ec29797b4e513cd1efb43779004fffee5df8468eb03444",
+  "requirements_complete": false
+}

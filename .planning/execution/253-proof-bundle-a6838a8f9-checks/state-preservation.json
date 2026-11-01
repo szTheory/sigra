@@ -1,0 +1,45 @@
+{
+  "entry_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+      "status": "clean_at_capture",
+      "sha256": "96167273d41f42bc10a9be567384303754f00d6731306b897a1fe449f33b6a7b",
+      "bytes": 43056,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+      "status": "clean_at_capture",
+      "sha256": "3d4383149c92de506d4d4d5159413b4d211584bbb6b5f09dda779545ba37c548",
+      "bytes": 121976,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+      "status": "clean_at_capture",
+      "sha256": "944d589c8e7d8f8b62b6d1db803f8524f6358ffd3866f7b8c651450ef70f65cd",
+      "bytes": 187523,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+      "status": "clean_at_capture",
+      "sha256": "a2adbcde69ef39ef8c82ae2a631eb42023a58c7688bde2a25675e743949156e3",
+      "bytes": 5956,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-172-EXECUTION.json",
+      "commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+      "status": "clean_at_capture",
+      "sha256": "c76fd5b84f384aa061a4bab12395b58f34f0724f35073194cdf77d0f8d2ec81c",
+      "bytes": 2467,
+      "readback_verified": true
+    }
+  ]
+}

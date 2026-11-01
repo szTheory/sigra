@@ -1,0 +1,31 @@
+{
+  "head": "3725eaf12fe690c47ac8bed9d2c64f8358b3ec93",
+  "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py verify-receipt --consumer 168",
+  "bindings": [
+    {
+      "plan": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md",
+      "automated_block": 0,
+      "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py verify-receipt --consumer 168",
+      "plan_sha256": "ff34aefb55c2188a02b2b560e0b2b92dc5e36c2cffe00d4f6894a4a558a7d10b"
+    },
+    {
+      "plan": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md",
+      "automated_block": 1,
+      "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py verify-receipt --consumer 168",
+      "plan_sha256": "ff34aefb55c2188a02b2b560e0b2b92dc5e36c2cffe00d4f6894a4a558a7d10b"
+    },
+    {
+      "plan": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+      "automated_block": 1,
+      "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V3.py verify-receipt --consumer 168",
+      "plan_sha256": "79c28c828df719d867e4b96b43a0f36aa4e358d24018691d0f9eb9afe3478000"
+    }
+  ],
+  "returncode": 0,
+  "stdout": "{\"acceptance_reruns\": 0, \"consumer\": \"168-172-v3\", \"correction_base\": \"e87b56fe32466749aedaf1ac8b47735a54cbf030\", \"count\": 90, \"github_requests\": 0, \"historical_plan180_unchanged\": true, \"phase_verification_status\": \"not_started\", \"protected_phase_files\": 1034, \"source_commit\": \"3197421e08f2af060c0a03f8b91cf6b298f641e1\", \"status\": \"verified\"}\n",
+  "stderr": "",
+  "unique_commands_executed": 1,
+  "phase_tasks_executed": 0,
+  "acceptance_reruns": 0,
+  "ci_launches": 0
+}

@@ -1,0 +1,369 @@
+{
+  "bound_documents": {
+    "fixture_workflow": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
+      "sha256": "3c31cb72c3168c4e86a1ea529f16bfdd40b4405551459ca27b9b989cb762df7b"
+    },
+    "publication_manifest": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-PUBLICATION-R8.json",
+      "sha256": "6ad1c2ee42160c1500f70430ce9d6b3709ba2471f98d15f3a67ca205ff80d893"
+    }
+  },
+  "bounds": {
+    "historical_command_allocations": 3,
+    "max_actual_tiny_jobs": 45,
+    "max_artifact_compressed_bytes": 2097152,
+    "max_artifact_extracted_bytes": 4194304,
+    "max_dispatch_input_chars": 65535,
+    "max_dispatch_input_keys": 10,
+    "max_minutes": 60,
+    "max_requests": 120,
+    "new_measured_max_requests": 117
+  },
+  "categories": {
+    "canary": {
+      "artifact_downloads": 12,
+      "artifact_metadata": 7,
+      "attempt_jobs": 7,
+      "cancellation": 1,
+      "dispatch": 7,
+      "failure_logs": 6,
+      "infrastructure_retry": 13,
+      "pre_watch_rate": 7,
+      "preflight": 8,
+      "publication": 24,
+      "run_discovery": 7,
+      "terminal_polls": 18
+    },
+    "production": {
+      "artifact_downloads": 20,
+      "artifact_metadata": 4,
+      "attempt_jobs": 4,
+      "docs_publication": 14,
+      "failure_logs": 2,
+      "infrastructure_rerun": 21,
+      "native_checks": 4,
+      "pr_create": 2,
+      "pr_identity": 8,
+      "pre_watch_rate": 2,
+      "preflight": 8,
+      "run_discovery": 4,
+      "terminal_polls": 27
+    }
+  },
+  "clock": {
+    "begins": "before_first_preflight_or_publication_request",
+    "minutes": 60
+  },
+  "expired_reruns": {
+    "canary": {
+      "category": "infrastructure_retry",
+      "jobs": 6,
+      "reason": "no implemented rerun route; an infrastructure fault halts",
+      "requests": 13,
+      "status": "expired",
+      "used": 0
+    },
+    "pull_requests": {
+      "category": "infrastructure_rerun",
+      "reason": "no implemented rerun route; an infrastructure fault halts",
+      "requests": 21,
+      "status": "expired",
+      "used": 0
+    }
+  },
+  "helper_blobs": {
+    ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341",
+    "scripts/ci/ci-browser-records.mjs": "40203391014e2ac8cfe6e0d8d58b2bce8679f644",
+    "scripts/ci/ci-gate-canary.sh": "0289de6ea69925a33c2915d8e208aa22981ac387",
+    "scripts/ci/ci-gate-canary.test.sh": "97fa15c2a27f1da6331b41b07287a5827b5a153b",
+    "scripts/ci/ci-git-publication.py": "7dcbf18162e1452871d97d6daee0f0b8c154024b",
+    "scripts/ci/ci-git-publication.test.py": "6ae05df9ffab9d5300109369e78771a3fd55f432",
+    "scripts/ci/ci-hosted-gate-verify.py": "c318149b5fee6b3b4a9447d692bb3acb50aecc62",
+    "scripts/ci/ci-hosted-gate-verify.test.py": "040d7a9490112cdac0719e37ad04f5bb03e6496e",
+    "scripts/ci/ci-hosted-transport.py": "a8f206c81a29a902ff8da2e0a3ca1f1c7fe4e0ef",
+    "scripts/ci/ci-pr-proof.sh": "cc50d8754fb3f27d3f8a575e00c46b997973a6bb",
+    "scripts/ci/ci-pr-proof.test.sh": "67729f34b3ba2418fd345a4de3670a70a73f5991",
+    "scripts/ci/honest-skip-verdict.sh": "191d9642e7c29e1ebf14e40d120cbd992ff01bf4"
+  },
+  "historical": {
+    "note": "old run 38347679431, epoch 1791909792, 34-second halt and three known commands remain closed; historical actual HTTP is unknown",
+    "previous_accounted_or_reserved_requests": 20,
+    "previous_exact_http_count_proven": false
+  },
+  "identity": {
+    "candidate_helper_commit": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+    "candidate_ref": "refs/heads/gsd/253-replan-r8-candidate",
+    "candidate_tree_sha": "7529ff2201c489f356df7bcfe88d421a3fbdaa82",
+    "docs_base_commit": "1658789dddfac1da3d6796c93e5210f67b4bfa7b",
+    "docs_head_commit": "226db56537b3e95cdbf21acc4d04ca8d5479aca8",
+    "fixture_ref": "refs/heads/gsd/253-replan-r8-fixture",
+    "fixture_tree_sha": "6c1aa33c7a8d3b80b158a9fca28796616c7ed7e6",
+    "fixture_workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+    "fixture_workflow_commit": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44",
+    "old_failed_epoch": 1791909792,
+    "old_failed_halt_seconds": 34,
+    "old_failed_run_id": "38347679431",
+    "old_known_commands": 3,
+    "server_parent_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "workflow_path": ".github/workflows/ci.yml"
+  },
+  "native_target": {
+    "acceptance_evidence": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json",
+      "sha256": "f95393e39c2fc7d039556d627429de4a61af37a7aae69b9f40afbd0ef4988fc7"
+    },
+    "disposition": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION.json",
+      "sha256": "6afcc1a77b604bee7438195f3bc70e67336753afe345ea157c6c9c275d87a140"
+    },
+    "disposition_approval": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-TARGET-DISPOSITION-APPROVAL.json",
+      "sha256": "d7d566641da2d5e1c7d5e951adb6e7d53c88f2a32ff8da4f324b64df11c27b0e"
+    },
+    "note": "CIREL-01 partial: target not reproduced; the nine D-20 acceptance slots expired unused; the normal PR runs each browser seam once as integration coverage only",
+    "route": "not_reproduced_disposition"
+  },
+  "outward_actions": {
+    "canary": {
+      "actions": [
+        {
+          "action": "publish_git_objects",
+          "candidate_commit": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+          "category": "publication",
+          "fixture_commit": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44",
+          "manifest": "bound_documents.publication_manifest",
+          "max_requests": 24
+        },
+        {
+          "action": "create_ref",
+          "ref": "refs/heads/gsd/253-replan-r8-candidate",
+          "sha": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a"
+        },
+        {
+          "action": "create_ref",
+          "ref": "refs/heads/gsd/253-replan-r8-fixture",
+          "sha": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44"
+        },
+        {
+          "action": "workflow_dispatch",
+          "inputs": {
+            "candidate_sha": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "fixture_sha": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44",
+            "scenario": "full-pass"
+          },
+          "ref": "gsd/253-replan-r8-fixture",
+          "workflow_id": 259268962
+        },
+        {
+          "action": "workflow_dispatch",
+          "inputs": {
+            "candidate_sha": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "fixture_sha": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44",
+            "scenario": "docs-only"
+          },
+          "ref": "gsd/253-replan-r8-fixture",
+          "workflow_id": 259268962
+        },
+        {
+          "action": "workflow_dispatch",
+          "inputs": {
+            "candidate_sha": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "fixture_sha": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44",
+            "scenario": "actual-failure"
+          },
+          "ref": "gsd/253-replan-r8-fixture",
+          "workflow_id": 259268962
+        },
+        {
+          "action": "workflow_dispatch",
+          "inputs": {
+            "candidate_sha": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "fixture_sha": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44",
+            "scenario": "missing-seam"
+          },
+          "ref": "gsd/253-replan-r8-fixture",
+          "workflow_id": 259268962
+        },
+        {
+          "action": "workflow_dispatch",
+          "inputs": {
+            "candidate_sha": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "fixture_sha": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44",
+            "scenario": "unexpected-skip"
+          },
+          "ref": "gsd/253-replan-r8-fixture",
+          "workflow_id": 259268962
+        },
+        {
+          "action": "workflow_dispatch",
+          "inputs": {
+            "candidate_sha": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "fixture_sha": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44",
+            "scenario": "cancelled"
+          },
+          "ref": "gsd/253-replan-r8-fixture",
+          "workflow_id": 259268962
+        },
+        {
+          "action": "cancel_run",
+          "max": 1,
+          "run_identity": {
+            "display_title_prefix": "Phase 253 Gate Canary / cancelled /",
+            "event": "workflow_dispatch",
+            "head_branch": "gsd/253-replan-r8-fixture",
+            "head_sha": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44",
+            "workflow_id": 259268962
+          },
+          "scenario": "cancelled"
+        },
+        {
+          "action": "workflow_dispatch",
+          "inputs": {
+            "candidate_sha": "7a1ba235a502c1f7b379a6109698fa59b65b6c8a",
+            "fixture_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+            "fixture_sha": "ad015ec1005b7f19d8722ce3650aa1eb777b8f44",
+            "matrix_evidence": "compact gzip+base64 receipts of the six verified sources; digest recorded at dispatch",
+            "scenario": "verifier"
+          },
+          "ref": "gsd/253-replan-r8-fixture",
+          "workflow_id": 259268962
+        }
+      ],
+      "max_requests": 117,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "reruns": 0
+    },
+    "docs_and_prs": {
+      "actions": [
+        {
+          "action": "publish_docs_objects",
+          "category": "docs_publication",
+          "docs_base_commit": "1658789dddfac1da3d6796c93e5210f67b4bfa7b",
+          "docs_head_commit": "226db56537b3e95cdbf21acc4d04ca8d5479aca8",
+          "max_requests": 14,
+          "refs": [
+            {
+              "ref": "refs/heads/gsd/253-replan-docs-base",
+              "sha": "1658789dddfac1da3d6796c93e5210f67b4bfa7b"
+            },
+            {
+              "ref": "refs/heads/gsd/253-replan-docs-head",
+              "sha": "226db56537b3e95cdbf21acc4d04ca8d5479aca8"
+            }
+          ]
+        },
+        {
+          "action": "pr_create",
+          "base": "main",
+          "draft": true,
+          "family": "normal",
+          "head": "gsd/253-replan-r8-candidate"
+        },
+        {
+          "action": "pr_create",
+          "base": "gsd/253-replan-docs-base",
+          "draft": true,
+          "family": "docs-only",
+          "head": "gsd/253-replan-docs-head"
+        }
+      ],
+      "max_requests": 120,
+      "prohibited": [
+        "rerun",
+        "merge",
+        "auto_merge",
+        "push",
+        "force_update",
+        "delete_ref",
+        "rule_change",
+        "release",
+        "tag"
+      ],
+      "reruns": 0
+    }
+  },
+  "outward_actions_sha256": {
+    "canary": "e272c040ecb6533f775340885bfac68a917f3da8866ab1312947aba32af54cc7",
+    "docs_and_prs": "083a4ce31dd0c036319a0cd3a54b95fbba0d2d71e2fb360b75c9f3ec247ba183"
+  },
+  "plan": "253-102",
+  "required_checks": [
+    "Library tests",
+    "Example unit smoke (ExUnit + ConnTest)",
+    "Install smoke (fresh phx.new + sigra.install)",
+    "Example HTTP smoke (boot + curl critical routes)",
+    "Example Playwright smoke (full lifecycle)"
+  ],
+  "scenarios": {
+    "cases": [
+      {
+        "expected_outcome": "success",
+        "name": "full-pass"
+      },
+      {
+        "expected_outcome": "success",
+        "name": "docs-only"
+      },
+      {
+        "expected_outcome": "failure",
+        "name": "actual-failure"
+      },
+      {
+        "expected_outcome": "failure",
+        "name": "missing-seam"
+      },
+      {
+        "expected_outcome": "failure",
+        "name": "unexpected-skip"
+      },
+      {
+        "expected_outcome": "cancelled",
+        "name": "cancelled"
+      }
+    ],
+    "count": 6,
+    "optional_infrastructure_retry": 0,
+    "retry_reason": "no implemented rerun route; an infrastructure fault halts",
+    "retry_status": "expired"
+  },
+  "schema_version": "sigra.phase253.load-recovery-canary-freeze/v1",
+  "source": {
+    "commit": "9c2db232938c832bdfec765616a5aa0454c8fd88",
+    "product_files": 1476,
+    "product_tree_sha": "d97f3025d12b788ea1437c385899988a4e44115e"
+  },
+  "workflow": {
+    "jobs": {
+      "independent_verifier": 1,
+      "observer_trigger": false,
+      "tiny_producers": 5,
+      "verdict": 1
+    },
+    "name": "Phase 253 Gate Canary",
+    "path": ".github/workflows/ci.yml",
+    "permissions": {
+      "contents": "read"
+    },
+    "registered_workflow_id": 259268962,
+    "trigger": [
+      "workflow_dispatch"
+    ]
+  }
+}

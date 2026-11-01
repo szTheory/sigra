@@ -1,0 +1,15 @@
+{
+  "reason": "Ordinary parser repair: execution-record.json was missing from the safe JSON allowlist. Retain the same already-completed candidate attempt under the original allowance.",
+  "prior_closed_ledger_ref": "refs/evidence/phase254-budget-before-artifact-capture",
+  "prior_closed_ledger_commit": "080a482524156f4da0b5e09664987c72ea52cbe7",
+  "prior_closed_ledger_sha256": "5aafa35d8fbcf205a8e0edd20cfe70c2ebb448dfa81142044c9c29be20bd80ce",
+  "clock_and_ledger_id_unchanged": true,
+  "original_started_at_epoch": 1792793206,
+  "requests_spent_before": 129,
+  "maximum_total_requests": 600,
+  "maximum_minutes": 60,
+  "CI_invocations_started": 2,
+  "new_CI_invocations_allowed": 0,
+  "old_hosted_failures_unchanged": true,
+  "closure_note": "The prior stop was local bookkeeping completion, not a403/429, core floor, elapsed limit or request limit. Its exact record is retained. Only the remaining original acquisition budget is used; no allowance is renewed."
+}

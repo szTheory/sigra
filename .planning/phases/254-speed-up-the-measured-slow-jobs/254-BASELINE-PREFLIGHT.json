@@ -1,0 +1,107 @@
+{
+  "schema_version": "sigra.phase254.baseline-preflight/v1",
+  "captured_at": "2026-10-23T15:42:15.854400+00:00",
+  "capture_head": "0dba02334afb80017b5a623f390f79d48fc4a810",
+  "initial_git_status": "clean",
+  "scope": "Offline baseline source feasibility; no hosted execution, cache validation or acceptance",
+  "initial_diagnostic": "Both frozen commit objects were unavailable locally. Authenticated GitHub commit API resolved both to tree bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452; scoped fetch recovered both.",
+  "source_bundle": ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+  "source_bundle_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+  "expected_source_bundle_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+  "sources": [
+    {
+      "identity": "application_sha",
+      "sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+      "retained_ref": "refs/gsd/phase254/baseline-application",
+      "ref_matches": true,
+      "tree": "bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452",
+      "workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "workflow_matches": true,
+      "workload_files": [
+        {
+          "path": "scripts/ci/ci-playwright-report.mjs",
+          "expected_sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+          "actual_sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c"
+        },
+        {
+          "path": "test/example/priv/playwright/package-lock.json",
+          "expected_sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+          "actual_sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e"
+        },
+        {
+          "path": "test/example/priv/playwright/playwright.config.ts",
+          "expected_sha256": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+          "actual_sha256": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e"
+        },
+        {
+          "path": "test/sigra/planning/ci_timing_formatter_test.exs",
+          "expected_sha256": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33",
+          "actual_sha256": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33"
+        },
+        {
+          "path": "test/support/ci_timing_formatter.ex",
+          "expected_sha256": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+          "actual_sha256": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24"
+        },
+        {
+          "path": "test/test_helper.exs",
+          "expected_sha256": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+          "actual_sha256": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41"
+        }
+      ],
+      "workload_files_match": true
+    },
+    {
+      "identity": "producer_source_sha",
+      "sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+      "retained_ref": "refs/gsd/phase254/baseline-producer",
+      "ref_matches": true,
+      "tree": "bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452",
+      "workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+      "workflow_matches": true,
+      "workload_files": [
+        {
+          "path": "scripts/ci/ci-playwright-report.mjs",
+          "expected_sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+          "actual_sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c"
+        },
+        {
+          "path": "test/example/priv/playwright/package-lock.json",
+          "expected_sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+          "actual_sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e"
+        },
+        {
+          "path": "test/example/priv/playwright/playwright.config.ts",
+          "expected_sha256": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e",
+          "actual_sha256": "2c071469d70eb3f57e68aee223a9233fcc41d9264ced8c8fb3693337487b517e"
+        },
+        {
+          "path": "test/sigra/planning/ci_timing_formatter_test.exs",
+          "expected_sha256": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33",
+          "actual_sha256": "e10dd581c4ca5fe79cf382c928aeb2b144670c9ea6773dcf0ad7593b97b6cf33"
+        },
+        {
+          "path": "test/support/ci_timing_formatter.ex",
+          "expected_sha256": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24",
+          "actual_sha256": "0cccd06a3b0e76cc70876419e9817c9cbb5de34f43426ee2bfb94762eebd8f24"
+        },
+        {
+          "path": "test/test_helper.exs",
+          "expected_sha256": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41",
+          "actual_sha256": "f0cc6e4736e0160748a83f7db15cb6f2a932fd4094b465352f3abf2414fb3c41"
+        }
+      ],
+      "workload_files_match": true
+    }
+  ],
+  "source_status": "ready",
+  "acceptance_status": "not_started",
+  "remaining_before_hosted_comparison": [
+    "Freeze candidate identities and pair registrations",
+    "Declare balanced schedule and 48-hour window",
+    "Establish warm-cache preparation and image compatibility under fixed budget",
+    "Verify equivalent useful test/project/skip ownership and baseline execution readiness"
+  ],
+  "hosted_comparison_runs_started": false,
+  "old_acceptance_budgets_renewed": false
+}

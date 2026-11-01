@@ -1,0 +1,131 @@
+{
+  "schema": "sigra.phase-243-stale-pr-evidence/1",
+  "captured_at": "2026-09-25T13:11:00Z",
+  "phase": 243,
+  "plan": "243-03",
+  "status": "reconciled_with_explicit_dispositions",
+  "frozen_candidate_numbers": [
+    211,
+    172,
+    124,
+    174,
+    219,
+    234,
+    261,
+    254
+  ],
+  "prs": [
+    {
+      "number": 211,
+      "title": "ci: recapture admin-checkpoint + demo-showcase baselines in ubuntu CI (31043224661)",
+      "state": "CLOSED",
+      "head": "ci/recapture-admin-checkpoints-31043224661",
+      "head_sha": "9d384bbbca746fe2a3eb3a56634f4a3fb8238653",
+      "base": "gsd/238-generated-auth-runtime-proof-evidence",
+      "base_sha": "fc3fbacfe19a2747c6889e37e2ceaa478d241895",
+      "stale_classification": "superseded",
+      "disposition": "current main contains newer impersonation checkpoint baselines",
+      "branch_deleted": false
+    },
+    {
+      "number": 172,
+      "title": "ci: recapture admin-checkpoint + demo-showcase baselines in ubuntu CI (30658359487)",
+      "state": "CLOSED",
+      "head": "ci/recapture-admin-checkpoints-30658359487",
+      "head_sha": "a8382aabafd76522eca1e63c3286980ec320edf7",
+      "base": "main",
+      "base_sha": "4bba9c71ae95a51bc2c3586010518a1c3439ab5f",
+      "stale_classification": "superseded",
+      "disposition": "baseline recapture and follow-on CI/evidence superseded",
+      "branch_deleted": false
+    },
+    {
+      "number": 124,
+      "title": "docs(230): mark Phase 230 complete in ROADMAP and STATE",
+      "state": "CLOSED",
+      "head": "docs/230-phase-complete",
+      "head_sha": "84ab3a2aefa03fda4965c8fd989be1cdcfad70db",
+      "base": "main",
+      "base_sha": "64c39f3b5cdce64a6ee60513f5fcdfb8af5c6fba",
+      "stale_classification": "fulfilled",
+      "disposition": "Phase 230 completion already recorded on main",
+      "branch_deleted": false
+    },
+    {
+      "number": 174,
+      "title": "ci: observe library timing receipts",
+      "state": "CLOSED",
+      "head": "gsd/phase-232-playwright-economics",
+      "head_sha": "97317ae74cf508e8d7677df17da9d3a4f1b40cb6",
+      "base": "main",
+      "base_sha": "2a96d72fbc287848ae136a301e55aa489a770eaa",
+      "stale_classification": "superseded",
+      "disposition": "Phase 235 timing evidence supersedes the old probe",
+      "branch_deleted": false
+    },
+    {
+      "number": 219,
+      "title": "Phase 248: provision pinned Android proof lane",
+      "state": "OPEN",
+      "draft": true,
+      "head": "gsd/238-generated-auth-runtime-proof-evidence",
+      "head_sha": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3",
+      "base": "main",
+      "base_sha": "f06137b2ac0e9b2094aa1250e3c036b41e997651",
+      "stale_classification": "active_carryover",
+      "evidence": "Draft title names Phase 248 proof work; PR commit history contains Phase 247 proof-plan implementation and review follow-ups. Requires owner reconciliation, not a stale close.",
+      "disposition": "Retained as active draft Phase 248 Android proof lane."
+    },
+    {
+      "number": 234,
+      "title": "test(235.1): close library economics evidence gaps",
+      "state": "CLOSED",
+      "head": "ci/phase-235-1-evidence",
+      "head_sha": "ac7d670a72e9209d9de61a7647c1e3da80663a3a",
+      "base": "main",
+      "base_sha": "158aca14b11de13cbc5ab2fdea1bff790cc7ab29",
+      "stale_classification": "parked",
+      "disposition": "Phase 235.1 parked; tooling lane superseded by Phase 241",
+      "branch_deleted": false
+    },
+    {
+      "number": 261,
+      "title": "Phase 241 verification: full-suite CI evidence",
+      "state": "CLOSED",
+      "draft": true,
+      "head": "phase-242-execution",
+      "head_sha": "d7d78eb85e4f8769172741d3682a0941bba25d5b",
+      "base": "main",
+      "base_sha": "6f14c04a26dc69125b2aa00f89c3d905b3c4bafa",
+      "stale_classification": "fulfilled",
+      "evidence": "Current draft explicitly requests Phase 241 full-suite verification evidence; preserve until its owner reconciles disposition.",
+      "disposition": "exact head has green full-suite run 35937900338 including ci-gate",
+      "branch_deleted": false
+    },
+    {
+      "number": 254,
+      "title": "ci: prove Phase 241 final head",
+      "state": "CLOSED",
+      "head": "evidence/phase-241-final-head-782328e65c13",
+      "head_sha": "782328e65c134dc4b1f9bba522190838366bf08d",
+      "base": "main",
+      "base_sha": "417130bdc0e69dd102431391cd6cd30bf88b2fa5",
+      "stale_classification": "fulfilled",
+      "evidence": "PR comment carries a successful sigra.phase-241-final-head/1 receipt for exact head 782328e65c13, including green fast_checks, library_tests_shard, and library_tests on run 35466064602.",
+      "disposition": "Phase 241 verification passed 43/43 with final-head receipt",
+      "branch_deleted": false
+    }
+  ],
+  "stop_reason": "The original all-stale precondition was replaced by the user-authorized per-PR reconciliation. Active #219 remains open. Evidence-bearing and completed candidates were individually checked, given public closure reasons, and closed without deleting branches.",
+  "closed": [
+    211,
+    172,
+    124,
+    174,
+    234,
+    261,
+    254
+  ],
+  "branches_deleted": [],
+  "resume_condition": "Continue Tier B remediation at #230. Keep #219 as Phase 248 carryover; no branch deletion was performed."
+}

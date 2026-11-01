@@ -1,0 +1,11 @@
+test_actual_preflight_survives_cleanup_and_removes_only_probe (__main__.Preservation.test_actual_preflight_survives_cleanup_and_removes_only_probe) ... ok
+test_actual_request_one_second_append_retains_first_request (__main__.Preservation.test_actual_request_one_second_append_retains_first_request) ... ok
+test_denied_ref_write_stops_preflight_and_leaves_probe (__main__.Preservation.test_denied_ref_write_stops_preflight_and_leaves_probe) ... ok
+test_operator_preservation_failure_precedes_allocation_and_request (__main__.Preservation.test_operator_preservation_failure_precedes_allocation_and_request) ... ok
+test_original_writer_loses_blob_after_temporary_store_cleanup (__main__.Preservation.test_original_writer_loses_blob_after_temporary_store_cleanup) ... ok
+test_repeated_actual_ledger_writes_survive_temporary_store_cleanup (__main__.Preservation.test_repeated_actual_ledger_writes_survive_temporary_store_cleanup) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.346s
+
+OK

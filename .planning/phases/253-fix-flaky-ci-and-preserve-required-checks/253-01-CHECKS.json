@@ -1,0 +1,25 @@
+{
+  "schema_version": "sigra.phase253.plan-checks/v1",
+  "plan": "253-01",
+  "tested_source": "e46c616a82214503e56fca24d25da9adb61f6fbf",
+  "checks": [
+    {
+      "command": "bash scripts/ci/ci-run-metrics.test.sh",
+      "exit_code": 0,
+      "observed": "48 passed, 0 failed",
+      "log_sha256": "91101612182b55e52c30ade10ae1041ab18e59c74b45255277fcae283accb172"
+    },
+    {
+      "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+      "exit_code": 0,
+      "observed": "status ready; diagnostics empty"
+    }
+  ],
+  "prior_diagnosis": {
+    "commit": "e46c616a82214503e56fca24d25da9adb61f6fbf",
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-DIAGNOSIS.json",
+    "sha256": "456ddd8113c2cb481085610ccdc2377a464bbdb7e3165d96a6e0cfece79f7c98",
+    "read_back_verified": true
+  },
+  "CIREL-01": "not_claimed; diagnosis only"
+}

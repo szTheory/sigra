@@ -1,0 +1,86 @@
+{
+  "schema": "sigra.phase253.pr343-diagnosis/v1",
+  "status": "reproduced_discovery_false_negative",
+  "timestamp": "2026-10-22T16:42:05.939937+00:00",
+  "attempt_commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+  "approval_commit": "edc94032af9b8c95a3d63f5bd5df10a93c4931cc",
+  "attempt": ".planning/execution/253-plan172-persistent-ledger/attempt-result.json",
+  "actual_requests": 25,
+  "actual_refs_created": 1,
+  "actual_draft_prs_created": 1,
+  "actual_automatic_ci_runs": 1,
+  "dispatches": 0,
+  "reruns": 0,
+  "merges": 0,
+  "elapsed_seconds": 85,
+  "window_closed": true,
+  "pr_number": 343,
+  "run_id": 39815188159,
+  "run_attempt": 1,
+  "run_status_last_observed": "queued",
+  "run_conclusion": null,
+  "source_sha": "5e13621e50e646c63e135035080d2e6e46fbc955",
+  "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+  "diagnosis": "The workflow run listings returned empty; commit checks and a direct run response identify the exact PR343 automatic CI run, created three seconds after the PR. No CI pass/failure has been observed. The collector stopped falsely on run discovery, not on CI failure.",
+  "offline_repair_candidate": "discovery_candidate.py",
+  "regression_tests": 6,
+  "repair_integrated_in_live_bundle": false,
+  "standalone_diagnostic_gets": 4,
+  "watcher": {
+    "command": "gh run watch 39815188159 --repo szTheory/sigra --compact --interval 60 --exit-status",
+    "status": "stopped_locally_after_bounded_diagnosis",
+    "exit": 143,
+    "ci_cancelled": false,
+    "http_request_count": "unknown; gh CLI internal requests not instrumented"
+  },
+  "docs_pr_created": false,
+  "requirements_result_created": false,
+  "phase_verified": false,
+  "selected_original_failure_reproduced": false,
+  "preservation": [
+    {
+      "path": ".planning/STATE.md",
+      "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+      "sha256": "91367bac7ed7904d177db04b15f5028f9bf20bc26965bdbb42e3a6cf538d49ee",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/state.json",
+      "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+      "sha256": "a9e70a2e6a75792352a24f43e05c00acb557fec5e3605afe756fe094fcaa56a2",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+      "sha256": "288130e16b1db8db4f248b444022491ea6da648b2c07da4a5dd6c25ab659df05",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+      "sha256": "529dfb150a558c57a5e52370f7236b2430b32a0b088de8d947c87f60a9e0e477",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/execution/253-172-EXECUTION.json",
+      "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+      "sha256": "143c1cc92977ee463643090a8b9a50cbbdb1950bdf32beb657d3a5a5ba17c1df",
+      "exact_readback": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+      "commit": "9ef16699b6dc3a911ab98b2cdaaf135d9d0b72cb",
+      "sha256": "8c86568ceee8ebe1c92a4e594a8235b05af8e249d5152d0e1765022424fdefb8",
+      "exact_readback": true
+    }
+  ],
+  "observations": {
+    "branch-runs.http": "fe5c519577906027bd66b850af529cfaeae2f6e31c1d1c74c54fd512f0ecaf79",
+    "run-39815188159.http": "426a9e6ede49a22a4378390f23ab205506d06ec35d53471f43b99396f13f1afc",
+    "rate-limit.http": "15efabf3b3f56067dc93efb6f909076ab2d916f7dc1586c6011e87d63b13b7d7",
+    "head-checks.http": "be75b79eaa2ade3c5f3f008b9b0791badf1dcc62a299f478e5155e3e0d94809f"
+  },
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_action": "Continue the same Plan172 offline: integrate and verify strict discovery fallback and an existing-PR collection path for PR343/run39815188159. Do not restart a closed attempt, create a duplicate PR, dispatch or rerun CI. Prepare any required external continuation completely before a new exact-action checkpoint. No approval is currently pending."
+}

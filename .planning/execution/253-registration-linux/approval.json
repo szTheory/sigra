@@ -1,0 +1,8 @@
+{
+  "schema": "sigra.phase253.linux-registration-diagnostic-approval/v1",
+  "decision": "approved",
+  "decision_text": "yes i approve",
+  "approved_at": "2026-10-22T21:34:55.433187+00:00",
+  "proposal_sha256": "56ccc8bfd5694c91dc5fe6b64d284ca0df8a09d775b00ccd101d5f46f29e5899",
+  "scope": "One new local development diagnostic; maximum 2400 seconds including cleanup; 161 tests; zero retries; stop at first failure; no GitHub API or CI activity; old allowances unchanged."
+}

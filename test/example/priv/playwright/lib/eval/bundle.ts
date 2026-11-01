@@ -143,7 +143,7 @@ function resolveHeadSha(): string {
  *
  * @returns The bundle directory path and computed render_sha256.
  */
-export function writeBundle(opts: WriteBundleOptions): WriteBundleResult {
+export async function writeBundle(opts: WriteBundleOptions): Promise<WriteBundleResult> {
   const appGitSha = (opts.appGitSha ?? resolveHeadSha()).trim();
   const cell = `${opts.theme}-${opts.viewport}-${opts.state}`;
 
@@ -154,7 +154,7 @@ export function writeBundle(opts: WriteBundleOptions): WriteBundleResult {
   mkdirSync(bundleDir, { recursive: true });
 
   // Compute render_sha256 from the canonicalized DOM (NEVER from raw geometry)
-  const renderSha = renderSha256(opts.outerHTML);
+  const renderSha = await renderSha256(opts.outerHTML);
 
   // Write dom.html — raw captured outerHTML
   writeFileSync(join(bundleDir, 'dom.html'), opts.outerHTML, 'utf8');

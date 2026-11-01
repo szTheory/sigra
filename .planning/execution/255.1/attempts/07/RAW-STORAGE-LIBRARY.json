@@ -1,0 +1,112 @@
+{
+  "directory_mode": "0700",
+  "raw_artifacts": [
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/MIX-RECEIVERS.json",
+      "sha256": "d07bd551d5e92eefb0e6521c2643d2560788c3ba0c2340675ae9ba65273acba8",
+      "size": 1154240
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/commands/mix-ci/record.json",
+      "sha256": "fb08b4020f5ed7eedda153c4a1e49183164a4ee69991ed315f98f0a4d9075b18",
+      "size": 2103
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/commands/mix-ci/stderr.bin",
+      "sha256": "fee44904857a6bb5aee2c8ebc1372f52c033f078d188be227a017da93d1664c1",
+      "size": 614
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/commands/mix-ci/stdout.bin",
+      "sha256": "0995f663dff8eb6c712f02fb67f622ed890a261bf4f84d30fd9a22b0fc37d627",
+      "size": 6034
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/commands/ordinary/record.json",
+      "sha256": "d7c6379a50d516ffcbc2282f63a09a6bc2482cfcfdbd3e114bd5ca2716ad627c",
+      "size": 7276
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/commands/ordinary/stderr.bin",
+      "sha256": "52ec1a1d672a95f62bcc4919976e75d6c446948c7b3fd35d6b0c95f43bfb200b",
+      "size": 16496
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/commands/ordinary/stdout.bin",
+      "sha256": "88928a633ec7c84f10440165cd914ceae5c359d26bed6ac7871578a8e6c7db5b",
+      "size": 11512
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/commands/scaffold/record.json",
+      "sha256": "da082b0acf5a5e669a7aeabd893d1da0dbaa2c07a225fc81890aa8984a27fe0d",
+      "size": 3378
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/commands/scaffold/stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/commands/scaffold/stdout.bin",
+      "sha256": "0bb82f039b53bd0d2876ea5572ebdd9d5579c9871a8754ff2ddc7aa115ce4faa",
+      "size": 5605
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/legs/ordinary/exunit.json",
+      "sha256": "0ebdd319521560900f52f2cf9c5895d75453824b18227418246760e628af8597",
+      "size": 900135
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/native-run-1792889827792289000/legs/scaffold/exunit.json",
+      "sha256": "fcd268b62fc34a1890e91f6132f18caa5bc5b1b9a40216a6359cbe86b0ff3aef",
+      "size": 10020
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/library-control-deps-get.json",
+      "sha256": "ac0de0bb59897c0fefd7e33e2da3897bc93f25fd86f16017f266ad9a4bfa3581",
+      "size": 1782
+    },
+    {
+      "mode": "0o600",
+      "path": ".gsd/255.1-final-library/run-fufcs1uo/raw-results.json",
+      "sha256": "b072d6c85fdb5776478894d6a255e766116d21b2ca3fc9332ea9f00f7762aeef",
+      "size": 1895984
+    }
+  ],
+  "raw_results_path": ".gsd/255.1-final-library/run-fufcs1uo/raw-results.json",
+  "raw_results_sha256": "b072d6c85fdb5776478894d6a255e766116d21b2ca3fc9332ea9f00f7762aeef",
+  "raw_storage": ".gsd/255.1-final-library/run-fufcs1uo",
+  "schema": "sigra.ci-raw-storage/v1",
+  "source_checkouts": {
+    "candidate": {
+      "archive_files_verified": 1535,
+      "archive_sha256": "18dcbf59d7f3ba4c09ba16abf82fa0479908810aa0ec1ae35d43f13b6cb7d499",
+      "clean_before": true,
+      "path": "/Users/jon/projects/sigra/.gsd/255.1-final-library/run-fufcs1uo/source-candidate",
+      "source_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "tree_sha": "a084992034c541a51df797e0a12eaa09edc7799a"
+    },
+    "control": {
+      "archive_files_verified": 1535,
+      "archive_sha256": "f3ec0a6fee28795a12b09b6cc5134c6a44e2ea83bfcb594faec6ca9492ba4782",
+      "clean_before": true,
+      "path": "/Users/jon/projects/sigra/.gsd/255.1-final-library/run-fufcs1uo/source-control",
+      "source_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+      "tree_sha": "a1c0dd48a6c3d2acb037791298558e012c658142"
+    }
+  },
+  "status": "blocked"
+}

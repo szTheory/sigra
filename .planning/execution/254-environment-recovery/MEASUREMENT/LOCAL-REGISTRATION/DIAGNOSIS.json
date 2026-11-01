@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "causal_development_reproduction_and_fix_verified",
+  "recorded_at": "2026-10-24T02:17:07.636603+00:00",
+  "scope": "local development; no acceptance or measured rerun",
+  "baseline_source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "platform": "macOS native browsers; not Linux acceptance",
+  "observed_hosted_failure": "registration LiveView wait15s, successful server websocket mount, fallback longpoll connection, registration reload",
+  "proven_local_cause": "late event from old physical WebSocket invokes socket close handlers against new LongPoll; LiveView reloadWithJitter disconnects it and aborts XHR before response",
+  "cause_trace": "ABORT-FALLBACK-RESULT.json",
+  "controls": {
+    "normal_before": "RESULT.json",
+    "native_drop_before": "NATIVE-FALLBACK-RESULT.json",
+    "chromium_before": "CHROMIUM-FALLBACK-RESULT.json",
+    "endpoint_healthy": "BROWSER-LONGPOLL-HTTP.json"
+  },
+  "partial_fix": {
+    "result": "GUARD-FALLBACK-RESULT.json",
+    "status": "failed",
+    "reason": "callback guards prevent stale close but initial channel join is not reset, so old join times out"
+  },
+  "complete_fix": {
+    "patch": "CONNECTION-HANDOFF-FINAL.patch",
+    "identity": "CONNECTION-HANDOFF-FINAL.json",
+    "behavior": "clear old connection and assign target transport before closing old connection and resetting channels; bind callbacks to physical connection",
+    "checks": [
+      {
+        "result": "FINAL-WEBKIT-RESULT.json",
+        "cases": 1,
+        "passed": true,
+        "maximum_observed_event_ms": 3740
+      },
+      {
+        "result": "FINAL-CHROMIUM-RESULT.json",
+        "cases": 1,
+        "passed": true,
+        "maximum_observed_event_ms": 3713
+      },
+      {
+        "result": "FINAL-NORMAL-RESULT.json",
+        "cases": 5,
+        "passed": true,
+        "maximum_observed_event_ms": 578
+      }
+    ]
+  },
+  "unchanged": [
+    "15-second readiness timeout",
+    "browser selectors",
+    "frozen evidence branches",
+    "measured acceptance outcomes"
+  ],
+  "unknown": "Hosted trace was not retained; original initiating delayed/missing WebSocket response is not proven. Local controlled fault matches the downstream failure sequence.",
+  "cleanup": "Temporary local server and database remain running only for root production-copy verification; must stop after that check."
+}

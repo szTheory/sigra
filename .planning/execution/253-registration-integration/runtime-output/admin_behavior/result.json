@@ -1,0 +1,41 @@
+{
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "seam": "admin_behavior",
+  "status": "passed",
+  "browser_invocations": 1,
+  "warmups": [
+    {
+      "path": "/users/register",
+      "status": 200
+    },
+    {
+      "path": "/users/log_in",
+      "status": 200
+    },
+    {
+      "path": "/users/confirm",
+      "status": 200
+    },
+    {
+      "path": "/dev/mailbox",
+      "status": 200
+    },
+    {
+      "path": "/users/sessions",
+      "status": 200
+    },
+    {
+      "path": "/users/sudo",
+      "status": 200
+    },
+    {
+      "path": "/users/settings/mfa",
+      "status": 200
+    },
+    {
+      "path": "/admin/users",
+      "status": 200
+    }
+  ],
+  "browser_exit": 0
+}

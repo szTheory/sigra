@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "bash",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/runtime/ci-gate-canary.sh",
+    "--publish-only",
+    "--revision-freeze",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-freeze.json",
+    "--action-approval",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-approval.json",
+    "--http-allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-allocation.json",
+    "--requests",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-ledger.json",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/canary-evidence.json",
+    "--publication-receipt",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-16800f431-compatible/publication-receipt.json"
+  ],
+  "exit": 0,
+  "stdout": "ci-gate-canary: counted publication verified (requests=24/117; no workflow dispatch)\n",
+  "stderr": ""
+}

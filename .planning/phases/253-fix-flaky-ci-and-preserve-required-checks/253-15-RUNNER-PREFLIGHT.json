@@ -1,0 +1,17 @@
+{
+  "command": "bash scripts/ci/ci-registration-repro.sh --run-revision .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-FREEZE-REVISION-02.json --slot R-DIAG-DESKTOP --output .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+  "exitCode": 3,
+  "stderr": "ENOENT: no such file or directory, mkdir '/Users/jon/projects/sigra/.planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json.raw/R-DIAG-DESKTOP/attempt-01'",
+  "evidence_before_sha256": "1cc58699b8b0776ccec6ec7a615209675c5b35c2032a372c98bffa165ad75b09",
+  "evidence_after_sha256": "1cc58699b8b0776ccec6ec7a615209675c5b35c2032a372c98bffa165ad75b09",
+  "native_slot": "R-DIAG-DESKTOP",
+  "native_slot_state": "unconsumed_preflight_failure",
+  "database_setup_started": false,
+  "server_started": false,
+  "http_request_started": false,
+  "browser_launched": false,
+  "database_drop_started": false,
+  "new_native_charge_ms": 0,
+  "reason": "The runner failed while creating its nested output directory, before the per-attempt timer or any setup child process. The evidence ledger stayed byte-identical and recorded no attempt or charge.",
+  "capacity_added": false
+}

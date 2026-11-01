@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "purpose": "One development CI verification of the causally reproduced connection handoff repair; not a warm-up, acceptance run, or restarted speed comparison",
+  "authority": "The user explicitly requested root-cause repair, reconsidering the approach, parallel review, and automatic implementation of the coherent recommendations. AGENTS.md authorizes scoped evidence branches/PRs and CI required by authorized delivery.",
+  "maximum_full_CI_invocations": 1,
+  "invocation_retries": 0,
+  "maximum_elapsed_minutes": 60,
+  "branch": "evidence/phase254-transport-development-20261024",
+  "base": "main",
+  "source_parent": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+  "source_files": [
+    ".github/workflows/ci.yml",
+    "test/example/priv/static/assets/js/app.js",
+    "scripts/ci/ci-phoenix-connection.test.mjs",
+    "scripts/ci/ci-run-metrics.sh",
+    "scripts/ci/ci-run-metrics-attempt.test.py",
+    "scripts/ci/ci-run-metrics-comparison.test.sh"
+  ],
+  "prohibitions": [
+    "No update to either frozen measurement branch or PR348/349",
+    "No measured sample replacement, allowance renewal, or new acceptance window",
+    "No merge or main/protection update",
+    "No CI retry if this development check fails; retain outcome and diagnose"
+  ],
+  "frozen_measurement_result": ".planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json",
+  "maximum_GitHub_API_HTTP_requests": 600,
+  "maximum_scoped_Git_pushes": 1
+}

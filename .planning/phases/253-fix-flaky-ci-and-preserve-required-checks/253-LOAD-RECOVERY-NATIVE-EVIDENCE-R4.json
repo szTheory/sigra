@@ -1,0 +1,1735 @@
+{
+  "schema_version": "sigra.phase253.registration-load-recovery-evidence/v4",
+  "revision": "r4",
+  "status": "halted",
+  "context_identity": "per_row_union",
+  "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R4.json",
+  "freeze_sha256": "abf6e110e00dfb85ed6ae521815d6a5a5388d062b2c5f6ef579643b181107346",
+  "source": {
+    "repository": "szTheory/sigra",
+    "checkout_head": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+    "blobs": {
+      "scripts/ci/ci-registration-repro.sh": "a49beff822524ad1fec36d9d4a4aa21bb767d35e",
+      "scripts/ci/ci-registration-recovery.mjs": "b5455cf9c868b4b875e41cb271da58da24bd43d4",
+      "scripts/ci/ci-registration-recovery.test.mjs": "d3771dfe47429b27f2db6be28ae387d91ea46167",
+      "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+      "test/example/priv/playwright/playwright.config.ts": "583b24f1cd5d8de5009a83cf6bf41be0dd2c3d4c",
+      "test/example/priv/playwright/tests/admin-eval.spec.ts": "d99167c6cd8732a9e0413a8aa46312b9f3057dfb",
+      "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+      "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+      "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+      ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341",
+      "test/example/priv/playwright/helpers/registrationControls.mjs": "8cae01dbff446bc9c08f83f26bdf72255888938a",
+      "test/example/priv/playwright/lib/eval/canonicalize.ts": "1d2df16eb3b9d85540c1fe3d8f169bbfeefc18f1",
+      "test/example/priv/playwright/lib/eval/canonicalize.test.ts": "90f1aebd645faeee5b3e5dcf477298563b49c64e",
+      "test/example/priv/playwright/lib/eval/bundle.ts": "3177b24f3864dfc64675418e7c6dc276bf54ecae",
+      "scripts/ci/ci-playwright-load.test.mjs": "6d7e6b43c1f33a7da43e2331084352c838f6313c",
+      "scripts/ci/fixtures/registration-native-tree.mjs": "f78e3fb54f92cca800166b62c268501274b2b855",
+      "test/example/priv/playwright/playwright.registration-recovery.config.ts": "95694459f70139690feb3b09226e1774c9fff99c",
+      "test/example/priv/playwright/helpers/fixtures.ts": "da80a6f3b88069850e427c97efcea54f24cd92d6",
+      "test/example/priv/playwright/lib/eval/probes.ts": "f154a6fe04e20f9b25256af8977da37e64d8aa19",
+      "lib/sigra/auth.ex": "be5bc9a87a9e0e6d32e596d8483bc920204605fb",
+      "test/example/lib/example/accounts.ex": "3d127dbdf125bf81df45f723304115f8d511ea0e",
+      "test/example/lib/example/accounts/user.ex": "a0d58adebfa4a7f870413929d1c71acc46a31f67",
+      "test/example/lib/example_web/live/registration_live.ex": "d278c9d58134f36975905c84530d3c4476a47aa3",
+      "priv/templates/sigra.install/core/registration_live.ex": "5159d86b40769c49bd2fcb1b9259f837f9962edf",
+      "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex": "54264c0d05fb5739e208f68a1f08b186bc87923c",
+      "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs": "9c84c1d406a00c934e61b3780462297a48332f7b",
+      "scripts/ci/ci-registration-control-audit.test.mjs": "1893a4628c36758f196bc69f38c5a65f21be9e59",
+      "scripts/ci/fixtures/r3-mirrored-context-annotations.json": "0bf00f501204d6ea7e85e8c580958253ae1c2e6d"
+    }
+  },
+  "historical": {
+    "artifacts": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json",
+        "sha256": "cb97baa38d43ad59f3370114d9b493959264079d4a29e076e7e3b816741c9122"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+        "sha256": "0d1054b4628fd2287f89447f10644fa7a650dc15d43ca9d29eb5c025eb1b4960"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json",
+        "sha256": "a2ca73dbdad8b4e00766d28b98f7841a9ac2233e7c481ea7fda309b5a310fdfb"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json",
+        "sha256": "25a8d094b64bb97233ed8d3b5c2b4453903a1305b256bf249bd1b4aa342b8746"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-POST-HALT-CLEANUP.json",
+        "sha256": "956b43875a7431e52b3683954d7ebf8d2f72ac9a52665d7cf6594a4349fa1f11"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-TIMEOUT-ASSESSMENT.json",
+        "sha256": "bdb1b9d5aa0dc8fb6422708228276ade641b60cc91db1fca556e3f788e264a40"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-FREEZE.json",
+        "sha256": "bef539ef0803a5e035266fd2d5334b02dc87893c285114e7f70cbec3b46a0778"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+        "sha256": "e9982fd5a787777cc00defacd3b88ac41edfee21e08df5e62234e6dfe2319ab0"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-LOAD-FAILURE-DIAGNOSTIC.json",
+        "sha256": "a4e313b6276ddbc8a2b71a1acdfcd2744fa0e360bbc018ceed5d86b5d8b464e4"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-EXECUTION-CLOSEOUT.json",
+        "sha256": "977b940b11fd4e304fc01be5e523cb34f1424440fd5bf218a14793872ca9a230"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-CONTROL-FREEZE.json",
+        "sha256": "db74f2f2b8dc9df71e67fddc7049024fb03b693478573c3e204020068b898a82"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json",
+        "sha256": "ec63a2410927d8f92e96b3eb4d166bcd4d8ff11061941508050e164c0d669b76"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE.json",
+        "sha256": "98030037d8136b3732ca01dbe1f127181526a61a82961b270feddb7ca849cafa"
+      },
+      {
+        "path": ".planning/debug/resolved/253-native-deadline-not-enforced.md",
+        "sha256": "fecd1d177c20097d56486912866f7fadf0f6aa8b649882fa924acd183916c055"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DESKTOP-MOBILE-FIRST/attempt-01/setup-log.log",
+        "sha256": "82f994858bf4f2fd53585c6000eea16ffa267c689b6c3caf5d82d41c03bebc5a"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DESKTOP-MOBILE-FIRST/attempt-01/app-log.log",
+        "sha256": "bc9cbca3a576631c10d8416ebfc0a391ad7ba901089f36543363ba98135f1cf9"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log",
+        "sha256": "e4c03d59ba5ca79dc142dceef2db6e04e7e9bd74defb9a7a27b5037cc260fff7"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/CR-DESKTOP-MOBILE-FIRST/attempt-01/drop-log.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/preparation/mix_version.log",
+        "sha256": "b397a3a12486d231c46786345365488f7c6350837a12db10b3aa142b53e8300a"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE.json.raw/preparation/host_dependency_versions.log",
+        "sha256": "9bb67b6beb3c360c954336f94dba0160334d693fa6cc4bc0153893c8a159eb01"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json",
+        "sha256": "be47d624e0587459671ce5bc5c25739d39dba5e5cfddea3dab2a04c6fd0b4035"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R2.json",
+        "sha256": "b26d5a0cbfca38cbdc3fbf4931ce2fd0ba0cfc35df295e4fe820a259eaab43b1"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGET-APPROVAL-R2.json",
+        "sha256": "d5c85aaae1faad8e28607cba08aac48f05a072c97947d943a74f176b9d1763b8"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGETS-R2.md",
+        "sha256": "9bb278db0f990c6bf251118bf8ccb60764ed74e9b99742dbec2be65b7d186461"
+      },
+      {
+        "path": ".planning/debug/253-r2-native-controls-all-fail.md",
+        "sha256": "6a67823032622095d96b829599d4690f74249254111a6c915c7ee86a5b4b103d"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/CR2-DESKTOP-MOBILE-FIRST/attempt-01/setup-log.log",
+        "sha256": "bb5744ec54562559d23a7ab9921f6cb0a3d289f3f5395c27da2a61451390e5c1"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/CR2-DESKTOP-MOBILE-FIRST/attempt-01/app-log.log",
+        "sha256": "d19385cbbe2cea5ae4087ff267ced80f0700b55104026487fd7a3ff855f076dc"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/CR2-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log",
+        "sha256": "9025e3c0942df3bf922d1814e5efcca26239e4f2de9faf6d21e633e1a15b05e4"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/CR2-DESKTOP-MOBILE-FIRST/attempt-01/drop-log.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/CR2-DESKTOP-MOBILE-FIRST/attempt-01/database-absence.log",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/preparation/mix_version.log",
+        "sha256": "b397a3a12486d231c46786345365488f7c6350837a12db10b3aa142b53e8300a"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R2.json.raw/preparation/host_dependency_versions.log",
+        "sha256": "9bb67b6beb3c360c954336f94dba0160334d693fa6cc4bc0153893c8a159eb01"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json",
+        "sha256": "b264928d022e337be21015416ac81e8bdb3049f7b7b48511fc603d09e764378e"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json",
+        "sha256": "effaef5139fff83a0b3cda6a2d7d9f36f4fac5888942f9dd151ed101b2216284"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json",
+        "sha256": "724e4472eaf1b292133857f077fc2e4bbd35b19ef30fe222d424755b2726b8f9"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGETS-R3.md",
+        "sha256": "dabbcf59bab20a432d7fd328c2555180561b0beae02736476408e28196bed78c"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+        "sha256": "5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip",
+        "sha256": "4a567004f1173cb257a5d552578dd4700a6b6afec26b9730f7d901f8b29e38f4"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-2.zip",
+        "sha256": "49c30125ac70000f20a1e59bfdda322c3207b22d6fcb86fbd5b893602dfc6807"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-3.zip",
+        "sha256": "4c0c0783ad655a8360b417ee81671eac92a3ac4c0956f316bc9d4167dbb9c477"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-4.zip",
+        "sha256": "0865fbb2f5b689153a15ff07f58f44ddfb46aa7b5a57b11e11fdf87817dde30b"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-5.zip",
+        "sha256": "2b86313fa111c60ea3f8e6e38b8d208a3b4ada64429d1d06d17953fc954a32ae"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-6.zip",
+        "sha256": "1b081e3cfc9f8bdaa77e6024c5dc7ec3b142375d0e5acb869d5be31694b0d359"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-7.zip",
+        "sha256": "270e0f785f3bb9fdf32fe2e9f2b4f3f28ad0fef103f9d96074d3feaa5ca42215"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-8.zip",
+        "sha256": "18bc26b06eece2d3a73f4bfc8dc8871a2751ff890773357911539767e5bc3dde"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/trace-9.zip",
+        "sha256": "db71cd9cf25725d3f90384f2b32822dbf0359d8c6cca456800e2361128517e8c"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/playwright-report.json",
+        "sha256": "ef73675158c0e260eefff8d0d3b672cb63546dc7da74fc1d49c556f46a62f53c"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/setup-log.log",
+        "sha256": "40392d1d6a7f11b629c7249cee23b05fe048bcf3b6d0ae787baaecce16994bfd"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/app-log.log",
+        "sha256": "87a7464bf26ce31cd62f3f8d3c3e4d14a89956f8224ae10b9f86390552c00152"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log",
+        "sha256": "05f0999057755d9cc32cfa3a264e9984ec5af30e50bd4ced237fc73e97bf373d"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/drop-log.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/database-absence.log",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/tests.jsonl",
+        "sha256": "05d06bae552fb37b09d868f8dbc0109f02459dc97fd28a179231313292c0ffa3"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-01.md",
+        "sha256": "7aeef94dc3ab34c8a2631f6f76cdc6139dd358a603cf80deccdc6c2f1fc9c99b"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-02.md",
+        "sha256": "7aeef94dc3ab34c8a2631f6f76cdc6139dd358a603cf80deccdc6c2f1fc9c99b"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-03.md",
+        "sha256": "7aeef94dc3ab34c8a2631f6f76cdc6139dd358a603cf80deccdc6c2f1fc9c99b"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-04.md",
+        "sha256": "8f7cc9f13175761146bc5250df078a9e3bee7162571f043ac92d3d0b21ae2260"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-05.md",
+        "sha256": "8f7cc9f13175761146bc5250df078a9e3bee7162571f043ac92d3d0b21ae2260"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-06.md",
+        "sha256": "8f7cc9f13175761146bc5250df078a9e3bee7162571f043ac92d3d0b21ae2260"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-07.md",
+        "sha256": "e1ab1d84b6f962075778e6bc9d16a1624474f2d145353651dc0a329adf76cdf7"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-08.md",
+        "sha256": "e1ab1d84b6f962075778e6bc9d16a1624474f2d145353651dc0a329adf76cdf7"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/CR3-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-09.md",
+        "sha256": "e1ab1d84b6f962075778e6bc9d16a1624474f2d145353651dc0a329adf76cdf7"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/preparation/mix_version.log",
+        "sha256": "b397a3a12486d231c46786345365488f7c6350837a12db10b3aa142b53e8300a"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json.raw/preparation/host_dependency_versions.log",
+        "sha256": "9bb67b6beb3c360c954336f94dba0160334d693fa6cc4bc0153893c8a159eb01"
+      }
+    ],
+    "frozen_blob_sets": {
+      "failed27": {
+        "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+        "scripts/ci/ci-registration-recovery.mjs": "572fd804c91d05f7d3e40c40977a7302ca4d1af3",
+        "scripts/ci/ci-registration-recovery.test.mjs": "6a7e243fdc4fadcf871574a4870bc63a26408dac",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "b9c3e564918699599ef89cb65cface046761d195",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+      },
+      "control16": {
+        "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+        "scripts/ci/ci-registration-recovery.mjs": "9a97675dab6fd8f2d7037101eb3203b668f06de8",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "a9c9ff153634284c97a4428f8984015c91bccfbe",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+      },
+      "halted_253_40": {
+        "scripts/ci/ci-registration-repro.sh": "a49beff822524ad1fec36d9d4a4aa21bb767d35e",
+        "scripts/ci/ci-registration-recovery.mjs": "65c6d89122ba1973816812899382292474781e77",
+        "scripts/ci/ci-registration-recovery.test.mjs": "df2d0646cc507fbe5f4de31191c5df84611f16c8",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "16be503276de510cc6304e481b2755d9fb5968ca",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341",
+        "test/example/priv/playwright/helpers/registrationControls.mjs": "775c796152bf123b251abbcdde11897d572f37bd",
+        "test/example/priv/playwright/lib/eval/canonicalize.ts": "1d2df16eb3b9d85540c1fe3d8f169bbfeefc18f1",
+        "test/example/priv/playwright/lib/eval/canonicalize.test.ts": "90f1aebd645faeee5b3e5dcf477298563b49c64e",
+        "test/example/priv/playwright/lib/eval/bundle.ts": "3177b24f3864dfc64675418e7c6dc276bf54ecae",
+        "scripts/ci/ci-playwright-load.test.mjs": "a57a8a56496a33c9f8b0a1fc24e0b48f1a31a66e",
+        "scripts/ci/fixtures/registration-native-tree.mjs": "f78e3fb54f92cca800166b62c268501274b2b855",
+        "test/example/priv/playwright/playwright.registration-recovery.config.ts": "95694459f70139690feb3b09226e1774c9fff99c",
+        "test/example/priv/playwright/helpers/fixtures.ts": "da80a6f3b88069850e427c97efcea54f24cd92d6",
+        "test/example/priv/playwright/lib/eval/probes.ts": "f154a6fe04e20f9b25256af8977da37e64d8aa19"
+      }
+    },
+    "carried_charge_ms": 2222537,
+    "carried_components_ms": [
+      3768,
+      3743,
+      26373,
+      46803,
+      40993,
+      121252,
+      112,
+      33409,
+      655,
+      1765488,
+      743,
+      107343,
+      822,
+      71033
+    ],
+    "physical_playwright_cli_launches": 8,
+    "spent_reservations": [
+      "D19-DIAG-01",
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE",
+      "R-DIAG-CONTROL-DARK",
+      "CR-DARK-FIRST",
+      "CR-DESKTOP-MOBILE-FIRST",
+      "CR2-DESKTOP-MOBILE-FIRST",
+      "CR3-DESKTOP-MOBILE-FIRST"
+    ],
+    "expired_identities": [
+      "CR2-INFRA-RETRY",
+      "CR3-INFRA-RETRY"
+    ],
+    "retired_identities": [
+      "CR-DESKTOP-SECOND",
+      "CR-MOBILE-SECOND",
+      "CR-DARK-SECOND",
+      "CR3-DESKTOP-SECOND",
+      "CR3-MOBILE-SECOND",
+      "CR3-DARK-SECOND"
+    ],
+    "spent_retry": {
+      "used": 1,
+      "available": 0
+    },
+    "terminal_halt": {
+      "slot_id": "CR3-DESKTOP-MOBILE-FIRST",
+      "plan": "253-63",
+      "cause": "runner_validator_mirrored_context_annotations",
+      "terminal": true,
+      "infrastructure": false,
+      "retryable": false,
+      "charged": true,
+      "charged_ms": 71033,
+      "preparation_ms": 822,
+      "stop_reason": "two selected rows reused the same browser-context identity",
+      "summary": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+        "sha256": "5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab"
+      },
+      "expired_identities": [
+        "CR3-INFRA-RETRY"
+      ],
+      "retired_identities": [
+        "CR3-DESKTOP-SECOND",
+        "CR3-MOBILE-SECOND",
+        "CR3-DARK-SECOND"
+      ]
+    },
+    "halted_lineage": {
+      "evidence": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R3.json",
+        "sha256": "b264928d022e337be21015416ac81e8bdb3049f7b7b48511fc603d09e764378e"
+      },
+      "freeze": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-FREEZE-R3.json",
+        "sha256": "effaef5139fff83a0b3cda6a2d7d9f36f4fac5888942f9dd151ed101b2216284"
+      },
+      "approval": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGET-APPROVAL-R3.json",
+        "sha256": "724e4472eaf1b292133857f077fc2e4bbd35b19ef30fe222d424755b2726b8f9"
+      },
+      "budget": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-BUDGETS-R3.md",
+        "sha256": "dabbcf59bab20a432d7fd328c2555180561b0beae02736476408e28196bed78c"
+      },
+      "summary": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+        "sha256": "5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab"
+      }
+    }
+  },
+  "created_at": "2026-10-14T18:29:40.835Z",
+  "attempts": [
+    {
+      "slot_id": "CR4-DESKTOP-MOBILE-FIRST",
+      "sequence": 1,
+      "stage": "first",
+      "project": "admin-eval",
+      "projects": [
+        "admin-eval",
+        "admin-eval-mobile",
+        "admin-eval-dark"
+      ],
+      "argv": [
+        "--config=playwright.registration-recovery.config.ts",
+        "--project=admin-eval",
+        "--project=admin-eval-mobile",
+        "--project=admin-eval-dark",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure"
+      ],
+      "source_commit": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "source_blobs": {
+        "scripts/ci/ci-registration-repro.sh": "a49beff822524ad1fec36d9d4a4aa21bb767d35e",
+        "scripts/ci/ci-registration-recovery.mjs": "b5455cf9c868b4b875e41cb271da58da24bd43d4",
+        "scripts/ci/ci-registration-recovery.test.mjs": "d3771dfe47429b27f2db6be28ae387d91ea46167",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "583b24f1cd5d8de5009a83cf6bf41be0dd2c3d4c",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "d99167c6cd8732a9e0413a8aa46312b9f3057dfb",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341",
+        "test/example/priv/playwright/helpers/registrationControls.mjs": "8cae01dbff446bc9c08f83f26bdf72255888938a",
+        "test/example/priv/playwright/lib/eval/canonicalize.ts": "1d2df16eb3b9d85540c1fe3d8f169bbfeefc18f1",
+        "test/example/priv/playwright/lib/eval/canonicalize.test.ts": "90f1aebd645faeee5b3e5dcf477298563b49c64e",
+        "test/example/priv/playwright/lib/eval/bundle.ts": "3177b24f3864dfc64675418e7c6dc276bf54ecae",
+        "scripts/ci/ci-playwright-load.test.mjs": "6d7e6b43c1f33a7da43e2331084352c838f6313c",
+        "scripts/ci/fixtures/registration-native-tree.mjs": "f78e3fb54f92cca800166b62c268501274b2b855",
+        "test/example/priv/playwright/playwright.registration-recovery.config.ts": "95694459f70139690feb3b09226e1774c9fff99c",
+        "test/example/priv/playwright/helpers/fixtures.ts": "da80a6f3b88069850e427c97efcea54f24cd92d6",
+        "test/example/priv/playwright/lib/eval/probes.ts": "f154a6fe04e20f9b25256af8977da37e64d8aa19",
+        "lib/sigra/auth.ex": "be5bc9a87a9e0e6d32e596d8483bc920204605fb",
+        "test/example/lib/example/accounts.ex": "3d127dbdf125bf81df45f723304115f8d511ea0e",
+        "test/example/lib/example/accounts/user.ex": "a0d58adebfa4a7f870413929d1c71acc46a31f67",
+        "test/example/lib/example_web/live/registration_live.ex": "d278c9d58134f36975905c84530d3c4476a47aa3",
+        "priv/templates/sigra.install/core/registration_live.ex": "5159d86b40769c49bd2fcb1b9259f837f9962edf",
+        "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex": "54264c0d05fb5739e208f68a1f08b186bc87923c",
+        "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs": "9c84c1d406a00c934e61b3780462297a48332f7b",
+        "scripts/ci/ci-registration-control-audit.test.mjs": "1893a4628c36758f196bc69f38c5a65f21be9e59",
+        "scripts/ci/fixtures/r3-mirrored-context-annotations.json": "0bf00f501204d6ea7e85e8c580958253ae1c2e6d"
+      },
+      "started_monotonic_ns": "342916670151666",
+      "database": {
+        "name": "sigra_253_control_load_cr4_desktop_mobile_first_mv8g2pax_94534",
+        "setup_exit_code": 0,
+        "drop_exit_code": 0,
+        "connection": {
+          "host": "127.0.0.1",
+          "port": "58624",
+          "user": "postgres",
+          "maintenance_database": "postgres"
+        },
+        "absence_receipt": {
+          "schema_version": "sigra.phase253.owned-database-absence/v1",
+          "database": "sigra_253_control_load_cr4_desktop_mobile_first_mv8g2pax_94534",
+          "argv": [
+            "psql",
+            "-X",
+            "-v",
+            "ON_ERROR_STOP=1",
+            "-v",
+            "target=sigra_253_control_load_cr4_desktop_mobile_first_mv8g2pax_94534",
+            "-A",
+            "-t",
+            "-h",
+            "127.0.0.1",
+            "-p",
+            "58624",
+            "-U",
+            "postgres",
+            "-d",
+            "postgres"
+          ],
+          "query": "SELECT count(*) FROM pg_database WHERE datname = :'target';\n",
+          "query_sha256": "d76f9fd3d185921e92633a206f1d792fccbf9785275063ecd3231d334fd4a59c",
+          "connection": {
+            "host": "127.0.0.1",
+            "port": "58624",
+            "user": "postgres",
+            "maintenance_database": "postgres"
+          },
+          "exit_code": 0,
+          "signal": null,
+          "timed_out": false,
+          "error": null,
+          "started_monotonic_ns": "343009188278333",
+          "ended_monotonic_ns": "343009225884708",
+          "duration_ms": 38,
+          "stdout_count": 0,
+          "log_bytes": 2,
+          "log_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      },
+      "server": {
+        "port": 25311,
+        "http_status": 200,
+        "app_pid": 8876
+      },
+      "browser": {
+        "launched": true,
+        "exit_code": 1
+      },
+      "playwright_cli": {
+        "launched": true,
+        "exit_code": 1
+      },
+      "lifecycle": {
+        "playwright_cli_processes": 1,
+        "rows": 16,
+        "worker_indexes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "cli_pid": 9653,
+        "context_ids": [
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:b0df05b8-0ab2-42d7-86d7-6dd44f69a99c",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:99c78e1d-38b0-4824-a10e-45c7313c3a57",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:fefe6f99-13a8-4d2d-8474-da4c315848ab",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:5561756f-89bd-4c6e-9104-caffc2ac8e41",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:a927716a-8bc1-42ec-bc7b-3cf0004a0c18",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:d1567222-df75-4cb6-a0df-a4b42bb907b6",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:40ff8627-aefa-4d6b-a92c-950fe8929834",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:cfb7d813-ed05-4658-bb6e-6470cc494101",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:4b2f6f22-c0fd-492a-83ce-af6c3b7ed28a",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:e3bfb4d4-c682-4e7a-9f55-9a2004cb1aaa",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:3fd91f5c-d4ba-4e83-a4b7-1b91ce282998",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:52f43c54-95ef-4e2c-a1cb-c57da7e6265b",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:3bb145ea-af7a-4042-af0f-ebea0eec3d67",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:27527bc2-963b-4658-961e-1026834734b8",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:03d9ffc6-b06a-4308-8376-8c6b27898174",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:8a3ec241-b6db-4742-b16a-390a408f3d56",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:a18145a6-c89a-4b3d-b10b-68ac33d5d214",
+          "cr4-desktop-mobile-first-a93fc684-0c2e-4de2-a578-79953a469d1f:1232dd97-9498-4216-a32c-8bb9c54487b0"
+        ],
+        "projects_run": [
+          "admin-eval",
+          "admin-eval-mobile",
+          "admin-eval-dark"
+        ]
+      },
+      "observed_outcome": "native_rows_accepted",
+      "files": {
+        "traces": [
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip",
+            "sha256": "b8b9d6c30909c875a52ffed6e7946b0545bf878c69bd91f4c3e52b4337059993",
+            "bytes": 159862,
+            "title": "registration stops when LiveView readiness is never released",
+            "project": "admin-eval",
+            "sanitization": {
+              "entries": 15,
+              "navigation": true,
+              "submission": true,
+              "redacted": 0
+            }
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-2.zip",
+            "sha256": "f9a5f9c7249ad1f2c2420b0092b94e47b74bf99cc238f8da800e66361b0d48e1",
+            "bytes": 170064,
+            "title": "registration fails when the readiness wait is deliberately broken",
+            "project": "admin-eval",
+            "sanitization": {
+              "entries": 16,
+              "navigation": true,
+              "submission": true,
+              "redacted": 0
+            }
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-3.zip",
+            "sha256": "91050298375afbbd2154e57f6e9d3da67f4b55e7946ab725c2b96ab01adf1d74",
+            "bytes": 1068998,
+            "title": "registration retains the first forced assertion failure trace",
+            "project": "admin-eval",
+            "sanitization": {
+              "entries": 77,
+              "navigation": true,
+              "submission": true,
+              "redacted": 0
+            }
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-4.zip",
+            "sha256": "53a2fab80367ff5fa72f3c343f4a39e37990100a5eb0016a9e5a7bc51b4a8ed2",
+            "bytes": 223481,
+            "title": "registration stops when LiveView readiness is never released",
+            "project": "admin-eval-mobile",
+            "sanitization": {
+              "entries": 15,
+              "navigation": true,
+              "submission": true,
+              "redacted": 0
+            }
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-5.zip",
+            "sha256": "63938d9700bafe5143fea34a5d6ece9ee3f0a5a424d25817dc94242f65b78835",
+            "bytes": 224099,
+            "title": "registration fails when the readiness wait is deliberately broken",
+            "project": "admin-eval-mobile",
+            "sanitization": {
+              "entries": 15,
+              "navigation": true,
+              "submission": true,
+              "redacted": 0
+            }
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-6.zip",
+            "sha256": "302fee7360f8332cb0465994848371518a3ca3c9936310edefb8eebda278054d",
+            "bytes": 968989,
+            "title": "registration retains the first forced assertion failure trace",
+            "project": "admin-eval-mobile",
+            "sanitization": {
+              "entries": 22,
+              "navigation": true,
+              "submission": true,
+              "redacted": 0
+            }
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-7.zip",
+            "sha256": "db8b1a4e50c87d820645bf285cc78de704aec7e5136fcc19e7fc17e4a5f07089",
+            "bytes": 168414,
+            "title": "registration stops when LiveView readiness is never released",
+            "project": "admin-eval-dark",
+            "sanitization": {
+              "entries": 16,
+              "navigation": true,
+              "submission": true,
+              "redacted": 0
+            }
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-8.zip",
+            "sha256": "7da9be8a96a9dc0ab8c56c652a4301477760a14e48a7ba31d80588df8a2bb308",
+            "bytes": 168832,
+            "title": "registration fails when the readiness wait is deliberately broken",
+            "project": "admin-eval-dark",
+            "sanitization": {
+              "entries": 16,
+              "navigation": true,
+              "submission": true,
+              "redacted": 0
+            }
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-9.zip",
+            "sha256": "806967b54bddf324cf0be7a53068d06ee002eaa793f6eb8a02e15b8a65efa896",
+            "bytes": 1074702,
+            "title": "registration retains the first forced assertion failure trace",
+            "project": "admin-eval-dark",
+            "sanitization": {
+              "entries": 78,
+              "navigation": true,
+              "submission": true,
+              "redacted": 0
+            }
+          }
+        ],
+        "playwright_report": {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/playwright-report.json",
+          "sha256": "25754bef443dfc7ecf5cbdc1bedfbf216f995b067f51171f9f8cb2015e3d8f7b",
+          "bytes": 89159
+        },
+        "setup_log": {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/setup-log.log",
+          "sha256": "74b48973a1ee988330661e9013b016f5f30117ade8fad9dc8c029c0e00297e21",
+          "bytes": 134168
+        },
+        "app_log": {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/app-log.log",
+          "sha256": "17965bbda9b44cfcc2c3ed199550cebe53b50415367c80a3d5fed362af7540af",
+          "bytes": 149087
+        },
+        "test_log": {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/test-log.log",
+          "sha256": "512edf2ef4dee3bb78cbd4cfb8f67559bdcb3f80d1adc66bd17f41bc50ea58a4",
+          "bytes": 30829
+        },
+        "drop_log": {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/drop-log.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "database_absence": {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/database-absence.log",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        }
+      },
+      "traces": [
+        {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-1.zip",
+          "sha256": "b8b9d6c30909c875a52ffed6e7946b0545bf878c69bd91f4c3e52b4337059993",
+          "bytes": 159862,
+          "title": "registration stops when LiveView readiness is never released",
+          "project": "admin-eval",
+          "sanitization": {
+            "entries": 15,
+            "navigation": true,
+            "submission": true,
+            "redacted": 0
+          }
+        },
+        {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-2.zip",
+          "sha256": "f9a5f9c7249ad1f2c2420b0092b94e47b74bf99cc238f8da800e66361b0d48e1",
+          "bytes": 170064,
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "project": "admin-eval",
+          "sanitization": {
+            "entries": 16,
+            "navigation": true,
+            "submission": true,
+            "redacted": 0
+          }
+        },
+        {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-3.zip",
+          "sha256": "91050298375afbbd2154e57f6e9d3da67f4b55e7946ab725c2b96ab01adf1d74",
+          "bytes": 1068998,
+          "title": "registration retains the first forced assertion failure trace",
+          "project": "admin-eval",
+          "sanitization": {
+            "entries": 77,
+            "navigation": true,
+            "submission": true,
+            "redacted": 0
+          }
+        },
+        {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-4.zip",
+          "sha256": "53a2fab80367ff5fa72f3c343f4a39e37990100a5eb0016a9e5a7bc51b4a8ed2",
+          "bytes": 223481,
+          "title": "registration stops when LiveView readiness is never released",
+          "project": "admin-eval-mobile",
+          "sanitization": {
+            "entries": 15,
+            "navigation": true,
+            "submission": true,
+            "redacted": 0
+          }
+        },
+        {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-5.zip",
+          "sha256": "63938d9700bafe5143fea34a5d6ece9ee3f0a5a424d25817dc94242f65b78835",
+          "bytes": 224099,
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "project": "admin-eval-mobile",
+          "sanitization": {
+            "entries": 15,
+            "navigation": true,
+            "submission": true,
+            "redacted": 0
+          }
+        },
+        {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-6.zip",
+          "sha256": "302fee7360f8332cb0465994848371518a3ca3c9936310edefb8eebda278054d",
+          "bytes": 968989,
+          "title": "registration retains the first forced assertion failure trace",
+          "project": "admin-eval-mobile",
+          "sanitization": {
+            "entries": 22,
+            "navigation": true,
+            "submission": true,
+            "redacted": 0
+          }
+        },
+        {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-7.zip",
+          "sha256": "db8b1a4e50c87d820645bf285cc78de704aec7e5136fcc19e7fc17e4a5f07089",
+          "bytes": 168414,
+          "title": "registration stops when LiveView readiness is never released",
+          "project": "admin-eval-dark",
+          "sanitization": {
+            "entries": 16,
+            "navigation": true,
+            "submission": true,
+            "redacted": 0
+          }
+        },
+        {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-8.zip",
+          "sha256": "7da9be8a96a9dc0ab8c56c652a4301477760a14e48a7ba31d80588df8a2bb308",
+          "bytes": 168832,
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "project": "admin-eval-dark",
+          "sanitization": {
+            "entries": 16,
+            "navigation": true,
+            "submission": true,
+            "redacted": 0
+          }
+        },
+        {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/trace-9.zip",
+          "sha256": "806967b54bddf324cf0be7a53068d06ee002eaa793f6eb8a02e15b8a65efa896",
+          "bytes": 1074702,
+          "title": "registration retains the first forced assertion failure trace",
+          "project": "admin-eval-dark",
+          "sanitization": {
+            "entries": 78,
+            "navigation": true,
+            "submission": true,
+            "redacted": 0
+          }
+        }
+      ],
+      "registration": {
+        "server_post_confirmed": true
+      },
+      "toolchain": {
+        "playwright": "1.59.1",
+        "ecto_sql": "3.13.5",
+        "phoenix_live_view": "1.1.28"
+      },
+      "build_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/mix-build",
+      "stage_deadlines": {
+        "setup_ms": 60000,
+        "command_ms": 180000,
+        "work_ms": 165000,
+        "cleanup_ms": 15000,
+        "cleanup_reserved": true
+      },
+      "host": {
+        "platform": "darwin",
+        "sleep_assertion_held": true,
+        "sleep_assertion_argv": [
+          "/usr/bin/caffeinate",
+          "-i",
+          "-s",
+          "-m",
+          "-w",
+          "94534"
+        ],
+        "suspension_detected": false,
+        "holder_alive_at_end": true
+      },
+      "host_awake": {
+        "holder_pid": 95584,
+        "ac_power": true,
+        "assertions_sha256": "1db0da017cb08eeea27b579b0af31da717e088e9a3ab5c3b79eef5daadb75404",
+        "checked_at": "2026-10-14T18:29:51.896Z"
+      },
+      "assertion_failure_observed": false,
+      "diagnostics": {
+        "jsonl": {
+          "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/tests.jsonl",
+          "sha256": "e2eba86ed1fec88bb82380c539949214eb427423377cfb82eab98dc1ff5bb19f",
+          "bytes": 8607
+        },
+        "error_contexts": [
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-01.md",
+            "sha256": "7aeef94dc3ab34c8a2631f6f76cdc6139dd358a603cf80deccdc6c2f1fc9c99b",
+            "bytes": 10664
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-02.md",
+            "sha256": "7aeef94dc3ab34c8a2631f6f76cdc6139dd358a603cf80deccdc6c2f1fc9c99b",
+            "bytes": 10664
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-03.md",
+            "sha256": "7aeef94dc3ab34c8a2631f6f76cdc6139dd358a603cf80deccdc6c2f1fc9c99b",
+            "bytes": 10664
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-04.md",
+            "sha256": "8f7cc9f13175761146bc5250df078a9e3bee7162571f043ac92d3d0b21ae2260",
+            "bytes": 12887
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-05.md",
+            "sha256": "8f7cc9f13175761146bc5250df078a9e3bee7162571f043ac92d3d0b21ae2260",
+            "bytes": 12887
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-06.md",
+            "sha256": "8f7cc9f13175761146bc5250df078a9e3bee7162571f043ac92d3d0b21ae2260",
+            "bytes": 12887
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-07.md",
+            "sha256": "e1ab1d84b6f962075778e6bc9d16a1624474f2d145353651dc0a329adf76cdf7",
+            "bytes": 10631
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-08.md",
+            "sha256": "e1ab1d84b6f962075778e6bc9d16a1624474f2d145353651dc0a329adf76cdf7",
+            "bytes": 10631
+          },
+          {
+            "path": "CR4-DESKTOP-MOBILE-FIRST/attempt-01/diagnostics/error-context-09.md",
+            "sha256": "e1ab1d84b6f962075778e6bc9d16a1624474f2d145353651dc0a329adf76cdf7",
+            "bytes": 10631
+          }
+        ],
+        "per_test": [
+          {
+            "project": "admin-eval",
+            "title": "registration waits for explicitly released LiveView readiness",
+            "status": "passed",
+            "ok": true,
+            "errors": 0
+          },
+          {
+            "project": "admin-eval",
+            "title": "registration stops when LiveView readiness is never released",
+            "status": "failed",
+            "ok": false,
+            "errors": 1
+          },
+          {
+            "project": "admin-eval",
+            "title": "registration fails when the readiness wait is deliberately broken",
+            "status": "failed",
+            "ok": false,
+            "errors": 1
+          },
+          {
+            "project": "admin-eval",
+            "title": "registration detects a deliberate same-account collision",
+            "status": "passed",
+            "ok": true,
+            "errors": 0
+          },
+          {
+            "project": "admin-eval",
+            "title": "registration retains the first forced assertion failure trace",
+            "status": "failed",
+            "ok": false,
+            "errors": 1
+          },
+          {
+            "project": "admin-eval-mobile",
+            "title": "registration waits for explicitly released LiveView readiness",
+            "status": "passed",
+            "ok": true,
+            "errors": 0
+          },
+          {
+            "project": "admin-eval-mobile",
+            "title": "registration stops when LiveView readiness is never released",
+            "status": "failed",
+            "ok": false,
+            "errors": 1
+          },
+          {
+            "project": "admin-eval-mobile",
+            "title": "registration fails when the readiness wait is deliberately broken",
+            "status": "failed",
+            "ok": false,
+            "errors": 1
+          },
+          {
+            "project": "admin-eval-mobile",
+            "title": "registration detects a deliberate same-account collision",
+            "status": "passed",
+            "ok": true,
+            "errors": 0
+          },
+          {
+            "project": "admin-eval-mobile",
+            "title": "registration retains the first forced assertion failure trace",
+            "status": "failed",
+            "ok": false,
+            "errors": 1
+          },
+          {
+            "project": "admin-eval-dark",
+            "title": "registration waits for explicitly released LiveView readiness",
+            "status": "passed",
+            "ok": true,
+            "errors": 0
+          },
+          {
+            "project": "admin-eval-dark",
+            "title": "registration stops when LiveView readiness is never released",
+            "status": "failed",
+            "ok": false,
+            "errors": 1
+          },
+          {
+            "project": "admin-eval-dark",
+            "title": "registration fails when the readiness wait is deliberately broken",
+            "status": "failed",
+            "ok": false,
+            "errors": 1
+          },
+          {
+            "project": "admin-eval-dark",
+            "title": "registration detects a deliberate same-account collision",
+            "status": "passed",
+            "ok": true,
+            "errors": 0
+          },
+          {
+            "project": "admin-eval-dark",
+            "title": "registration retains the first forced assertion failure trace",
+            "status": "failed",
+            "ok": false,
+            "errors": 1
+          },
+          {
+            "project": "admin-eval-dark",
+            "title": "render bundle: board-mg-9/populated",
+            "status": "passed",
+            "ok": true,
+            "errors": 0
+          }
+        ],
+        "truncated_tail": false
+      },
+      "per_test_rows": [
+        {
+          "project": "admin-eval",
+          "title": "registration waits for explicitly released LiveView readiness",
+          "status": "passed",
+          "first_error_line": null,
+          "duration_ms": 3114
+        },
+        {
+          "project": "admin-eval",
+          "title": "registration stops when LiveView readiness is never released",
+          "status": "failed",
+          "first_error_line": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.",
+          "duration_ms": 1929
+        },
+        {
+          "project": "admin-eval",
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "status": "failed",
+          "first_error_line": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.",
+          "duration_ms": 1978
+        },
+        {
+          "project": "admin-eval",
+          "title": "registration detects a deliberate same-account collision",
+          "status": "passed",
+          "first_error_line": null,
+          "duration_ms": 3992
+        },
+        {
+          "project": "admin-eval",
+          "title": "registration retains the first forced assertion failure trace",
+          "status": "failed",
+          "first_error_line": "Error: expect(page).toHaveURL(expected) failed",
+          "duration_ms": 3619
+        },
+        {
+          "project": "admin-eval-mobile",
+          "title": "registration waits for explicitly released LiveView readiness",
+          "status": "passed",
+          "first_error_line": null,
+          "duration_ms": 4658
+        },
+        {
+          "project": "admin-eval-mobile",
+          "title": "registration stops when LiveView readiness is never released",
+          "status": "failed",
+          "first_error_line": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.",
+          "duration_ms": 2119
+        },
+        {
+          "project": "admin-eval-mobile",
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "status": "failed",
+          "first_error_line": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.",
+          "duration_ms": 2296
+        },
+        {
+          "project": "admin-eval-mobile",
+          "title": "registration detects a deliberate same-account collision",
+          "status": "passed",
+          "first_error_line": null,
+          "duration_ms": 4944
+        },
+        {
+          "project": "admin-eval-mobile",
+          "title": "registration retains the first forced assertion failure trace",
+          "status": "failed",
+          "first_error_line": "Error: expect(page).toHaveURL(expected) failed",
+          "duration_ms": 3729
+        },
+        {
+          "project": "admin-eval-dark",
+          "title": "registration waits for explicitly released LiveView readiness",
+          "status": "passed",
+          "first_error_line": null,
+          "duration_ms": 2949
+        },
+        {
+          "project": "admin-eval-dark",
+          "title": "registration stops when LiveView readiness is never released",
+          "status": "failed",
+          "first_error_line": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.",
+          "duration_ms": 2137
+        },
+        {
+          "project": "admin-eval-dark",
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "status": "failed",
+          "first_error_line": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.",
+          "duration_ms": 5305
+        },
+        {
+          "project": "admin-eval-dark",
+          "title": "registration detects a deliberate same-account collision",
+          "status": "passed",
+          "first_error_line": null,
+          "duration_ms": 4683
+        },
+        {
+          "project": "admin-eval-dark",
+          "title": "registration retains the first forced assertion failure trace",
+          "status": "failed",
+          "first_error_line": "Error: expect(page).toHaveURL(expected) failed",
+          "duration_ms": 4228
+        },
+        {
+          "project": "admin-eval-dark",
+          "title": "render bundle: board-mg-9/populated",
+          "status": "passed",
+          "first_error_line": null,
+          "duration_ms": 7249
+        }
+      ],
+      "setup_timing": {
+        "started_monotonic_ns": "342916670151666",
+        "ended_monotonic_ns": "342939342580041",
+        "execution_ms": 22673,
+        "wall_ms": 22673
+      },
+      "setup_charge_ms": 22673,
+      "setup": {
+        "pid": 95707,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "aborted": false,
+        "duration_ms": 22590,
+        "wall_duration_ms": 22590,
+        "suspended": false,
+        "max_tick_gap_ms": 7,
+        "group_signals": [],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 1
+      },
+      "browser_command_argv": [
+        "test",
+        "tests/admin-eval.spec.ts",
+        "--config=playwright.registration-recovery.config.ts",
+        "--project=admin-eval",
+        "--project=admin-eval-mobile",
+        "--project=admin-eval-dark",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure",
+        "--output=/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-SQhxf6/playwright-output"
+      ],
+      "test_command": {
+        "pid": 9653,
+        "exit_code": 1,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "aborted": false,
+        "duration_ms": 65723,
+        "wall_duration_ms": 65723,
+        "suspended": false,
+        "max_tick_gap_ms": 4,
+        "group_signals": [],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "log_redactions_app": {
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "drop_command": {
+        "pid": 48959,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "aborted": false,
+        "duration_ms": 1197,
+        "wall_duration_ms": 1196,
+        "suspended": false,
+        "max_tick_gap_ms": 2,
+        "group_signals": [],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "build_directory_removed": true,
+      "ended_monotonic_ns": "343009478939500",
+      "execution_duration_ms": 92809,
+      "wall_duration_ms": 92809,
+      "command_timing": {
+        "started_monotonic_ns": "342939342580041",
+        "ended_monotonic_ns": "343009478939500",
+        "execution_ms": 70137,
+        "wall_ms": 70136
+      },
+      "command_charge_ms": 70137,
+      "charged_duration_ms": 92810,
+      "collision_receipts": {
+        "admin-eval": "e828059b220dbc7b2f8d4dc7ae3a52a9b62f482c2d7dac3d903206c3fcedac61",
+        "admin-eval-mobile": "1bd742423d99e8657f5c27325ccc3f8d2d5e467edba404f9f7feb278d1b6516d",
+        "admin-eval-dark": "32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d"
+      },
+      "fresh_state_receipts": {}
+    },
+    {
+      "slot_id": "CR4-DESKTOP-SECOND",
+      "sequence": 2,
+      "stage": "second",
+      "project": "admin-eval",
+      "projects": [
+        "admin-eval"
+      ],
+      "argv": [
+        "--config=playwright.registration-recovery.config.ts",
+        "--project=admin-eval",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure"
+      ],
+      "source_commit": "4fdbc82b4a988f34eed066c1687f854a049dd03d",
+      "source_blobs": {
+        "scripts/ci/ci-registration-repro.sh": "a49beff822524ad1fec36d9d4a4aa21bb767d35e",
+        "scripts/ci/ci-registration-recovery.mjs": "b5455cf9c868b4b875e41cb271da58da24bd43d4",
+        "scripts/ci/ci-registration-recovery.test.mjs": "d3771dfe47429b27f2db6be28ae387d91ea46167",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "583b24f1cd5d8de5009a83cf6bf41be0dd2c3d4c",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "d99167c6cd8732a9e0413a8aa46312b9f3057dfb",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341",
+        "test/example/priv/playwright/helpers/registrationControls.mjs": "8cae01dbff446bc9c08f83f26bdf72255888938a",
+        "test/example/priv/playwright/lib/eval/canonicalize.ts": "1d2df16eb3b9d85540c1fe3d8f169bbfeefc18f1",
+        "test/example/priv/playwright/lib/eval/canonicalize.test.ts": "90f1aebd645faeee5b3e5dcf477298563b49c64e",
+        "test/example/priv/playwright/lib/eval/bundle.ts": "3177b24f3864dfc64675418e7c6dc276bf54ecae",
+        "scripts/ci/ci-playwright-load.test.mjs": "6d7e6b43c1f33a7da43e2331084352c838f6313c",
+        "scripts/ci/fixtures/registration-native-tree.mjs": "f78e3fb54f92cca800166b62c268501274b2b855",
+        "test/example/priv/playwright/playwright.registration-recovery.config.ts": "95694459f70139690feb3b09226e1774c9fff99c",
+        "test/example/priv/playwright/helpers/fixtures.ts": "da80a6f3b88069850e427c97efcea54f24cd92d6",
+        "test/example/priv/playwright/lib/eval/probes.ts": "f154a6fe04e20f9b25256af8977da37e64d8aa19",
+        "lib/sigra/auth.ex": "be5bc9a87a9e0e6d32e596d8483bc920204605fb",
+        "test/example/lib/example/accounts.ex": "3d127dbdf125bf81df45f723304115f8d511ea0e",
+        "test/example/lib/example/accounts/user.ex": "a0d58adebfa4a7f870413929d1c71acc46a31f67",
+        "test/example/lib/example_web/live/registration_live.ex": "d278c9d58134f36975905c84530d3c4476a47aa3",
+        "priv/templates/sigra.install/core/registration_live.ex": "5159d86b40769c49bd2fcb1b9259f837f9962edf",
+        "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex": "54264c0d05fb5739e208f68a1f08b186bc87923c",
+        "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs": "9c84c1d406a00c934e61b3780462297a48332f7b",
+        "scripts/ci/ci-registration-control-audit.test.mjs": "1893a4628c36758f196bc69f38c5a65f21be9e59",
+        "scripts/ci/fixtures/r3-mirrored-context-annotations.json": "0bf00f501204d6ea7e85e8c580958253ae1c2e6d"
+      },
+      "started_monotonic_ns": "343030181566708",
+      "database": {
+        "name": "sigra_253_control_load_cr4_desktop_second_mv8g54w1_66112",
+        "setup_exit_code": 0,
+        "drop_exit_code": 0,
+        "connection": {
+          "host": "127.0.0.1",
+          "port": "58624",
+          "user": "postgres",
+          "maintenance_database": "postgres"
+        },
+        "absence_receipt": {
+          "schema_version": "sigra.phase253.owned-database-absence/v1",
+          "database": "sigra_253_control_load_cr4_desktop_second_mv8g54w1_66112",
+          "argv": [
+            "psql",
+            "-X",
+            "-v",
+            "ON_ERROR_STOP=1",
+            "-v",
+            "target=sigra_253_control_load_cr4_desktop_second_mv8g54w1_66112",
+            "-A",
+            "-t",
+            "-h",
+            "127.0.0.1",
+            "-p",
+            "58624",
+            "-U",
+            "postgres",
+            "-d",
+            "postgres"
+          ],
+          "query": "SELECT count(*) FROM pg_database WHERE datname = :'target';\n",
+          "query_sha256": "d76f9fd3d185921e92633a206f1d792fccbf9785275063ecd3231d334fd4a59c",
+          "connection": {
+            "host": "127.0.0.1",
+            "port": "58624",
+            "user": "postgres",
+            "maintenance_database": "postgres"
+          },
+          "exit_code": 0,
+          "signal": null,
+          "timed_out": false,
+          "error": null,
+          "started_monotonic_ns": "343073583647416",
+          "ended_monotonic_ns": "343073606044083",
+          "duration_ms": 23,
+          "stdout_count": 0,
+          "log_bytes": 2,
+          "log_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      },
+      "server": {
+        "port": 25311,
+        "http_status": 200,
+        "app_pid": 86321
+      },
+      "browser": {
+        "launched": false,
+        "exit_code": null
+      },
+      "playwright_cli": {
+        "launched": false,
+        "exit_code": null
+      },
+      "lifecycle": {
+        "playwright_cli_processes": 0,
+        "rows": 0,
+        "worker_indexes": []
+      },
+      "observed_outcome": "halted",
+      "files": {
+        "prior_collision_absence": {
+          "path": "CR4-DESKTOP-SECOND/attempt-01/prior-collision-absence.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "setup_log": {
+          "path": "CR4-DESKTOP-SECOND/attempt-01/setup-log.log",
+          "sha256": "e89d055df287353967cccc39d5a60e4d4d6e49b5c72f57c54cc2121fdaa4c70f",
+          "bytes": 134171
+        },
+        "app_log": {
+          "path": "CR4-DESKTOP-SECOND/attempt-01/app-log.log",
+          "sha256": "3a1e722d156b608a8af2edb0b880e454247b7e0af8dee002bad7eb332f068bf6",
+          "bytes": 319
+        },
+        "test_log": {
+          "path": "CR4-DESKTOP-SECOND/attempt-01/test-log.log",
+          "sha256": "aa96cbc3de9974c9e8c101a7a7143bce4d6378e8a4ab3ceae2117d611cba92a8",
+          "bytes": 102
+        },
+        "drop_log": {
+          "path": "CR4-DESKTOP-SECOND/attempt-01/drop-log.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "database_absence": {
+          "path": "CR4-DESKTOP-SECOND/attempt-01/database-absence.log",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+          "bytes": 2
+        }
+      },
+      "traces": [],
+      "registration": {
+        "server_post_confirmed": false
+      },
+      "toolchain": {
+        "playwright": "1.59.1",
+        "ecto_sql": "3.13.5",
+        "phoenix_live_view": "1.1.28"
+      },
+      "build_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r4-aimzzi/mix-build",
+      "stage_deadlines": {
+        "setup_ms": 60000,
+        "command_ms": 75000,
+        "work_ms": 60000,
+        "cleanup_ms": 15000,
+        "cleanup_reserved": true
+      },
+      "host": {
+        "platform": "darwin",
+        "sleep_assertion_held": true,
+        "sleep_assertion_argv": [
+          "/usr/bin/caffeinate",
+          "-i",
+          "-s",
+          "-m",
+          "-w",
+          "66112"
+        ],
+        "suspension_detected": false,
+        "holder_alive_at_end": true
+      },
+      "host_awake": {
+        "holder_pid": 67256,
+        "ac_power": true,
+        "assertions_sha256": "039d8f1d42f5ed6648d739887113a0db95975e023d6ff8e14b12bfed4fc06b3d",
+        "checked_at": "2026-10-14T18:31:45.408Z"
+      },
+      "assertion_failure_observed": false,
+      "diagnostics": {
+        "jsonl": null,
+        "error_contexts": [],
+        "per_test": [],
+        "truncated_tail": false
+      },
+      "per_test_rows": [],
+      "setup_timing": {
+        "started_monotonic_ns": "343030181566708",
+        "ended_monotonic_ns": "343069963197791",
+        "execution_ms": 39782,
+        "wall_ms": 39782
+      },
+      "setup_charge_ms": 39782,
+      "setup": {
+        "pid": 67333,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "aborted": false,
+        "duration_ms": 39708,
+        "wall_duration_ms": 39708,
+        "suspended": false,
+        "max_tick_gap_ms": 3,
+        "group_signals": [],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 1
+      },
+      "prior_collision_absence": {
+        "schema_version": "sigra.phase253.owned-account-count/v1",
+        "database": "sigra_253_control_load_cr4_desktop_second_mv8g54w1_66112",
+        "account_email_sha256": "e828059b220dbc7b2f8d4dc7ae3a52a9b62f482c2d7dac3d903206c3fcedac61",
+        "argv": [
+          "psql",
+          "-X",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-v",
+          "target=<redacted-account>",
+          "-A",
+          "-t",
+          "-h",
+          "127.0.0.1",
+          "-p",
+          "58624",
+          "-U",
+          "postgres",
+          "-d",
+          "sigra_253_control_load_cr4_desktop_second_mv8g54w1_66112"
+        ],
+        "query": "SELECT count(*) FROM users WHERE email = :'target';\n",
+        "connection": {
+          "host": "127.0.0.1",
+          "port": "58624",
+          "user": "postgres",
+          "maintenance_database": "postgres"
+        },
+        "exit_code": 3,
+        "timed_out": false,
+        "error": null,
+        "started_monotonic_ns": "343071655656541",
+        "ended_monotonic_ns": "343071688949458",
+        "duration_ms": 34,
+        "count": null,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "log_bytes": 0
+      },
+      "log_redactions_app": {
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "drop_command": {
+        "pid": 87870,
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "aborted": false,
+        "duration_ms": 842,
+        "wall_duration_ms": 842,
+        "suspended": false,
+        "max_tick_gap_ms": 2,
+        "group_signals": [],
+        "descendants_reaped": true,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "build_directory_removed": true,
+      "ended_monotonic_ns": "343073715209791",
+      "execution_duration_ms": 43534,
+      "wall_duration_ms": 43534,
+      "command_timing": {
+        "started_monotonic_ns": "343069963197791",
+        "ended_monotonic_ns": "343073715209791",
+        "execution_ms": 3753,
+        "wall_ms": 3752
+      },
+      "command_charge_ms": 3753,
+      "charged_duration_ms": 43535,
+      "collision_receipts": {},
+      "fresh_state_receipts": {}
+    }
+  ],
+  "preparation": {
+    "receipts": [
+      {
+        "name": "mix_version",
+        "argv": [
+          "mix",
+          "--version"
+        ],
+        "exit_code": 0,
+        "duration_ms": 281,
+        "log": {
+          "path": "preparation/mix_version.log",
+          "sha256": "b397a3a12486d231c46786345365488f7c6350837a12db10b3aa142b53e8300a",
+          "bytes": 136
+        }
+      },
+      {
+        "name": "host_dependency_versions",
+        "argv": [
+          "mix",
+          "deps"
+        ],
+        "exit_code": 0,
+        "duration_ms": 539,
+        "log": {
+          "path": "preparation/host_dependency_versions.log",
+          "sha256": "9bb67b6beb3c360c954336f94dba0160334d693fa6cc4bc0153893c8a159eb01",
+          "bytes": 4351
+        }
+      }
+    ],
+    "duration_ms": 821,
+    "status": "passed"
+  },
+  "reservation": null,
+  "preserved_revisions": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+      "status": "",
+      "sha256": "c73a034861a37e36afbeb42adf2da71e2f8e8a79df617b7d7d4e72ce3fe5d3b8",
+      "blob": "6e9f3f7f38625103101e037c0faf3b7cc42fe463",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/c73a034861a37e36afbeb42adf2da71e2f8e8a79df617b7d7d4e72ce3fe5d3b8",
+      "bytes": 28496,
+      "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+      "status": " M .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+      "sha256": "58bce6b88e53b385a37dec4b728a0cffd58c8584c2116fa88814e0bdf3e28280",
+      "blob": "61766fc0543bc1f7cd4c4d767d79c3fee30f7e2c",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/58bce6b88e53b385a37dec4b728a0cffd58c8584c2116fa88814e0bdf3e28280",
+      "bytes": 29080,
+      "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+      "status": " M .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+      "sha256": "ae7d84b0dc3afaeabb1130226e964b3826cbd6df346c1f05f228492e3c215806",
+      "blob": "8c51e3f1db8b398f7215ed8f0d812e26d2c1adc7",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/ae7d84b0dc3afaeabb1130226e964b3826cbd6df346c1f05f228492e3c215806",
+      "bytes": 30366,
+      "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+      "status": " M .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+      "sha256": "6af78149ba6a1569e1f7a496e9c1c1c3b1d261e9a3a2f12bffa046c632162eca",
+      "blob": "9f05c3814a1e2a7334bcd8454fe873a88b539642",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/6af78149ba6a1569e1f7a496e9c1c1c3b1d261e9a3a2f12bffa046c632162eca",
+      "bytes": 31218,
+      "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+      "status": "",
+      "sha256": "084377320bce81ac6c84ca1adca847805861cc8815572453b407132eb3b24193",
+      "blob": "ca9f1dd5d3de3e8109a093527add6b86b32831c6",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/084377320bce81ac6c84ca1adca847805861cc8815572453b407132eb3b24193",
+      "bytes": 64460,
+      "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+      "status": " M .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R4.json",
+      "sha256": "4eef0caadbf6ca61aedf0c03ec08486283908001349467e2686ca2d7490f022e",
+      "blob": "7b873d9065f0cceb6ed3a245e6993e291ca50f98",
+      "ref": "refs/gsd/phase253-load-recovery-native-evidence/4eef0caadbf6ca61aedf0c03ec08486283908001349467e2686ca2d7490f022e",
+      "bytes": 65178,
+      "read_back_exact": true
+    }
+  ],
+  "prior_terminal_halts": [
+    {
+      "slot_id": "CR3-DESKTOP-MOBILE-FIRST",
+      "plan": "253-63",
+      "cause": "runner_validator_mirrored_context_annotations",
+      "terminal": true,
+      "infrastructure": false,
+      "retryable": false,
+      "charged": true,
+      "charged_ms": 71033,
+      "preparation_ms": 822,
+      "stop_reason": "two selected rows reused the same browser-context identity",
+      "summary": {
+        "file": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+        "sha256": "5379eafa299f8cabfcc485cb6515e1ea0ece520d127c1a9715e2ba386ed0c9ab"
+      },
+      "expired_identities": [
+        "CR3-INFRA-RETRY"
+      ],
+      "retired_identities": [
+        "CR3-DESKTOP-SECOND",
+        "CR3-MOBILE-SECOND",
+        "CR3-DARK-SECOND"
+      ]
+    }
+  ],
+  "infrastructure_halts": [],
+  "infrastructure_retry": null,
+  "approval": {
+    "decision": "approve",
+    "retry_granted": 1
+  },
+  "limits": {
+    "prior_charge_ms": 2222537,
+    "preparation_charge_ms": 821,
+    "preparation_remaining_ms": 9179,
+    "charged_duration_ms": 2359703,
+    "physical_playwright_cli_launches": 9,
+    "used_slots": [
+      "D19-DIAG-01",
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE",
+      "R-DIAG-CONTROL-DARK",
+      "CR-DARK-FIRST",
+      "CR-DESKTOP-MOBILE-FIRST",
+      "CR2-DESKTOP-MOBILE-FIRST",
+      "CR3-DESKTOP-MOBILE-FIRST",
+      "CR4-DESKTOP-MOBILE-FIRST",
+      "CR4-DESKTOP-SECOND"
+    ],
+    "max_d19_ms": 3132537,
+    "max_total_ms": 5472537,
+    "max_d19_physical_playwright_cli_launches": 13,
+    "max_physical_playwright_cli_launches": 22,
+    "retry_used": 1,
+    "retry_available": 0,
+    "infra_retry": {
+      "granted": 1,
+      "used": 0
+    }
+  },
+  "stop_reason": "prior collision account is not absent from the newly created database; native Playwright CLI launch or exit is missing; a slot must consume exactly one physical Playwright CLI process; sanitized native playwright report is missing; native report has 0 rows, the frozen slot requires exactly 2; native report must contain exactly one result for admin-eval / registration starts from a fresh database and context; native report must contain exactly one result for admin-eval / registration discards trace after a passing control; no server-confirmed registration submission is present in the app log; prior collision absence before browser work account query did not exit cleanly; prior collision absence before browser work account count is null, expected 0; created account after registration account receipt is missing; second slot has no fresh-state result; Playwright CLI exit does not match the frozen 0; process, worker and context lifecycle receipt is incomplete",
+  "stop_record": {
+    "slot_id": "CR4-DESKTOP-SECOND",
+    "observed_outcome": "halted",
+    "stop_reason": "prior collision account is not absent from the newly created database; native Playwright CLI launch or exit is missing; a slot must consume exactly one physical Playwright CLI process; sanitized native playwright report is missing; native report has 0 rows, the frozen slot requires exactly 2; native report must contain exactly one result for admin-eval / registration starts from a fresh database and context; native report must contain exactly one result for admin-eval / registration discards trace after a passing control; no server-confirmed registration submission is present in the app log; prior collision absence before browser work account query did not exit cleanly; prior collision absence before browser work account count is null, expected 0; created account after registration account receipt is missing; second slot has no fresh-state result; Playwright CLI exit does not match the frozen 0; process, worker and context lifecycle receipt is incomplete",
+    "cli_launched": false,
+    "setup_charge_ms": 39782,
+    "command_charge_ms": 3753,
+    "charged_duration_ms": 43535,
+    "per_test_rows": []
+  }
+}

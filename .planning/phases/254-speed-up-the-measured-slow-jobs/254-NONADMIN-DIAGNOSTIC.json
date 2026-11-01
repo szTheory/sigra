@@ -1,0 +1,225 @@
+{
+  "schema_version": "sigra.phase254.prep-profile-scope/v1",
+  "captured_at": "2026-10-23T19:07:10.043Z",
+  "status": "blocked",
+  "source_sha": "bf711cdf082b207ef7f9551613c280e6ef324152",
+  "scope": "non_admin_smoke",
+  "components": [
+    {
+      "name": "disposable-checkout",
+      "command": "git clone --quiet --shared --no-checkout \"/Users/jon/projects/sigra\" \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/repo\" && git -C \"/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/repo\" checkout --quiet --detach bf711cdf082b207ef7f9551613c280e6ef324152",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1063,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/logs/disposable-checkout.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "combined-preparation",
+      "command": "set -euo pipefail\nmix do deps.get + compile --warnings-as-errors + ecto.create + ecto.migrate + run priv/repo/seeds.exs",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 22483,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/logs/combined-preparation.log",
+      "log_sha256": "ed362e9f6516221172f352a72094832c82b1b4d480ce4a410dc76b698cef2246"
+    },
+    {
+      "name": "npm-ci",
+      "command": "set -euo pipefail\nnpm ci",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 1082,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/logs/npm-ci.log",
+      "log_sha256": "36dbc60b9e21292351151160aa5c21ff16770ce02735c0667bc0f8125e08aa90"
+    },
+    {
+      "name": "playwright-browser-install",
+      "command": "set -euo pipefail\nset -euo pipefail\nif [ \"$CACHE_HIT\" = \"true\" ]; then\n  npx playwright install-deps $BROWSERS\nelse\n  npx playwright install --with-deps $BROWSERS\nfi",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 40783,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/logs/playwright-browser-install.log",
+      "log_sha256": "76f7d8663e49bf2cf5469d0ce792c7a4348098c08894b87c5252e70f26977135"
+    },
+    {
+      "name": "app-readiness",
+      "command": [
+        "for i in $(seq 1 30); do",
+        "  if curl -sf \"$BASE_URL/\" > /dev/null; then",
+        "  sleep 1",
+        "  curl --fail --silent --output /dev/null \"$BASE_URL$path\" \\"
+      ],
+      "exit_code": 0,
+      "status": "measured",
+      "duration_ms": 1054,
+      "http_status": 200
+    },
+    {
+      "name": "route-warming",
+      "status": "measured",
+      "exit_code": 0,
+      "routes": [
+        {
+          "route": "/users/log_in",
+          "http_status": 200,
+          "exit_code": 0,
+          "duration_ms": 9,
+          "status": "measured"
+        }
+      ]
+    },
+    {
+      "name": "native-owner-invocation",
+      "command": "set -euo pipefail\nmkdir -p playwright-report\nnpx playwright test \\\n  tests/golden-path.spec.ts \\\n  tests/ga-uat-shift-left.spec.ts \\\n  tests/passkeys-hooks.spec.ts \\\n  tests/organizations.spec.ts \\\n  tests/passkey-login.spec.ts \\\n  tests/passkey-options.spec.ts \\\n  --retries=0 \\\n  --list --reporter=json > playwright-report/non-admin-smoke.selection.json\nSIGRA_PLAYWRIGHT_JSON=playwright-report/non-admin-smoke.json npx playwright test \\\n  tests/golden-path.spec.ts \\\n  tests/ga-uat-shift-left.spec.ts \\\n  tests/passkeys-hooks.spec.ts \\\n  tests/organizations.spec.ts \\\n  tests/passkey-login.spec.ts \\\n  tests/passkey-options.spec.ts \\\n  --retries=0",
+      "exit_code": 1,
+      "signal": null,
+      "error": null,
+      "duration_ms": 50682,
+      "status": "failed",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/logs/native-owner-invocation.log",
+      "log_sha256": "fea285854705afbbe9d9a1c42d67f3e56502ba61de46e7e488f2c35e7ede3aa3",
+      "log_excerpt": "ponse.url().includes(\"/users/settings/mfa/passkeys\") &&\n      105 |         !response.url().includes(\"/options\") &&\n        at enrollPasskeyFromSettings (/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/repo/test/example/priv/playwright/tests/passkey-login.spec.ts:102:10)\n        at /private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/repo/test/example/priv/playwright/tests/passkey-login.spec.ts:192:7\n\n    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────\n    test-results/passkey-login-passkey-prim-991b9-hout-leaking-browser-errors-chromium/test-failed-1.png\n    ────────────────────────────────────────────────────────────────────────────────────────────────\n\n    Error Context: test-results/passkey-login-passkey-prim-991b9-hout-leaking-browser-errors-chromium/error-context.md\n\n  2) [chromium] › tests/passkey-options.spec.ts:58:5 › enrollment requests real passkey options from the served MFA settings page \n\n    TimeoutError: page.waitForResponse: Timeout 15000ms exceeded while waiting for event \"response\"\n\n      78 |           response.request().method() === \"POST\",\n      79 |       ),\n    > 80 |       page.waitForResponse(\n         |            ^\n      81 |         (response) =>\n      82 |           response.url().includes(\"/users/settings/mfa/passkeys\") &&\n      83 |           !response.url().includes(\"/options\") &&\n        at /private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/repo/test/example/priv/playwright/tests/passkey-options.spec.ts:80:12\n\n    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────\n    test-results/passkey-options-enrollment-f210e-he-served-MFA-settings-page-chromium/test-failed-1.png\n    ────────────────────────────────────────────────────────────────────────────────────────────────\n\n    Error Context: test-results/passkey-options-enrollment-f210e-he-served-MFA-settings-page-chromium/error-context.md\n\n  3) [chromium] › tests/passkeys-hooks.spec.ts:74:5 › generated passkey hooks complete real browser registration and authentication with a virtual authenticator \n\n    Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m\"sigra:passkey-register:\u001b[7msuccess\u001b[27m\"\u001b[39m\n    Received: \u001b[31m\"sigra:passkey-register:\u001b[7merror\u001b[27m\"\u001b[39m\n\n      182 |     const registrationEvent = await page.evaluate(() => (window as any).__sigraEvents.shift());\n      183 |\n    > 184 |     expect(registrationEvent.event).toBe('sigra:passkey-register:success');\n          |                                     ^\n      185 |     expect(registrationEvent.payload.response.id).toBeTruthy();\n      186 |     expect(registrationEvent.payload.response.rawId).toBeTruthy();\n      187 |\n        at /private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/repo/test/example/priv/playwright/tests/passkeys-hooks.spec.ts:184:37\n\n    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────\n    test-results/passkeys-hooks-generated-p-17036-ith-a-virtual-authenticator-chromium/test-failed-1.png\n    ────────────────────────────────────────────────────────────────────────────────────────────────\n\n    Error Context: test-results/passkeys-hooks-generated-p-17036-ith-a-virtual-authenticator-chromium/error-context.md\n\n  3 failed\n    [chromium] › tests/passkey-login.spec.ts:182:7 › passkey-primary login fallback smoke › clicking passkey login requests real options path without leaking browser errors \n    [chromium] › tests/passkey-options.spec.ts:58:5 › enrollment requests real passkey options from the served MFA settings page \n    [chromium] › tests/passkeys-hooks.spec.ts:74:5 › generated passkey hooks complete real browser registration and authentication with a virtual authenticator \n  13 passed (49.5s)\n"
+    },
+    {
+      "name": "database-cleanup",
+      "command": "mix ecto.drop --quiet",
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "duration_ms": 21190,
+      "status": "measured",
+      "log_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/logs/database-cleanup.log",
+      "log_sha256": "3c82e16b982a0ae3cb74b225379373b55a9c00b3c2d0a7dd870f0b71e7cec5d6"
+    }
+  ],
+  "acceptance": "development evidence only; not a hosted speed result and does not renew acceptance allowance",
+  "source": {
+    "source_sha": "bf711cdf082b207ef7f9551613c280e6ef324152",
+    "source_dirty": false,
+    "action_sha256": "3656386d2334f8ae7cf323175177880109c7171b3cdfc98c48bf599fc2c4c4d9",
+    "workflow_sha256": "25c20412ff76cacc5276cb63bcf67e82f7b563b51d3522f44e9293887c4abb0e",
+    "scope": "non_admin_smoke",
+    "browser_selection": [
+      "chromium",
+      "webkit"
+    ],
+    "cache_identity": "cold task-local cache; no GitHub restore cache",
+    "cold_warm_identity": {
+      "current_run": "cold",
+      "warm_run": "not_run; task-local cache was not reused"
+    },
+    "instrumentation": {
+      "comparison_rule": "Use the same instrumentation identities on both runner paths. Preserve overhead disclosures; do not subtract overhead estimates from the improvement target.",
+      "exunit": {
+        "current_full_pr_overhead": {
+          "overhead_us": null,
+          "reason": "single instrumented hosted run; no paired same-selection uninstrumented run",
+          "status": "unmeasured"
+        },
+        "historical_overhead": {
+          "method": "median of five paired whole-mix-process elapsed-time differences (instrumented minus uninstrumented)",
+          "overhead_us": -60547,
+          "source": ".planning/phases/252-measure-current-ci/252-03-EXUNIT-TIMING.json",
+          "status": "measured"
+        },
+        "identity": "Sigra.TestSupport.CiTimingFormatter/v1"
+      },
+      "playwright": {
+        "identity": "ci-playwright-report.mjs/playwright-json-1.59.1",
+        "overhead_ms": null,
+        "reason": "paired same-selection runs not recorded",
+        "status": "unmeasured"
+      }
+    },
+    "native_github_timings": {
+      "source_file": ".planning/phases/252-measure-current-ci/252-run-family-38144377407-retry1/raw/jobs-attempt-1.json",
+      "source_file_sha256": "b84c68e31cfc4502124e3fb9f8707b4b413f441f679a659c87e21485a190db89",
+      "run_id": 38144377407,
+      "run_attempt": 1,
+      "job_id": 114484588723,
+      "outer_boot_action_step": {
+        "name": "Boot isolated example app",
+        "started_at": "2026-10-11T13:45:18Z",
+        "completed_at": "2026-10-11T13:46:18Z",
+        "duration_seconds": 60,
+        "status": "measured_outer_composite_step_only"
+      },
+      "setup_beam_internal": {
+        "status": "unknown",
+        "reason": "composite action internals are not represented as separate steps in saved GitHub job timing"
+      },
+      "cache_restore_internal": {
+        "status": "unknown",
+        "reason": "composite action internals are not represented as separate steps in saved GitHub job timing"
+      }
+    },
+    "phase253_candidate_behavior": [
+      {
+        "file": "ci-registration-setup-diagnostic.mjs",
+        "sha256": "9e23a0d5ab53e8ab8a2714601dac57de650bee011afd85fcad7739cee876deeb",
+        "phase": 253,
+        "cost": {
+          "status": "unknown",
+          "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+        }
+      },
+      {
+        "file": "ci-playwright-report.mjs",
+        "sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+        "phase": 253,
+        "cost": {
+          "status": "unknown",
+          "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+        }
+      },
+      {
+        "file": "ci-registration-recovery.mjs",
+        "sha256": "28d3efc23515a2b44447c89c444e2adfe087826132d4436dcdfd8dd36c51a1e2",
+        "phase": 253,
+        "cost": {
+          "status": "unknown",
+          "reason": "Not independently timed by the preparation action; no synthetic allocation is made."
+        }
+      }
+    ],
+    "database": "sigra_254_non_admin_smoke_71149",
+    "port": 4142
+  },
+  "toolchain": {
+    "node": "v20.18.1",
+    "elixir": "Elixir 1.19.5 (compiled with Erlang/OTP 28)",
+    "erlang": "28",
+    "playwright": "1.59.1"
+  },
+  "started_at": "2026-10-23T19:07:10.043Z",
+  "started_epoch": 1792782430044,
+  "owner_invocation": "Run non-admin example browser smoke",
+  "native_reports": [
+    {
+      "path": "native-retry/non_admin_smoke/non-admin-smoke.json",
+      "sha256": "d75a1be71aae4eb83d3956bad2a03e89448256b43977d862cbf74cb64647b87f"
+    },
+    {
+      "path": "native-retry/non_admin_smoke/non-admin-smoke.selection.json",
+      "sha256": "685e615a249017db046f49138b7970b00cd0d8d38eb1ba166b1fd90ff4b95ca1"
+    }
+  ],
+  "failure": {
+    "message": "native-owner-invocation_failed_exit_1"
+  },
+  "completed_at": "2026-10-23T19:09:29.733Z",
+  "duration_ms": 139689,
+  "cleanup": {
+    "server_stopped": true,
+    "database_drop_recorded": true,
+    "task_local_cache_removed": true
+  }
+}

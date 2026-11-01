@@ -1,0 +1,168 @@
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -183,8 +183,17 @@
+             echo "docs_only=false" >> "$GITHUB_OUTPUT"
+             exit 0
+           fi
+-          git fetch origin "${BASE_REF}" --depth=1
+-          git diff --name-only "origin/${BASE_REF}...HEAD" | bash scripts/ci/docs-only-classify.sh | tee -a "$GITHUB_OUTPUT"
++          if ! git fetch origin "${BASE_REF}"; then
++            echo "::warning::Base ref unavailable; running the full CI workload."
++            echo "docs_only=false" >> "$GITHUB_OUTPUT"
++            exit 0
++          fi
++          if ! changed_paths="$(git diff --name-only "origin/${BASE_REF}...HEAD")"; then
++            echo "::warning::Change comparison unavailable; running the full CI workload."
++            echo "docs_only=false" >> "$GITHUB_OUTPUT"
++            exit 0
++          fi
++          printf '%s\n' "$changed_paths" | bash scripts/ci/docs-only-classify.sh | tee -a "$GITHUB_OUTPUT"
+ 
+   # Phase 194 (CACHE-02): 6 trivial leaf guard jobs folded into one fast_checks
+   # job (single checkout + single base-ref resolve) to cut 6 runner cold-starts.
+@@ -485,7 +494,7 @@
+     needs: release_ref_guard
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+           POSTGRES_DB: sigra_test
+@@ -571,7 +580,7 @@
+     needs: release_ref_guard
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+           # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
+@@ -736,7 +745,7 @@
+     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+           # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
+@@ -801,7 +810,7 @@
+     if: ${{ !cancelled() }}
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -907,7 +916,7 @@
+     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -1003,7 +1012,7 @@
+     needs: release_ref_guard
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -1056,7 +1065,7 @@
+     if: github.event_name != 'pull_request'
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -1119,7 +1128,7 @@
+           - "--no-organizations --no-passkeys"
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -1239,7 +1248,7 @@
+     if: github.event_name != 'pull_request'
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -1297,7 +1306,7 @@
+     if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -1447,7 +1456,7 @@
+             browser_cache_key: playwright-chromium-1.59.1-v3
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -1680,7 +1689,7 @@
+     needs: release_ref_guard
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -1954,7 +1963,7 @@
+       pull-requests: write  # required for gh pr create
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -2192,7 +2201,7 @@
+       pull-requests: write  # required for gh pr create
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+@@ -2377,7 +2386,7 @@
+       PORT: "4011"
+     services:
+       postgres:
+-        image: public.ecr.aws/docker/library/postgres:15
++        image: postgres:15
+         env:
+           POSTGRES_PASSWORD: postgres
+         ports: ['5432:5432']
+--- a/test/sigra/planning/phase_232_playwright_economics_test.exs
++++ b/test/sigra/planning/phase_232_playwright_economics_test.exs
+@@ -118,7 +118,7 @@
+     ]
+ 
+     assert shard =~ "fail-fast: false"
+-    assert shard =~ "image: public.ecr.aws/docker/library/postgres:15"
++    assert shard =~ "image: postgres:15"
+     assert shard =~ "uses: ./.github/actions/example-playwright-boot"
+ 
+     actual_seams =

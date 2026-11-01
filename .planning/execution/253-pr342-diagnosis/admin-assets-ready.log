@@ -1,0 +1,14 @@
+(node:45996) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:46009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:46009) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(node:46009) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [admin-generated] › tests/admin-generated.spec.ts:247:5 › generated host admin shell renders on desktop and mobile (624ms)
+  ✓  2 [admin-generated] › tests/admin-generated.spec.ts:380:7 › VFY-01 generated host global users index › lists users for platform admin (340ms)
+
+  2 passed (1.3s)

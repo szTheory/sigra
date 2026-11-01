@@ -1,0 +1,126 @@
+{
+  "schema_version": "sigra.phase254.baseline-unblock-proposal/v1",
+  "status": "proposed_requires_user_decision",
+  "captured_at": "2026-10-23T20:01:41.313172+00:00",
+  "current_contract_changed": false,
+  "hosted_runs_started": 0,
+  "notification": {
+    "requested": true,
+    "created": false,
+    "reason": "No scheduling tool is exposed; Computer Use denied access to com.openai.codex. No background notification is promised."
+  },
+  "original_baseline": {
+    "run_id": 38317383419,
+    "event": "pull_request",
+    "head_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+    "original_producer_sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+    "current_attempt": 1,
+    "original_created_at": "2026-10-12T22:33:57+00:00",
+    "rerun_deadline_utc": "2026-11-11T22:33:57+00:00",
+    "workflow_id": 259268962,
+    "workflow_state": "active",
+    "fresh_read_only_api_checks": [
+      "GET actions/runs/38317383419",
+      "GET actions/runs/38317383419/attempts/1",
+      "GET actions/workflows/ci.yml",
+      "GET pulls/331"
+    ]
+  },
+  "proposed_change": {
+    "sample_identity": "Use (run_id, run_attempt) for separately preregistered full-workflow invocations, instead of requiring forty distinct run IDs.",
+    "baseline_execution": "Rerun the original baseline PR workflow; GitHub documents preservation of original GITHUB_SHA and GITHUB_REF. Verify actual workflow, checkout SHA/tree and native artifacts before accepting any sample.",
+    "candidate_execution": "Publish and review an exact candidate PR source/merge/workflow, establish its initial real-PR run, then use registered full reruns of that fixed event/source. Stop if source equivalence cannot be proven.",
+    "timing": "Bind a queued attempt before its outcome, retain request/queue timestamps, derive each attempt wait from its own new invocation rather than the original historical run created_at. If an authenticated attempt-specific queued time is unavailable, do not treat this method as feasible or start the comparison window.",
+    "failure_and_cost_policy": "Each reserved sample retains its failure/cancellation and all its own retry/job costs. A later attempt never replaces an unfavorable reserved sample. Primary run cumulative costs must not be counted repeatedly across samples.",
+    "machinery_required": [
+      "Attempt-scoped registration and raw attempt acquisition",
+      "Independent attempt/source/origin/native parity validation",
+      "Attempt-specific queue/wait and cost derivation tests",
+      "Same baseline archive, threshold and no-replacement protections"
+    ]
+  },
+  "unchanged_controls": {
+    "pair_count": 20,
+    "measured_invocations": 40,
+    "balanced_order": "ten baseline-first pairs and ten candidate-first pairs",
+    "maximum_pair_start_gap_seconds": 1800,
+    "window_hours": 48,
+    "cache_stratum": "all-warm; exact-hit proof still required",
+    "runner_images": "compatible actual pair images; disclose historical drift",
+    "thresholds": [
+      "ordinary candidate median <= 0.8 * baseline median",
+      "candidate empirical nearest-rank p95 <= baseline",
+      "candidate actual runner total <= baseline"
+    ],
+    "no_replacements": true,
+    "no_window_extension": true,
+    "phase253_previous_allowances": "not reused"
+  },
+  "separate_preparation_allowance_proposed": {
+    "user_approved": false,
+    "maximum_invocations": 2,
+    "recipe": [
+      "One full original-baseline rerun to prove original checkout/workflow and warm that fixed PR cache context",
+      "One initial reviewed candidate real-PR run to prove candidate source/merge/workflow and warm its fixed PR cache context"
+    ],
+    "retries": 0,
+    "maximum_elapsed_minutes": 60,
+    "maximum_total_http_requests": 600,
+    "includes": "Registration/retrieval/watch traffic; one watcher per run, interval60; stop at core<=250 and any403/429.",
+    "does_not_renew": "Any Phase253 allowance or spent sample"
+  },
+  "limits_and_uncertainties": [
+    "This is a rerun-based fixed-source experiment, not forty new-PR scheduler observations; report that limitation.",
+    "GitHub docs state a maximum of50reruns and eligibility within30days. Baseline attempt1 currently leaves room, but rerun availability must be rechecked before execution.",
+    "Old-cache accessibility, actual runner images, retained frozen producer checkout and authenticated attempt-specific queue time remain prerequisites; no hosted success is yet proven.",
+    "If these prerequisites fail, retain a blocker without spending measured samples or silently switching to a different baseline.",
+    "Any approved amendment is recorded as a change after implementation; never report that the original forty-distinct-PR-family method was executed unchanged or claim rerun samples establish new-PR scheduling performance."
+  ],
+  "decision_needed": "Approve the rerun-based comparison amendment and the separate finite preparation allowance, or retain the current blocked method.",
+  "sources": [
+    {
+      "title": "GitHub rerun behavior and limits",
+      "url": "https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs?tool=cli"
+    },
+    {
+      "title": "GitHub run IDs and attempt numbers",
+      "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/variables"
+    },
+    {
+      "title": "Current distinct primary run rule",
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-08-PLAN.md",
+      "text": "Use distinct primary run IDs; reruns remain attempts in their original family."
+    },
+    {
+      "title": "Locked comparison and escalation rules",
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-CONTEXT.md",
+      "decisions": [
+        "D-12",
+        "D-14",
+        "D-15"
+      ]
+    }
+  ],
+  "prior_state_recovery": {
+    "commit": "460c004b874ce7f6923c5ae6fa2645b957b32f06",
+    "files": [
+      {
+        "path": ".planning/STATE.md",
+        "sha256": "9402d045d288de45d7086be276e65176200bf652d57e1ea954046f34e726aa90",
+        "committed_bytes_verified": true
+      },
+      {
+        "path": ".planning/state.json",
+        "sha256": "a28b68d03502a6eaf3cd2a7022bb84155fda8e1f4967921202f33e9aa5ae4616",
+        "committed_bytes_verified": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "sha256": "9cd7d5dbe38dc07285ff2b666f6fc12447c790e32e401eebdd27047b7301cca3",
+        "committed_bytes_verified": true
+      }
+    ]
+  },
+  "next_command_after_approval": "$gsd-execute-phase 254",
+  "resume_note": "Continue the existing Plan254-08 checkpoint with scoped method/tooling changes. Preserve all original halted evidence and original contract; no numbered repair plan for ordinary local changes."
+}

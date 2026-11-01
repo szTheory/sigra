@@ -1,0 +1,9 @@
+{
+  "method": "GET",
+  "route_id": "get_ref",
+  "category": "preflight",
+  "family": "shared",
+  "params": {
+    "branch": "main"
+  }
+}

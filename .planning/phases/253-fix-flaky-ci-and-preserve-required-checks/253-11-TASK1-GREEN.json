@@ -1,0 +1,23 @@
+{
+  "task": "253-11/1",
+  "command": "python3 scripts/ci/ci-hosted-gate-verify.test.py",
+  "exitCode": 0,
+  "result": {
+    "tests": 16,
+    "passed": 16,
+    "failed": 0,
+    "adversarial_cases": [
+      "runner count differs from charged transport ledger",
+      "hidden poll, pagination page, or redirect",
+      "HTTP 403/429",
+      "over-limit dispatch key count and character size",
+      "compressed and extracted artifact size bounds",
+      "unexpected artifact member",
+      "cancelled scenario",
+      "deterministic failure scenario"
+    ],
+    "mocked_path_modelled": "dispatch -> run discovery/poll -> jobs/artifact metadata -> explicit redirect hop -> independent verifier",
+    "verification_note": "The test constructs complete deterministic transport and hosted receipt fixtures in memory, then invokes the production independent verifier; no runner process or network request is executed."
+  },
+  "semanticAssessment": "All 16 unittest cases passed after the verifier began counting transport ledger entries independently and applying input/artifact limits."
+}

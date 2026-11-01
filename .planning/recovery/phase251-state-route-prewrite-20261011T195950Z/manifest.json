@@ -1,0 +1,13 @@
+{
+  "purpose": "Exact current dirty STATE.md bytes before synchronizing Phase 251 route and latest preservation reference",
+  "captured_at": "2026-10-11T19:59:50Z",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "git_status": "M .planning/STATE.md",
+      "sha256": "348ef8dd80fc9db58e5964604075cfa76c2c30a23f05c87020966041587a5515",
+      "bytes": 9108,
+      "recovery_path": ".planning/recovery/phase251-state-route-prewrite-20261011T195950Z/.planning/STATE.md"
+    }
+  ]
+}

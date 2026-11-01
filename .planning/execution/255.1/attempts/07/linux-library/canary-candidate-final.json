@@ -1,0 +1,54 @@
+{
+  "acceptance_samples": 0,
+  "command": "mix test --seed 166367 test/upgrade_test.exs:40 test/upgrade_test.exs:92 test/upgrade_test.exs:144 test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:145 test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:171",
+  "dependency_prep": {
+    "command": "MIX_ENV=test mix deps.get",
+    "hex_offline": "0",
+    "log_sha256": "51a383157e85bc66013965c99394519328fce82b5fb18645442b9f14cb42d6d6",
+    "mix_lock_unchanged": true
+  },
+  "environment": {
+    "HEX_OFFLINE": "0",
+    "MIX_BUILD_PATH": "unset",
+    "PHX_CI": "true",
+    "tmpdir": "fresh invocation-owned writable executable host mount",
+    "tmpdir_empty_before_run": true,
+    "tzdata_release_observed": "2026e"
+  },
+  "private_console": {
+    "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/candidate-canary/console.log",
+    "sha256": "c90dcb809d320b2a37732cd3eec31fc36ab0acdd1c5c03e871eb955eabcded71"
+  },
+  "private_exunit_report": {
+    "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/candidate-canary/output/canary-exunit.json",
+    "sha256": "352022e1635dd2b6699cb3c16b2e062152f696e07be26eff3d0c1d0f0a463570"
+  },
+  "result": {
+    "excluded": 14,
+    "failed": 0,
+    "failed_test_ids": [],
+    "passed": 5,
+    "skipped": 0,
+    "status": "passed",
+    "tests": 5
+  },
+  "runner": {
+    "base_image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+    "elixir": "1.19.5 / OTP 28",
+    "gh": "2.103.2",
+    "node": "20.20.2",
+    "pg_image": "postgres:15-alpine",
+    "phx_new_archive_manifest_sha256": "4ec8bccac1170767b7147b81a7eb4a607e1ea5d49a5487786f62eb10492c7ade",
+    "platform": "linux/amd64 emulated on arm64/v8",
+    "seccomp_profile_sha256": "d8039f0ff04eea8ede7481d12ca49c1485e1314415a9cfa067c3dfb288d0d2dd",
+    "tool_image_id": "sha256:e8467bcf8a3ee4f056cd8af572a1525a66224bf9ab2c603102e01785c646e3aa"
+  },
+  "schema_version": "sigra.phase255.1.local-linux-library-canary/1",
+  "source": {
+    "archive_sha256": "18dcbf59d7f3ba4c09ba16abf82fa0479908810aa0ec1ae35d43f13b6cb7d499",
+    "role": "candidate",
+    "sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+    "tree": "a084992034c541a51df797e0a12eaa09edc7799a"
+  },
+  "status": "passed"
+}

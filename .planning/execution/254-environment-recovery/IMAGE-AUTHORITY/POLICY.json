@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "method": "runner_native_image_file",
+  "decision": "Use the native runner image record as the fixed authority on both comparison conditions, regardless of its value; keep environment values and conflicts as diagnostics.",
+  "reason": "The introduced v1 equality gate stopped actual work because a separately populated environment version disagreed with the native image file. The native file agrees with GitHub's Set up job header, which GitHub documents as the exact runner inventory reference. Re-running until redundant sources happen to agree is not a valid recovery.",
+  "evidence": {
+    "native_header": "../PREPARATION/IMAGE-FAILURE-before.log",
+    "authenticated_metadata": "../PREPARATION/IMAGE-METADATA-before.json",
+    "native_image_version": "20261012.334.1",
+    "environment_version": "20261023.334.3",
+    "native_file_sha256": "4225a88e05bfdf2c627b9035b04c715a9c23b03fc68d31ad0e1567305268b2fe"
+  },
+  "sources": [
+    "https://docs.github.com/en/actions/concepts/runners/github-hosted-runners",
+    "https://raw.githubusercontent.com/actions/runner/main/src/Runner.Worker/JobExtension.cs",
+    "https://raw.githubusercontent.com/actions/runner-images/main/images/ubuntu/scripts/build/configure-image-data.sh",
+    "https://raw.githubusercontent.com/actions/runner-images/main/images/ubuntu/scripts/build/configure-environment.sh"
+  ],
+  "retained_controls": [
+    "Exactly one valid supported native image record",
+    "Unchanged raw native-image and OS bytes between early capture and publication",
+    "Repository/run/attempt/source/job/browser-owner/architecture identity",
+    "Exact canonical image version and raw file hashes compared per owner",
+    "All required jobs and 108 browser cases must actually execute",
+    "Old v1 failures remain failed; no retroactive acceptance",
+    "Original measurement thresholds and all-warm controls remain unchanged"
+  ],
+  "measurement_started": false,
+  "cause_of_environment_disagreement": "Not established; no claim that either provider script is conclusively stale.",
+  "authorization": "Current user's explicit recovery request delegated approach choice and scoped fixes. This is an ordinary correction to the newly added gate in the same Plan254-08, not a new numbered repair plan."
+}

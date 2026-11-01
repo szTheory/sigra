@@ -1,0 +1,28 @@
+test_actual_pr_prepare_with_explicit_synthetic_receipt_and_live_rejection (__main__.BundleTests.test_actual_pr_prepare_with_explicit_synthetic_receipt_and_live_rejection) ... ok
+test_all_old_history_paths_still_match_entry (__main__.BundleTests.test_all_old_history_paths_still_match_entry) ... ok
+test_approval_accepts_only_exact_current_bundle (__main__.BundleTests.test_approval_accepts_only_exact_current_bundle) ... ok
+test_approval_mutations (__main__.BundleTests.test_approval_mutations) ... ok
+test_canary_order_ends_in_independent_verifier (__main__.BundleTests.test_canary_order_ends_in_independent_verifier) ... ok
+test_closed_and_expired_windows_rejected (__main__.BundleTests.test_closed_and_expired_windows_rejected) ... ok
+test_every_request_stops_before_connection_without_approval (__main__.BundleTests.test_every_request_stops_before_connection_without_approval) ... ok
+test_helpers_rebuild_from_pinned_source_exactly (__main__.BundleTests.test_helpers_rebuild_from_pinned_source_exactly) ... ok
+test_inactive_template_is_not_an_allocation (__main__.BundleTests.test_inactive_template_is_not_an_allocation) ... ok
+test_increased_caps_or_test_origin_rejected (__main__.BundleTests.test_increased_caps_or_test_origin_rejected) ... ok
+test_live_operator_refuses_without_writing_attempt (__main__.BundleTests.test_live_operator_refuses_without_writing_attempt) ... ok
+test_old_allocation_rejected (__main__.BundleTests.test_old_allocation_rejected) ... ok
+test_old_approval_rejected (__main__.BundleTests.test_old_approval_rejected) ... ok
+test_pending_plan_prior_bytes_are_recoverable (__main__.BundleTests.test_pending_plan_prior_bytes_are_recoverable) ... ok
+test_pipeline_timeout_kills_process_group (__main__.BundleTests.test_pipeline_timeout_kills_process_group) ... ok
+test_pr_verifier_ref_pairs (__main__.BundleTests.test_pr_verifier_ref_pairs) ... ok
+test_publisher_rejects_old_or_mixed_pair (__main__.BundleTests.test_publisher_rejects_old_or_mixed_pair) ... ok
+test_request_guard_rejects_closed_expired_changed_allocation_and_rate_limit (__main__.BundleTests.test_request_guard_rejects_closed_expired_changed_allocation_and_rate_limit) ... ok
+test_source_and_bundle_mutations_rejected (__main__.BundleTests.test_source_and_bundle_mutations_rejected) ... ok
+test_transport_accepts_only_four_fresh_ref_creations (__main__.BundleTests.test_transport_accepts_only_four_fresh_ref_creations) ... ok
+test_uncommitted_approval_is_rejected (__main__.BundleTests.test_uncommitted_approval_is_rejected) ... ok
+test_window_accepts_both_exact_limits (__main__.BundleTests.test_window_accepts_both_exact_limits) ... ok
+test_workflow_and_docs_trigger_are_registered_and_scoped (__main__.BundleTests.test_workflow_and_docs_trigger_are_registered_and_scoped) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 0.792s
+
+OK

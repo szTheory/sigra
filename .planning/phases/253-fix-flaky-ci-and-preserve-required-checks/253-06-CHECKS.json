@@ -1,0 +1,33 @@
+{
+  "plan": "253-06",
+  "source_head": "9b27d48d3165eadcd4ffb9cee12ac6d699d621b0",
+  "checks": [
+    {
+      "command": "node --test scripts/ci/ci-measure-workflow.test.mjs scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-playwright-report.test.mjs scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs",
+      "exit_code": 0,
+      "passed": 57
+    },
+    {
+      "command": "bash scripts/ci/honest-skip-verdict.test.sh",
+      "exit_code": 0,
+      "passed": 21
+    },
+    {
+      "command": "actionlint .github/workflows/ci.yml",
+      "exit_code": 0
+    },
+    {
+      "command": "node --test scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs",
+      "exit_code": 0,
+      "passed": 5
+    }
+  ],
+  "log_sha256": "cc02fba60d097b32a2bd773bb4ef3529ab4a7c611f9b5ba62559c4256298e78a",
+  "hooks": {
+    "schema_drift": false,
+    "codebase_drift": "skipped: no-structure-md",
+    "ui_presence": false,
+    "ui_presence_method": "canonical ui-safety-gate.cjs checkUiPresence on actual Phase 253 roadmap section"
+  },
+  "hosted_proof": false
+}

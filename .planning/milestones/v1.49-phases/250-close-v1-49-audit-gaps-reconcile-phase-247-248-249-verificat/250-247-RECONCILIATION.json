@@ -1,0 +1,460 @@
+{
+  "schema_version": 1,
+  "repository": "szTheory/sigra",
+  "captured_at": "2026-10-10T15:21:37.067Z",
+  "status": "blocked",
+  "source_capture": {
+    "repo_root": "/Users/jon/projects/sigra",
+    "branch": "phase-244-playwright-measurement",
+    "checkout_head": "94304462ed7e6c855c3d30e11a30e5763037b2ab",
+    "checkout_clean": false,
+    "current_main": {
+      "sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+      "treeSha": "82df4044d176a862051bb18c0e09265f2c07d3fb"
+    },
+    "current_pr_224": {
+      "number": 224,
+      "state": "closed",
+      "headSha": "64071b81a131fcfe4068a91d4814da478f13b084",
+      "headRef": "release-please--branches--main",
+      "baseSha": "9b90dd709f80eeb683e0d1dbdda514a5d1c60756",
+      "baseRef": "main",
+      "updatedAt": "2026-10-09T02:35:03Z"
+    },
+    "current_open_pull_requests": {
+      "count": 16,
+      "numbers": [
+        219,
+        266,
+        267,
+        268,
+        269,
+        271,
+        272,
+        273,
+        274,
+        275,
+        283,
+        302,
+        306,
+        307,
+        308,
+        309
+      ]
+    },
+    "live_after_capture": {
+      "main": {
+        "sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5",
+        "treeSha": "82df4044d176a862051bb18c0e09265f2c07d3fb"
+      },
+      "pullRequest": {
+        "number": 224,
+        "state": "closed",
+        "headSha": "64071b81a131fcfe4068a91d4814da478f13b084",
+        "headRef": "release-please--branches--main",
+        "baseSha": "9b90dd709f80eeb683e0d1dbdda514a5d1c60756",
+        "baseRef": "main",
+        "updatedAt": "2026-10-09T02:35:03Z"
+      },
+      "openPullRequestNumbers": [
+        219,
+        266,
+        267,
+        268,
+        269,
+        271,
+        272,
+        273,
+        274,
+        275,
+        283,
+        302,
+        306,
+        307,
+        308,
+        309
+      ]
+    },
+    "object_availability": {
+      "0e773d3614a242e4fbcdd34c418ecb8a307703d6": true,
+      "64071b81a131fcfe4068a91d4814da478f13b084": false,
+      "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5": true,
+      "a494f3ee3878da93aab4f70712ffddeefd77a802": true,
+      "d135cbce343947499a0810736c500ef5f1cb5c32": true,
+      "d76d7f2306f6099063a80a420d2d8a4e04c7785f": true
+    },
+    "local_object_availability": {
+      "0e773d3614a242e4fbcdd34c418ecb8a307703d6": false,
+      "64071b81a131fcfe4068a91d4814da478f13b084": false,
+      "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5": true,
+      "a494f3ee3878da93aab4f70712ffddeefd77a802": true,
+      "d135cbce343947499a0810736c500ef5f1cb5c32": true,
+      "d76d7f2306f6099063a80a420d2d8a4e04c7785f": false
+    },
+    "remote_source_objects": [
+      {
+        "available": true,
+        "sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+        "parents": [
+          "d76d7f2306f6099063a80a420d2d8a4e04c7785f"
+        ],
+        "treeSha": "23b752cb53f9b63368d04649fb3953a0fd617905",
+        "sourceBlobs": [
+          {
+            "path": ".release-please-manifest.json",
+            "expectedSha": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+            "observedSha": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+            "matches": true
+          },
+          {
+            "path": "CHANGELOG.md",
+            "expectedSha": "5ce249c2e8a5d3f23065ee5e519c05d5831560fe",
+            "observedSha": "5ce249c2e8a5d3f23065ee5e519c05d5831560fe",
+            "matches": true
+          },
+          {
+            "path": "guides/introduction/upgrading-to-v1.6.md",
+            "expectedSha": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+            "observedSha": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+            "matches": true
+          },
+          {
+            "path": "mix.exs",
+            "expectedSha": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+            "observedSha": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+            "matches": true
+          },
+          {
+            "path": "README.md",
+            "expectedSha": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+            "observedSha": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+            "matches": true
+          },
+          {
+            "path": "test/example/priv/playwright/tests/organizations.spec.ts",
+            "expectedSha": "030317814796f8265fc738cab05d80f344ceaa10",
+            "observedSha": "030317814796f8265fc738cab05d80f344ceaa10",
+            "matches": true
+          }
+        ]
+      },
+      {
+        "available": true,
+        "sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "parents": [
+          "efc562e76eb8ee04516afa23028018ac2dc8716b"
+        ],
+        "treeSha": "885495b08239bb39c9d069bc68baf18ef32a21a4",
+        "sourceBlobs": [
+          {
+            "path": ".release-please-manifest.json",
+            "expectedSha": null,
+            "observedSha": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+            "matches": null
+          },
+          {
+            "path": "CHANGELOG.md",
+            "expectedSha": null,
+            "observedSha": "5ce249c2e8a5d3f23065ee5e519c05d5831560fe",
+            "matches": null
+          },
+          {
+            "path": "guides/introduction/upgrading-to-v1.6.md",
+            "expectedSha": null,
+            "observedSha": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+            "matches": null
+          },
+          {
+            "path": "mix.exs",
+            "expectedSha": null,
+            "observedSha": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+            "matches": null
+          },
+          {
+            "path": "README.md",
+            "expectedSha": null,
+            "observedSha": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+            "matches": null
+          },
+          {
+            "path": "test/example/priv/playwright/tests/organizations.spec.ts",
+            "expectedSha": null,
+            "observedSha": "c1b7f52fbd263d801351f0c82e472f0262284b73",
+            "matches": null
+          }
+        ]
+      }
+    ],
+    "approval_path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-APPROVAL.json",
+    "approval_present": false,
+    "approval_status": "pending",
+    "evidence_files": [
+      {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-SUMMARY.md",
+        "sha256": "be5452f2082381711ed27918367a3aec9290c316afe6d0daecb65e42c4879c2d",
+        "bytes": 6257,
+        "gitBlob": "f6971ff97561696e54764cd2ad2d224ddebe19d7"
+      },
+      {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md",
+        "sha256": "bd5feb644bfa38a305329f0abcdc063a556f783f0be1f7d19ad22ee7d3984e98",
+        "bytes": 8499,
+        "gitBlob": "93484e2b12fa7b38a464e9a2a32fac66189c3510"
+      },
+      {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json",
+        "sha256": "980ba5e413efc7ad0b594a44771af2b3f15bac2fdcabfa88aa3db4bf1bcc9452",
+        "bytes": 10364,
+        "gitBlob": "e9c6ec994b26b19e25d5724a25f191109b92c6c5"
+      },
+      {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+        "sha256": "e15da5ef72ebc78f3fce21e55e12e6b9b019b72869f85905141eae1bc8680e12",
+        "bytes": 302,
+        "gitBlob": "c87eeb19e79b4e19d34ff522c487894c8cb3c558"
+      },
+      {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+        "sha256": "8a8707d3b719eb7a91db0df159be9a1c61e8df9f659025b0a8dba2e442d9c418",
+        "bytes": 1645,
+        "gitBlob": "146f65bd13df0e5f74cd777cb09a0da6158bdc06"
+      },
+      {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+        "sha256": "7464b4e00c9a3082887ae1ff83c43414b807eda1e653274ca5bad79c1dca0fc8",
+        "bytes": 5073274,
+        "gitBlob": "1b4a6dfec97836e8b38923584c3245b31e4f049d"
+      },
+      {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md",
+        "sha256": "2912eda576c523ecb8f18224a5908dfc67c0f9bb4f749e8ec88936c252017f47",
+        "bytes": 8182,
+        "gitBlob": "ac4868e1998464ac676dfbf1b83b2c8891ba32b5"
+      }
+    ],
+    "verifier_artifacts": [
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs",
+        "sha256": "023230ef2155743341ebf4c4f70ab8f22bd8433c30ad70afe75add0da8c91840",
+        "bytes": 26660,
+        "gitBlob": "152bb4de5e67814e49749054967cfed7b7107347"
+      },
+      {
+        "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+        "sha256": "1988cac3423424f7158dbbb9e043cb3ab69f679d9673a24aab36f48aa7e4d0a7",
+        "bytes": 6223,
+        "gitBlob": "0159481f3c923c99e3e1901e70c7ffc30a5e98da"
+      }
+    ]
+  },
+  "candidate_tuples": {
+    "proposal": {
+      "candidateSha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+      "reviewedBaseSha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+      "mainSha": "a494f3ee3878da93aab4f70712ffddeefd77a802"
+    },
+    "saved_readiness": {
+      "candidateSha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "reviewedBaseSha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+      "mainSha": "a494f3ee3878da93aab4f70712ffddeefd77a802"
+    },
+    "live_observation": {
+      "candidateSha": "64071b81a131fcfe4068a91d4814da478f13b084",
+      "reviewedBaseSha": "9b90dd709f80eeb683e0d1dbdda514a5d1c60756",
+      "mainSha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5"
+    },
+    "approved": null
+  },
+  "evidence": {
+    "exactHeadCi": {
+      "proposalRunId": 37819712610,
+      "proposalAttempt": 1,
+      "proposalHeadSha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+      "standaloneReceiptPath": ".planning/phases/247-release-candidate-and-repository-readiness/247-09-PLAYWRIGHT-RESULT.json",
+      "standaloneReceiptPresent": false
+    },
+    "candidateSourceAudit": {
+      "version": "1.6.0",
+      "sourceRef": "v1.6.0",
+      "expectedBlobs": {
+        ".release-please-manifest.json": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+        "CHANGELOG.md": "5ce249c2e8a5d3f23065ee5e519c05d5831560fe",
+        "README.md": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+        "guides/introduction/upgrading-to-v1.6.md": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+        "mix.exs": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+        "test/example/priv/playwright/tests/organizations.spec.ts": "030317814796f8265fc738cab05d80f344ceaa10"
+      }
+    },
+    "historicalPlan05": {
+      "summaryPath": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-SUMMARY.md",
+      "requirementsCompletedClaim": [
+        "READY-01"
+      ],
+      "independentVerificationPending": true,
+      "checkpointArtifactPath": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-CHECKPOINT.md",
+      "checkpointArtifactPresent": false
+    },
+    "previousDryRun": {
+      "runId": "37803817504",
+      "attempt": 1,
+      "candidateSha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "verdict": "passed"
+    },
+    "oldReadiness": {
+      "candidateSha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "reviewedBaseSha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+      "mainSha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+      "checkedAt": "2026-10-08T16:05:38.855Z"
+    },
+    "diffBaseline": {
+      "schema_version": 1,
+      "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+      "candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "diff_algorithm": "git-diff-raw-v1",
+      "diff_sha256": "d7cbfeddd55bc0528738f89b82377379e55a73464f2c174217af31410625ac5e",
+      "diff_bytes": 8372
+    }
+  },
+  "checks": [
+    {
+      "id": "approval",
+      "status": "blocked"
+    },
+    {
+      "id": "candidate_source",
+      "status": "blocked"
+    },
+    {
+      "id": "dispositions_and_preservation",
+      "status": "blocked"
+    },
+    {
+      "id": "dry_run",
+      "status": "blocked"
+    },
+    {
+      "id": "readiness_and_ci",
+      "status": "blocked"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "authorization_pending",
+      "message": "No immutable approval proves the exact proposed candidate/base/main tuple.",
+      "identities": {
+        "candidateSha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+        "reviewedBaseSha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+        "mainSha": "a494f3ee3878da93aab4f70712ffddeefd77a802"
+      }
+    },
+    {
+      "id": "candidate_diff_digest_missing",
+      "message": "No raw-diff digest and byte count are bound to the proposed child candidate.",
+      "identities": {
+        "candidateSha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+        "availableBaselineCandidateSha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f"
+      }
+    },
+    {
+      "id": "dry_run_tuple_mismatch",
+      "message": "The existing authenticated dry-run receipt does not prove the proposed tuple.",
+      "identities": {
+        "requestedSha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "checkedOutSha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+        "reviewedBaseSha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+        "liveBaseSha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+        "runId": "37803817504",
+        "attempt": 1
+      }
+    },
+    {
+      "id": "exact_head_ci_source_missing",
+      "message": "The referenced standalone exact-head Playwright result is absent.",
+      "identities": {
+        "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-09-PLAYWRIGHT-RESULT.json",
+        "referencedBy": 37800067568
+      }
+    },
+    {
+      "id": "fresh_inherited_dispositions_missing",
+      "message": "A fresh inherited-work population with complete dispositions and preservation identities is absent.",
+      "identities": {
+        "checkoutHead": "94304462ed7e6c855c3d30e11a30e5763037b2ab",
+        "recordedObservation": "c84350abe58bb3a733e1d7db4cebc4de1919e035"
+      }
+    },
+    {
+      "id": "fresh_pr_dispositions_incomplete",
+      "message": "Fresh open-PR observations do not have ordered, unique dispositions and recoverable preservation references.",
+      "identities": {
+        "population": {
+          "status": "blocked",
+          "observedIds": [],
+          "dispositionIds": [],
+          "preservationRefs": [],
+          "blockers": [
+            "open_pr_population_or_dispositions_missing"
+          ]
+        }
+      }
+    },
+    {
+      "id": "live_candidate_tuple_changed",
+      "message": "The current pull request state or candidate/base/main refs differ from the proposed tuple.",
+      "identities": {
+        "proposal": {
+          "candidateSha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+          "reviewedBaseSha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+          "mainSha": "a494f3ee3878da93aab4f70712ffddeefd77a802"
+        },
+        "live": {
+          "candidateSha": "64071b81a131fcfe4068a91d4814da478f13b084",
+          "reviewedBaseSha": "9b90dd709f80eeb683e0d1dbdda514a5d1c60756",
+          "mainSha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5"
+        },
+        "prState": "closed"
+      }
+    },
+    {
+      "id": "readiness_tuple_mismatch",
+      "message": "The saved readiness ledger is bound to a different candidate/base/main tuple.",
+      "identities": {
+        "proposal": {
+          "candidateSha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+          "reviewedBaseSha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+          "mainSha": "a494f3ee3878da93aab4f70712ffddeefd77a802"
+        },
+        "readiness": {
+          "candidateSha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+          "reviewedBaseSha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+          "mainSha": "a494f3ee3878da93aab4f70712ffddeefd77a802"
+        }
+      }
+    }
+  ],
+  "requirement_verdicts": {
+    "READY-01": "unsatisfied",
+    "READY-02": "unsatisfied"
+  },
+  "identity_rows": [
+    {
+      "kind": "live_main",
+      "sha": "6b2bd9e8ad9ab2042fc216f1cc207316e0f9a3d5"
+    },
+    {
+      "kind": "live_pull_request_head",
+      "sha": "64071b81a131fcfe4068a91d4814da478f13b084",
+      "state": "closed"
+    },
+    {
+      "kind": "proposal_child_candidate",
+      "sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+      "objectAvailable": true
+    },
+    {
+      "kind": "readiness_parent_candidate",
+      "sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "objectAvailable": true
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "21",
+  "outcome": "blocked",
+  "failed_stage": "task2_d01_readiness_gate",
+  "captured_at": "2026-09-30T22:39:15.023Z",
+  "blocked_reasons": [
+    {
+      "code": "source_stale_since_coherent_commit",
+      "source": ".planning/state.json",
+      "message": ".planning/state.json failed its committed identity check (source_stale_since_coherent_commit)."
+    },
+    {
+      "code": "source_index_dirty",
+      "source": ".planning/state.json",
+      "message": ".planning/state.json failed its committed identity check (source_index_dirty)."
+    },
+    {
+      "code": "source_worktree_dirty",
+      "source": ".planning/state.json",
+      "message": ".planning/state.json failed its committed identity check (source_worktree_dirty)."
+    }
+  ],
+  "d01_readiness": {
+    "artifact_commit": "0f651d62f062dcce6dc0b6bc487b1a4fa183c5ad",
+    "artifact_path": ".planning/phases/245-branch-prune-local-and-remote/245-19-READINESS.json",
+    "historical_artifact_status": "ready",
+    "fresh_verification_status": "blocked",
+    "verification_exit_code": 1,
+    "verification_reasons": [
+      {
+        "code": "source_stale_since_coherent_commit",
+        "source": ".planning/state.json",
+        "message": ".planning/state.json failed its committed identity check (source_stale_since_coherent_commit)."
+      },
+      {
+        "code": "source_index_dirty",
+        "source": ".planning/state.json",
+        "message": ".planning/state.json failed its committed identity check (source_index_dirty)."
+      },
+      {
+        "code": "source_worktree_dirty",
+        "source": ".planning/state.json",
+        "message": ".planning/state.json failed its committed identity check (source_worktree_dirty)."
+      }
+    ],
+    "state_json_blob_comparison": {
+      "path": ".planning/state.json",
+      "readiness_source_commit": "511acbbbc54e604b9fad4be9853636b3cb9d78e9",
+      "expected_blob": "c7ced743eb679caa88e04677d2425f332beb0eb5",
+      "current_head_blob": "c5f7e96987c2f2f4907e94198b4f1315dd214757",
+      "current_index_blob": "c5f7e96987c2f2f4907e94198b4f1315dd214757",
+      "current_worktree_blob": "c5f7e96987c2f2f4907e94198b4f1315dd214757",
+      "all_current_locations_match_readiness_source": false
+    }
+  },
+  "plan22_proof_status": "passed",
+  "plan22_proof_sha256": "b1a444a9094f9f42c159ad317cc987fb6a60f08ae56f969437759126e0ddc489",
+  "plan21_task1_preflight": {
+    "status": "ready",
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RETRY-EXEC-PREFLIGHT.json",
+    "sha256": "8d40f3c83df365a9199ba2c2d515bbfebf89da5e61318e6908ad78084ac1df98",
+    "pinned_sources_checked": 29,
+    "pinned_sources_ready": 29,
+    "plan18_objects_readable": 488,
+    "plan19_objects_readable": 488,
+    "current_gh_pages_object_readable": true
+  },
+  "prior_blocked_receipts_preserved": true,
+  "prior_blocked_receipt_sha256": {
+    "preflight_path": ".planning/phases/245-branch-prune-local-and-remote/245-21-EXEC-PREFLIGHT.json",
+    "preflight_sha256": "41d720cc2f26521463d93ad96abd416066c74e177adf8562dab0426c16849062",
+    "expected_preflight_sha256": "41d720cc2f26521463d93ad96abd416066c74e177adf8562dab0426c16849062",
+    "result_path": ".planning/phases/245-branch-prune-local-and-remote/245-21-RESULT.json",
+    "result_sha256": "700619e0deb178908335dfd32c1b9f9695ab2913c8071524d9a4f3e77b91005a",
+    "expected_result_sha256": "700619e0deb178908335dfd32c1b9f9695ab2913c8071524d9a4f3e77b91005a"
+  },
+  "current_branch": {
+    "head_oid": "a6ae9834f15f2f61366be473276d0e2762e6900e",
+    "expected_preflight_head_oid": "a6ae9834f15f2f61366be473276d0e2762e6900e",
+    "head_unchanged_since_preflight": true,
+    "local_ref_inventory_sha256": "17fe426bdf031de8fd32fc2a25662d20cce8d3b3b1b69b0869378bde5761f2eb",
+    "expected_local_ref_inventory_sha256": "17fe426bdf031de8fd32fc2a25662d20cce8d3b3b1b69b0869378bde5761f2eb",
+    "local_ref_inventory_unchanged_since_preflight": true
+  },
+  "production_mutations": 0,
+  "production_ref_mutations": 0,
+  "contract_commit_created": false,
+  "contract_created": false,
+  "allowlist_created": false,
+  "admission_created": false,
+  "local_ref_deletions": [],
+  "tracking_ref_deletions": [],
+  "plan_19_admitted_local_deleted_count": 1,
+  "plan_21_new_local_delete_count": 0,
+  "ref_operations_after_failed_gate": 0,
+  "unexpected_ref_delta": [],
+  "historical_audits": {
+    "missing_pre_phase_baseline": "unknown_unresolved",
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "requirements": {
+    "REPO-04": "open"
+  },
+  "next_action": "The Phase 245 plan must resolve or explicitly rebase the D-01 readiness source before retrying Plan 21. Do not commit a current contract or delete any ref until the readiness gate passes."
+}

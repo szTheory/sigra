@@ -1,0 +1,117 @@
+{
+  "schema_version": "sigra.phase254.hosted-pr-path-proof/v1",
+  "captured_at_utc": "2026-10-23T19:47:31Z",
+  "method": "authenticated read-only GitHub REST and local git tree inspection",
+  "repository": {
+    "name": "szTheory/sigra",
+    "id": 1207487684,
+    "default_branch": "main",
+    "current_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "current_main_tree": "817de2441c7b03dff93cfff89296c9c2f345d289"
+  },
+  "effective_required_contexts": {
+    "source": "active repository ruleset",
+    "ruleset_id": 14941512,
+    "ruleset_name": "main",
+    "target": "default branch",
+    "enforcement": "active",
+    "contexts": [
+      "Library tests",
+      "Example unit smoke (ExUnit + ConnTest)",
+      "Install smoke (fresh phx.new + sigra.install)",
+      "Example HTTP smoke (boot + curl critical routes)",
+      "Example Playwright smoke (full lifecycle)"
+    ]
+  },
+  "workflow": {
+    "current_main_ci_sha256": "6b69ec73ae6741d12b3c3a800d9e9225232eef466405e42e046be7eab53d9b9e",
+    "current_main_pull_request_branches": ["main"],
+    "frozen_baseline_ci_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+    "interpretation": "The current main workflow is used for pull_request events against main; it differs from the frozen baseline workflow."
+  },
+  "frozen_baseline": {
+    "application_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+    "tree": "bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452",
+    "producer_source_sha": "cc8cd273bfe8bbbfbab6b33564efdede4d9f0d17",
+    "source_bundle_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+    "historical_run_id": 38317383419,
+    "historical_run_event": "pull_request",
+    "historical_run_head_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+  },
+  "current_baseline_pr": {
+    "number": 331,
+    "state": "open",
+    "draft": true,
+    "base_branch": "main",
+    "current_base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "head_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+    "head_is_ancestor_of_current_main": false,
+    "current_github_merge_sha": "bfaa462caa79d5b49351d1a62fa71172de060ac6",
+    "current_github_merge_parents": [
+      "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "d4dcc1939bd1f1590f6ca01d55b861e31acc745f"
+    ],
+    "current_github_merge_tree": "cc2038166f1847e2e2f5ce2428d9a53ba0ae8cae",
+    "merge_tree_matches_frozen_baseline_tree": false,
+    "current_merge_ci_blob": "c55eea831edb8e2744ef1a9393d718e72a4965ce",
+    "frozen_baseline_ci_blob": "20fe1218f8cc075ddb146e8b627bfde25ae1ea2f",
+    "measured_source_paths_differ_or_are_deleted_in_current_main": [
+      ".github/workflows/ci.yml",
+      "scripts/ci/ci-playwright-report.mjs",
+      "test/example/priv/playwright/package-lock.json",
+      "test/example/priv/playwright/playwright.config.ts",
+      "test/sigra/planning/ci_timing_formatter_test.exs",
+      "test/support/ci_timing_formatter.ex",
+      "test/test_helper.exs"
+    ]
+  },
+  "reviewed_candidate": {
+    "application_sha": "da6401170e4295cba8099fd6f3ec348c6867de47",
+    "workflow_sha256": "25c20412ff76cacc5276cb63bcf67e82f7b563b51d3522f44e9293887c4abb0e",
+    "workload_map_sha256": "15276530f5add0b6bd9481aaf4a45161bcfdfc880879d5bb690dd1290e0ea3b4",
+    "native_parity_receipt_sha256": "1dcf212a7b334a11f9cee96cc464fdd0c761a55a89d3b89f90957adb0aea6d14",
+    "github_commit_lookup": "not_found_http_422",
+    "current_open_pr_head_match": false
+  },
+  "validator_diagnostic": {
+    "contract_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COMPARISON-RUN-CONTRACT.json",
+    "contract_sha256": "77d89fbaebe9478a62659a2eea1fbacffec0579c7139c5f461bcb2d95b259ea4",
+    "command": "bash scripts/ci/ci-run-metrics.sh --validate-comparison-plan --contract .planning/phases/254-speed-up-the-measured-slow-jobs/254-COMPARISON-RUN-CONTRACT.json --format json",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": [
+      "Traceback (most recent call last):",
+      "  File \"<stdin>\", line 4, in <module>",
+      "  File \"/Users/jon/projects/sigra/scripts/ci/ci_metrics_security.py\", line 766, in validate_comparison_plan",
+      "    if _utc(window[\"end_utc\"]) - _utc(window[\"start_utc\"]) != __import__(\"datetime\").timedelta(hours=48):",
+      "       ~~~~^^^^^^^^^^^^^^^^^^",
+      "  File \"/Users/jon/projects/sigra/scripts/ci/ci_metrics_security.py\", line 1020, in _utc",
+      "    return datetime.datetime.fromisoformat(value.replace(\"Z\", \"+00:00\"))",
+      "                                           ^^^^^^^^^^^^^",
+      "AttributeError: 'NoneType' object has no attribute 'replace'"
+    ],
+    "interpretation": "Expected blocked contract has no frozen window because baseline feasibility failed. Current validator raises instead of returning a blocked diagnostic. The contract remains unchanged and window unset."
+  },
+  "status": "blocked",
+  "conclusion": {
+    "status": "blocked",
+    "reason": "The currently required real pull_request path targets current main and produces a merge tree combining current main with the historical baseline head. That tree does not equal the frozen baseline tree and uses a different CI workflow. No current real-PR baseline execution has been proven.",
+    "missing_fact_to_resolve": "A current real pull_request execution path on main whose actual merge/source/workflow trees prove the exact frozen baseline application, producer and workflow identities.",
+    "separate_candidate_availability_fact": "The reviewed candidate SHA da6401170e4295cba8099fd6f3ec348c6867de47 is not available as a GitHub commit and has no current open PR head match; this is secondary and was not treated as the baseline blocker.",
+    "dispatch_or_historical_ref_substitution_used": false,
+    "main_or_protection_modified": false,
+    "frozen_sources_modified": false,
+    "families_spent": 0,
+    "preparation_runs": 0
+  },
+  "read_only_queries": [
+    "GET /repos/szTheory/sigra",
+    "GET /repos/szTheory/sigra/rulesets/14941512",
+    "GET /repos/szTheory/sigra/pulls/331",
+    "GET /repos/szTheory/sigra/commits/main",
+    "GET /repos/szTheory/sigra/commits/bfaa462caa79d5b49351d1a62fa71172de060ac6",
+    "GET /repos/szTheory/sigra/git/trees/cc2038166f1847e2e2f5ce2428d9a53ba0ae8cae?recursive=1",
+    "GET /repos/szTheory/sigra/commits/da6401170e4295cba8099fd6f3ec348c6867de47",
+    "GET /repos/szTheory/sigra/actions/runs/38317383419"
+  ]
+}

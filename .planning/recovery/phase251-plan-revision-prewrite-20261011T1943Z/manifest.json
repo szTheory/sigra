@@ -1,0 +1,72 @@
+{
+  "purpose": "Exact current Phase 251 planning bytes preserved before final checker-aligned edits",
+  "captured_at": "2026-10-11T19:43:00Z",
+  "git_status": [
+    " M .planning/HANDOFF.json",
+    " M .planning/ROADMAP.md",
+    " M .planning/STATE.md",
+    " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+    " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-PLAN.md",
+    " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-PATTERNS.md",
+    " M .planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+    " M .planning/state.json"
+  ],
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "git_status": " M ",
+      "sha256": "bcfe41de74f10b534600c4d728b0aeceb55791775e29382b38703fa99313c2a9",
+      "bytes": 74669,
+      "recovery_path": ".planning/recovery/phase251-plan-revision-prewrite-20261011T1943Z/.planning/HANDOFF.json"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "git_status": " M ",
+      "sha256": "b097998e9025cca3a752ff31d90570b7581b729acad3378069e4e9ce2ca24fcb",
+      "bytes": 20703,
+      "recovery_path": ".planning/recovery/phase251-plan-revision-prewrite-20261011T1943Z/.planning/ROADMAP.md"
+    },
+    {
+      "path": ".planning/STATE.md",
+      "git_status": " M ",
+      "sha256": "08fc0a6c4f7f6f94dac327e1646cd304b285337201b5a32857b9e04df76ed347",
+      "bytes": 6786,
+      "recovery_path": ".planning/recovery/phase251-plan-revision-prewrite-20261011T1943Z/.planning/STATE.md"
+    },
+    {
+      "path": ".planning/state.json",
+      "git_status": " M ",
+      "sha256": "8d8a9161ea4acd760319486f2ac2ddc4180c4a8e5043246ce427187baac77268",
+      "bytes": 1802,
+      "recovery_path": ".planning/recovery/phase251-plan-revision-prewrite-20261011T1943Z/.planning/state.json"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "git_status": " M ",
+      "sha256": "84bc862c975c998e385e31017fb503755fc46b0619e3d9b645887be5012281a9",
+      "bytes": 36766,
+      "recovery_path": ".planning/recovery/phase251-plan-revision-prewrite-20261011T1943Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-PLAN.md",
+      "git_status": " M ",
+      "sha256": "ba381922373cbb1acf5c8058d881cd84dc3e5ae20df7e31cda19f974fb8411a1",
+      "bytes": 15340,
+      "recovery_path": ".planning/recovery/phase251-plan-revision-prewrite-20261011T1943Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-PLAN.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-PATTERNS.md",
+      "git_status": " M ",
+      "sha256": "b8106a33b6cc175f10c1a33129d32da1c05819e0552d888492b31b4c8d237884",
+      "bytes": 15738,
+      "recovery_path": ".planning/recovery/phase251-plan-revision-prewrite-20261011T1943Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-PATTERNS.md"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "git_status": " M ",
+      "sha256": "e30e78442e374c2c0003286adcb6186954061fd4caa6d3873fc42cf335026663",
+      "bytes": 8766,
+      "recovery_path": ".planning/recovery/phase251-plan-revision-prewrite-20261011T1943Z/.planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md"
+    }
+  ]
+}

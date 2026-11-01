@@ -1,0 +1,65 @@
+{
+  "capture_errors": [],
+  "cleanup_exit_code": null,
+  "command_argv": [
+    "mix",
+    "test",
+    "--exclude",
+    "scaffold"
+  ],
+  "configuration": {
+    "MIX_ENV": "test"
+  },
+  "cwd": "/private/tmp/sigra-2551-reconcile/source",
+  "dirty_status": "",
+  "ended_at": "2026-10-24T23:15:43+00:00",
+  "failed_test_ids": [],
+  "invocation_id": "ordinary",
+  "primary_exit_code": 0,
+  "primary_signal": null,
+  "reproduction": "cd -- /private/tmp/sigra-2551-reconcile/source && mix test --exclude scaffold",
+  "runtime_versions": {
+    "bash": {
+      "available": true,
+      "path": "/opt/homebrew/bin/bash",
+      "version": "GNU bash, version 5.2.37(1)-release (aarch64-apple-darwin24.2.0)\nCopyright (C) 2022 Free Software Foundation, Inc.\nLicense GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>\n\nThis is free software; you are free to change and redistribute it.\nThere is NO WARRANTY, to the extent permitted by law."
+    },
+    "git": {
+      "available": true,
+      "path": "/opt/homebrew/bin/git",
+      "version": "git version 2.41.0"
+    },
+    "mix": {
+      "available": true,
+      "path": "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/mix",
+      "version": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)"
+    },
+    "node": {
+      "available": true,
+      "path": "/Users/jon/.asdf/installs/nodejs/20.19.5/bin/node",
+      "version": "v20.19.5"
+    },
+    "npm": {
+      "available": true,
+      "path": "/Users/jon/.asdf/installs/nodejs/20.19.5/bin/npm",
+      "version": "10.8.2"
+    },
+    "psql": {
+      "available": true,
+      "path": "/opt/homebrew/bin/psql",
+      "version": "psql (PostgreSQL) 14.17 (Homebrew)"
+    },
+    "python3": {
+      "available": true,
+      "path": "/opt/homebrew/bin/python3",
+      "version": "Python 3.14.4"
+    }
+  },
+  "schema_version": "sigra.ci-command-record/v1",
+  "seed": 652902,
+  "seed_reason": "observed_exunit_suite",
+  "source_ref": "phase2551-reconciled",
+  "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+  "started_at": "2026-10-24T23:15:36+00:00",
+  "test_invocation": "ordinary"
+}

@@ -1,0 +1,6 @@
+{
+  "status": "missing",
+  "next_action": "No verification report found \u2014 the verify step never completed. Running execute-phase is safe here: it resumes at the verification gates and does not re-run plans that already have a SUMMARY.md (see #2868).",
+  "next_command": "$gsd-execute-phase 253",
+  "route": "execute-phase"
+}

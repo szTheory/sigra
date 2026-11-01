@@ -1,0 +1,198 @@
+{
+  "status": "nine_fresh_targeted_runs_passed",
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+  "proposal_sha256": "f879adda9ecfe4e0b5860daf25bb6bb49d908165a5e34fc86db8a6b592fc5b06",
+  "approval_sha256": "92030ac2070645b85f0e49b06fc47bbb9bd89abca38ab9c1c975e1db483b2ac8",
+  "reservation_sha256": "abd525099668cbb7728c143dfeef01a1ed922db081c03dc5b53a50d1a5737b33",
+  "native_result_sha256": "0aa032f7b38f8ee6ebb6ea1a36a2d316cedf9a3c28f21bba97b1536908e53e3a",
+  "cases": [
+    {
+      "case": 1,
+      "project": "admin-eval",
+      "repeat": 1,
+      "title": "render bundle: board-mg-9/populated",
+      "status": "passed",
+      "retry": 0,
+      "duration_ms": 6501,
+      "registration_flow": {
+        "registration_save": 1,
+        "user_insert": 1,
+        "login_post": 1,
+        "original_module_error": 0
+      },
+      "browser_json_sha256": "29b1ee935035f056a6931c6245014b2dad283df9710e55209d79912d5f747f3c",
+      "tools_json_sha256": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+      "app_log_sha256": "99d237b1bcf055ec819805a96a4bbcb7acbfdd153c5687e91b89ba3c6d3ae905"
+    },
+    {
+      "case": 2,
+      "project": "admin-eval",
+      "repeat": 2,
+      "title": "render bundle: board-mg-9/populated",
+      "status": "passed",
+      "retry": 0,
+      "duration_ms": 6454,
+      "registration_flow": {
+        "registration_save": 1,
+        "user_insert": 1,
+        "login_post": 1,
+        "original_module_error": 0
+      },
+      "browser_json_sha256": "7d284ec553a975cbfefa4ed96d23249ac50583cfa02dbdad905df5d86a718444",
+      "tools_json_sha256": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+      "app_log_sha256": "6c7d9e1aaa3a89c130a0a0def3a91df0f774d747b5332a80667c6f6c145738d5"
+    },
+    {
+      "case": 3,
+      "project": "admin-eval",
+      "repeat": 3,
+      "title": "render bundle: board-mg-9/populated",
+      "status": "passed",
+      "retry": 0,
+      "duration_ms": 6605,
+      "registration_flow": {
+        "registration_save": 1,
+        "user_insert": 1,
+        "login_post": 1,
+        "original_module_error": 0
+      },
+      "browser_json_sha256": "5a8876ad40eecfdc82893719908594ea3491d367962044462d78bb42f576ba50",
+      "tools_json_sha256": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+      "app_log_sha256": "8b7f096ff01b5f9c1940d1a9acc702928bb267482110bd7407039bbf481a6c8d"
+    },
+    {
+      "case": 4,
+      "project": "admin-eval-mobile",
+      "repeat": 1,
+      "title": "render bundle: board-mg-9/populated",
+      "status": "passed",
+      "retry": 0,
+      "duration_ms": 14077,
+      "registration_flow": {
+        "registration_save": 1,
+        "user_insert": 1,
+        "login_post": 1,
+        "original_module_error": 0
+      },
+      "browser_json_sha256": "0ef618473d150b2c9faabd3b001875e9f3947d0a270ff436c1aae9d14baf8581",
+      "tools_json_sha256": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+      "app_log_sha256": "98eaab2a2f3235f0d5e3d6fd06165d07479a448e266fecb0c809d5ec56ae147a"
+    },
+    {
+      "case": 5,
+      "project": "admin-eval-mobile",
+      "repeat": 2,
+      "title": "render bundle: board-mg-9/populated",
+      "status": "passed",
+      "retry": 0,
+      "duration_ms": 13366,
+      "registration_flow": {
+        "registration_save": 1,
+        "user_insert": 1,
+        "login_post": 1,
+        "original_module_error": 0
+      },
+      "browser_json_sha256": "8c02cd013394b1a47e794bc665f4b1b22d0179c279dcdf1ab8b65e0d1ca9333e",
+      "tools_json_sha256": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+      "app_log_sha256": "1f41becfc961ea31dc702fb1666ed2d0e2bc2850e3ee2cb91dcec52cee94ada7"
+    },
+    {
+      "case": 6,
+      "project": "admin-eval-mobile",
+      "repeat": 3,
+      "title": "render bundle: board-mg-9/populated",
+      "status": "passed",
+      "retry": 0,
+      "duration_ms": 15227,
+      "registration_flow": {
+        "registration_save": 1,
+        "user_insert": 1,
+        "login_post": 1,
+        "original_module_error": 0
+      },
+      "browser_json_sha256": "88aec7daa687cd2c2d80dd760a3d16ca9f77debd8bf629fe4817763c1f7e2085",
+      "tools_json_sha256": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+      "app_log_sha256": "fc6400c38523b403c50c113dba9c2a070b15d29fc6af93760058986023126574"
+    },
+    {
+      "case": 7,
+      "project": "admin-eval-dark",
+      "repeat": 1,
+      "title": "render bundle: board-mg-9/populated",
+      "status": "passed",
+      "retry": 0,
+      "duration_ms": 6572,
+      "registration_flow": {
+        "registration_save": 1,
+        "user_insert": 1,
+        "login_post": 1,
+        "original_module_error": 0
+      },
+      "browser_json_sha256": "36afeec2a9630d605233bf2d87565ae9b5ca3cfdb9986634ac0a390701810185",
+      "tools_json_sha256": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+      "app_log_sha256": "9ddfef2c3520756887ba36da64b984626b0a10d7371fdece99b0dc4aebf3d5f5"
+    },
+    {
+      "case": 8,
+      "project": "admin-eval-dark",
+      "repeat": 2,
+      "title": "render bundle: board-mg-9/populated",
+      "status": "passed",
+      "retry": 0,
+      "duration_ms": 7155,
+      "registration_flow": {
+        "registration_save": 1,
+        "user_insert": 1,
+        "login_post": 1,
+        "original_module_error": 0
+      },
+      "browser_json_sha256": "8251e95559079521ac907189e70748fa9d5b02f7cd64dd43b7898def54349d4e",
+      "tools_json_sha256": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+      "app_log_sha256": "7beaca11b93541cdfee840ca3933df11431f9a8e9a3ee4a2f2858bdb4ae70436"
+    },
+    {
+      "case": 9,
+      "project": "admin-eval-dark",
+      "repeat": 3,
+      "title": "render bundle: board-mg-9/populated",
+      "status": "passed",
+      "retry": 0,
+      "duration_ms": 6701,
+      "registration_flow": {
+        "registration_save": 1,
+        "user_insert": 1,
+        "login_post": 1,
+        "original_module_error": 0
+      },
+      "browser_json_sha256": "2e1db4dfe80f336b4c9c9b5a14bb97eabd3d36fa5135d45dcebe7fbf40b79e8d",
+      "tools_json_sha256": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+      "app_log_sha256": "0bb0a85d64370eb28532cfa8a86cbe83fae3185d41392189631140aab2b732a4"
+    }
+  ],
+  "selected_tests_passed": 9,
+  "retries": 0,
+  "skips": 0,
+  "duration_seconds": 226.50393874998554,
+  "cleanup_complete": true,
+  "distinct_owned_containers": 18,
+  "ci_launches": 0,
+  "github_requests": 0,
+  "old_slots_reopened": 0,
+  "original_postfix_slots_still_expired": 9,
+  "approval_scope_complete": true,
+  "additional_native_authorized": false,
+  "CIREL_01": "targeted_postfix_validation_passed_integration_and_phase_review_pending",
+  "CIREL_02": "complete_unchanged",
+  "phase_complete": false,
+  "remaining": [
+    "normal integration selections on candidate source",
+    "review remaining CIREL-01 deterministic controls and canonical phase verification"
+  ],
+  "limitations": [
+    "x64 emulation on ARM Mac; Erlang +JMsingle true workaround remains",
+    "fresh seeded databases, not the original CI snapshot",
+    "one selected board per project, not the historical 161-test prefix or full integration suite",
+    "the original CI module-lifecycle schedule was not traced"
+  ]
+}

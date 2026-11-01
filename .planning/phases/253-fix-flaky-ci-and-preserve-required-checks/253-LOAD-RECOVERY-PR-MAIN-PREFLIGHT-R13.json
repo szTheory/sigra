@@ -1,0 +1,17 @@
+{
+  "ancestor": true,
+  "current_main": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "freeze_sha256": "1b49aa3a7e9c4f4b98443e7eef524038ded18db48e14c6a17fbd1c0a91d7370d",
+  "frozen_main": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "head_sha": "d38f647ce573653a242fb42d0c5826aab92e5ed0",
+  "merge_preflight": {
+    "base": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "clean": true,
+    "conflicts": [],
+    "exit": 0,
+    "head": "d38f647ce573653a242fb42d0c5826aab92e5ed0"
+  },
+  "moved": false,
+  "schema": "sigra.phase253.pr-main-preflight/r12",
+  "status": "clean"
+}

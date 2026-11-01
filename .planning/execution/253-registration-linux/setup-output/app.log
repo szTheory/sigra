@@ -1,0 +1,21 @@
+[error] `inotify-tools` is needed to run `file_system` for your system, check https://github.com/rvoicilas/inotify-tools/wiki for more information about how to install it. If it's already installed but not be found, appoint executable file with `config.exs` or `FILESYSTEM_FSINOTIFY_EXECUTABLE_FILE` env.
+[warning] Not able to start file_system worker, reason: {:error, :fs_inotify_bootstrap_error}
+[warning] Could not start Phoenix live-reload because we cannot listen to the file system.
+You don't need to worry! This is an optional feature used during development to
+refresh your browser when you save files and it does not affect production.
+
+[info] Running ExampleWeb.Endpoint with Bandit 1.10.4 at 127.0.0.1:4011 (http)
+[info] Access ExampleWeb.Endpoint at http://localhost:4011
+[info] GET /
+[debug] Processing with ExampleWeb.PageController.home/2
+  Parameters: %{}
+  Pipelines: [:browser]
+[info] Sent 200 in 52ms
+[info] GET /admin/_design
+[debug] Processing with ExampleWeb.Admin.DesignGalleryLive.__live__/0
+  Parameters: %{}
+  Pipelines: [:browser, :require_authenticated, :admin_global]
+[info] Sent 302 in 2ms
+[debug] Phoenix.Router halted in :require_authenticated/2
+[notice] SIGTERM received - shutting down
+

@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-11T02:14:24Z",
+  "purpose": "Restore Phase 247 routing signal without rerunning completed plan implementation.",
+  "capture_boundary": {
+    "source_head": "80e7a42e425b6f05bb28b7372780a034b2624efa",
+    "planning_dirty_paths": [],
+    "state_files_at_boundary": [
+      {
+        "path": ".planning/STATE.md",
+        "git_blob": "0368cd65312108f6233c9b711372bcae88cee2ef"
+      },
+      {
+        "path": ".planning/state.json",
+        "git_blob": "7526be5124d3f14a0e94f00626cb4f990d0ea734"
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "git_blob": "8de78c6e6d3f6a806622f310e31ba1cdec7339b9"
+      }
+    ]
+  },
+  "restored_exact_artifacts": [
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-04-SUMMARY.md",
+      "preservation_ref": "refs/phase-249-preservation/11ad922c23956fbba91c65028dda0e0b",
+      "git_blob": "3026a7f898b8e280dc10fcb948644804011c20a3",
+      "sha256": "7165daf86fde90badde108b313d942280a5852ed1305db21a5ff8e5b742e4e7e",
+      "bytes": 7010
+    },
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-06-SUMMARY.md",
+      "preservation_ref": "refs/phase-249-preservation/fb42951aa4717e999abbfaba295edb91",
+      "git_blob": "5e3a96d834f0a48f6ac6634d1f9a625172183ae1",
+      "sha256": "2c4b810f65234dcd4d4e0e042b72094e5f83bc9f37d9baed64ff9bba93c2fee0",
+      "bytes": 7892
+    },
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-07-SUMMARY.md",
+      "preservation_ref": "refs/phase-249-preservation/1a4ada9a8a07e44f3dc260c55c46e7c2",
+      "git_blob": "2a9f6c1b7704ad89a9857901d6ececeb53ddc17e",
+      "sha256": "eef03ede49f91c9986b7fbb3def2f75519e08923b46f50f2f42201826fac0c30",
+      "bytes": 7409
+    },
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-09-PLAYWRIGHT-RESULT.json",
+      "preservation_ref": "refs/phase-249-preservation/30070f817a8f3a7b756af5f3cc836df7",
+      "git_blob": "7f956fc8975a3e4ebaea865f6cf8057181047bd4",
+      "sha256": "e9517b1a9bd8d2497b282f3ad34c020823198eb10f09239e6f86faa936371c43",
+      "bytes": 800
+    },
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-10-SUMMARY.md",
+      "preservation_ref": "refs/phase-249-preservation/60beee083e92190a553cb4076923f45e",
+      "git_blob": "1e3135e4ca170fa00272009a2bd05f01e331c134",
+      "sha256": "ecc778f2a90905edcad467ddbf7aa123d496a615790b4eab13956d08cb176ccd",
+      "bytes": 8296
+    },
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-11-SUMMARY.md",
+      "preservation_ref": "refs/phase-249-preservation/94dc4e714cbc3dc04334265bac7b315c",
+      "git_blob": "4ade0118faef6d42da802d32ba7e5fd27819c575",
+      "sha256": "e2d51bb3d9a60931f8120306ef7759e654c11166221b74edc7bf51392e7a263a",
+      "bytes": 4996
+    }
+  ],
+  "plan_247_09_summary": {
+    "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-09-SUMMARY.md",
+    "status": "reconstructed_from_plan_and_recorded_evidence",
+    "no_prior_summary_found_in_reachable_history": true,
+    "candidate_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+    "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+    "local_browser_status": "blocked_host_appkit_before_page_start",
+    "exact_head_ci_run_id": 37819712610,
+    "ci_conclusion": "success",
+    "mobile_webkit_job": "success",
+    "ci_gate_job": "success",
+    "ready_01_status": "blocked_by_stale_candidate_evidence",
+    "approval_transcript": "not present in recovered project artifacts; not reconstructed"
+  },
+  "route_after_reconciliation": {
+    "phase_247_plan_count": 11,
+    "phase_247_summary_count": 11,
+    "phase_250_plan_count": 12,
+    "phase_250_summary_count": 6,
+    "phase_250_next_command": "$gsd-execute-phase 250 --gaps-only",
+    "phase_250_status": "in_progress; Plan 250-07 needs fresh current-main packet and packet-specific authority before dispatch; Plan 250-08 has zero eligible tuples",
+    "phase_246_stale_verification": "separate historical maintenance; Phase 250 execute readiness reports no prerequisite blocker"
+  },
+  "validation_recorded_at": "2026-10-11T02:16:11Z",
+  "summary_validation": {
+    "247-04-SUMMARY.md": {
+      "passed": true
+    },
+    "247-06-SUMMARY.md": {
+      "passed": false,
+      "diagnostic": "Historical key file guides/introduction/upgrading-to-v1.6.md is absent from the current checkout; the summary bytes remain exactly preserved."
+    },
+    "247-07-SUMMARY.md": {
+      "passed": true
+    },
+    "247-09-SUMMARY.md": {
+      "passed": true
+    },
+    "247-10-SUMMARY.md": {
+      "passed": true
+    },
+    "247-11-SUMMARY.md": {
+      "passed": false,
+      "diagnostic": "The historical summary verifier returned self_check=failed; source bytes were preserved without editorial repair."
+    }
+  },
+  "phase_readiness_observations": {
+    "phase_247_verification_status": "missing",
+    "phase_248_verification_status": "gaps_found",
+    "phase_249_verification_status": "gaps_found",
+    "phase_250_verification_status": "gaps_found",
+    "phase_250_init_execute": {
+      "runnable_count": 6,
+      "blocked_by": {}
+    },
+    "route_decision": "Continue Phase 250 gaps-only. Its readiness reports no prerequisite blocker; historical verification maintenance remains inside the Phase 250 reconciliation scope."
+  }
+}

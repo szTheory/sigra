@@ -1,0 +1,50 @@
+{
+  "ci-git-publication.py": {
+    "source_path": "scripts/ci/ci-git-publication.py",
+    "source_blob": "eb0f8dfd0aadcd0dde7ca2a57b6aa7cd7849eb4d",
+    "source_sha256": "afa3c5f25fe7b01e0a2c03a4a5e9662b5681a01b4a42dddecca1b9458763b666",
+    "runtime_sha256": "0f94575625f606a79d04adf8813816b0886b6cebaa60edf9496b9698e281bfc2"
+  },
+  "ci-hosted-transport.py": {
+    "source_path": "scripts/ci/ci-hosted-transport.py",
+    "source_blob": "f190e2198efee4196b5dd931be3ee90b621c6ef7",
+    "source_sha256": "f5b98ddc98010d4ccd94ac2e0fa93a18306d770f1c9ebf860ad4993b430978f0",
+    "runtime_sha256": "ab19d01e8e1da038e75fe8629df2498a60f245a62ce0ae22d51632f6136f1fcc"
+  },
+  "ci-hosted-gate-verify.py": {
+    "source_path": "scripts/ci/ci-hosted-gate-verify.py",
+    "source_blob": "2bd8bf930bf8751d997d2c10e96c3cc188ec8f0f",
+    "source_sha256": "9b0dfe64beb4793b1a403e7ba1606af683d08c3a316a9cadd83574c158d680f8",
+    "runtime_sha256": "5d27b259f5447f9a7edb5d3086fb686015b39a2aa6e1e9d74bcf6e943b08c7c7"
+  },
+  "ci-gate-canary.sh": {
+    "source_path": "scripts/ci/ci-gate-canary.sh",
+    "source_blob": "0bfea9017d3b40459f1a79a9e280cf0dbb532d82",
+    "source_sha256": "31d130036acbeaf8aa810944c62a1eb71fce5731d21e866e5d966129cf412a45",
+    "runtime_sha256": "82f4f2e69e8f1ce3a224417233eac78062e2874cc69c2249d42a57d922428e7d"
+  },
+  "ci-pr-proof.sh": {
+    "source_path": "scripts/ci/ci-pr-proof.sh",
+    "source_blob": "c6594034db5164a3f90e64f6c0160431f8fea1e7",
+    "source_sha256": "37af45eb4533e602e9f60d9898f0fb13fd7510550efe35bd6acf125f3a7bff0f",
+    "runtime_sha256": "12a6e5b51698bbfab59e6e33e037eab67fe08ac4e2e832f7672e87c33cef83ea"
+  },
+  "ci-browser-records.mjs": {
+    "source_path": "scripts/ci/ci-browser-records.mjs",
+    "source_blob": "40203391014e2ac8cfe6e0d8d58b2bce8679f644",
+    "source_sha256": "1aadce3c1c34be7193bc191fd6e733c4d7e329d135389dc2143b923e720e890e",
+    "runtime_sha256": "1aadce3c1c34be7193bc191fd6e733c4d7e329d135389dc2143b923e720e890e"
+  },
+  "ci-playwright-report.mjs": {
+    "source_path": "scripts/ci/ci-playwright-report.mjs",
+    "source_blob": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+    "source_sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c",
+    "runtime_sha256": "de951395a26e304511807d3f089e6043353b179ea9aaac478f53b83baf4e096c"
+  },
+  "ci-registration-recovery.mjs": {
+    "source_path": "scripts/ci/ci-registration-recovery.mjs",
+    "source_blob": "ec29bdecb3c95e9dea5cd4dec8a78e1e9150a798",
+    "source_sha256": "28d3efc23515a2b44447c89c444e2adfe087826132d4436dcdfd8dd36c51a1e2",
+    "runtime_sha256": "28d3efc23515a2b44447c89c444e2adfe087826132d4436dcdfd8dd36c51a1e2"
+  }
+}

@@ -1,0 +1,17 @@
+Capture date: 2026-10-12 UTC (environment date; exact wall clock not captured)
+Fixed creation cutoff used by event queries: 2026-09-12T00:00:00Z
+Successful live sources:
+- `gh api repos/szTheory/sigra/rules/branches/main` (GET default)
+- `gh run list --repo szTheory/sigra --workflow CI --event pull_request --created '>=2026-09-12' --limit 100`
+- `gh run list --repo szTheory/sigra --workflow CI --event push --branch main --created '>=2026-09-12' --limit 100`
+- `gh run list --repo szTheory/sigra --workflow CI --event schedule --created '>=2026-09-12' --limit 100`
+- `gh run view 38144377407 --repo szTheory/sigra --json attempt,conclusion,createdAt,databaseId,event,headSha,jobs,name,startedAt,status,updatedAt,url,workflowName`
+- Corrected one-row API probe: `gh api --method GET repos/szTheory/sigra/actions/workflows/259268962/runs -f event=pull_request -f 'created=>=2026-09-12' -F per_page=1`; succeeded, proving the workflow-runs route is available when method is explicitly GET.
+API diagnostics:
+- Initial rate-limit query: core remaining 5000/5000; no later rate-limit query made.
+- `gh api repos/szTheory/sigra/actions/workflows/ci.yml/runs -f ... -F ...` returned HTTP 404 without explicit method. Because form parameters were supplied without `--method GET`, do not treat this as evidence GET is unavailable (the request may have been POST).
+- `gh api repos/szTheory/sigra/actions/workflows` returned HTTP 404 with no form args (default GET).
+- `gh api repos/szTheory/sigra/actions/runs -F per_page=1` returned HTTP 404 without explicit method; form args may have made this POST.
+- Numeric workflow id from CLI was 259268962. `gh api repos/szTheory/sigra/actions/workflows/259268962/runs -f ... -F ...` returned HTTP 404 without explicit method; form args may have made this POST.
+- `gh run list` and `gh run view` did return data. No HTTP 403/429 encountered.
+Request accounting: 13 top-level gh API/CLI invocations (including one rate-limit check and one corrected GET); gh run view may issue separate run and jobs HTTP requests, so underlying HTTP count is approximately 14 and was not transport-instrumented.

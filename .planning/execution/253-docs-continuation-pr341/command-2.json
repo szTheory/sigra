@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "bash",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/runtime/ci-pr-proof.sh",
+    "--family",
+    "docs-only",
+    "--freeze",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/pr-freeze.json",
+    "--allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/allocation.json",
+    "--requests",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/ledger.json",
+    "--repo-root",
+    "/Users/jon/projects/sigra",
+    "--revision-freeze",
+    "/Users/jon/projects/sigra/.planning/execution/253-proof-bundle-a6838a8f9/canary-freeze.json",
+    "--action-approval",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/prs-approval.json",
+    "--evidence",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/docs-only-evidence.json",
+    "--docs-publication-receipt",
+    "/Users/jon/projects/sigra/.planning/execution/253-docs-continuation-pr341/docs-publication-receipt.json"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "ci-pr-proof: approval refused: ModuleNotFoundError: No module named 'execution_guard'\n"
+}

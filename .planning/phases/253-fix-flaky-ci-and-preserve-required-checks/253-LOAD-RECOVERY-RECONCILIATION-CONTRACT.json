@@ -1,0 +1,1359 @@
+{
+  "schema": "sigra.phase253.load-recovery-reconciliation-contract/v1",
+  "phase": "253",
+  "phase_dir": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks",
+  "sdk": {
+    "packageName": "@opengsd/gsd-core",
+    "version": "1.16.0",
+    "files": [
+      {
+        "path": "bin/gsd-tools.cjs",
+        "sha256": "4a2774598f6a1de9b63bbcbe71b4dff795b036fd061a80a3f2ab37a35bd63c3a"
+      },
+      {
+        "path": "bin/lib/plan-scan.cjs",
+        "sha256": "11731a44cf7b1f3d8a7e0fa469425b3b4317598cf9118a97f976243a96f61d8e"
+      },
+      {
+        "path": "bin/lib/plan-dependency-graph.cjs",
+        "sha256": "d0b053bdbe4fad0010b4adb95e2f55af786cb7c1bf3da036ed6302db5f7e5cbc"
+      },
+      {
+        "path": "bin/lib/phase.cjs",
+        "sha256": "5906c52e9c03fabd189a08f4f0f9749b94fb22719124fe2ea528b6fee9d08f6d"
+      },
+      {
+        "path": "bin/lib/phase-locator.cjs",
+        "sha256": "ba9c2ec24dbd5aaab115ce3406224ad75640b0093ab2e484ec2272892fbcf77f"
+      },
+      {
+        "path": "bin/lib/init.cjs",
+        "sha256": "123feeaada39b2ebaa65290b16f15ca76868d7c32564567921d8da3d9667e500"
+      },
+      {
+        "path": "workflows/execute-phase.md",
+        "sha256": "f80f810faa31b363a7859c7caa0556710b7d323b8aaca47b851d498c99aea752"
+      }
+    ]
+  },
+  "capture": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-PLANNING-CAPTURE.json",
+    "sha256": "b3fdf7bb3c570cf3aff7c81e69995b85ffd85baf987772c283c08030958a2364",
+    "capture_head": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+    "existing_plan_count": 35
+  },
+  "originals": [
+    {
+      "plan": "253-01",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-PLAN.md",
+      "plan_sha256": "9a8e18eceb01e13db0589855c2a1243f697d268b70f07ee073de90ddd9b24b63",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "da25223bcf0aa1ba5049f75909859ff06efe5104",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-02",
+      "class": "halted",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-PLAN.md",
+      "plan_sha256": "ca9a7ca565420322972f5a843029efef01eb20c39135d37ef52c0dc3f9115b45",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "a36a8fd26ad2aa05dd4bec84e969e6756cd222e2",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-03",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-PLAN.md",
+      "plan_sha256": "25e2226bd83cbf57dc144731d373678018e7da6a174a6168504c6d621e499f0c",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "7ec48593a2e141ef8be7eb6f356d1e133b3dcf93",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-04",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-PLAN.md",
+      "plan_sha256": "7d66cf40623446642aac5ccc53e17660ca13d3e25dee1f7b208bb0177ac22e0a",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "177cdf75b7823a4424e242cbf428df8f48ce80fb",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-05",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-PLAN.md",
+      "plan_sha256": "96d9b8ae67f3a628bc6eff8dde8974040f635b6d48a6f19cb1ab9eb59f29ec44",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "0c8d927735f8ae95b6fde7f200f351c931550a43",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-06",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN.md",
+      "plan_sha256": "6e83d388d66dbeea4beebd21dd1ecd73034824dd6450514ed134fedc4661f37a",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "ac12a21db52eded976ab6f7cc027ee7359a5e0b7",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-07",
+      "class": "halted",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN.md",
+      "plan_sha256": "91cb5172420d002cec86cbd1603be5b0f6b9187db367a8512d93f4aba17ca15f",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "3b0082492b93fbcc1b4342a26fdfb0b622358186",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-08",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-PLAN.md",
+      "plan_sha256": "a65884a70992d6261e609cac731f90d357fc4395c0cadecbb762bb05a3601468",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "8361e7f88481b5689e796bb136f28c1035b397f6",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-09",
+      "class": "halted",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-PLAN.md",
+      "plan_sha256": "d86806b9dfa929bb19a29c907582d1212900d2b91a4e051f6286628f0d1edca4",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "45610a13fd890c2a0d1128e3447dbbe560d0a21c",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-10",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-10-PLAN.md",
+      "plan_sha256": "c3b6240b1c95bd65448f68fc7d5d54e0ba70b90d766380889402758b61240f34",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "fc2bcf8c506e8af1ab5f5109c9e30994308df23f",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-11",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-PLAN.md",
+      "plan_sha256": "ba051a82d5145b2cce491d3e4800417b03012244bb41a0ecd57c3fe47ad8d01b",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "e0b81c6bb429ba56f8746f7bea3bdef0dcd94677",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-12",
+      "class": "halted",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PLAN.md",
+      "plan_sha256": "6db2445f21d793e5a651b673a0150d01f691211ed74a8d42054666a4ee69ab33",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "5498bb58b7a6fdf8cb50b02facae15ae098f8e31",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-13",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-13-PLAN.md",
+      "plan_sha256": "16c458406ca333eac6db2d8150c36734c53063dbcad37177064b534fedc5ae33",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "001faba9db7dd2c60d0f990c9c93ca0a0320f67b",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-14",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-14-PLAN.md",
+      "plan_sha256": "ce6cdcb30bf9472b1849df30cc2777dff7dd59cbce40486d82d0244378989cc9",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "37fafd220cd681e9b61439e5365a0e264903711f",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-15",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-PLAN.md",
+      "plan_sha256": "823b401f191adc8ab102e8b392a4495410dbe5fcb49d4ac53606dd62ab42c7bb",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "40f027f0521be8fec1c8467c2d19aede58f77815",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-16",
+      "class": "halted",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-PLAN.md",
+      "plan_sha256": "cc57e323b81d242597c86541cde3f47ebb40a66e8ee4153f7382770f30fc37de",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "ab0f2c7cc9d589586fd4486955ead809e0822f12",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-17",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-17-PLAN.md",
+      "plan_sha256": "74b8a8d0ed6de9b00d5c562ab6f458973d7136a56a5655f1e3edf2edb9c5b188",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "85cc777dc4c179cbf5d40354d1d40be3477f8a6b",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-18",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-18-PLAN.md",
+      "plan_sha256": "c4696a34cd2ec299f19c900ccd9a37d38fcbc01b9bcb3b683663d41780f075da",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "e3b2c9e4fbebdcafc7533ab59a94596164c3736d",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-19",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-19-PLAN.md",
+      "plan_sha256": "22be54dca53ae084c597cfd03054f411bac820df69bf2e6ec72a761e79cf035e",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "abc4e42e009a6740fbc1c91575872880493978e8",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-20",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-20-PLAN.md",
+      "plan_sha256": "b6e5cb64d7fff979e95f991529b6a431d4f660b5555dcbc7342248a1bb66f773",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "d6c38c4c2c72a2aafebcdfe64515025b8d4e2d30",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-21",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-21-PLAN.md",
+      "plan_sha256": "dd2a668631568a9bb7857c2c50ef3a3747f35e5140fb3e1446202fd9af2607b5",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "0030ede9774324bdab0752a428369b161f9f4f64",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-22",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-22-PLAN.md",
+      "plan_sha256": "fe1b86e2bc5b1bdae9be3c2a0bed8213d7e7f6dd93d51346acbb8aa833588a91",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "c32bc0857a41f6cac76b11d248748dbefbab3174",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-23",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-23-PLAN.md",
+      "plan_sha256": "77d98a1aeddb9d9902c7093fdd1bb7c4d2f461bac797a3724d080de5b5a395dd",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "4690f61f5ac186bbe8105e5dcc6fb75e410a4fdd",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-24",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-24-PLAN.md",
+      "plan_sha256": "d868523f6df3bd2ac6b52a780b8425741dcd6e91580ed3bc650ff87ab9107690",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "979d74caf920c43cd2a00f333c4e22e0d83b4456",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-25",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-25-PLAN.md",
+      "plan_sha256": "be7b7480209289e398ef0107c986a6606c33a045fb5baf8d6cab24ae12829039",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "0b5aaf4c8f03e18a4af2d515db0aad7aa9d8b034",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-26",
+      "class": "completed",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-PLAN.md",
+      "plan_sha256": "405898075dae27c4d8c5362ddbee577ab75e3d35998142e737b54a6fa76d660d",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "399468cdc8f6f966a54eee8251635477bb5f3607",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-27",
+      "class": "halted",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-PLAN.md",
+      "plan_sha256": "544c1f36977ead7ee4b19c78d082cc212ef106b2a6d6e02c8741c859d03befd4",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "e1481b625dafbfb5d7cd644a57584ee12c4ffe87",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-28",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-PLAN.md",
+      "plan_sha256": "15d82c6c7c01dd97b7a875c2f7acef1a0e93f3cee691ce523b43bddd525516b4",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "96efda53847709b2497cb2d8991d19e00903cbb9",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-29",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-29-PLAN.md",
+      "plan_sha256": "44d38222cbcd94d4baea4837a3beca5768634118a668def2b44b372eae920000",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "9b1c25d01ab8b0bc1ed3bca5e786bce7e09fe1ae",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-30",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-30-PLAN.md",
+      "plan_sha256": "d0b8b29d1bc854065e92fa745dc361d448d627c1b859d0490d0450e1187ee2a3",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "d1dd6d27a771885ed42ff232af37010e990bde22",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-31",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-31-PLAN.md",
+      "plan_sha256": "6845a9040d4e34d313b161198bebd84862558e4fb3a4875f203ac7678c4cbaa0",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "a7dac140f0ff8a81ed33d49dabcf03600729c117",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-32",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-32-PLAN.md",
+      "plan_sha256": "e66c3a6258914addf2c7b89155ea7e75aab05c758f68a986a85b3dfc4606ff11",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "b663ba2e6dc6f4022a6216b321c7ad712784255b",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-33",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-33-PLAN.md",
+      "plan_sha256": "c527d8b0ac01d55185b9abf1c4431de8ecd7885aec2facc06c5c52c4088e2f7d",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "a3055b67a14e71933b715829ad51958ba1f041f7",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-34",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-34-PLAN.md",
+      "plan_sha256": "b491e3d894dcd8670bd6c5084f5bc07c56a7a2041075f384e79e99a4c527f86d",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "2c980c055322353950fda4fa549bc4e99b2f04f1",
+        "readback_exact": true
+      }
+    },
+    {
+      "plan": "253-35",
+      "class": "unstarted_blocked",
+      "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-35-PLAN.md",
+      "plan_sha256": "1a98efdc8df0575e5e0aa75205344f116572e4cd8197caef49e36c7c5cc951b9",
+      "capture": {
+        "commit": "28db5bb2f58ad790ff14e67e0c5f37fe6337ad4b",
+        "blob": "c5ebdc2190d13acad6b652a8d1c48adbee5b0f57",
+        "readback_exact": true
+      }
+    }
+  ],
+  "completed_plans": [
+    {
+      "plan": "253-01",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-SUMMARY.md",
+        "sha256": "f9aaa2975a7a9a944a15e75b8a4238f7840c9e06f519ddab83688f77930173fb",
+        "status": "complete"
+      },
+      "receipts": []
+    },
+    {
+      "plan": "253-03",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-SUMMARY.md",
+        "sha256": "3e5e39cf17f8d470e42373b23babf30d9f1cdca88c3d2f5d584998151ed3ff58",
+        "status": "complete"
+      },
+      "receipts": []
+    },
+    {
+      "plan": "253-04",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-SUMMARY.md",
+        "sha256": "ad4f7a276fee89337ad432a226dc481661670596c52442feb126e48ed2470669",
+        "status": "complete"
+      },
+      "receipts": []
+    },
+    {
+      "plan": "253-05",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-SUMMARY.md",
+        "sha256": "fe4c0c69841d6e45b06b84bcea683903ef7f587afe0dbcdc62f1f0ee517b4400",
+        "status": "complete"
+      },
+      "receipts": []
+    },
+    {
+      "plan": "253-06",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-SUMMARY.md",
+        "sha256": "7636df018e13a3813a87718222bf2085ab6018076e36c06e8e16b11aff26cd90",
+        "status": "complete"
+      },
+      "receipts": []
+    },
+    {
+      "plan": "253-11",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-SUMMARY.md",
+        "sha256": "6482e93a54e1cf8e30533fb956448208c6209967f40f30c8dc69b6cefdfdf87b",
+        "status": "complete"
+      },
+      "receipts": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-TASK1-GREEN.json",
+          "sha256": "d076321b9b87c6fe67c228961eeb490c58e8834a0ae5125fd2525be52f421d7b"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-TASK1-RED.json",
+          "sha256": "1bb2a77c1a7917337438c5111bac8f451b48c465228f2899dcfe020619bd13d3"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json",
+          "sha256": "dd9cf6aaf052990a09200732441ecf47bab0284b5bc35a172a74498295e63fdc"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-WORKFLOW.yml",
+          "sha256": "65b56df90ccd19b6152392027276887dcc1d55713462ec7e52d679480265c904"
+        }
+      ]
+    },
+    {
+      "plan": "253-15",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-SUMMARY.md",
+        "sha256": "6105cffc28e04e894500e5a7214bd95edc47a23fcfbfaea87ec2361ce405e465",
+        "status": "complete"
+      },
+      "receipts": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-CREDENTIAL-GREEN.json",
+          "sha256": "f936e50d1174c72f74271d4d060ad3f1c498562c8766abb17ee3d14a28916bd7"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-CREDENTIAL-RED.json",
+          "sha256": "65b2e9f8655143828ed4fc7d4ca0b8872d5e1560f015d0bfaeccac4bb15ff72a"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-RECEIPT-GREEN.json",
+          "sha256": "5c120f1fc69e0709864590e707349bcd2539a62d7830b87dfb18f06b62b0de28"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-RECEIPT-RED.json",
+          "sha256": "2367ca80c3c5df42a806ebdd553c4ba8684f8cd9fe11e58e0ad44a9d90a595e4"
+        }
+      ]
+    },
+    {
+      "plan": "253-18",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-18-SUMMARY.md",
+        "sha256": "ebd8f29ed2f42ee6ec110152e60ba90e07e561f8c8a0443da23a4973d08f3a9e",
+        "status": "complete"
+      },
+      "receipts": []
+    },
+    {
+      "plan": "253-19",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-19-SUMMARY.md",
+        "sha256": "5a4677e12002d21c0802035e9107ebcf5602cdf8eda85c86574e9ff34da10891",
+        "status": null
+      },
+      "receipts": []
+    },
+    {
+      "plan": "253-20",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-20-SUMMARY.md",
+        "sha256": "533f1d22e1d3294128d9101fbc3f3dbfc2079b2de5c2a1c998bbc94343292d85",
+        "status": "complete"
+      },
+      "receipts": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-PUBLICATION-PROPOSAL.json",
+          "sha256": "a6cc4a42087e264d22bafda56e032690792ced474d77ce64dfcfabca9926de65"
+        }
+      ]
+    },
+    {
+      "plan": "253-26",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-SUMMARY.md",
+        "sha256": "bffe72b0f024e3e22b8a793f64c2c733744b9398c1806a5a7a4e475a7efc4c24",
+        "status": "complete"
+      },
+      "receipts": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-TIMEOUT-ASSESSMENT.json",
+          "sha256": "bdb1b9d5aa0dc8fb6422708228276ade641b60cc91db1fca556e3f788e264a40"
+        }
+      ]
+    }
+  ],
+  "halted_plans": [
+    {
+      "plan": "253-02",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-SUMMARY.md",
+        "sha256": "42f37bedde342052bf90a5ae4b417d6d6264dd0e32e65d2893caddc10e39d009",
+        "status": "halted"
+      },
+      "receipts": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REGISTRATION-EVIDENCE.json",
+          "sha256": "b8636858bad7fcd576a235ee365213ee173b308b6470a728ce86736cf18a5a51"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPRO-FREEZE.json",
+          "sha256": "9c9404c08c14d636cacd0ce6b33e5226889eebd53940372ba660bef8717f2994"
+        }
+      ]
+    },
+    {
+      "plan": "253-07",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-SUMMARY.md",
+        "sha256": "e6683a1e773bd5d79ddd43736d147bcb43902c244cf583a73325e962a9113e11",
+        "status": "halted"
+      },
+      "receipts": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-EVIDENCE.json",
+          "sha256": "ab75c1550bb2b25e4eff06dcbfdb2d64320e9447c4985c95f8e94c1da159b6d2"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-FAILED-RUN-38347679431.json",
+          "sha256": "e9062f00250c89f1e49684f6cd4a4bc859077c6b8a307db03902ccbe42ff8a41"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-WORKFLOW.yml",
+          "sha256": "c487ada89cf56089c7dbf404fa2a51360a10c20d9b352a2469ac93236c936fff"
+        }
+      ]
+    },
+    {
+      "plan": "253-09",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-SUMMARY.md",
+        "sha256": "3b20e573fcde4d927900ddce15d3cdd5030531ae6bb1f389edb5f0209d409fdf",
+        "status": "halted"
+      },
+      "receipts": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json",
+          "sha256": "cb97baa38d43ad59f3370114d9b493959264079d4a29e076e7e3b816741c9122"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-EVIDENCE.json",
+          "sha256": "17a7f9b3f0a30be002d177b70924a7efdc3dcaa5e047525951830d47ebfbfc18"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-REGISTRATION-FREEZE.json",
+          "sha256": "e662f7fe9045b576320b8885126c726c00d650261991e1d46db35d02bf868308"
+        }
+      ]
+    },
+    {
+      "plan": "253-12",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-SUMMARY.md",
+        "sha256": "8a1faf8383f58bad968279d26e2f990c4ebd7cd04255db15ffec90bf08beef61",
+        "status": "halted"
+      },
+      "receipts": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PRELAUNCH-REVISION-02.json",
+          "sha256": "14f364486b6cfbb8fdc18744c4585986fe0f4d35aa5387265747b0fa8a3cfef9"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-RAW-EFFECTIVE-RULES.json",
+          "sha256": "3b1045cb27790758298466498a42780dbc4d985f23eff1bea74bc0017f910aa9"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-RAW-RATE-LIMIT.json",
+          "sha256": "ae404a52273333e9e857fe3042b9fa77f46a029ddd94d047efad127e2e8e87ae"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-RAW-REGISTERED-WORKFLOW.json",
+          "sha256": "963957343ba110ce175bd31d6551e7a8ce3f11d2fbfec453a7922d268c9726cd"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+          "sha256": "fea7da00e5451a98eccf461f6b909c29e83cdd006ec95dd8e77da59c0891ec54"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json",
+          "sha256": "dd9cf6aaf052990a09200732441ecf47bab0284b5bc35a172a74498295e63fdc"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json",
+          "sha256": "f2a2a77e9e42ab9b7e3d49bf85ecde24c70ba9e46e73d03419ff274e0cb4219a"
+        }
+      ]
+    },
+    {
+      "plan": "253-16",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-SUMMARY.md",
+        "sha256": "d374a971c56d5a8ab620f0be15121f6d4f6e90d0b4782912027a9e4ac3652117",
+        "status": "halted"
+      },
+      "receipts": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json",
+          "sha256": "25a8d094b64bb97233ed8d3b5c2b4453903a1305b256bf249bd1b4aa342b8746"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-CONTROL-FREEZE.json",
+          "sha256": "db74f2f2b8dc9df71e67fddc7049024fb03b693478573c3e204020068b898a82"
+        }
+      ]
+    },
+    {
+      "plan": "253-27",
+      "summary": {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-SUMMARY.md",
+        "sha256": "4dd59aa0b7a0b7865c5838227d1ecd5c19fccc93b47c443d88cd7d4ebe094919",
+        "status": "halted"
+      },
+      "receipts": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-RED-01.json",
+          "sha256": "0053d6d5ea61bf458f645ddac0a6adee724b56fd0fc69aa4ef1a2276faf392fe"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+          "sha256": "e9982fd5a787777cc00defacd3b88ac41edfee21e08df5e62234e6dfe2319ab0"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-FREEZE.json",
+          "sha256": "bef539ef0803a5e035266fd2d5334b02dc87893c285114e7f70cbec3b46a0778"
+        }
+      ]
+    }
+  ],
+  "halted_proof_map": {
+    "253-02": [
+      "253-36",
+      "253-37",
+      "253-38",
+      "253-39",
+      "253-40",
+      "253-41"
+    ],
+    "253-07": [
+      "253-18",
+      "253-19",
+      "253-20",
+      "253-42",
+      "253-44",
+      "253-45"
+    ],
+    "253-09": [
+      "253-36",
+      "253-37",
+      "253-38",
+      "253-39",
+      "253-40",
+      "253-41"
+    ],
+    "253-12": [
+      "253-18",
+      "253-19",
+      "253-20",
+      "253-42",
+      "253-44",
+      "253-45"
+    ],
+    "253-16": [
+      "253-36",
+      "253-37",
+      "253-38",
+      "253-39",
+      "253-40",
+      "253-41"
+    ],
+    "253-27": [
+      "253-36",
+      "253-37",
+      "253-38",
+      "253-39",
+      "253-40",
+      "253-41"
+    ]
+  },
+  "responsibilities": [
+    {
+      "plan": "253-08",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-SUMMARY.md",
+      "original_plan_sha256": "a65884a70992d6261e609cac731f90d357fc4395c0cadecbb762bb05a3601468",
+      "objective": "Confirm required checks through normal PR CI and record exactly which reliability requirements the evidence proves.",
+      "requirements": [
+        "CIREL-01",
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-02",
+        "253-07"
+      ],
+      "blocked_by": [
+        "253-02",
+        "253-07"
+      ],
+      "owners": [
+        "253-42",
+        "253-46"
+      ],
+      "required_links": [
+        "pr_normal",
+        "pr_docs_only"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-10",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-10-SUMMARY.md",
+      "original_plan_sha256": "c3b6240b1c95bd65448f68fc7d5d54e0ba70b90d766380889402758b61240f34",
+      "objective": "Prove the readiness and isolation controls, then fix and repeat only a demonstrated registration cause.",
+      "requirements": [
+        "CIREL-01"
+      ],
+      "depends_on": [
+        "253-09"
+      ],
+      "blocked_by": [
+        "253-09"
+      ],
+      "owners": [
+        "253-36",
+        "253-37",
+        "253-38",
+        "253-39",
+        "253-40",
+        "253-41"
+      ],
+      "required_links": [
+        "load_controls",
+        "load_acceptance"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-13",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-13-SUMMARY.md",
+      "original_plan_sha256": "16c458406ca333eac6db2d8150c36734c53063dbcad37177064b534fedc5ae33",
+      "objective": "Prove required checks on a normal production PR and prove docs-only classification on a separate real PR.",
+      "requirements": [
+        "CIREL-01",
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-10",
+        "253-12"
+      ],
+      "blocked_by": [
+        "253-09",
+        "253-12"
+      ],
+      "owners": [
+        "253-42",
+        "253-46"
+      ],
+      "required_links": [
+        "pr_normal",
+        "pr_docs_only"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-14",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-14-SUMMARY.md",
+      "original_plan_sha256": "ce6cdcb30bf9472b1849df30cc2777dff7dd59cbce40486d82d0244378989cc9",
+      "objective": "Record exactly what the recovery evidence proves and clear the old blocked-plan index only after both requirements are accepted.",
+      "requirements": [
+        "CIREL-01",
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-13"
+      ],
+      "blocked_by": [
+        "253-09",
+        "253-12"
+      ],
+      "owners": [
+        "253-43",
+        "253-47"
+      ],
+      "required_links": [
+        "phase252_replay",
+        "phase252_diagnosis",
+        "load_controls",
+        "load_acceptance",
+        "publication",
+        "canary",
+        "pr_normal",
+        "pr_docs_only"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-17",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-17-SUMMARY.md",
+      "original_plan_sha256": "74b8a8d0ed6de9b00d5c562ab6f458973d7136a56a5655f1e3edf2edb9c5b188",
+      "objective": "Assess the observed cause, apply only a demonstrated test/CI repair, and verify fresh affected-project repeats.",
+      "requirements": [
+        "CIREL-01"
+      ],
+      "depends_on": [
+        "253-16"
+      ],
+      "blocked_by": [
+        "253-16"
+      ],
+      "owners": [
+        "253-36",
+        "253-37",
+        "253-38",
+        "253-39",
+        "253-40",
+        "253-41"
+      ],
+      "required_links": [
+        "load_controls",
+        "load_acceptance"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-21",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-21-SUMMARY.md",
+      "original_plan_sha256": "dd2a668631568a9bb7857c2c50ef3a3747f35e5140fb3e1446202fd9af2607b5",
+      "objective": "Prepare a bounded normal-PR and real docs-only PR collector before the final canary candidate is frozen.",
+      "requirements": [
+        "CIREL-01",
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-17",
+        "253-20"
+      ],
+      "blocked_by": [
+        "253-16"
+      ],
+      "owners": [
+        "253-42",
+        "253-46"
+      ],
+      "required_links": [
+        "pr_normal",
+        "pr_docs_only"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-22",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-22-SUMMARY.md",
+      "original_plan_sha256": "fe1b86e2bc5b1bdae9be3c2a0bed8213d7e7f6dd93d51346acbb8aa833588a91",
+      "objective": "Seal the final source, object manifest and new reviewed canary window before any hosted execution.",
+      "requirements": [
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-21"
+      ],
+      "blocked_by": [
+        "253-16"
+      ],
+      "owners": [
+        "253-44"
+      ],
+      "required_links": [
+        "publication"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-23",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-23-SUMMARY.md",
+      "original_plan_sha256": "77d98a1aeddb9d9902c7093fdd1bb7c4d2f461bac797a3724d080de5b5a395dd",
+      "objective": "Prove six real hosted source outcomes and a separate hosted verifier within the new sealed canary window.",
+      "requirements": [
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-22"
+      ],
+      "blocked_by": [
+        "253-16"
+      ],
+      "owners": [
+        "253-45"
+      ],
+      "required_links": [
+        "canary"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-24",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-24-SUMMARY.md",
+      "original_plan_sha256": "d868523f6df3bd2ac6b52a780b8425741dcd6e91580ed3bc650ff87ab9107690",
+      "objective": "Prove normal production required checks and real docs-only classification on two unmerged PR families.",
+      "requirements": [
+        "CIREL-01",
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-23"
+      ],
+      "blocked_by": [
+        "253-16"
+      ],
+      "owners": [
+        "253-46"
+      ],
+      "required_links": [
+        "pr_normal",
+        "pr_docs_only"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-25",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-25-SUMMARY.md",
+      "original_plan_sha256": "be7b7480209289e398ef0107c986a6606c33a045fb5baf8d6cab24ae12829039",
+      "objective": "Reconcile accepted reliability proof while preserving every halted attempt and exposing a truthful whole-phase verification route.",
+      "requirements": [
+        "CIREL-01",
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-24"
+      ],
+      "blocked_by": [
+        "253-16"
+      ],
+      "owners": [
+        "253-43",
+        "253-47"
+      ],
+      "required_links": [
+        "phase252_replay",
+        "phase252_diagnosis",
+        "load_controls",
+        "load_acceptance",
+        "publication",
+        "canary",
+        "pr_normal",
+        "pr_docs_only"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-28",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-SUMMARY.md",
+      "original_plan_sha256": "15d82c6c7c01dd97b7a875c2f7acef1a0e93f3cee691ce523b43bddd525516b4",
+      "objective": "Complete the remaining native signal, collision, isolation and trace controls.",
+      "requirements": [
+        "CIREL-01"
+      ],
+      "depends_on": [
+        "253-27"
+      ],
+      "blocked_by": [
+        "253-27"
+      ],
+      "owners": [
+        "253-36",
+        "253-37",
+        "253-38",
+        "253-39",
+        "253-40",
+        "253-41"
+      ],
+      "required_links": [
+        "load_controls",
+        "load_acceptance"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-29",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-29-SUMMARY.md",
+      "original_plan_sha256": "44d38222cbcd94d4baea4837a3beca5768634118a668def2b44b372eae920000",
+      "objective": "Establish the selected cause and accept only genuine fresh post-fix repetitions.",
+      "requirements": [
+        "CIREL-01"
+      ],
+      "depends_on": [
+        "253-28"
+      ],
+      "blocked_by": [
+        "253-27"
+      ],
+      "owners": [
+        "253-36",
+        "253-37",
+        "253-38",
+        "253-39",
+        "253-40",
+        "253-41"
+      ],
+      "required_links": [
+        "load_controls",
+        "load_acceptance"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-30",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-30-SUMMARY.md",
+      "original_plan_sha256": "d0b8b29d1bc854065e92fa745dc361d448d627c1b859d0490d0450e1187ee2a3",
+      "objective": "Prepare real normal/docs PR collection and full completion predicates before source freezing.",
+      "requirements": [
+        "CIREL-01",
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-29",
+        "253-20"
+      ],
+      "blocked_by": [
+        "253-27"
+      ],
+      "owners": [
+        "253-42",
+        "253-46"
+      ],
+      "required_links": [
+        "pr_normal",
+        "pr_docs_only"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-31",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-31-SUMMARY.md",
+      "original_plan_sha256": "6845a9040d4e34d313b161198bebd84862558e4fb3a4875f203ac7678c4cbaa0",
+      "objective": "Prepare accepted-only historical disposition using the actual installed SDK.",
+      "requirements": [
+        "CIREL-01",
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-30"
+      ],
+      "blocked_by": [
+        "253-27"
+      ],
+      "owners": [
+        "253-43",
+        "253-47"
+      ],
+      "required_links": [
+        "phase252_replay",
+        "phase252_diagnosis",
+        "load_controls",
+        "load_acceptance",
+        "publication",
+        "canary",
+        "pr_normal",
+        "pr_docs_only"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-32",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-32-SUMMARY.md",
+      "original_plan_sha256": "e66c3a6258914addf2c7b89155ea7e75aab05c758f68a986a85b3dfc4606ff11",
+      "objective": "Complete final registered-path canary assembly and regenerate exact candidate publication.",
+      "requirements": [
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-30",
+        "253-20"
+      ],
+      "blocked_by": [
+        "253-27"
+      ],
+      "owners": [
+        "253-44"
+      ],
+      "required_links": [
+        "publication"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-33",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-33-SUMMARY.md",
+      "original_plan_sha256": "c527d8b0ac01d55185b9abf1c4431de8ecd7885aec2facc06c5c52c4088e2f7d",
+      "objective": "Prove six actual hosted outcomes and a separate verifier inside the sealed canary allocation.",
+      "requirements": [
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-32"
+      ],
+      "blocked_by": [
+        "253-27"
+      ],
+      "owners": [
+        "253-45"
+      ],
+      "required_links": [
+        "canary"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-34",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-34-SUMMARY.md",
+      "original_plan_sha256": "b491e3d894dcd8670bd6c5084f5bc07c56a7a2041075f384e79e99a4c527f86d",
+      "objective": "Prove real normal production and docs-only PR required checks under one allocation.",
+      "requirements": [
+        "CIREL-01",
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-33",
+        "253-29"
+      ],
+      "blocked_by": [
+        "253-27"
+      ],
+      "owners": [
+        "253-42",
+        "253-46"
+      ],
+      "required_links": [
+        "pr_normal",
+        "pr_docs_only"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    },
+    {
+      "plan": "253-35",
+      "disposition_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-35-SUMMARY.md",
+      "original_plan_sha256": "1a98efdc8df0575e5e0aa75205344f116572e4cd8197caef49e36c7c5cc951b9",
+      "objective": "Record accepted reliability proof and prepare honest historical disposition plus full-verification routing.",
+      "requirements": [
+        "CIREL-01",
+        "CIREL-02"
+      ],
+      "depends_on": [
+        "253-34",
+        "253-31"
+      ],
+      "blocked_by": [
+        "253-27"
+      ],
+      "owners": [
+        "253-43",
+        "253-47"
+      ],
+      "required_links": [
+        "phase252_replay",
+        "phase252_diagnosis",
+        "load_controls",
+        "load_acceptance",
+        "publication",
+        "canary",
+        "pr_normal",
+        "pr_docs_only"
+      ],
+      "disposition": {
+        "status": "superseded",
+        "execution_performed": false,
+        "original_status": "blocked",
+        "phase_verification_status": "not_started"
+      }
+    }
+  ],
+  "application": {
+    "root_only": true,
+    "write_ahead": true,
+    "accepted_only_predicate": "scripts/ci/ci-hosted-gate-verify.py --mode completion --require-accepted",
+    "targets": "only the eighteen previously nonexistent SUMMARY paths; existing files are never overwritten",
+    "bundle_requires_final_summary_of": "253-47",
+    "then_run": "$gsd-execute-phase 253 (unfiltered; security, review, Nyquist, regression and goal verification)",
+    "never": [
+      "filtered completion",
+      "phase.complete before whole-phase verification",
+      "editing an original plan",
+      "editing a halted summary",
+      "claiming an old task ran"
+    ]
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "artifacts": [
+    {
+      "attempt": 1,
+      "digest": "sha256:429f01b3570bed17f1a9a192dc4c54f050ef61c5506081767f76fa02adf8c231",
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "id": 12443085302,
+      "name": "browser-execution-demo_showcase-39815188159-1",
+      "run_id": 39815188159
+    },
+    {
+      "attempt": 1,
+      "digest": "sha256:0ac960835c4a4970b29918594a97b4d3ddb3cae94d193c99b7eecd5495fdbb3a",
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "id": 12443080507,
+      "name": "browser-execution-non_admin_smoke-39815188159-1",
+      "run_id": 39815188159
+    },
+    {
+      "attempt": 1,
+      "digest": "sha256:981bc9ae4b1b8a36a493131b12a30eff359464c168ee4bf0dcc8d1dac19d1fd4",
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "id": 12442691704,
+      "name": "browser-execution-admin_checkpoints-39815188159-1",
+      "run_id": 39815188159
+    },
+    {
+      "attempt": 1,
+      "digest": "sha256:dfecd8d8e1345267de0907f548e318966143146d473219e075e569a565fd7ab2",
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "id": 12441982171,
+      "name": "browser-execution-design_gallery-39815188159-1",
+      "run_id": 39815188159
+    },
+    {
+      "attempt": 1,
+      "digest": "sha256:eff5a92b6c2aff76bcca96b2280d022b4164a17fc78980a9480f08b5a325a9fc",
+      "head_sha": "c8443e2bd9576bb0284d6c78a7212659a5af85fd",
+      "id": 12441922987,
+      "name": "browser-execution-admin_behavior-39815188159-1",
+      "run_id": 39815188159
+    }
+  ],
+  "expected_identity": {
+    "classifier_result": "success",
+    "docs_only": "false",
+    "event": "pull_request",
+    "run_attempt": "1",
+    "run_id": "39815188159",
+    "source_sha": "d6024255ed139f7c19bd44e68c10a85cc9ecca3b",
+    "workflow_ref": "szTheory/sigra/.github/workflows/ci.yml@refs/pull/343/merge",
+    "workflow_sha": "d6024255ed139f7c19bd44e68c10a85cc9ecca3b"
+  },
+  "policy_result": {
+    "seams": [
+      {
+        "docs_only": false,
+        "seam": "non_admin_smoke",
+        "status": "passed"
+      },
+      {
+        "docs_only": false,
+        "seam": "admin_behavior",
+        "status": "passed"
+      },
+      {
+        "docs_only": false,
+        "seam": "admin_checkpoints",
+        "status": "passed"
+      },
+      {
+        "docs_only": false,
+        "seam": "design_gallery",
+        "status": "passed"
+      },
+      {
+        "docs_only": false,
+        "seam": "demo_showcase",
+        "status": "passed"
+      }
+    ],
+    "status": "passed"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "sigra.phase253.canary-routes-red/v1",
+  "produced_on_head": "9db1b5dd1cc3d3a03c4109be50c786035c1e1880",
+  "entries": [
+    {
+      "suite": "scripts/ci/ci-gate-canary-flow.test.py",
+      "command": "PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\" python3 scripts/ci/ci-gate-canary-flow.test.py",
+      "exit_code": 1,
+      "summary": "Ran 14 tests in 0.491s, FAILED (failures=9)",
+      "failing_tests": [
+        "test_route_artifact_zip_download (__main__)",
+        "test_route_check_runs (__main__)",
+        "test_route_get_ref (__main__)",
+        "test_route_run (__main__)",
+        "test_route_run_artifacts (__main__)",
+        "test_route_run_jobs (__main__)",
+        "test_route_run_logs_download (__main__)",
+        "test_route_workflow (__main__)",
+        "test_route_workflow_runs (__main__)"
+      ],
+      "failure_lines": [
+        "AssertionError: 2 != 0 : driver call failed: jq: invalid JSON text passed to --argjson",
+        "AssertionError: {'commit_sha': 'commits/84ebcea60024c9e8caee405d55cad1c76[31 chars][1]'} != {'commit_sha': '84ebcea60024c9e8caee405d55cad1c76b0e858a'}",
+        "AssertionError: {'branch': 'git/ref/heads/gsd/253-replan-fixture[1]'} != {'branch': 'gsd/253-replan-fixture'}",
+        "AssertionError: 2 != 0 : driver call failed: jq: invalid JSON text passed to --argjson",
+        "AssertionError: 2 != 0 : driver call failed: jq: invalid JSON text passed to --argjson",
+        "AssertionError: 2 != 0 : driver call failed: jq: invalid JSON text passed to --argjson",
+        "AssertionError: 2 != 0 : driver call failed: jq: invalid JSON text passed to --argjson",
+        "AssertionError: 2 != 0 : driver call failed: jq: invalid JSON text passed to --argjson",
+        "AssertionError: 2 != 0 : driver call failed: jq: invalid JSON text passed to --argjson"
+      ],
+      "passing_tests": [
+        "test_extracted_functions_were_found (__main__)",
+        "test_route_rate_limit (__main__)",
+        "test_route_rules_main (__main__)",
+        "test_route_branch_protection (__main__)",
+        "test_route_suite_covers_every_typed_get_route (__main__)"
+      ],
+      "target_test": "test_route_check_runs",
+      "red_classifier": "gsd-tools check tdd-red-evidence: RED_EVIDENCE_OK (target_test_failed)",
+      "note": "Unfixed ci-gate-canary.sh expands $BASH_REMATCH[1] unbraced: bash yields the whole match followed by a literal [1]. check_runs and get_ref carry that value into params; the numeric routes and both downloads die where jq refuses the non-JSON --argjson value. Captured from the real extracted api_get/download_no_follow/transport_call with a recording stub transport; zero network."
+    }
+  ]
+}

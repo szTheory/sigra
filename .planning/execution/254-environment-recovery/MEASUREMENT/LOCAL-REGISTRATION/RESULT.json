@@ -1,0 +1,257 @@
+{
+  "scope": "local development navigation only",
+  "platform": "darwin",
+  "source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "results": [
+    {
+      "iteration": 1,
+      "passed": true,
+      "state": {
+        "readyState": "complete",
+        "connected": 1,
+        "socketConnected": true,
+        "transport": "WebSocket"
+      },
+      "events": [
+        {
+          "ms": 277,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 304,
+          "type": "domcontentloaded"
+        },
+        {
+          "ms": 315,
+          "type": "websocket"
+        },
+        {
+          "ms": 321,
+          "type": "load"
+        },
+        {
+          "ms": 324,
+          "type": "websocket"
+        },
+        {
+          "ms": 531,
+          "type": "ws_receive",
+          "event": "phx_reply",
+          "status": "ok"
+        },
+        {
+          "ms": 532,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 537,
+          "type": "ws_receive",
+          "event": "phx_reply",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "iteration": 2,
+      "passed": true,
+      "state": {
+        "readyState": "complete",
+        "connected": 1,
+        "socketConnected": true,
+        "transport": "WebSocket"
+      },
+      "events": [
+        {
+          "ms": 221,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 242,
+          "type": "domcontentloaded"
+        },
+        {
+          "ms": 250,
+          "type": "websocket"
+        },
+        {
+          "ms": 254,
+          "type": "load"
+        },
+        {
+          "ms": 256,
+          "type": "websocket"
+        },
+        {
+          "ms": 467,
+          "type": "ws_receive",
+          "event": "phx_reply",
+          "status": "ok"
+        },
+        {
+          "ms": 468,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 471,
+          "type": "ws_receive",
+          "event": "phx_reply",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "iteration": 3,
+      "passed": true,
+      "state": {
+        "readyState": "complete",
+        "connected": 1,
+        "socketConnected": true,
+        "transport": "WebSocket"
+      },
+      "events": [
+        {
+          "ms": 242,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 258,
+          "type": "domcontentloaded"
+        },
+        {
+          "ms": 261,
+          "type": "websocket"
+        },
+        {
+          "ms": 266,
+          "type": "load"
+        },
+        {
+          "ms": 275,
+          "type": "websocket"
+        },
+        {
+          "ms": 470,
+          "type": "ws_receive",
+          "event": "phx_reply",
+          "status": "ok"
+        },
+        {
+          "ms": 470,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 474,
+          "type": "ws_receive",
+          "event": "phx_reply",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "iteration": 4,
+      "passed": true,
+      "state": {
+        "readyState": "complete",
+        "connected": 1,
+        "socketConnected": true,
+        "transport": "WebSocket"
+      },
+      "events": [
+        {
+          "ms": 206,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 223,
+          "type": "domcontentloaded"
+        },
+        {
+          "ms": 227,
+          "type": "websocket"
+        },
+        {
+          "ms": 230,
+          "type": "load"
+        },
+        {
+          "ms": 239,
+          "type": "websocket"
+        },
+        {
+          "ms": 435,
+          "type": "ws_receive",
+          "event": "phx_reply",
+          "status": "ok"
+        },
+        {
+          "ms": 436,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 439,
+          "type": "ws_receive",
+          "event": "phx_reply",
+          "status": "ok"
+        }
+      ]
+    },
+    {
+      "iteration": 5,
+      "passed": true,
+      "state": {
+        "readyState": "complete",
+        "connected": 1,
+        "socketConnected": true,
+        "transport": "WebSocket"
+      },
+      "events": [
+        {
+          "ms": 216,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 241,
+          "type": "domcontentloaded"
+        },
+        {
+          "ms": 242,
+          "type": "websocket"
+        },
+        {
+          "ms": 248,
+          "type": "load"
+        },
+        {
+          "ms": 253,
+          "type": "websocket"
+        },
+        {
+          "ms": 451,
+          "type": "ws_receive",
+          "event": "phx_reply",
+          "status": "ok"
+        },
+        {
+          "ms": 451,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 455,
+          "type": "ws_receive",
+          "event": "phx_reply",
+          "status": "ok"
+        }
+      ]
+    }
+  ]
+}

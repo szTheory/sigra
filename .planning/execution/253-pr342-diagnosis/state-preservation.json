@@ -1,0 +1,38 @@
+[
+  {
+    "path": ".planning/STATE.md",
+    "commit": "72103017d5fddd0e84d0e9f4ee0552f53d52468d",
+    "sha256": "8347aabf79e059bfa10e3fe849d89a8b899aae76e73710ef3b582dc9527d3080",
+    "exact_readback_verified": true
+  },
+  {
+    "path": ".planning/state.json",
+    "commit": "72103017d5fddd0e84d0e9f4ee0552f53d52468d",
+    "sha256": "eb08aa01c09960970dd9db98b9b9d4437665275fbb2cac5af674953c87af622c",
+    "exact_readback_verified": true
+  },
+  {
+    "path": ".planning/HANDOFF.json",
+    "commit": "72103017d5fddd0e84d0e9f4ee0552f53d52468d",
+    "sha256": "903084933184738f2633952c58306953fac6866eeea4a714b9acdb206af896bc",
+    "exact_readback_verified": true
+  },
+  {
+    "path": ".planning/execution/253-CONTINUATION.json",
+    "commit": "72103017d5fddd0e84d0e9f4ee0552f53d52468d",
+    "sha256": "2d9f84b301fa6f79a7cdb441ecbd1bb1ae914d8f2d61bf7aa39b3bbf5e0a4efc",
+    "exact_readback_verified": true
+  },
+  {
+    "path": ".planning/execution/253-172-EXECUTION.json",
+    "commit": "72103017d5fddd0e84d0e9f4ee0552f53d52468d",
+    "sha256": "1b4458ddbfad3450267b6874e56eae09f6159a8eba456dfb8436df0a88b7d572",
+    "exact_readback_verified": true
+  },
+  {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+    "commit": "72103017d5fddd0e84d0e9f4ee0552f53d52468d",
+    "sha256": "6aaec583b40ca838317e34af18643de814caff258a6dc1248d590ab4ab0f25df",
+    "exact_readback_verified": true
+  }
+]

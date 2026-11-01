@@ -1,0 +1,22 @@
+{
+  "status": "passed_offline",
+  "timestamp": "2026-10-21T19:33:11.460279+00:00",
+  "verification_command": "PYTHONDONTWRITEBYTECODE=1 python3 .planning/execution/253-hosted-proof-16800f431/verify.py",
+  "source": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "proposal_commit": "6075f985ec0834f6df94f2d2f5616b9b04edfa81",
+  "current_routes_aligned": true,
+  "quick_task_row_present": true,
+  "historical_paths_unchanged": true,
+  "github_requests": 0,
+  "ci_launches": 0,
+  "allocations": 0,
+  "phase_verification_status": "not_started",
+  "artifacts": {
+    ".planning/execution/253-hosted-proof-16800f431/README.md": "7a4107ead307932da1dc1fd07ff6016ae117473e82ea0742b9f7b231d2750a88",
+    ".planning/execution/253-hosted-proof-16800f431/verify.py": "32571d8b809b2f2b094c2234c7ca711a89f51b2dd22d4c270006c67f0020aa33",
+    ".planning/execution/253-hosted-proof-16800f431/publication-proposal.json": "30615b0a25b1417dd2a1253ac5d396e995527fe1bdbfea1cc0706462864dc5a3",
+    ".planning/execution/253-hosted-proof-16800f431/proposal.json": "96c9df687447271d7aa254b8b7a763a0af6a622424f29137be2d9348ae76c5fe",
+    ".planning/quick/261021-lhg-phase-253-prepare-a-hosted-proof-proposa/261021-lhg-PLAN.md": "cf4501aa6572824e79fc7f03e6fa52f1f196ea645fae6a80e3139202b46c16ab",
+    ".planning/quick/261021-lhg-phase-253-prepare-a-hosted-proof-proposa/261021-lhg-SUMMARY.md": "9ba5be3752f93b057aef59820b6d1acc57320211605ecf9777033b8c37158b82"
+  }
+}

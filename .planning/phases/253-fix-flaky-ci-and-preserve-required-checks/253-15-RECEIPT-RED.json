@@ -1,0 +1,9 @@
+{
+  "command": "node --test --test-reporter=tap --test-name-pattern='slot usage counters' scripts/ci/ci-registration-recovery.test.mjs",
+  "exitCode": 1,
+  "targetTest": "revision CLI rejects slot usage counters that do not match native attempts",
+  "targetFile": "scripts/ci/ci-registration-recovery.test.mjs",
+  "expected": "The actual shell CLI rejects a copied accepted receipt if its used_slots list no longer matches the independently verified attempt receipts.",
+  "actual": "The CLI reported the modified receipt as verified: two attempts, two launches, 121680 ms charged, diagnosis_incomplete.",
+  "semanticAssessment": "The saved native desktop and mobile reports, logs, freezes, and receipt were copied into a temporary directory. Only the used_slots counter was changed. The verifier accepted an internally inconsistent native ledger."
+}

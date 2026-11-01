@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "status": "passed_for_blocked_closeout_only",
+  "next_command": "$gsd-plan-phase 253",
+  "routes_aligned": true,
+  "ready_plans": [],
+  "halted": [
+    "253-02",
+    "253-07",
+    "253-09",
+    "253-12"
+  ],
+  "blocked": {
+    "253-08": [
+      "253-02",
+      "253-07"
+    ],
+    "253-10": [
+      "253-09"
+    ],
+    "253-13": [
+      "253-09",
+      "253-12"
+    ],
+    "253-14": [
+      "253-09",
+      "253-12"
+    ]
+  },
+  "complete_phase_plan_count": 6,
+  "phase252_paths_unchanged": 94,
+  "all253_plans_unchanged": 14,
+  "original_halted02_07_summaries_unchanged": true,
+  "roadmap252_254_255_sections_unchanged": true,
+  "halted_recovery_freezes_ledgers_unchanged": 5,
+  "requirements_unchanged_and_open": true,
+  "no253verification_or08supersession": true,
+  "json_paths_parsed": 37,
+  "scoped_source_files": [
+    "scripts/ci/ci-gate-canary.sh",
+    "scripts/ci/ci-gate-canary.test.sh",
+    "scripts/ci/ci-hosted-gate-verify.py",
+    "scripts/ci/ci-hosted-gate-verify.test.py",
+    "scripts/ci/ci-registration-recovery.mjs",
+    "scripts/ci/ci-registration-recovery.test.mjs",
+    "scripts/ci/ci-registration-repro.sh"
+  ],
+  "prior_shared_byte_readbacks": 5,
+  "unrelated_config_exact_and_unstaged": true,
+  "native_acceptance": "not_passed",
+  "phase_verification": "not_started",
+  "full_phase_verifier_invoked": false,
+  "new_api_calls_or_browser_launches_from_parent_repairs": 0,
+  "all_executor_agents_terminal": true,
+  "whole_phase_completion_claim": false
+}

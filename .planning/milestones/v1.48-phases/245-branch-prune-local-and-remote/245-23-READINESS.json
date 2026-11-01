@@ -1,0 +1,344 @@
+{
+  "schema_version": 2,
+  "status": "ready",
+  "source_commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+  "sources": [
+    {
+      "path": ".planning/state.json",
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+      "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+      "blocked_reasons": []
+    },
+    {
+      "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-VERIFICATION.md",
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "blob_oid": "5579ba64144b0b50136c4536183cf998ff75a0d3",
+      "sha256": "70a65a708ea78a299d39d90883876009ec100bbf1851876533834625a2aa4c8f",
+      "blocked_reasons": []
+    },
+    {
+      "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-PLAYWRIGHT-EVIDENCE.json",
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "blob_oid": "b868353af4151a39bccfd6c4a9e9a188789f4509",
+      "sha256": "284a0395f66030f783f1e44aa7f3854562eca48b40e4c80d03c8c3997b9ec0bb",
+      "blocked_reasons": []
+    },
+    {
+      "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-04-SUMMARY.md",
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "blob_oid": "2feeedec49d410a99b3e2fa4a3226adade2d21f6",
+      "sha256": "66118bac89fa687dbee6242ac87263fae53d792861003cbfb9f3799d92c422e9",
+      "blocked_reasons": []
+    },
+    {
+      "path": ".planning/phases/244-playwright-test-1-59-1-1-62-1-alone/244-08-SUMMARY.md",
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "blob_oid": "3f92f8d457c12a64b8af29f5e9649feee022f0d6",
+      "sha256": "f3f0212dc094ef1acd2def2a00475f82301fcafc6236b5f1a78d9688418fe501",
+      "blocked_reasons": []
+    },
+    {
+      "path": ".planning/todos/resolved/2026-09-26-phase-244-mix-ci-blocked-by-phase-242-hex-contract.md",
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "blob_oid": "e389bb0ce60fd4786b9291fe1c03f61ebb060ad7",
+      "sha256": "8df140b0007b11d75c273f3c315415b036e44c365bc4cc7bffc265e00439c91c",
+      "blocked_reasons": []
+    },
+    {
+      "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/260926-gzb-SUMMARY.md",
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "blob_oid": "319f20c2321171831a7903137ad47754e270ec43",
+      "sha256": "6217ddc0ff5383baf26e460b42fc3065ae5a319c42e8b453226a14a6b92224f0",
+      "blocked_reasons": []
+    },
+    {
+      "path": ".planning/quick/260926-gzb-diagnose-and-resolve-only-the-phase-235-/MIX-CI-ESCALATED.log",
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "blob_oid": "17d3de04aa878c6c5617c46cceaf46ae3518b339",
+      "sha256": "547eee0ed365f29bad368ae523ea459c2607e4d85b8c655b7edf4d37b8d00471",
+      "blocked_reasons": []
+    },
+    {
+      "path": ".planning/quick/260926-dzu-reconcile-the-phase-242-hex-workflow-con/260926-dzu-SUMMARY.md",
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10",
+      "blob_oid": "190144f09bf2f6adfdab40280e8887da00655f18",
+      "sha256": "b16879dc931ebd1d8c15640ecc4401baae2fd19eb348cd730c3c731acf33b70d",
+      "blocked_reasons": []
+    }
+  ],
+  "checks": {
+    "phase_244_complete": {
+      "passed": true,
+      "actual": "complete"
+    },
+    "phase_244_verification_passed": {
+      "passed": true,
+      "actual": "passed"
+    },
+    "phase_244_gaps_empty": {
+      "passed": true,
+      "actual": "[]"
+    },
+    "phase_244_behavior_verified": {
+      "passed": true,
+      "actual": "0"
+    },
+    "phase_244_final_main_head_stable": {
+      "passed": true,
+      "actual": {
+        "head_sha": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+        "main_sha_before": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+        "main_sha_after": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+      }
+    },
+    "phase_244_final_main_run_success": {
+      "passed": true,
+      "actual": {
+        "id": 36266022766,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_set_exact": {
+      "passed": true,
+      "actual": [
+        "admin_behavior",
+        "admin_checkpoints",
+        "demo_showcase",
+        "design_gallery",
+        "non_admin_smoke"
+      ]
+    },
+    "phase_244_ci_gate_identity": {
+      "passed": true,
+      "actual": {
+        "name": "ci-gate",
+        "run_id": 36266022766,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_example_playwright_smoke_identity": {
+      "passed": true,
+      "actual": {
+        "name": "Example Playwright smoke (full lifecycle)",
+        "run_id": 36266022766,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_generated_admin_playwright_smoke_identity": {
+      "passed": true,
+      "actual": {
+        "name": "Generated admin Playwright smoke",
+        "run_id": 36266022766,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_admin_behavior_identity": {
+      "passed": true,
+      "actual": {
+        "name": "Example Playwright shard (admin_behavior)",
+        "run_id": 36266022766,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_admin_behavior_step": {
+      "passed": true,
+      "actual": {
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_admin_checkpoints_identity": {
+      "passed": true,
+      "actual": {
+        "name": "Example Playwright shard (admin_checkpoints)",
+        "run_id": 36266022766,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_admin_checkpoints_step": {
+      "passed": true,
+      "actual": {
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_demo_showcase_identity": {
+      "passed": true,
+      "actual": {
+        "name": "Example Playwright shard (demo_showcase)",
+        "run_id": 36266022766,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_demo_showcase_step": {
+      "passed": true,
+      "actual": {
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_design_gallery_identity": {
+      "passed": true,
+      "actual": {
+        "name": "Example Playwright shard (design_gallery)",
+        "run_id": 36266022766,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_design_gallery_step": {
+      "passed": true,
+      "actual": {
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_non_admin_smoke_identity": {
+      "passed": true,
+      "actual": {
+        "name": "Example Playwright shard (non_admin_smoke)",
+        "run_id": 36266022766,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_shard_non_admin_smoke_step": {
+      "passed": true,
+      "actual": {
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_example_playwright_smoke_step": {
+      "passed": true,
+      "actual": {
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_generated_admin_playwright_smoke_step": {
+      "passed": true,
+      "actual": {
+        "status": "completed",
+        "conclusion": "success"
+      }
+    },
+    "phase_244_final_main_summary_run_id": {
+      "passed": true,
+      "actual": "36266022766"
+    },
+    "phase_244_final_main_summary_head": {
+      "passed": true,
+      "actual": "5a00b90d2314bc93f27aec4090b5928018743d1b"
+    },
+    "phase_244_final_main_summary_success": {
+      "passed": true,
+      "actual": true
+    },
+    "phase_244_pr_213_deferred": {
+      "passed": true,
+      "actual": {
+        "kind": "deferred",
+        "reason_code": "deferred_missing_live_candidate_with_measured_drift",
+        "pr_number": 213,
+        "state": "CLOSED",
+        "merged_at": null,
+        "head_ref_exists": false
+      }
+    },
+    "phase_244_pr_213_summary_agrees": {
+      "passed": true,
+      "actual": {
+        "reason_code_present": true,
+        "closed_unmerged_present": true
+      }
+    },
+    "phase_242_todo_resolved": {
+      "passed": true,
+      "actual": "resolved"
+    },
+    "quick_gzb_complete": {
+      "passed": true,
+      "actual": "complete"
+    },
+    "quick_gzb_source_commit_ancestor": {
+      "passed": true,
+      "actual": {
+        "recorded": "bcea5ea2d8fc95cbc2d071f08d2a22dc80873b21",
+        "resolved": "bcea5ea2d8fc95cbc2d071f08d2a22dc80873b21",
+        "ancestor": true
+      }
+    },
+    "quick_gzb_exact_gate_command": {
+      "passed": true,
+      "actual": true
+    },
+    "quick_gzb_retry_exit_zero": {
+      "passed": true,
+      "actual": true
+    },
+    "quick_gzb_log_linked": {
+      "passed": true,
+      "actual": true
+    },
+    "quick_gzb_log_complete": {
+      "passed": true,
+      "actual": {
+        "non_empty": true,
+        "main_suite": true,
+        "ci_suite": true
+      }
+    },
+    "quick_dzu_complete": {
+      "passed": true,
+      "actual": "complete"
+    },
+    "quick_dzu_source_commit_ancestor": {
+      "passed": true,
+      "actual": {
+        "recorded": "bcea5ea2d8fc95cbc2d071f08d2a22dc80873b21",
+        "resolved": "bcea5ea2d8fc95cbc2d071f08d2a22dc80873b21",
+        "ancestor": true
+      }
+    }
+  },
+  "blocked_reasons": [],
+  "state_route": {
+    "source": {
+      "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+      "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+      "phase244_status": "complete",
+      "parse_error": null,
+      "commit": "687073a7adf94c240045c4ea3675f93f167c1b10"
+    },
+    "capture_observations": {
+      "head": {
+        "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+        "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+        "phase244_status": "complete",
+        "parse_error": null
+      },
+      "index": {
+        "blob_oid": "3e5f518858d77d8c26d16feebc3099fe422162d3",
+        "sha256": "4adbaf741b5788a3cb515249e7a2989730bdd0313ef71d3260c49c5c354f9504",
+        "phase244_status": "complete",
+        "parse_error": null
+      },
+      "worktree": {
+        "blob_oid": "e279e11c508e62c0f699042737412dd04e04ddb0",
+        "sha256": "d26e00285d5b939e507896551430cd665b14712bc25cc182a3972166f67bdd14",
+        "phase244_status": "complete",
+        "parse_error": null
+      }
+    }
+  },
+  "captured_at": "2026-10-01T02:06:10.725Z"
+}

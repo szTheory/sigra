@@ -1,0 +1,8 @@
+{
+  "status": "stopped_before_list",
+  "cause": "host-only source root calculation failed at /integration mount",
+  "browser_invocations": 0,
+  "app_started": false,
+  "database_started": false,
+  "cleanup_complete": true
+}

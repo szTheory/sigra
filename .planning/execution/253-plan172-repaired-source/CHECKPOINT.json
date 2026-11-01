@@ -1,0 +1,18 @@
+{
+  "schema": "sigra.phase253.execution-checkpoint/v1",
+  "phase": 253,
+  "plan": 172,
+  "status": "approval_required",
+  "implementation": "offline_executable_bundle_complete",
+  "hosted_verification": "pending",
+  "phase_verification": "not_started",
+  "bundle_sha256": "7daee34e5466a524c9b4c9c9970010aad8ea84c0c9db065e079d3f0fd4d4d524",
+  "approval_request": "approval-request.json",
+  "requests_this_turn": 0,
+  "ci_launches_this_turn": 0,
+  "active_allocations": 0,
+  "prior_ref": "6ed143795fd3ff9d1fcee96126766f316dc60921",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_command_conditional": true,
+  "condition": "Fresh explicit approval of this exact bundle; earlier approvals remain consumed."
+}

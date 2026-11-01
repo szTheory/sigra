@@ -1,0 +1,35 @@
+{
+  "observed_at": "2026-10-22T20:40:09.262080+00:00",
+  "source_commit": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "tracked_source_clean": true,
+  "node": "v20.20.2",
+  "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nMix 1.19.5 (compiled with Erlang/OTP 28)",
+  "postgres": "postgres (PostgreSQL) 14.17 (Homebrew)",
+  "playwright": "1.59.1",
+  "original_app_lock_sha256": "79d82423147d7c237781dbc51ddd765b702a81215f673649656084f4aa835d85",
+  "original_postgres_workflow_image": "public.ecr.aws/docker/library/postgres:15",
+  "original_workflow_blob": "b630c469fc737489f26f3d498ffd8f4e7ff47e77",
+  "postgres_major_matches_original_workflow": false,
+  "original_postgres_log_observations": [
+    {
+      "log_line": 34779,
+      "observation": "2026-10-12T05:19:24.1573212Z  waiting for server to start....2026-10-12 04:52:14.128 UTC [48] LOG:  starting PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit"
+    },
+    {
+      "log_line": 34801,
+      "observation": "2026-10-12T05:19:24.1578128Z  2026-10-12 04:52:14.361 UTC [1] LOG:  starting PostgreSQL 15.19 (Debian 15.19-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit"
+    }
+  ],
+  "limitations": [
+    "macOS arm64 versus original Ubuntu Linux x64",
+    "local PostgreSQL14.17 versus original workflow PostgreSQL15",
+    "original database snapshot unavailable"
+  ],
+  "original_base_url": "http://localhost:4011",
+  "diagnostic_base_url": "http://127.0.0.1:39453",
+  "original_database_name": "sigra_admin_eval_render",
+  "diagnostic_database_name": "sigra253_order_diagnostic",
+  "original_postgres_observed_version": "15.19",
+  "original_job": "admin_eval_render",
+  "original_test_step": "admin_eval_harness"
+}

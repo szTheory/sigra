@@ -1,0 +1,10 @@
+{
+  "command": "bash scripts/ci/ci-run-metrics.test.sh --diagnosis-only",
+  "exitCode": 1,
+  "output": "test_archived_test_z_preserves_red_and_passing_test_d (__main__.DiagnosisContract.test_archived_test_z_preserves_red_and_passing_test_d) ... ok\ntest_changed_archive_fails_closed_with_saved_diagnostic (__main__.DiagnosisContract.test_changed_archive_fails_closed_with_saved_diagnostic) ... ok\ntest_late_failure_context_and_incomplete_inputs (__main__.DiagnosisContract.test_late_failure_context_and_incomplete_inputs) ... FAIL\n\n======================================================================\nFAIL: test_late_failure_context_and_incomplete_inputs (__main__.DiagnosisContract.test_late_failure_context_and_incomplete_inputs)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<stdin>\", line 12, in test_late_failure_context_and_incomplete_inputs\nAssertionError: False is not true : failure context must be selected before display clipping\n\n----------------------------------------------------------------------\nRan 3 tests in 0.695s\n\nFAILED (failures=1)\n",
+  "targetTest": "test_late_failure_context_and_incomplete_inputs",
+  "targetFile": "scripts/ci/ci-run-metrics.test.sh",
+  "expected": "select failure context before display clipping and preserve source range/hash/redaction",
+  "actual": "no failure-context selector exists",
+  "semanticAssessment": "Target executes and fails at assertion that the planned context-selector behavior exists; other archive controls pass."
+}

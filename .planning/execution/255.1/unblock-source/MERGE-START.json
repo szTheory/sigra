@@ -1,0 +1,8 @@
+{
+  "cwd": "/private/tmp/sigra-2551-reconcile/source",
+  "base_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "phase_head": "c8db6253949570b6e94bf62466e94ccf4b80508e",
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "Automatic merge went well; stopped before committing as requested\n"
+}

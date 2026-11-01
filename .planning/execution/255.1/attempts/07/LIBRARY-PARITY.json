@@ -1,0 +1,186 @@
+{
+  "acceptance_samples": 0,
+  "build_cache_reuse": false,
+  "candidate": {
+    "reason": "control mix ci failed in scaffold; sequence stops after first hard failure",
+    "status": "not_run"
+  },
+  "comparison": {
+    "reason": "candidate library mix ci not run after control failure",
+    "status": "blocked"
+  },
+  "completed_at": "2026-10-25T01:03:41Z",
+  "control": {
+    "command": [
+      "mix",
+      "ci"
+    ],
+    "exit_code": 1,
+    "native_report_path": ".gsd/255.1-final-library/run-fufcs1uo/library-control/MIX-RECEIVERS.json",
+    "native_report_sha256": "d07bd551d5e92eefb0e6521c2643d2560788c3ba0c2340675ae9ba65273acba8",
+    "native_validation_errors": [
+      "native_mix_ci_failed"
+    ],
+    "receiver_order": [
+      "format",
+      "deps.get",
+      "deps.unlock",
+      "compile",
+      "ordinary",
+      "scaffold",
+      "dep-off"
+    ],
+    "receivers": {
+      "dep_off": {
+        "complete": null,
+        "excluded": null,
+        "failed": null,
+        "failed_test_ids": [],
+        "passed": null,
+        "report_sha256": null,
+        "seed": null,
+        "skipped": null,
+        "status": "not_reached",
+        "test_count": 0
+      },
+      "ordinary": {
+        "complete": true,
+        "excluded": 22,
+        "failed": 0,
+        "failed_test_ids": [],
+        "passed": 2678,
+        "report_sha256": "0ebdd319521560900f52f2cf9c5895d75453824b18227418246760e628af8597",
+        "seed": 794003,
+        "skipped": 12,
+        "status": "passed",
+        "test_count": 2690
+      },
+      "scaffold": {
+        "complete": true,
+        "excluded": 0,
+        "failed": 3,
+        "failed_test_ids": [
+          "Sigra.UpgradeIntegrationTest.test mix sigra.upgrade --backfill-personal-orgs (ORG-UPGRADE-01) every user gets a personal org; re-run is a no-op",
+          "Sigra.UpgradeIntegrationTest.test upgrade after --no-organizations install (zero-org path \u2014 ORG-02 + GEN-03 org-axis) mix sigra.upgrade --yes on a --no-organizations install emits zero ALTERs and leaves the app bootable",
+          "Sigra.UpgradeIntegrationTest.test upgrade after default install (org-enabled path \u2014 ORG-UPGRADE-02) login after backfill-off upgrade redirects to /organizations with 302 and no 500s"
+        ],
+        "passed": 19,
+        "report_sha256": "fcd268b62fc34a1890e91f6132f18caa5bc5b1b9a40216a6359cbe86b0ff3aef",
+        "seed": 538712,
+        "skipped": 0,
+        "status": "failed",
+        "test_count": 22
+      }
+    },
+    "status": "failed"
+  },
+  "created_at": "2026-10-25T00:56:58Z",
+  "failure": {
+    "component": "control.scaffold",
+    "failed_tests": [
+      "Sigra.UpgradeIntegrationTest.test mix sigra.upgrade --backfill-personal-orgs (ORG-UPGRADE-01) every user gets a personal org; re-run is a no-op",
+      "Sigra.UpgradeIntegrationTest.test upgrade after --no-organizations install (zero-org path \u2014 ORG-02 + GEN-03 org-axis) mix sigra.upgrade --yes on a --no-organizations install emits zero ALTERs and leaves the app bootable",
+      "Sigra.UpgradeIntegrationTest.test upgrade after default install (org-enabled path \u2014 ORG-UPGRADE-02) login after backfill-off upgrade redirects to /organizations with 302 and no 500s"
+    ],
+    "observed_error": "Three upgrade integration tests failed at CREATE TABLE auth.users with PostgreSQL 42P07 duplicate_table. The three app-specific dev databases were already present and each currently contains auth.users; each database has no ownership comment, so it was not dropped or reused."
+  },
+  "hosted_origin_available": false,
+  "hosted_status": "blocked",
+  "local_status": "blocked",
+  "preflight": {
+    "candidate": [
+      {
+        "command": [
+          "mix",
+          "format",
+          "--check-formatted"
+        ],
+        "exit_code": 0,
+        "kind": "preflight",
+        "owner": "source_format",
+        "source_role": "candidate",
+        "status": "passed"
+      },
+      {
+        "command": [
+          "node",
+          "/Users/jon/projects/sigra/scripts/ci/ci-prep-profile.mjs",
+          "--root",
+          "/Users/jon/projects/sigra/.gsd/255.1-final-library/run-fufcs1uo/source-candidate",
+          "--output",
+          "/Users/jon/projects/sigra/.gsd/255.1-final-library/run-fufcs1uo/preflight-candidate.json",
+          "--scope",
+          "admin_behavior",
+          "--mode",
+          "workload",
+          "--workload-map",
+          ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json",
+          "--check-only"
+        ],
+        "exit_code": 0,
+        "kind": "preflight",
+        "owner": "browser_workflow",
+        "source_role": "candidate",
+        "status": "passed"
+      }
+    ],
+    "control": [
+      {
+        "command": [
+          "mix",
+          "format",
+          "--check-formatted"
+        ],
+        "exit_code": 0,
+        "kind": "preflight",
+        "owner": "source_format",
+        "source_role": "control",
+        "status": "passed"
+      },
+      {
+        "command": [
+          "node",
+          "/Users/jon/projects/sigra/scripts/ci/ci-prep-profile.mjs",
+          "--root",
+          "/Users/jon/projects/sigra/.gsd/255.1-final-library/run-fufcs1uo/source-control",
+          "--output",
+          "/Users/jon/projects/sigra/.gsd/255.1-final-library/run-fufcs1uo/preflight-control.json",
+          "--scope",
+          "admin_behavior",
+          "--mode",
+          "workload",
+          "--workload-map",
+          ".planning/phases/254-speed-up-the-measured-slow-jobs/254-WORKLOAD-MAP.json",
+          "--check-only"
+        ],
+        "exit_code": 0,
+        "kind": "preflight",
+        "owner": "browser_workflow",
+        "source_role": "control",
+        "status": "passed"
+      }
+    ]
+  },
+  "raw_storage": ".gsd/255.1-final-library/run-fufcs1uo",
+  "runner_source_sha": "b13d0cdff55954747001627cb7df2f9b4856760a",
+  "runtime": {
+    "elixir": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]",
+    "mix": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]",
+    "node": "v20.19.5"
+  },
+  "schema": "sigra.ci-library-parity/v1",
+  "source_index_sha256": "3d495c3443619df79d8aa96d019f019066cd5ccdb9a3e318778b711e8055b84d",
+  "sources": {
+    "candidate": {
+      "archive_sha256": "18dcbf59d7f3ba4c09ba16abf82fa0479908810aa0ec1ae35d43f13b6cb7d499",
+      "source_sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+      "tree_sha": "a084992034c541a51df797e0a12eaa09edc7799a"
+    },
+    "control": {
+      "archive_sha256": "f3ec0a6fee28795a12b09b6cc5134c6a44e2ea83bfcb594faec6ca9492ba4782",
+      "source_sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+      "tree_sha": "a1c0dd48a6c3d2acb037791298558e012c658142"
+    }
+  },
+  "status": "blocked"
+}

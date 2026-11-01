@@ -1,0 +1,87 @@
+
+Running 16 tests using 1 worker
+
+  ✓   1 [chromium] › tests/ga-uat-shift-left.spec.ts:121:7 › GA UAT shift-left (SEED-6 / SEED-7) › SEED-6: invitation signup rejects tampered email with locked-address error (1.0s)
+  ✓   2 [chromium] › tests/ga-uat-shift-left.spec.ts:164:7 › GA UAT shift-left (SEED-6 / SEED-7) › SEED-7: MFA regenerate confirmation surface is reachable after enrollment (801ms)
+  ✓   3 [chromium] › tests/golden-path.spec.ts:17:5 › full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge (1.0s)
+  ✓   4 [chromium] › tests/organizations.spec.ts:181:5 › phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch (2.9s)
+  ✓   5 [chromium] › tests/organizations.spec.ts:451:5 › organization invitations: new user accepts through the mailbox signup path (885ms)
+  ✓   6 [chromium] › tests/organizations.spec.ts:502:5 › organization invitations: signed-in matching user accepts through the mailbox link (992ms)
+  ✓   7 [chromium] › tests/passkey-login.spec.ts:122:7 › passkey-primary login fallback smoke › keeps identifier, password, and magic-link fallback visible on the real login page (113ms)
+  ✘   8 [chromium] › tests/passkey-login.spec.ts:182:7 › passkey-primary login fallback smoke › clicking passkey login requests real options path without leaking browser errors (15.4s)
+  ✘   9 [chromium] › tests/passkey-options.spec.ts:58:5 › enrollment requests real passkey options from the served MFA settings page (15.4s)
+  ✘  10 [chromium] › tests/passkeys-hooks.spec.ts:74:5 › generated passkey hooks complete real browser registration and authentication with a virtual authenticator (158ms)
+  ✓  11 [mobile] › tests/ga-uat-shift-left.spec.ts:121:7 › GA UAT shift-left (SEED-6 / SEED-7) › SEED-6: invitation signup rejects tampered email with locked-address error (1.6s)
+  ✓  12 [mobile] › tests/ga-uat-shift-left.spec.ts:164:7 › GA UAT shift-left (SEED-6 / SEED-7) › SEED-7: MFA regenerate confirmation surface is reachable after enrollment (1.0s)
+  ✓  13 [mobile] › tests/golden-path.spec.ts:17:5 › full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge (1.2s)
+  ✓  14 [mobile] › tests/organizations.spec.ts:181:5 › phase 16 organizations UX: register → branch A → create → settings → slug change → members → multi-org switch (2.9s)
+  ✓  15 [mobile] › tests/organizations.spec.ts:451:5 › organization invitations: new user accepts through the mailbox signup path (1.2s)
+  ✓  16 [mobile] › tests/organizations.spec.ts:502:5 › organization invitations: signed-in matching user accepts through the mailbox link (1.3s)
+
+
+  1) [chromium] › tests/passkey-login.spec.ts:182:7 › passkey-primary login fallback smoke › clicking passkey login requests real options path without leaking browser errors 
+
+    TimeoutError: page.waitForResponse: Timeout 15000ms exceeded while waiting for event "response"
+
+      100 |         response.request().method() === "POST",
+      101 |     ),
+    > 102 |     page.waitForResponse(
+          |          ^
+      103 |       (response) =>
+      104 |         response.url().includes("/users/settings/mfa/passkeys") &&
+      105 |         !response.url().includes("/options") &&
+        at enrollPasskeyFromSettings (/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/repo/test/example/priv/playwright/tests/passkey-login.spec.ts:102:10)
+        at /private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/repo/test/example/priv/playwright/tests/passkey-login.spec.ts:192:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/passkey-login-passkey-prim-991b9-hout-leaking-browser-errors-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/passkey-login-passkey-prim-991b9-hout-leaking-browser-errors-chromium/error-context.md
+
+  2) [chromium] › tests/passkey-options.spec.ts:58:5 › enrollment requests real passkey options from the served MFA settings page 
+
+    TimeoutError: page.waitForResponse: Timeout 15000ms exceeded while waiting for event "response"
+
+      78 |           response.request().method() === "POST",
+      79 |       ),
+    > 80 |       page.waitForResponse(
+         |            ^
+      81 |         (response) =>
+      82 |           response.url().includes("/users/settings/mfa/passkeys") &&
+      83 |           !response.url().includes("/options") &&
+        at /private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/repo/test/example/priv/playwright/tests/passkey-options.spec.ts:80:12
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/passkey-options-enrollment-f210e-he-served-MFA-settings-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/passkey-options-enrollment-f210e-he-served-MFA-settings-page-chromium/error-context.md
+
+  3) [chromium] › tests/passkeys-hooks.spec.ts:74:5 › generated passkey hooks complete real browser registration and authentication with a virtual authenticator 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"sigra:passkey-register:[7msuccess[27m"[39m
+    Received: [31m"sigra:passkey-register:[7merror[27m"[39m
+
+      182 |     const registrationEvent = await page.evaluate(() => (window as any).__sigraEvents.shift());
+      183 |
+    > 184 |     expect(registrationEvent.event).toBe('sigra:passkey-register:success');
+          |                                     ^
+      185 |     expect(registrationEvent.payload.response.id).toBeTruthy();
+      186 |     expect(registrationEvent.payload.response.rawId).toBeTruthy();
+      187 |
+        at /private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-non_admin_smoke-UxUr2D/repo/test/example/priv/playwright/tests/passkeys-hooks.spec.ts:184:37
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/passkeys-hooks-generated-p-17036-ith-a-virtual-authenticator-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/passkeys-hooks-generated-p-17036-ith-a-virtual-authenticator-chromium/error-context.md
+
+  3 failed
+    [chromium] › tests/passkey-login.spec.ts:182:7 › passkey-primary login fallback smoke › clicking passkey login requests real options path without leaking browser errors 
+    [chromium] › tests/passkey-options.spec.ts:58:5 › enrollment requests real passkey options from the served MFA settings page 
+    [chromium] › tests/passkeys-hooks.spec.ts:74:5 › generated passkey hooks complete real browser registration and authentication with a virtual authenticator 
+  13 passed (49.5s)

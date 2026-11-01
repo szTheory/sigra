@@ -1,0 +1,10 @@
+test_classifier_failure_cannot_authorize_docs_only_skips (__main__.UnitOwner.test_classifier_failure_cannot_authorize_docs_only_skips) ... ok
+test_classifier_success_keeps_docs_only_pull_request_eligible (__main__.UnitOwner.test_classifier_success_keeps_docs_only_pull_request_eligible) ... ok
+test_unit_body_omission_cannot_produce_green (__main__.UnitOwner.test_unit_body_omission_cannot_produce_green) ... ok
+test_unit_negative_outcomes_are_preserved (__main__.UnitOwner.test_unit_negative_outcomes_are_preserved) ... ok
+test_unit_result_is_owned_by_actual_verdict (__main__.UnitOwner.test_unit_result_is_owned_by_actual_verdict) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.003s
+
+OK

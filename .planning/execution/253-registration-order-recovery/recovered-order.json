@@ -1,0 +1,2066 @@
+{
+  "schema": "sigra.phase253.recovered-registration-order/v1",
+  "archive_sha256": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+  "archive_member": "./raw/families/38205503164/failed-job.log",
+  "log_sha256": "9eb5c33dd861f310f06d3ab5f559c14d05952d09d6203faf668ad478b76c3a0c",
+  "log_bytes": 5375453,
+  "run_id": 38205503164,
+  "attempt": 1,
+  "source_commit": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "helper_blob": "6540493e78121f134867445dffc7010afcd85815",
+  "node_observation": {
+    "version": "v20.20.2",
+    "log_line": 318
+  },
+  "native_rows": [
+    {
+      "timestamp": "2026-10-12T04:54:03.6525616Z",
+      "outcome": "passed",
+      "ordinal": 1,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/populated",
+      "log_line": 3020
+    },
+    {
+      "timestamp": "2026-10-12T04:54:10.4857320Z",
+      "outcome": "passed",
+      "ordinal": 2,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/zero",
+      "log_line": 3021
+    },
+    {
+      "timestamp": "2026-10-12T04:54:17.1666798Z",
+      "outcome": "passed",
+      "ordinal": 3,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/loading",
+      "log_line": 3022
+    },
+    {
+      "timestamp": "2026-10-12T04:54:23.9083936Z",
+      "outcome": "passed",
+      "ordinal": 4,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/error",
+      "log_line": 3023
+    },
+    {
+      "timestamp": "2026-10-12T04:54:30.6375272Z",
+      "outcome": "passed",
+      "ordinal": 5,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/populated",
+      "log_line": 3024
+    },
+    {
+      "timestamp": "2026-10-12T04:54:37.2736452Z",
+      "outcome": "passed",
+      "ordinal": 6,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/zero",
+      "log_line": 3025
+    },
+    {
+      "timestamp": "2026-10-12T04:54:43.9948695Z",
+      "outcome": "passed",
+      "ordinal": 7,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/loading",
+      "log_line": 3026
+    },
+    {
+      "timestamp": "2026-10-12T04:54:50.6693690Z",
+      "outcome": "passed",
+      "ordinal": 8,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/error",
+      "log_line": 3027
+    },
+    {
+      "timestamp": "2026-10-12T04:54:57.2949011Z",
+      "outcome": "passed",
+      "ordinal": 9,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/populated",
+      "log_line": 3028
+    },
+    {
+      "timestamp": "2026-10-12T04:55:03.8363995Z",
+      "outcome": "passed",
+      "ordinal": 10,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/zero",
+      "log_line": 3029
+    },
+    {
+      "timestamp": "2026-10-12T04:55:10.2848137Z",
+      "outcome": "passed",
+      "ordinal": 11,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/loading",
+      "log_line": 3030
+    },
+    {
+      "timestamp": "2026-10-12T04:55:16.8083818Z",
+      "outcome": "passed",
+      "ordinal": 12,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/error",
+      "log_line": 3031
+    },
+    {
+      "timestamp": "2026-10-12T04:55:23.4461080Z",
+      "outcome": "passed",
+      "ordinal": 13,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/populated",
+      "log_line": 3032
+    },
+    {
+      "timestamp": "2026-10-12T04:55:29.9224628Z",
+      "outcome": "passed",
+      "ordinal": 14,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/zero",
+      "log_line": 3033
+    },
+    {
+      "timestamp": "2026-10-12T04:55:36.5217314Z",
+      "outcome": "passed",
+      "ordinal": 15,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/loading",
+      "log_line": 3034
+    },
+    {
+      "timestamp": "2026-10-12T04:55:43.1170407Z",
+      "outcome": "passed",
+      "ordinal": 16,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/error",
+      "log_line": 3035
+    },
+    {
+      "timestamp": "2026-10-12T04:55:49.9038430Z",
+      "outcome": "passed",
+      "ordinal": 17,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/populated",
+      "log_line": 3036
+    },
+    {
+      "timestamp": "2026-10-12T04:55:56.6189560Z",
+      "outcome": "passed",
+      "ordinal": 18,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/zero",
+      "log_line": 3037
+    },
+    {
+      "timestamp": "2026-10-12T04:56:03.3872827Z",
+      "outcome": "passed",
+      "ordinal": 19,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/loading",
+      "log_line": 3038
+    },
+    {
+      "timestamp": "2026-10-12T04:56:10.0713531Z",
+      "outcome": "passed",
+      "ordinal": 20,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/error",
+      "log_line": 3039
+    },
+    {
+      "timestamp": "2026-10-12T04:56:16.8853846Z",
+      "outcome": "passed",
+      "ordinal": 21,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/populated",
+      "log_line": 3040
+    },
+    {
+      "timestamp": "2026-10-12T04:56:23.6525017Z",
+      "outcome": "passed",
+      "ordinal": 22,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/zero",
+      "log_line": 3041
+    },
+    {
+      "timestamp": "2026-10-12T04:56:30.2415570Z",
+      "outcome": "passed",
+      "ordinal": 23,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/loading",
+      "log_line": 3042
+    },
+    {
+      "timestamp": "2026-10-12T04:56:37.0495638Z",
+      "outcome": "passed",
+      "ordinal": 24,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/error",
+      "log_line": 3043
+    },
+    {
+      "timestamp": "2026-10-12T04:56:43.9113412Z",
+      "outcome": "passed",
+      "ordinal": 25,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/populated",
+      "log_line": 3044
+    },
+    {
+      "timestamp": "2026-10-12T04:56:50.5906850Z",
+      "outcome": "passed",
+      "ordinal": 26,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/zero",
+      "log_line": 3045
+    },
+    {
+      "timestamp": "2026-10-12T04:56:57.1324385Z",
+      "outcome": "passed",
+      "ordinal": 27,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/loading",
+      "log_line": 3046
+    },
+    {
+      "timestamp": "2026-10-12T04:57:03.7380041Z",
+      "outcome": "passed",
+      "ordinal": 28,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/error",
+      "log_line": 3047
+    },
+    {
+      "timestamp": "2026-10-12T04:57:10.2985393Z",
+      "outcome": "passed",
+      "ordinal": 29,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/populated",
+      "log_line": 3048
+    },
+    {
+      "timestamp": "2026-10-12T04:57:16.9472569Z",
+      "outcome": "passed",
+      "ordinal": 30,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/zero",
+      "log_line": 3049
+    },
+    {
+      "timestamp": "2026-10-12T04:57:23.5974160Z",
+      "outcome": "passed",
+      "ordinal": 31,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/loading",
+      "log_line": 3050
+    },
+    {
+      "timestamp": "2026-10-12T04:57:31.2530559Z",
+      "outcome": "passed",
+      "ordinal": 32,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/error",
+      "log_line": 3051
+    },
+    {
+      "timestamp": "2026-10-12T04:57:37.8267757Z",
+      "outcome": "passed",
+      "ordinal": 33,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/populated",
+      "log_line": 3052
+    },
+    {
+      "timestamp": "2026-10-12T04:57:44.4964016Z",
+      "outcome": "passed",
+      "ordinal": 34,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/zero",
+      "log_line": 3053
+    },
+    {
+      "timestamp": "2026-10-12T04:57:51.0832647Z",
+      "outcome": "passed",
+      "ordinal": 35,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/loading",
+      "log_line": 3054
+    },
+    {
+      "timestamp": "2026-10-12T04:57:57.5268035Z",
+      "outcome": "passed",
+      "ordinal": 36,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/error",
+      "log_line": 3055
+    },
+    {
+      "timestamp": "2026-10-12T04:58:04.1279840Z",
+      "outcome": "passed",
+      "ordinal": 37,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/populated",
+      "log_line": 3056
+    },
+    {
+      "timestamp": "2026-10-12T04:58:10.6015361Z",
+      "outcome": "passed",
+      "ordinal": 38,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/zero",
+      "log_line": 3057
+    },
+    {
+      "timestamp": "2026-10-12T04:58:17.0974123Z",
+      "outcome": "passed",
+      "ordinal": 39,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/loading",
+      "log_line": 3058
+    },
+    {
+      "timestamp": "2026-10-12T04:58:23.7019154Z",
+      "outcome": "passed",
+      "ordinal": 40,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/error",
+      "log_line": 3059
+    },
+    {
+      "timestamp": "2026-10-12T04:58:30.2278577Z",
+      "outcome": "passed",
+      "ordinal": 41,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/populated",
+      "log_line": 3060
+    },
+    {
+      "timestamp": "2026-10-12T04:58:36.8486250Z",
+      "outcome": "passed",
+      "ordinal": 42,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/zero",
+      "log_line": 3061
+    },
+    {
+      "timestamp": "2026-10-12T04:58:43.5041649Z",
+      "outcome": "passed",
+      "ordinal": 43,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/loading",
+      "log_line": 3062
+    },
+    {
+      "timestamp": "2026-10-12T04:58:50.1631340Z",
+      "outcome": "passed",
+      "ordinal": 44,
+      "project": "admin-eval",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/error",
+      "log_line": 3063
+    },
+    {
+      "timestamp": "2026-10-12T04:58:56.7391246Z",
+      "outcome": "passed",
+      "ordinal": 45,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-stat/default",
+      "log_line": 3064
+    },
+    {
+      "timestamp": "2026-10-12T04:59:03.2904741Z",
+      "outcome": "passed",
+      "ordinal": 46,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-stat_link/default",
+      "log_line": 3065
+    },
+    {
+      "timestamp": "2026-10-12T04:59:09.8802647Z",
+      "outcome": "passed",
+      "ordinal": 47,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-task_card/default",
+      "log_line": 3066
+    },
+    {
+      "timestamp": "2026-10-12T04:59:16.4564512Z",
+      "outcome": "passed",
+      "ordinal": 48,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-summary_chip/default",
+      "log_line": 3067
+    },
+    {
+      "timestamp": "2026-10-12T04:59:23.1335400Z",
+      "outcome": "passed",
+      "ordinal": 49,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-applied_chip/default",
+      "log_line": 3068
+    },
+    {
+      "timestamp": "2026-10-12T04:59:29.7434440Z",
+      "outcome": "passed",
+      "ordinal": 50,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-empty_state/default",
+      "log_line": 3069
+    },
+    {
+      "timestamp": "2026-10-12T04:59:36.3925505Z",
+      "outcome": "passed",
+      "ordinal": 51,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-page_back/default",
+      "log_line": 3070
+    },
+    {
+      "timestamp": "2026-10-12T04:59:42.8595748Z",
+      "outcome": "passed",
+      "ordinal": 52,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-scope_ribbon/default",
+      "log_line": 3071
+    },
+    {
+      "timestamp": "2026-10-12T04:59:49.3757941Z",
+      "outcome": "passed",
+      "ordinal": 53,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-notice/default",
+      "log_line": 3072
+    },
+    {
+      "timestamp": "2026-10-12T04:59:56.0083377Z",
+      "outcome": "passed",
+      "ordinal": 54,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-notice_link/default",
+      "log_line": 3073
+    },
+    {
+      "timestamp": "2026-10-12T05:00:02.6112133Z",
+      "outcome": "passed",
+      "ordinal": 55,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-field_help/default",
+      "log_line": 3074
+    },
+    {
+      "timestamp": "2026-10-12T05:00:09.2699693Z",
+      "outcome": "passed",
+      "ordinal": 56,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-skeleton/default",
+      "log_line": 3075
+    },
+    {
+      "timestamp": "2026-10-12T05:00:15.8899812Z",
+      "outcome": "passed",
+      "ordinal": 57,
+      "project": "admin-eval",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-audit_row/default",
+      "log_line": 3076
+    },
+    {
+      "timestamp": "2026-10-12T05:00:20.3401362Z",
+      "outcome": "passed",
+      "ordinal": 58,
+      "project": "admin-eval",
+      "source_line": 485,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes",
+      "log_line": 3077
+    },
+    {
+      "timestamp": "2026-10-12T05:00:24.7978027Z",
+      "outcome": "passed",
+      "ordinal": 59,
+      "project": "admin-eval",
+      "source_line": 567,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #4 ember-reserved-for: seeded misuse is flagged, reserved-context element passes",
+      "log_line": 3078
+    },
+    {
+      "timestamp": "2026-10-12T05:00:29.2386223Z",
+      "outcome": "passed",
+      "ordinal": 60,
+      "project": "admin-eval",
+      "source_line": 615,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #5 off-scale-radius: seeded defect is flagged, on-scale passes",
+      "log_line": 3079
+    },
+    {
+      "timestamp": "2026-10-12T05:00:35.9047646Z",
+      "outcome": "passed",
+      "ordinal": 61,
+      "project": "admin-eval",
+      "source_line": 660,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #6 target-size: axe target-size rule is explicitly enabled",
+      "log_line": 3080
+    },
+    {
+      "timestamp": "2026-10-12T05:00:40.3894112Z",
+      "outcome": "passed",
+      "ordinal": 62,
+      "project": "admin-eval",
+      "source_line": 695,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #7 focus-ring: control with no focus style is flagged, sg-btn passes",
+      "log_line": 3081
+    },
+    {
+      "timestamp": "2026-10-12T05:00:44.8582004Z",
+      "outcome": "passed",
+      "ordinal": 63,
+      "project": "admin-eval",
+      "source_line": 746,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #8 card-in-card: nested card without audit-only attr is flagged; suppressed passes",
+      "log_line": 3082
+    },
+    {
+      "timestamp": "2026-10-12T05:00:49.3572324Z",
+      "outcome": "passed",
+      "ordinal": 64,
+      "project": "admin-eval",
+      "source_line": 789,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a gallery boards produce no gate findings on the clean baseline",
+      "log_line": 3083
+    },
+    {
+      "timestamp": "2026-10-12T05:01:06.7835122Z",
+      "outcome": "passed",
+      "ordinal": 65,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/populated",
+      "log_line": 3084
+    },
+    {
+      "timestamp": "2026-10-12T05:01:15.5205132Z",
+      "outcome": "passed",
+      "ordinal": 66,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/zero",
+      "log_line": 3085
+    },
+    {
+      "timestamp": "2026-10-12T05:01:24.7765882Z",
+      "outcome": "passed",
+      "ordinal": 67,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/loading",
+      "log_line": 3086
+    },
+    {
+      "timestamp": "2026-10-12T05:01:33.4552702Z",
+      "outcome": "passed",
+      "ordinal": 68,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/error",
+      "log_line": 3087
+    },
+    {
+      "timestamp": "2026-10-12T05:01:42.9240720Z",
+      "outcome": "passed",
+      "ordinal": 69,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/populated",
+      "log_line": 3088
+    },
+    {
+      "timestamp": "2026-10-12T05:01:51.9559703Z",
+      "outcome": "passed",
+      "ordinal": 70,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/zero",
+      "log_line": 3089
+    },
+    {
+      "timestamp": "2026-10-12T05:02:11.2976124Z",
+      "outcome": "passed",
+      "ordinal": 71,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/loading",
+      "log_line": 3090
+    },
+    {
+      "timestamp": "2026-10-12T05:02:26.1166247Z",
+      "outcome": "passed",
+      "ordinal": 72,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/error",
+      "log_line": 3091
+    },
+    {
+      "timestamp": "2026-10-12T05:02:35.4260440Z",
+      "outcome": "passed",
+      "ordinal": 73,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/populated",
+      "log_line": 3092
+    },
+    {
+      "timestamp": "2026-10-12T05:02:44.9224606Z",
+      "outcome": "passed",
+      "ordinal": 74,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/zero",
+      "log_line": 3093
+    },
+    {
+      "timestamp": "2026-10-12T05:02:53.5584978Z",
+      "outcome": "passed",
+      "ordinal": 75,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/loading",
+      "log_line": 3094
+    },
+    {
+      "timestamp": "2026-10-12T05:03:11.9217521Z",
+      "outcome": "passed",
+      "ordinal": 76,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/error",
+      "log_line": 3095
+    },
+    {
+      "timestamp": "2026-10-12T05:03:27.0626959Z",
+      "outcome": "passed",
+      "ordinal": 77,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/populated",
+      "log_line": 3096
+    },
+    {
+      "timestamp": "2026-10-12T05:03:35.8065949Z",
+      "outcome": "passed",
+      "ordinal": 78,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/zero",
+      "log_line": 3097
+    },
+    {
+      "timestamp": "2026-10-12T05:03:44.9097486Z",
+      "outcome": "passed",
+      "ordinal": 79,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/loading",
+      "log_line": 3098
+    },
+    {
+      "timestamp": "2026-10-12T05:03:53.6993881Z",
+      "outcome": "passed",
+      "ordinal": 80,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/error",
+      "log_line": 3099
+    },
+    {
+      "timestamp": "2026-10-12T05:04:02.7213912Z",
+      "outcome": "passed",
+      "ordinal": 81,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/populated",
+      "log_line": 3100
+    },
+    {
+      "timestamp": "2026-10-12T05:04:11.6820101Z",
+      "outcome": "passed",
+      "ordinal": 82,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/zero",
+      "log_line": 3101
+    },
+    {
+      "timestamp": "2026-10-12T05:04:20.6721227Z",
+      "outcome": "passed",
+      "ordinal": 83,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/loading",
+      "log_line": 3102
+    },
+    {
+      "timestamp": "2026-10-12T05:04:29.6026993Z",
+      "outcome": "passed",
+      "ordinal": 84,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/error",
+      "log_line": 3103
+    },
+    {
+      "timestamp": "2026-10-12T05:04:38.4190099Z",
+      "outcome": "passed",
+      "ordinal": 85,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/populated",
+      "log_line": 3104
+    },
+    {
+      "timestamp": "2026-10-12T05:04:48.2436154Z",
+      "outcome": "passed",
+      "ordinal": 86,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/zero",
+      "log_line": 3105
+    },
+    {
+      "timestamp": "2026-10-12T05:04:57.0914313Z",
+      "outcome": "passed",
+      "ordinal": 87,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/loading",
+      "log_line": 3106
+    },
+    {
+      "timestamp": "2026-10-12T05:05:05.9107042Z",
+      "outcome": "passed",
+      "ordinal": 88,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/error",
+      "log_line": 3107
+    },
+    {
+      "timestamp": "2026-10-12T05:05:23.9047521Z",
+      "outcome": "passed",
+      "ordinal": 89,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/populated",
+      "log_line": 3108
+    },
+    {
+      "timestamp": "2026-10-12T05:05:39.1780848Z",
+      "outcome": "passed",
+      "ordinal": 90,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/zero",
+      "log_line": 3109
+    },
+    {
+      "timestamp": "2026-10-12T05:05:48.5018790Z",
+      "outcome": "passed",
+      "ordinal": 91,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/loading",
+      "log_line": 3110
+    },
+    {
+      "timestamp": "2026-10-12T05:05:57.6265716Z",
+      "outcome": "passed",
+      "ordinal": 92,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/error",
+      "log_line": 3111
+    },
+    {
+      "timestamp": "2026-10-12T05:06:06.7563323Z",
+      "outcome": "passed",
+      "ordinal": 93,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/populated",
+      "log_line": 3112
+    },
+    {
+      "timestamp": "2026-10-12T05:06:16.5271845Z",
+      "outcome": "passed",
+      "ordinal": 94,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/zero",
+      "log_line": 3113
+    },
+    {
+      "timestamp": "2026-10-12T05:06:26.1855209Z",
+      "outcome": "passed",
+      "ordinal": 95,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/loading",
+      "log_line": 3114
+    },
+    {
+      "timestamp": "2026-10-12T05:06:35.8345301Z",
+      "outcome": "passed",
+      "ordinal": 96,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/error",
+      "log_line": 3115
+    },
+    {
+      "timestamp": "2026-10-12T05:06:45.5947190Z",
+      "outcome": "passed",
+      "ordinal": 97,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/populated",
+      "log_line": 3116
+    },
+    {
+      "timestamp": "2026-10-12T05:06:55.7008939Z",
+      "outcome": "passed",
+      "ordinal": 98,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/zero",
+      "log_line": 3117
+    },
+    {
+      "timestamp": "2026-10-12T05:07:05.9445016Z",
+      "outcome": "passed",
+      "ordinal": 99,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/loading",
+      "log_line": 3118
+    },
+    {
+      "timestamp": "2026-10-12T05:07:16.1885961Z",
+      "outcome": "passed",
+      "ordinal": 100,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/error",
+      "log_line": 3119
+    },
+    {
+      "timestamp": "2026-10-12T05:07:26.6444628Z",
+      "outcome": "passed",
+      "ordinal": 101,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/populated",
+      "log_line": 3120
+    },
+    {
+      "timestamp": "2026-10-12T05:07:36.1234226Z",
+      "outcome": "passed",
+      "ordinal": 102,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/zero",
+      "log_line": 3121
+    },
+    {
+      "timestamp": "2026-10-12T05:07:45.8526253Z",
+      "outcome": "passed",
+      "ordinal": 103,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/loading",
+      "log_line": 3122
+    },
+    {
+      "timestamp": "2026-10-12T05:07:55.5250039Z",
+      "outcome": "passed",
+      "ordinal": 104,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/error",
+      "log_line": 3123
+    },
+    {
+      "timestamp": "2026-10-12T05:08:05.1373899Z",
+      "outcome": "passed",
+      "ordinal": 105,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/populated",
+      "log_line": 3124
+    },
+    {
+      "timestamp": "2026-10-12T05:08:14.7360205Z",
+      "outcome": "passed",
+      "ordinal": 106,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/zero",
+      "log_line": 3125
+    },
+    {
+      "timestamp": "2026-10-12T05:08:24.4037412Z",
+      "outcome": "passed",
+      "ordinal": 107,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/loading",
+      "log_line": 3126
+    },
+    {
+      "timestamp": "2026-10-12T05:08:34.1467567Z",
+      "outcome": "passed",
+      "ordinal": 108,
+      "project": "admin-eval-mobile",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/error",
+      "log_line": 3127
+    },
+    {
+      "timestamp": "2026-10-12T05:08:43.8251090Z",
+      "outcome": "passed",
+      "ordinal": 109,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-stat/default",
+      "log_line": 3128
+    },
+    {
+      "timestamp": "2026-10-12T05:08:53.4445229Z",
+      "outcome": "passed",
+      "ordinal": 110,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-stat_link/default",
+      "log_line": 3129
+    },
+    {
+      "timestamp": "2026-10-12T05:09:03.2061992Z",
+      "outcome": "passed",
+      "ordinal": 111,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-task_card/default",
+      "log_line": 3130
+    },
+    {
+      "timestamp": "2026-10-12T05:09:12.7669021Z",
+      "outcome": "passed",
+      "ordinal": 112,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-summary_chip/default",
+      "log_line": 3131
+    },
+    {
+      "timestamp": "2026-10-12T05:09:22.4013298Z",
+      "outcome": "passed",
+      "ordinal": 113,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-applied_chip/default",
+      "log_line": 3132
+    },
+    {
+      "timestamp": "2026-10-12T05:09:31.8449652Z",
+      "outcome": "passed",
+      "ordinal": 114,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-empty_state/default",
+      "log_line": 3133
+    },
+    {
+      "timestamp": "2026-10-12T05:09:41.2852235Z",
+      "outcome": "passed",
+      "ordinal": 115,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-page_back/default",
+      "log_line": 3134
+    },
+    {
+      "timestamp": "2026-10-12T05:10:07.9406549Z",
+      "outcome": "passed",
+      "ordinal": 116,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-scope_ribbon/default",
+      "log_line": 3135
+    },
+    {
+      "timestamp": "2026-10-12T05:10:17.2937624Z",
+      "outcome": "passed",
+      "ordinal": 117,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-notice/default",
+      "log_line": 3136
+    },
+    {
+      "timestamp": "2026-10-12T05:10:27.2416731Z",
+      "outcome": "passed",
+      "ordinal": 118,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-notice_link/default",
+      "log_line": 3137
+    },
+    {
+      "timestamp": "2026-10-12T05:10:36.6553950Z",
+      "outcome": "passed",
+      "ordinal": 119,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-field_help/default",
+      "log_line": 3138
+    },
+    {
+      "timestamp": "2026-10-12T05:10:46.3472199Z",
+      "outcome": "passed",
+      "ordinal": 120,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-skeleton/default",
+      "log_line": 3139
+    },
+    {
+      "timestamp": "2026-10-12T05:10:56.5259580Z",
+      "outcome": "passed",
+      "ordinal": 121,
+      "project": "admin-eval-mobile",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-audit_row/default",
+      "log_line": 3140
+    },
+    {
+      "timestamp": "2026-10-12T05:11:02.3701666Z",
+      "outcome": "passed",
+      "ordinal": 122,
+      "project": "admin-eval-mobile",
+      "source_line": 485,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes",
+      "log_line": 3141
+    },
+    {
+      "timestamp": "2026-10-12T05:11:08.5172254Z",
+      "outcome": "passed",
+      "ordinal": 123,
+      "project": "admin-eval-mobile",
+      "source_line": 567,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #4 ember-reserved-for: seeded misuse is flagged, reserved-context element passes",
+      "log_line": 3142
+    },
+    {
+      "timestamp": "2026-10-12T05:11:14.5652099Z",
+      "outcome": "passed",
+      "ordinal": 124,
+      "project": "admin-eval-mobile",
+      "source_line": 615,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #5 off-scale-radius: seeded defect is flagged, on-scale passes",
+      "log_line": 3143
+    },
+    {
+      "timestamp": "2026-10-12T05:11:23.8726477Z",
+      "outcome": "passed",
+      "ordinal": 125,
+      "project": "admin-eval-mobile",
+      "source_line": 660,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #6 target-size: axe target-size rule is explicitly enabled",
+      "log_line": 3144
+    },
+    {
+      "timestamp": "2026-10-12T05:11:30.4486215Z",
+      "outcome": "passed",
+      "ordinal": 126,
+      "project": "admin-eval-mobile",
+      "source_line": 695,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #7 focus-ring: control with no focus style is flagged, sg-btn passes",
+      "log_line": 3145
+    },
+    {
+      "timestamp": "2026-10-12T05:11:36.8487185Z",
+      "outcome": "passed",
+      "ordinal": 127,
+      "project": "admin-eval-mobile",
+      "source_line": 746,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #8 card-in-card: nested card without audit-only attr is flagged; suppressed passes",
+      "log_line": 3146
+    },
+    {
+      "timestamp": "2026-10-12T05:11:43.4496078Z",
+      "outcome": "passed",
+      "ordinal": 128,
+      "project": "admin-eval-mobile",
+      "source_line": 789,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a gallery boards produce no gate findings on the clean baseline",
+      "log_line": 3147
+    },
+    {
+      "timestamp": "2026-10-12T05:11:51.9033184Z",
+      "outcome": "passed",
+      "ordinal": 129,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/populated",
+      "log_line": 3148
+    },
+    {
+      "timestamp": "2026-10-12T05:11:59.1862027Z",
+      "outcome": "passed",
+      "ordinal": 130,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/zero",
+      "log_line": 3149
+    },
+    {
+      "timestamp": "2026-10-12T05:12:06.9126170Z",
+      "outcome": "passed",
+      "ordinal": 131,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/loading",
+      "log_line": 3150
+    },
+    {
+      "timestamp": "2026-10-12T05:12:14.1155938Z",
+      "outcome": "passed",
+      "ordinal": 132,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/error",
+      "log_line": 3151
+    },
+    {
+      "timestamp": "2026-10-12T05:12:21.6648745Z",
+      "outcome": "passed",
+      "ordinal": 133,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/populated",
+      "log_line": 3152
+    },
+    {
+      "timestamp": "2026-10-12T05:12:29.0827331Z",
+      "outcome": "passed",
+      "ordinal": 134,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/zero",
+      "log_line": 3153
+    },
+    {
+      "timestamp": "2026-10-12T05:12:36.6873406Z",
+      "outcome": "passed",
+      "ordinal": 135,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/loading",
+      "log_line": 3154
+    },
+    {
+      "timestamp": "2026-10-12T05:12:44.0143229Z",
+      "outcome": "passed",
+      "ordinal": 136,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/error",
+      "log_line": 3155
+    },
+    {
+      "timestamp": "2026-10-12T05:12:51.4334128Z",
+      "outcome": "passed",
+      "ordinal": 137,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/populated",
+      "log_line": 3156
+    },
+    {
+      "timestamp": "2026-10-12T05:12:58.5314913Z",
+      "outcome": "passed",
+      "ordinal": 138,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/zero",
+      "log_line": 3157
+    },
+    {
+      "timestamp": "2026-10-12T05:13:05.7999102Z",
+      "outcome": "passed",
+      "ordinal": 139,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/loading",
+      "log_line": 3158
+    },
+    {
+      "timestamp": "2026-10-12T05:13:13.2688273Z",
+      "outcome": "passed",
+      "ordinal": 140,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/error",
+      "log_line": 3159
+    },
+    {
+      "timestamp": "2026-10-12T05:13:20.4225629Z",
+      "outcome": "passed",
+      "ordinal": 141,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/populated",
+      "log_line": 3160
+    },
+    {
+      "timestamp": "2026-10-12T05:13:27.5072442Z",
+      "outcome": "passed",
+      "ordinal": 142,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/zero",
+      "log_line": 3161
+    },
+    {
+      "timestamp": "2026-10-12T05:13:34.6794606Z",
+      "outcome": "passed",
+      "ordinal": 143,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/loading",
+      "log_line": 3162
+    },
+    {
+      "timestamp": "2026-10-12T05:13:41.6596235Z",
+      "outcome": "passed",
+      "ordinal": 144,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/error",
+      "log_line": 3163
+    },
+    {
+      "timestamp": "2026-10-12T05:13:48.6097415Z",
+      "outcome": "passed",
+      "ordinal": 145,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/populated",
+      "log_line": 3164
+    },
+    {
+      "timestamp": "2026-10-12T05:13:56.0574576Z",
+      "outcome": "passed",
+      "ordinal": 146,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/zero",
+      "log_line": 3165
+    },
+    {
+      "timestamp": "2026-10-12T05:14:03.4727677Z",
+      "outcome": "passed",
+      "ordinal": 147,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/loading",
+      "log_line": 3166
+    },
+    {
+      "timestamp": "2026-10-12T05:14:10.6555709Z",
+      "outcome": "passed",
+      "ordinal": 148,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/error",
+      "log_line": 3167
+    },
+    {
+      "timestamp": "2026-10-12T05:14:17.7771554Z",
+      "outcome": "passed",
+      "ordinal": 149,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/populated",
+      "log_line": 3168
+    },
+    {
+      "timestamp": "2026-10-12T05:14:25.0300706Z",
+      "outcome": "passed",
+      "ordinal": 150,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/zero",
+      "log_line": 3169
+    },
+    {
+      "timestamp": "2026-10-12T05:14:32.2095560Z",
+      "outcome": "passed",
+      "ordinal": 151,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/loading",
+      "log_line": 3170
+    },
+    {
+      "timestamp": "2026-10-12T05:14:39.3905689Z",
+      "outcome": "passed",
+      "ordinal": 152,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/error",
+      "log_line": 3171
+    },
+    {
+      "timestamp": "2026-10-12T05:14:46.9660628Z",
+      "outcome": "passed",
+      "ordinal": 153,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/populated",
+      "log_line": 3172
+    },
+    {
+      "timestamp": "2026-10-12T05:14:54.0041604Z",
+      "outcome": "passed",
+      "ordinal": 154,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/zero",
+      "log_line": 3173
+    },
+    {
+      "timestamp": "2026-10-12T05:15:01.2033724Z",
+      "outcome": "passed",
+      "ordinal": 155,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/loading",
+      "log_line": 3174
+    },
+    {
+      "timestamp": "2026-10-12T05:15:08.0327466Z",
+      "outcome": "passed",
+      "ordinal": 156,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/error",
+      "log_line": 3175
+    },
+    {
+      "timestamp": "2026-10-12T05:15:15.2896146Z",
+      "outcome": "passed",
+      "ordinal": 157,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/populated",
+      "log_line": 3176
+    },
+    {
+      "timestamp": "2026-10-12T05:15:22.3900206Z",
+      "outcome": "passed",
+      "ordinal": 158,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/zero",
+      "log_line": 3177
+    },
+    {
+      "timestamp": "2026-10-12T05:15:29.5461803Z",
+      "outcome": "passed",
+      "ordinal": 159,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/loading",
+      "log_line": 3178
+    },
+    {
+      "timestamp": "2026-10-12T05:15:36.5360361Z",
+      "outcome": "passed",
+      "ordinal": 160,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/error",
+      "log_line": 3179
+    },
+    {
+      "timestamp": "2026-10-12T05:15:48.2331749Z",
+      "outcome": "failed",
+      "ordinal": 161,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/populated",
+      "log_line": 3180
+    },
+    {
+      "timestamp": "2026-10-12T05:15:56.3125853Z",
+      "outcome": "passed",
+      "ordinal": 162,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/zero",
+      "log_line": 3181
+    },
+    {
+      "timestamp": "2026-10-12T05:16:03.9350546Z",
+      "outcome": "passed",
+      "ordinal": 163,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/loading",
+      "log_line": 3182
+    },
+    {
+      "timestamp": "2026-10-12T05:16:11.0566052Z",
+      "outcome": "passed",
+      "ordinal": 164,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/error",
+      "log_line": 3183
+    },
+    {
+      "timestamp": "2026-10-12T05:16:18.2094199Z",
+      "outcome": "passed",
+      "ordinal": 165,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/populated",
+      "log_line": 3184
+    },
+    {
+      "timestamp": "2026-10-12T05:16:25.3611563Z",
+      "outcome": "passed",
+      "ordinal": 166,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/zero",
+      "log_line": 3185
+    },
+    {
+      "timestamp": "2026-10-12T05:16:32.7215810Z",
+      "outcome": "passed",
+      "ordinal": 167,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/loading",
+      "log_line": 3186
+    },
+    {
+      "timestamp": "2026-10-12T05:16:39.8328144Z",
+      "outcome": "passed",
+      "ordinal": 168,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-10/error",
+      "log_line": 3187
+    },
+    {
+      "timestamp": "2026-10-12T05:16:46.9644665Z",
+      "outcome": "passed",
+      "ordinal": 169,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/populated",
+      "log_line": 3188
+    },
+    {
+      "timestamp": "2026-10-12T05:16:54.0165513Z",
+      "outcome": "passed",
+      "ordinal": 170,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/zero",
+      "log_line": 3189
+    },
+    {
+      "timestamp": "2026-10-12T05:17:01.0478131Z",
+      "outcome": "passed",
+      "ordinal": 171,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/loading",
+      "log_line": 3190
+    },
+    {
+      "timestamp": "2026-10-12T05:17:07.8621140Z",
+      "outcome": "passed",
+      "ordinal": 172,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-11/error",
+      "log_line": 3191
+    },
+    {
+      "timestamp": "2026-10-12T05:17:14.9147965Z",
+      "outcome": "passed",
+      "ordinal": 173,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-stat/default",
+      "log_line": 3192
+    },
+    {
+      "timestamp": "2026-10-12T05:17:21.9535051Z",
+      "outcome": "passed",
+      "ordinal": 174,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-stat_link/default",
+      "log_line": 3193
+    },
+    {
+      "timestamp": "2026-10-12T05:17:29.1481252Z",
+      "outcome": "passed",
+      "ordinal": 175,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-task_card/default",
+      "log_line": 3194
+    },
+    {
+      "timestamp": "2026-10-12T05:17:36.3995544Z",
+      "outcome": "passed",
+      "ordinal": 176,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-summary_chip/default",
+      "log_line": 3195
+    },
+    {
+      "timestamp": "2026-10-12T05:17:43.8967049Z",
+      "outcome": "passed",
+      "ordinal": 177,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-applied_chip/default",
+      "log_line": 3196
+    },
+    {
+      "timestamp": "2026-10-12T05:17:50.7782803Z",
+      "outcome": "passed",
+      "ordinal": 178,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-empty_state/default",
+      "log_line": 3197
+    },
+    {
+      "timestamp": "2026-10-12T05:17:57.7182521Z",
+      "outcome": "passed",
+      "ordinal": 179,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-page_back/default",
+      "log_line": 3198
+    },
+    {
+      "timestamp": "2026-10-12T05:18:04.7844352Z",
+      "outcome": "passed",
+      "ordinal": 180,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-scope_ribbon/default",
+      "log_line": 3199
+    },
+    {
+      "timestamp": "2026-10-12T05:18:11.7872139Z",
+      "outcome": "passed",
+      "ordinal": 181,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-notice/default",
+      "log_line": 3200
+    },
+    {
+      "timestamp": "2026-10-12T05:18:19.0145277Z",
+      "outcome": "passed",
+      "ordinal": 182,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-notice_link/default",
+      "log_line": 3201
+    },
+    {
+      "timestamp": "2026-10-12T05:18:26.2263263Z",
+      "outcome": "passed",
+      "ordinal": 183,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-field_help/default",
+      "log_line": 3202
+    },
+    {
+      "timestamp": "2026-10-12T05:18:33.1845854Z",
+      "outcome": "passed",
+      "ordinal": 184,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-skeleton/default",
+      "log_line": 3203
+    },
+    {
+      "timestamp": "2026-10-12T05:18:40.2718737Z",
+      "outcome": "passed",
+      "ordinal": 185,
+      "project": "admin-eval-dark",
+      "source_line": 467,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-audit_row/default",
+      "log_line": 3204
+    },
+    {
+      "timestamp": "2026-10-12T05:18:45.7147843Z",
+      "outcome": "passed",
+      "ordinal": 186,
+      "project": "admin-eval-dark",
+      "source_line": 485,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes",
+      "log_line": 3205
+    },
+    {
+      "timestamp": "2026-10-12T05:18:50.5832815Z",
+      "outcome": "passed",
+      "ordinal": 187,
+      "project": "admin-eval-dark",
+      "source_line": 567,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #4 ember-reserved-for: seeded misuse is flagged, reserved-context element passes",
+      "log_line": 3206
+    },
+    {
+      "timestamp": "2026-10-12T05:18:55.4844598Z",
+      "outcome": "passed",
+      "ordinal": 188,
+      "project": "admin-eval-dark",
+      "source_line": 615,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #5 off-scale-radius: seeded defect is flagged, on-scale passes",
+      "log_line": 3207
+    },
+    {
+      "timestamp": "2026-10-12T05:19:02.5405683Z",
+      "outcome": "passed",
+      "ordinal": 189,
+      "project": "admin-eval-dark",
+      "source_line": 660,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #6 target-size: axe target-size rule is explicitly enabled",
+      "log_line": 3208
+    },
+    {
+      "timestamp": "2026-10-12T05:19:07.5411345Z",
+      "outcome": "passed",
+      "ordinal": 190,
+      "project": "admin-eval-dark",
+      "source_line": 695,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #7 focus-ring: control with no focus style is flagged, sg-btn passes",
+      "log_line": 3209
+    },
+    {
+      "timestamp": "2026-10-12T05:19:12.9244182Z",
+      "outcome": "passed",
+      "ordinal": 191,
+      "project": "admin-eval-dark",
+      "source_line": 746,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a probe #8 card-in-card: nested card without audit-only attr is flagged; suppressed passes",
+      "log_line": 3210
+    },
+    {
+      "timestamp": "2026-10-12T05:19:17.9898179Z",
+      "outcome": "passed",
+      "ordinal": 192,
+      "project": "admin-eval-dark",
+      "source_line": 789,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a gallery boards produce no gate findings on the clean baseline",
+      "log_line": 3211
+    }
+  ],
+  "selected_failure": {
+    "timestamp": "2026-10-12T05:15:48.2331749Z",
+    "outcome": "failed",
+    "ordinal": 161,
+    "project": "admin-eval-dark",
+    "source_line": 442,
+    "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/populated",
+    "log_line": 3180
+  },
+  "dark_project_prefix": [
+    {
+      "timestamp": "2026-10-12T05:11:51.9033184Z",
+      "outcome": "passed",
+      "ordinal": 129,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/populated",
+      "log_line": 3148
+    },
+    {
+      "timestamp": "2026-10-12T05:11:59.1862027Z",
+      "outcome": "passed",
+      "ordinal": 130,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/zero",
+      "log_line": 3149
+    },
+    {
+      "timestamp": "2026-10-12T05:12:06.9126170Z",
+      "outcome": "passed",
+      "ordinal": 131,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/loading",
+      "log_line": 3150
+    },
+    {
+      "timestamp": "2026-10-12T05:12:14.1155938Z",
+      "outcome": "passed",
+      "ordinal": 132,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-1/error",
+      "log_line": 3151
+    },
+    {
+      "timestamp": "2026-10-12T05:12:21.6648745Z",
+      "outcome": "passed",
+      "ordinal": 133,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/populated",
+      "log_line": 3152
+    },
+    {
+      "timestamp": "2026-10-12T05:12:29.0827331Z",
+      "outcome": "passed",
+      "ordinal": 134,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/zero",
+      "log_line": 3153
+    },
+    {
+      "timestamp": "2026-10-12T05:12:36.6873406Z",
+      "outcome": "passed",
+      "ordinal": 135,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/loading",
+      "log_line": 3154
+    },
+    {
+      "timestamp": "2026-10-12T05:12:44.0143229Z",
+      "outcome": "passed",
+      "ordinal": 136,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-2/error",
+      "log_line": 3155
+    },
+    {
+      "timestamp": "2026-10-12T05:12:51.4334128Z",
+      "outcome": "passed",
+      "ordinal": 137,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/populated",
+      "log_line": 3156
+    },
+    {
+      "timestamp": "2026-10-12T05:12:58.5314913Z",
+      "outcome": "passed",
+      "ordinal": 138,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/zero",
+      "log_line": 3157
+    },
+    {
+      "timestamp": "2026-10-12T05:13:05.7999102Z",
+      "outcome": "passed",
+      "ordinal": 139,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/loading",
+      "log_line": 3158
+    },
+    {
+      "timestamp": "2026-10-12T05:13:13.2688273Z",
+      "outcome": "passed",
+      "ordinal": 140,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-3/error",
+      "log_line": 3159
+    },
+    {
+      "timestamp": "2026-10-12T05:13:20.4225629Z",
+      "outcome": "passed",
+      "ordinal": 141,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/populated",
+      "log_line": 3160
+    },
+    {
+      "timestamp": "2026-10-12T05:13:27.5072442Z",
+      "outcome": "passed",
+      "ordinal": 142,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/zero",
+      "log_line": 3161
+    },
+    {
+      "timestamp": "2026-10-12T05:13:34.6794606Z",
+      "outcome": "passed",
+      "ordinal": 143,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/loading",
+      "log_line": 3162
+    },
+    {
+      "timestamp": "2026-10-12T05:13:41.6596235Z",
+      "outcome": "passed",
+      "ordinal": 144,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-4/error",
+      "log_line": 3163
+    },
+    {
+      "timestamp": "2026-10-12T05:13:48.6097415Z",
+      "outcome": "passed",
+      "ordinal": 145,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/populated",
+      "log_line": 3164
+    },
+    {
+      "timestamp": "2026-10-12T05:13:56.0574576Z",
+      "outcome": "passed",
+      "ordinal": 146,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/zero",
+      "log_line": 3165
+    },
+    {
+      "timestamp": "2026-10-12T05:14:03.4727677Z",
+      "outcome": "passed",
+      "ordinal": 147,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/loading",
+      "log_line": 3166
+    },
+    {
+      "timestamp": "2026-10-12T05:14:10.6555709Z",
+      "outcome": "passed",
+      "ordinal": 148,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-5/error",
+      "log_line": 3167
+    },
+    {
+      "timestamp": "2026-10-12T05:14:17.7771554Z",
+      "outcome": "passed",
+      "ordinal": 149,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/populated",
+      "log_line": 3168
+    },
+    {
+      "timestamp": "2026-10-12T05:14:25.0300706Z",
+      "outcome": "passed",
+      "ordinal": 150,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/zero",
+      "log_line": 3169
+    },
+    {
+      "timestamp": "2026-10-12T05:14:32.2095560Z",
+      "outcome": "passed",
+      "ordinal": 151,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/loading",
+      "log_line": 3170
+    },
+    {
+      "timestamp": "2026-10-12T05:14:39.3905689Z",
+      "outcome": "passed",
+      "ordinal": 152,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-6/error",
+      "log_line": 3171
+    },
+    {
+      "timestamp": "2026-10-12T05:14:46.9660628Z",
+      "outcome": "passed",
+      "ordinal": 153,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/populated",
+      "log_line": 3172
+    },
+    {
+      "timestamp": "2026-10-12T05:14:54.0041604Z",
+      "outcome": "passed",
+      "ordinal": 154,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/zero",
+      "log_line": 3173
+    },
+    {
+      "timestamp": "2026-10-12T05:15:01.2033724Z",
+      "outcome": "passed",
+      "ordinal": 155,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/loading",
+      "log_line": 3174
+    },
+    {
+      "timestamp": "2026-10-12T05:15:08.0327466Z",
+      "outcome": "passed",
+      "ordinal": 156,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-7/error",
+      "log_line": 3175
+    },
+    {
+      "timestamp": "2026-10-12T05:15:15.2896146Z",
+      "outcome": "passed",
+      "ordinal": 157,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/populated",
+      "log_line": 3176
+    },
+    {
+      "timestamp": "2026-10-12T05:15:22.3900206Z",
+      "outcome": "passed",
+      "ordinal": 158,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/zero",
+      "log_line": 3177
+    },
+    {
+      "timestamp": "2026-10-12T05:15:29.5461803Z",
+      "outcome": "passed",
+      "ordinal": 159,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/loading",
+      "log_line": 3178
+    },
+    {
+      "timestamp": "2026-10-12T05:15:36.5360361Z",
+      "outcome": "passed",
+      "ordinal": 160,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-8/error",
+      "log_line": 3179
+    },
+    {
+      "timestamp": "2026-10-12T05:15:48.2331749Z",
+      "outcome": "failed",
+      "ordinal": 161,
+      "project": "admin-eval-dark",
+      "source_line": 442,
+      "title": "Admin eval \u2014 render matrix, probes, bundles \u203a render bundle: board-mg-9/populated",
+      "log_line": 3180
+    }
+  ],
+  "preceding_global_count": 160,
+  "preceding_same_project_count": 32,
+  "registration_post_count": 191,
+  "diagnostic_log_line": 3219,
+  "transport_before_post": "no registration request/response/failure was captured by the helper",
+  "remaining_unknown": [
+    "original database snapshot and exact account state",
+    "pageState fields after finalUrl were removed by archive redaction",
+    "cause of the registration failure; order alone does not establish it"
+  ],
+  "browser_launches": 0,
+  "github_requests": 0,
+  "original_ledger_modified": false
+}

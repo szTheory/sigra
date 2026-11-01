@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-08T18:04:19Z",
+  "authorization_status": "pending",
+  "candidate_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+  "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+  "main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+  "candidate_diff_paths": [
+    "test/example/priv/playwright/tests/organizations.spec.ts"
+  ],
+  "candidate_clean": true,
+  "pull_request": {
+    "number": 224,
+    "state": "OPEN",
+    "url": "https://github.com/szTheory/sigra/pull/224",
+    "branch": "release-please--branches--main",
+    "base_branch": "main",
+    "head_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+    "base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+    "changed_paths": [
+      ".release-please-manifest.json",
+      "CHANGELOG.md",
+      "README.md",
+      "guides/introduction/upgrading-to-v1.6.md",
+      "mix.exs",
+      "test/example/priv/playwright/tests/organizations.spec.ts"
+    ]
+  },
+  "candidate_ancestry": {
+    "parent_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+    "direct_parent_matches_reviewed_candidate": true,
+    "candidate_diff_paths": [
+      "test/example/priv/playwright/tests/organizations.spec.ts"
+    ],
+    "candidate_clean": true,
+    "candidate_worktree": "/private/tmp/phase247-release-candidate",
+    "candidate_diff_summary": "8 insertions, 2 deletions; only the organizations Playwright spec changed"
+  },
+  "ci_head_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+  "ci_conclusion": "success",
+  "ci": {
+    "workflow": "CI",
+    "run_id": 37819712610,
+    "attempt": 1,
+    "status": "completed",
+    "head_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+    "conclusion": "success",
+    "required_jobs": {
+      "Example Playwright shard (non_admin_smoke)": "success",
+      "ci-gate": "success"
+    },
+    "playwright_retries": 0,
+    "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-09-PLAYWRIGHT-RESULT.json"
+  },
+  "local_browser_status": {
+    "result": "blocked_host_appkit",
+    "diagnostics": "/private/tmp/phase247-plan09-local-playwright-diagnostics.md",
+    "browser_proof_claimed": false
+  },
+  "candidate_source_audit": {
+    "version": "1.6.0",
+    "manifest_version": "1.6.0",
+    "mix_version": "1.6.0",
+    "source_ref": "v1.6.0",
+    "exdoc_upgrade_guide_extra": true,
+    "readme_links_to_v1_6_guide": true,
+    "guide_links_to_1_6_0_changelog": true,
+    "generated_host_advice": "Generated files remain host-owned; update the dependency and selectively adopt generated confirmation changes; do not force-overwrite customized files; no migration is required.",
+    "candidate_source_blobs": {
+      ".release-please-manifest.json": "0d1bebe1cfe41baed6a9118999495d445d7f1ce1",
+      "CHANGELOG.md": "5ce249c2e8a5d3f23065ee5e519c05d5831560fe",
+      "README.md": "52952a7e6db67ca8d2bf35879e4b2c2b50a1c6f0",
+      "guides/introduction/upgrading-to-v1.6.md": "ad7ec8b59fb0b345a7fc4ec11200a1b4cd251477",
+      "mix.exs": "26712b0017e3f0aa3e6db28b0632d45e4a9c7946",
+      "test/example/priv/playwright/tests/organizations.spec.ts": "030317814796f8265fc738cab05d80f344ceaa10"
+    },
+    "main_source_blobs": {
+      "CHANGELOG.md": "2e2fbc2177946ad74d8ff09d1863935764b9ede6",
+      "README.md": "2e8ed620f770807327d84f6dfbd2017091ee5ba4",
+      "mix.exs": "11a94e8e594701be1c5ceb8c37236dbedaf5f0c4",
+      "test/example/priv/playwright/tests/organizations.spec.ts": "c1b7f52fbd263d801351f0c82e472f0262284b73"
+    },
+    "main_has_v1_6_upgrade_guide": false,
+    "main_candidate_baseline_blob": "c87eeb19e79b4e19d34ff522c487894c8cb3c558",
+    "main_release_manifest_blob": "dd8fde7791a20944a96288250e42f5771ed1bfc3"
+  },
+  "stale_artifacts": [
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+      "bound_candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+      "diff_sha256": "d7cbfeddd55bc0528738f89b82377379e55a73464f2c174217af31410625ac5e",
+      "diff_bytes": 8372,
+      "action": "Recompute the raw-diff baseline for the approved candidate/base pair; independently recompute digest and bytes."
+    },
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+      "bound_candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "bound_live_main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+      "run_id": 37803817504,
+      "attempt": 1,
+      "manifest_blob_id": "c87eeb19e79b4e19d34ff522c487894c8cb3c558",
+      "verdict": "passed",
+      "action": "Receipt proves only the prior d76 dry run; after approved evidence merge run exactly one authenticated, non-publishing dry-run against the approved source and retain a safe receipt."
+    },
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-CURRENT-SOURCE-REVIEW.json",
+      "bound_candidate_sha": "6f8028658f0bdd7f26e13c3fe4d45437880c341b",
+      "bound_reviewed_base_sha": "e3883b72fb1df5ad6356ef10dbde408f18bbc3be",
+      "bound_evidence_pr": 291,
+      "bound_evidence_pr_head_sha": "b3739e09aed17085afd4e492391b3aac3032a1d7",
+      "bound_evidence_merge_sha": "9bb7566f31b40a129c5a234b122ac00b540ede29",
+      "action": "Refresh only after the proposed protected evidence merge and required CI verify the approved tuple."
+    },
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+      "bound_candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "bound_reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+      "bound_candidate_ci_run_id": 37800067568,
+      "bound_diff_sha256": "d7cbfeddd55bc0528738f89b82377379e55a73464f2c174217af31410625ac5e",
+      "bound_diff_bytes": 8372,
+      "last_final_validation_status": "ready",
+      "last_final_validation_at": "2026-10-08T16:33:37.879Z",
+      "action": "Regenerate final readiness only after the approved-source dry-run receipt; keep READY-01 blocked until Plan 247-11 independent checks pass."
+    },
+    {
+      "path": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+      "bound_candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "status": "gaps_found",
+      "score": "13/14 must-haves verified",
+      "remaining_gap": "Organization registration spec did not wait for the server-rendered Strong validation result.",
+      "action": "Rerun independent Phase 247 verification after the approved evidence, dry-run, and final ledger are complete."
+    },
+    {
+      "paths": [
+        ".github/workflows/phase-247-hex-dry-run.yml",
+        "scripts/ci/phase-247-hex-dry-run.sh",
+        "scripts/ci/phase-247-hex-dry-run.test.sh"
+      ],
+      "bound_candidate_sha": "d76d7f2306f6099063a80a420d2d8a4e04c7785f",
+      "stale_pin": "The workflow, helper, and fixtures still enforce d76d7f23 and the prior baseline.",
+      "action": "Under approval, update the existing fixed-source route and fixtures to accept only this one candidate/base pair and reject d76 or any drift."
+    }
+  ],
+  "proposed_evidence_paths": [
+    ".github/workflows/phase-247-hex-dry-run.yml",
+    "scripts/ci/phase-247-hex-dry-run.sh",
+    "scripts/ci/phase-247-hex-dry-run.test.sh",
+    ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json"
+  ],
+  "proposed_evidence_diff": {
+    "path_count": 4,
+    "title_and_commit_scope": "test-scoped, non-release-triggering",
+    "checks_before_merge": [
+      "hermetic fixture suite rejects d76 and any changed source/baseline",
+      "actionlint passes",
+      "independent raw-diff digest and byte-count recomputation passes",
+      "evidence PR changes exactly the four listed paths"
+    ],
+    "protected_merge_checks": [
+      "required CI succeeds for the exact evidence PR head",
+      "merge uses ordinary repository protection",
+      "baseline JSON blob is unchanged between evidence PR head and protected merge",
+      "main advances only through the four approved evidence paths",
+      "PR #224 remains open at the approved candidate/base and adopter/spec blobs"
+    ]
+  },
+  "downstream_non_publishing_actions_if_separately_approved": [
+    "Require exact candidate/base/main tuple and source blobs to remain fixed; stop on any drift.",
+    "Run one authenticated, non-publishing Hex dry-run for the approved candidate after the evidence merge; do not publish and do not expose the credential value.",
+    "Write a final readiness ledger with refreshed candidate, evidence merge, CI, dry-run, and inventory identities.",
+    "Run independent Phase 247 verification; mark READY-01 ready only if all required checks pass."
+  ],
+  "inventory_observations": {
+    "observed_at": "2026-10-08T18:04:19Z",
+    "live_open_pull_requests": 14,
+    "inherited_checkout": {
+      "branch": "phase-244-playwright-measurement",
+      "head_sha": "c84350abe58bb3a733e1d7db4cebc4de1919e035",
+      "porcelain_entries": 75,
+      "tracked_modified_or_staged": 26,
+      "untracked": 49,
+      "commit_rows_since_recorded_merge_base": 408,
+      "unique_net_paths_since_recorded_merge_base": 776,
+      "recorded_merge_base": "417130bdc0e69dd102431391cd6cd30bf88b2fa5"
+    },
+    "prior_disposition_snapshot": {
+      "commit_rows": 404,
+      "path_rows": 1304,
+      "action": "Retain the prior per-item dispositions as provenance; these fresh scope-specific counts do not rewrite them."
+    }
+  },
+  "authorization_request": {
+    "decision": "Approve exactly one evidence rebind and READY-01 recovery for this displayed tuple?",
+    "candidate_sha": "0e773d3614a242e4fbcdd34c418ecb8a307703d6",
+    "reviewed_base_sha": "d135cbce343947499a0810736c500ef5f1cb5c32",
+    "main_sha": "a494f3ee3878da93aab4f70712ffddeefd77a802",
+    "scope": "One protected four-path evidence PR/merge and its required CI, one authenticated non-publishing dry-run with safe receipt, refreshed final ledger, and independent Phase 247 verification.",
+    "excluded": [
+      "No further candidate rebind or iteration",
+      "No PR #224 merge",
+      "No tag",
+      "No publication"
+    ],
+    "drift_rule": "If candidate/base changes or Release Please moves PR #224, stop; approval does not authorize another iteration."
+  }
+}

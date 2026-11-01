@@ -1,0 +1,1052 @@
+{
+  "schema": "sigra.phase253.gap-execution-record/v1",
+  "recorded_at": "2026-10-20T16:23:46.325059+00:00",
+  "invocation": "$gsd-execute-phase 253 --gaps-only",
+  "status": "halted",
+  "captured_head": "421bab1b1aa1bff940a0e8ea2cc23bfa3e2b0e28",
+  "branch": "phase-244-playwright-measurement",
+  "result_head": "92b46b1dd0d381cef59d7650a00f59fc96ca1ea2",
+  "capture": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-CAPTURE.json",
+  "sdk_start_preserved_commit": "ed7370b64dba197e3b89fd5107fdaf50ddc0f8b7",
+  "shared_prior_bytes": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "2f2591b3d1c3a94876267fcc8c306be8a05bcfe1719b8e38cd8415d5ee10d0b1",
+      "bytes": 20791,
+      "prior_commit": "92b46b1dd0d381cef59d7650a00f59fc96ca1ea2",
+      "blob": "ec9e46e423affda649ecb02be64bef7247718319",
+      "readback": "exact"
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "10ccc6c7f53e860a6b7012eac55e1306e8703cdfaef90682955588dde1b5936c",
+      "bytes": 73119,
+      "prior_commit": "92b46b1dd0d381cef59d7650a00f59fc96ca1ea2",
+      "blob": "2035fac97a35693cccc4e65b8136862cabfff51a",
+      "readback": "exact"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "7918d469f3035a3c1e9e8c96074bae9d91dc7b57bf6681337efccef736f7c2b5",
+      "bytes": 132784,
+      "prior_commit": "92b46b1dd0d381cef59d7650a00f59fc96ca1ea2",
+      "blob": "aac5bf20dcd9130a22b39c3112d05ba934bbe8de",
+      "readback": "exact"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "sha256": "60b89b0babeb28640cfc2d249768a0036d7433f273d6e882cf3d00ef6133f7cc",
+      "bytes": 21131,
+      "prior_commit": "92b46b1dd0d381cef59d7650a00f59fc96ca1ea2",
+      "blob": "230c6a1dc545ef776b96a2cf932747df3cb72e02",
+      "readback": "exact"
+    }
+  ],
+  "plan": "253-173",
+  "plan_status": "halted",
+  "acceptance_tasks_completed": 0,
+  "delivery": "review and exact failed-run log committed; no accepted receipt",
+  "failure": {
+    "stage": "projection before regression suite",
+    "command": "git hash-object",
+    "error": "unable to create temporary file: Operation not permitted",
+    "verify_exit": 1,
+    "cause": "Default workspace-write sandbox makes the Git object database read-only. The regression command needed require_escalated just as commits did.",
+    "automatic_approval_rejected": false,
+    "regression_reexecuted": false
+  },
+  "diagnostic": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-ENVIRONMENT-DIAGNOSTIC.json",
+    "sha256": "371cb46d7bd3d87fc721d8ac8a2842015f1635d9670dbfc3673566b492bbf3a5",
+    "bytes": 1588
+  },
+  "new_plan_artifacts": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-RECOVERY-REVIEW.json",
+      "sha256": "30cb16fd6ee27ff440512767d113b61b859da059de61571ac87f9da649201e48",
+      "bytes": 7225
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-REGRESSION.log",
+      "sha256": "aeb25e295e13b263424cb23f29bdce33282046439c063b236453bea7e49111f9",
+      "bytes": 339
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-SUMMARY.md",
+      "sha256": "dd698ccee469ac4d685b31df599c1941bc93a13cb0a23b6a50e352f052f7e68b",
+      "bytes": 5467
+    }
+  ],
+  "success_receipt_exists": false,
+  "plan_commits": [
+    {
+      "sha": "92b46b1dd0d381cef59d7650a00f59fc96ca1ea2",
+      "subject": "docs(253-173): finalize halted recovery summary metrics"
+    },
+    {
+      "sha": "ed6188997d5e49c8eeb35b20dc98b4aaf71e9a3c",
+      "subject": "docs(253-173): record halted recovery attempt"
+    },
+    {
+      "sha": "08f042269a458f84a3bba1fe6536e446c6ab4c93",
+      "subject": "docs(253-173): preserve failed recovery run diagnostics"
+    },
+    {
+      "sha": "64734056781203a3900a9d61c93548ed4e8c6f54",
+      "subject": "docs(253-173): review halted acceptance recovery"
+    }
+  ],
+  "active_blocked_plans": [
+    {
+      "id": "253-168",
+      "blocked_by": [
+        "253-173"
+      ],
+      "ready": false
+    },
+    {
+      "id": "253-169",
+      "blocked_by": [
+        "253-173"
+      ],
+      "ready": false
+    },
+    {
+      "id": "253-170",
+      "blocked_by": [
+        "253-173"
+      ],
+      "ready": false
+    },
+    {
+      "id": "253-171",
+      "blocked_by": [
+        "253-173"
+      ],
+      "ready": false
+    },
+    {
+      "id": "253-172",
+      "blocked_by": [
+        "253-173"
+      ],
+      "ready": false
+    }
+  ],
+  "all_skipped_blocked_plans": [
+    {
+      "id": "253-08",
+      "blocked_by": [
+        "253-02",
+        "253-07"
+      ]
+    },
+    {
+      "id": "253-10",
+      "blocked_by": [
+        "253-09"
+      ]
+    },
+    {
+      "id": "253-105",
+      "blocked_by": [
+        "253-104",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-106",
+      "blocked_by": [
+        "253-104",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-114",
+      "blocked_by": [
+        "253-113",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-115",
+      "blocked_by": [
+        "253-113",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-123",
+      "blocked_by": [
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-124",
+      "blocked_by": [
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-13",
+      "blocked_by": [
+        "253-09",
+        "253-12"
+      ]
+    },
+    {
+      "id": "253-135",
+      "blocked_by": [
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-14",
+      "blocked_by": [
+        "253-09",
+        "253-12"
+      ]
+    },
+    {
+      "id": "253-144",
+      "blocked_by": [
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-145",
+      "blocked_by": [
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-147",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-148",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-149",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-150",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-151",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-152",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-153",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-154",
+      "blocked_by": [
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-156",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-157",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-158",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-159",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-160",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-161",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-162",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-163",
+      "blocked_by": [
+        "253-155",
+        "253-146",
+        "253-143",
+        "253-134",
+        "253-122",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-168",
+      "blocked_by": [
+        "253-173"
+      ]
+    },
+    {
+      "id": "253-169",
+      "blocked_by": [
+        "253-173"
+      ]
+    },
+    {
+      "id": "253-17",
+      "blocked_by": [
+        "253-16"
+      ]
+    },
+    {
+      "id": "253-170",
+      "blocked_by": [
+        "253-173"
+      ]
+    },
+    {
+      "id": "253-171",
+      "blocked_by": [
+        "253-173"
+      ]
+    },
+    {
+      "id": "253-172",
+      "blocked_by": [
+        "253-173"
+      ]
+    },
+    {
+      "id": "253-21",
+      "blocked_by": [
+        "253-16"
+      ]
+    },
+    {
+      "id": "253-22",
+      "blocked_by": [
+        "253-16"
+      ]
+    },
+    {
+      "id": "253-23",
+      "blocked_by": [
+        "253-16"
+      ]
+    },
+    {
+      "id": "253-24",
+      "blocked_by": [
+        "253-16"
+      ]
+    },
+    {
+      "id": "253-25",
+      "blocked_by": [
+        "253-16"
+      ]
+    },
+    {
+      "id": "253-28",
+      "blocked_by": [
+        "253-27"
+      ]
+    },
+    {
+      "id": "253-29",
+      "blocked_by": [
+        "253-27"
+      ]
+    },
+    {
+      "id": "253-30",
+      "blocked_by": [
+        "253-27"
+      ]
+    },
+    {
+      "id": "253-31",
+      "blocked_by": [
+        "253-27"
+      ]
+    },
+    {
+      "id": "253-32",
+      "blocked_by": [
+        "253-27"
+      ]
+    },
+    {
+      "id": "253-33",
+      "blocked_by": [
+        "253-27"
+      ]
+    },
+    {
+      "id": "253-34",
+      "blocked_by": [
+        "253-27"
+      ]
+    },
+    {
+      "id": "253-35",
+      "blocked_by": [
+        "253-27"
+      ]
+    },
+    {
+      "id": "253-41",
+      "blocked_by": [
+        "253-40"
+      ]
+    },
+    {
+      "id": "253-44",
+      "blocked_by": [
+        "253-40"
+      ]
+    },
+    {
+      "id": "253-45",
+      "blocked_by": [
+        "253-40"
+      ]
+    },
+    {
+      "id": "253-46",
+      "blocked_by": [
+        "253-40"
+      ]
+    },
+    {
+      "id": "253-47",
+      "blocked_by": [
+        "253-40"
+      ]
+    },
+    {
+      "id": "253-52",
+      "blocked_by": [
+        "253-51"
+      ]
+    },
+    {
+      "id": "253-53",
+      "blocked_by": [
+        "253-51"
+      ]
+    },
+    {
+      "id": "253-54",
+      "blocked_by": [
+        "253-51"
+      ]
+    },
+    {
+      "id": "253-55",
+      "blocked_by": [
+        "253-51"
+      ]
+    },
+    {
+      "id": "253-56",
+      "blocked_by": [
+        "253-51"
+      ]
+    },
+    {
+      "id": "253-64",
+      "blocked_by": [
+        "253-63"
+      ]
+    },
+    {
+      "id": "253-65",
+      "blocked_by": [
+        "253-63"
+      ]
+    },
+    {
+      "id": "253-66",
+      "blocked_by": [
+        "253-63"
+      ]
+    },
+    {
+      "id": "253-67",
+      "blocked_by": [
+        "253-63"
+      ]
+    },
+    {
+      "id": "253-68",
+      "blocked_by": [
+        "253-63"
+      ]
+    },
+    {
+      "id": "253-74",
+      "blocked_by": [
+        "253-73"
+      ]
+    },
+    {
+      "id": "253-75",
+      "blocked_by": [
+        "253-73"
+      ]
+    },
+    {
+      "id": "253-76",
+      "blocked_by": [
+        "253-73"
+      ]
+    },
+    {
+      "id": "253-77",
+      "blocked_by": [
+        "253-73"
+      ]
+    },
+    {
+      "id": "253-78",
+      "blocked_by": [
+        "253-73"
+      ]
+    },
+    {
+      "id": "253-85",
+      "blocked_by": [
+        "253-84"
+      ]
+    },
+    {
+      "id": "253-86",
+      "blocked_by": [
+        "253-84"
+      ]
+    },
+    {
+      "id": "253-87",
+      "blocked_by": [
+        "253-84"
+      ]
+    },
+    {
+      "id": "253-88",
+      "blocked_by": [
+        "253-84"
+      ]
+    },
+    {
+      "id": "253-93",
+      "blocked_by": [
+        "253-92",
+        "253-84"
+      ]
+    },
+    {
+      "id": "253-94",
+      "blocked_by": [
+        "253-92",
+        "253-84"
+      ]
+    },
+    {
+      "id": "253-98",
+      "blocked_by": [
+        "253-97",
+        "253-84",
+        "253-92"
+      ]
+    },
+    {
+      "id": "253-99",
+      "blocked_by": [
+        "253-97",
+        "253-84",
+        "253-92"
+      ]
+    }
+  ],
+  "counts": {
+    "plans": 173,
+    "implemented_summaries": 75,
+    "halted_summaries": 22,
+    "without_summaries": 76,
+    "ready": 0,
+    "runnable": 0,
+    "selected_plans_completed": 0,
+    "selected_plans": 6
+  },
+  "historical_plan_summary_paths_unchanged": [
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-08-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-10-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-100-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-101-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-102-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-103-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-104-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-105-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-106-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-107-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-108-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-109-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-110-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-111-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-112-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-113-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-114-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-115-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-116-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-117-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-118-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-119-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-120-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-121-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-122-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-123-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-124-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-125-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-126-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-127-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-128-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-129-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-13-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-130-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-131-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-132-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-133-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-134-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-135-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-136-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-137-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-138-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-139-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-14-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-140-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-141-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-142-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-143-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-144-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-145-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-146-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-147-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-148-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-149-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-150-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-151-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-152-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-153-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-154-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-155-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-156-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-157-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-158-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-159-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-160-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-161-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-162-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-163-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-164-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-165-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-166-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-169-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-17-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-170-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-171-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-18-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-19-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-20-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-21-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-22-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-23-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-24-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-25-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-28-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-29-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-30-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-31-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-32-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-33-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-34-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-35-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-36-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-37-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-38-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-39-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-40-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-41-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-42-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-43-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-44-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-45-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-46-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-47-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-48-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-49-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-50-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-51-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-52-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-53-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-54-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-55-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-56-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-57-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-58-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-59-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-60-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-61-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-62-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-64-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-65-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-66-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-67-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-68-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-69-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-70-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-71-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-72-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-73-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-74-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-75-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-76-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-77-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-78-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-79-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-80-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-81-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-82-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-83-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-84-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-85-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-86-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-87-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-88-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-89-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-90-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-91-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-92-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-93-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-94-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-95-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-96-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-97-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-98-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-99-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-100-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-101-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-102-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-103-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-104-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-107-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-108-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-109-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-11-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-110-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-111-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-112-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-113-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-116-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-117-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-118-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-119-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-120-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-121-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-122-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-125-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-126-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-127-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-128-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-129-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-130-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-131-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-132-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-133-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-134-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-136-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-137-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-138-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-139-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-140-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-141-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-142-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-143-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-146-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-155-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-164-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-165-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-166-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-18-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-19-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-20-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-26-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-27-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-36-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-37-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-38-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-39-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-40-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-42-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-43-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-48-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-49-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-50-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-51-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-57-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-58-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-59-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-60-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-61-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-62-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-63-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-69-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-70-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-71-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-72-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-73-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-79-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-80-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-81-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-82-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-83-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-84-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-89-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-90-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-91-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-92-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-95-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-96-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-97-SUMMARY.md"
+  ],
+  "unchanged_original_plan_summary_count": 269,
+  "product_source_unchanged": true,
+  "config_unchanged": true,
+  "github_requests": 0,
+  "native_browser_launches": 0,
+  "post_wave_checks": {
+    "verify.schema-drift": {
+      "block": false,
+      "drift_detected": false,
+      "blocking": false,
+      "schema_files": [],
+      "orms": [],
+      "unpushed_orms": [],
+      "message": "",
+      "skipped": false
+    },
+    "verify.codebase-drift": {
+      "block": false,
+      "skipped": true,
+      "reason": "no-structure-md",
+      "action_required": false,
+      "directive": "none",
+      "elements": []
+    },
+    "ui.safety-gate": {
+      "frontend": false,
+      "hasUiFiles": false,
+      "hasUiSpec": false,
+      "block": false
+    }
+  },
+  "phase_verification_status": "not_started",
+  "CIREL-01": "partial_not_reproduced",
+  "CIREL-02": "unaccepted",
+  "next_command": "$gsd-plan-phase 253 --gaps",
+  "resume_command": "$gsd-plan-phase 253 --gaps",
+  "route_reason": "Plan 173 permits one attempt only. Plan 168 lacks its required completed 173 summary and success receipt; Plans 169\u2013172 are blocked transitively. Plan a separately identified successor attempt with a Git object write/readback permission preflight.",
+  "current_phase_readiness": {
+    "phase_number": "253",
+    "phase_status": "In Progress",
+    "has_context": true,
+    "has_research": true,
+    "has_plans": true,
+    "plan_count": 173,
+    "threat_id_duplicate_count": 0
+  },
+  "next_roadmap_phase_readiness": {
+    "phase_number": "254",
+    "phase_status": "Pending",
+    "has_context": false,
+    "has_research": false,
+    "has_plans": false,
+    "plan_count": 0
+  },
+  "next_roadmap_phase_started": false,
+  "phase_complete_called": false,
+  "regression_suite_executed": false
+}

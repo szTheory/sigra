@@ -1,0 +1,33 @@
+--- a/test/example/priv/static/assets/js/app.js
++++ b/test/example/priv/static/assets/js/app.js
+@@ -974,6 +974,7 @@
+         clearTimeout(this.fallbackTimer),
+         this.reconnectTimer.reset(),
+         this.conn && (this.conn.close(), (this.conn = null)),
++        this.triggerChanError(),
+         (this.transport = e));
+     }
+     protocol() {
+@@ -1057,16 +1058,17 @@
+     }
+     transportConnect() {
+       (this.connectClock++, (this.closeWasClean = !1));
+-      let e;
++      let e, transportConn;
+       (this.authToken &&
+         (e = ["phoenix", `${A}${btoa(this.authToken).replace(/=/g, "")}`]),
+         (this.conn = new this.transport(this.endPointURL(), e)),
++        (transportConn = this.conn),
+         (this.conn.binaryType = this.binaryType),
+         (this.conn.timeout = this.longpollerTimeout),
+-        (this.conn.onopen = () => this.onConnOpen()),
+-        (this.conn.onerror = (t) => this.onConnError(t)),
+-        (this.conn.onmessage = (t) => this.onConnMessage(t)),
+-        (this.conn.onclose = (t) => this.onConnClose(t)));
++        (this.conn.onopen = () => this.conn === transportConn && this.onConnOpen()),
++        (this.conn.onerror = (t) => this.conn === transportConn && this.onConnError(t)),
++        (this.conn.onmessage = (t) => this.conn === transportConn && this.onConnMessage(t)),
++        (this.conn.onclose = (t) => this.conn === transportConn && this.onConnClose(t)));
+     }
+     getSession(e) {
+       return this.sessionStore && this.sessionStore.getItem(e);

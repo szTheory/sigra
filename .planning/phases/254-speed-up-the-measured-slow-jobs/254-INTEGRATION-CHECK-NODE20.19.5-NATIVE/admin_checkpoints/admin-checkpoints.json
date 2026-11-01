@@ -1,0 +1,608 @@
+{
+  "config": {
+    "configFile": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/playwright.config.ts",
+    "rootDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/(admin-user-operations|admin-audit|admin-theme|admin-coherence-sweep|impersonation|admin-flow-).*\\.spec\\.ts/",
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/passkeys-hooks\\.spec\\.ts|passkey-options\\.spec\\.ts|passkey-login\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-modal-interaction\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-checkpoints-chromium",
+        "name": "admin-checkpoints-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-checkpoints-mobile",
+        "name": "admin-checkpoints-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-checkpoints-dark",
+        "name": "admin-checkpoints-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-generated",
+        "name": "admin-generated",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-generated\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "generated-host-chromium",
+        "name": "generated-host-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/generated-confirmation\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "demo-showcase-chromium",
+        "name": "demo-showcase-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/demo-showcase\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-setup-chromium",
+        "name": "admin-design-setup-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-chromium",
+        "name": "admin-design-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-setup-mobile",
+        "name": "admin-design-setup-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-mobile",
+        "name": "admin-design-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-setup-dark",
+        "name": "admin-design-setup-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-design-dark",
+        "name": "admin-design-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval",
+        "name": "admin-eval",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval-mobile",
+        "name": "admin-eval-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "admin-eval-dark",
+        "name": "admin-eval-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "open": "never",
+          "outputFolder": "playwright-report/html"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "playwright-report/admin-checkpoints.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "admin-checkpoints.spec.ts",
+      "file": "admin-checkpoints.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Phase 31 admin checkpoint inventory (D-28)",
+          "file": "admin-checkpoints.spec.ts",
+          "line": 165,
+          "column": 6,
+          "specs": [
+            {
+              "title": "captures curated admin review pages across desktop/mobile/dark",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-checkpoints-chromium",
+                  "projectName": "admin-checkpoints-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4497,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T19:14:59.851Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "admin-global-overview-admin-checkpoints-chromium",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-global-overview-admin-checkpoints-chromium-6bed410a53dd841b27ac41290465371e56c6928d.png"
+                        },
+                        {
+                          "name": "admin-org-overview-admin-checkpoints-chromium",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-org-overview-admin-checkpoints-chromium-5777f0a410e17243f3c5d0ae3c68ac8c045bf402.png"
+                        },
+                        {
+                          "name": "admin-global-user-index-admin-checkpoints-chromium",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-global-user-index-admin-checkpoints-chromium-cd520b07406971391afdafaf128e63e6cecc6a78.png"
+                        },
+                        {
+                          "name": "admin-user-detail-admin-checkpoints-chromium",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-user-detail-admin-checkpoints-chromium-0acf74d774b76b7938a1657816419f966e4df926.png"
+                        },
+                        {
+                          "name": "admin-user-sessions-admin-checkpoints-chromium",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-user-sessions-admin-checkpoints-chromium-f41c99c8d4b8eeea92604ef8006fd6fe4ca47375.png"
+                        },
+                        {
+                          "name": "admin-org-scoped-admin-admin-checkpoints-chromium",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-org-scoped-admin-admin-checkpoints-chromium-04164f0053fe77c8fac6d1b0d3a0f5f136767e84.png"
+                        },
+                        {
+                          "name": "admin-impersonation-banner-admin-checkpoints-chromium",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-impersonation-banner-admin-checkpoints-chromium-1fb82d73f45b31f52cfd930cb702a892cd80f2a6.png"
+                        },
+                        {
+                          "name": "admin-user-audit-admin-checkpoints-chromium",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-user-audit-admin-checkpoints-chromium-c928b7cf7f7f8062ad071406165d8073a9c012e7.png"
+                        },
+                        {
+                          "name": "admin-audit-explorer-admin-checkpoints-chromium",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-chromium/attachments/admin-audit-explorer-admin-checkpoints-chromium-31cb66887bc2f97cc1de0e42c86f55f58e5c6e3c.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ede6f8f4da51d292f32c-5546087160013a556871",
+              "file": "admin-checkpoints.spec.ts",
+              "line": 172,
+              "column": 7
+            },
+            {
+              "title": "captures curated admin review pages across desktop/mobile/dark",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-checkpoints-mobile",
+                  "projectName": "admin-checkpoints-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5822,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T19:15:04.703Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "admin-global-overview-admin-checkpoints-mobile",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-global-overview-admin-checkpoints-mobile-30b43b3a984a447096b3dd23c0eb2a3cb89b8a04.png"
+                        },
+                        {
+                          "name": "admin-org-overview-admin-checkpoints-mobile",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-org-overview-admin-checkpoints-mobile-eaad79c11ba0d3c90be40b4fdb7baec7c66f2b98.png"
+                        },
+                        {
+                          "name": "admin-global-user-index-admin-checkpoints-mobile",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-global-user-index-admin-checkpoints-mobile-340ddc23d2e0d750b536ee4493ed14ed747ac4be.png"
+                        },
+                        {
+                          "name": "admin-user-detail-admin-checkpoints-mobile",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-user-detail-admin-checkpoints-mobile-e1be31f971f981c78dbe992770849b39d03a5ea0.png"
+                        },
+                        {
+                          "name": "admin-user-sessions-admin-checkpoints-mobile",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-user-sessions-admin-checkpoints-mobile-f7bab048e3596623f696b1eb417426a6d5d7cbc8.png"
+                        },
+                        {
+                          "name": "admin-org-scoped-admin-admin-checkpoints-mobile",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-org-scoped-admin-admin-checkpoints-mobile-90d9a71331e140b5d3df24ddc4bb77525a59445b.png"
+                        },
+                        {
+                          "name": "admin-impersonation-banner-admin-checkpoints-mobile",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-impersonation-banner-admin-checkpoints-mobile-215b8f673ad4ad8ae91d82522510596550b77071.png"
+                        },
+                        {
+                          "name": "admin-user-audit-admin-checkpoints-mobile",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-user-audit-admin-checkpoints-mobile-15c02b97fd7d896b0a36bb66399474e1954154f4.png"
+                        },
+                        {
+                          "name": "admin-audit-explorer-admin-checkpoints-mobile",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-mobile/attachments/admin-audit-explorer-admin-checkpoints-mobile-eb9574c060afd48d3a41e35f3af8a141f5e5af5f.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ede6f8f4da51d292f32c-991156e19ad5ba8a8814",
+              "file": "admin-checkpoints.spec.ts",
+              "line": 172,
+              "column": 7
+            },
+            {
+              "title": "captures curated admin review pages across desktop/mobile/dark",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-checkpoints-dark",
+                  "projectName": "admin-checkpoints-dark",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4533,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-23T19:15:11.164Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "admin-global-overview-admin-checkpoints-dark",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-global-overview-admin-checkpoints-dark-3fb4d7de2370ff1fc2bada940ff1debb2fd900c8.png"
+                        },
+                        {
+                          "name": "admin-org-overview-admin-checkpoints-dark",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-org-overview-admin-checkpoints-dark-6945138be501eee2733318665791b6c039704dfa.png"
+                        },
+                        {
+                          "name": "admin-global-user-index-admin-checkpoints-dark",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-global-user-index-admin-checkpoints-dark-a5fa0d24931ecd149f63cf7045c44b9f2444a835.png"
+                        },
+                        {
+                          "name": "admin-user-detail-admin-checkpoints-dark",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-user-detail-admin-checkpoints-dark-85f51fa3f9bf17f49beec667257a35bb5f5e5b37.png"
+                        },
+                        {
+                          "name": "admin-user-sessions-admin-checkpoints-dark",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-user-sessions-admin-checkpoints-dark-6f63149dfd43c6a0d575536ecc4cce1a5a3c50a6.png"
+                        },
+                        {
+                          "name": "admin-org-scoped-admin-admin-checkpoints-dark",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-org-scoped-admin-admin-checkpoints-dark-2af7c8cb7894747d0865b1a2fdabc504ae813621.png"
+                        },
+                        {
+                          "name": "admin-impersonation-banner-admin-checkpoints-dark",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-impersonation-banner-admin-checkpoints-dark-4a0d397f6fbcf9ec10ffa2daaa1838c10aad7ea7.png"
+                        },
+                        {
+                          "name": "admin-user-audit-admin-checkpoints-dark",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-user-audit-admin-checkpoints-dark-f07b4c3b837e93ef8ee259556e7009e76330236e.png"
+                        },
+                        {
+                          "name": "admin-audit-explorer-admin-checkpoints-dark",
+                          "contentType": "image/png",
+                          "path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_checkpoints-jhbquh/repo/test/example/priv/playwright/test-results/admin-checkpoints-Phase-31-6fcea--across-desktop-mobile-dark-admin-checkpoints-dark/attachments/admin-audit-explorer-admin-checkpoints-dark-9e5bffa6d22881ae49415cfb9a3631f51ba847d0.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ede6f8f4da51d292f32c-636b56bb025a102da9b8",
+              "file": "admin-checkpoints.spec.ts",
+              "line": 172,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T19:14:59.601Z",
+    "duration": 16192.299,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

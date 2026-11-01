@@ -1,0 +1,36 @@
+{
+  "capture_head": "de7431076a7fa2c624257c4fd0ea7674fd4407b9",
+  "ref": "refs/gsd/phase253-plan182-closeout-state",
+  "commit": "273ec47b1b1d34b9afe14c69a8aa2f0c99d116be",
+  "readback_verified": true,
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "status": " M .planning/STATE.md\n",
+      "bytes": 24842,
+      "sha256": "2de1e4507cb574cd030badb0b58d2aece7ee32e29405442a112a76f003eed682",
+      "blob": "a8390f351b16884743933fa6fcd401dacdc0ed89"
+    },
+    {
+      "path": ".planning/state.json",
+      "status": " M .planning/state.json\n",
+      "bytes": 89394,
+      "sha256": "dcfb3cce1a3c34385c21a5b715e81d5d4581764b435270b72a1921fdbefb77d7",
+      "blob": "a60e547b2a78c24075bc9c3ed5cb03b83e4c6436"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": " M .planning/HANDOFF.json\n",
+      "bytes": 156878,
+      "sha256": "81db835dde89ee91caf1b6265334fa08411f624d9052af8fb998d373e496fa4f",
+      "blob": "d57a7e2944c4a8c3179fa83341e1eb775806f00c"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": " M .planning/ROADMAP.md\n",
+      "bytes": 27263,
+      "sha256": "0b29158b8251dfb790f3a1ac1b0d3d87492db700ea1de300187e457e28cd5a63",
+      "blob": "095305715836d781c2be31b423720c8780f9aecd"
+    }
+  ]
+}

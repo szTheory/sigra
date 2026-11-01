@@ -1,0 +1,337 @@
+{
+  "schema": "sigra.phase253.offline-acceptance-execution/v1",
+  "plan": "253-179",
+  "status": "complete_local_acceptance",
+  "invocation": "$gsd-execute-phase 253 --gaps-only",
+  "capture_boundary": {
+    "head": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
+    "status": "clean"
+  },
+  "acceptance": {
+    "attempt_count": 1,
+    "exit": 0,
+    "started_at_utc": "2026-10-21T01:10:18Z",
+    "ended_at_utc": "2026-10-21T03:14:50Z",
+    "elapsed_seconds": 7472,
+    "pid": 61419,
+    "session_id": 16381,
+    "full_dryrun_count": 90,
+    "suite_counts": [
+      {
+        "suite": "hermetic-live-audit",
+        "native_counts": [
+          66
+        ]
+      },
+      {
+        "suite": "git-publication",
+        "native_counts": [
+          124
+        ]
+      },
+      {
+        "suite": "hosted-transport",
+        "native_counts": [
+          85
+        ]
+      },
+      {
+        "suite": "shape-probe",
+        "native_counts": [
+          19
+        ]
+      },
+      {
+        "suite": "pr-proof",
+        "native_counts": [
+          110
+        ]
+      },
+      {
+        "suite": "hosted-gate-verify",
+        "native_counts": [
+          151
+        ]
+      },
+      {
+        "suite": "gate-canary-flow",
+        "native_counts": [
+          23
+        ]
+      },
+      {
+        "suite": "full-dryrun",
+        "native_counts": [
+          90
+        ]
+      },
+      {
+        "suite": "gate-canary-shell",
+        "native_counts": []
+      },
+      {
+        "suite": "gate-canary-recovery",
+        "native_counts": [
+          5
+        ]
+      }
+    ],
+    "unittest_total": 673,
+    "shell_suite": "passed",
+    "source_commit": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
+    "largest_tree_body_bytes": 2093852,
+    "remaining_tree_bytes": 3300
+  },
+  "commits": {
+    "log_preflight": "e0f54e795",
+    "receipt": "e33460e9b68d4b6a7c205caa01177a6c433332e2"
+  },
+  "receipt_verification": {
+    "command": [
+      "python3",
+      "-B",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py",
+      "verify-receipt"
+    ],
+    "exit": 0,
+    "head": "e33460e9b68d4b6a7c205caa01177a6c433332e2",
+    "status": "",
+    "timestamp": "2026-10-21T03:16:05.515990+00:00"
+  },
+  "diagnostics": {
+    "ref": "refs/gsd/phase253-179-offline-acceptance-diagnostics",
+    "commit": "05126069c8512d1187a62fdeecebb64eff73c4ad",
+    "files": [
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/253-179-PERMISSION-PREFLIGHT.json",
+        "path": ".planning/diagnostics/phase253-179/253-179-PERMISSION-PREFLIGHT.json",
+        "blob": "0961ed39e6041a999ab0a8cc69364cc4de48fb43",
+        "bytes": 2197,
+        "sha256": "6fb0b1812e878fb4b9ac166b04818c024e581c8f82333dec8a174c514c3b847c"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/253-179-REGRESSION.log",
+        "path": ".planning/diagnostics/phase253-179/253-179-REGRESSION.log",
+        "blob": "b222bef047c806291148146e2ed2c348d3137485",
+        "bytes": 149390,
+        "sha256": "e8c41a0d5f370499e08ec931f4d0747b874315cf008c4a379a6b8b4bfd3857d2"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/253-179-full-dryrun.log",
+        "path": ".planning/diagnostics/phase253-179/253-179-full-dryrun.log",
+        "blob": "a2c9efba4f2b90c4feb06d3efc8b63df50081060",
+        "bytes": 16279,
+        "sha256": "3325c5088ce89385b0f972748c00cb987bc28ed3622d48a4bc283688aa5f9fd4"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/253-179-h.json",
+        "path": ".planning/diagnostics/phase253-179/253-179-h.json",
+        "blob": "a93ec7f1a14c9218abc23b39fa3f82c43e760d8a",
+        "bytes": 8083,
+        "sha256": "b4f23ab1d21e3dcc6eae7e905bf48c1d47ce42f977ac5aff93d0696d0138d669"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/253-179-l.json",
+        "path": ".planning/diagnostics/phase253-179/253-179-l.json",
+        "blob": "36c9f87e556848da01e9c2beea1beba97e5c2dc6",
+        "bytes": 11043,
+        "sha256": "d68064a0797b47f3989a7b68ec311c22fcc73f7644f84e2d6705c7c44d886dcb"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/253-179-paged.json",
+        "path": ".planning/diagnostics/phase253-179/253-179-paged.json",
+        "blob": "d82884ba9eeb3a76c0d4bfc0d0d762d76023a24d",
+        "bytes": 8367,
+        "sha256": "9391885b0f36ced0235735b12b27bfc2bd49af1ea052313723bbfc08208aea4e"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/253-179-projection.json",
+        "path": ".planning/diagnostics/phase253-179/253-179-projection.json",
+        "blob": "092acb52b2dc9fdd5ffc542060381cb23b231269",
+        "bytes": 4796,
+        "sha256": "2ebd82689ef37d7b70e4e474b598c34ebe5013cb7e8fe3afd5d08766c13f1b5c"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/acceptance.exit",
+        "path": ".planning/diagnostics/phase253-179/acceptance.exit",
+        "blob": "573541ac9702dd3969c9bc859d2b91ec1f7e6e56",
+        "bytes": 2,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/acceptance.sh",
+        "path": ".planning/diagnostics/phase253-179/acceptance.sh",
+        "blob": "009c78ed22220c9f23dd65e4d920007f42d234ff",
+        "bytes": 10567,
+        "sha256": "b2149927e93a90ecea643df29898cc220abeae3498be85fe7b9584ecec7d36cc"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/attempt.started",
+        "path": ".planning/diagnostics/phase253-179/attempt.started",
+        "blob": "8b68bbf43681f1ef4e660c364e8da78c5fdf256c",
+        "bytes": 41,
+        "sha256": "43de6b73d08efdcb07066b2a3107b5a7cca3cac3c5649f212fd72ac906286ae4"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/launch-body.sh",
+        "path": ".planning/diagnostics/phase253-179/launch-body.sh",
+        "blob": "b38caf2673a0448957f9760011f01d2165c6364d",
+        "bytes": 259,
+        "sha256": "96a9d177365e32058e54356c56b369d36d9bc0dfd6dff28510250b4faf7dd38c"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/launch-end.utc",
+        "path": ".planning/diagnostics/phase253-179/launch-end.utc",
+        "blob": "b1581a88cc5a2f0baee99fa1c470942cd1534acc",
+        "bytes": 21,
+        "sha256": "f6c82fbf4da94f72a382f350334ba34a9ef5d21bf689ee5f5939703d627dd02e"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/launch-start.utc",
+        "path": ".planning/diagnostics/phase253-179/launch-start.utc",
+        "blob": "eef55a837dd490068b15cd011da312c5dfb89947",
+        "bytes": 21,
+        "sha256": "29810bc54d46ec419b280f69d7be5a1c04447a41a3c25b043f2dc800daa8eb60"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/launch-tool.json",
+        "path": ".planning/diagnostics/phase253-179/launch-tool.json",
+        "blob": "3d81246f05095511430596b489f1df4152050193",
+        "bytes": 827,
+        "sha256": "a034dd633d9b426005f210538ff72312fbd496ae8a4181161ef0a866b71332be"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/launch-wrapper.sh",
+        "path": ".planning/diagnostics/phase253-179/launch-wrapper.sh",
+        "blob": "6262b31066cf7a8d24a811e08d92b1facd34982b",
+        "bytes": 481,
+        "sha256": "44d66b25a2ae928afa4a535f39e36eada744db1dc4c1a5fb95cc681a744dc548"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/outer.log",
+        "path": ".planning/diagnostics/phase253-179/outer.log",
+        "blob": "b222bef047c806291148146e2ed2c348d3137485",
+        "bytes": 149390,
+        "sha256": "e8c41a0d5f370499e08ec931f4d0747b874315cf008c4a379a6b8b4bfd3857d2"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/power-source.txt",
+        "path": ".planning/diagnostics/phase253-179/power-source.txt",
+        "blob": "f634ef55453a63608833817a087c25266fd7f850",
+        "bytes": 28,
+        "sha256": "14726fc52ddf54b166819a66551cc819147724eae55b3e45b20676b0545c7234"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/prepare-result.json",
+        "path": ".planning/diagnostics/phase253-179/prepare-result.json",
+        "blob": "5fa84b2df2025d29f6ccb77f680dfdf1fcb6af16",
+        "bytes": 358,
+        "sha256": "288abf9bfafe991ac79908c0b761f2f8c72c755527e4574d453b410645d29264"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/prepare.stderr",
+        "path": ".planning/diagnostics/phase253-179/prepare.stderr",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/prepare.stdout",
+        "path": ".planning/diagnostics/phase253-179/prepare.stdout",
+        "blob": "4b2e22d65b8d9d6940f03b73dad8d9880bfa1f42",
+        "bytes": 436595,
+        "sha256": "078da618bf938f3613a26a629a9d3d6daa7198b3b48ecd1ff5aef118ebc9413a"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/prepared.json",
+        "path": ".planning/diagnostics/phase253-179/prepared.json",
+        "blob": "0555a865413e851ec5d48553ab324fed36e31298",
+        "bytes": 478103,
+        "sha256": "d391d569107c29baf3790cfd210cfba43f73cb9c2f5655ff220df8c11bf6a455"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/source-capture.json",
+        "path": ".planning/diagnostics/phase253-179/source-capture.json",
+        "blob": "98061bb8b88ad8698bc71d24a0eaeafc765c60eb",
+        "bytes": 798,
+        "sha256": "47ae6e74eb272ef8274213d9f9a9f08f5c3d15306bfdb94dbc8add002879a758"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/suite-counts.json",
+        "path": ".planning/diagnostics/phase253-179/suite-counts.json",
+        "blob": "6a6ecedadfcc48905bafe07cffaf80e2bbda3671",
+        "bytes": 782,
+        "sha256": "bfa37d075c81c4f2e644ce6269a6e15e625f0ad1b88e549822bad48a12703a2b"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/verify-receipt-result.json",
+        "path": ".planning/diagnostics/phase253-179/verify-receipt-result.json",
+        "blob": "cdc7753863e329fc070ab9f3b27029592217cded",
+        "bytes": 299,
+        "sha256": "f459da35e3c3598f9f9beec115be778dce45da5a80272c6f9cdfca68a7e8c8f4"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/verify-receipt.stderr",
+        "path": ".planning/diagnostics/phase253-179/verify-receipt.stderr",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "external_path": "/tmp/sigra253-179-eobpr7_6/verify-receipt.stdout",
+        "path": ".planning/diagnostics/phase253-179/verify-receipt.stdout",
+        "blob": "da139f3f2995b94ca94486f4894daae53cce80c1",
+        "bytes": 260,
+        "sha256": "da5017f6914dfe9918d54965b6c279399c2e7d7479af13f6091019c62c48fa06"
+      }
+    ],
+    "readback": "exact",
+    "source_ref": "refs/gsd/phase253-179-acceptance-source",
+    "source_commit": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
+    "shared_source_readback": "exact"
+  },
+  "shared_before_routing": {
+    "ref": "refs/gsd/phase253-179-acceptance-source",
+    "commit": "3197421e08f2af060c0a03f8b91cf6b298f641e1",
+    "sha256": {
+      ".planning/HANDOFF.json": "172470c759776e3f729722590f2905aafea605d03cab2e93aebb767f5cbc8b6e",
+      ".planning/STATE.md": "571490726ed30074dc8bded856d8eed4a01940087d6c4f512667e0f23d99cdbf",
+      ".planning/config.json": "225737694e79b502993ffa4a64a8e437d758711432aca20da8caa18ef3e52f7c",
+      ".planning/state.json": "f2dacde236a6c91bcafcdc6908ae28108589f73a6f4d7c87bfebb2a9a942b168"
+    },
+    "readback": "exact"
+  },
+  "historical_halts": {
+    "count": 28,
+    "181": "halted",
+    "182": "halted",
+    "183": "halted",
+    "changed": false
+  },
+  "limits": {
+    "renewed": false,
+    "historical_full_paged_stop": {
+      "cap": 7,
+      "category": "attempt_jobs",
+      "new_retry": false,
+      "source": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-SUMMARY.md",
+      "used": 7
+    }
+  },
+  "scope": {
+    "github_requests": 0,
+    "ci_launches": 0,
+    "native_browser_launches": 0,
+    "product_edits": [],
+    "plan180_executed": false
+  },
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "phase_verification_status": "not_started",
+  "next_command": "$gsd-progress",
+  "next_blocker": "180 legacy simulation assumes successful183/27 halts; reconcile it with actual halted183/28 halts before execution.",
+  "raw_log_whitespace": "One native unittest progress line has trailing whitespace; retained byte-for-byte, not reformatted.",
+  "verification_scope_note": "Default receipt verifier passed at the clean committed receipt head before permitted shared routing updates. Later consumers must retain the original shared bytes and satisfy their bridge contract."
+}

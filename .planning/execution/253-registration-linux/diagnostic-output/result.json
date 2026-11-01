@@ -1,0 +1,10 @@
+{
+  "kind": "development_diagnostic",
+  "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "browser_invocations": 1,
+  "acceptance": false,
+  "outcome": "completed_not_reproduced",
+  "warmup_status": 302,
+  "browser_exit": 0,
+  "duration_seconds": 1619.805556074003
+}

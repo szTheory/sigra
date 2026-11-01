@@ -1,0 +1,433 @@
+{
+  "schema": "sigra.phase253.versioned-consumer-tests/v1",
+  "status": "passed",
+  "task": "quick-261021-drl",
+  "capture_boundary": {
+    "head": "96897b0411b887c8187383f46d040bbfab25ec63",
+    "status": "clean"
+  },
+  "source_sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py": "093fabeb53a2bb35150ec645eed5b928647640cb1a600597713ff06841330b14",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.test.py": "b727a397ff5976eca8c54899c7abfe9e5eb511b35bda37736b12d3f8ad365433",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md": "c5ca3cadeda3ef003534024eed299e3833f5212c27014795b1cc5d5f8b948ea3"
+  },
+  "tests": {
+    "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.test.py",
+    "environment": {
+      "SIGRA_V2_TEST_EVIDENCE_DIR": "/tmp/sigra253-v2-test05-evidence"
+    },
+    "exit": 0,
+    "run": 18,
+    "passed": 18,
+    "seconds": 93.735,
+    "stdout": "/Users/jon/projects/sigra/.planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test05.stdout.log",
+    "stderr": "/Users/jon/projects/sigra/.planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test05.stderr.log"
+  },
+  "diagnostics": {
+    "ref": "refs/gsd/phase253-quick-261021-drl-diagnostics",
+    "commit": "09856edd8abb62fc4d364467700ec62690b6d527",
+    "source_ref": "refs/gsd/phase253-quick-261021-drl-sdk-source",
+    "source_commit": "4b7761466014074a2f2b3506f2458bf7d16cd93d",
+    "test_fixture_only": true,
+    "files": [
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sdk-report.json",
+        "external_path": "/tmp/sigra253-v2-test05-evidence/sdk-report.json",
+        "blob": "599be5714097f9150ebb0dcf0f7537c247252287",
+        "bytes": 1567242,
+        "sha256": "34e33d8feb39e37e4f6319451a3ad77ff0673662cb453cbcd26118ba97d68018"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/cli-sdk-report.json",
+        "external_path": "/tmp/sigra253-v2-test05-evidence/cli-sdk-report.json",
+        "blob": "6392a727d78f2032beef00eb9cad4038812984ba",
+        "bytes": 1567242,
+        "sha256": "297b974d5e40e3dda283571212d4385f4b7ce345c12797d7ee5bdf061cbda683"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-test05.stdout",
+        "external_path": "/tmp/sigra253-v2-test05.stdout",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-test05.stderr",
+        "external_path": "/tmp/sigra253-v2-test05.stderr",
+        "blob": "a494dad2d62f88fbed8c2e19e1f1b2dded9843f0",
+        "bytes": 2912,
+        "sha256": "476a39fc8d9c4e92052f8354a2aca9d07e962688d18b07c2ecede98751687f35"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-preservations.json",
+        "external_path": "/tmp/sigra253-v2-preservations.json",
+        "blob": "6b8bd5bc8371be339fcf460c2dd24dd2860fb840",
+        "bytes": 11642,
+        "sha256": "dd2f2c8ec4a9a7ac17ae4b0ba6caf8bf9fc3c06a999bf3092fdf171c29e43c2c"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-test01.stdout",
+        "external_path": "/tmp/sigra253-v2-test01.stdout",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-test01.stderr",
+        "external_path": "/tmp/sigra253-v2-test01.stderr",
+        "blob": "3c180d93593188392847463ed53a4ef4e631d6f1",
+        "bytes": 50930,
+        "sha256": "15b9507685de115256dce430d856d91aea7bb631537e4d4ba2f5e46c2623cbac"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-test02.stdout",
+        "external_path": "/tmp/sigra253-v2-test02.stdout",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-test02.stderr",
+        "external_path": "/tmp/sigra253-v2-test02.stderr",
+        "blob": "bb5c16d1a8e6eed395cc4e45a32290783736e018",
+        "bytes": 49070,
+        "sha256": "388da659e36512bd8e843b3a93c0e3d5dfd8b083c0c0f59293842a992ad27658"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-test03.stdout",
+        "external_path": "/tmp/sigra253-v2-test03.stdout",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-test03.stderr",
+        "external_path": "/tmp/sigra253-v2-test03.stderr",
+        "blob": "406f18ae2e78998f708f69353d5d401e71ec40a5",
+        "bytes": 2736,
+        "sha256": "097c92ef1f41ed4d866dbc02593499cc7b5674651824a04fae29a5b7680d866f"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-test04.stdout",
+        "external_path": "/tmp/sigra253-v2-test04.stdout",
+        "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": ".planning/diagnostics/phase253-bridge-v2/sigra253-v2-test04.stderr",
+        "external_path": "/tmp/sigra253-v2-test04.stderr",
+        "blob": "4731528d5500dde64804289fe1bacbcedda0a852",
+        "bytes": 2912,
+        "sha256": "c4c3d2fbd9582acf27a71bae9a912570a450c36a98d943aade164fe2115077d7"
+      }
+    ],
+    "readback": "exact"
+  },
+  "development_preservation": [
+    {
+      "ref": "refs/gsd/phase253-quick-261021-drl-6a7e88099117",
+      "commit": "6a7e88099117e1b85912f99e6e1b865fa5f8e24a",
+      "files": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py",
+          "status": "??",
+          "bytes": 67148,
+          "sha256": "72b477920dd3e1f44de57062daecd30bd6eddfc712ad1ca9da8f87a843350ff3",
+          "blob": "fa1b19e0c59e0d4c550b54ce695f5e6cc71c20ee"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/261021-drl-PLAN.md",
+          "status": "??",
+          "bytes": 997,
+          "sha256": "f0827f60c5a7c9bfc5b71fbeccea8b5759ba94cccda768f2eac8eee862981bcb",
+          "blob": "0ac4b114b1e7524bd4d383db5a8d06ee4c3941db"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/FUNCTION-ORIGINS.json",
+          "status": "??",
+          "bytes": 4817,
+          "sha256": "12641a96e89f1b0e672941d52f0ce71424278a112cb3535f284a4643122e9f38",
+          "blob": "941230b31a9ed4077808d2c7ea4e18d87c0fe8e5"
+        }
+      ],
+      "readback": "exact"
+    },
+    {
+      "ref": "refs/gsd/phase253-quick-261021-drl-62c86cf20717",
+      "commit": "62c86cf20717dd8c6de03d4b78cf06fcd56fc975",
+      "files": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py",
+          "status": "??",
+          "bytes": 71354,
+          "sha256": "1a896a63a3420a585cd510d8a103e68f94717aa5a18cb39afb87af20f1870e8e",
+          "blob": "bd75cfb54644629d38e64d581202074f2c1dd004"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.test.py",
+          "status": "??",
+          "bytes": 11029,
+          "sha256": "624bb053b12b87d9fa3abcb32d3d16e4ae9a759f56c6e38a857322a4be868a0b",
+          "blob": "d13acea46e523a2a406a8a13e3aa8c7a737e2fe4"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/261021-drl-PLAN.md",
+          "status": "??",
+          "bytes": 997,
+          "sha256": "f0827f60c5a7c9bfc5b71fbeccea8b5759ba94cccda768f2eac8eee862981bcb",
+          "blob": "0ac4b114b1e7524bd4d383db5a8d06ee4c3941db"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/FUNCTION-ORIGINS.json",
+          "status": "??",
+          "bytes": 4817,
+          "sha256": "12641a96e89f1b0e672941d52f0ce71424278a112cb3535f284a4643122e9f38",
+          "blob": "941230b31a9ed4077808d2c7ea4e18d87c0fe8e5"
+        }
+      ],
+      "readback": "exact"
+    },
+    {
+      "ref": "refs/gsd/phase253-quick-261021-drl-b627948d5824",
+      "commit": "b627948d58243a41a28911536c73dcc79ad8c680",
+      "files": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
+          "status": "??",
+          "bytes": 5612,
+          "sha256": "11111ade116652b21def2a76d4e3ffc9dd3603b15d7426ca99f8e1da5a4e60c0",
+          "blob": "e6e5d14f64c39091c96e5ccf22f44557dca5318f"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py",
+          "status": "??",
+          "bytes": 71644,
+          "sha256": "bbac97d54e27614fdc67824f786c54affdf35efd27df9223c15761b10c220fb0",
+          "blob": "2cbc638d7dd8b7ee3f25cbd45c5ec5b9d18c9baf"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.test.py",
+          "status": "??",
+          "bytes": 11029,
+          "sha256": "624bb053b12b87d9fa3abcb32d3d16e4ae9a759f56c6e38a857322a4be868a0b",
+          "blob": "d13acea46e523a2a406a8a13e3aa8c7a737e2fe4"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/261021-drl-PLAN.md",
+          "status": "??",
+          "bytes": 997,
+          "sha256": "f0827f60c5a7c9bfc5b71fbeccea8b5759ba94cccda768f2eac8eee862981bcb",
+          "blob": "0ac4b114b1e7524bd4d383db5a8d06ee4c3941db"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/FUNCTION-ORIGINS.json",
+          "status": "??",
+          "bytes": 4996,
+          "sha256": "ade0ce41e7609474849370e7a326f8e9b92d0d37eba15f057958e75de2f2b750",
+          "blob": "a9cc279f3be964942fa3b30da23dfe944bbbfef7"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test01.stderr.log",
+          "status": "??",
+          "bytes": 50930,
+          "sha256": "15b9507685de115256dce430d856d91aea7bb631537e4d4ba2f5e46c2623cbac",
+          "blob": "3c180d93593188392847463ed53a4ef4e631d6f1"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test01.stdout.log",
+          "status": "??",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        }
+      ],
+      "readback": "exact"
+    },
+    {
+      "ref": "refs/gsd/phase253-quick-261021-drl-5446d822f169",
+      "commit": "5446d822f1690e6b1d391df15ece1ceae7475b2f",
+      "files": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
+          "status": "??",
+          "bytes": 5612,
+          "sha256": "11111ade116652b21def2a76d4e3ffc9dd3603b15d7426ca99f8e1da5a4e60c0",
+          "blob": "e6e5d14f64c39091c96e5ccf22f44557dca5318f"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py",
+          "status": "??",
+          "bytes": 71651,
+          "sha256": "cb4b32264a96e10849bd05b2d5707a2cb3f1826d12ed85e5f991926055fd8566",
+          "blob": "e9ae2a4483ec2678e9cbcfd22b573039204c1ac9"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.test.py",
+          "status": "??",
+          "bytes": 11825,
+          "sha256": "c6ed5dc1f937101ba8ee2353e6365ed8cd4a10e0e1f315d9f04c36330cc08e79",
+          "blob": "c52373e2775f4a5e761569a79e71d402fafc05fe"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/261021-drl-PLAN.md",
+          "status": "??",
+          "bytes": 997,
+          "sha256": "f0827f60c5a7c9bfc5b71fbeccea8b5759ba94cccda768f2eac8eee862981bcb",
+          "blob": "0ac4b114b1e7524bd4d383db5a8d06ee4c3941db"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/FUNCTION-ORIGINS.json",
+          "status": "??",
+          "bytes": 4996,
+          "sha256": "ade0ce41e7609474849370e7a326f8e9b92d0d37eba15f057958e75de2f2b750",
+          "blob": "a9cc279f3be964942fa3b30da23dfe944bbbfef7"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test01.stderr.log",
+          "status": "??",
+          "bytes": 50930,
+          "sha256": "15b9507685de115256dce430d856d91aea7bb631537e4d4ba2f5e46c2623cbac",
+          "blob": "3c180d93593188392847463ed53a4ef4e631d6f1"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test01.stdout.log",
+          "status": "??",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test02.stderr.log",
+          "status": "??",
+          "bytes": 49070,
+          "sha256": "388da659e36512bd8e843b3a93c0e3d5dfd8b083c0c0f59293842a992ad27658",
+          "blob": "bb5c16d1a8e6eed395cc4e45a32290783736e018"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test02.stdout.log",
+          "status": "??",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        }
+      ],
+      "readback": "exact"
+    },
+    {
+      "ref": "refs/gsd/phase253-quick-261021-drl-1768504e6d3d",
+      "commit": "1768504e6d3d03e4fdc4a50ad23c6d9336252c2d",
+      "files": [
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-EXECUTION-ADDENDUM-V2.md",
+          "status": "??",
+          "bytes": 5796,
+          "sha256": "c5ca3cadeda3ef003534024eed299e3833f5212c27014795b1cc5d5f8b948ea3",
+          "blob": "7834b7bc241ac24958a2ffb4f64354a572128e00"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py",
+          "status": "??",
+          "bytes": 72703,
+          "sha256": "093fabeb53a2bb35150ec645eed5b928647640cb1a600597713ff06841330b14",
+          "blob": "0fbfa1f5c5fcee4dc90a3372da285c4f6ac1d3db"
+        },
+        {
+          "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.test.py",
+          "status": "??",
+          "bytes": 12763,
+          "sha256": "bbb045d1545d1de5635fc0510b712122a03b29bd6d2e1eb3a2d0d527f58dd228",
+          "blob": "a281e14ceb8bfc304da650e09558b56b45c0fda3"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/261021-drl-PLAN.md",
+          "status": "??",
+          "bytes": 997,
+          "sha256": "f0827f60c5a7c9bfc5b71fbeccea8b5759ba94cccda768f2eac8eee862981bcb",
+          "blob": "0ac4b114b1e7524bd4d383db5a8d06ee4c3941db"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/FUNCTION-ORIGINS.json",
+          "status": "??",
+          "bytes": 4996,
+          "sha256": "ade0ce41e7609474849370e7a326f8e9b92d0d37eba15f057958e75de2f2b750",
+          "blob": "a9cc279f3be964942fa3b30da23dfe944bbbfef7"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test01.stderr.log",
+          "status": "??",
+          "bytes": 50930,
+          "sha256": "15b9507685de115256dce430d856d91aea7bb631537e4d4ba2f5e46c2623cbac",
+          "blob": "3c180d93593188392847463ed53a4ef4e631d6f1"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test01.stdout.log",
+          "status": "??",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test02.stderr.log",
+          "status": "??",
+          "bytes": 49070,
+          "sha256": "388da659e36512bd8e843b3a93c0e3d5dfd8b083c0c0f59293842a992ad27658",
+          "blob": "bb5c16d1a8e6eed395cc4e45a32290783736e018"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test02.stdout.log",
+          "status": "??",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test03.stderr.log",
+          "status": "??",
+          "bytes": 2736,
+          "sha256": "097c92ef1f41ed4d866dbc02593499cc7b5674651824a04fae29a5b7680d866f",
+          "blob": "406f18ae2e78998f708f69353d5d401e71ec40a5"
+        },
+        {
+          "path": ".planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/test03.stdout.log",
+          "status": "??",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+        }
+      ],
+      "readback": "exact"
+    }
+  ],
+  "sdk_simulation": {
+    "test_fixture_only": true,
+    "native_queries": 4,
+    "separate_cli_native_queries": 4,
+    "plan_rows": 183,
+    "halted": 28,
+    "incomplete": 0,
+    "183_summary": "original halted bytes preserved",
+    "every_existing_summary_preserved": true,
+    "source_fixture_ref": "refs/gsd/phase253-quick-261021-drl-sdk-source",
+    "source_fixture_commit": "4b7761466014074a2f2b3506f2458bf7d16cd93d"
+  },
+  "actual_phase": {
+    "plans": 183,
+    "completed": 76,
+    "halted": 28,
+    "without_summary": 79,
+    "verification": "not_started"
+  },
+  "179_original_source_bindings": "all unchanged",
+  "179_receipt_sha256": "d839aca846707be4b191695debd4ff2a1d53bdafc146a28b2fbdea0456c37da4",
+  "scope": {
+    "179_rerun": false,
+    "180_executed": false,
+    "ci_launches": 0,
+    "github_requests": 0,
+    "native_browser_launches": 0,
+    "budgets_renewed": false,
+    "actual168_172_plan_amendments": false
+  },
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 2"
+}

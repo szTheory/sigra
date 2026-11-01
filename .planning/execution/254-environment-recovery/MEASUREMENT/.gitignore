@@ -1,0 +1,11 @@
+/assembled/
+/requests/*/raw-before/
+/requests/*/raw-after/
+/DIAGNOSTIC/admin-checkpoints.zip
+/DIAGNOSTIC/admin-checkpoints.log
+/EVALUATION.json
+/LOCAL-REGISTRATION/raw/
+/EVALUATION-FINAL.json
+/LOCAL-REGISTRATION/*.trace.zip
+/LOCAL-REGISTRATION/*.log
+/LOCAL-REGISTRATION/longpoll-curl-body.json

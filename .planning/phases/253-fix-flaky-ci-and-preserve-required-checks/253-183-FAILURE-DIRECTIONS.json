@@ -1,0 +1,111 @@
+{
+  "status": "ok",
+  "commands": [
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t1-red -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits",
+      "statement": "Wrapper nonzero, missing result.json/native buffers/manifests, native exit other than1, native count other than1, failure count other than1, a different failure header/assertion from the exact recorded stale-count baseline, either baseline helper/test hash changed before launch or source changes during invocation. Wrapper0 preserves native exit1 and means expected RED evidence matched; it does not mean the native test passed.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 1: Prove real historical mutation and complete-stage hosted-link refusals"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t1-green -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses SuccessorContractTests.test_complete_bridge_rejects_hosted_link_edits_at_complete_stage",
+      "statement": "Wrapper/native nonzero, native count other than3, any zero/multiple anchor, unchanged bytes/digest, wrong file/stage/reason at validation, missing restoration/positive, mocked installed-SDK route proof, missing capture or changed old evidence. Only a captured recoverable_assertion_failure:true enables the diagnosed t1-correction branch; this failed result itself remains failed.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 1: Prove real historical mutation and complete-stage hosted-link refusals"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t1-correction -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses SuccessorContractTests.test_complete_bridge_rejects_hosted_link_edits_at_complete_stage",
+      "statement": "Launched without the failed t1-green direct result, recoverable_assertion_failure:true and retained in-scope diagnosis/corrected committed source; duplicate slot; wrapper/native nonzero; native count other than3; or any capture/source/mutation/stage/restoration defect from t1-green. Failure is terminal; only a separate3/3 passing result enables t1-final. Do not launch when t1-green passed; record not_used instead.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 1: Prove real historical mutation and complete-stage hosted-link refusals"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t1-final -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses SuccessorContractTests.test_complete_bridge_rejects_hosted_link_edits_at_complete_stage",
+      "statement": "Launched without a separate passing3/3 t1-correction result, any helper/test change after that result, duplicate slot, wrapper/native nonzero, native count other than3 or any capture/source/mutation/stage/restoration defect. This is the last Task1 run; any failure halts183. Do not launch when correction is not_used.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 1: Prove real historical mutation and complete-stage hosted-link refusals"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t2-red -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_lifecycle_183_preserves_181_182_halts_and_reuses_179_180 SuccessorContractTests.test_validate_review183_requires_direct_runs_and_source_commits",
+      "statement": "Wrapper nonzero, missing result/direct buffers/manifests, native exit other than1, native count/failure count other than2, mismatched failure headers or exact ACTIVE_REPAIR_183_MISSING/DIRECT_RUN_REVIEW_183_MISSING AssertionError lines, helper hash different from the captured baseline before launch, unrelated setup/native ERROR or changed source during invocation. Wrapper0 preserves both native failures and only accepts their exact expected RED evidence.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 2: Complete the carried repair lifecycle and strict183/27/73 consumers"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t2-green -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_lifecycle_183_preserves_181_182_halts_and_reuses_179_180 SuccessorContractTests.test_validate_review183_requires_direct_runs_and_source_commits SuccessorContractTests.test_sdk_indexes_require_exact_unique_plan_universe SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses SuccessorContractTests.test_sdk_report_rejects_rehashed_fabricated_queries",
+      "statement": "Wrapper/native nonzero, native count other than6, missing new-contract RED/capture/source binding, accepted wrong183/27/73 set or fabricated query, changed historical25 control or181/182 outcome, mismatched producer/consumer exclusions, lost original regression, real acceptance or external action. Only a captured recoverable_assertion_failure:true enables diagnosed t2-correction; the failed result remains failed.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 2: Complete the carried repair lifecycle and strict183/27/73 consumers"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t2-correction -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_lifecycle_183_preserves_181_182_halts_and_reuses_179_180 SuccessorContractTests.test_validate_review183_requires_direct_runs_and_source_commits SuccessorContractTests.test_sdk_indexes_require_exact_unique_plan_universe SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses SuccessorContractTests.test_sdk_report_rejects_rehashed_fabricated_queries",
+      "statement": "Launched without failed t2-green direct evidence, recoverable_assertion_failure:true and retained in-scope diagnosis/corrected committed source; duplicate slot; wrapper/native nonzero; native count other than6; or any capture/source/contract/history defect from t2-green. Failure is terminal; a separate6/6 pass enables t2-final. Do not launch when t2-green passed; record not_used instead.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 2: Complete the carried repair lifecycle and strict183/27/73 consumers"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t2-final -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_lifecycle_183_preserves_181_182_halts_and_reuses_179_180 SuccessorContractTests.test_validate_review183_requires_direct_runs_and_source_commits SuccessorContractTests.test_sdk_indexes_require_exact_unique_plan_universe SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses SuccessorContractTests.test_sdk_report_rejects_rehashed_fabricated_queries",
+      "statement": "Launched without a separate passing6/6 t2-correction result, any helper/test change after that result, duplicate slot, wrapper/native nonzero, native count other than6 or any capture/source/contract/history defect. This is the last Task2 run; failure halts183. Do not launch when correction is not_used.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 2: Complete the carried repair lifecycle and strict183/27/73 consumers"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t3-full -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "statement": "Wrapper/native nonzero, native method count other than25, any original21 method omitted or new4 missing, incomplete direct buffers/manifests, wrong historical/current mutation/stage, altered179/180 command bodies or old evidence, missing source commit, actual acceptance or external action. Only a captured recoverable_assertion_failure:true enables the single diagnosed t3-recovery branch; the original failed result stays failed.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 3: Preserve179/180, amend their future instructions and publish the direct183 review"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t3-recovery -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py SuccessorContractTests.test_lifecycle_183_preserves_181_182_halts_and_reuses_179_180 SuccessorContractTests.test_validate_review183_requires_direct_runs_and_source_commits SuccessorContractTests.test_sdk_indexes_require_exact_unique_plan_universe SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route SuccessorContractTests.test_historical_25_to_22_mutation_changes_bytes_and_refuses SuccessorContractTests.test_sdk_report_rejects_rehashed_fabricated_queries",
+      "statement": "Launched without failed t3-full direct evidence, recoverable_assertion_failure:true and the single retained in-scope diagnosis/corrected committed source; duplicate slot; wrapper/native nonzero; native count other than6; missing capture/source binding, accepted wrong183/27/73 set or fabricated query, changed historical25/181/182 outcomes, lost original control, acceptance or external action. Failure halts183;6/6 only enables t3-full-final. Do not launch when t3-full passed; record not_used instead.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 3: Preserve179/180, amend their future instructions and publish the direct183 review"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t3-full-final -- python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "statement": "Launched without a separate passing6/6 t3-recovery result, helper/test or amended-plan source changed since that result, duplicate slot, wrapper/native nonzero, native method count other than25, any original21 or new4 method omitted, capture/source/history/body comparison defect, acceptance or external action. This is the final full-suite slot; any failure halts183. Do not launch when recovery is not_used.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 3: Preserve179/180, amend their future instructions and publish the direct183 review"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t3-validators -- python3 -B -c 'import hashlib,json,pathlib,subprocess; phase=pathlib.Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks\"); node=pathlib.Path.home()/\".asdf/installs/nodejs/20.18.1/bin/node\"; sdk=pathlib.Path.home()/\".codex/gsd-core/bin/gsd-tools.cjs\"; rows=[]\nfor number in (179,180):\n path=phase/f\"253-{number}-PLAN.md\"\n for verb,extra in ((\"frontmatter.validate\",[\"--schema\",\"plan-gap-closure\"]),(\"verify.plan-structure\",[])):\n  argv=[str(node),str(sdk),\"query\",verb,str(path),*extra]; result=subprocess.run(argv,capture_output=True,timeout=60); raw=result.stdout; parsed=json.loads(raw.decode(\"utf-8\",\"strict\")); row={\"plan_path\":str(path),\"plan_sha256\":hashlib.sha256(path.read_bytes()).hexdigest(),\"argv\":argv,\"exit_code\":result.returncode,\"stdout\":raw.decode(\"utf-8\",\"strict\"),\"stderr\":result.stderr.decode(\"utf-8\",\"strict\"),\"stdout_sha256\":hashlib.sha256(raw).hexdigest(),\"stderr_sha256\":hashlib.sha256(result.stderr).hexdigest()}; rows.append(row); print(json.dumps(row,sort_keys=True),flush=True); assert result.returncode==0 and isinstance(parsed,dict) and parsed.get(\"valid\") is True,(number,verb,parsed); assert (parsed.get(\"schema\")==\"plan-gap-closure\" if verb==\"frontmatter.validate\" else parsed.get(\"errors\")==[] and isinstance(parsed.get(\"tasks\"),list) and len(parsed[\"tasks\"])==2),(number,verb,parsed)\nassert len(rows)==4'",
+      "statement": "Any nonzero/timeout/invalid JSON/valid not true, wrong schema, structure errors/task count other than2, fewer than4 actual result rows, changed source at invocation, or missing raw output/argv/plan/Node/SDK bindings. This command is one four-validator slot, not permission for extra runs.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 3: Preserve179/180, amend their future instructions and publish the direct183 review"
+    },
+    {
+      "command": "python3 -B \"$SIGRA_183_CAPTURE_DIR/capture183.py\" t3-review -- python3 -B -c 'import importlib.util,pathlib; path=pathlib.Path(\".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py\"); spec=importlib.util.spec_from_file_location(\"repair183\",path); module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module); review=module.validate_review183(pathlib.Path.cwd(),require_summary=False); assert review[\"repair_plan\"]==\"253-183\" and review[\"status\"]==\"reviewed_for_new_acceptance\"; print(\"183 committed direct-output repair review verified; 181/182 remain halted; 179 not run\")'",
+      "statement": "Wrapper/native nonzero, absent named183 success, accepted missing/reconstructed capture or late-only source digest, rejected actual source/readbacks/native25/25/four validators/required correction progression, accepted halted181/182 authority, premature completed183 SUMMARY required, altered old bytes, or real acceptance consumed.",
+      "status": "ok",
+      "severity": "none",
+      "plan": "253-183-PLAN.md",
+      "task": "Task 3: Preserve179/180, amend their future instructions and publish the direct183 review"
+    }
+  ],
+  "readError": null,
+  "scope": "253-183; full phase probe run, current-plan rows retained"
+}

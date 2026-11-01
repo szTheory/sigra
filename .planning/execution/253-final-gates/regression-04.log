@@ -1,0 +1,24 @@
+✔ browser records travel through unique artifacts into the mandatory native verdict (0.677958ms)
+✔ all five browser producers supply pre-execution inventory and native terminal outcomes (0.527208ms)
+✔ missing record, artifact, inventory or native dependency fails source wiring (3.501375ms)
+✔ keeps one library mix ci owner and preserves required check names (0.505ms)
+✔ records seven distinct Playwright reports without changing the five seam selections (0.215291ms)
+✔ uploads separate main and dependency-off timing reports from their producing job (0.3165ms)
+✔ metadata keeps configured pins separate from command-observed versions and cache results (0.111083ms)
+✔ Playwright JSON output is opt-in beside the existing human-readable reporters (1.892875ms)
+✔ the five existing browser seam identifiers and selection commands stay in place (0.740083ms)
+✔ normalizes identity, retry, result and millisecond durations without merging ties (4.98975ms)
+✔ stable identity order is independent of native suite order when durations tie (0.168416ms)
+✔ rejects malformed, empty, truncated, duplicate and invalid-duration reports as incomplete (0.208084ms)
+✔ CLI writes incomplete output atomically and retains a nonzero status for missing or malformed input (93.534542ms)
+✔ CLI keeps a write failure visible and does not publish a partial output (26.613541ms)
+✔ CLI refuses to overwrite its raw Playwright input with normalized output (25.99825ms)
+✔ snapshot replay emits explicit zero-sample unknowns and distinct cost dimensions (662.2265ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 697.833708

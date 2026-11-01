@@ -1,0 +1,198 @@
+{
+  "schema_version": "sigra.phase253.postexecution-checks/v1",
+  "recorded_at": "2026-10-13T05:04:00.349908+00:00",
+  "source_head": "5ea3ef6267aabf885df51829f888fa1bf9c4dbc7",
+  "status": "local_checks_passed_phase_incomplete",
+  "groups": [
+    {
+      "source_head": "b0bed87cf1d44bf822e7d0345a77462af2023c0c",
+      "recorded_at": "2026-10-13T04:57:21.174069+00:00",
+      "results": [
+        {
+          "command": [
+            "bash",
+            "scripts/ci/ci-registration-repro.test.sh"
+          ],
+          "exit_code": 0,
+          "stdout": "registration freeze: PASS\nregistration runner modes: PASS\nregistration verifiers reject forged claims: PASS (6 cases)\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "python3",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "test_help_describes_only_bounded_scenarios (__main__.CanaryCliTests.test_help_describes_only_bounded_scenarios) ... ok\ntest_accepts_matching_fixture_origin_and_retained_digest (__main__.HostedGateVerifierTests.test_accepts_matching_fixture_origin_and_retained_digest) ... ok\ntest_final_matrix_checks_separate_verifier_and_recounts_executions (__main__.HostedGateVerifierTests.test_final_matrix_checks_separate_verifier_and_recounts_executions) ... ok\ntest_rejects_honest_skip_verdict_for_a_different_logical_event (__main__.HostedGateVerifierTests.test_rejects_honest_skip_verdict_for_a_different_logical_event) ... ok\ntest_rejects_missing_or_expired_artifact_and_altered_digest (__main__.HostedGateVerifierTests.test_rejects_missing_or_expired_artifact_and_altered_digest) ... ok\ntest_rejects_negative_boolean_or_underreported_budget (__main__.HostedGateVerifierTests.test_rejects_negative_boolean_or_underreported_budget) ... ok\ntest_rejects_result_bytes_not_present_in_digest_checked_archive (__main__.HostedGateVerifierTests.test_rejects_result_bytes_not_present_in_digest_checked_archive) ... ok\ntest_rejects_running_or_wrong_origin_auxiliary_verifier (__main__.HostedGateVerifierTests.test_rejects_running_or_wrong_origin_auxiliary_verifier) ... ok\ntest_rejects_self_attested_artifact_and_malformed_json (__main__.HostedGateVerifierTests.test_rejects_self_attested_artifact_and_malformed_json) ... ok\ntest_rejects_wrong_fixture_workflow_identity_and_unexpected_job (__main__.HostedGateVerifierTests.test_rejects_wrong_fixture_workflow_identity_and_unexpected_job) ... ok\ntest_rejects_wrong_run_attempt_and_source_identity (__main__.HostedGateVerifierTests.test_rejects_wrong_run_attempt_and_source_identity) ... ok\ntest_sources_can_pass_before_separate_verifier_but_matrix_cannot (__main__.HostedGateVerifierTests.test_sources_can_pass_before_separate_verifier_but_matrix_cannot) ... ok\n\n----------------------------------------------------------------------\nRan 12 tests in 1.172s\n\nOK\n"
+        },
+        {
+          "command": [
+            "python3",
+            "scripts/ci/ci-gate-canary-recovery.test.py"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "test_expected_watch_failure_returns_without_changing_errexit (__main__.CanaryRecoveryTests.test_expected_watch_failure_returns_without_changing_errexit) ... ok\ntest_fixture_uses_actual_github_identity_as_input_only (__main__.CanaryRecoveryTests.test_fixture_uses_actual_github_identity_as_input_only) ... ok\ntest_halted_evidence_stops_before_any_github_command (__main__.CanaryRecoveryTests.test_halted_evidence_stops_before_any_github_command) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 2.251s\n\nOK\n"
+        },
+        {
+          "command": [
+            "bash",
+            "scripts/ci/ci-gate-canary.test.sh"
+          ],
+          "exit_code": 0,
+          "stdout": "ci-gate-canary: local fixture contract passed\nci-gate-canary tests passed\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "node",
+            "--test",
+            "scripts/ci/ci-measure-workflow.test.mjs",
+            "scripts/ci/ci-browser-records.test.mjs",
+            "scripts/ci/ci-playwright-report.test.mjs",
+            "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+            "scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs",
+            "scripts/ci/prohibitions/p17-no-playwright-retry-wrapper.test.mjs"
+          ],
+          "exit_code": 0,
+          "stdout": "\u2714 a selected full browser seam requires its complete native report (96.555834ms)\n\u2714 exactly five browser producers and all native selections are required (75.694875ms)\n\u25b6 adversarial record identity, shape, outcome and report controls fail closed\n  \u2714 null record (43.480375ms)\n  \u2714 empty record (34.813916ms)\n  \u2714 unknown seam (32.753375ms)\n  \u2714 case variant (32.475708ms)\n  \u2714 space variant (33.965917ms)\n  \u2714 unicode variant (35.568583ms)\n  \u2714 wrong run (33.837791ms)\n  \u2714 wrong attempt (34.443583ms)\n  \u2714 wrong source (38.549834ms)\n  \u2714 wrong workflow (41.863875ms)\n  \u2714 wrong event (34.958334ms)\n  \u2714 no selected body (35.952959ms)\n  \u2714 duplicate selected body (39.414292ms)\n  \u2714 unexpected skip (37.956ms)\n  \u2714 cancelled body (39.306708ms)\n  \u2714 masked failed body (34.645084ms)\n  \u2714 missing reports (41.260959ms)\n  \u2714 wrong hash (44.302916ms)\n  \u2714 traversal (36.857875ms)\n\u2714 adversarial record identity, shape, outcome and report controls fail closed (708.474209ms)\n\u2714 only a successful actual PR classifier exempts all five selected bodies (248.0215ms)\n\u2714 missing unknown duplicate and symlink producers cannot pass (178.10625ms)\n\u2714 native reports cannot lose tests, fail, retry, truncate or change project selection (252.235042ms)\n\u2714 the producer records actual selected outcomes and copies only native report files (65.965708ms)\n\u2714 browser records travel through unique artifacts into the mandatory native verdict (0.921125ms)\n\u2714 all five browser producers supply pre-execution inventory and native terminal outcomes (0.781458ms)\n\u2714 missing record, artifact, inventory or native dependency fails source wiring (4.668083ms)\n\u2714 keeps one library mix ci owner and preserves required check names (0.679709ms)\n\u2714 records seven distinct Playwright reports without changing the five seam selections (0.282417ms)\n\u2714 uploads separate main and dependency-off timing reports from their producing job (0.349166ms)\n\u2714 metadata keeps configured pins separate from command-observed versions and cache results (0.120709ms)\n\u2714 Playwright JSON output is opt-in beside the existing human-readable reporters (2.233458ms)\n\u2714 the five existing browser seam identifiers and selection commands stay in place (0.805708ms)\n\u2714 normalizes identity, retry, result and millisecond durations without merging ties (5.333542ms)\n\u2714 stable identity order is independent of native suite order when durations tie (0.186667ms)\n\u2714 rejects malformed, empty, truncated, duplicate and invalid-duration reports as incomplete (0.237875ms)\n\u2714 CLI writes incomplete output atomically and retains a nonzero status for missing or malformed input (103.689667ms)\n\u2714 CLI keeps a write failure visible and does not publish a partial output (30.412833ms)\n\u2714 CLI refuses to overwrite its raw Playwright input with normalized output (28.531917ms)\n\u2714 the terminal browser aggregate is absent from the docs-only body inventory (0.869416ms)\n\u2714 every selected browser body has exact step and condition parity (2.851042ms)\n\u2714 browser body skips require actual successful PR classification (0.126417ms)\n\u2714 old aggregate claim and missing stale or changed body conditions fail parity (2.79125ms)\n\u2714 the manifest parses to a populated, tiered enumeration (0.085291ms)\n\u2714 every manifest id resolves to a real construct in ci.yml (0.778459ms)\n\u2714 every step row names a parent that is itself a manifest job row (0.061042ms)\n\u2714 display_name matches the construct name ci.yml actually declares (1.43125ms)\n\u2714 gate column matches the if: expression ci.yml actually declares (Phase 231 GATE-02 / GATE-03) (0.798875ms)\n\u2714 no manifest gate string references a branch name or a literal commit SHA (Phase 231 GATE-03) (0.275125ms)\n\u2714 no event-gated job in ci.yml is missing from the manifest (0.287417ms)\n\u2714 the lanes that must never be gated are absent from the manifest (0.052458ms)\n\u2714 the config parse locates a `retries:` line at all (non-vacuity floor) (0.389209ms)\n\u2714 the spec walk finds at least 10 tests/*.spec.ts files (non-vacuity floor) (0.051792ms)\n\u2714 the config subject carries no retry wrapper (0.187958ms)\n\u2714 no tests/*.spec.ts file carries a retry wrapper (0.671625ms)\n\u2714 negative control: a fixture reintroducing a retry wrapper fails the guard (0.134833ms)\n\u2714 missing stale and duplicate active ids cannot satisfy documentation parity (0.848958ms)\n\u2714 the manifest and honest-skip section are non-vacuously available (0.113458ms)\n\u2714 the active honest-skip inventory exactly matches manifest ids and required step parents (0.364959ms)\n\u2714 p10 continues to own the three delegated ci.yml parity legs (0.439333ms)\n\u2139 tests 62\n\u2139 suites 0\n\u2139 pass 62\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 1673.307417\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "bash",
+            "scripts/ci/honest-skip-verdict.test.sh"
+          ],
+          "exit_code": 0,
+          "stdout": "Test A: all ten lanes success on pull_request -> exit 0\n  PASS: A: exit 0, no FAIL lines\nTest B: upgrade_smoke skipped on pull_request -> exit 0 (legitimate)\n  PASS: B: exit 0, upgrade_smoke reported as legitimately gated\nTest C: upgrade_smoke skipped on push -> exit 1, names lane AND event\n  PASS: C: exit 1, reason names upgrade_smoke and the push event\nTest D: library_tests_dep_off skipped, docs-only true -> exit 1\n  PASS: D: exit 1, docs-only true no longer legitimizes the skip\nTest E: library_tests_dep_off skipped, docs-only false -> exit 1\n  PASS: E: exit 1, reason names library_tests_dep_off\nTest F: library_tests_dep_off skipped, docs-only empty -> exit 1, NOTE\n  PASS: F: exit 1, empty-docs-only NOTE present\nTest G: example_playwright_smoke skipped on pull_request -> exit 1\n  PASS: G: exit 1, not in the allow-set on any event\nTest H: install_smoke=failure -> exit 1\n  PASS: H: exit 1 on a failure result (ci.yml:1831 behaviour preserved)\nTest I: install_smoke=cancelled -> exit 1\n  PASS: I: exit 1, a cancelled lane is never waved through\nTest J: every lane result empty -> exit 1 (broken wiring, never a pass)\n  PASS: J: exit 1, an empty result map is a broken wiring, not a pass\nTest K: manifest with zero lane-set rows -> exit 1 (non-vacuity)\n  PASS: K: an empty lane-set intersection is a broken parse, not a clean run\nTest L: upgrade_smoke gate rewritten to a branch, still skipped -> exit 1\n  PASS: L: an allowed skip still fails on a rotted gate; reason quotes the cell\nTest M: --force-rot-probe on an all-green pull_request map -> exit 1\n  PASS: M: exit 1, output names example_playwright_smoke and carries the probe banner\nTest N: same map without --force-rot-probe -> exit 0, no probe banner\n  PASS: N: exit 0, the probe flag is a total no-op when unset\nTest O: unknown flag -> exit 2\n  PASS: O: exit 2 on an unrecognized flag\nTest P: --format json parses with 10 lane entries and a top-level verdict\n  PASS: P: valid JSON, 10 lane entries, top-level verdict PASS\nTest Q: the shipped manifest yields the expected lane-set rows\n  PASS: Q: shipped manifest yields 4 lane-set rows (>= 4), excludes library_tests_dep_off\nTest R: shipped ci.yml's ci-gate needs agree with the script's lane list\n  PASS: R: shipped ci-gate.needs and the script's lane list agree modulo 'changes'\nTest S: a fixture workflow missing a lane from ci-gate.needs -> exit 1\n  PASS: S: exit 1, names the lane missing from ci-gate.needs\nTest T: ci-gate's own step list invokes honest-skip-verdict.sh ahead of the legacy loop\n  PASS: T: ci-gate invokes honest-skip-verdict.sh before the legacy loop, env carries docs-only/event-name/probe keys\n  PASS: Unit owner actual verdict\nResults: 21 passed, 0 failed\nhonest-skip-verdict.test: PASS\n",
+          "stderr": "test_classifier_failure_cannot_authorize_docs_only_skips (__main__.UnitOwner.test_classifier_failure_cannot_authorize_docs_only_skips) ... ok\ntest_classifier_success_keeps_docs_only_pull_request_eligible (__main__.UnitOwner.test_classifier_success_keeps_docs_only_pull_request_eligible) ... ok\ntest_unit_body_omission_cannot_produce_green (__main__.UnitOwner.test_unit_body_omission_cannot_produce_green) ... ok\ntest_unit_negative_outcomes_are_preserved (__main__.UnitOwner.test_unit_negative_outcomes_are_preserved) ... ok\ntest_unit_result_is_owned_by_actual_verdict (__main__.UnitOwner.test_unit_result_is_owned_by_actual_verdict) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 1.029s\n\nOK\n"
+        },
+        {
+          "command": [
+            "actionlint",
+            ".github/workflows/ci.yml",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-WORKFLOW.yml"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "bash",
+            "-n",
+            "scripts/ci/ci-registration-repro.sh",
+            "scripts/ci/ci-registration-repro.test.sh",
+            "scripts/ci/ci-gate-canary.sh",
+            "scripts/ci/ci-gate-canary.test.sh",
+            "scripts/ci/honest-skip-verdict.sh"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "source_head": "b0bed87cf1d44bf822e7d0345a77462af2023c0c",
+      "recorded_at": "2026-10-13T04:57:43.936071+00:00",
+      "results": [
+        {
+          "command": [
+            "bash",
+            "scripts/ci/ci-run-metrics.test.sh"
+          ],
+          "exit_code": 0,
+          "stdout": "Test A/B/C: --jobs <id> emits a per-job table; 1053s/17m33s failure row not filtered; negative duration clamped to 0\n  PASS: table row present for failing job at 1053s/17m33s; negative duration clamped to 0s (exit 0)\nTest D: unknown flag -> exit 2, ci-run-metrics: FAIL: unknown arg, ZERO gh invocations\n  PASS: exit 2, correct message, zero gh calls (fail-closed before any gh invocation)\nTest E: gh absent from PATH -> non-zero exit, ci-run-metrics: FAIL: message\n  PASS: exit non-zero (1), FAIL message, no partial stdout\nTest F: gh exits non-zero -> non-zero exit, ci-run-metrics: FAIL: message, no partial table\n  PASS: exit non-zero (1) on gh failure, no partial table emitted\nTest G: empty job list -> non-zero exit, ci-run-metrics: FAIL: message, no partial table\n  PASS: exit non-zero (1) on empty job list, no partial table emitted\nTest H: --format json emits valid JSON; failure-conclusion job present; negative duration clamped\n  PASS: --format json valid, duration/clamp/no-filter semantics match table mode\nTest I/J: window --mode wall table header, per-trigger n/mean/p50/max/outcomes, negative clamp\n  PASS: exact header + odd(n=5)/even(n=4) p50 index rule + negative-duration clamp all correct (exit 0)\nTest K: --mode jobspan produces a strictly smaller mean than --mode wall on the identical canned window\n  PASS: jobspan mean (160s) strictly less than wall mean (180s) on the same window\nTest L: empty run list -> non-zero exit, ci-run-metrics: FAIL: message, no partial table\n  PASS: exit non-zero (1) on empty run list, no partial table emitted\n\n----------------------------------------\n  PASS: Versioned diagnosis consumes the saved native family\nResults: 10 passed, 0 failed\n----------------------------------------\nci-run-metrics.test: PASS\nTest M: retained source pages are the authoritative wall-mode input\n  PASS: source pages preserve all conclusions, boundary equality, and stable run-id ordering\nTest N: source chronology, completeness, duplicates, and strict threshold fail closed\n  PASS: source-page faults rejected\nTest O: preflight and collection route every live request through explicit guarded GET\n  PASS: preflight reports current five contexts and guards all four initial requests\nTest O2: time, core-rate, 600-request boundary, and one transient retry are enforced before calls\n  PASS: 60-minute boundary stops before the first request and writes an incomplete ledger\n  PASS: request 600 is allowed and no 601st request is made\n  PASS: core budget at 250 stops before the next API request\n  PASS: core budget 251 permits one read, decrements to 250, then blocks\n  PASS: blocked hosted preflight names its missing capability while offline tests continue\n  PASS: 403/429 rate response records reset time and is never retried immediately\n  PASS: a transient GET is retried once and both requests count against the budget\nTest P: one PR family collects to a hash-checked offline replay with equal-duration job identities\n  PASS: five required contexts replay to a 120-second endpoint and 300 equal-job seconds without gh\nTest P2: native API job identity survives collection and conflicts cannot be relabeled\n  PASS: conflicting native run, attempt, and head identity remains in retained API bytes and is rejected\nTest Q: altered rules and incomplete or unbound required contexts remain unknown\n  PASS: a missing required-check timestamp yields unknown, never a numeric wait\n  PASS: check-run to job ID mismatch is reported as required_context_unbound\n  PASS: a foreign duplicate required check is rejected before it can affect either endpoint\n  PASS: changed raw rules with a refreshed hash invalidate timing despite an approved, unchanged manifest\n  PASS: standalone family replay measures the approved contexts from classic branch protection\n  PASS: a changed retained response is rejected by its saved SHA-256\nTest R: first-attempt and eventual endpoints stay separate while every rerun job contributes cost\n  PASS: rerun completion extends eventual wait and both attempts' five distinct jobs count\nTest S: multi-revision records remain one family and cannot claim an unmeasured endpoint\n  PASS: multiple source revisions are represented once and remain unknown without each revision's source bundle\nTest T: non-required failure, cancellation, timeout, and skip conclusions stay literal\n  PASS: replay retains failure, cancellation, timeout, and skip conclusions verbatim\nTest U: frozen cutoff keeps PR, main push and schedule populations separate and caps each at 100\n  PASS: fixed cutoff, 100-run cap, API totals and event separation are retained\n  PASS: offline replay rejects a changed required-check set despite a matching raw-source hash\n  PASS: failed artifact download remains unknown with the stop reason retained\nTest Z: legacy dependency-off-only timing cannot satisfy full-suite coverage\n  PASS: missing main and child invocation reports fail closed without a historical archive\nTest V: snapshot replay reads verified files offline without contacting gh\n  PASS: source bundle replays offline with API totals and outcomes intact\nTest V2: replay exposes source-backed cohort ranks, stages, provenance and unknowns\n  PASS: replay separates rankings and costs while withholding generic metadata without producer proof\nTest V2b: generic ranking rejects native API job identity conflicts despite matching local family labels\n  PASS: generic ranking rejects API run/attempt/head conflicts after all source hashes are refreshed\nTest V3: current failures stay bounded and one-off red evidence is not called flaky\n  PASS: failure shortlist inspects at most twelve families and keeps unavailable log evidence unknown\nTest W: concurrent lock, interruption ledger, and request ceiling are enforced\n  PASS: an active snapshot lock prevents mutation\n  PASS: signal interruption leaves request and selected-run ledgers with incomplete status\n  PASS: incomplete snapshots replay their verified ledgers offline\n  PASS: request 600 is allowed and the following event query is stopped\nTest X: redirect validation accepts only the exact HTTPS hosts and never echoes signed queries\n  PASS: both exact hosts accepted; downgrade, deceptive host, credentials, fragment, port, path and IP rejected\nTest Y: artifact provenance, bounded ZIP handling, and log redaction fail closed\n  PASS: GitHub artifact ID, producing run, SHA and digest are source-bound\n  PASS: wrong-run, wrong-SHA and expired artifacts are diagnostics, not measurements\n  PASS: timing JSON extracts while traversal and 64 MiB members are rejected\n  PASS: known token, bearer, password and signed-query patterns are redacted\nci-run-metrics-comparison.test: PASS\n\n----------------------------------------\nResults: 48 passed, 0 failed\n----------------------------------------\nci-run-metrics.test: PASS\n",
+          "stderr": "test_archived_test_z_preserves_red_and_passing_test_d (__main__.DiagnosisContract.test_archived_test_z_preserves_red_and_passing_test_d) ... ok\ntest_changed_archive_fails_closed_with_saved_diagnostic (__main__.DiagnosisContract.test_changed_archive_fails_closed_with_saved_diagnostic) ... ok\ntest_late_failure_context_and_incomplete_inputs (__main__.DiagnosisContract.test_late_failure_context_and_incomplete_inputs) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.896s\n\nOK\n"
+        },
+        {
+          "command": [
+            "bash",
+            "scripts/ci/ci-run-metrics.sh",
+            "--verify-baseline",
+            "--source-bundle",
+            ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+            "--baseline",
+            ".planning/phases/252-measure-current-ci/252-BASELINE.json"
+          ],
+          "exit_code": 0,
+          "stdout": "{\"cutoff_utc\": \"2026-10-12T22:41:22Z\", \"diagnostics\": [], \"source_sha\": \"4ed2edf5f1c231a3889fbf02b7179f9093df4883\", \"status\": \"ready\"}\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "source_head": "7da6766eb361c9bd47a6bf0a875e41aa2229075f",
+      "recorded_at": "2026-10-13T04:59:59.546235+00:00",
+      "results": [
+        {
+          "command": [
+            "python3",
+            "scripts/ci/ci-hosted-gate-verify.test.py"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "test_help_describes_only_bounded_scenarios (__main__.CanaryCliTests.test_help_describes_only_bounded_scenarios) ... ok\ntest_accepts_matching_fixture_origin_and_retained_digest (__main__.HostedGateVerifierTests.test_accepts_matching_fixture_origin_and_retained_digest) ... ok\ntest_final_matrix_checks_separate_verifier_and_recounts_executions (__main__.HostedGateVerifierTests.test_final_matrix_checks_separate_verifier_and_recounts_executions) ... ok\ntest_rejects_honest_skip_verdict_for_a_different_logical_event (__main__.HostedGateVerifierTests.test_rejects_honest_skip_verdict_for_a_different_logical_event) ... ok\ntest_rejects_missing_or_expired_artifact_and_altered_digest (__main__.HostedGateVerifierTests.test_rejects_missing_or_expired_artifact_and_altered_digest) ... ok\ntest_rejects_negative_boolean_or_underreported_budget (__main__.HostedGateVerifierTests.test_rejects_negative_boolean_or_underreported_budget) ... ok\ntest_rejects_result_bytes_not_present_in_digest_checked_archive (__main__.HostedGateVerifierTests.test_rejects_result_bytes_not_present_in_digest_checked_archive) ... ok\ntest_rejects_running_or_wrong_origin_auxiliary_verifier (__main__.HostedGateVerifierTests.test_rejects_running_or_wrong_origin_auxiliary_verifier) ... ok\ntest_rejects_self_attested_artifact_and_malformed_json (__main__.HostedGateVerifierTests.test_rejects_self_attested_artifact_and_malformed_json) ... ok\ntest_rejects_wrong_fixture_workflow_identity_and_unexpected_job (__main__.HostedGateVerifierTests.test_rejects_wrong_fixture_workflow_identity_and_unexpected_job) ... ok\ntest_rejects_wrong_run_attempt_and_source_identity (__main__.HostedGateVerifierTests.test_rejects_wrong_run_attempt_and_source_identity) ... ok\ntest_sources_can_pass_before_separate_verifier_but_matrix_cannot (__main__.HostedGateVerifierTests.test_sources_can_pass_before_separate_verifier_but_matrix_cannot) ... ok\n\n----------------------------------------------------------------------\nRan 12 tests in 1.115s\n\nOK\n"
+        },
+        {
+          "command": [
+            "python3",
+            "scripts/ci/ci-gate-canary-recovery.test.py"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": "test_expected_watch_failure_returns_without_changing_errexit (__main__.CanaryRecoveryTests.test_expected_watch_failure_returns_without_changing_errexit) ... ok\ntest_fixture_uses_actual_github_identity_as_input_only (__main__.CanaryRecoveryTests.test_fixture_uses_actual_github_identity_as_input_only) ... ok\ntest_halted_evidence_stops_before_any_github_command (__main__.CanaryRecoveryTests.test_halted_evidence_stops_before_any_github_command) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 1.880s\n\nOK\n"
+        },
+        {
+          "command": [
+            "bash",
+            "scripts/ci/ci-gate-canary.test.sh"
+          ],
+          "exit_code": 0,
+          "stdout": "ci-gate-canary: local fixture contract passed\nci-gate-canary tests passed\n",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "actionlint",
+            ".github/workflows/ci.yml",
+            ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CANARY-WORKFLOW.yml"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ]
+    }
+  ],
+  "phase_acceptance": false,
+  "gates": {
+    "ui": {
+      "frontend": false,
+      "hasUiFiles": false,
+      "hasUiSpec": false,
+      "block": false
+    },
+    "schema": {
+      "block": false,
+      "drift_detected": false,
+      "blocking": false,
+      "schema_files": [],
+      "orms": [],
+      "unpushed_orms": [],
+      "message": "",
+      "skipped": false
+    },
+    "codebase": {
+      "block": false,
+      "skipped": true,
+      "reason": "no-structure-md",
+      "action_required": false,
+      "directive": "none",
+      "elements": []
+    }
+  },
+  "phase252_paths_unchanged": true
+}

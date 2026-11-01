@@ -1,0 +1,4 @@
+# Raw attempt bytes are retained under the verified refs named in FINAL-RECOVERY.json.
+RAW-before/
+RAW-after/
+RAW-after-capture-repair/

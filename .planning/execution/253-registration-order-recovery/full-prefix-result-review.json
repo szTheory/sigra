@@ -1,0 +1,2144 @@
+{
+  "status": "completed_not_reproduced",
+  "source_commit": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "selected_native_cases_passed": 161,
+  "projects": {
+    "admin-eval": 64,
+    "admin-eval-mobile": 64,
+    "admin-eval-dark": 33
+  },
+  "native_order_matches_original_prefix": true,
+  "original_selected_case_passed": true,
+  "skipped": 0,
+  "retries": 0,
+  "browser_invocations": 1,
+  "total_duration_ms": 553256,
+  "native_browser_duration_ms": 532163.766,
+  "deadline": "2026-10-22T20:59:46.074Z",
+  "finished_at": "2026-10-22T20:48:59.330000+00:00",
+  "deadline_met": true,
+  "all_owned_process_trees_reaped": true,
+  "github_requests": 0,
+  "ci_launches": 0,
+  "old_acceptance_budgets_renewed": false,
+  "old_slots_reopened": 0,
+  "approval_scope_completed": true,
+  "approval": "full-prefix-approval.json",
+  "original_registration_cause": "unknown",
+  "CIREL_01_satisfied": false,
+  "phase_verified": false,
+  "acceptance": false,
+  "environment_limits": [
+    "macOS arm64 versus original Ubuntu Linux x64",
+    "local PostgreSQL14.17 versus original workflow PostgreSQL15",
+    "original database snapshot unavailable"
+  ],
+  "original_postgres_observed_version": "15.19",
+  "local_postgres": "postgres (PostgreSQL) 14.17 (Homebrew)",
+  "original_base_url": "http://localhost:4011",
+  "diagnostic_base_url": "http://127.0.0.1:39453",
+  "native_rows": [
+    {
+      "title": "render bundle: board-mg-1/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3356
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3069
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3313
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3089
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3079
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3013
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3138
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3537
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3071
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3055
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3112
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3054
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3155
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3046
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2988
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3081
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 4045
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3586
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3071
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2988
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3030
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3046
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3123
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3921
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3237
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2996
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2879
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3031
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2971
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2995
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3080
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3031
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-9/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3153
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-9/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3055
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-9/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3013
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-9/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3047
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-10/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2979
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-10/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3039
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-10/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3046
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-10/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3030
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-11/populated",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3062
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-11/zero",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3047
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-11/loading",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3473
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-11/error",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3280
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-stat/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3403
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-stat_link/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2955
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-task_card/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3113
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-summary_chip/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2897
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-applied_chip/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3021
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-empty_state/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2972
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-page_back/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 4056
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-scope_ribbon/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 4253
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-notice/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3673
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-notice_link/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3487
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-field_help/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 4255
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-skeleton/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 5036
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-audit_row/default",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3629
+        }
+      ]
+    },
+    {
+      "title": "probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2148
+        }
+      ]
+    },
+    {
+      "title": "probe #4 ember-reserved-for: seeded misuse is flagged, reserved-context element passes",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2404
+        }
+      ]
+    },
+    {
+      "title": "probe #5 off-scale-radius: seeded defect is flagged, on-scale passes",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2220
+        }
+      ]
+    },
+    {
+      "title": "probe #6 target-size: axe target-size rule is explicitly enabled",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3013
+        }
+      ]
+    },
+    {
+      "title": "probe #7 focus-ring: control with no focus style is flagged, sg-btn passes",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2236
+        }
+      ]
+    },
+    {
+      "title": "probe #8 card-in-card: nested card without audit-only attr is flagged; suppressed passes",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2548
+        }
+      ]
+    },
+    {
+      "title": "gallery boards produce no gate findings on the clean baseline",
+      "project": "admin-eval",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2998
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3890
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3574
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3119
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3170
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3162
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3433
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3125
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3175
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3220
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3294
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3143
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3498
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 4045
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3956
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3209
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3139
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3115
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3268
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3553
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3588
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3158
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3107
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3127
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3429
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3062
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3065
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3070
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3046
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3102
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3473
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3197
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3654
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-9/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 4767
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-9/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3452
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-9/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3432
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-9/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3844
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-10/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3247
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-10/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3610
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-10/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3287
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-10/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3313
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-11/populated",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3270
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-11/zero",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3962
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-11/loading",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3555
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-11/error",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3975
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-stat/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3316
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-stat_link/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3282
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-task_card/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3944
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-summary_chip/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3572
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-applied_chip/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3960
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-empty_state/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3545
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-page_back/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3752
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-scope_ribbon/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3290
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-notice/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3104
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-notice_link/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3103
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-field_help/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3184
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-skeleton/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3152
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-audit_row/default",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3067
+        }
+      ]
+    },
+    {
+      "title": "probe #1 off-token-spacing: seeded defect is flagged, on-scale element passes",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2138
+        }
+      ]
+    },
+    {
+      "title": "probe #4 ember-reserved-for: seeded misuse is flagged, reserved-context element passes",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2225
+        }
+      ]
+    },
+    {
+      "title": "probe #5 off-scale-radius: seeded defect is flagged, on-scale passes",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2430
+        }
+      ]
+    },
+    {
+      "title": "probe #6 target-size: axe target-size rule is explicitly enabled",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3976
+        }
+      ]
+    },
+    {
+      "title": "probe #7 focus-ring: control with no focus style is flagged, sg-btn passes",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 4690
+        }
+      ]
+    },
+    {
+      "title": "probe #8 card-in-card: nested card without audit-only attr is flagged; suppressed passes",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3534
+        }
+      ]
+    },
+    {
+      "title": "gallery boards produce no gate findings on the clean baseline",
+      "project": "admin-eval-mobile",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3336
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 4261
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3376
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 4019
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 5049
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 5019
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3344
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3362
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3687
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3605
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3281
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3420
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3836
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3154
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3063
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2886
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2905
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2971
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2864
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2888
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3029
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2939
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2846
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3398
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3411
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3346
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2989
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2921
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2854
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2905
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2905
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3098
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3053
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-9/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3363
+        }
+      ]
+    }
+  ],
+  "sha256": {
+    "full-prefix-output/browser.log": "715ca63b780c37c825f02fdc5803ccd83c04e8a90ada6984e7aed4d85eb94b99",
+    "full-prefix-output/result.json": "1768566b5efb452a1d1207f36b142f9e7d67aaa079b0cd7f66794a3f86aa6264",
+    "full-prefix-output/setup.log": "4696ac110c7ac096d0a0032afa40e8cb25185060db54209bbe070cf2c7c47eb3",
+    "full-prefix-output/postgres.log": "ecdac60f47c733f0574b396ee3a084f32b963d3e3cb9b0df1b9dd601957196ab",
+    "full-prefix-output/initdb.log": "6d197ac283166c4f5e9ea2879184a35c1c76a4547332c95511313d30d6b0848c",
+    "full-prefix-output/app.log": "f0cf512b1f23be322c777f4580d844c89f6ecc5df171b5d86a31c0ec70229ebe",
+    "full-prefix-output/test-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+  }
+}

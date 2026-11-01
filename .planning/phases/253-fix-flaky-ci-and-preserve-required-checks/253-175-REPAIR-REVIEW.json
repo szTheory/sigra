@@ -1,0 +1,169 @@
+{
+  "schema": "sigra.phase253.successor-repair-review/v1",
+  "status": "halted",
+  "repair_plan": "253-175",
+  "acceptance_plan": "253-176",
+  "bridge_plan": "253-177",
+  "reviewed_at_utc": "2026-10-20T19:17:02.004217+00:00",
+  "entry_commit": "6b8bccad1a51a3455ab27d88360064d7ac8d30c8",
+  "source_files": {
+    "scripts/ci/ci-git-publication.test.py": "38730e9d9ccd2c3510186a90b0c1e3178a99988c45ff3a11d100d3e14bafb47c",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "718c43126af9e4ea254d369fff89d3975f049c51dd7223447808868da291dd5d",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "da0f854152e4ab1eeeaee6343d65161aa9f60608b1e4ad484c873864b726eda6",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-PLAN.md": "8cb8b78ed8283860c1daff28c689ef9c556311f6c46826b0dbc6820b3292ae65",
+    "scripts/ci/ci-git-publication.py": "7bf205869e74ce2101e0df91e8615af81f75393e3eadd2b5fd01dd126681d5b6",
+    "scripts/ci/ci-gate-canary-dryrun.py": "b6e6be484112926539e8b53aab685dd61d4b72105c063044576c449f94b27ae6"
+  },
+  "source_commits": {
+    "scripts/ci/ci-git-publication.test.py": "548d54f083c89b2778a4e3911b19da5df7fd198b",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "a783add6dd178b22843038b38bc49d9e1305579b",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "a783add6dd178b22843038b38bc49d9e1305579b",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-175-PLAN.md": "6b8bccad1a51a3455ab27d88360064d7ac8d30c8",
+    "scripts/ci/ci-git-publication.py": "a3df31cfac5bf8218ec75ba7ddfc5107e4364834",
+    "scripts/ci/ci-gate-canary-dryrun.py": "d5f83ba01bc33cc4a763dda995dc711cd5f3515f"
+  },
+  "reviewed_source_commits": [
+    "548d54f083c89b2778a4e3911b19da5df7fd198b",
+    "a783add6dd178b22843038b38bc49d9e1305579b"
+  ],
+  "original_review": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-RECOVERY-REVIEW.json",
+    "sha256": "30cb16fd6ee27ff440512767d113b61b859da059de61571ac87f9da649201e48",
+    "nested_product_changes_pointer": "/status_dispositions/product_changes",
+    "findings": [
+      {
+        "id": 1,
+        "item": "repositories-id acceptance is limited to the live branch",
+        "result": "Reconfirmed: both hermetic returns precede the live-only path; id paths are built from the approved route; next_url is used for termination and cycle detection, not as a request target.",
+        "disposition": "pass"
+      },
+      {
+        "id": 2,
+        "item": "Hermetic branches unchanged",
+        "result": "Reconfirmed against unchanged source; no new acceptance attempt changes product code.",
+        "disposition": "pass"
+      },
+      {
+        "id": 3,
+        "item": "Duplicate rule is server-parent only; PR-head rule remains strict",
+        "result": "Reconfirmed: server-parent source checks are scoped; PR-head missing/duplicate refusal and exact head_sha comparison remain. Complete 100-item single pages remain fail-closed through total_count equality.",
+        "disposition": "pass; observation retained"
+      },
+      {
+        "id": 4,
+        "item": "retained_preflight is one contiguous read",
+        "result": "Reconfirmed existing ordinal, status, commit identity, and page-count checks; unchanged source is pinned above.",
+        "disposition": "pass"
+      },
+      {
+        "id": 5,
+        "item": "R13 ref pair and main-freshness pair set are exact",
+        "result": "Reconfirmed exact literals and the shared r12/r13 main-freshness pair set; unchanged source is pinned above.",
+        "disposition": "pass"
+      },
+      {
+        "id": 6,
+        "item": "Legacy tables remain byte-identical to FREEZE-R12",
+        "result": "The existing summary records CANARY_CATEGORIES, PRODUCTION_CATEGORIES and PRODUCTION_CATEGORY_LIMITS unchanged; R13 alone has preflight 16 and infrastructure_retry 5, total 117.",
+        "disposition": "pass; no budget changes"
+      },
+      {
+        "id": 7,
+        "item": "No new network path",
+        "result": "The offline dry-run reads committed ledger bytes; this plan makes no network request and changes no product file.",
+        "disposition": "pass"
+      },
+      {
+        "id": 8,
+        "item": "--repos-link-form knob remains scoped",
+        "result": "Existing refusals and unchanged default live base line remain as recorded in 253-167; scoped paging uses --stop-after full-pass.",
+        "disposition": "pass"
+      },
+      {
+        "id": 9,
+        "item": "attempt_jobs has no spare allocation in a full paged run",
+        "result": "The observed full run remains stopped at attempt_jobs 7/7 with category_budget_exhausted. Acceptance is only the previously proven --stop-after full-pass slice; no retry or budget increase.",
+        "disposition": "limitation retained; fail-closed"
+      },
+      {
+        "id": 10,
+        "item": "R15-FULL-SUITE review",
+        "result": "The 64c075d4b lines are route assertions, not fake Link/route/Location/host emissions, matching the documented must_haves reading. They remain listed and are not counted as emissions. The new complete unfiltered suite is gated at 79 or more.",
+        "disposition": "pass; interpretation retained"
+      }
+    ]
+  },
+  "unresolved_implementation_findings": [
+    {
+      "id": "BRIDGE-EXECUTABLE-COUNTS-OWNERS",
+      "severity": "high",
+      "actual": "verify-bridge complete returns verified for a fixture retaining c.plan_pins.length!==174, c.halted_plans.length!==22, 149 -> 174 and 158 -> 174",
+      "required": "Reject stale executable counts/owners even when new recovery keywords and self-consistent hashes are supplied. Require177 PLAN pins,23 halts, owners176 and exact scoped amended instructions. Positive fixtures must change the executable assertions and actual owner mappings, not append keywords.",
+      "reproducer": {
+        "script_bytes": "import importlib.util,pathlib,unittest,json,hashlib\nfrom unittest import mock\nroot=pathlib.Path('/Users/jon/projects/sigra')\np=root/'.planning/phases/253-fix-flaky-ci-and-preserve-required-checks'\ns=importlib.util.spec_from_file_location('contracts',p/'253-RECOVERY-SUCCESSOR.test.py'); m=importlib.util.module_from_spec(s);s.loader.exec_module(m)\noriginal=m.successor.validate_bridge\nobservations=[]\ndef audited(repo,stage,record_path,sdk=False):\n result=original(repo,stage,record_path,sdk)\n if stage=='complete':\n  text=(repo/m.PHASE/'253-169-PLAN.md').read_text()\n  stale=[v for v in ('c.plan_pins.length!==174','c.halted_plans.length!==22','149 -> 174','158 -> 174') if v in text]\n  observations.append({'validator_result':result,'stale_executable_or_owner_instructions':stale})\n return result\nwith mock.patch.object(m.successor,'validate_bridge',side_effect=audited):\n test=m.SuccessorContractTests('test_bridge_accepts_exact_five_plan_amendment_fixture')\n result=unittest.TestResult();test.run(result)\nreport={'schema':'sigra.phase253.successor-source-audit/v1','test_errors':[(str(t),e) for t,e in result.errors], 'test_failures':[(str(t),e) for t,e in result.failures], 'observations':observations}\nprint(json.dumps(report,indent=2))\nassert not result.errors and not result.failures\nassert observations and observations[-1]['stale_executable_or_owner_instructions']\n",
+        "actual_output": {
+          "schema": "sigra.phase253.successor-source-audit/v1",
+          "test_errors": [],
+          "test_failures": [],
+          "observations": [
+            {
+              "validator_result": {
+                "status": "verified",
+                "stage": "complete",
+                "plans": 5
+              },
+              "stale_executable_or_owner_instructions": [
+                "c.plan_pins.length!==174",
+                "c.halted_plans.length!==22",
+                "149 -> 174",
+                "158 -> 174"
+              ]
+            }
+          ]
+        },
+        "root_tool_result": "1cfae6",
+        "sandbox_permissions": "require_escalated"
+      }
+    }
+  ],
+  "tests": {
+    "config_red": {
+      "path": "/private/tmp/sigra-253-175-red.vdco6H/red.log",
+      "sha256": "de6a37fb6a42ac0f2768a8dddb342b26a8e7b6c3a1acbb31f8e0e8075189a896",
+      "native_output": "test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes (__main__.PublicationTests.test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes) ... FAIL\n\n======================================================================\nFAIL: test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes (__main__.PublicationTests.test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/tmp/sigra-253-175-red.vdco6H/scripts/ci/ci-git-publication.test.py\", line 902, in test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes\n    self.assertEqual(result.returncode, 0, result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 1 != 0 : ci-git-publication: PublicationError: source working tree is dirty outside the exact preserved config bytes/status exception\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.213s\n\nFAILED (failures=1)\n",
+      "scope": "finite isolated tests; not real176 acceptance"
+    },
+    "config_green": {
+      "path": "/private/tmp/sigra-253-175-full.DSMehz/config.log",
+      "sha256": "7ff6c13ebdc3cba223478bcc81e4f66c3eafd628c3b89fcf75eb809b219c1bef",
+      "native_output": "test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes (__main__.PublicationTests.test_exact_preserved_config_status_and_bytes_allow_only_planning_metadata_changes) ... ok\ntest_preserved_config_clean_committed_config_uses_ordinary_clean_path (__main__.PublicationTests.test_preserved_config_clean_committed_config_uses_ordinary_clean_path) ... ok\ntest_preserved_config_does_not_allow_dirty_product_source (__main__.PublicationTests.test_preserved_config_does_not_allow_dirty_product_source) ... ok\ntest_preserved_config_independent_byte_and_trailing_newline_drift_is_rejected (__main__.PublicationTests.test_preserved_config_independent_byte_and_trailing_newline_drift_is_rejected) ... ok\ntest_preserved_config_missing_preservation_ref_is_rejected (__main__.PublicationTests.test_preserved_config_missing_preservation_ref_is_rejected) ... ok\ntest_preserved_config_ref_pointing_at_different_bytes_is_rejected (__main__.PublicationTests.test_preserved_config_ref_pointing_at_different_bytes_is_rejected) ... ok\ntest_preserved_config_staged_exact_bytes_are_rejected (__main__.PublicationTests.test_preserved_config_staged_exact_bytes_are_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 2.121s\n\nOK\n",
+      "scope": "finite isolated tests; not real176 acceptance"
+    },
+    "successor_green": {
+      "path": "/private/tmp/sigra-253-175-final.2qQ234/successor.log",
+      "sha256": "664e9aae30cad369b2d53ea4be0c96235413c97d5fe7c0d94b3e4f3390dac22c",
+      "native_output": "test_bridge_accepts_exact_five_plan_amendment_fixture (__main__.SuccessorContractTests.test_bridge_accepts_exact_five_plan_amendment_fixture) ... ok\ntest_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits (__main__.SuccessorContractTests.test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits) ... ok\ntest_committed_receipt_reopens_evidence_and_rejects_independent_corruptions (__main__.SuccessorContractTests.test_committed_receipt_reopens_evidence_and_rejects_independent_corruptions) ... ok\ntest_consumer168_uses_entry_bridge_without_repeating_sdk_queries (__main__.SuccessorContractTests.test_consumer168_uses_entry_bridge_without_repeating_sdk_queries) ... ok\ntest_each_suite_spy_failure_keeps_exit_and_stops_later_suites_and_receipt (__main__.SuccessorContractTests.test_each_suite_spy_failure_keeps_exit_and_stops_later_suites_and_receipt) ... ok\ntest_enter_is_once_only_and_rechecks_prepared_commit_and_script (__main__.SuccessorContractTests.test_enter_is_once_only_and_rechecks_prepared_commit_and_script) ... ok\ntest_full_dryrun_failure_does_not_print_pass_or_continue (__main__.SuccessorContractTests.test_full_dryrun_failure_does_not_print_pass_or_continue) ... ok\ntest_full_dryrun_requires_native_output_and_matching_count (__main__.SuccessorContractTests.test_full_dryrun_requires_native_output_and_matching_count) ... ok\ntest_installed_sdk_copy_executes_queries_and_proves_full_route (__main__.SuccessorContractTests.test_installed_sdk_copy_executes_queries_and_proves_full_route) ... ok\ntest_log_parser_accepts_only_complete_ordered_native_evidence (__main__.SuccessorContractTests.test_log_parser_accepts_only_complete_ordered_native_evidence) ... ok\ntest_nested_173_review_requires_original_location_schema_and_findings (__main__.SuccessorContractTests.test_nested_173_review_requires_original_location_schema_and_findings) ... ok\ntest_preflight_binds_root_call_plan_script_pid_probe_and_readback (__main__.SuccessorContractTests.test_preflight_binds_root_call_plan_script_pid_probe_and_readback) ... ok\ntest_prepare_transformation_matches_independent_expected_script (__main__.SuccessorContractTests.test_prepare_transformation_matches_independent_expected_script) ... ok\ntest_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits (__main__.SuccessorContractTests.test_rehashed_168_and_169_amendments_cannot_change_request_or_budget_limits) ... ok\n\n----------------------------------------------------------------------\nRan 14 tests in 118.446s\n\nOK\n",
+      "scope": "finite isolated tests; not real176 acceptance"
+    }
+  },
+  "additional_root_repairs": [
+    "Require full-dryrun native Ran/OK output and count equality; new corruption test reproduced RED then GREEN.",
+    "Permit committed canonical run logs before receipt production while requiring source ancestry, no product changes and exact protected/shared bytes; fixture follows real log-before-receipt ordering."
+  ],
+  "scope": {
+    "product_changes": [
+      "scripts/ci/ci-git-publication.test.py"
+    ],
+    "github_requests": 0,
+    "native_browser_launches": 0
+  },
+  "acceptance_attempts": 0,
+  "success_receipt_created": false,
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "phase_verification_status": "not_started",
+  "next_command": "$gsd-plan-phase 253",
+  "limitation": "Passing finite tests do not establish the full successor contract. Source review demonstrated a false pass.176/177 are not authorized past this failed precondition."
+}

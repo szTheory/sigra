@@ -1,0 +1,367 @@
+{
+  "schema": "sigra.phase253.additive-planning/v1",
+  "status": "passed",
+  "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-PLANNING-RECORD.json",
+  "review": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-CHECK-01.md",
+  "plans": [
+    "253-178",
+    "253-179",
+    "253-180"
+  ],
+  "plan_count": 3,
+  "tasks": 6,
+  "waves": 3,
+  "total_phase_plans": 180,
+  "ready_plans": [
+    "253-178"
+  ],
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "implementation_status": "partial",
+  "phase_verification_status": "not_started",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "recorded_at": "2026-10-20T19:38:13.863585+00:00",
+  "browser_invocations": 0,
+  "github_requests": 0,
+  "acceptance_attempts": 0,
+  "entry_commit": "fea8f29e79f7d6e96f1bf2c6f15cfa6eee73681d",
+  "entry_branch": "phase-244-playwright-measurement",
+  "entry_status": "",
+  "preservation": {
+    "entry_ref": "refs/gsd/phase253-planning178-entry",
+    "entry_readbacks": [
+      {
+        "path": ".planning/STATE.md",
+        "sha256": "2f5aa883194030b6c26d9b281ba961e0df2a3862ca2fb4607591b9a104e5adc7",
+        "bytes": 21747,
+        "blob": "6eda34718a988feab305a72d87745332596a01b4",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/state.json",
+        "sha256": "758edb735be514fcc5c0cfb4e066bce98cf9507296cb555a0777210d57b12755",
+        "bytes": 74854,
+        "blob": "c1ac69404f10bc07997fd495195410c074acfc76",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/HANDOFF.json",
+        "sha256": "54cf33f1137c741f35d17d86aec161847fca27e0925da074fcbb36a3400f6d66",
+        "bytes": 135728,
+        "blob": "7a9f54cd2d2a07a42d1e1be95322612c57bbb06c",
+        "readback_verified": true
+      },
+      {
+        "path": ".planning/ROADMAP.md",
+        "sha256": "5f4534f541c80de72fb7c5599322545e4acc18a4e804f149d9b0ee87462c623d",
+        "bytes": 23968,
+        "blob": "510c808ac163f484386ba954ac5faa853671d873",
+        "readback_verified": true
+      }
+    ],
+    "sdk_generated_revision": {
+      "ref": "refs/gsd/phase253-planning178-sdk",
+      "commit": "5306d92cca49443e47fc47b444c0899b82c97781",
+      "readbacks": [
+        {
+          "path": ".planning/STATE.md",
+          "sha256": "56a8d988bd74692d2f528b92a16129e918c08144e1f6c18caaa418284b98987a",
+          "blob": "ae7e93b8602a7ca96b0e740da522ec1c72b829be",
+          "bytes": 21722,
+          "status": "M  .planning/STATE.md\n",
+          "readback_verified": true
+        },
+        {
+          "path": ".planning/state.json",
+          "sha256": "5d60c4c03d111e4603c5e70d47b941f8b3496d40f20d5243a87cc04f9a6920b8",
+          "blob": "7843969bc7e8b2aea537fa6d7cb8ad7c89565279",
+          "bytes": 769,
+          "status": "M  .planning/state.json\n",
+          "readback_verified": true
+        },
+        {
+          "path": ".planning/HANDOFF.json",
+          "sha256": "54cf33f1137c741f35d17d86aec161847fca27e0925da074fcbb36a3400f6d66",
+          "blob": "7a9f54cd2d2a07a42d1e1be95322612c57bbb06c",
+          "bytes": 135728,
+          "status": "",
+          "readback_verified": true
+        },
+        {
+          "path": ".planning/ROADMAP.md",
+          "sha256": "5f4534f541c80de72fb7c5599322545e4acc18a4e804f149d9b0ee87462c623d",
+          "blob": "510c808ac163f484386ba954ac5faa853671d873",
+          "bytes": 23968,
+          "status": "",
+          "readback_verified": true
+        }
+      ]
+    }
+  },
+  "independent_review": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-180-CHECK-01.md",
+    "sha256": "b4e6282d963c33c5a462593470e1ed969e2df9affd9565f2423bf124a98d8c85",
+    "blockers": 0,
+    "warnings": 0,
+    "override": false
+  },
+  "plan_validation": {
+    "178": {
+      "structure": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Reject stale executable assertions and owner tables through the real bridge entry point",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Retarget preparation, receipt and SDK consumers to178/179/180 while preserving175 halted",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "tags",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "frontmatter": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    "179": {
+      "structure": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Execute the new179 acceptance once in the exact root elevated process",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Produce and independently reopen the actual179 local success receipt",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "tags",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "frontmatter": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    },
+    "180": {
+      "structure": {
+        "valid": true,
+        "errors": [],
+        "warnings": [],
+        "task_count": 2,
+        "tasks": [
+          {
+            "name": "Task 1: Preserve seven originals and repair the actual freeze/reconciliation entry",
+            "type": "tracer",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          },
+          {
+            "name": "Task 2: Preserve hosted contracts, correct the actual completion bundle check and prove SDK routing",
+            "type": "auto",
+            "hasFiles": true,
+            "hasAction": true,
+            "hasVerify": true,
+            "hasDone": true
+          }
+        ],
+        "frontmatter_fields": [
+          "phase",
+          "plan",
+          "type",
+          "gap_closure",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "requirements",
+          "tags",
+          "estimate",
+          "must_haves"
+        ]
+      },
+      "frontmatter": {
+        "valid": true,
+        "missing": [],
+        "present": [
+          "phase",
+          "plan",
+          "type",
+          "wave",
+          "depends_on",
+          "files_modified",
+          "autonomous",
+          "must_haves",
+          "gap_closure"
+        ],
+        "invalidValue": [],
+        "schema": "plan-gap-closure"
+      }
+    }
+  },
+  "decision_coverage": {
+    "total": 24,
+    "covered": 24
+  },
+  "requirements_plan_coverage": [
+    "CIREL-01",
+    "CIREL-02"
+  ],
+  "post_planning_gap_analysis": {
+    "block": false,
+    "passed": true,
+    "enabled": true,
+    "table": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIREL-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIREL-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n| CONTEXT.md | D-22 | \u2713 Covered |\n| CONTEXT.md | D-23 | \u2713 Covered |\n| CONTEXT.md | D-24 | \u2713 Covered |\n\n\u2713 All 26 items covered by plans\n",
+    "summary": "\u2713 All 26 items covered by plans",
+    "counts": {
+      "total": 26,
+      "covered": 26,
+      "uncovered": 0
+    },
+    "message": "## Post-Planning Gap Analysis\n\n| Source | Item | Status |\n|--------|------|--------|\n| REQUIREMENTS.md | CIREL-01 | \u2713 Covered |\n| REQUIREMENTS.md | CIREL-02 | \u2713 Covered |\n| CONTEXT.md | D-01 | \u2713 Covered |\n| CONTEXT.md | D-02 | \u2713 Covered |\n| CONTEXT.md | D-03 | \u2713 Covered |\n| CONTEXT.md | D-04 | \u2713 Covered |\n| CONTEXT.md | D-05 | \u2713 Covered |\n| CONTEXT.md | D-06 | \u2713 Covered |\n| CONTEXT.md | D-07 | \u2713 Covered |\n| CONTEXT.md | D-08 | \u2713 Covered |\n| CONTEXT.md | D-09 | \u2713 Covered |\n| CONTEXT.md | D-10 | \u2713 Covered |\n| CONTEXT.md | D-11 | \u2713 Covered |\n| CONTEXT.md | D-12 | \u2713 Covered |\n| CONTEXT.md | D-13 | \u2713 Covered |\n| CONTEXT.md | D-14 | \u2713 Covered |\n| CONTEXT.md | D-15 | \u2713 Covered |\n| CONTEXT.md | D-16 | \u2713 Covered |\n| CONTEXT.md | D-17 | \u2713 Covered |\n| CONTEXT.md | D-18 | \u2713 Covered |\n| CONTEXT.md | D-19 | \u2713 Covered |\n| CONTEXT.md | D-20 | \u2713 Covered |\n| CONTEXT.md | D-21 | \u2713 Covered |\n| CONTEXT.md | D-22 | \u2713 Covered |\n| CONTEXT.md | D-23 | \u2713 Covered |\n| CONTEXT.md | D-24 | \u2713 Covered |\n\n\u2713 All 26 items covered by plans\n"
+  },
+  "readiness": {
+    "execute": {
+      "plan_count": 180,
+      "incomplete_count": 81,
+      "halted_plans": [
+        "253-02-PLAN.md",
+        "253-07-PLAN.md",
+        "253-09-PLAN.md",
+        "253-104-PLAN.md",
+        "253-113-PLAN.md",
+        "253-12-PLAN.md",
+        "253-122-PLAN.md",
+        "253-134-PLAN.md",
+        "253-143-PLAN.md",
+        "253-146-PLAN.md",
+        "253-155-PLAN.md",
+        "253-16-PLAN.md",
+        "253-167-PLAN.md",
+        "253-173-PLAN.md",
+        "253-174-PLAN.md",
+        "253-175-PLAN.md",
+        "253-27-PLAN.md",
+        "253-40-PLAN.md",
+        "253-51-PLAN.md",
+        "253-63-PLAN.md",
+        "253-73-PLAN.md",
+        "253-84-PLAN.md",
+        "253-92-PLAN.md",
+        "253-97-PLAN.md"
+      ],
+      "runnable_plans": [
+        "253-178-PLAN.md",
+        "253-179-PLAN.md",
+        "253-180-PLAN.md"
+      ]
+    },
+    "index_ready_plans": [
+      "253-178"
+    ],
+    "next_roadmap_phase": {
+      "phase_number": "254",
+      "phase_status": "Pending",
+      "has_context": false,
+      "has_research": false,
+      "has_plans": false
+    }
+  },
+  "planning_only": true,
+  "old_artifacts_preserved": {
+    "captured_files": 3595,
+    "changed_only_shared_routing_paths": [
+      ".planning/HANDOFF.json",
+      ".planning/state.json",
+      ".planning/STATE.md",
+      ".planning/ROADMAP.md"
+    ],
+    "all_old_plan_summary_evidence_and_phase252_hashes_unchanged": true
+  },
+  "artifacts": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-PLAN.md": "f260cf0df47ab986c228bb8cf0b1cbfc5fdcb594b2adc3a3bb88cb4f733351b5",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "3cbc45611348a107d6cd29d8b6b134290461ff9f1aa1b6234142ac50cec12a58",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "5a67471b4666b1f2b176b9a83b07181e0100223003352523ed46b4da04f6af49"
+  }
+}

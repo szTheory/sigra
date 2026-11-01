@@ -1,0 +1,37 @@
+{
+  "schema": "sigra.phase253.corrected-handoff-bundle-checks/v1",
+  "status": "passed_offline_only",
+  "source_sha": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "bundle_sha256": "e12d804277cb9b023b928b996b2f0daff48efcc2915ba7e8476fcc6088e30d8a",
+  "tests": {
+    "bundle": 23,
+    "operator-handoff": 4,
+    "receipt": 3,
+    "namespace": 7
+  },
+  "bundle_tests_total": 37,
+  "product_checks": ".planning/execution/253-172-pr340-maintenance/CHECKS.json",
+  "candidate_parity": "candidate-parity.json",
+  "generated_startup_executes_actual_collector_preflight": true,
+  "canary_six_cases_both_checkers": true,
+  "actual_hosted_verifier_step_exercised_offline": true,
+  "network_requests": 0,
+  "ci_launches": 0,
+  "allocations": 0,
+  "approval_received": false,
+  "historical_outcomes_modified": false,
+  "closed_windows_reopened": 0,
+  "phase_verification_status": "not_started",
+  "draft_harness_correction": "The isolated generated-method test initially omitted WORKFLOW_ID from its globals. It now reads the value from the actual generated collector AST. Initial failure retained separately.",
+  "logs": {
+    "operator-handoff.log": "88a0656ea492dae8c132bd92ded44571e9b1796d05c7bf687663d1903117f70d",
+    "namespace.log": "e67fa95ea3a56c510186f07735e23f151bcd4722a0b085b6bbaf0bd8bb867e07",
+    "self-check.log": "701cc1afef8484360e3f536ab59af24705942a2c1f5cd8c08d78128085131e62",
+    "bundle.log": "24a942657b5c957e7bfd7da400ec32371eb2f9961a0def08a7a51c46eea0b6d2",
+    "receipt.log": "c59386fa1e3e3d71648d433b4b4b444207c5b34c5a40839f07121f8cdd6299ad",
+    "operator-handoff-draft-failure.log": "bdf17ad63498c4b3bac2f46824690cd17551580a716be285ec716bab1bfdb960"
+  },
+  "prior_shared_state_commit": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "approval_request": ".planning/execution/253-proof-bundle-a6838a8f9/approval-request.json"
+}

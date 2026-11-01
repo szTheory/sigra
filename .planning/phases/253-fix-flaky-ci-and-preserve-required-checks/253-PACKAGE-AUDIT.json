@@ -1,0 +1,310 @@
+{
+  "phase": "253",
+  "scope": "Existing lockfile restore: eight direct packages, Playwright runtime chain, optional fsevents; no new dependency or upgrade",
+  "observed_at": "2026-10-13T02:51:02.123209+00:00",
+  "sdk_identity": {
+    "packageName": "@opengsd/gsd-core",
+    "version": "1.16.0"
+  },
+  "cli_latest_version_warning": "CLI has no version flag; unversioned Playwright results were SUS/too-new for latest, not the installed 1.59.1. Preserved; version-aware exported checkPackages was then invoked with explicit lockfile version, real registry, real clock, unchanged defaults, no mocked signals.",
+  "unversioned_results": {
+    "playwright_family_verdict": "SUS",
+    "reason": "too-new",
+    "published_dates": "2026-10-07"
+  },
+  "pinned_seam_results": [
+    {
+      "name": "@anthropic-ai/sdk",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2026-07-02T19:22:07.668Z",
+        "weeklyDownloads": 46406759,
+        "repoUrl": "git+https://github.com/anthropics/anthropic-sdk-typescript.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "0.110.0"
+    },
+    {
+      "name": "@axe-core/playwright",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2026-04-17T13:27:17.386Z",
+        "weeklyDownloads": 14099716,
+        "repoUrl": "git+https://github.com/dequelabs/axe-core-npm.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "4.11.2"
+    },
+    {
+      "name": "@playwright/test",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2026-04-01T17:59:00.155Z",
+        "weeklyDownloads": 76192279,
+        "repoUrl": "git+https://github.com/microsoft/playwright.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "1.59.1"
+    },
+    {
+      "name": "@simplewebauthn/browser",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2026-03-10T05:55:51.036Z",
+        "weeklyDownloads": 5333765,
+        "repoUrl": "git+https://github.com/MasterKale/SimpleWebAuthn.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "13.3.0"
+    },
+    {
+      "name": "cheerio",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2026-01-23T16:29:49.559Z",
+        "weeklyDownloads": 27320678,
+        "repoUrl": "git://github.com/cheeriojs/cheerio.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "1.2.0"
+    },
+    {
+      "name": "otplib",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2020-01-24T17:18:40.248Z",
+        "weeklyDownloads": 3802314,
+        "repoUrl": "git+https://github.com/yeojz/otplib.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "12.0.1"
+    },
+    {
+      "name": "parse5",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2026-04-19T20:16:16.612Z",
+        "weeklyDownloads": 171448602,
+        "repoUrl": "git://github.com/inikulin/parse5.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "8.0.1"
+    },
+    {
+      "name": "zod",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2026-05-04T07:06:40.819Z",
+        "weeklyDownloads": 346095287,
+        "repoUrl": "git+https://github.com/colinhacks/zod.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "4.4.3"
+    },
+    {
+      "name": "playwright",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2026-04-01T17:58:48.894Z",
+        "weeklyDownloads": 113272409,
+        "repoUrl": "git+https://github.com/microsoft/playwright.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "1.59.1"
+    },
+    {
+      "name": "playwright-core",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2026-04-01T17:58:55.514Z",
+        "weeklyDownloads": 125014934,
+        "repoUrl": "git+https://github.com/microsoft/playwright.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "1.59.1"
+    },
+    {
+      "name": "fsevents",
+      "verdict": "OK",
+      "signals": {
+        "exists": true,
+        "publishedAt": "2021-02-05T14:46:33.925Z",
+        "weeklyDownloads": 32181937,
+        "repoUrl": "git+https://github.com/fsevents/fsevents.git",
+        "deprecated": false,
+        "postinstall": null,
+        "ecosystem": "npm"
+      },
+      "reasons": [],
+      "version": "2.3.2"
+    }
+  ],
+  "npm_view_results": [
+    {
+      "name": "@anthropic-ai/sdk",
+      "version": "0.110.0",
+      "exit": 0,
+      "metadata": {
+        "version": "0.110.0",
+        "repository.url": "git+https://github.com/anthropics/anthropic-sdk-typescript.git",
+        "dist.integrity": "sha512-hOP4bNYXDFHDxxiEgzlILXrxZIYCDnhe8sry0RDRKD/QnsEpvZcQpablCdm9X/WuD/YgOiSIkkqsL1mLLlTqJw=="
+      },
+      "error": null
+    },
+    {
+      "name": "@axe-core/playwright",
+      "version": "4.11.2",
+      "exit": 0,
+      "metadata": {
+        "version": "4.11.2",
+        "repository.url": "git+https://github.com/dequelabs/axe-core-npm.git",
+        "dist.integrity": "sha512-iP6hfNl9G0j/SEUSo8M7D80RbcDo9KRAAfDP4IT5OHB+Wm6zUHIrm8Y51BKI+Oyqduvipf9u1hcRy57zCBKzWQ=="
+      },
+      "error": null
+    },
+    {
+      "name": "@playwright/test",
+      "version": "1.59.1",
+      "exit": 0,
+      "metadata": {
+        "version": "1.59.1",
+        "repository.url": "git+https://github.com/microsoft/playwright.git",
+        "dist.integrity": "sha512-PG6q63nQg5c9rIi4/Z5lR5IVF7yU5MqmKaPOe0HSc0O2cX1fPi96sUQu5j7eo4gKCkB2AnNGoWt7y4/Xx3Kcqg=="
+      },
+      "error": null
+    },
+    {
+      "name": "@simplewebauthn/browser",
+      "version": "13.3.0",
+      "exit": 0,
+      "metadata": {
+        "version": "13.3.0",
+        "repository.url": "git+https://github.com/MasterKale/SimpleWebAuthn.git",
+        "dist.integrity": "sha512-BE/UWv6FOToAdVk0EokzkqQQDOWtNydYlY6+OrmiZ5SCNmb41VehttboTetUM3T/fr6EAFYVXjz4My2wg230rQ=="
+      },
+      "error": null
+    },
+    {
+      "name": "cheerio",
+      "version": "1.2.0",
+      "exit": 0,
+      "metadata": {
+        "version": "1.2.0",
+        "repository.url": "git://github.com/cheeriojs/cheerio.git",
+        "dist.integrity": "sha512-WDrybc/gKFpTYQutKIK6UvfcuxijIZfMfXaYm8NMsPQxSYvf+13fXUJ4rztGGbJcBQ/GF55gvrZ0Bc0bj/mqvg=="
+      },
+      "error": null
+    },
+    {
+      "name": "otplib",
+      "version": "12.0.1",
+      "exit": 0,
+      "metadata": {
+        "version": "12.0.1",
+        "repository.url": "git+https://github.com/yeojz/otplib.git",
+        "dist.integrity": "sha512-xDGvUOQjop7RDgxTQ+o4pOol0/3xSZzawTiPKRrHnQWAy0WjhNs/5HdIDJCrqC4MBynmjXgULc6YfioaxZeFgg=="
+      },
+      "error": null
+    },
+    {
+      "name": "parse5",
+      "version": "8.0.1",
+      "exit": 0,
+      "metadata": {
+        "version": "8.0.1",
+        "repository.url": "git://github.com/inikulin/parse5.git",
+        "dist.integrity": "sha512-z1e/HMG90obSGeidlli3hj7cbocou0/wa5HacvI3ASx34PecNjNQeaHNo5WIZpWofN9kgkqV1q5YvXe3F0FoPw=="
+      },
+      "error": null
+    },
+    {
+      "name": "zod",
+      "version": "4.4.3",
+      "exit": 0,
+      "metadata": {
+        "version": "4.4.3",
+        "repository.url": "git+https://github.com/colinhacks/zod.git",
+        "dist.integrity": "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="
+      },
+      "error": null
+    },
+    {
+      "name": "playwright",
+      "version": "1.59.1",
+      "exit": 0,
+      "metadata": {
+        "version": "1.59.1",
+        "repository.url": "git+https://github.com/microsoft/playwright.git",
+        "dist.integrity": "sha512-C8oWjPR3F81yljW9o5OxcWzfh6avkVwDD2VYdwIGqTkl+OGFISgypqzfu7dOe4QNLL2aqcWBmI3PMtLIK233lw=="
+      },
+      "error": null
+    },
+    {
+      "name": "playwright-core",
+      "version": "1.59.1",
+      "exit": 0,
+      "metadata": {
+        "version": "1.59.1",
+        "repository.url": "git+https://github.com/microsoft/playwright.git",
+        "dist.integrity": "sha512-HBV/RJg81z5BiiZ9yPzIiClYV/QMsDCKUyogwH9p3MCP6IYjUFu/MActgYAvK0oWyV9NlwM3GLBjADyWgydVyg=="
+      },
+      "error": null
+    },
+    {
+      "name": "fsevents",
+      "version": "2.3.2",
+      "exit": 0,
+      "metadata": {
+        "version": "2.3.2",
+        "repository.url": "git+https://github.com/fsevents/fsevents.git",
+        "dist.integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA=="
+      },
+      "error": null
+    }
+  ],
+  "official_name_sources": [
+    "https://playwright.dev/docs/intro",
+    "https://github.com/microsoft/playwright/tree/v1.59.1"
+  ],
+  "npm_cache_recovery": "First npm view returned home-cache EPERM; repeated with scoped writable tmp cache. No home-cache changes."
+}

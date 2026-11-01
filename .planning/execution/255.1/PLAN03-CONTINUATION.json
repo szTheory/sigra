@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "prior": {
+    ".planning/STATE.md": {
+      "commit": "c389e39d6611c3e622d74f0d80ee4275a596a2ef",
+      "sha256": "82a5aeb443bdad6f9db07d52925234a8f72393b04574d09c892b786ac3c3f409",
+      "read_back_equal": true
+    },
+    ".planning/state.json": {
+      "commit": "c389e39d6611c3e622d74f0d80ee4275a596a2ef",
+      "sha256": "6deba6087f0ca82bcb2e469c2aeaee3b8353f7601d469aa208ce598d194a4c24",
+      "read_back_equal": true
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "c389e39d6611c3e622d74f0d80ee4275a596a2ef",
+      "sha256": "da673034a3e6fb2e85bad3c68c3cccee440521c5447a2bdb99476ad864343ee8",
+      "read_back_equal": true
+    }
+  },
+  "completed_local_plans": [
+    "255.1-01",
+    "255.1-02",
+    "255.1-03"
+  ],
+  "current_plan": "255.1-04",
+  "next_command": "$gsd-execute-phase 255.1",
+  "phase_verification": "pending",
+  "hosted_authority": false,
+  "acceptance_samples": 0,
+  "summary": ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-03-SUMMARY.md",
+  "maintenance_commit": "28f1d2f74"
+}

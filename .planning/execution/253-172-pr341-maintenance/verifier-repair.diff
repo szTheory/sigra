@@ -1,0 +1,35 @@
+--- .planning/execution/253-proof-bundle-a6838a8f9/runtime/ci-hosted-gate-verify.py
++++ .planning/execution/253-172-pr341-maintenance/offline-verifier/ci-hosted-gate-verify.py
+@@ -1010,6 +1010,19 @@
+ PR_DOCS_REFS = ("gsd/253-replan-proof-a6838a8f9-docs-head", "gsd/253-replan-proof-a6838a8f9-docs-base")
+ 
+ 
++def compare_file_paths(compare):
++    files = compare.get("files") if isinstance(compare, dict) else None
++    # GitHub's compare endpoint caps files at 300, independently of commit-page
++    # size. A saturated response cannot establish completeness.
++    require(isinstance(files, list) and files and len(files) < 300
++            and all(isinstance(item, dict) and isinstance(item.get("filename"), str)
++                    and item["filename"] for item in files),
++            "compare file inventory is empty, malformed or incomplete")
++    paths = [item["filename"] for item in files]
++    require(len(set(paths)) == len(paths), "compare file inventory has duplicates")
++    return paths
++
++
+ def require_pr_refs(family, head_ref, base_ref):
+     if family == "normal":
+         valid = isinstance(head_ref, str) and head_ref in PR_NORMAL_HEADS and base_ref == "main"
+@@ -1392,11 +1405,7 @@
+                 and base_compare.get("ahead_by") == 1 and base_compare.get("behind_by") == 0,
+                 "docs base must change only the workflow file as one commit ahead of the exact candidate")
+     compare = tx_json(compares[0], "PR compare")
+-    files = compare.get("files") if isinstance(compare, dict) else None
+-    require(isinstance(files, list) and files and len(files) < 100 and all(isinstance(item, dict) and isinstance(item.get("filename"), str) for item in files),
+-            "compare file inventory is empty, malformed or incomplete")
+-    api_paths = [item["filename"] for item in files]
+-    require(len(set(api_paths)) == len(api_paths), "compare file inventory has duplicates")
++    api_paths = compare_file_paths(compare)
+     local = spec.get("local_diff_paths")
+     require(isinstance(local, list) and local and all(isinstance(item, str) for item in local), "frozen local diff is missing")
+     is_doc = lambda path: path.endswith(".md") or path.startswith(".planning/")

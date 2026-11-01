@@ -1,0 +1,29 @@
+{
+  "schema": "sigra.phase253.maintenance-prerequisite/v1",
+  "status": "verified_local_maintenance",
+  "repair_task": "quick-261020-swa",
+  "baseline_commit": "697b6e328e07d8c307246e13a7aa77e7db0c3c24",
+  "budget_renewal": false,
+  "acceptance_attempts": 0,
+  "github_requests": 0,
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "phase_verification_status": "not_started",
+  "source_sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "041dcbea95d1b5b18e8699d71f984c59c2039466a10e5eb10daa8a3fdcd9d36d",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "15d8eb16d60d21d41a6e047316e8667425b33475aae99560b7537c0d640d4469",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-PREREQUISITE.test.py": "d5c0eda1532f67ae08ada203ac917a3b1b94ba3b25a0004af4beb0f2abad10a3",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "1c673f4cbb48816f118ac0aefd7a2bb7d425636d390a23b7ac36769201d3c4ff",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "67b14c596d7186f633dda6b31967d83250357cee439b76a83740b007d630d607"
+  },
+  "validation": {
+    "path": ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/CHECKS.json",
+    "sha256": "369eadd4e01df63c71efb5cf7f5463dcbb47d25b960418cfe52925b4d14b649c"
+  },
+  "authorization": "Explicit user quick task: reconnect acceptance prerequisites; preserve historical halts and budgets; do not launch CI",
+  "historical_plans": "181/182/183 remain halted; this record does not complete a phase plan",
+  "next_command": "$gsd-execute-phase 253 --gaps-only --wave 1",
+  "limit": "Only179 offline acceptance can run next. No hosted action or additional acceptance slot is granted.180 legacy simulation needs reconciliation with actual halted183 before execution."
+}

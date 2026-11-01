@@ -1,0 +1,11 @@
+{
+  "command": "node --test --test-reporter=tap .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: pending authorization cannot approve a candidate tuple\nnot ok 1 - pending authorization cannot approve a candidate tuple\n  ---\n  duration_ms: 0.647542\n  location: '/Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs:30:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    + actual - expected\n    \n    + 'implementation_missing'\n    - 'blocked'\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 'blocked'\n  actual: 'implementation_missing'\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///Users/jon/projects/sigra/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs:35:10)\n    Test.runInAsyncScope (node:async_hooks:211:14)\n    Test.run (node:internal/test_runner/test:979:25)\n    Test.start (node:internal/test_runner/test:877:17)\n    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 39.997667\n",
+  "targetTest": "pending authorization cannot approve a candidate tuple",
+  "targetFile": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+  "expected": "blocked",
+  "actual": "implementation_missing",
+  "semanticAssessment": "The named test executed and failed on assert.equal(result.status, blocked), because the verifier module is not implemented yet.",
+  "reportPath": "/private/tmp/phase250-02-red.tap"
+}

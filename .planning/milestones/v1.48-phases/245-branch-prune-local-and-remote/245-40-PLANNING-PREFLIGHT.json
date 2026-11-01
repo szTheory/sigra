@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "phase": 245,
+  "plan": 40,
+  "purpose": "D-06 read-only feasibility preflight before planning a continuation of Plan 39 current-origin identity drift.",
+  "captured_at": "2026-10-04T16:05:04.426Z",
+  "status": "ready",
+  "authority": {
+    "approval_or_mutation_authorized": false,
+    "note": "This preflight proves source availability for planning only. It does not authorize reusing Plan 39 contract, allowlist, or Plan 38 approval."
+  },
+  "source_scope": "Committed Plan 18 object snapshot; Plan 23/37 readiness; Plan 38 partial result; Plan 39 contract/admission/blocked result; fresh complete local/origin/open-PR source capture. Historical 11-row PR and 30-row cleanup audits remain unresolved and are not reconstructed.",
+  "identities": {
+    "head_ref": "refs/heads/phase-244-playwright-measurement",
+    "head_oid": "60ba4637792835b5036ef833c07eed270a3b8be2",
+    "plan39_contract_commit": "81341c96419043e16c7e3e4da79c60007ba46cda",
+    "plan39_result_commit": "60ba4637792835b5036ef833c07eed270a3b8be2",
+    "plan39_result_sha256": "502e2b0c4d940029abc94aa74ee73ea48e7332797b879678ffe2dde9a8a250a1",
+    "plan39_source_contract_capture_head": "eaf92768b857d7c1604a58184ea1fc5c817edfed",
+    "plan39_failed_origin_ref": "refs/heads/gh-pages",
+    "plan39_failed_origin_oid": "d2358eebe1cb4411d73552ec2359e54d8a4c98b4",
+    "current_origin_ref_oid": "74e6bda47b3d4eb3354eeefc1adf33b67e82a23e",
+    "planning_source_capture_sha256": "45b573db440c3a8a3284c083e3b28b9bda14d06c7fa638078ad20b8a23df2028",
+    "planning_source_capture_head": "60ba4637792835b5036ef833c07eed270a3b8be2"
+  },
+  "source_capture": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-40-PLANNING-SOURCE-CAPTURE.json",
+    "captured_at": "2026-10-04T16:01:54.389Z",
+    "local_refs": 119,
+    "origin_refs": 361,
+    "open_prs": 14,
+    "pr_pages": [
+      {
+        "page": 1,
+        "item_count": 14,
+        "has_next": false,
+        "source": "github-api"
+      }
+    ],
+    "changed_origin_refs_since_plan39": [
+      "refs/heads/gh-pages"
+    ],
+    "changed_pr_identities_since_plan39": [],
+    "github_core_remaining": 5000
+  },
+  "pinned_inputs": [
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-LOCAL-REFS.tsv",
+      "commit": "02d3370f9edd05fa598216d6bef34958310881ec",
+      "blob_readable_at_commit": true,
+      "working_sha256": "47e0d1d6f275de1fec5875d6148ebfbe2d12e9e2e2fa9a3ec952a5c54f173456"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-23-READINESS.json",
+      "commit": "e61432a0248824d14d942c7d4ae2fd428a81ae99",
+      "blob_readable_at_commit": true,
+      "working_sha256": "574d91d666f6cc5bd70eaa6ebb20881698d39ae095528c83c358f889bfc60193"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-37-D06-READINESS.json",
+      "commit": "084eddf99a6c4a7904d74d738389a46f5e0cc5f2",
+      "blob_readable_at_commit": true,
+      "working_sha256": "9d41f78914e2ed3fdf98579236075a2bffb9586927073fa46a34ead6b9f32321"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-38-CURRENT-CONTRACT.json",
+      "commit": "13760574de0318fd1c120990386473a260cf9a4d",
+      "blob_readable_at_commit": true,
+      "working_sha256": "6cf2e2e8c4f5e15281755c4b9bc91bfcc8db0d285c878dc062f4226b180fbd81"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-38-RESULT.json",
+      "commit": "9a060cbdc2e602ae6f881bca29f5a698675bb089",
+      "blob_readable_at_commit": true,
+      "working_sha256": "5ba7b305a21ed6cb302ca28aa109b7874b77045e904e50f56e34ccadcb71a73e"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-39-CURRENT-CONTRACT.json",
+      "commit": "81341c96419043e16c7e3e4da79c60007ba46cda",
+      "blob_readable_at_commit": true,
+      "working_sha256": "46d06e74230fd154c1b5c852f660f30a6eea953b8aef879b8f3ef4ccbd70798b"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-39-BRANCH-DELETE-ALLOWLIST.tsv",
+      "commit": "81341c96419043e16c7e3e4da79c60007ba46cda",
+      "blob_readable_at_commit": true,
+      "working_sha256": "8296bd4b49ae8235381060ebdc53bdb6f390344df7cd650eae15eb7f2976ae6d"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-39-ADMISSION.json",
+      "commit": "81341c96419043e16c7e3e4da79c60007ba46cda",
+      "blob_readable_at_commit": true,
+      "working_sha256": "87569d13d2c980a40014e3aa71a9a6dca33e521862a8be2fe9096eb63aea3ec5"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-39-PLANNING-PREFLIGHT.json",
+      "commit": "7207dad2924c6c83f7851fff605f9fa2d6cf8bbb",
+      "blob_readable_at_commit": true,
+      "working_sha256": "130efd6ab0d8eff31016e225a3d8f8a277d88c45b10d2962aaa7bb68e565228c"
+    },
+    {
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-39-RESULT.json",
+      "commit": "60ba4637792835b5036ef833c07eed270a3b8be2",
+      "blob_readable_at_commit": true,
+      "working_sha256": "502e2b0c4d940029abc94aa74ee73ea48e7332797b879678ffe2dde9a8a250a1"
+    }
+  ],
+  "object_check": {
+    "unique_typed_objects_checked": 123,
+    "failures": []
+  },
+  "coordinator": {
+    "verify_exit_code": 0,
+    "status_exit_code": 0,
+    "status": "SUPPORTED: coordinator symbolic HEAD hook enforced git=/usr/bin/git version=git version 2.50.1 (Apple Git-155)\ncoordinator=verified\ncommon_dir=/Users/jon/projects/sigra/.git\nlock=free\ntransaction_leases=0"
+  },
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "checks": {
+    "result39_is_committed_blocked_zero_operation_receipt": true,
+    "all_pinned_plan_inputs_committed_and_readable": true,
+    "plan39_preflight_ready_but_not_mutation_authority": true,
+    "prior_plan37_d06_and_plan23_readiness_passed": true,
+    "plan38_result_preserves_partial_history": true,
+    "plan39_admission_cannot_be_reused": true,
+    "current_source_capture_matches_current_head": true,
+    "current_local_origin_and_pr_sources_complete": true,
+    "current_pr_cli_api_agreement_and_rate_budget": true,
+    "all_pinned_local_snapshot_and_current_local_objects_readable_at_expected_type": true,
+    "plan39_stale_gh_pages_identity_is_visible_in_fresh_capture": true,
+    "coordinator_verified_free_zero_leases": true,
+    "historical_audits_remain_unresolved": true,
+    "no_plan40_exists_before_planning": true
+  },
+  "failed_predicates": [],
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "fetches": 0
+}

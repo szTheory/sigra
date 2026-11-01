@@ -1,0 +1,119 @@
+{
+  "blockers": [],
+  "candidate_helper_commit": "2b239a98df72b8d47e8c4e03edf193905b3239da",
+  "candidate_source_commit": "8d648821fac5414774b173f579a847a27a122b73",
+  "candidate_tree_sha": "05fc6801a8cf2533d816b38d874d652b16c1341f",
+  "commit_metadata": {
+    "author": "Sigra Publication Bot",
+    "committer": "Sigra Publication Bot",
+    "date_utc_second": "2026-10-17T07:37:24Z",
+    "email": "sigra-publication@users.noreply.github.com",
+    "message_newline_terminated": true,
+    "unsigned": true
+  },
+  "docs_base_commit": "99b33f903038d523865889bcc8a97b7a73c042e9",
+  "docs_head_commit": "40adc7e54b7c1353e2ae155067566ecaed2f656c",
+  "docs_head_path": "guides/reference/phase253-docs-only-proof.md",
+  "docs_variants_local_only": [
+    {
+      "binary_blobs": 0,
+      "body_bytes": 140024,
+      "changed_paths": [
+        ".github/workflows/ci.yml"
+      ],
+      "name": "docs-base"
+    },
+    {
+      "binary_blobs": 0,
+      "body_bytes": 264,
+      "changed_paths": [
+        "guides/reference/phase253-docs-only-proof.md"
+      ],
+      "name": "docs-head"
+    }
+  ],
+  "fixture_file": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
+    "sha256": "3c31cb72c3168c4e86a1ea529f16bfdd40b4405551459ca27b9b989cb762df7b"
+  },
+  "fixture_tree_sha": "83a35c1119f2e2bb29945ac74a091a1e9228a645",
+  "fixture_workflow_blob": "f4c9e2f23be6af58af3ae257579ca6d935251b56",
+  "fixture_workflow_commit": "65c402f966602dfc4a609af724457808cd8528eb",
+  "parent_tree_sha": "e9d63071f0ab4ac8edba8a60a2503cc882cb5556",
+  "product_tree_parity": {
+    "candidate_product_files": 1480,
+    "candidate_product_tree": "e58d2f75f9cf3603f077904a47e4f76c61942c2a",
+    "parent_product_tree": "e9d63071f0ab4ac8edba8a60a2503cc882cb5556",
+    "same_paths_modes_blobs": true,
+    "source_product_files": 1480,
+    "source_product_tree": "e58d2f75f9cf3603f077904a47e4f76c61942c2a"
+  },
+  "projection": {
+    "binary_blob_requests": 0,
+    "complete_product_delta_dropped": false,
+    "fixed_non_tree_requests": 12,
+    "largest_tree_body_bytes": 2094030,
+    "max_requests": 24,
+    "max_tree_body_bytes": 2097152,
+    "parent_preflight_requests": 1,
+    "projected_total_requests": 17,
+    "tree_request_count": 4
+  },
+  "schema_version": "sigra.phase253.git-publication/v1",
+  "server_object_receipts": [],
+  "server_parent_availability": "proposal-only; fresh availability must be proved in the authorized publication window",
+  "server_parent_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+  "source_cleanliness": {
+    "clean": true,
+    "config_ref": "refs/gsd/phase253-recovery-execution-unrelated-config",
+    "config_sha256": "8e312f6ccd3485941059446e5852b39651f7ad1863fa003c62f6e5635d7c0b8d",
+    "config_status_hex": "204d202e706c616e6e696e672f636f6e6669672e6a736f6e00",
+    "product_status_hex": ""
+  },
+  "source_git_status": "",
+  "source_sha": "8d648821fac5414774b173f579a847a27a122b73",
+  "status": "ready-local-proposal",
+  "tree_requests": [
+    {
+      "base_tree_sha": "e9d63071f0ab4ac8edba8a60a2503cc882cb5556",
+      "binary_blobs": 0,
+      "body_bytes": 2001252,
+      "changed_entries": 48,
+      "name": "candidate-part-01",
+      "sequence": 1,
+      "tree_sha": "9e8cebad2bcf356ac2c584d0a08a29d8a5d94907",
+      "variant": "candidate"
+    },
+    {
+      "base_tree_sha": "9e8cebad2bcf356ac2c584d0a08a29d8a5d94907",
+      "binary_blobs": 0,
+      "body_bytes": 2094030,
+      "changed_entries": 47,
+      "name": "candidate-part-02",
+      "sequence": 2,
+      "tree_sha": "80ae81a8e11b53e95b94b1d1fb5d790084bd75a9",
+      "variant": "candidate"
+    },
+    {
+      "base_tree_sha": "80ae81a8e11b53e95b94b1d1fb5d790084bd75a9",
+      "binary_blobs": 0,
+      "body_bytes": 1278302,
+      "changed_entries": 100,
+      "name": "candidate-part-03",
+      "sequence": 3,
+      "tree_sha": "05fc6801a8cf2533d816b38d874d652b16c1341f",
+      "variant": "candidate"
+    },
+    {
+      "base_tree_sha": "05fc6801a8cf2533d816b38d874d652b16c1341f",
+      "binary_blobs": 0,
+      "body_bytes": 17686,
+      "changed_entries": 1,
+      "name": "fixture",
+      "sequence": 1,
+      "tree_sha": "83a35c1119f2e2bb29945ac74a091a1e9228a645",
+      "variant": "fixture"
+    }
+  ],
+  "workflow_path": ".github/workflows/ci.yml"
+}

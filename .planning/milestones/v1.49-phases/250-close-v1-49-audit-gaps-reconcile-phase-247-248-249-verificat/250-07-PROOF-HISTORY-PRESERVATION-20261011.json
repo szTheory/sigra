@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T12:17:23Z",
+  "prior_canonical_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+  "prior_canonical_sha256": "bacee6c2b3f9a7c789a10835a2a76f233d90505195c88e2c5fdc254c87cd86a4",
+  "prior_canonical_status": "blocked",
+  "history_copy_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-BLOCKED-38083752867-HISTORICAL.json",
+  "history_copy_sha256": "bacee6c2b3f9a7c789a10835a2a76f233d90505195c88e2c5fdc254c87cd86a4",
+  "recovery_copy_path": ".planning/recovery/phase-250-post-canary-reconciliation-20261011T121421Z/.planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+  "recovery_copy_sha256": "bacee6c2b3f9a7c789a10835a2a76f233d90505195c88e2c5fdc254c87cd86a4",
+  "replacement_canonical_path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+  "replacement_sha256": "6eb5fb2e373d2bca6efd3dc9161793e4a3ca0f260bfcf4f6a208aa3c40952289",
+  "controller_run_id": 38137539834,
+  "controller_conclusion": "failure",
+  "replacement_status": "pass",
+  "controller_failure_remains_explicit": true
+}

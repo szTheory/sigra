@@ -1,0 +1,45 @@
+{
+  "commit": "4734916eeca6ce4b5726c740ac468264338cb300",
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean_before_update",
+      "commit": "4734916eeca6ce4b5726c740ac468264338cb300",
+      "sha256": "cb07dd19b6bb95552d9789cadad47cff6a000c74995930d31600a64ae9f3cfde",
+      "bytes": 41001,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean_before_update",
+      "commit": "4734916eeca6ce4b5726c740ac468264338cb300",
+      "sha256": "383b5ae17cebab2622b3ee8b364dbf1222d66b4c2e34dfd59185ed023192191f",
+      "bytes": 123323,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean_before_update",
+      "commit": "4734916eeca6ce4b5726c740ac468264338cb300",
+      "sha256": "45d46ffce3d28e1d6eb5ea74ad9362ef5e3d1ed54c5069754999d74c2986104f",
+      "bytes": 188944,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "status": "clean_before_update",
+      "commit": "4734916eeca6ce4b5726c740ac468264338cb300",
+      "sha256": "aa800203178987d39b59135ff0ea56c509e9af9331b3081e251067699e2c0832",
+      "bytes": 5248,
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/253-172-EXECUTION.json",
+      "status": "clean_before_update",
+      "commit": "4734916eeca6ce4b5726c740ac468264338cb300",
+      "sha256": "b5742a722d72d08d1c1a443acf638940546887e5f0c5bcb90dbd5b7ce9a2085e",
+      "bytes": 5020,
+      "readback_verified": true
+    }
+  ]
+}

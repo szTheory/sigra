@@ -1,0 +1,10 @@
+{
+  "command": "node --test --test-reporter=tap scripts/ci/ci-run-metrics-replay.test.mjs",
+  "exitCode": 1,
+  "output": "TAP version 13\n# Subtest: snapshot replay emits explicit zero-sample unknowns and distinct cost dimensions\nnot ok 1 - snapshot replay emits explicit zero-sample unknowns and distinct cost dimensions\n  ---\n  duration_ms: 353.777125\n  type: 'test'\n  location: '/Users/jon/projects/sigra/scripts/ci/ci-run-metrics-replay.test.mjs:12:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    undefined !== 60\n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 60\n  operator: 'strictEqual'\n  stack: |-\n    at TestContext.<anonymous> (file:///Users/jon/projects/sigra/scripts/ci/ci-run-metrics-replay.test.mjs:77:12)\n  ...\n1..1\n# tests 1\n# suites 0\n# pass 0\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 390.054958",
+  "targetTest": "snapshot replay emits explicit zero-sample unknowns and distinct cost dimensions",
+  "targetFile": "scripts/ci/ci-run-metrics-replay.test.mjs",
+  "expected": "One valid runner sample reports its summed seconds and a single_observation limitation, while zero samples remain insufficient_data.",
+  "actual": "The one-row ranking has no total_seconds, so the expected source-derived 60 seconds is undefined.",
+  "semanticAssessment": "The target test executed with a hash-valid saved main-push job record and failed on the planned one-sample ranking result. No fixture, import, syntax, or discovery errors occurred."
+}

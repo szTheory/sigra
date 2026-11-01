@@ -1,0 +1,297 @@
+{
+  "schema_version": "sigra.phase255.comparison-report/v1",
+  "status": "insufficient_data",
+  "measured_sources": {
+    "baseline": {
+      "application_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+      "workflow_revision": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+      "producer_source_sha": "f46178ab2ca49d33b36ba5c6da01c96e6077148e",
+      "producer_commit_available": false,
+      "run_id": 40046955449,
+      "run_attempt": 2,
+      "conclusion": "failure",
+      "runner_seconds": 2046,
+      "missing_required_contexts": [
+        "Example Playwright smoke (full lifecycle)"
+      ],
+      "receipt_commit": "1c1cc0f786e52cacddb8e69a07a5855c0b74045c",
+      "receipt_entries_verified": 69
+    },
+    "candidate": {
+      "application_sha": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+      "workflow_revision": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+      "producer_source_sha": "cd931364639de70d888f04132ce3c980ae491b3d",
+      "producer_commit_available": false,
+      "run_id": 40047078287,
+      "run_attempt": 2,
+      "conclusion": "success",
+      "runner_seconds": 1589,
+      "required_result_wait_seconds": 261,
+      "receipt_commit": "5df0b52e9773364de9fa1aa8a37b831133c56600",
+      "receipt_entries_verified": 109
+    }
+  },
+  "analysis_source": {
+    "commit": "d5b7300c809ce7cd474e87aa55fda278b3a09cbc",
+    "role": "repaired evaluator run against unchanged saved observations",
+    "closeout_expected_result_commit": "9e944b90b0f7914246017ac4c834470988eb2673"
+  },
+  "phase255_diagnostic_sources": {
+    "hosted_workflow_source": "7aae47281bb3e91bb38fe2387427f27bd0b44327",
+    "local_native_diagnostics_tested_source": "59ed88c32673635757981770e50c228e92158b15",
+    "local_diagnostic_evidence_writer_source": "7bad04a200ffcecc759cd1d947c141609d96a037",
+    "trace_overhead_source": "d6ce89a067c75308fb254a637691feadf2061349",
+    "distribution_publisher_helper_source": "e41aabd0c399b95d22262da2ebd45ae69250f290",
+    "corrected_verification_controller_source": "83b62cd55",
+    "final_local_native_diagnostics_tested_source": "8243a25bec776782a527386e2623041ba7fbe347",
+    "final_trace_overhead_source": "0e35a4c83a94db813d1cb19b504f09badc95e1ce",
+    "hosted_source_boundary": "Hosted runs retain their original 7aae47281 producer identity. Later local repair commits were tested locally; they were not dispatched again under the closed hosted allowance."
+  },
+  "observations": {
+    "measured_invocations": 2,
+    "successful_measured_invocations": 1,
+    "failed_measured_invocations": 1,
+    "successful_comparable_pairs": 0,
+    "required_successful_pairs": 20,
+    "unspent_invocations": 38,
+    "maximum_future_successful_pairs_under_frozen_contract": 19,
+    "replacement_samples_started": 0,
+    "window_extended": false,
+    "preparations_counted_as_samples": 0,
+    "unused_reservations_counted_as_samples": 0,
+    "run_attempts_in_terminal_observations": [
+      2
+    ]
+  },
+  "statistics": {
+    "status": "insufficient_data",
+    "median_seconds": null,
+    "p95_seconds": null,
+    "median_method": "ordinary median; for an even sample average the two middle sorted values",
+    "p95_method": "nearest-rank ceil(0.95*n); for n=20 this is the 19th sorted value",
+    "p95_limitation": "With only 20 pairs the tail estimate is fragile and does not guarantee population performance.",
+    "baseline_runner_seconds": 2046,
+    "candidate_runner_seconds": 1589,
+    "speed_improvement_supported": false
+  },
+  "outcomes": {
+    "baseline": "failure",
+    "candidate": "success",
+    "native_coverage_parity": "insufficient_data",
+    "successful_origin_checks": 1,
+    "both_sides_source_qualified": false,
+    "baseline_producer_source_commit_missing": true,
+    "failure_context": "The first attempt failed admin-checkpoints-mobile LiveView readiness; the baseline run lacks successful full-lane family metadata.",
+    "required_result_wait_seconds": {
+      "baseline": null,
+      "candidate": 261
+    }
+  },
+  "preparations": {
+    "successful_final_preparations_included_in_measured_cohort": false,
+    "unused_38_reservations_are_observations": false,
+    "details": "Successful final preparation runs were preparation only. The comparison contains one baseline and one candidate invocation, both attempt 2."
+  },
+  "reruns": {
+    "baseline_run_attempt": 2,
+    "candidate_run_attempt": 2,
+    "recorded_job_attempts": [
+      2
+    ],
+    "all_attempt_costs": {
+      "baseline": 2046,
+      "candidate": 1589
+    },
+    "note": "The saved family cost rows retain the observed run attempt 2; earlier or unused attempts are not substituted for these rows."
+  },
+  "cache_conditions": {
+    "contract_stratum": "warm",
+    "baseline_observed": {
+      "playwright_shards": "example_deps hit; browser_binaries hit",
+      "library": "library_deps hit"
+    },
+    "candidate_observed": {
+      "playwright_shards": "example_deps hit; browser_binaries hit",
+      "library": "library_deps hit"
+    },
+    "matched_cache_vector_available": true,
+    "evaluator_diagnostic": "cache_stratum_allocation_mismatch: actual {} expected warm 20",
+    "interpretation": "The two retained invocations both report warm cache hits, but a pair-level 20-family allocation cannot be built from one failed baseline and one successful candidate."
+  },
+  "runner_images": {
+    "comparison_runner_labels": "Retained job records show ubuntu-24.04 for required Playwright owners and the library shard; some other jobs use ubuntu-latest.",
+    "captured_image": "Both measured run metadata sets identify Linux X64, ubuntu24 image build 20261012.334.1.",
+    "image_proof": "The per-job measurement metadata contains runner-native image file hashes; this identity does not turn the failed baseline into a successful pair."
+  },
+  "implemented_optimizations": [
+    {
+      "change": "Removed duplicate explicit Hex/Rebar setup while retaining the cold dependency fetch, and combined example Mix preparation steps.",
+      "evidence": "Local Phase 254 setup measurements: separate 24.537s cold / 4.619s warm; combined 22.922s cold / 2.360s warm.",
+      "scope": "Development measurement only; no hosted performance claim."
+    },
+    {
+      "change": "Removed duplicate owner login navigation in invitation browser cases and added isolated per-test admin-theme auth contexts.",
+      "evidence": "Source-bound local browser checks in Phase 254 Plans 03 and 04.",
+      "scope": "Behavior and local duration checks; no hosted performance claim."
+    },
+    {
+      "change": "The five existing browser owners remained in place; no test owner was moved.",
+      "evidence": "The exact workload selection was retained.",
+      "scope": "No assertion that the changes reduced hosted end-to-end time."
+    }
+  ],
+  "reliability_fixes": {
+    "controlled_connection_reproduction": "A retired WebSocket could close its LongPoll replacement and trigger a LiveView registration reload. The controlled test reproduced this downstream race and the repair binds events to the physical connection.",
+    "original_initiating_event": "unknown; the original hosted CI trace does not establish what delayed its primary response",
+    "development_verification": {
+      "pull_request": 353,
+      "source_sha": "8b3c3d8c75152438bb3259c1226b1044da717b3c",
+      "run_id": 40054033393,
+      "run_attempt": 1,
+      "full_ci": "success",
+      "all_five_required_contexts": "success",
+      "executed_browser_cases": 108,
+      "acceptance_samples_added": 0
+    }
+  },
+  "phase255_diagnostics": {
+    "canary_source": "7aae47281bb3e91bb38fe2387427f27bd0b44327",
+    "success_run": 40122912945,
+    "failure_run": 40123954650,
+    "cancelled_run": 40124112173,
+    "conclusions": [
+      "success",
+      "failure",
+      "cancelled"
+    ],
+    "controller_requests": 37,
+    "invocations": 3,
+    "pushes": 1,
+    "infrastructure_retries": 0,
+    "test_retries": 0,
+    "artifact_retention_expires": "2026-10-31",
+    "cancellation_missing_files": [
+      "final-output.log",
+      "final-trace.zip"
+    ],
+    "browser_trace_unavailable_reasons": [
+      "context_not_created",
+      "runner_terminated"
+    ],
+    "synthetic_accounts_only": true,
+    "auth_storage_sensitivity": "Temporary authentication state and raw traces can contain session material; store privately, never commit, and use the sanitized tracked bundle for sharing."
+  },
+  "trace_overhead": {
+    "source_sha": "0e35a4c83a94db813d1cb19b504f09badc95e1ce",
+    "pairs": 3,
+    "retries": 0,
+    "workers": 1,
+    "off_mean_ms": 473.375,
+    "on_mean_ms": 541.071,
+    "status": "noisy_inconclusive",
+    "interpretation": "Six local development observations on the final diagnostic code. No statistical speed claim and no correction or new samples for the closed comparison.",
+    "observed_difference_ms": 67.696
+  },
+  "development_verification": {
+    "pull_request": 353,
+    "run_id": 40054033393,
+    "run_attempt": 1,
+    "source_sha": "8b3c3d8c75152438bb3259c1226b1044da717b3c",
+    "all_five_required_contexts": "success",
+    "executed_browser_cases": 108,
+    "acceptance_samples_added": 0,
+    "budget_closed": true
+  },
+  "replay_distribution": {
+    "status": "verified",
+    "remote_url": "https://github.com/szTheory/sigra.git",
+    "remote_ref": "refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d",
+    "evidence_commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb",
+    "evidence_parent": "e41aabd0c399b95d22262da2ebd45ae69250f290",
+    "publisher_helper_source": "e41aabd0c399b95d22262da2ebd45ae69250f290",
+    "corrected_verification_controller_source": "83b62cd55",
+    "package_sha256": "6d098e9bee2d28b0d88dda2c517503467448939b4e48af84bf6e2ffd5255fe23",
+    "package_size": 59461735,
+    "member_count": 191,
+    "manifest_sha256": "70ef694f438dc6567090b143d155dc1188736a817bdbe04259ef8e23845d2191",
+    "remote_readback_commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb",
+    "retrieval_attempts": [
+      {
+        "attempt": 1,
+        "status": "failed_replay_after_exact_fetch",
+        "note": "The exact ref and package were fetched; the controller looked for its wrapper inside the analysis package, which intentionally does not include that distribution helper. No push retry occurred."
+      },
+      {
+        "attempt": 2,
+        "status": "passed",
+        "checkout_commit": "52d2f3611fa195042d52ab0ef9dba64e4d75a2eb",
+        "checkout": "Independent fresh repository fetched from the configured HTTPS remote URL, without clone hardlinks, alternates, inherited refs or original ignored data.",
+        "offline_replay": {
+          "status": "passed",
+          "performance_verdict": "insufficient_data",
+          "comparable_successful_pairs": 0,
+          "median_seconds": null,
+          "p95_seconds": null,
+          "baseline_runner_seconds": 2046,
+          "candidate_runner_seconds": 1589,
+          "input_hashes_unchanged": true,
+          "network_command_attempts": 0
+        }
+      }
+    ],
+    "budget": {
+      "successful_create_only_pushes": 1,
+      "transient_transport_retries": 0,
+      "fresh_checkout_retrieval_attempts": 2,
+      "workflow_dispatches": 0,
+      "phase254_canary_budget_reused": false
+    },
+    "fetch_command": "git fetch --no-tags https://github.com/szTheory/sigra.git refs/heads/evidence/phase255-replay-6d098e9bee2d28b0d88d",
+    "package_path_in_evidence_commit": ".planning/execution/255-replay/distributed/input-package.tar.gz",
+    "manifest_path_in_evidence_commit": ".planning/execution/255-replay/distributed/INPUTS.json"
+  },
+  "requirements": {
+    "CIMEAS-03": "Implementation and automated evidence present; final phase status is recorded in 255-VERIFICATION.md.",
+    "CIDX-01": "Implementation and automated evidence present; final phase status is recorded in 255-VERIFICATION.md.",
+    "CIDX-02": "Implementation and automated evidence present; final phase status is recorded in 255-VERIFICATION.md.",
+    "CISPEED-01": "open",
+    "CISPEED-02": "open"
+  },
+  "limitations": {
+    "original_initiating_event": "Unknown. The controlled connection reproduction establishes a later downstream race and repair, not the missing event in the original hosted failure.",
+    "native_parity": "A successful candidate origin verification does not source-qualify the failed baseline; full native parity is unproven.",
+    "cache_and_images": "The saved family metadata does not establish a matched cache vector or identical exact runner image for both measured sides.",
+    "missing_times": "Missing baseline successful-required-context wait is null, never zero.",
+    "screenshots": "macOS screenshots are compare-only for behavior review; Ubuntu 24.04 CI artifacts remain authoritative for font and pixel comparison."
+  },
+  "evidence_paths": {
+    "original_measurement": ".planning/execution/254-environment-recovery/MEASUREMENT/RESULT.json",
+    "raw_evaluation": ".planning/execution/254-environment-recovery/MEASUREMENT/EVALUATION-COSTS.json",
+    "independent_cost_replay": ".planning/execution/254-environment-recovery/MEASUREMENT/REPLAYED-COSTS.json",
+    "baseline_receipt": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/CAPTURE-before.json",
+    "candidate_receipt": ".planning/execution/254-environment-recovery/MEASUREMENT/requests/pair-01/CAPTURE-after.json",
+    "development_verification": ".planning/execution/254-transport-development-check/VERIFICATION.json",
+    "diagnostic_canary": ".planning/execution/255-diagnostics-canary/RESULT.json",
+    "local_diagnostics": ".planning/execution/255-local/BROWSER-DIAGNOSTICS.json",
+    "trace_overhead": ".planning/execution/255-local/TRACE-OVERHEAD.json",
+    "distribution": ".planning/execution/255-replay/DISTRIBUTION.json",
+    "final_native_mix": ".planning/execution/255-verification/FINAL-MIX-RECEIVERS-AFTER-REPAIR.json",
+    "mix_source_identity": ".planning/execution/255-verification/MIX-CAPTURE.json",
+    "final_local_diagnostics": ".planning/execution/255-verification/BROWSER-DIAGNOSTICS-AFTER-REVIEW.json",
+    "final_trace_overhead": ".planning/execution/255-verification/TRACE-OVERHEAD-AFTER-REVIEW.json",
+    "regression_gate": ".planning/execution/255-verification/REGRESSION-GATE.json",
+    "code_review": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-REVIEW.md",
+    "final_phase_verification": ".planning/phases/255-make-failures-reproducible-and-report-the-result/255-VERIFICATION.md"
+  },
+  "trace_overhead_before_review": {
+    "source_sha": "d6ce89a067c75308fb254a637691feadf2061349",
+    "pairs": 3,
+    "retries": 0,
+    "workers": 1,
+    "off_mean_ms": 519.208,
+    "on_mean_ms": 478.235,
+    "observed_difference_ms": -40.973,
+    "status": "noisy_inconclusive",
+    "interpretation": "A small local sample; not a speed improvement and not a correction to the historical comparison."
+  }
+}

@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "phase": 249,
+  "plan": "09",
+  "recorded_at": "2026-10-09T19:41:24.157Z",
+  "status": "ready-for-plan-10-review",
+  "precondition": {
+    "preservation_command": "node .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs --ledger .planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json --mode preservation",
+    "closeout_status": "accepted-with-recorded-loss",
+    "valid": true,
+    "blocked": false,
+    "blocker_count": 0,
+    "accepted_loss": {
+      "path": ".planning/HANDOFF.json",
+      "status": " M",
+      "sha256": "00dba2dfa078f6eef80d75f98799ff345db1df2c3d120ed2ef47d87ea25a7148",
+      "bytes_recovered": false,
+      "bytes_preserved": false,
+      "user_authorized": true
+    },
+    "scope": "No other inherited identity is accepted as lost; all other inherited paths require exact recoverable preservation."
+  },
+  "protected_main": {
+    "ref": "main",
+    "sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+    "resolved_live_with": "gh api repos/szTheory/sigra/commits/main --jq .sha",
+    "fetched_from": "origin/main",
+    "unchanged_on_followup_read": true
+  },
+  "candidate": {
+    "worktree": "/private/tmp/sigra-phase-249-09-candidate",
+    "branch": "gsd/phase-249-09-candidate",
+    "base_sha": "e2fa303017364c7e496c3c620f7b709c8e90c8fb",
+    "head_sha": "72fc10449577f63974d068c5aba8c4b3ce99052e",
+    "clean": true,
+    "changed_paths": [
+      ".github/ci-skip-manifest.tsv",
+      ".github/workflows/ci.yml",
+      ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+      "doc/llms.txt",
+      "scripts/ci/check-docs-index.sh",
+      "scripts/ci/check-docs-index.test.sh",
+      "scripts/ci/honest-skip-verdict.sh",
+      "scripts/ci/honest-skip-verdict.test.sh",
+      "scripts/ci/release-public-proof.sh",
+      "scripts/ci/release-public-proof.test.sh"
+    ],
+    "inherited_work_included": false,
+    "pushed": false,
+    "pull_request_opened": false,
+    "commits": [
+      {
+        "sha": "4974132add64df2a18cf5acfe5e60e93c18419db",
+        "subject": "feat(249-09): add source-bound release and docs proof",
+        "paths": 5
+      },
+      {
+        "sha": "72fc10449577f63974d068c5aba8c4b3ce99052e",
+        "subject": "feat(249-09): require the generated docs CI gate",
+        "paths": 5
+      }
+    ]
+  },
+  "provenance": {
+    "release_proof_source_commit": "8131239255ed0c25382ee733a667d4b41f12ebf0",
+    "source_bound_receipt_commit": "59a6c54b17afa158ba8fef3bf47297efe80bcef1",
+    "docs_index_helper_commit": "07cfbff284a045abdee0a021919015b72b9db693",
+    "docs_index_test_commit": "504c593c0466dcad14f73c8f6ed02777ba2c6d7d",
+    "docs_and_skip_gate_source_commit": "2b05050a1757bd6212f120dce44b783987ee0787",
+    "selection_note": "Applied only the Phase 249 hunks to the fresh current-main workflow/skip files; no stale Phase 246 dispatch or unrelated workflow changes were copied."
+  },
+  "release_receipt": {
+    "path": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+    "sha256": "c1a58f6a36656194387b0006dac9aab447d8f445cce9b060dcfb638ba6c4fff5",
+    "package_source_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca",
+    "package_source_ci_run_id": "37875238741",
+    "package_source_ci_head_sha": "9e80cb78d6374b1ed4074d5fef6b613fee879dca"
+  },
+  "generated_docs": {
+    "path": "doc/llms.txt",
+    "sha256": "c6c633065f21b635e5806f4bd0e35f3a1adfdec1d8a27d8657e5661a84cc9e36",
+    "bytes": 25890,
+    "lines": 338,
+    "title": "# Sigra v1.6.0 - Table of Contents"
+  },
+  "live_snapshot_after_candidate": {
+    "observed_at": "2026-10-09T19:41:24.157Z",
+    "worktree_count": 6,
+    "dirty_worktree_count": 0,
+    "open_pull_request_count": 14,
+    "source_reads_complete": true
+  },
+  "verification": [
+    {
+      "command": "bash scripts/ci/release-public-proof.test.sh",
+      "runner": "/opt/homebrew/bin/bash 5.2.37",
+      "result": "pass",
+      "passed": 44,
+      "failed": 0
+    },
+    {
+      "command": "bash scripts/ci/check-docs-index.test.sh",
+      "runner": "/opt/homebrew/bin/bash 5.2.37",
+      "result": "pass",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "command": "bash scripts/ci/honest-skip-verdict.test.sh",
+      "runner": "/opt/homebrew/bin/bash 5.2.37",
+      "result": "pass",
+      "passed": 20,
+      "failed": 0
+    },
+    {
+      "command": "mix docs --warnings-as-errors",
+      "result": "pass"
+    },
+    {
+      "command": "bash scripts/ci/check-docs-index.sh",
+      "result": "pass"
+    },
+    {
+      "command": "actionlint -shellcheck= .github/workflows/ci.yml",
+      "result": "pass",
+      "scope": "Workflow/YAML/action semantics; ShellCheck integration disabled to isolate the current-main baseline warnings."
+    },
+    {
+      "command": "actionlint .github/workflows/ci.yml",
+      "result": "baseline-warning",
+      "detail": "The exact fresh-main base independently reports the same six ShellCheck warnings (SC2209 x2, SC2010 x2, SC2034 x2) in untouched steps. No non-Phase-249 cleanup hunks were included."
+    },
+    {
+      "command": "shellcheck -e SC2034,SC2016 [six Phase 249 shell files]",
+      "result": "pass",
+      "detail": "Suppresses only the existing unused WORKTREE_CLEAN assignment and intentional literal jq/pattern strings."
+    }
+  ],
+  "dependency_setup": {
+    "isolated_mix_home": "/private/tmp/sigra-phase-249-09-mix",
+    "isolated_hex_home": "/private/tmp/sigra-phase-249-09-hex",
+    "dependencies_changed": false,
+    "advisory_messages": [
+      {
+        "package": "cloak 1.1.4",
+        "advisory": "EEF-CVE-2026-95105",
+        "severity_reported": "HIGH"
+      },
+      {
+        "package": "cloak_ecto 1.3.0",
+        "advisory": "EEF-CVE-2026-94206",
+        "severity_reported": "MEDIUM"
+      }
+    ]
+  },
+  "next": "Plan 249-10 reviews candidate head 72fc10449577f63974d068c5aba8c4b3ce99052e and completes the contributor gate before any hosted PR is opened."
+}

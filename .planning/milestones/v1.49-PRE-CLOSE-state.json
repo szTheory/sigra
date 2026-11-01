@@ -1,0 +1,63 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v1.49 \u2014 RELEASE-1.6.0",
+  "phases": [
+    {
+      "number": "246",
+      "name": "Generated Confirmation Recovery",
+      "status": "complete"
+    },
+    {
+      "number": "247",
+      "name": "Release Candidate and Repository Readiness",
+      "status": "pending"
+    },
+    {
+      "number": "248",
+      "name": "Exact-Source Release Gate",
+      "status": "complete"
+    },
+    {
+      "number": "249",
+      "name": "Publish and Prove Sigra 1.6.0",
+      "status": "complete"
+    },
+    {
+      "number": "250",
+      "name": "Close v1.49 audit gaps",
+      "status": "complete"
+    },
+    {
+      "number": "251",
+      "name": "Close READY-01 and READY-02 release readiness gaps",
+      "status": "in_progress",
+      "execution_status": "complete",
+      "plans_complete": 7,
+      "plans_total": 7,
+      "gap_tasks_complete": 12,
+      "gap_tasks_total": 12,
+      "verification_status": "gaps_found",
+      "verification_score": "9/10",
+      "validation_status": "validated",
+      "gap_execution_outcome": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json",
+      "planning_status": "inconclusive",
+      "new_gap_plans": 0,
+      "gap_replanning_diagnostic": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json",
+      "discussion_status": "confirmed",
+      "automatic_retry_allowed": false,
+      "gap_planning_precondition": "new_independently_trusted_original_source",
+      "discussion_resolution": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-RESOLUTION.json"
+    }
+  ],
+  "next": {
+    "command": "$gsd-plan-phase 251 --gaps",
+    "label": "Conditional recovery after new trusted evidence",
+    "reason": "User confirmed exhausted recovery: implementation complete, verification incomplete. No new trusted historical source or separately authorized prospective scope exists.",
+    "conditional": true,
+    "condition": "Only after a newly identified independently trusted pre-existing original evidence source is supplied; a finite source-ready delta is required. No automatic retry.",
+    "automatic_command": null,
+    "route_status": "waiting_for_new_evidence_or_explicit_separate_scope"
+  },
+  "updated_at": "2026-10-12T12:56:18.946087+00:00"
+}

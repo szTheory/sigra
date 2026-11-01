@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T11:47:01Z",
+  "repository": "szTheory/sigra",
+  "source": {
+    "ref": "refs/heads/main",
+    "branch": "main",
+    "sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "workflow_blobs": {
+      ".github/workflows/release-receipt-canary.yml": "04b3ad78954f075615b3535cf330bf74c11814a9",
+      ".github/workflows/release-receipt-canary-controller.yml": "56f8f86fa1f2343a40106a743f99f9bbdcb2c2b1",
+      ".github/workflows/release-run-observer.yml": "b8b7ec5c4fecf9ed2f9346ce2a323f85324c6517",
+      "scripts/ci/release-canary.sh": "049a1afc0b65c5b78ed5f90d0cba3d962a42d71c",
+      "scripts/ci/release-canary.test.sh": "6834865de696c4597856481808e656ba5381b1f8",
+      "scripts/ci/release-observer.sh": "f074bf670799da65c194fed26e093c59520fa092",
+      "scripts/ci/release-observer.test.sh": "c1ce96e6a914986adac7de390446b5f44f199152",
+      "scripts/ci/release-receipt.sh": "6781863befcc7e1da491edd7d08592dfbc694fe6"
+    }
+  },
+  "hosted_ci": {
+    "pr_number": 325,
+    "pr_url": "https://github.com/szTheory/sigra/pull/325",
+    "merged_at": "2026-10-11T11:40:43Z",
+    "merge_sha": "84ebcea60024c9e8caee405d55cad1c76b0e858a",
+    "ci_run_id": 38135909462,
+    "ci_conclusion": "success",
+    "ci_head_sha": "3ff7f515303ea58adaefe1bf5c0a42a0d819a0a6",
+    "merged_tree_matches_ci_head": true
+  },
+  "local_verification": {
+    "release_canary_test_cases": 59,
+    "release_canary_self_test": "passed",
+    "release_observer_test_cases": 24,
+    "release_receipt_test_cases": 16,
+    "actionlint": "passed"
+  },
+  "dispatch_attempted": false,
+  "credential_values_recorded": false,
+  "preflight_validation": {
+    "status": "passed",
+    "validated_at": "2026-10-11T11:50:21Z",
+    "command": "bash scripts/ci/release-canary.sh --validate-preflight --output <validated-preflight.json>"
+  },
+  "controller_input_validation": {
+    "status": "accepted",
+    "payload_bytes": 825,
+    "payload_sha256": "cda76a34c1ec31147d2b01c437f86cee43803655a53292e1b5e56a3e619bdb78",
+    "command": "bash scripts/ci/release-canary.sh --prepare-preflight-input --output <runner-temp.json> --expected-sha256 <payload-sha256>"
+  }
+}

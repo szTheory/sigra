@@ -1,0 +1,140 @@
+{
+  "record": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-PLANNING-RECORD.json",
+  "status": "planning_passed_ready_to_execute",
+  "active_order": [
+    "253-174",
+    "253-168",
+    "253-169",
+    "253-170",
+    "253-171",
+    "253-172"
+  ],
+  "ready_plans": [
+    "253-174"
+  ],
+  "runnable_count": 6,
+  "new_plans": [
+    "253-174"
+  ],
+  "amended_plans": [
+    "253-168",
+    "253-169",
+    "253-170",
+    "253-171",
+    "253-172"
+  ],
+  "phase_verification_status": "not_started",
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "schema": "sigra.phase253.git-permission-planning-record/v1",
+  "recorded_at": "2026-10-20T17:13:17.452426+00:00",
+  "command": "$gsd-plan-phase 253 --gaps",
+  "capture_head": "4f4647983673423fb6d57cfa1a71790350949098",
+  "plan_commit": "c6f629aa1e5c274dcd4ac9476919ee86412eb762",
+  "research": "skipped for gaps; existing research retained",
+  "independent_review": {
+    "status": "passed",
+    "blockers": 0,
+    "warnings": 0,
+    "override": false,
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-CHECK-01.md",
+    "sha256": "63a9d8399eae366dd29103a2a56a5a95f96382136344dc63c523a06e505893fc",
+    "model": "gpt-6-luna",
+    "effort": "low"
+  },
+  "planner": {
+    "model": "gpt-6.1-sol",
+    "effort": "xhigh",
+    "typed": true
+  },
+  "readiness": {
+    "plan_count": 174,
+    "incomplete_count": 77,
+    "runnable_count": 6,
+    "ready_plans": [
+      "253-174"
+    ],
+    "active_order": [
+      "253-174",
+      "253-168",
+      "253-169",
+      "253-170",
+      "253-171",
+      "253-172"
+    ],
+    "blocked_active_plans": []
+  },
+  "shared_prior": [
+    {
+      "path": ".planning/STATE.md",
+      "commit": "c6f629aa1e5c274dcd4ac9476919ee86412eb762",
+      "sha256": "d550fded358110c4fe23a2111c85e28ceabde4b47c5a4d04cc26fd9006792d60",
+      "bytes": 21509,
+      "blob": "21f76ee9d553e5bed894f1d649dc85220e53d311",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "commit": "c6f629aa1e5c274dcd4ac9476919ee86412eb762",
+      "sha256": "447a53f4fd8d098a0470c41cc1852d39ed33f0e17f91b20ac701d22c6efb7290",
+      "bytes": 769,
+      "blob": "b995f4faa6272515c5633b290bc746dcfb4258f9",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "commit": "c6f629aa1e5c274dcd4ac9476919ee86412eb762",
+      "sha256": "e43bb1023c007d081cf7d86205f354d26227f4b4daf96f9a49f41ad5b70cae31",
+      "bytes": 133599,
+      "blob": "5f8873f93ad77b6e191be24392e223be168097c0",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "commit": "c6f629aa1e5c274dcd4ac9476919ee86412eb762",
+      "sha256": "56c638368cd142567582088aa6de6117716f22457d3952189b1f10d29f5d1658",
+      "bytes": 21687,
+      "blob": "5cad57d116e718d3dc5650dc5ab8d37bf7941e9d",
+      "readback_exact": true
+    }
+  ],
+  "initial_shared_prior": ".planning/recovery/phase253-git-permission-planning-20261020/shared-prior.json",
+  "checks": ".planning/recovery/phase253-git-permission-planning-20261020/planner-checks.json",
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "whole_phase_verification_command": "$gsd-execute-phase 253",
+  "acceptance_executed": false,
+  "git_write_probe_executed": false,
+  "github_requests": 0,
+  "native_launches": 0,
+  "branch_changes": 0,
+  "phase254_started": false,
+  "auto_advance": false,
+  "phase254_readiness": {
+    "phase_number": "254",
+    "phase_name": "Speed Up the Measured Slow Jobs",
+    "phase_status": "Pending",
+    "has_context": false,
+    "has_research": false,
+    "has_plans": false,
+    "plan_count": 0
+  },
+  "sdk_query_note": "init.execute-phase takes phase only; --gaps-only belongs to execute workflow, not init query. Full init reports exactly six runnable active plans.",
+  "historical_records_preserved": true,
+  "final_checks": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-174-PLANNING-CHECKS.json",
+    "sha256": "7e626f20241b61dc9c23c1d39c08d3544efba4d97d0ed212c0695fcd622c503d",
+    "passed": true
+  },
+  "decision_coverage": {
+    "covered": 24,
+    "total": 24,
+    "passed": true
+  },
+  "post_planning_coverage": {
+    "covered": 26,
+    "total": 26,
+    "passed": true
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "scripts/ci/ci-registration-control-audit.test.mjs",
+    "scripts/ci/ci-browser-records.test.mjs",
+    "scripts/ci/ci-playwright-report.test.mjs"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 1.6678635840071365,
+  "kind": "offline_unit_contracts_not_browser_controls"
+}

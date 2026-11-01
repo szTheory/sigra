@@ -1,0 +1,10 @@
+{
+  "kind": "offline_unit_experiment",
+  "script_sha256": "cdc08a878d651cd3b793b46e83c0bfe9171567fd2368e478ec312a9a481439c4",
+  "browser_invocations": 0,
+  "ci_launches": 0,
+  "network_requests": 0,
+  "mode": "consolidated",
+  "exit_code": 0,
+  "duration_seconds": 1.3714422089979053
+}

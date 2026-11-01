@@ -1,0 +1,978 @@
+{
+  "config": {
+    "configFile": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/playwright.config.ts",
+    "rootDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/(admin-user-operations|admin-audit|admin-theme|admin-coherence-sweep|impersonation|admin-flow-).*\\.spec\\.ts/",
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/passkeys-hooks\\.spec\\.ts|passkey-options\\.spec\\.ts|passkey-login\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-modal-interaction\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-checkpoints-chromium",
+        "name": "admin-checkpoints-chromium",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-checkpoints-mobile",
+        "name": "admin-checkpoints-mobile",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-checkpoints-dark",
+        "name": "admin-checkpoints-dark",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-generated",
+        "name": "admin-generated",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-generated\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "generated-host-chromium",
+        "name": "generated-host-chromium",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/generated-confirmation\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "demo-showcase-chromium",
+        "name": "demo-showcase-chromium",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/demo-showcase\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-setup-chromium",
+        "name": "admin-design-setup-chromium",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-chromium",
+        "name": "admin-design-chromium",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-setup-mobile",
+        "name": "admin-design-setup-mobile",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-mobile",
+        "name": "admin-design-mobile",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-setup-dark",
+        "name": "admin-design-setup-dark",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-dark",
+        "name": "admin-design-dark",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-eval",
+        "name": "admin-eval",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-eval-mobile",
+        "name": "admin-eval-mobile",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-eval-dark",
+        "name": "admin-eval-dark",
+        "testDir": "/private/tmp/sigra-253-original-order-4ayf752e/checkout/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "admin-eval.spec.ts",
+      "file": "admin-eval.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Admin eval — render matrix, probes, bundles",
+          "file": "admin-eval.spec.ts",
+          "line": 410,
+          "column": 6,
+          "specs": [
+            {
+              "title": "render bundle: board-mg-1/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-118f2d5c6554db672b7b",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-1/zero",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-e5fb44ba8f3ae1707aef",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-1/loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-5838a778be2603bb51f4",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-1/error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-3ff2d2d322afbcd6332d",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-2/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-dc1db624e29193c27cfe",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-2/zero",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-9f25e99bc7e577d168a1",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-2/loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-a2fa2b6ad768c19cf00c",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-2/error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-798dcc92193118c6118a",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-3/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-6338d60aa47a94b496ad",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-3/zero",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-32500b23a503728ec854",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-3/loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-9e551d4f32ae5b6dc620",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-3/error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-7e848643b85a08228043",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-4/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-0c446c683f393e8321b1",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-4/zero",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-b055898ef80be9a75a79",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-4/loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-45d790af80e4c5551a18",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-4/error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-797cc25e9302522229b9",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-5/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-915e3ed75d029ec73bb2",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-5/zero",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-7640157074987d4dae21",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-5/loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-15e7c287fb50c87b313d",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-5/error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-84631f215f90d5e68bf3",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-6/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-90e2c13eb1af19fec927",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-6/zero",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-596047505a0182b2c7f7",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-6/loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-c8ef2271847ea019122a",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-6/error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-70d8b519af182a8fae18",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-7/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-31321015bf233ee17b71",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-7/zero",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-e4252dde8026ce93a765",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-7/loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-e154cfe38038658ec9a5",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-7/error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-ea1e0fcf847e4bd99bb7",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-8/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-1d3221b4b8c780163aa3",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-8/zero",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-88a9a5d67ce406f8caa7",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-8/loading",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-9515ddc5ab8d720a27d0",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-8/error",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-7f4f751b8cbef387d543",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            },
+            {
+              "title": "render bundle: board-mg-9/populated",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "admin-eval-dark",
+                  "projectName": "admin-eval-dark",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "bba98cccf2fadfb15da7-411c7c9cafac7bae94b0",
+              "file": "admin-eval.spec.ts",
+              "line": 442,
+              "column": 11
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-22T20:07:55.091Z",
+    "duration": 44.079999999999984,
+    "expected": 0,
+    "skipped": 33,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "allocation_kind": "production",
+  "bound_documents": [],
+  "category_limits": {
+    "rate": 1,
+    "pr_identity": 2,
+    "discovery_checks": 1,
+    "run_identity": 1,
+    "attempt_jobs": 1,
+    "artifact_metadata": 1
+  },
+  "download_hosts": [],
+  "max_elapsed_seconds": 600,
+  "max_hops": 0,
+  "max_pages": 1,
+  "max_requests": 7,
+  "max_response_bytes": 4194304,
+  "mode": "live",
+  "repository": "szTheory/sigra",
+  "schema_version": "sigra.phase253.http-allocation/v1",
+  "source_sha256": "ACTIVATE_AFTER_EXACT_APPROVAL",
+  "window_id": "gsd/253-pr343-read-only-recovery-1"
+}

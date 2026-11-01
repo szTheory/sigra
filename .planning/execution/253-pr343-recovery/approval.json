@@ -1,0 +1,8 @@
+{
+  "decision": "approve",
+  "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
+  "scope": "pr343-read-only-7-gets",
+  "decision_text": "yes i approve i compacted convo so u can do it here",
+  "approved_at_epoch": 1792690107,
+  "expires_epoch": 1792776507
+}

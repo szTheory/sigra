@@ -1,0 +1,35 @@
+{
+  "schema": "sigra.phase253.transport-redirect-red/v1",
+  "produced_on_head": "836f745a9c4e0cad4907e72d58141c869a329183",
+  "entries": [
+    {
+      "suite": "scripts/ci/ci-hosted-transport.test.py",
+      "command": "unset GH_TOKEN GITHUB_TOKEN; PATH=\"$HOME/.asdf/installs/nodejs/20.18.1/bin:$PATH\" python3 scripts/ci/ci-hosted-transport.test.py",
+      "exit_code": 1,
+      "summary": "Ran 38 tests in 27.596s, FAILED (failures=1)",
+      "failing_tests": [
+        "test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host (__main__.LivePolicyRedirectTests.test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host)"
+      ],
+      "passing_tests_new": [
+        "test_live_allocation_is_really_live (__main__.LivePolicyRedirectTests.test_live_allocation_is_really_live)",
+        "test_shim_refuses_an_unmapped_destination_positive_control (__main__.LivePolicyRedirectTests.test_shim_refuses_an_unmapped_destination_positive_control)"
+      ],
+      "failure_lines": [
+        "FAIL: test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host (__main__.LivePolicyRedirectTests.test_live_artifact_zip_follows_the_approved_redirect_to_the_trusted_blob_host)",
+        "    self.assertEqual(result.returncode, 0, result.stderr)",
+        "AssertionError: 1 != 0 : ci-hosted-transport: origin_rejected: live transport is restricted to api.github.com"
+      ],
+      "red_run_observation": {
+        "command": "scratch probe: LivePolicyRedirectTests.setUp() then follow() on the same unfixed tree (HEAD 836f745a9)",
+        "exit_code": 1,
+        "stderr": "ci-hosted-transport: origin_rejected: live transport is restricted to api.github.com",
+        "connect_log": [["api.github.com", 443]],
+        "shim_refusals": [],
+        "server_journal": [["api.github.com", 302, "authorization_present"]],
+        "ledger": [[0, "api.github.com", 302, "artifact_downloads", "complete"]],
+        "terminal_stop": null
+      },
+      "note": "Allocation mode is live (R8 allocation field set, test window id, a temp bound document). Hop 0 went through every live policy branch and reached the local server as api.github.com:443 via the live-policy shim; follow_download accepted the trusted blob destination; request_one then raised origin_rejected at the API_HOST-only origin check before any hop-1 predebit or connection. The failure is the real transport, not the harness: no shim refusal and no hop-1 connection. Zero network."
+    }
+  ]
+}

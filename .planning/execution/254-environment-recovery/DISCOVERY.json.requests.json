@@ -1,0 +1,11 @@
+{
+  "status": "complete",
+  "request_count": 2,
+  "stop_reason": null,
+  "reset_or_retry_at": "1792801609",
+  "unknown_inputs": [],
+  "requests": [
+    "rate_limit",
+    "/repos/szTheory/sigra/actions/workflows/phase254-apt-probe.yml/runs?head_sha=c5890cb992800c19eb86263f45108400dd815edc&per_page=5"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "schema_version": "sigra.phase253-canary-prelaunch-revision/v1",
+  "plan": "253-12",
+  "revision": 2,
+  "created_at": "2026-10-13T16:40:04Z",
+  "reason": "A final pre-host review found the Plan11 runner had no remote create-only fixture-ref operation. The runner now charges lookup/create/read-back transactions and stops if a different remote ref already exists.",
+  "supersedes_revision": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-12-PRELAUNCH-REVISION.json",
+    "sha256": "2c9e0fea97a6d900f96763f7376f88b30678e346106162135707f1547bb0d887",
+    "ref": "refs/gsd/phase253-12-prior-revision-final-source/2c9e0fea97a6d900f96763f7376f88b30678e346106162135707f1547bb0d887",
+    "exact_readback": true
+  },
+  "superseded_freeze": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-FREEZE.json",
+    "sha256": "2553bde1b3d455248d2d6f780eda88f333e850198808b1fdd5dacb05f68c2f54",
+    "ref": "refs/gsd/phase253-12-prior-freeze-final-source/2553bde1b3d455248d2d6f780eda88f333e850198808b1fdd5dacb05f68c2f54",
+    "exact_readback": true,
+    "candidate_helper_commit": "92ae6cb507f91d0fe82026b58dc907b60c340482",
+    "fixture_workflow_commit": "c2db172ac23bf4296785f61dd3a7718c8ad4a632",
+    "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+    "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T163051Z-plan12"
+  },
+  "plan11_preservation": {
+    "freeze_ref": "refs/gsd/phase253-12-prior-freeze",
+    "freeze_sha256": "f891b8c5bc8354fc110a8a0be4b8617d8f813c3f2c804e44206294cc6e98af82",
+    "workflow_ref": "refs/gsd/phase253-12-prior-workflow",
+    "workflow_sha256": "65b56df90ccd19b6152392027276887dcc1d55713462ec7e52d679480265c904",
+    "exact_readback": true
+  },
+  "new_seal": {
+    "candidate_helper_commit": "a740517229ffa2d7573d23af76f9e98fadd27f84",
+    "candidate_helper_ref": "phase-244-playwright-measurement",
+    "fixture_workflow_commit": "f15eb9af5668a14995416d8c1ae053c0ec876c62",
+    "fixture_workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60",
+    "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T164004Z-plan12",
+    "fixture_ref_creation": "create-only; local; exact commit and blob read back; not pushed"
+  },
+  "source_sha256": {
+    "scripts/ci/ci-gate-canary.sh": "0dad278e782ec155f10454d2ab892a132ce293bc1a0ec957d2ab63d6c2b6cb6d",
+    "scripts/ci/ci-gate-canary.test.sh": "98bff3d972129004d98d43de6a39200403c6e0fbb95d4d2095dfa47f58c736d8",
+    "scripts/ci/ci-hosted-gate-verify.py": "e46366e315aeb1c1b3a170b0b586941b9897ca2d211114ecfb95d0aaa9e69e95",
+    "scripts/ci/ci-hosted-gate-verify.test.py": "2e0af813e8916e56e6d9272f3e460e4e6831f5a91e27f94d3e95232d074063c3"
+  },
+  "prehost_verification": {
+    "result": "passed",
+    "checks": [
+      "actual runner startup with no new evidence and a frozen candidate",
+      "three fresh preflights counted before any dispatch",
+      "historical snapshots and refs unchanged",
+      "mocked remote-ref 404, create-only POST, exact returned identity, and exact read-back",
+      "nine mocked API transactions retained in the planned request ledger across both starts",
+      "fixed started_epoch reused on continuation",
+      "all preservation refs read back exact prior bytes",
+      "no mock token stored and no workflow dispatch attempted",
+      "hosted receipt verifier tests 16/16"
+    ],
+    "commands": [
+      "bash scripts/ci/ci-gate-canary.test.sh",
+      "python3 scripts/ci/ci-hosted-gate-verify.test.py",
+      "bash -n scripts/ci/ci-gate-canary.sh"
+    ]
+  },
+  "hosted_outcomes": {
+    "github_api_requests": 0,
+    "remote_fixture_ref_mutations": 0,
+    "workflow_dispatches": 0,
+    "executed_jobs": 0,
+    "source_scenarios": {},
+    "independent_verifier": "not started",
+    "budget_started_epoch": null
+  },
+  "scope": {
+    "scenarios_and_expected_outcomes_changed": false,
+    "request_job_time_retry_and_artifact_bounds_changed": false,
+    "production_workflow_content_changed": false,
+    "original_failed_run_and_refs_changed": false,
+    "unrelated_dirty_path_left_untouched": ".planning/config.json"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "phase": 251,
+  "checked_at": "2026-10-11T22:03:13.985297+00:00",
+  "status": "passed",
+  "next_command": "$gsd-execute-phase 251 --gaps-only",
+  "checks": {
+    "routes_aligned": true,
+    "plan_hashes_match": true,
+    "historical_plans_and_acceptance_inputs_unchanged": true,
+    "READY_requirements_remain_unchecked": true,
+    "pending_validation_task_count": 12,
+    "committed_preservation_readback_verified": true,
+    "exact_unfinished_gap_plans": [
+      "251-03",
+      "251-04",
+      "251-05",
+      "251-06",
+      "251-07"
+    ],
+    "execution_readiness_runnable_count": 5,
+    "execution_readiness_prerequisite_blockers": {},
+    "duplicate_threat_id_count": 0,
+    "diff_whitespace": "passed"
+  },
+  "phase_verification_status": "gaps_found",
+  "implementation_of_new_gap_plans": "pending",
+  "source_documents": [
+    {
+      "path": ".planning/STATE.md",
+      "sha256": "9d710373f68c9a7ce596fb78bc09bb6452920c1d9a9723b0b65c2da9e145f461"
+    },
+    {
+      "path": ".planning/state.json",
+      "sha256": "df4d1c6c5286f5e27eaeaf8ce9722cd9d16dafebf3062de30fb5db3fd295d8d6"
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "sha256": "d3adc4f54a82bd9fc0d8af6d7c3726f485667486ee98db9a3dbc5ccb5e4dab1f"
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "sha256": "d8bfaead6bd33fc18998d2cd672e4b3b76b4a9d23b3812c8ee7a0d4b81807ecc"
+    },
+    {
+      "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-PLANNING-OUTCOME.json",
+      "sha256": "56d0b24562dcfbebce571eb00bad3050eb705b35f5237d5b1086d2b5e498a65f"
+    }
+  ]
+}

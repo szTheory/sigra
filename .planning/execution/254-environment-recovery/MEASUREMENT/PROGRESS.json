@@ -1,0 +1,7 @@
+{
+  "at": "2026-10-24T01:33:06.659252+00:00",
+  "kind": "stopped",
+  "diagnostic": "pair_stopped_after_retention:before:collection_failed,before:failure",
+  "measured_samples": 2,
+  "automatic_resume": false
+}

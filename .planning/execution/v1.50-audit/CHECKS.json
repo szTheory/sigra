@@ -1,0 +1,26 @@
+{
+  "source_head": "aaf04c4025e0d74addfcac62e84b7259ad5ef6c8",
+  "commands": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/ci/ci-comparison-replay.test.py",
+      "exit_code": 0,
+      "tests": 9,
+      "log": "replay.log"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 -B scripts/ci/ci-comparison-report.test.py",
+      "exit_code": 0,
+      "tests": 6,
+      "log": "report.log"
+    },
+    {
+      "command": "node --test scripts/ci/ci-browser-command.test.mjs scripts/ci/ci-browser-records.test.mjs scripts/ci/ci-measure-workflow.test.mjs",
+      "exit_code": 0,
+      "tests": 48,
+      "log": "node.log"
+    }
+  ],
+  "total_tests": 63,
+  "network_calls": 0,
+  "acceptance_invocations": 0
+}

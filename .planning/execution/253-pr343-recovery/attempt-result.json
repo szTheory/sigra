@@ -1,0 +1,22 @@
+{
+  "state": {
+    "status": "snapshot_collected",
+    "started_epoch": 1792690119,
+    "proposal_sha256": "fc408f26336fd8aa1493d15f43dc3ee91a793e57969774018c0138a10a95bcf3",
+    "preserved_active_state": {
+      "path": "/Users/jon/projects/sigra/.planning/execution/253-pr343-recovery/run-state.json",
+      "status": "?? .planning/execution/253-pr343-recovery/run-state.json",
+      "sha256": "b2917bb9fbc4004a5d08971875e3f6e2c6c5d0b837950a3650c0c5bcbddf06b9",
+      "ref": "refs/gsd/phase253-http-ledger/b2917bb9fbc4004a5d08971875e3f6e2c6c5d0b837950a3650c0c5bcbddf06b9"
+    },
+    "closed_epoch": 1792690124,
+    "closed": true
+  },
+  "requests": 7,
+  "ci_launches": 0,
+  "artifacts": {
+    "result.json": "6a56f9605e39f4c0446bbbf2191f68a8e998e5a1847b869d2f1ebf159bb521c5",
+    "allocation.json": "b05b4ccaa7041a5bf4ddc2ad2b6e808414f6498bf649ab39d3ba3a355c78fcfd",
+    "ledger.json": "03b87e00a79cc7566e7061e8bc896343c099fdc38927f312564d2d013c9e8e4f"
+  }
+}

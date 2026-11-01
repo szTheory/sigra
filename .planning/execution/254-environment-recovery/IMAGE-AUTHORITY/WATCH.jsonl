@@ -1,0 +1,21 @@
+{"at": "2026-10-24T00:32:56.027096+00:00", "kind": "started", "runs": [{"attempt": 1, "role": "before", "run_id": 40045468739}, {"attempt": 1, "role": "after", "run_id": 40045481175}]}
+{"at": "2026-10-24T00:33:57.218068+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40045468739, "status": "queued"}
+{"at": "2026-10-24T00:33:58.350961+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40045481175, "status": "queued"}
+{"at": "2026-10-24T00:34:59.501100+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40045468739, "status": "in_progress"}
+{"at": "2026-10-24T00:35:00.790578+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40045481175, "status": "queued"}
+{"at": "2026-10-24T00:36:01.844082+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40045468739, "status": "in_progress"}
+{"at": "2026-10-24T00:36:02.983286+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40045481175, "status": "in_progress"}
+{"at": "2026-10-24T00:37:04.227049+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40045468739, "status": "in_progress"}
+{"at": "2026-10-24T00:37:05.496469+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40045481175, "status": "in_progress"}
+{"at": "2026-10-24T00:38:06.547186+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40045468739, "status": "in_progress"}
+{"at": "2026-10-24T00:38:07.547638+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "after", "run_id": 40045481175, "status": "in_progress"}
+{"at": "2026-10-24T00:39:08.641856+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40045468739, "status": "in_progress"}
+{"at": "2026-10-24T00:39:09.722444+00:00", "attempt": 1, "conclusion": "failure", "kind": "status", "role": "after", "run_id": 40045481175, "status": "completed"}
+{"at": "2026-10-24T00:39:48.655030+00:00", "collection_exit_code": 0, "kind": "captured", "role": "after", "source_bundle": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/RAW-after"}
+{"at": "2026-10-24T00:39:50.597466+00:00", "commit": "cfbbb327c6db8b41a2967ec782fea11502abaa35", "files": 164, "kind": "preserved", "ref": "refs/evidence/phase254-native-authority-preparation-after-attempt-1", "role": "after"}
+{"at": "2026-10-24T00:40:51.865407+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40045468739, "status": "in_progress"}
+{"at": "2026-10-24T00:41:53.021410+00:00", "attempt": 1, "conclusion": null, "kind": "status", "role": "before", "run_id": 40045468739, "status": "in_progress"}
+{"at": "2026-10-24T00:42:54.180680+00:00", "attempt": 1, "conclusion": "failure", "kind": "status", "role": "before", "run_id": 40045468739, "status": "completed"}
+{"at": "2026-10-24T00:43:25.269043+00:00", "collection_exit_code": 0, "kind": "captured", "role": "before", "source_bundle": ".planning/execution/254-environment-recovery/IMAGE-AUTHORITY/RAW-before"}
+{"at": "2026-10-24T00:43:28.435628+00:00", "commit": "94d6456cc55153bc8bdefe1ef64d157cad968b2d", "files": 247, "kind": "preserved", "ref": "refs/evidence/phase254-native-authority-preparation-before-attempt-1", "role": "before"}
+{"at": "2026-10-24T00:43:28.435919+00:00", "completed": ["after", "before"], "kind": "finished", "measured_samples": 0}

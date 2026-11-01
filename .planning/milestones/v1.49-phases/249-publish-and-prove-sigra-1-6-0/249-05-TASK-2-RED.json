@@ -1,0 +1,21 @@
+{
+  "phase": 249,
+  "plan": "05",
+  "task": 2,
+  "kind": "tdd-red-evidence",
+  "command": "node --test .planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+  "exit_code": 1,
+  "expected": {
+    "passing": 22,
+    "failing": 5,
+    "failure_reason": "validatePromotion() is not implemented yet"
+  },
+  "required_cases": [
+    "exact reviewed head, base, ci-gate, receipt and scoped diff",
+    "wrong head and base",
+    "missing ci-gate",
+    "missing immutable release receipt",
+    "unrelated diff path"
+  ],
+  "captured_at": "2026-10-09T14:23:38.000Z"
+}

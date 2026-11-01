@@ -1,0 +1,7 @@
+test_partial_duplicate_or_failed_shared_snapshot_stops_before_requests (253-pr340-pr-tests.OperatorPreflightHandoffTests) ... ok
+test_shared_operator_reads_do_not_replace_the_full_preflight (253-pr340-pr-tests.OperatorPreflightHandoffTests) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 10.836s
+
+OK

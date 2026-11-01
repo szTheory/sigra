@@ -1,0 +1,12 @@
+{
+  "status": "complete",
+  "request_count": 3,
+  "stop_reason": null,
+  "reset_or_retry_at": "1792808816",
+  "unknown_inputs": [],
+  "requests": [
+    "rate_limit",
+    "download:artifact:12542560876:api.github.com",
+    "download:artifact:12542560876:productionresultssa18.blob.core.windows.net"
+  ]
+}

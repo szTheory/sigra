@@ -1,0 +1,53 @@
+{
+  "schema_version": "sigra.phase255-local-regression-maintenance/v1",
+  "evidence_kind": "scoped_local_regression_maintenance",
+  "scope": [
+    "test/sigra/planning/phase_230_design_gallery_split_test.exs",
+    "test/sigra/planning/phase_232_playwright_economics_test.exs",
+    "test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
+    "test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs",
+    "test/sigra/planning/phase_235_terminal_ratification_contract_test.exs"
+  ],
+  "maintenance_source_base_sha": "bff71d07e2ad002e13bebc2f8e0ca7e4acb97cce",
+  "initial_failure": {
+    "gate_record": ".planning/execution/255-verification/FINAL-MIX-RECEIVERS.json",
+    "gate_record_sha256": "1c4dff02c4d510da0b1720e08897cdc4974eb3fa4e1ca79d5ebf8275a748a299",
+    "ordinary_output": ".planning/execution/255-verification/native-run-1792872663498252000/commands/ordinary/stdout.bin",
+    "ordinary_output_sha256": "a7a13dcabff45ab1cb9b00c62995cd547ff4099bf02d4a767b54ef79eb9364e2",
+    "source_sha": "bff71d07e2ad002e13bebc2f8e0ca7e4acb97cce",
+    "source_ref": "phase-244-playwright-measurement",
+    "command": "MIX_ENV=test mix test --exclude scaffold",
+    "started_at": "2026-10-24T20:11:06+00:00",
+    "ended_at": "2026-10-24T20:11:12+00:00",
+    "exit_code": 2,
+    "tests": 2659,
+    "failures": 11,
+    "skipped": 12,
+    "excluded": 22,
+    "preserved_as_failed": true
+  },
+  "historical_source_identity": {
+    "commit": "47a88f1480173ace77db2ec4031d2527086b6e42",
+    "commit_resolution": "git rev-parse --verify <commit>^{commit} returned the exact full commit id",
+    "blob": "CONTRIBUTING.md",
+    "blob_sha256": "33d045c1fe8940a050db76d087ab1e8b45020b404d2f122032c50c170d11760b",
+    "derivation": "git show <commit>:CONTRIBUTING.md piped to shasum -a 256 produced the pinned digest; both Phase235 tests now recheck the commit identity and blob digest before using these historical contributor statements",
+    "existing_digest_and_closeout_counts_changed": false
+  },
+  "changes": {
+    "live_browser_workflow_contracts": "Phase230/232/234 tests now inspect the executable ci-browser-command.mjs policy and the workflow's list/run helper seam, including exact design-gallery filters, retry-zero selection, spec ownership, project selection, and retained inventory mutation controls.",
+    "wrapped_prepare_action_contract": "Phase232 now verifies both recorder-enabled and direct preparation branches carry the same ordered Mix command, and verifies the diagnostic recorder wrapper.",
+    "phase235_historical_contracts": "The existing contributor digest and closeout prose remain pinned to the verified historical blob; the live workflow checks inspect current helper execution separately. No historical count or closed evidence was rewritten."
+  },
+  "verification": {
+    "command": "MIX_ENV=test mix test test/sigra/planning/phase_230_design_gallery_split_test.exs test/sigra/planning/phase_232_playwright_economics_test.exs test/sigra/planning/phase_234_playwright_inventory_contract_test.exs test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs test/sigra/planning/phase_235_terminal_ratification_contract_test.exs",
+    "exit_code": 0,
+    "tests": 57,
+    "failures": 0,
+    "native_environment": true,
+    "format_check": "mix format --check-formatted on the five scoped test files",
+    "format_exit_code": 0,
+    "hosted_or_acceptance_claim": false,
+    "full_mix_ci_claim": false
+  }
+}

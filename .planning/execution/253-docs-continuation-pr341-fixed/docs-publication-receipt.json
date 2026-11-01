@@ -1,0 +1,132 @@
+{
+  "complete": true,
+  "docs_base_commit": "98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7",
+  "docs_head_commit": "879d628feeb0b894af1c0d842830b3002f905440",
+  "freeze_sha256": "04069e0762542565b290d1ba7097ab0edbec947210d0714690461a9c6298a8ca",
+  "ledger_window_id": "gsd/253-docs-continuation-pr341-2",
+  "refs": [
+    {
+      "ref": "refs/heads/gsd/253-replan-proof-a6838a8f9-docs-base",
+      "sha": "98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7"
+    },
+    {
+      "ref": "refs/heads/gsd/253-replan-proof-a6838a8f9-docs-head",
+      "sha": "879d628feeb0b894af1c0d842830b3002f905440"
+    }
+  ],
+  "rows": [
+    {
+      "actual_status": 201,
+      "created_sha": "3ffba64300a27f4944ffc1913967ce106be34724",
+      "method": "POST",
+      "readback_sha": null,
+      "route_id": "git_create_tree",
+      "sequence": 6
+    },
+    {
+      "actual_status": 201,
+      "created_sha": "98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7",
+      "method": "POST",
+      "readback_sha": null,
+      "route_id": "git_create_commit",
+      "sequence": 7
+    },
+    {
+      "actual_status": 200,
+      "created_sha": null,
+      "method": "GET",
+      "readback_sha": "98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7",
+      "route_id": "git_get_commit",
+      "sequence": 8
+    },
+    {
+      "actual_status": 200,
+      "created_sha": null,
+      "method": "GET",
+      "readback_sha": "d916199e2f02e34bab1fdc4e13cfc5c54b023cf0",
+      "route_id": "git_get_blob",
+      "sequence": 9
+    },
+    {
+      "actual_status": 404,
+      "created_sha": null,
+      "method": "GET",
+      "readback_sha": null,
+      "route_id": "get_ref",
+      "sequence": 10
+    },
+    {
+      "actual_status": 201,
+      "created_sha": "98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7",
+      "method": "POST",
+      "readback_sha": null,
+      "route_id": "create_ref",
+      "sequence": 11
+    },
+    {
+      "actual_status": 200,
+      "created_sha": null,
+      "method": "GET",
+      "readback_sha": "98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7",
+      "route_id": "get_ref",
+      "sequence": 12
+    },
+    {
+      "actual_status": 201,
+      "created_sha": "fec038b52c2bb248cdba179d760dd8acdabe3e36",
+      "method": "POST",
+      "readback_sha": null,
+      "route_id": "git_create_tree",
+      "sequence": 13
+    },
+    {
+      "actual_status": 201,
+      "created_sha": "879d628feeb0b894af1c0d842830b3002f905440",
+      "method": "POST",
+      "readback_sha": null,
+      "route_id": "git_create_commit",
+      "sequence": 14
+    },
+    {
+      "actual_status": 200,
+      "created_sha": null,
+      "method": "GET",
+      "readback_sha": "879d628feeb0b894af1c0d842830b3002f905440",
+      "route_id": "git_get_commit",
+      "sequence": 15
+    },
+    {
+      "actual_status": 200,
+      "created_sha": null,
+      "method": "GET",
+      "readback_sha": "044d83e90bbdd1a8c7cb8102505fb5d289b4dc65",
+      "route_id": "git_get_blob",
+      "sequence": 16
+    },
+    {
+      "actual_status": 404,
+      "created_sha": null,
+      "method": "GET",
+      "readback_sha": null,
+      "route_id": "get_ref",
+      "sequence": 17
+    },
+    {
+      "actual_status": 201,
+      "created_sha": "879d628feeb0b894af1c0d842830b3002f905440",
+      "method": "POST",
+      "readback_sha": null,
+      "route_id": "create_ref",
+      "sequence": 18
+    },
+    {
+      "actual_status": 200,
+      "created_sha": null,
+      "method": "GET",
+      "readback_sha": "879d628feeb0b894af1c0d842830b3002f905440",
+      "route_id": "get_ref",
+      "sequence": 19
+    }
+  ],
+  "schema": "sigra.phase253.pr-docs-publication-receipt/r12"
+}

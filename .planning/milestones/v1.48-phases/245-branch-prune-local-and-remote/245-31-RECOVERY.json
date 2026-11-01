@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-31",
+  "captured_at": "2026-10-02T06:30:22.383Z",
+  "outcome": "blocked",
+  "failed_stage": "post_commit_validation",
+  "admission_attempts": 1,
+  "production_ref_operations": 0,
+  "pull_request_mutations": 0,
+  "plan28_failed_receipt_sha256": "131673660ef9104d05db3acfbc75f0b33f436bb3f5b4a62bcd6a482d480c8097",
+  "plan28_receipt_unchanged": true,
+  "source_commit_parent": "8d9fac8b7270a06634233e5cf20349f9ed15af44",
+  "source_commit_oid": "b3e7d8ea5ae4438157e05fa05e2be0e3220d8f30",
+  "observed_head": "08ac3462549b98a4ca87ea4f9c1631ece2a74363",
+  "actual_head_ref_index_delta": {
+    "head": "08ac3462549b98a4ca87ea4f9c1631ece2a74363",
+    "branch": "phase-244-playwright-measurement",
+    "source_commit_parent": "8d9fac8b7270a06634233e5cf20349f9ed15af44",
+    "evidence_commit_parent": "b3e7d8ea5ae4438157e05fa05e2be0e3220d8f30",
+    "source_paths": [
+      ".planning/phases/245-branch-prune-local-and-remote/245-27-RESULT.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+      "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs",
+      "scripts/maintainers/prune-stale-branches.sh"
+    ],
+    "evidence_paths": [
+      ".planning/phases/245-branch-prune-local-and-remote/245-16-SUMMARY.md",
+      ".planning/phases/245-branch-prune-local-and-remote/245-27-SUMMARY.md",
+      ".planning/phases/245-branch-prune-local-and-remote/245-28-PLANNING-PREFLIGHT.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-28-PLANNING-PREFLIGHT.json.sha256",
+      ".planning/phases/245-branch-prune-local-and-remote/245-28-RECOVERY.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-28-SUMMARY.md",
+      ".planning/phases/245-branch-prune-local-and-remote/245-31-EXEC-PREFLIGHT.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-31-RECOVERY.json",
+      ".planning/phases/245-branch-prune-local-and-remote/245-31-SUMMARY.md"
+    ],
+    "staged_paths": [],
+    "production_ref_operations": 0,
+    "pull_request_mutations": 0
+  },
+  "failed_predicates": [
+    "Committed 245-27-SUMMARY.md lacks required requirements-completed: [] frontmatter; the exact Plan31 success validator therefore failed after evidence commit 08ac3462549b98a4ca87ea4f9c1631ece2a74363. No retry or repair was attempted."
+  ],
+  "historical_audits": {
+    "pr_11_rows": "unresolved",
+    "cleanup_30_rows": "unresolved"
+  },
+  "evidence_commit_oid": "08ac3462549b98a4ca87ea4f9c1631ece2a74363",
+  "evidence_commit_parent": "b3e7d8ea5ae4438157e05fa05e2be0e3220d8f30",
+  "checks": {
+    "plan27_superseded_status": true,
+    "plan27_requirements_completed_field": false,
+    "plan28_blocked_receipt_immutable": true,
+    "plan16_28_superseded": true,
+    "source_commit_exact_paths": true,
+    "evidence_commit_exact_paths": true
+  }
+}

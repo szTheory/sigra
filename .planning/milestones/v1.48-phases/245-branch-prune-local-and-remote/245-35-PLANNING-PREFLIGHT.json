@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "245-35",
+  "captured_at": "2026-10-03T02:15:28Z",
+  "purpose": "D-06 read-only source-feasibility census before writing new gap-closure plans",
+  "verdict": "ready_to_plan_exact_object_recovery",
+  "prune_execution_verdict": "blocked_missing_local_objects_and_no_new_contract",
+  "repository": "szTheory/sigra",
+  "checkout": {
+    "head_oid": "74e0937af546849fd29d61535244196ef8c80469",
+    "branch": "phase-244-playwright-measurement",
+    "origin_url": "https://github.com/szTheory/sigra.git",
+    "working_tree_dirty": true,
+    "planning_reads_only": true
+  },
+  "github_rate_limit": {
+    "checked_before_github_reads": true,
+    "core_remaining": 5000,
+    "core_limit": 5000,
+    "core_reset_epoch": 1790997250,
+    "rate_limit_stop_triggered": false
+  },
+  "live_origin": {
+    "command": "/usr/bin/git ls-remote --symref origin HEAD refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0 refs/heads/dependabot/github_actions/actions/upload-artifact-7.0.1 refs/pull/285/head refs/pull/285/merge refs/pull/286/head refs/pull/286/merge",
+    "exit_code": 0,
+    "default_branch": "main",
+    "default_oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+    "all_four_required_oids_still_advertised": true,
+    "source_feasibility": "each exact OID is advertised by origin and served by GitHub; source-only fetch has not been attempted for these OIDs"
+  },
+  "current_missing_objects": [
+    {
+      "oid": "5c414c4cec975fcf2755664f6ee294a4760fbe93",
+      "expected_type": "commit",
+      "github_tree_oid": "17301f2f8afb6c49bc1305426e7dcf080bf40f53",
+      "origin_refs": ["refs/heads/dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.129.0", "refs/pull/285/head"],
+      "github_open_pr": 285,
+      "local_cat_file_exit": 1,
+      "github_commit_get_exit": 0
+    },
+    {
+      "oid": "8ec669774d33eee30d7b92149808adf835bbd963",
+      "expected_type": "commit",
+      "github_tree_oid": "7b8720503d1d955e4b2be914ce8b3fcbe2768cc6",
+      "origin_refs": ["refs/heads/dependabot/github_actions/actions/upload-artifact-7.0.1", "refs/pull/286/head"],
+      "github_open_pr": 286,
+      "local_cat_file_exit": 1,
+      "github_commit_get_exit": 0
+    },
+    {
+      "oid": "c1df96499fed86602a7c6f27d18d9394582809f1",
+      "expected_type": "commit",
+      "github_tree_oid": "17301f2f8afb6c49bc1305426e7dcf080bf40f53",
+      "origin_refs": ["refs/pull/285/merge"],
+      "github_open_pr": 285,
+      "local_cat_file_exit": 1,
+      "github_commit_get_exit": 0
+    },
+    {
+      "oid": "d4e206693aa765c0078a89e24963590257d1daf1",
+      "expected_type": "commit",
+      "github_tree_oid": "7b8720503d1d955e4b2be914ce8b3fcbe2768cc6",
+      "origin_refs": ["refs/pull/286/merge"],
+      "github_open_pr": 286,
+      "local_cat_file_exit": 1,
+      "github_commit_get_exit": 0
+    }
+  ],
+  "live_open_pr_inventory": {
+    "cli_command": "gh pr list --repo szTheory/sigra --state open --limit 1000 --json number,headRefName,headRefOid,baseRefName,baseRefOid,headRepository",
+    "rest_command": "gh api --paginate repos/szTheory/sigra/pulls?state=open&per_page=100",
+    "cli_exit_code": 0,
+    "rest_exit_code": 0,
+    "cli_count": 14,
+    "rest_count": 14,
+    "pr_285_head_oid": "5c414c4cec975fcf2755664f6ee294a4760fbe93",
+    "pr_286_head_oid": "8ec669774d33eee30d7b92149808adf835bbd963",
+    "pr_285_and_286_base": "main",
+    "pr_285_and_286_base_oid": "5a00b90d2314bc93f27aec4090b5928018743d1b",
+    "cli_rest_285_286_identity_match": true,
+    "historical_11_base_mismatch_rows_still_unresolved": true
+  },
+  "pinned_evidence": [
+    {
+      "commit": "74e0937af546849fd29d61535244196ef8c80469",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-30-EXEC-PREFLIGHT.json",
+      "blob_oid": "6cae458395645ab4e67602138529c8ee8cfceccd",
+      "sha256": "3830ad21b17165f850bed7053ebc8afb800db16a3d5665ff859476240bffa3ae"
+    },
+    {
+      "commit": "74e0937af546849fd29d61535244196ef8c80469",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-30-RESULT.json",
+      "blob_oid": "5e885a0160b6882bd0bc962b46d10a24032b3798",
+      "sha256": "8153826bd0d656360bb1a6d1f683b21c348b54378242014b6d89ddd817fd3a84"
+    },
+    {
+      "commit": "4b3b91c1fed4f58db0c0640aefdc3ba90c8b1610",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-34-OBJECT-RECOVERY.json",
+      "blob_oid": "437f6d10a7ed6f8710d8c4c8245423244ba77b65",
+      "sha256": "44f6f7ca2a05c47e1df760557362e9cd9bc5620d7cb617ec4426127f16f5e2b4"
+    },
+    {
+      "commit": "4b3b91c1fed4f58db0c0640aefdc3ba90c8b1610",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-34-D06-READINESS.json",
+      "blob_oid": "7d4716afaeeb44554509e2cb79367efe9860e3bb",
+      "sha256": "8ef5bcd1f78664b36b1c2b7a3b6b10a9bc0d033d2ebd4e635201ea5e75c3f5f0"
+    }
+  ],
+  "unavailable_historical_baseline": {
+    "oid": "9c0a6b818d2d58858b5db274cc1cf0a9803f69f5",
+    "local_cat_file_exit": 1,
+    "github_availability": "previously established unavailable under D-07; not re-probed as a new source",
+    "handling": "do not replace or reconstruct historical baseline"
+  },
+  "historical_audits": {
+    "pr_mismatch_rows": 11,
+    "pr_status": "unresolved",
+    "cleanup_unknown_rows": 30,
+    "cleanup_full_window_history_available": false,
+    "cleanup_independent_trust_registry_available": false,
+    "cleanup_status": "unresolved",
+    "pr_audit_sha256": "8861d39a207145892ce2d95180d8a244b8d077915f6aea9df34e82ab1d0d9e35",
+    "cleanup_audit_sha256": "eb9f141fce4499a9c244e576dc151561510adb2fa9146861d09ca4a610674518"
+  },
+  "checks": {
+    "plan30_blocked_receipt_pinned": true,
+    "plan34_approval_scope_separate": true,
+    "all_required_live_origin_oids_advertised": true,
+    "all_four_local_oids_unreadable": true,
+    "all_four_github_commit_tree_identities_available": true,
+    "complete_cli_rest_open_pr_inventory": true,
+    "historical_sources_truth_preserved": true,
+    "no_object_or_ref_write_performed": true
+  },
+  "execution_constraints": {
+    "fresh_execution_preflight_required": true,
+    "fresh_digest_bound_approval_required_before_any_object_write": true,
+    "approved_object_import_count": 0,
+    "production_ref_operations": 0,
+    "pull_request_mutations": 0,
+    "plan30_historical_files_must_remain_unchanged": true,
+    "plan19_prior_local_deletion_count": 1,
+    "plan35_may_plan_exact_source_only_recovery": true,
+    "plan36_must_create_new_contract_after_ready_D06_receipt": true
+  },
+  "blocked_reasons": []
+}

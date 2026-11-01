@@ -1,0 +1,9 @@
+test_canary_unchanged (__main__.RequestTests.test_canary_unchanged) ... ok
+test_prs_main_is_shared (__main__.RequestTests.test_prs_main_is_shared) ... ok
+test_prs_rate_is_shared (__main__.RequestTests.test_prs_rate_is_shared) ... ok
+test_generated_run_reaches_both_typed_pr_preflights_before_collector (__main__.StartupTests.test_generated_run_reaches_both_typed_pr_preflights_before_collector) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.044s
+
+OK

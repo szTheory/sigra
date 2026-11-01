@@ -1,0 +1,245 @@
+{
+  "phase": "255.1",
+  "plans": [
+    {
+      "id": "255.1-01",
+      "wave": 1,
+      "depends_on": [],
+      "autonomous": true,
+      "gap_closure": false,
+      "objective": "Deliver a real local source-to-report-to-calculation path and make the repaired-control source/PR/cache prerequisites concrete. Implements D-01/D-02/D-04/D-06/D-14/D-15/D-16. Local feasibility is separate from speed acceptance.",
+      "files_modified": [
+        "scripts/ci/ci-repaired-comparison.py",
+        "scripts/ci/ci-repaired-comparison.test.py",
+        ".planning/execution/255.1/LOCAL-TRACER.json",
+        ".planning/execution/255.1/SOURCES.json",
+        ".planning/execution/255.1/FEASIBILITY.json"
+      ],
+      "files_deleted": [],
+      "agent_hint": null,
+      "task_count": 2,
+      "has_summary": true,
+      "halted": false,
+      "blocked_by": []
+    },
+    {
+      "id": "255.1-02",
+      "wave": 2,
+      "depends_on": [
+        "255.1-01"
+      ],
+      "autonomous": true,
+      "gap_closure": false,
+      "objective": "Close the persistent report gap and prove equal useful local work before hosted feasibility can be ready. Preserve current Phase255 behavior and historical replay. Implements D-02/D-04/D-05/D-14/D-15/D-16.",
+      "files_modified": [
+        "scripts/ci/ci-mix-receivers.py",
+        "scripts/ci/ci-mix-receivers.test.py",
+        ".github/workflows/ci.yml",
+        "scripts/ci/ci-measure-workflow.test.mjs",
+        "scripts/ci/ci-prep-semantics.test.mjs",
+        "scripts/ci/ci-hosted-gate-verify.py",
+        "scripts/ci/ci-hosted-gate-verify.test.py",
+        "scripts/ci/ci-repaired-work.test.py",
+        ".planning/execution/255.1/EQUIVALENT-WORK.json"
+      ],
+      "files_deleted": [],
+      "agent_hint": null,
+      "task_count": 2,
+      "has_summary": false,
+      "halted": false,
+      "blocked_by": [],
+      "ready": true
+    },
+    {
+      "id": "255.1-03",
+      "wave": 3,
+      "depends_on": [
+        "255.1-01",
+        "255.1-02"
+      ],
+      "autonomous": true,
+      "gap_closure": false,
+      "objective": "Prove original-origin wait, exact required checks and all physical costs using recorded inputs, then enforce bounded read-only acquisition. Implements D-06/D-10/D-11/D-12/D-14/D-16.",
+      "files_modified": [
+        "scripts/ci/ci-run-metrics.sh",
+        "scripts/ci/ci-hosted-gate-verify.py",
+        "scripts/ci/ci_metrics_security.py",
+        "scripts/ci/ci-repaired-metrics.test.py",
+        "scripts/ci/ci-metrics-security.test.py"
+      ],
+      "files_deleted": [],
+      "agent_hint": null,
+      "task_count": 2,
+      "has_summary": false,
+      "halted": false,
+      "blocked_by": [],
+      "ready": false,
+      "unresolved_dependencies": [
+        "255.1-02"
+      ]
+    },
+    {
+      "id": "255.1-04",
+      "wave": 4,
+      "depends_on": [
+        "255.1-03"
+      ],
+      "autonomous": true,
+      "gap_closure": false,
+      "objective": "Make the new comparison independently replayable and test all threshold/empty/tie semantics. Implements D-03/D-09/D-12/D-13/D-14/D-16 without changing historical proof.",
+      "files_modified": [
+        "scripts/ci/ci-repaired-replay.py",
+        "scripts/ci/ci-repaired-replay.test.py"
+      ],
+      "files_deleted": [],
+      "agent_hint": null,
+      "task_count": 2,
+      "has_summary": false,
+      "halted": false,
+      "blocked_by": [],
+      "ready": false,
+      "unresolved_dependencies": [
+        "255.1-03"
+      ]
+    },
+    {
+      "id": "255.1-05",
+      "wave": 5,
+      "depends_on": [
+        "255.1-01",
+        "255.1-02",
+        "255.1-03",
+        "255.1-04"
+      ],
+      "autonomous": true,
+      "gap_closure": false,
+      "objective": "Assemble a concrete finite execution contract and prove its authorization/budget guards locally. No live operation is performed. Implements D-01/D-03/D-04/D-07/D-08/D-09/D-10/D-13/D-16.",
+      "files_modified": [
+        "scripts/ci/ci-repaired-comparison.py",
+        "scripts/ci/ci-repaired-comparison.test.py",
+        ".planning/execution/255.1/CONTRACT.json",
+        ".planning/execution/255.1/REGISTRATIONS.json",
+        ".planning/execution/255.1/AUTHORIZATION.json",
+        ".planning/execution/255.1/LOCAL-CHECKS.json",
+        ".planning/execution/255.1/SOURCES.json",
+        ".planning/execution/255.1/FEASIBILITY.json",
+        ".planning/execution/255.1/EQUIVALENT-WORK.json"
+      ],
+      "files_deleted": [],
+      "agent_hint": null,
+      "task_count": 3,
+      "has_summary": false,
+      "halted": false,
+      "blocked_by": [],
+      "ready": false,
+      "unresolved_dependencies": [
+        "255.1-02",
+        "255.1-03",
+        "255.1-04"
+      ]
+    },
+    {
+      "id": "255.1-06",
+      "wave": 6,
+      "depends_on": [
+        "255.1-05"
+      ],
+      "autonomous": false,
+      "gap_closure": false,
+      "objective": "Stop for separate concrete preparation approval, then prove actual fresh-PR cache/report feasibility inside its finite allocation. Implements D-02/D-04/D-05/D-06/D-07/D-10/D-15/D-16; this plan cannot start measurement.",
+      "files_modified": [
+        ".planning/execution/255.1/AUTHORIZATION.json",
+        ".planning/execution/255.1/PREP-APPROVAL.json",
+        ".planning/execution/255.1/PREP-LEDGER.json",
+        ".planning/execution/255.1/PREP-RESULT.json",
+        ".planning/execution/255.1/PREP-CANARY.json",
+        ".planning/execution/255.1/FEASIBILITY.json"
+      ],
+      "files_deleted": [],
+      "agent_hint": null,
+      "task_count": 2,
+      "has_summary": false,
+      "halted": false,
+      "blocked_by": [],
+      "ready": false,
+      "unresolved_dependencies": [
+        "255.1-05"
+      ]
+    },
+    {
+      "id": "255.1-07",
+      "wave": 7,
+      "depends_on": [
+        "255.1-06"
+      ],
+      "autonomous": false,
+      "gap_closure": false,
+      "objective": "Obtain separate collection authority, run only the finite real-PR comparison and publish an honest local replayable report. Numerical success is required to close amended CISPEED-01/02; a blocked/missed result remains visible. Implements D-01..D-16 through the frozen contract.",
+      "files_modified": [
+        ".planning/execution/255.1/AUTHORIZATION.json",
+        ".planning/execution/255.1/MEASUREMENT-APPROVAL.json",
+        ".planning/execution/255.1/COLLECTION-LEDGER.json",
+        ".planning/execution/255.1/OBSERVATIONS.json",
+        ".planning/execution/255.1/MEASUREMENT-RESULT.json",
+        ".planning/execution/255.1/replay/INPUTS.json",
+        ".planning/execution/255.1/replay/input-package.tar.gz",
+        ".planning/execution/255.1/RESULT.json",
+        ".planning/execution/255.1/REPORT.json",
+        ".planning/execution/255.1/REPORT.md"
+      ],
+      "files_deleted": [],
+      "agent_hint": null,
+      "task_count": 3,
+      "has_summary": false,
+      "halted": false,
+      "blocked_by": [],
+      "ready": false,
+      "unresolved_dependencies": [
+        "255.1-06"
+      ]
+    }
+  ],
+  "waves": {
+    "1": [
+      "255.1-01"
+    ],
+    "2": [
+      "255.1-02"
+    ],
+    "3": [
+      "255.1-03"
+    ],
+    "4": [
+      "255.1-04"
+    ],
+    "5": [
+      "255.1-05"
+    ],
+    "6": [
+      "255.1-06"
+    ],
+    "7": [
+      "255.1-07"
+    ]
+  },
+  "incomplete": [
+    "255.1-02",
+    "255.1-03",
+    "255.1-04",
+    "255.1-05",
+    "255.1-06",
+    "255.1-07"
+  ],
+  "runnable": [
+    "255.1-02",
+    "255.1-03",
+    "255.1-04",
+    "255.1-05",
+    "255.1-06",
+    "255.1-07"
+  ],
+  "ready_plans": [
+    "255.1-02"
+  ],
+  "has_checkpoints": true
+}

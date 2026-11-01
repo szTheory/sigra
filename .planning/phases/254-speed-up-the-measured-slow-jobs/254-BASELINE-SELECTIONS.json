@@ -1,0 +1,50 @@
+{
+  "schema_version": "sigra.phase254.baseline-selections/v1",
+  "source_sha": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+  "workflow_sha256": "42f2205d651969ca4dd1e7fb14a8d30525c03bb73decbd282069d76a7319dc16",
+  "lock_sha256": "e52eca13f47900c5e46e74ff8585832b1d46c5635ff66ad0d3b1f9e47b647c8e",
+  "node": "v26.10.0",
+  "event": "pull_request",
+  "owners": [
+    {
+      "owner": "admin_behavior",
+      "browser_selection": "chromium",
+      "command": "mkdir -p playwright-report; npx playwright test \\\n  tests/admin-user-operations.spec.ts \\\n  tests/impersonation.spec.ts \\\n  tests/admin-audit.spec.ts \\\n  tests/admin-theme.spec.ts \\\n  tests/admin-coherence-sweep.spec.ts \\\n  tests/admin-modal-interaction.spec.ts \\\n  tests/admin-flow-platform-admin.spec.ts \\\n  tests/admin-flow-support-investigator.spec.ts \\\n  tests/admin-flow-org-admin.spec.ts \\\n  --project=chromium \\\n  --retries=0 --list --reporter=json > playwright-report/admin-behavior.selection.json",
+      "exit_code": 0,
+      "file": "admin-behavior.selection.json",
+      "sha256": "23c19dd97b40dd268511b4ccc506972a6f598b649cce45ae20468ab87ac1c07c"
+    },
+    {
+      "owner": "admin_checkpoints",
+      "browser_selection": "chromium webkit",
+      "command": "mkdir -p playwright-report; npx playwright test \\\n  tests/admin-checkpoints.spec.ts \\\n  --project=admin-checkpoints-chromium \\\n  --project=admin-checkpoints-mobile \\\n  --project=admin-checkpoints-dark \\\n  --retries=0 --list --reporter=json > playwright-report/admin-checkpoints.selection.json",
+      "exit_code": 0,
+      "file": "admin-checkpoints.selection.json",
+      "sha256": "ed20fe66ad5000f66d14618219210d44348718b52e0c702472dd5636acba36be"
+    },
+    {
+      "owner": "design_gallery",
+      "browser_selection": "chromium webkit",
+      "command": "mkdir -p playwright-report; npx playwright test \\\n  tests/admin-design.spec.ts \\\n  --project=admin-design-chromium \\\n  --project=admin-design-mobile \\\n  --project=admin-design-dark \\\n  --grep-invert '@snapshot' \\\n  --retries=0 --list --reporter=json > playwright-report/design-gallery-pr-behavior.selection.json",
+      "exit_code": 0,
+      "file": "design-gallery-pr-behavior.selection.json",
+      "sha256": "079c2f95e2f4e6031ac4f7f5e2deb90ea2203e5ca09cf0a22b6f0f855eab7d63"
+    },
+    {
+      "owner": "non_admin_smoke",
+      "browser_selection": "chromium webkit",
+      "command": "mkdir -p playwright-report; npx playwright test \\\n  tests/golden-path.spec.ts \\\n  tests/ga-uat-shift-left.spec.ts \\\n  tests/passkeys-hooks.spec.ts \\\n  tests/organizations.spec.ts \\\n  tests/passkey-login.spec.ts \\\n  tests/passkey-options.spec.ts \\\n  --retries=0 --list --reporter=json > playwright-report/non-admin-smoke.selection.json",
+      "exit_code": 0,
+      "file": "non-admin-smoke.selection.json",
+      "sha256": "9030fad90189207f9e211306d25455c72e963dedd53407f7a02f2687feb6aef4"
+    },
+    {
+      "owner": "demo_showcase",
+      "browser_selection": "chromium",
+      "command": "mkdir -p playwright-report; npx playwright test \\\n  tests/demo-showcase.spec.ts \\\n  --project=demo-showcase-chromium \\\n  --retries=0 --list --reporter=json > playwright-report/demo-showcase.selection.json",
+      "exit_code": 0,
+      "file": "demo-showcase.selection.json",
+      "sha256": "b16fcf5e4bf3f4f99112545c985c25762578011f29fb0d57d3b80e21a1eec83c"
+    }
+  ]
+}

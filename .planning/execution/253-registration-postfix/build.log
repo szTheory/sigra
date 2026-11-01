@@ -1,0 +1,81 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 927B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/sigra-phase253-registration-linux:original-4ff6c50e4
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [ 1/13] FROM docker.io/library/sigra-phase253-registration-linux:original-4ff6c50e4
+#4 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 30.75MB 0.2s done
+#5 DONE 0.2s
+
+#6 [ 2/13] COPY source.tar source-manifest.json commit.raw /postfix/
+#6 DONE 0.1s
+
+#7 [ 3/13] COPY npm-content /root/.npm/_cacache/content-v2/
+#7 DONE 0.1s
+
+#8 [ 4/13] COPY in_container.py inspect_compiled_endpoint.exs /postfix/
+#8 DONE 0.0s
+
+#9 [ 5/13] RUN python3 /postfix/in_container.py --install-source
+#9 DONE 0.8s
+
+#10 [ 6/13] WORKDIR /work/test/example/priv/playwright
+#10 DONE 0.0s
+
+#11 [ 7/13] RUN npm ci --offline --ignore-scripts --no-audit --no-fund
+#11 1.447 npm warn deprecated @otplib/preset-default@12.0.1: Please upgrade to v13 of otplib. Refer to otplib docs for migration paths
+#11 1.448 npm warn deprecated @otplib/plugin-thirty-two@12.0.1: Please upgrade to v13 of otplib. Refer to otplib docs for migration paths
+#11 1.448 npm warn deprecated @otplib/plugin-crypto@12.0.1: Please upgrade to v13 of otplib. Refer to otplib docs for migration paths
+#11 1.456 npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+#11 2.171 
+#11 2.171 added 50 packages in 2s
+#11 DONE 2.3s
+
+#12 [ 8/13] WORKDIR /work/test/example
+#12 DONE 0.0s
+
+#13 [ 9/13] RUN mix deps.compile sigra --force && mix compile --force --warnings-as-errors
+#13 1.100 ==> sigra
+#13 1.102 Compiling 161 files (.ex)
+#13 3.177 Generated sigra app
+#13 4.348 Compiling 75 files (.ex)
+#13 6.355 Generated example app
+#13 DONE 6.4s
+
+#14 [10/13] RUN elixir /postfix/inspect_compiled_endpoint.exs > /postfix/endpoint.json
+#14 DONE 0.9s
+
+#15 [11/13] RUN elixir -e 'ExUnit.start(); Code.require_file("/work/test/sigra/planning/phase_253_ci_static_runtime_test.exs")'
+#15 0.939 Running ExUnit with seed: 12525, max_cases: 16
+#15 0.940 
+#15 0.960 ...
+#15 0.966 Finished in 0.3 seconds (0.3s on load, 0.00s async, 0.02s sync)
+#15 0.967 3 tests, 0 failures
+#15 DONE 1.0s
+
+#16 [12/13] WORKDIR /work/test/example/priv/playwright
+#16 DONE 0.0s
+
+#17 [13/13] RUN python3 /postfix/in_container.py --collect > /postfix/collection.json
+#17 DONE 3.7s
+
+#18 exporting to image
+#18 exporting layers
+#18 exporting layers 0.4s done
+#18 writing image sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79
+#18 writing image sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79 done
+#18 naming to docker.io/library/sigra-phase253-registration-postfix:a87664733 done
+#18 DONE 0.4s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/xz0qprpau04ckt4s2smuktz2i

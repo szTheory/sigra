@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "phase": "246",
+  "tested_source_sha": "fd75cad25fd29d1fd59c79bbf937e0cdd8aaf57a",
+  "command": "MIX_ENV=test mix ci",
+  "preparation": "mix clean before the gate; nested sandbox fixtures ran outside the enclosing process sandbox",
+  "conclusion": "failed",
+  "exit_code": 2,
+  "full_suite": {
+    "doctests": 33,
+    "properties": 3,
+    "tests": 2623,
+    "failures": 4,
+    "skipped": 12,
+    "excluded": 22,
+    "seed": 441936
+  },
+  "threadline_guard": {
+    "tests": 65,
+    "failures": 0
+  },
+  "log": {
+    "local_path": "/private/tmp/sigra-phase-246-final-ci.log",
+    "sha256": "b9bc0629f1d3b77b1f3b345263428c2decedfcc707d81d808b64dd2ae771c92a"
+  },
+  "failures": [
+    {
+      "number": 1,
+      "test": "five isolated retry-zero shards converge on the protected terminal result (Sigra.Planning.Phase232PlaywrightEconomicsTest)",
+      "source": "test/sigra/planning/phase_232_playwright_economics_test.exs",
+      "line": 107,
+      "category": "cache-key contract",
+      "diagnostic": "1) test five isolated retry-zero shards converge on the protected terminal result (Sigra.Planning.Phase232PlaywrightEconomicsTest)\n     test/sigra/planning/phase_232_playwright_economics_test.exs:107\n     Assertion with == failed\n     code:  assert length(Regex.scan(~r/browser_cache_key: playwright-chromium-1\\.62\\.1-v3/, shard)) == 2\n     left:  0\n     right: 2\n     stacktrace:\n       test/sigra/planning/phase_232_playwright_economics_test.exs:144: (test)"
+    },
+    {
+      "number": 2,
+      "test": "Phase 236 retains exactly three run-backed evidence slots (Sigra.Planning.Phase236EvidenceProvenanceGuardTest)",
+      "source": "test/sigra/planning/phase_236_evidence_provenance_guard_test.exs",
+      "line": 51,
+      "category": "archived evidence path",
+      "diagnostic": "2) test Phase 236 retains exactly three run-backed evidence slots (Sigra.Planning.Phase236EvidenceProvenanceGuardTest)\n     test/sigra/planning/phase_236_evidence_provenance_guard_test.exs:51\n     ** (File.Error) could not read file \".planning/phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md\": no such file or directory\n     code: evidence = File.read!(@phase_236_ledger)\n     stacktrace:\n       (elixir 1.19.5) lib/file.ex:435: File.read!/1\n       test/sigra/planning/phase_236_evidence_provenance_guard_test.exs:52: (test)"
+    },
+    {
+      "number": 3,
+      "test": "public install snippets use the bounded maintained line (Sigra.Planning.Phase242ShiftLeftContractTest)",
+      "source": "test/sigra/planning/phase_242_shift_left_contract_test.exs",
+      "line": 25,
+      "category": "committed install documentation",
+      "diagnostic": "3) test public install snippets use the bounded maintained line (Sigra.Planning.Phase242ShiftLeftContractTest)\n     test/sigra/planning/phase_242_shift_left_contract_test.exs:25\n     README.md lacks the supported tuple\n     code: Enum.each(@public_install_files, fn relative_path ->\n     stacktrace:\n       test/sigra/planning/phase_242_shift_left_contract_test.exs:29: anonymous fn/1 in Sigra.Planning.Phase242ShiftLeftContractTest.\"test public install snippets use the bounded maintained line\"/1\n       (elixir 1.19.5) lib/enum.ex:961: Enum.\"-each/2-lists^foreach/1-0-\"/2\n       test/sigra/planning/phase_242_shift_left_contract_test.exs:26: (test)"
+    },
+    {
+      "number": 4,
+      "test": "safety closeout preserves raw halt evidence and makes no external success claim (Sigra.Planning.Phase242ShiftLeftContractTest)",
+      "source": "test/sigra/planning/phase_242_shift_left_contract_test.exs",
+      "line": 39,
+      "category": "archived evidence path",
+      "diagnostic": "4) test safety closeout preserves raw halt evidence and makes no external success claim (Sigra.Planning.Phase242ShiftLeftContractTest)\n     test/sigra/planning/phase_242_shift_left_contract_test.exs:39\n     ** (File.Error) could not read file \"/private/tmp/sigra-phase-246-03-ci/.planning/phases/242-hex-retire-docs-revert-pinned-install-adr-cut-1-5-1/242-SAFETY-CLOSEOUT.md\": no such file or directory\n     code: closeout = phase_dir |> Path.join(\"242-SAFETY-CLOSEOUT.md\") |> File.read!()\n     stacktrace:\n       (elixir 1.19.5) lib/file.ex:435: File.read!/1\n       test/sigra/planning/phase_242_shift_left_contract_test.exs:46: (test)"
+    }
+  ],
+  "scope_assessment": "All four final failures are in older contracts. Phase 246 does not modify their README/workflow inputs or supply new historical run evidence. Phase 242 test changes are formatting-only.",
+  "phase_induced_failures_repaired": [
+    "Optional-scope confirmation invalidated the installer drift marker; updated guard.",
+    "New browser spec was unregistered; added current ownership registry and harness mapping.",
+    "Archived inventory update invalidated captured provenance; restored exact historical bytes and moved live reconciliation to current registry."
+  ],
+  "prior_run_observations": [
+    {
+      "source_sha": "306a7865e3fc76ed7d9b353394010c005def4a5f",
+      "seed": 979648,
+      "diagnostic": "1) test schedule/3 does not attempt to enqueue when Oban is compiled but not supervised (Sigra.Account.DeletionTest)\n     test/sigra/account/deletion_test.exs:200\n     Oban must not be supervised in the test environment \u2014 this test verifies the guard fires\n     code: assert Process.whereis(Oban) == nil,\n     stacktrace:\n       test/sigra/account/deletion_test.exs:207: (test)",
+      "assessment": "The async account-deletion test saw a globally registered Oban process. The final run did not reproduce it; no product fix or waiver was applied."
+    }
+  ]
+}

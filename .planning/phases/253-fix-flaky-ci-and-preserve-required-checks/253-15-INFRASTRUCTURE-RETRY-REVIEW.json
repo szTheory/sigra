@@ -1,0 +1,26 @@
+{
+  "created_at": "2026-10-13T19:09:43.849753+00:00",
+  "status": "independently_classified_infrastructure",
+  "reviewer": "parent /root; separate from executor",
+  "evidence_commit": "5d4707902d415a52bb5aceb6b8395790140cf023",
+  "evidence_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+  "evidence_sha256": "0d1054b4628fd2287f89447f10644fa7a650dc15d43ca9d29eb5c025eb1b4960",
+  "test_log": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json.raw/R-DIAG-DESKTOP/attempt-01/test-log.log",
+  "test_log_sha256": "fd7aaf15953071bdcc6a07ba066662e72442c88f5c0900f89cffc2bcef2af82d",
+  "failure": "Chromium headless shell SIGTRAP at macOS Mach port bootstrap_check_in with Permission denied (1100), before selected test began",
+  "registration_observed": false,
+  "setup_drop_exit_codes": [
+    0,
+    0
+  ],
+  "http_readiness": 200,
+  "spent_desktop_slot": "R-DIAG-DESKTOP",
+  "native_attempt_charge_ms": 26373,
+  "total_charge_ms": 33884,
+  "launches": 1,
+  "shared_retry_allowance": 1,
+  "retry_used": false,
+  "retry_route": "Explicitly source-bound additive retry receipt, retaining immutable failed receipt and all prior charges; exact elevated runner invocation through approval reviewer; no direct browser probe",
+  "metadata_repair": "253-15-SUMMARY top-level status halted; prior exact summary at5d4707902; SDK previously misclassified metrics-only halted as completed",
+  "no_capacity_added": true
+}

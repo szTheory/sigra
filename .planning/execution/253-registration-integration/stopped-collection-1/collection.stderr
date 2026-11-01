@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/integration/in_container.py", line 13, in <module>
+    from selection import check_report, identities, load, selections
+  File "/integration/selection.py", line 8, in <module>
+    ROOT = Path(__file__).resolve().parents[3]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.12/pathlib.py", line 281, in __getitem__
+    raise IndexError(idx)
+IndexError: 3

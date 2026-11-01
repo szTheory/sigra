@@ -1,0 +1,20 @@
+{
+  "id": 12539364700,
+  "node_id": "MDg6QXJ0aWZhY3QxMjUzOTM2NDcwMA==",
+  "name": "phase254-apt-probe-40041742541-1",
+  "size_in_bytes": 1560,
+  "url": "https://api.github.com/repos/szTheory/sigra/actions/artifacts/12539364700",
+  "archive_download_url": "https://api.github.com/repos/szTheory/sigra/actions/artifacts/12539364700/zip",
+  "expired": false,
+  "digest": "sha256:0504ac90adb5d588c5bb5488513d429f6a538f7f240fbd577070a8be8c336bef",
+  "created_at": "2026-10-23T23:57:41Z",
+  "updated_at": "2026-10-23T23:57:41Z",
+  "expires_at": "2026-10-30T23:57:40Z",
+  "workflow_run": {
+    "id": 40041742541,
+    "repository_id": 1207487684,
+    "head_repository_id": 1207487684,
+    "head_branch": "evidence/phase254-apt-probe-20261023",
+    "head_sha": "c5890cb992800c19eb86263f45108400dd815edc"
+  }
+}

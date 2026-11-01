@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "phase": 251,
+  "record_type": "scoped_security_regression_receipt",
+  "findings": [
+    {
+      "id": "CR-04",
+      "title": "[BLOCKER] T-251-11: Package source assertions are generated from the claimed result",
+      "red": {
+        "method": "Loaded the pre-fix verifier from commit 4c4480e277fb399ae2263feb68cd97950bcf3d95 and forged readme_guide_link.result=pass.",
+        "observed": "The pre-fix binder emitted candidate_readme_guide_link.actual=true and published_readme_guide_link.actual=true from the result label although the exact published README bytes had no v1.6 guide link."
+      },
+      "green": {
+        "test": "verify-247-readiness.test.mjs: a forged passing README check cannot replace absent immutable source bytes",
+        "result": "pass"
+      },
+      "commits": [
+        "4c4480e277fb399ae2263feb68cd97950bcf3d95",
+        "e11f9b5208232abde415f59c9eacdeb942f845f3",
+        "75d41c643456d4a751b3c71a34686a62ac24667c"
+      ]
+    },
+    {
+      "id": "CR-05",
+      "title": "[BLOCKER] T-251-12: Independent audit trusts fabricated source digests and assertion booleans",
+      "red": {
+        "test": "verify-v149-traceability.test.mjs: independent audit reads exact source bytes before accepting forged README predicates",
+        "result": "failed before the audit fix: claimed READY-01 status was satisfied despite fabricated blob/digest metadata and passing booleans, with packet, owner report, and traceability digests rebound"
+      },
+      "green": {
+        "test": "verify-v149-traceability.test.mjs: independent audit reads exact source bytes before accepting forged README predicates",
+        "result": "pass"
+      },
+      "commits": [
+        "85e30ec6f76412296e64d904d86b156c56a8afd6",
+        "3127a7eb2acb4d0949fe149c504b710cd3681d3c"
+      ]
+    },
+    {
+      "id": "CR-06",
+      "title": "[BLOCKER] T-251-13: READY-02 does not require every captured worktree item in the join",
+      "red": {
+        "test": "verify-v149-traceability.test.mjs: independent audit rejects a coherently omitted captured worktree status identity",
+        "result": "failed before the audit fix: READY-02 remained satisfied after one dirty identity was removed from observedIds, dispositionIds, and preservationRefs and packet/report/traceability hashes were rebound"
+      },
+      "green": {
+        "test": "verify-v149-traceability.test.mjs: independent audit rejects a coherently omitted captured worktree status identity",
+        "result": "pass"
+      },
+      "commits": [
+        "0c2ad145a319187f91b631e07302de916876cbd6",
+        "e59a5c47c2afdfea78402496bd3d1a6114afb865",
+        "3127a7eb2acb4d0949fe149c504b710cd3681d3c"
+      ]
+    },
+    {
+      "id": "CR-07",
+      "title": "[BLOCKER] T-251-14: Preservation validation ignores the named ref and record decision",
+      "red": {
+        "test": "verify-v149-traceability.test.mjs: independent audit rejects nonexistent preservation refs and altered decision provenance",
+        "result": "failed before the audit fix: READY-02 remained satisfied when a live preservation commit/path was paired with a nonexistent named ref and packet/report/traceability hashes were rebound"
+      },
+      "green": {
+        "test": "verify-v149-traceability.test.mjs: independent audit rejects nonexistent preservation refs and altered decision provenance",
+        "result": "pass; also rejects wrong resolved commit, changed decision/reason, and changed source identity"
+      },
+      "commits": [
+        "0c2ad145a319187f91b631e07302de916876cbd6",
+        "e59a5c47c2afdfea78402496bd3d1a6114afb865",
+        "3127a7eb2acb4d0949fe149c504b710cd3681d3c"
+      ]
+    }
+  ],
+  "iteration_2_residual_recheck": {
+    "findings": [
+      {
+        "id": "CR-07/T-251-14",
+        "title": "[BLOCKER] T-251-14: Preservation validation ignores the named ref and record decision",
+        "red": "A coherent forged preservation commit changed source_bytes_base64 while keeping the claimed source digest, packet metadata, owner report binding, and traceability digest coherent; READY-02 remained satisfied.",
+        "green": "Independent audit decodes canonical base64 and requires decoded bytes to hash to both record.source_byte_sha256 and the captured dirty item digest. Deleted paths require an explicit captured tombstone."
+      },
+      {
+        "id": "candidate_package_version_requirement",
+        "title": "Declared package source assertion lacked owner and independent audit predicates",
+        "red": "The 1.6.0 candidate mix.exs bytes failed the missing predicate and the declared assertion had no switch case.",
+        "green": "Both independent switches now validate the 1.6.0 package version bytes; 1.5.0 controls fail. Every declared assertion ID is checked against both predicate switches."
+      }
+    ],
+    "commit": "266a28d57",
+    "tests": {
+      "verify_247_readiness": "54 passed, 0 failed",
+      "verify_v149_traceability": "34 passed, 2 expected Nyquist classification failures because Phase 251 VALIDATION remains not_validated",
+      "validate_release_readiness": "31 passed, 0 failed",
+      "default_proof_reader_dirty_records": "5/5 canonical base64 payloads verified against both source digests; READY-02 satisfied"
+    },
+    "canonical_checks": {
+      "check_251": { "exit_code": 0, "valid": true, "capture_id": "phase251-939607ff3f17e03b22aa", "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140" },
+      "check_sources": { "exit_code": 0, "status": "gaps_found", "requirements": "8/9", "ready01": "unsatisfied", "ready02": "satisfied" },
+      "check_audit": { "exit_code": 1, "valid": false, "status": "gaps_found", "reason": "canonical milestone audit rendering is stale; root owns refresh" }
+    }
+  },
+  "iteration_3_captured_identity_recheck": {
+    "finding": {
+      "id": "CR-07/T-251-14",
+      "title": "[BLOCKER] T-251-14: Preservation validation ignores the named ref and record decision",
+      "red": "Two coherent forged Git-record attacks passed before the fix: a captured dirty identity was relabeled committed_path with source bytes removed; a captured deletion status was relabeled as a modification with its tombstone removed. Both retained READY-02 satisfied after packet/report/references were rebound.",
+      "green": "Auditor now selects the required proof path from the full captured dirty identity, verifies dirty_path kind and exact worktree/head/branch/path/original-path/status/digest metadata against the immutable record, and selects deletion tombstones from captured status. Both forged attacks now fail closed."
+    },
+    "controls": "Wrong worktree, head, path, original_path, and branch fail; valid modification, empty source bytes with the exact empty digest, and a correctly bound deletion tombstone pass.",
+    "commit": "167b59a586b4035f01b9d2a51b3dda9f3b9faceb",
+    "suites": {
+      "verify_247_readiness": "54 passed, 0 failed",
+      "verify_v149_traceability": "38 passed, 2 expected Nyquist classification failures because Phase 251 VALIDATION remains not_validated",
+      "validate_release_readiness": "31 passed, 0 failed"
+    },
+    "canonical_checks": {
+      "check_251": { "exit_code": 0, "valid": true, "capture_id": "phase251-939607ff3f17e03b22aa", "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140" },
+      "check_sources": { "exit_code": 0, "status": "gaps_found", "requirements": "8/9", "ready01": "unsatisfied", "ready02": "satisfied" },
+      "check_audit": { "exit_code": 1, "valid": false, "status": "gaps_found", "reason": "canonical milestone audit rendering is stale; root owns refresh" }
+    }
+  },
+  "iteration_4_canonical_dirty_row_binding": {
+    "finding": {
+      "id": "CR-08/T-251-14",
+      "title": "[BLOCKER] T-251-14: Dirty preservation metadata can diverge from its captured status row",
+      "red": "Against pre-fix auditor ea89df4c4, a coherently rebound immutable preservation record relabeled the captured dirty item's worktree_branch while retaining its valid ID; READY-02 remained satisfied. The reproduced dirty path attack also remains covered.",
+      "green": "Independent audit derives canonical dirty rows from READY-02 worktree status entries and requires full metadata equality with source-capture rows, dirty rows, and immutable preservation evidence. It compares complete source-capture and READY-02 worktree records, reconciles root raw-status entries to parsed entries, and passes only canonical-derived dirty rows to preservation validation."
+    },
+    "controls": "A valid original five-dirty-item READY-02 proof passes. Coherent record/ref/report/packet relabels of path, original_path, omitted original_path, status, worktree_path, worktree_head_sha, worktree_branch, source_byte_sha256, source_byte_readable, and kind fail; mismatched status-row metadata across the two inventories fails. Valid modified, empty-byte, and tombstoned-deletion proofs pass.",
+    "red_test": "verify-v149-traceability.test.mjs: independent audit binds every dirty-row metadata field to its canonical status row; pre-fix assertion failed because READY-02 stayed satisfied after worktree_branch relabel.",
+    "green_test": "verify-v149-traceability.test.mjs: independent audit binds every dirty-row metadata field to its canonical status row; pass, including omitted original_path",
+    "commits": ["441489e12", "6e2058961"],
+    "suites": {
+      "verify_247_readiness": "54 passed, 0 failed",
+      "verify_v149_traceability": "39 passed, 2 existing Nyquist classification failures because Phase 251 VALIDATION remains not_validated",
+      "validate_release_readiness": "31 passed, 0 failed"
+    },
+    "canonical_checks": {
+      "check_251": { "exit_code": 0, "valid": true, "capture_id": "phase251-939607ff3f17e03b22aa", "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140" },
+      "check_sources": { "exit_code": 0, "status": "gaps_found", "requirements": "8/9", "ready01": "unsatisfied", "ready02": "satisfied" },
+      "check_audit": { "exit_code": 1, "valid": false, "status": "gaps_found", "reason": "canonical milestone audit rendering is stale; root owns refresh" }
+    }
+  },
+  "suites": [
+    {
+      "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+      "passed": 54,
+      "failed": 0
+    },
+    {
+      "command": "node --test .planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+      "passed": 31,
+      "failed": 2,
+      "unrelated_existing_failures": [
+        "audit discovers current Nyquist classifications from every v1.49 phase record expects Phase 251 validated, while 251-VALIDATION.md is not_validated",
+        "Nyquist classification changes when a current validation record changes expects Phase 251 validated, while 251-VALIDATION.md is not_validated"
+      ]
+    },
+    {
+      "command": "node --test .planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+      "passed": 31,
+      "failed": 0
+    }
+  ],
+  "canonical_checks": {
+    "check_251": {
+      "exit_code": 0,
+      "valid": true,
+      "packet_sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+      "capture_id": "phase251-939607ff3f17e03b22aa",
+      "verdicts_match": true
+    },
+    "check_sources": {
+      "exit_code": 0,
+      "status": "gaps_found",
+      "requirements": "8/9",
+      "ready01": "unsatisfied",
+      "ready02": "satisfied",
+      "findings_confirmed": [
+        "published README omits the v1.6 guide link",
+        "published tag lacks the v1.6 guide",
+        "no trusted historical owner bytes or contemporaneous exact-candidate approval"
+      ]
+    },
+    "check_audit": {
+      "exit_code": 1,
+      "valid": false,
+      "status": "gaps_found",
+      "requirements": "8/9",
+      "blocker_count": 16,
+      "error": "Audit prose, historical exception provenance, counts, blockers, or route differ from the complete source-derived rendering."
+    }
+  },
+  "verification_location": "main checkout; workflow.use_worktrees=false",
+  "created_at": "2026-10-11T23:56:39Z"
+}

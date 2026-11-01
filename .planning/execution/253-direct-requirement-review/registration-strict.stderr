@@ -1,0 +1,3 @@
+load acceptance evidence rejected:
+- the target is not accepted (target_status open, historical cause diagnosis_incomplete)
+- stage complete requires a resolved target

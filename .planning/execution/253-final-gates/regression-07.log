@@ -1,0 +1,14 @@
+  PASS: success: exit status 0 is preserved
+  PASS: success: mix.lock bytes restored
+  PASS: success: threadline build marker restored
+  PASS: success: child invocation preserves main report bytes
+  PASS: success: child invocation writes a separate report
+  PASS: injected_compile_failure: exit status 42 is preserved
+  PASS: injected_compile_failure: mix.lock bytes restored
+  PASS: injected_compile_failure: threadline build marker restored
+  PASS: child_failure: exit status 24 is preserved
+  PASS: child_failure: mix.lock bytes restored
+  PASS: child_failure: threadline build marker restored
+  PASS: child_failure: child invocation preserves main report bytes
+  PASS: child_failure: child invocation writes a separate report
+Results: 13 passed, 0 failed

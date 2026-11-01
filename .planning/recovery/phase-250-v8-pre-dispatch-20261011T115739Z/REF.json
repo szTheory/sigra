@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-11T11:57:39Z",
+  "purpose": "Write-ahead preservation before correcting the serialized user-response apostrophe and refreshing decision SHA references.",
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "M (working tree)",
+      "sha256": "3e3e7e8a6cfe5b4805fc8cd8ea0e8bcdae0fa222d77f4ba629389677619b4969",
+      "preserved_copy": ".planning/recovery/phase-250-v8-pre-dispatch-20261011T115739Z/HANDOFF.json.before-record-fix"
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "M (working tree)",
+      "sha256": "38cfc2a9cf8617de42034f8ab6e3b83d090da6cc5da504fd6b6239ee107f5a09",
+      "preserved_copy": ".planning/recovery/phase-250-v8-pre-dispatch-20261011T115739Z/state.json.before-record-fix"
+    },
+    {
+      "path": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORIZATION-DECISION-v8.json",
+      "status": "?? (working tree)",
+      "sha256": "94e5eb344dc483005e3aee339e455761eff365fdb31f2e10f748396474600836",
+      "preserved_copy": ".planning/recovery/phase-250-v8-pre-dispatch-20261011T115739Z/AUTHORIZATION-DECISION-v8.escaped-original.json"
+    }
+  ]
+}

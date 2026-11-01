@@ -1,0 +1,50 @@
+{
+  "prior_ref": "6ed143795fd3ff9d1fcee96126766f316dc60921",
+  "paths": [
+    {
+      "path": ".planning/STATE.md",
+      "capture_status": "clean",
+      "commit": "6ed143795fd3ff9d1fcee96126766f316dc60921",
+      "sha256": "053a4707688588df6945e3220e1f84e1961fcee54334e7be48821f020ada5f96",
+      "exact_bytes_read_back": true
+    },
+    {
+      "path": ".planning/state.json",
+      "capture_status": "clean",
+      "commit": "6ed143795fd3ff9d1fcee96126766f316dc60921",
+      "sha256": "f66df411ba89df43cfd36c6465e02244327e1d6303a77447f7fd17f7a76204b1",
+      "exact_bytes_read_back": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "capture_status": "clean",
+      "commit": "6ed143795fd3ff9d1fcee96126766f316dc60921",
+      "sha256": "d68df543f37c82d191ff9b6e74dc96c0246ed5cd2c28fb804dbf91384444cf63",
+      "exact_bytes_read_back": true
+    },
+    {
+      "path": ".planning/execution/253-CONTINUATION.json",
+      "capture_status": "clean",
+      "commit": "6ed143795fd3ff9d1fcee96126766f316dc60921",
+      "sha256": "a6cdca1c6205ea2778edcb772bac87c0a51fe313c5b5da1aa9072f9447b167c4",
+      "exact_bytes_read_back": true
+    },
+    {
+      "path": ".planning/execution/253-172-EXECUTION.json",
+      "capture_status": "clean",
+      "commit": "6ed143795fd3ff9d1fcee96126766f316dc60921",
+      "sha256": "1a6eef4fccbad9989946bf1a830fc0774f76b22c4535d93822d2255922285319",
+      "exact_bytes_read_back": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+      "capture_status": "clean",
+      "commit": "6ed143795fd3ff9d1fcee96126766f316dc60921",
+      "sha256": "d19659a5e8f45af285baa8c99813792e9374eba9869c5f87ac2458adbd8a3c10",
+      "exact_bytes_read_back": true
+    }
+  ],
+  "readback_verified": true,
+  "capture_boundary_dirty_paths": [],
+  "recovery": "git show <commit>:<path>"
+}

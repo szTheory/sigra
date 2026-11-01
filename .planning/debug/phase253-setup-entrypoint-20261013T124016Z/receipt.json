@@ -1,0 +1,95 @@
+{
+  "schema_version": "sigra.phase253.registration-setup-diagnostic/v1",
+  "status": "setup_failed",
+  "source_checkout_head": "3e23c7cbdfb9023e492de1ce88ddda9afc7a74bf",
+  "started_at": "2026-10-13T12:40:36.595Z",
+  "limits": {
+    "max_project_launches": 3,
+    "max_duration_seconds": 1200,
+    "automatic_retries": 0,
+    "browser_invocations": 0
+  },
+  "project_launches": [
+    {
+      "project": "admin-eval",
+      "port": 25311,
+      "database": "sigra_253_setup_1791895236595_admin_eval_94947",
+      "server_ready": false,
+      "browser_invocations": 0,
+      "app_log_sha256": null,
+      "drop": {
+        "exit_code": 1,
+        "signal": null,
+        "error": null,
+        "log_path": "/private/tmp/sigra-253-setup-entrypoint-20261013T124016Z.json.logs/admin-eval.drop.log",
+        "log_sha256": "cfb90880dd0790adcac3f1a5b6219422ef440f08f48bdedba9a7de75e96fc1f7"
+      }
+    }
+  ],
+  "commands": [
+    {
+      "label": "clone",
+      "program": "git",
+      "args": [
+        "clone",
+        "--quiet",
+        "--shared",
+        "--no-checkout",
+        "/Users/jon/projects/sigra",
+        "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-setup-7shKCY/repo"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "log_path": "/private/tmp/sigra-253-setup-entrypoint-20261013T124016Z.json.logs/clone.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "checkout",
+      "program": "git",
+      "args": [
+        "-C",
+        "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-setup-7shKCY/repo",
+        "checkout",
+        "--quiet",
+        "--detach",
+        "3e23c7cbdfb9023e492de1ce88ddda9afc7a74bf"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "log_path": "/private/tmp/sigra-253-setup-entrypoint-20261013T124016Z.json.logs/checkout.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "deps-get",
+      "program": "mix",
+      "args": [
+        "deps.get",
+        "--check-locked"
+      ],
+      "exit_code": 0,
+      "signal": null,
+      "error": null,
+      "log_path": "/private/tmp/sigra-253-setup-entrypoint-20261013T124016Z.json.logs/deps-get.log",
+      "log_sha256": "14800df5a35c734fede9dca0a0990259e539dcef6c162e19c49ce16c48e5c1b4"
+    },
+    {
+      "label": "admin-eval.db",
+      "program": "mix",
+      "args": [
+        "ecto.setup"
+      ],
+      "exit_code": 1,
+      "signal": null,
+      "error": null,
+      "log_path": "/private/tmp/sigra-253-setup-entrypoint-20261013T124016Z.json.logs/admin-eval.db.log",
+      "log_sha256": "7e030820aad89d3c1d186b84c25b235913fe2dbdc7414625b67057092f025e22"
+    }
+  ],
+  "failure": {
+    "message": "admin-eval.db failed: exit 1, signal none; "
+  },
+  "completed_at": "2026-10-13T12:40:42.361Z",
+  "duration_seconds": 5
+}

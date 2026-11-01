@@ -1,0 +1,480 @@
+{
+  "status": "completed_not_reproduced",
+  "requirement": "CIREL-01",
+  "requirement_satisfied": false,
+  "phase_verified": false,
+  "source_commit": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "original_run": 38205503164,
+  "selected_tests_passed": 33,
+  "selected_tests_failed": 0,
+  "skipped": 0,
+  "retries": 0,
+  "browser_invocations_total": 1,
+  "browser_duration_ms": 111022.40999999999,
+  "invocation_duration_including_setup_cleanup_ms": 132188,
+  "elapsed_from_original_approved_start_ms": 356080,
+  "original_deadline": "2026-10-22T20:33:36.246Z",
+  "finished_at": "2026-10-22T20:29:32.326000+00:00",
+  "deadline_met": true,
+  "setup_failure_preserved_commit": "b543a41f8",
+  "setup_repair_verified": true,
+  "approval": "approval.json",
+  "approval_scope_completed": true,
+  "old_acceptance_budgets_renewed": false,
+  "old_slots_reopened": 0,
+  "github_requests": 0,
+  "ci_launches": 0,
+  "acceptance": false,
+  "all_process_trees_reaped": true,
+  "limitations": [
+    "macOS arm64, original CI was Ubuntu Linux x64",
+    "same-project prefix only; 128 earlier desktop/mobile tests omitted",
+    "original database state unavailable; uses owned fresh PostgreSQL cluster",
+    "a passing diagnostic does not close CIREL-01 or count as an acceptance repeat"
+  ],
+  "native_rows": [
+    {
+      "title": "render bundle: board-mg-1/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3886
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3220
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3154
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-1/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3263
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 4287
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3946
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3386
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-2/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3196
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2787
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3014
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2820
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-3/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2846
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2872
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2821
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 2813
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-4/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3205
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3362
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3238
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3248
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-5/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3379
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3672
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3281
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3701
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-6/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3354
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3337
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3248
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3287
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-7/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 5155
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3287
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/zero",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3379
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/loading",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3312
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-8/error",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3305
+        }
+      ]
+    },
+    {
+      "title": "render bundle: board-mg-9/populated",
+      "project": "admin-eval-dark",
+      "expected_status": "passed",
+      "outcome": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "retry": 0,
+          "duration_ms": 3254
+        }
+      ]
+    }
+  ],
+  "sha256": {
+    "browser-output/browser.log": "3e27623431c5fed0ff7e56520133c598b25ee555a0ce732575513a8179249e51",
+    "browser-output/result.json": "2f4ac0b7d5daa1f552c6ca1c077aeb25766623fb135002bee62f74aa98c848a3",
+    "browser-output/setup.log": "e9b12de3a5c5c42a310449af1e36a0a0ee96893409e1ef523f1a89ee6f56d585",
+    "browser-output/postgres.log": "4278a1d187311b9f350fa27ff56ab67011f3ae70493d858390b6bcf9d38ce77f",
+    "browser-output/initdb.log": "d54c4be46b28a4c37ba9047996885f576f438059ce60f24aba766f841bdbccc8",
+    "browser-output/app.log": "8eccb81efd409acc53d7ce0bbc95f1b6aff96d1bd1f5519496e78e5c918d8858",
+    "browser-output/test-results/.last-run.json": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+    "setup-check-output/result.json": "fc4fff57a41575c98babad5116d8ce137a69e112d0f350bbc2339dae3b7d7128",
+    "setup-check-output/setup.log": "a4dfc66f0844610ae4d8e28e635593e9bccbd2604da7cfa0ea0a84c3e5e252a6",
+    "setup-check-output/postgres.log": "956d3c933da947760b752bcf55ac32d8167ca6c8049ab78aa72d90543314e55f",
+    "setup-check-output/initdb.log": "46202cd2c4ceb6cbe5c56647f95d57f0e1444103316463e64213be2da68e9b0d",
+    "setup-check-output/app.log": "cfd08e047a5bb8ebb5bddb11279299e9ec58cff46d804daf1e76918dd1d1bcf1"
+  }
+}

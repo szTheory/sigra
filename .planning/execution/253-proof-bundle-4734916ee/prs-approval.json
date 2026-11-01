@@ -1,0 +1,11 @@
+{
+  "schema_version": "sigra.phase253.outward-action-approval/v1",
+  "section": "docs_and_prs",
+  "section_sha256": "b2c4bae82d2e0e6ffafaa8797282181e55a9f76edcd615d2d7cf6df36b1a695c",
+  "decision": "approve",
+  "source_sha": "4734916eeca6ce4b5726c740ac468264338cb300",
+  "bundle_sha256": "774250fab234dacdf7b7ebd458c423239e3c0e5476e517f0abd8d993e811d7a0",
+  "decision_text": "yes i approve, i compacted convo so u can continue inline",
+  "approved_at_epoch": 1792629653,
+  "expires_epoch": 1792716053
+}

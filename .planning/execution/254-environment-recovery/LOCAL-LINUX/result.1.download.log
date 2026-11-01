@@ -1,0 +1,552 @@
+Reading package lists...
+Building dependency tree...
+Reading state information...
+libicu74 is already the newest version (74.2-1ubuntu3.1).
+The following additional packages will be installed:
+  adduser adwaita-icon-theme at-spi2-common dbus dbus-bin dbus-daemon
+  dbus-session-bus-common dbus-system-bus-common dbus-user-session
+  dconf-gsettings-backend dconf-service dictionaries-common emacsen-common
+  fontconfig fontconfig-config glib-networking glib-networking-common
+  glib-networking-services gsettings-desktop-schemas gtk-update-icon-cache
+  hicolor-icon-theme humanity-icon-theme hunspell-en-us iso-codes libaa1
+  libabsl20220623t64 libaom3 libapparmor1 libargon2-1 libasound2-data
+  libaspell15 libass9 libasyncns0 libavahi-client3 libavahi-common-data
+  libavahi-common3 libavc1394-0 libavcodec60 libavfilter9 libavformat60
+  libavtp0 libavutil58 libblas3 libbluray2 libbs2b0 libbsd0 libcaca0
+  libcairo-script-interpreter2 libcap2-bin libcdparanoia0 libchromaprint1
+  libcjson1 libcodec2-1.2 libcolord2 libcryptsetup12 libcurl3t64-gnutls
+  libdatrie1 libdav1d7 libdc1394-25 libdca0 libdconf1 libde265-0 libdecor-0-0
+  libdeflate0 libdevmapper1.02.1 libdirectfb-1.7-7t64 libdrm-amdgpu1
+  libdrm-common libdrm-intel1 libduktape207 libdv4t64 libdvdnav4
+  libdvdread8t64 libdw1t64 libedit2 libegl-mesa0 libegl1 libelf1t64 libevdev2
+  libfaad2 libfdisk1 libfftw3-double3 libflac12t64 libfluidsynth3 libfontenc1
+  libfreeaptx0 libfribidi0 libgav1-1 libgdk-pixbuf2.0-common libgfortran5
+  libgl1 libgl1-mesa-dri libglvnd0 libglx-mesa0 libglx0 libgme0 libgomp1
+  libgpm2 libgraphene-1.0-0 libgraphite2-3 libgsm1 libgssapi-krb5-2
+  libgssdp-1.6-0 libgstreamer-plugins-good1.0-0 libgtk-3-0t64 libgtk-3-common
+  libgtk-4-common libgudev-1.0-0 libgupnp-1.6-0 libgupnp-igd-1.6-0
+  libhunspell-1.7-0 libhwy1t64 libice6 libiec61883-0 libimath-3-1-29t64
+  libinstpatch-1.0-2 libjack-jackd2-0 libjbig0 libjpeg8 libjson-c5
+  libjson-glib-1.0-0 libjson-glib-1.0-common libjxl0.7 libk5crypto3
+  libkeyutils1 libkmod2 libkrb5-3 libkrb5support0 liblapack3 liblc3-1
+  libldacbt-enc2 libldap2 liblerc4 liblilv-0-0 libllvm20 liblrdf0 libltc11
+  liblzo2-2 libmbedcrypto7t64 libmfx1 libmjpegutils-2.1-0t64 libmodplug1
+  libmp3lame0 libmpcdec6 libmpeg2encpp-2.1-0t64 libmpg123-0t64
+  libmplex2-2.1-0t64 libmysofa1 libncurses6 libneon27t64 libnice10 libnorm1t64
+  libnuma1 libogg0 libopenal-data libopenal1 libopenexr-3-1-30 libopenh264-7
+  libopenjp2-7 libopenmpt0t64 libopenni2-0 liborc-0.4-0t64 libpam-systemd
+  libpangoft2-1.0-0 libpciaccess0 libpgm-5.3-0t64 libpipewire-0.3-0t64
+  libpixman-1-0 libplacebo338 libpocketsphinx3 libpostproc57 libproxy1v5
+  libpsl5t64 libpulse0 libqrencode4 librabbitmq4 libraptor2-0 librav1e0
+  libraw1394-11 librist4 librsvg2-2 librtmp1 librubberband2 libsamplerate0
+  libsasl2-2 libsasl2-modules-db libsbc1 libsdl2-2.0-0 libsecret-common
+  libsensors-config libsensors5 libserd-0-0 libsharpyuv0 libshine3 libshout3
+  libslang2 libsm6 libsnappy1v5 libsndfile1 libsndio7.0 libsodium23
+  libsord-0-0 libsoundtouch1 libsoup-3.0-0 libsoup-3.0-common libsoxr0
+  libspa-0.2-modules libspandsp2t64 libspeex1 libsphinxbase3t64 libsratom-0-0
+  libsrt1.5-gnutls libsrtp2-1 libssh-4 libssh-gcrypt-4 libsvtav1enc1d1
+  libswresample4 libswscale7 libsystemd-shared libsystemd0 libtag1v5
+  libtag1v5-vanilla libtext-iconv-perl libthai-data libthai0 libtheora0
+  libtiff6 libtwolame0 libudev1 libudfread0 libunibreak5 libunwind8
+  libusb-1.0-0 libv4l-0t64 libv4lconvert0t64 libva-drm2 libva-x11-2 libva2
+  libvdpau1 libvidstab1.1 libvisual-0.4-0 libvo-aacenc0 libvo-amrwbenc0
+  libvorbis0a libvorbisenc2 libvorbisfile3 libvpl2 libvulkan1 libwavpack1
+  libwayland-cursor0 libwebpmux3 libwebrtc-audio-processing1 libwildmidi2
+  libx11-data libx11-xcb1 libx265-199 libxau6 libxaw7 libxcb-dri3-0
+  libxcb-glx0 libxcb-present0 libxcb-randr0 libxcb-render0 libxcb-shm0
+  libxcb-sync1 libxcb-xfixes0 libxcb-xkb1 libxcursor1 libxdmcp6 libxfont2
+  libxi6 libxinerama1 libxkbcommon-x11-0 libxkbfile1 libxmu6 libxmuu1 libxpm4
+  libxrender1 libxshmfence1 libxss1 libxt6t64 libxtst6 libxvidcore4
+  libxxf86vm1 libyajl2 libyuv0 libzbar0t64 libzimg2 libzix-0-0 libzmq5
+  libzvbi-common libzvbi0t64 libzxing3 mesa-libgallium ocl-icd-libopencl1
+  session-migration shared-mime-info systemd systemd-dev systemd-sysv
+  timgm6mb-soundfont ubuntu-mono x11-common x11-xkb-utils xauth
+  xfonts-encodings xfonts-utils xkb-data xserver-common
+Suggested packages:
+  liblocale-gettext-perl perl cron quota ecryptfs-utils ispell | aspell
+  | hunspell wordlist frei0r-plugins gvfs hunspell openoffice.org-hunspell
+  | openoffice.org-core isoquery alsa-utils libasound2-plugins aspell libcuda1
+  libnvcuvid1 libnvidia-encode1 libbluray-bdj colord cups-common
+  libdirectfb-extra libdv-bin oss-compat libdvdcss2 libenchant-2-voikko
+  libfftw3-bin libfftw3-dev low-memory-monitor gpm krb5-doc krb5-user
+  libvisual-0.4-plugins gstreamer1.0-tools jackd2 liblcms2-utils liblrdf0-dev
+  libportaudio2 opus-tools pciutils pipewire pulseaudio raptor2-utils
+  libraw1394-doc librsvg2-bin xdg-utils lm-sensors serdi sndiod sordi speex
+  libwildmidi-config opencl-icd systemd-container systemd-homed
+  systemd-userdbd systemd-boot libfido2-1 libip4tc2 libtss2-esys-3.0.2-0
+  libtss2-mu-4.0.1-0 libtss2-rc0 libtss2-tcti-device0 polkitd
+  fluid-soundfont-gm
+Recommended packages:
+  librsvg2-common fonts-ipafont-mincho fonts-liberation-sans-narrow
+  fonts-tlwg-loma gstreamer1.0-x alsa-ucm-conf alsa-topology-conf aspell-en
+  | aspell-dictionary | aspell6a-dictionary at-spi2-core libaacs0 libpam-cap
+  default-libdecor-0-plugin-1 | libdecor-0-plugin-1 dmsetup enchant-2
+  libgdk-pixbuf2.0-bin libglib2.0-data xdg-user-dirs gstreamer1.0-gl
+  libgtk-3-bin libgtk-4-bin libgtk-4-media-gstreamer krb5-locales
+  libldap-common libpipewire-0.3-common pocketsphinx-en-us publicsuffix
+  libsasl2-modules va-driver-all | va-driver vdpau-driver-all | vdpau-driver
+  mesa-vulkan-drivers | vulkan-icd libmagickcore-6.q16-7-extra
+  networkd-dispatcher systemd-timesyncd | time-daemon systemd-resolved
+  libnss-systemd xfonts-base
+The following NEW packages will be installed:
+  adduser adwaita-icon-theme at-spi2-common dbus dbus-bin dbus-daemon
+  dbus-session-bus-common dbus-system-bus-common dbus-user-session
+  dconf-gsettings-backend dconf-service dictionaries-common emacsen-common
+  fontconfig fontconfig-config fonts-freefont-ttf fonts-ipafont-gothic
+  fonts-liberation fonts-noto-color-emoji fonts-tlwg-loma-otf fonts-unifont
+  fonts-wqy-zenhei glib-networking glib-networking-common
+  glib-networking-services gsettings-desktop-schemas gstreamer1.0-libav
+  gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+  gtk-update-icon-cache hicolor-icon-theme humanity-icon-theme hunspell-en-us
+  iso-codes libaa1 libabsl20220623t64 libaom3 libapparmor1 libargon2-1
+  libasound2-data libasound2t64 libaspell15 libass9 libasyncns0
+  libatk-bridge2.0-0t64 libatk1.0-0t64 libatomic1 libatspi2.0-0t64
+  libavahi-client3 libavahi-common-data libavahi-common3 libavc1394-0
+  libavcodec60 libavfilter9 libavformat60 libavif16 libavtp0 libavutil58
+  libblas3 libbluray2 libbs2b0 libbsd0 libcaca0 libcairo-gobject2
+  libcairo-script-interpreter2 libcairo2 libcap2-bin libcdparanoia0
+  libchromaprint1 libcjson1 libcodec2-1.2 libcolord2 libcryptsetup12
+  libcups2t64 libcurl3t64-gnutls libdatrie1 libdav1d7 libdbus-1-3 libdc1394-25
+  libdca0 libdconf1 libde265-0 libdecor-0-0 libdeflate0 libdevmapper1.02.1
+  libdirectfb-1.7-7t64 libdrm-amdgpu1 libdrm-common libdrm-intel1 libdrm2
+  libduktape207 libdv4t64 libdvdnav4 libdvdread8t64 libdw1t64 libedit2
+  libegl-mesa0 libegl1 libelf1t64 libenchant-2-2 libepoxy0 libevdev2
+  libevent-2.1-7t64 libfaad2 libfdisk1 libfftw3-double3 libflac12t64 libflite1
+  libfluidsynth3 libfontconfig1 libfontenc1 libfreeaptx0 libfreetype6
+  libfribidi0 libgav1-1 libgbm1 libgdk-pixbuf-2.0-0 libgdk-pixbuf2.0-common
+  libgfortran5 libgl1 libgl1-mesa-dri libgles2 libglib2.0-0t64 libglvnd0
+  libglx-mesa0 libglx0 libgme0 libgomp1 libgpm2 libgraphene-1.0-0
+  libgraphite2-3 libgsm1 libgssapi-krb5-2 libgssdp-1.6-0 libgstreamer-gl1.0-0
+  libgstreamer-plugins-bad1.0-0 libgstreamer-plugins-base1.0-0
+  libgstreamer-plugins-good1.0-0 libgstreamer1.0-0 libgtk-3-0t64
+  libgtk-3-common libgtk-4-1 libgtk-4-common libgudev-1.0-0 libgupnp-1.6-0
+  libgupnp-igd-1.6-0 libharfbuzz-icu0 libharfbuzz0b libhunspell-1.7-0
+  libhwy1t64 libhyphen0 libice6 libiec61883-0 libimath-3-1-29t64
+  libinstpatch-1.0-2 libjack-jackd2-0 libjbig0 libjpeg-turbo8 libjpeg8
+  libjson-c5 libjson-glib-1.0-0 libjson-glib-1.0-common libjxl0.7 libk5crypto3
+  libkeyutils1 libkmod2 libkrb5-3 libkrb5support0 liblapack3 liblc3-1
+  liblcms2-2 libldacbt-enc2 libldap2 liblerc4 liblilv-0-0 libllvm20 liblrdf0
+  libltc11 liblzo2-2 libmanette-0.2-0 libmbedcrypto7t64 libmfx1
+  libmjpegutils-2.1-0t64 libmodplug1 libmp3lame0 libmpcdec6
+  libmpeg2encpp-2.1-0t64 libmpg123-0t64 libmplex2-2.1-0t64 libmysofa1
+  libncurses6 libneon27t64 libnice10 libnorm1t64 libnspr4 libnss3 libnuma1
+  libogg0 libopenal-data libopenal1 libopenexr-3-1-30 libopenh264-7
+  libopenjp2-7 libopenmpt0t64 libopenni2-0 libopus0 liborc-0.4-0t64
+  libpam-systemd libpango-1.0-0 libpangocairo-1.0-0 libpangoft2-1.0-0
+  libpciaccess0 libpgm-5.3-0t64 libpipewire-0.3-0t64 libpixman-1-0
+  libplacebo338 libpng16-16t64 libpocketsphinx3 libpostproc57 libproxy1v5
+  libpsl5t64 libpulse0 libqrencode4 librabbitmq4 libraptor2-0 librav1e0
+  libraw1394-11 librist4 librsvg2-2 librtmp1 librubberband2 libsamplerate0
+  libsasl2-2 libsasl2-modules-db libsbc1 libsdl2-2.0-0 libsecret-1-0
+  libsecret-common libsensors-config libsensors5 libserd-0-0 libsharpyuv0
+  libshine3 libshout3 libslang2 libsm6 libsnappy1v5 libsndfile1 libsndio7.0
+  libsodium23 libsord-0-0 libsoundtouch1 libsoup-3.0-0 libsoup-3.0-common
+  libsoxr0 libspa-0.2-modules libspandsp2t64 libspeex1 libsphinxbase3t64
+  libsratom-0-0 libsrt1.5-gnutls libsrtp2-1 libssh-4 libssh-gcrypt-4
+  libsvtav1enc1d1 libswresample4 libswscale7 libsystemd-shared libtag1v5
+  libtag1v5-vanilla libtext-iconv-perl libthai-data libthai0 libtheora0
+  libtiff6 libtwolame0 libudfread0 libunibreak5 libunwind8 libusb-1.0-0
+  libv4l-0t64 libv4lconvert0t64 libva-drm2 libva-x11-2 libva2 libvdpau1
+  libvidstab1.1 libvisual-0.4-0 libvo-aacenc0 libvo-amrwbenc0 libvorbis0a
+  libvorbisenc2 libvorbisfile3 libvpl2 libvpx9 libvulkan1 libwavpack1
+  libwayland-client0 libwayland-cursor0 libwayland-egl1 libwayland-server0
+  libwebp7 libwebpdemux2 libwebpmux3 libwebrtc-audio-processing1 libwildmidi2
+  libwoff1 libx11-6 libx11-data libx11-xcb1 libx264-164 libx265-199 libxau6
+  libxaw7 libxcb-dri3-0 libxcb-glx0 libxcb-present0 libxcb-randr0
+  libxcb-render0 libxcb-shm0 libxcb-sync1 libxcb-xfixes0 libxcb-xkb1 libxcb1
+  libxcomposite1 libxcursor1 libxdamage1 libxdmcp6 libxext6 libxfixes3
+  libxfont2 libxi6 libxinerama1 libxkbcommon-x11-0 libxkbcommon0 libxkbfile1
+  libxml2 libxmu6 libxmuu1 libxpm4 libxrandr2 libxrender1 libxshmfence1
+  libxslt1.1 libxss1 libxt6t64 libxtst6 libxvidcore4 libxxf86vm1 libyajl2
+  libyuv0 libzbar0t64 libzimg2 libzix-0-0 libzmq5 libzvbi-common libzvbi0t64
+  libzxing3 mesa-libgallium ocl-icd-libopencl1 session-migration
+  shared-mime-info systemd systemd-dev systemd-sysv timgm6mb-soundfont
+  ubuntu-mono x11-common x11-xkb-utils xauth xfonts-cyrillic xfonts-encodings
+  xfonts-scalable xfonts-utils xkb-data xserver-common xvfb
+The following packages will be upgraded:
+  libsystemd0 libudev1
+2 upgraded, 378 newly installed, 0 to remove and 2 not upgraded.
+Need to get 210 MB of archives.
+After this operation, 746 MB of additional disk space will be used.
+Get:1 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libapparmor1 amd64 4.0.1really4.0.1-0ubuntu0.24.04.9 [51.5 kB]
+Get:2 https://archive.ubuntu.com/ubuntu noble/main amd64 libargon2-1 amd64 0~20190702+dfsg-4build1 [20.8 kB]
+Get:3 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libudev1 amd64 255.4-1ubuntu8.18 [178 kB]
+Get:4 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libdevmapper1.02.1 amd64 2:1.02.185-3ubuntu3.2 [139 kB]
+Get:5 https://archive.ubuntu.com/ubuntu noble/main amd64 libjson-c5 amd64 0.17-1build1 [35.3 kB]
+Get:6 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcryptsetup12 amd64 2:2.7.0-1ubuntu4.2 [266 kB]
+Get:7 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libfdisk1 amd64 2.39.3-9ubuntu6.6 [146 kB]
+Get:8 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libkmod2 amd64 31+20240202-2ubuntu7.2 [51.8 kB]
+Get:9 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsystemd-shared amd64 255.4-1ubuntu8.18 [2077 kB]
+Get:10 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsystemd0 amd64 255.4-1ubuntu8.18 [436 kB]
+Get:11 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 systemd-dev all 255.4-1ubuntu8.18 [107 kB]
+Get:12 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 systemd amd64 255.4-1ubuntu8.18 [3475 kB]
+Get:13 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 systemd-sysv amd64 255.4-1ubuntu8.18 [11.9 kB]
+Get:14 https://archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+Get:15 https://archive.ubuntu.com/ubuntu noble/main amd64 adduser all 3.137ubuntu1 [101 kB]
+Get:16 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libdbus-1-3 amd64 1.14.10-4ubuntu4.1 [210 kB]
+Get:17 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 dbus-bin amd64 1.14.10-4ubuntu4.1 [39.3 kB]
+Get:18 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 dbus-session-bus-common all 1.14.10-4ubuntu4.1 [80.5 kB]
+Get:19 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 dbus-daemon amd64 1.14.10-4ubuntu4.1 [118 kB]
+Get:20 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 dbus-system-bus-common all 1.14.10-4ubuntu4.1 [81.6 kB]
+Get:21 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 dbus amd64 1.14.10-4ubuntu4.1 [24.3 kB]
+Get:22 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpam-systemd amd64 255.4-1ubuntu8.18 [235 kB]
+Get:23 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 dbus-user-session amd64 1.14.10-4ubuntu4.1 [9968 B]
+Get:24 https://archive.ubuntu.com/ubuntu noble/main amd64 iso-codes all 4.16.0-1 [3492 kB]
+Get:25 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libbsd0 amd64 0.12.1-1build1.1 [41.2 kB]
+Get:26 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcap2-bin amd64 1:2.66-5ubuntu2.4 [34.1 kB]
+Get:27 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libelf1t64 amd64 0.190-1.1ubuntu0.1 [57.8 kB]
+Get:28 https://archive.ubuntu.com/ubuntu noble/main amd64 libfribidi0 amd64 1.0.13-3build1 [26.1 kB]
+Get:29 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libglib2.0-0t64 amd64 2.80.0-6ubuntu3.10 [1548 kB]
+Get:30 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libkrb5support0 amd64 1.20.1-6ubuntu2.10 [34.9 kB]
+Get:31 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libk5crypto3 amd64 1.20.1-6ubuntu2.10 [81.9 kB]
+Get:32 https://archive.ubuntu.com/ubuntu noble/main amd64 libkeyutils1 amd64 1.6.3-3build1 [9490 B]
+Get:33 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libkrb5-3 amd64 1.20.1-6ubuntu2.10 [348 kB]
+Get:34 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgssapi-krb5-2 amd64 1.20.1-6ubuntu2.10 [143 kB]
+Get:35 https://archive.ubuntu.com/ubuntu noble/main amd64 libslang2 amd64 2.3.3-3build2 [506 kB]
+Get:36 https://archive.ubuntu.com/ubuntu noble/main amd64 libtext-iconv-perl amd64 1.7-8build3 [13.5 kB]
+Get:37 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libxml2 amd64 2.9.14+dfsg-1.3ubuntu3.10 [764 kB]
+Get:38 https://archive.ubuntu.com/ubuntu noble/main amd64 shared-mime-info amd64 2.4-4 [474 kB]
+Get:39 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 xkb-data all 2.41-2ubuntu1.1 [397 kB]
+Get:40 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm-common all 2.4.125-1ubuntu0.1~24.04.2 [9250 B]
+Get:41 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm2 amd64 2.4.125-1ubuntu0.1~24.04.2 [41.4 kB]
+Get:42 https://archive.ubuntu.com/ubuntu noble/main amd64 libedit2 amd64 3.1-20230828-1build1 [97.6 kB]
+Get:43 https://archive.ubuntu.com/ubuntu noble/main amd64 libevdev2 amd64 1.13.1+dfsg-1build1 [37.8 kB]
+Get:44 https://archive.ubuntu.com/ubuntu noble/main amd64 libgpm2 amd64 1.20.7-11 [14.1 kB]
+Get:45 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libncurses6 amd64 6.4+20240113-1ubuntu2.2 [112 kB]
+Get:46 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libnuma1 amd64 2.0.18-1ubuntu0.24.04.1 [23.4 kB]
+Get:47 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpng16-16t64 amd64 1.6.43-5ubuntu0.7 [189 kB]
+Get:48 https://archive.ubuntu.com/ubuntu noble/main amd64 libpsl5t64 amd64 0.21.2-1.1build1 [57.1 kB]
+Get:49 https://archive.ubuntu.com/ubuntu noble/main amd64 libsensors-config all 1:3.6.0-9build1 [5546 B]
+Get:50 https://archive.ubuntu.com/ubuntu noble/main amd64 libsensors5 amd64 1:3.6.0-9build1 [26.6 kB]
+Get:51 https://archive.ubuntu.com/ubuntu noble/main amd64 libusb-1.0-0 amd64 2:1.0.27-1 [54.0 kB]
+Get:52 https://archive.ubuntu.com/ubuntu noble/main amd64 libxau6 amd64 1:1.0.9-1build6 [7160 B]
+Get:53 https://archive.ubuntu.com/ubuntu noble/main amd64 libxdmcp6 amd64 1:1.1.3-0ubuntu6 [10.3 kB]
+Get:54 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcb1 amd64 1.15-1ubuntu2 [47.7 kB]
+Get:55 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libx11-data all 2:1.8.7-1ubuntu0.1 [116 kB]
+Get:56 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libx11-6 amd64 2:1.8.7-1ubuntu0.1 [653 kB]
+Get:57 https://archive.ubuntu.com/ubuntu noble/main amd64 libxext6 amd64 2:1.3.4-1build2 [30.4 kB]
+Get:58 https://archive.ubuntu.com/ubuntu noble/main amd64 libxkbcommon0 amd64 1.6.0-1build1 [122 kB]
+Get:59 https://archive.ubuntu.com/ubuntu noble/main amd64 libxmuu1 amd64 2:1.1.3-3build2 [8958 B]
+Get:60 https://archive.ubuntu.com/ubuntu noble/main amd64 xauth amd64 1:1.1.2-1build1 [25.6 kB]
+Get:61 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgdk-pixbuf2.0-common all 2.42.10+dfsg-3ubuntu3.3 [8302 B]
+Get:62 https://archive.ubuntu.com/ubuntu noble/main amd64 libjpeg-turbo8 amd64 2.1.5-2ubuntu2 [150 kB]
+Get:63 https://archive.ubuntu.com/ubuntu noble/main amd64 libjpeg8 amd64 8c-2ubuntu11 [2148 B]
+Get:64 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libdeflate0 amd64 1.19-1build1.1 [43.9 kB]
+Get:65 https://archive.ubuntu.com/ubuntu noble/main amd64 libjbig0 amd64 2.1-6.1ubuntu2 [29.7 kB]
+Get:66 https://archive.ubuntu.com/ubuntu noble/main amd64 liblerc4 amd64 4.0.0+ds-4ubuntu2 [179 kB]
+Get:67 https://archive.ubuntu.com/ubuntu noble/main amd64 libsharpyuv0 amd64 1.3.2-0.4build3 [15.8 kB]
+Get:68 https://archive.ubuntu.com/ubuntu noble/main amd64 libwebp7 amd64 1.3.2-0.4build3 [230 kB]
+Get:69 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libtiff6 amd64 4.5.1+git230720-4ubuntu2.5 [200 kB]
+Get:70 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgdk-pixbuf-2.0-0 amd64 2.42.10+dfsg-3ubuntu3.3 [147 kB]
+Get:71 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 gtk-update-icon-cache amd64 3.24.41-4ubuntu1.3 [51.9 kB]
+Get:72 https://archive.ubuntu.com/ubuntu noble/main amd64 hicolor-icon-theme all 0.17-2 [9976 B]
+Get:73 https://archive.ubuntu.com/ubuntu noble/main amd64 humanity-icon-theme all 0.6.16 [1282 kB]
+Get:74 https://archive.ubuntu.com/ubuntu noble/main amd64 ubuntu-mono all 24.04-0ubuntu1 [151 kB]
+Get:75 https://archive.ubuntu.com/ubuntu noble/main amd64 adwaita-icon-theme all 46.0-1 [723 kB]
+Get:76 https://archive.ubuntu.com/ubuntu noble/main amd64 at-spi2-common all 2.52.0-1build1 [8674 B]
+Get:77 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libdconf1 amd64 0.40.0-4ubuntu0.1 [39.6 kB]
+Get:78 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 dconf-service amd64 0.40.0-4ubuntu0.1 [27.6 kB]
+Get:79 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 dconf-gsettings-backend amd64 0.40.0-4ubuntu0.1 [22.1 kB]
+Get:80 https://archive.ubuntu.com/ubuntu noble/main amd64 emacsen-common all 3.0.5 [12.1 kB]
+Get:81 https://archive.ubuntu.com/ubuntu noble/main amd64 dictionaries-common all 1.29.7 [188 kB]
+Get:82 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libfreetype6 amd64 2.13.2+dfsg-1ubuntu0.2 [403 kB]
+Get:83 https://archive.ubuntu.com/ubuntu noble/main amd64 fonts-liberation all 1:2.1.5-3 [1603 kB]
+Get:84 https://archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+Get:85 https://archive.ubuntu.com/ubuntu noble/main amd64 fontconfig-config amd64 2.15.0-1.1ubuntu2 [37.3 kB]
+Get:86 https://archive.ubuntu.com/ubuntu noble/main amd64 libfontconfig1 amd64 2.15.0-1.1ubuntu2 [139 kB]
+Get:87 https://archive.ubuntu.com/ubuntu noble/main amd64 fontconfig amd64 2.15.0-1.1ubuntu2 [180 kB]
+Get:88 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 fonts-noto-color-emoji all 2.047-0ubuntu0.24.04.1 [9764 kB]
+Get:89 https://archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+Get:90 https://archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+Get:91 https://archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+Get:92 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsasl2-modules-db amd64 2.1.28+dfsg1-5ubuntu3.1 [20.4 kB]
+Get:93 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsasl2-2 amd64 2.1.28+dfsg1-5ubuntu3.1 [53.2 kB]
+Get:94 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libldap2 amd64 2.6.10+dfsg-0ubuntu0.24.04.1 [198 kB]
+Get:95 https://archive.ubuntu.com/ubuntu noble/main amd64 librtmp1 amd64 2.4+20151223.gitfa8646d.1-2build7 [56.3 kB]
+Get:96 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libssh-4 amd64 0.10.6-2ubuntu0.5 [191 kB]
+Get:97 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcurl3t64-gnutls amd64 8.5.0-2ubuntu10.16 [337 kB]
+Get:98 https://archive.ubuntu.com/ubuntu noble/main amd64 libduktape207 amd64 2.7.0+tests-0ubuntu3 [143 kB]
+Get:99 https://archive.ubuntu.com/ubuntu noble/main amd64 libproxy1v5 amd64 0.5.4-4build1 [26.5 kB]
+Get:100 https://archive.ubuntu.com/ubuntu noble/main amd64 glib-networking-common all 2.80.0-1build1 [6702 B]
+Get:101 https://archive.ubuntu.com/ubuntu noble/main amd64 glib-networking-services amd64 2.80.0-1build1 [12.8 kB]
+Get:102 https://archive.ubuntu.com/ubuntu noble/main amd64 session-migration amd64 0.3.9build1 [9034 B]
+Get:103 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 gsettings-desktop-schemas all 46.1-0ubuntu1 [35.6 kB]
+Get:104 https://archive.ubuntu.com/ubuntu noble/main amd64 glib-networking amd64 2.80.0-1build1 [64.1 kB]
+Get:105 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libaom3 amd64 3.8.2-2ubuntu0.2 [1942 kB]
+Get:106 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 libva2 amd64 2.20.0-2ubuntu0.2 [66.4 kB]
+Get:107 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 libva-drm2 amd64 2.20.0-2ubuntu0.2 [7124 B]
+Get:108 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libx11-xcb1 amd64 2:1.8.7-1ubuntu0.1 [7796 B]
+Get:109 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-dri3-0 amd64 1.15-1ubuntu2 [7142 B]
+Get:110 https://archive.ubuntu.com/ubuntu noble/main amd64 libxfixes3 amd64 1:6.0.0-2build1 [10.8 kB]
+Get:111 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 libva-x11-2 amd64 2.20.0-2ubuntu0.2 [12.0 kB]
+Get:112 https://archive.ubuntu.com/ubuntu noble/main amd64 libvdpau1 amd64 1.5-2build1 [27.8 kB]
+Get:113 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpciaccess0 amd64 0.17-3ubuntu0.24.04.3 [19.2 kB]
+Get:114 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm-intel1 amd64 2.4.125-1ubuntu0.1~24.04.2 [63.9 kB]
+Get:115 https://archive.ubuntu.com/ubuntu noble/main amd64 libwayland-client0 amd64 1.22.0-2.1build1 [26.4 kB]
+Get:116 https://archive.ubuntu.com/ubuntu noble/universe amd64 libvpl2 amd64 2023.3.0-1build1 [99.8 kB]
+Get:117 https://archive.ubuntu.com/ubuntu noble/universe amd64 ocl-icd-libopencl1 amd64 2.3.2-1build1 [38.5 kB]
+Get:118 https://archive.ubuntu.com/ubuntu noble/universe amd64 libavutil58 amd64 7:6.1.1-3ubuntu5 [401 kB]
+Get:119 https://archive.ubuntu.com/ubuntu noble/main amd64 libpixman-1-0 amd64 0.42.2-1build1 [279 kB]
+Get:120 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-render0 amd64 1.15-1ubuntu2 [16.2 kB]
+Get:121 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-shm0 amd64 1.15-1ubuntu2 [5756 B]
+Get:122 https://archive.ubuntu.com/ubuntu noble/main amd64 libxrender1 amd64 1:0.9.10-1.1build1 [19.0 kB]
+Get:123 https://archive.ubuntu.com/ubuntu noble/main amd64 libcairo2 amd64 1.18.0-3build1 [566 kB]
+Get:124 https://archive.ubuntu.com/ubuntu noble/universe amd64 libcodec2-1.2 amd64 1.2.0-2build1 [8998 kB]
+Get:125 https://archive.ubuntu.com/ubuntu noble/universe amd64 libdav1d7 amd64 1.4.1-1build1 [604 kB]
+Get:126 https://archive.ubuntu.com/ubuntu noble/universe amd64 libgsm1 amd64 1.0.22-1build1 [27.8 kB]
+Get:127 https://archive.ubuntu.com/ubuntu noble/universe amd64 libhwy1t64 amd64 1.0.7-8.1build1 [584 kB]
+Get:128 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 liblcms2-2 amd64 2.14-2ubuntu0.1 [161 kB]
+Get:129 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 libjxl0.7 amd64 0.7.0-10.2ubuntu6.1 [1001 kB]
+Get:130 https://archive.ubuntu.com/ubuntu noble/main amd64 libmp3lame0 amd64 3.100-6build1 [142 kB]
+Get:131 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libopenjp2-7 amd64 2.5.0-2ubuntu0.5 [174 kB]
+Get:132 https://archive.ubuntu.com/ubuntu noble/main amd64 libopus0 amd64 1.4-1build1 [208 kB]
+Get:133 https://archive.ubuntu.com/ubuntu noble/universe amd64 librav1e0 amd64 0.7.1-2 [1022 kB]
+Get:134 https://archive.ubuntu.com/ubuntu noble/main amd64 libcairo-gobject2 amd64 1.18.0-3build1 [127 kB]
+Get:135 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgraphite2-3 amd64 1.3.14-2ubuntu0.24.04.1 [73.4 kB]
+Get:136 https://archive.ubuntu.com/ubuntu noble/main amd64 libharfbuzz0b amd64 8.3.0-2build2 [469 kB]
+Get:137 https://archive.ubuntu.com/ubuntu noble/main amd64 libthai-data all 0.1.29-2build1 [158 kB]
+Get:138 https://archive.ubuntu.com/ubuntu noble/main amd64 libdatrie1 amd64 0.2.13-3build1 [19.0 kB]
+Get:139 https://archive.ubuntu.com/ubuntu noble/main amd64 libthai0 amd64 0.1.29-2build1 [18.9 kB]
+Get:140 https://archive.ubuntu.com/ubuntu noble/main amd64 libpango-1.0-0 amd64 1.52.1+ds-1build1 [231 kB]
+Get:141 https://archive.ubuntu.com/ubuntu noble/main amd64 libpangoft2-1.0-0 amd64 1.52.1+ds-1build1 [42.5 kB]
+Get:142 https://archive.ubuntu.com/ubuntu noble/main amd64 libpangocairo-1.0-0 amd64 1.52.1+ds-1build1 [28.8 kB]
+Get:143 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 librsvg2-2 amd64 2.58.0+dfsg-1ubuntu0.1 [2141 kB]
+Get:144 https://archive.ubuntu.com/ubuntu noble/universe amd64 libshine3 amd64 3.1.1-2build1 [23.2 kB]
+Get:145 https://archive.ubuntu.com/ubuntu noble/main amd64 libsnappy1v5 amd64 1.1.10-1build1 [28.6 kB]
+Get:146 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libspeex1 amd64 1.2.1-2ubuntu2.24.04.1 [59.6 kB]
+Get:147 https://archive.ubuntu.com/ubuntu noble/universe amd64 libsvtav1enc1d1 amd64 1.7.0+dfsg-2build1 [2425 kB]
+Get:148 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgomp1 amd64 14.2.0-4ubuntu2~24.04.1 [148 kB]
+Get:149 https://archive.ubuntu.com/ubuntu noble/universe amd64 libsoxr0 amd64 0.1.3-4build3 [80.0 kB]
+Get:150 https://archive.ubuntu.com/ubuntu noble/universe amd64 libswresample4 amd64 7:6.1.1-3ubuntu5 [63.8 kB]
+Get:151 https://archive.ubuntu.com/ubuntu noble/main amd64 libogg0 amd64 1.3.5-3build1 [22.7 kB]
+Get:152 https://archive.ubuntu.com/ubuntu noble/main amd64 libtheora0 amd64 1.1.1+dfsg.1-16.1build3 [211 kB]
+Get:153 https://archive.ubuntu.com/ubuntu noble/main amd64 libtwolame0 amd64 0.4.0-2build3 [52.3 kB]
+Get:154 https://archive.ubuntu.com/ubuntu noble/main amd64 libvorbis0a amd64 1.3.7-1build3 [97.6 kB]
+Get:155 https://archive.ubuntu.com/ubuntu noble/main amd64 libvorbisenc2 amd64 1.3.7-1build3 [80.8 kB]
+Get:156 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libvpx9 amd64 1.14.0-1ubuntu2.3 [1143 kB]
+Get:157 https://archive.ubuntu.com/ubuntu noble/main amd64 libwebpmux3 amd64 1.3.2-0.4build3 [25.7 kB]
+Get:158 https://archive.ubuntu.com/ubuntu noble/universe amd64 libx264-164 amd64 2:0.164.3108+git31e19f9-1 [604 kB]
+Get:159 https://archive.ubuntu.com/ubuntu noble/universe amd64 libx265-199 amd64 3.5-2build1 [1226 kB]
+Get:160 https://archive.ubuntu.com/ubuntu noble/universe amd64 libxvidcore4 amd64 2:1.3.7-1build1 [219 kB]
+Get:161 https://archive.ubuntu.com/ubuntu noble/universe amd64 libzvbi-common all 0.2.42-2 [42.4 kB]
+Get:162 https://archive.ubuntu.com/ubuntu noble/universe amd64 libzvbi0t64 amd64 0.2.42-2 [261 kB]
+Get:163 https://archive.ubuntu.com/ubuntu noble/universe amd64 libavcodec60 amd64 7:6.1.1-3ubuntu5 [5851 kB]
+Get:164 https://archive.ubuntu.com/ubuntu noble/universe amd64 libunibreak5 amd64 5.1-2build1 [25.0 kB]
+Get:165 https://archive.ubuntu.com/ubuntu noble/universe amd64 libass9 amd64 1:0.17.1-2build1 [104 kB]
+Get:166 https://archive.ubuntu.com/ubuntu noble/universe amd64 libudfread0 amd64 1.1.2-1build1 [19.0 kB]
+Get:167 https://archive.ubuntu.com/ubuntu noble/universe amd64 libbluray2 amd64 1:1.3.4-1build1 [159 kB]
+Get:168 https://archive.ubuntu.com/ubuntu noble/universe amd64 libchromaprint1 amd64 1.5.1-5 [30.5 kB]
+Get:169 https://archive.ubuntu.com/ubuntu noble/universe amd64 libgme0 amd64 0.6.3-7build1 [134 kB]
+Get:170 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libmpg123-0t64 amd64 1.32.5-1ubuntu1.1 [169 kB]
+Get:171 https://archive.ubuntu.com/ubuntu noble/main amd64 libvorbisfile3 amd64 1.3.7-1build3 [17.1 kB]
+Get:172 https://archive.ubuntu.com/ubuntu noble/universe amd64 libopenmpt0t64 amd64 0.7.3-1.1build3 [647 kB]
+Get:173 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 librabbitmq4 amd64 0.11.0-1ubuntu0.2 [38.3 kB]
+Get:174 https://archive.ubuntu.com/ubuntu noble/universe amd64 libcjson1 amd64 1.7.17-1 [24.8 kB]
+Get:175 https://archive.ubuntu.com/ubuntu noble/universe amd64 libmbedcrypto7t64 amd64 2.28.8-1 [209 kB]
+Get:176 https://archive.ubuntu.com/ubuntu noble/universe amd64 librist4 amd64 0.2.10+dfsg-2 [74.9 kB]
+Get:177 https://archive.ubuntu.com/ubuntu noble/universe amd64 libsrt1.5-gnutls amd64 1.5.3-1build2 [316 kB]
+Get:178 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libssh-gcrypt-4 amd64 0.10.6-2ubuntu0.5 [226 kB]
+Get:179 https://archive.ubuntu.com/ubuntu noble/universe amd64 libnorm1t64 amd64 1.5.9+dfsg-3.1build1 [154 kB]
+Get:180 https://archive.ubuntu.com/ubuntu noble/universe amd64 libpgm-5.3-0t64 amd64 5.3.128~dfsg-2.1build1 [167 kB]
+Get:181 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsodium23 amd64 1.0.18-1ubuntu0.24.04.1 [161 kB]
+Get:182 https://archive.ubuntu.com/ubuntu noble/universe amd64 libzmq5 amd64 4.3.5-1build2 [260 kB]
+Get:183 https://archive.ubuntu.com/ubuntu noble/universe amd64 libavformat60 amd64 7:6.1.1-3ubuntu5 [1153 kB]
+Get:184 https://archive.ubuntu.com/ubuntu noble/universe amd64 libbs2b0 amd64 3.1.0+dfsg-7build1 [10.6 kB]
+Get:185 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libasound2-data all 1.2.11-1ubuntu0.3 [21.4 kB]
+Get:186 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libasound2t64 amd64 1.2.11-1ubuntu0.3 [398 kB]
+Get:187 https://archive.ubuntu.com/ubuntu noble/universe amd64 libflite1 amd64 2.2-6build3 [13.6 MB]
+Get:188 https://archive.ubuntu.com/ubuntu noble/universe amd64 libserd-0-0 amd64 0.32.2-1 [43.6 kB]
+Get:189 https://archive.ubuntu.com/ubuntu noble/universe amd64 libzix-0-0 amd64 0.4.2-2build1 [23.6 kB]
+Get:190 https://archive.ubuntu.com/ubuntu noble/universe amd64 libsord-0-0 amd64 0.16.16-2build1 [15.8 kB]
+Get:191 https://archive.ubuntu.com/ubuntu noble/universe amd64 libsratom-0-0 amd64 0.6.16-1build1 [17.3 kB]
+Get:192 https://archive.ubuntu.com/ubuntu noble/universe amd64 liblilv-0-0 amd64 0.24.22-1build1 [41.0 kB]
+Get:193 https://archive.ubuntu.com/ubuntu noble/universe amd64 libmysofa1 amd64 1.3.2+dfsg-2ubuntu2 [1158 kB]
+Get:194 https://archive.ubuntu.com/ubuntu noble/main amd64 libvulkan1 amd64 1.3.275.0-1build1 [142 kB]
+Get:195 https://archive.ubuntu.com/ubuntu noble/universe amd64 libplacebo338 amd64 6.338.2-2build1 [2654 kB]
+Get:196 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libblas3 amd64 3.12.0-3build1.1 [238 kB]
+Get:197 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgfortran5 amd64 14.2.0-4ubuntu2~24.04.1 [916 kB]
+Get:198 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 liblapack3 amd64 3.12.0-3build1.1 [2646 kB]
+Get:199 https://archive.ubuntu.com/ubuntu noble/main amd64 libasyncns0 amd64 0.8-6build4 [11.3 kB]
+Get:200 https://archive.ubuntu.com/ubuntu noble/main amd64 libflac12t64 amd64 1.4.3+ds-2.1ubuntu2 [197 kB]
+Get:201 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsndfile1 amd64 1.2.2-1ubuntu5.24.04.1 [209 kB]
+Get:202 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpulse0 amd64 1:16.1+dfsg1-2ubuntu10.1 [292 kB]
+Get:203 https://archive.ubuntu.com/ubuntu noble/universe amd64 libsphinxbase3t64 amd64 0.8+5prealpha+1-17build2 [126 kB]
+Get:204 https://archive.ubuntu.com/ubuntu noble/universe amd64 libpocketsphinx3 amd64 0.8.0+real5prealpha+1-15ubuntu5 [133 kB]
+Get:205 https://archive.ubuntu.com/ubuntu noble/universe amd64 libpostproc57 amd64 7:6.1.1-3ubuntu5 [49.9 kB]
+Get:206 https://archive.ubuntu.com/ubuntu noble/main amd64 libfftw3-double3 amd64 3.3.10-1ubuntu3 [838 kB]
+Get:207 https://archive.ubuntu.com/ubuntu noble/main amd64 libsamplerate0 amd64 0.2.2-4build1 [1344 kB]
+Get:208 https://archive.ubuntu.com/ubuntu noble/universe amd64 librubberband2 amd64 3.3.0+dfsg-2build1 [130 kB]
+Get:209 https://archive.ubuntu.com/ubuntu noble/universe amd64 libswscale7 amd64 7:6.1.1-3ubuntu5 [193 kB]
+Get:210 https://archive.ubuntu.com/ubuntu noble/universe amd64 libvidstab1.1 amd64 1.1.0-2build1 [38.5 kB]
+Get:211 https://archive.ubuntu.com/ubuntu noble/universe amd64 libzimg2 amd64 3.0.5+ds1-1build1 [254 kB]
+Get:212 https://archive.ubuntu.com/ubuntu noble/universe amd64 libavfilter9 amd64 7:6.1.1-3ubuntu5 [4235 kB]
+Get:213 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libdw1t64 amd64 0.190-1.1ubuntu0.1 [261 kB]
+Get:214 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libunwind8 amd64 1.6.2-3build1.1 [55.3 kB]
+Get:215 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgstreamer1.0-0 amd64 1.24.2-1ubuntu0.1 [1165 kB]
+Get:216 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 liborc-0.4-0t64 amd64 1:0.4.38-1ubuntu0.1 [207 kB]
+Get:217 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgstreamer-plugins-base1.0-0 amd64 1.24.2-1ubuntu0.5 [862 kB]
+Get:218 https://archive.ubuntu.com/ubuntu noble/universe amd64 gstreamer1.0-libav amd64 1.24.1-1build1 [103 kB]
+Get:219 https://archive.ubuntu.com/ubuntu noble/main amd64 libcdparanoia0 amd64 3.10.2+debian-14build3 [48.5 kB]
+Get:220 https://archive.ubuntu.com/ubuntu noble/main amd64 libvisual-0.4-0 amd64 0.4.2-2build1 [115 kB]
+Get:221 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 gstreamer1.0-plugins-base amd64 1.24.2-1ubuntu0.5 [721 kB]
+Get:222 https://archive.ubuntu.com/ubuntu noble/main amd64 libaa1 amd64 1.4p5-51.1 [49.9 kB]
+Get:223 https://archive.ubuntu.com/ubuntu noble/main amd64 libraw1394-11 amd64 2.1.2-2build3 [26.2 kB]
+Get:224 https://archive.ubuntu.com/ubuntu noble/main amd64 libavc1394-0 amd64 0.5.4-5build3 [15.4 kB]
+Get:225 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcaca0 amd64 0.99.beta20-4ubuntu0.2 [209 kB]
+Get:226 https://archive.ubuntu.com/ubuntu noble/main amd64 libdv4t64 amd64 1.0.0-17.1build1 [63.2 kB]
+Get:227 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgstreamer-plugins-good1.0-0 amd64 1.24.2-1ubuntu1.8 [34.3 kB]
+Get:228 https://archive.ubuntu.com/ubuntu noble/main amd64 libgudev-1.0-0 amd64 1:238-5ubuntu1 [15.9 kB]
+Get:229 https://archive.ubuntu.com/ubuntu noble/main amd64 libiec61883-0 amd64 1.2.0-6build1 [24.5 kB]
+Get:230 https://archive.ubuntu.com/ubuntu noble/main amd64 libshout3 amd64 2.4.6-1build2 [50.3 kB]
+Get:231 https://archive.ubuntu.com/ubuntu noble/main amd64 libtag1v5-vanilla amd64 1.13.1-1build1 [326 kB]
+Get:232 https://archive.ubuntu.com/ubuntu noble/main amd64 libtag1v5 amd64 1.13.1-1build1 [11.7 kB]
+Get:233 https://archive.ubuntu.com/ubuntu noble/main amd64 libv4lconvert0t64 amd64 1.26.1-4build3 [87.6 kB]
+Get:234 https://archive.ubuntu.com/ubuntu noble/main amd64 libv4l-0t64 amd64 1.26.1-4build3 [46.9 kB]
+Get:235 https://archive.ubuntu.com/ubuntu noble/main amd64 libwavpack1 amd64 5.6.0-1build1 [84.6 kB]
+Get:236 https://archive.ubuntu.com/ubuntu noble/main amd64 libxdamage1 amd64 1:1.1.6-1build1 [6150 B]
+Get:237 https://archive.ubuntu.com/ubuntu noble/main amd64 x11-common all 1:7.7+23ubuntu3 [21.7 kB]
+Get:238 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libxtst6 amd64 2:1.2.3-1.1ubuntu0.1 [12.6 kB]
+Get:239 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsoup-3.0-common all 3.4.4-5ubuntu0.9 [12.3 kB]
+Get:240 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsoup-3.0-0 amd64 3.4.4-5ubuntu0.9 [291 kB]
+Get:241 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 gstreamer1.0-plugins-good amd64 1.24.2-1ubuntu1.8 [2236 kB]
+Get:242 https://archive.ubuntu.com/ubuntu noble/main amd64 hunspell-en-us all 1:2020.12.07-2 [280 kB]
+Get:243 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libabsl20220623t64 amd64 20220623.1-3.1ubuntu3.2 [423 kB]
+Get:244 https://archive.ubuntu.com/ubuntu noble/main amd64 libaspell15 amd64 0.60.8.1-1build1 [323 kB]
+Get:245 https://archive.ubuntu.com/ubuntu noble/main amd64 libatk1.0-0t64 amd64 2.52.0-1build1 [55.3 kB]
+Get:246 https://archive.ubuntu.com/ubuntu noble/main amd64 libxi6 amd64 2:1.8.1-1build1 [32.4 kB]
+Get:247 https://archive.ubuntu.com/ubuntu noble/main amd64 libatspi2.0-0t64 amd64 2.52.0-1build1 [80.5 kB]
+Get:248 https://archive.ubuntu.com/ubuntu noble/main amd64 libatk-bridge2.0-0t64 amd64 2.52.0-1build1 [66.0 kB]
+Get:249 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libatomic1 amd64 14.2.0-4ubuntu2~24.04.1 [10.5 kB]
+Get:250 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libavahi-common-data amd64 0.8-13ubuntu6.2 [30.1 kB]
+Get:251 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libavahi-common3 amd64 0.8-13ubuntu6.2 [23.4 kB]
+Get:252 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libavahi-client3 amd64 0.8-13ubuntu6.2 [26.8 kB]
+Get:253 https://archive.ubuntu.com/ubuntu noble/universe amd64 libgav1-1 amd64 0.18.0-1build3 [357 kB]
+Get:254 https://archive.ubuntu.com/ubuntu noble/universe amd64 libyuv0 amd64 0.0~git202401110.af6ac82-1 [178 kB]
+Get:255 https://archive.ubuntu.com/ubuntu noble/universe amd64 libavif16 amd64 1.0.4-1ubuntu3 [91.2 kB]
+Get:256 https://archive.ubuntu.com/ubuntu noble/universe amd64 libavtp0 amd64 0.2.0-1build1 [6414 B]
+Get:257 https://archive.ubuntu.com/ubuntu noble/main amd64 liblzo2-2 amd64 2.10-2build4 [54.1 kB]
+Get:258 https://archive.ubuntu.com/ubuntu noble/main amd64 libcairo-script-interpreter2 amd64 1.18.0-3build1 [60.3 kB]
+Get:259 https://archive.ubuntu.com/ubuntu noble/main amd64 libcolord2 amd64 1.4.7-1build2 [149 kB]
+Get:260 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcups2t64 amd64 2.4.7-1.2ubuntu7.14 [274 kB]
+Get:261 https://archive.ubuntu.com/ubuntu noble/universe amd64 libdc1394-25 amd64 2.2.6-4build1 [90.1 kB]
+Get:262 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libde265-0 amd64 1.0.15-1ubuntu0.2 [167 kB]
+Get:263 https://archive.ubuntu.com/ubuntu noble/main amd64 libdecor-0-0 amd64 0.2.2-1build2 [16.5 kB]
+Get:264 https://archive.ubuntu.com/ubuntu noble/main amd64 libglvnd0 amd64 1.7.0-1build1 [69.6 kB]
+Get:265 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-glx0 amd64 1.15-1ubuntu2 [24.8 kB]
+Get:266 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-present0 amd64 1.15-1ubuntu2 [5676 B]
+Get:267 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-xfixes0 amd64 1.15-1ubuntu2 [10.2 kB]
+Get:268 https://archive.ubuntu.com/ubuntu noble/main amd64 libxxf86vm1 amd64 1:1.1.4-1build4 [9282 B]
+Get:269 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm-amdgpu1 amd64 2.4.125-1ubuntu0.1~24.04.2 [21.4 kB]
+Get:270 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libllvm20 amd64 1:20.1.2-0ubuntu1~24.04.3 [30.6 MB]
+Get:271 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-randr0 amd64 1.15-1ubuntu2 [17.9 kB]
+Get:272 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-sync1 amd64 1.15-1ubuntu2 [9312 B]
+Get:273 https://archive.ubuntu.com/ubuntu noble/main amd64 libxshmfence1 amd64 1.3-1build5 [4764 B]
+Get:274 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 mesa-libgallium amd64 25.2.8-0ubuntu0.24.04.4 [10.8 MB]
+Get:275 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgbm1 amd64 25.2.8-0ubuntu0.24.04.4 [34.2 kB]
+Get:276 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgl1-mesa-dri amd64 25.2.8-0ubuntu0.24.04.4 [38.0 kB]
+Get:277 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libglx-mesa0 amd64 25.2.8-0ubuntu0.24.04.4 [110 kB]
+Get:278 https://archive.ubuntu.com/ubuntu noble/main amd64 libglx0 amd64 1.7.0-1build1 [38.6 kB]
+Get:279 https://archive.ubuntu.com/ubuntu noble/main amd64 libgl1 amd64 1.7.0-1build1 [102 kB]
+Get:280 https://archive.ubuntu.com/ubuntu noble/main amd64 libgles2 amd64 1.7.0-1build1 [17.1 kB]
+Get:281 https://archive.ubuntu.com/ubuntu noble/universe amd64 libdirectfb-1.7-7t64 amd64 1.7.7-11.1ubuntu2 [1035 kB]
+Get:282 https://archive.ubuntu.com/ubuntu noble/universe amd64 libdvdread8t64 amd64 6.1.3-1.1build1 [54.7 kB]
+Get:283 https://archive.ubuntu.com/ubuntu noble/universe amd64 libdvdnav4 amd64 6.1.1-3build1 [39.5 kB]
+Get:284 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libegl-mesa0 amd64 25.2.8-0ubuntu0.24.04.4 [117 kB]
+Get:285 https://archive.ubuntu.com/ubuntu noble/main amd64 libhunspell-1.7-0 amd64 1.7.2+really1.7.2-10build3 [294 kB]
+Get:286 https://archive.ubuntu.com/ubuntu noble/main amd64 libenchant-2-2 amd64 2.3.3-2build2 [51.4 kB]
+Get:287 https://archive.ubuntu.com/ubuntu noble/main amd64 libepoxy0 amd64 1.5.10-1build1 [220 kB]
+Get:288 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libevent-2.1-7t64 amd64 2.1.12-stable-9ubuntu2.2 [146 kB]
+Get:289 https://archive.ubuntu.com/ubuntu noble/universe amd64 libfaad2 amd64 2.11.1-1build1 [207 kB]
+Get:290 https://archive.ubuntu.com/ubuntu noble/universe amd64 libinstpatch-1.0-2 amd64 1.1.6-1build2 [251 kB]
+Get:291 https://archive.ubuntu.com/ubuntu noble/main amd64 libjack-jackd2-0 amd64 1.9.21~dfsg-3ubuntu3 [289 kB]
+Get:292 https://archive.ubuntu.com/ubuntu noble/main amd64 libwebrtc-audio-processing1 amd64 0.3.1-0ubuntu6 [290 kB]
+Get:293 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libspa-0.2-modules amd64 1.0.5-1ubuntu3.3 [628 kB]
+Get:294 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpipewire-0.3-0t64 amd64 1.0.5-1ubuntu3.3 [252 kB]
+Get:295 https://archive.ubuntu.com/ubuntu noble/main amd64 libwayland-cursor0 amd64 1.22.0-2.1build1 [10.4 kB]
+Get:296 https://archive.ubuntu.com/ubuntu noble/main amd64 libwayland-egl1 amd64 1.22.0-2.1build1 [5628 B]
+Get:297 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcursor1 amd64 1:1.2.1-1build1 [20.7 kB]
+Get:298 https://archive.ubuntu.com/ubuntu noble/main amd64 libxrandr2 amd64 2:1.5.2-2build1 [19.7 kB]
+Get:299 https://archive.ubuntu.com/ubuntu noble/main amd64 libxss1 amd64 1:1.2.3-1build3 [7204 B]
+Get:300 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsdl2-2.0-0 amd64 2.30.0+dfsg-1ubuntu3.1 [686 kB]
+Get:301 https://archive.ubuntu.com/ubuntu noble/universe amd64 timgm6mb-soundfont all 1.3-5 [5427 kB]
+Get:302 https://archive.ubuntu.com/ubuntu noble/universe amd64 libfluidsynth3 amd64 2.3.4-1build3 [249 kB]
+Get:303 https://archive.ubuntu.com/ubuntu noble/main amd64 libfontenc1 amd64 1:1.1.8-1build1 [14.0 kB]
+Get:304 https://archive.ubuntu.com/ubuntu noble/main amd64 libfreeaptx0 amd64 0.1.1-2build1 [13.5 kB]
+Get:305 https://archive.ubuntu.com/ubuntu noble/main amd64 libgraphene-1.0-0 amd64 1.10.8-3build2 [46.2 kB]
+Get:306 https://archive.ubuntu.com/ubuntu noble/main amd64 libgssdp-1.6-0 amd64 1.6.3-1build3 [40.4 kB]
+Get:307 https://archive.ubuntu.com/ubuntu noble/main amd64 libegl1 amd64 1.7.0-1build1 [28.7 kB]
+Get:308 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgstreamer-gl1.0-0 amd64 1.24.2-1ubuntu0.5 [214 kB]
+Get:309 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcomposite1 amd64 1:0.4.5-1build3 [6320 B]
+Get:310 https://archive.ubuntu.com/ubuntu noble/main amd64 libxinerama1 amd64 2:1.1.4-3build1 [6396 B]
+Get:311 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgtk-3-common all 3.24.41-4ubuntu1.3 [1426 kB]
+Get:312 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgtk-3-0t64 amd64 3.24.41-4ubuntu1.3 [2913 kB]
+Get:313 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgtk-4-common all 4.14.5+ds-0ubuntu0.10 [1497 kB]
+Get:314 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libgtk-4-1 amd64 4.14.5+ds-0ubuntu0.10 [3295 kB]
+Get:315 https://archive.ubuntu.com/ubuntu noble/main amd64 libgupnp-1.6-0 amd64 1.6.6-1build3 [92.7 kB]
+Get:316 https://archive.ubuntu.com/ubuntu noble/universe amd64 libgupnp-igd-1.6-0 amd64 1.6.0-3build3 [16.5 kB]
+Get:317 https://archive.ubuntu.com/ubuntu noble/main amd64 libharfbuzz-icu0 amd64 8.3.0-2build2 [13.3 kB]
+Get:318 https://archive.ubuntu.com/ubuntu noble/main amd64 libhyphen0 amd64 2.8.8-7build3 [26.5 kB]
+Get:319 https://archive.ubuntu.com/ubuntu noble/main amd64 libice6 amd64 2:1.0.10-1build3 [41.4 kB]
+Get:320 https://archive.ubuntu.com/ubuntu noble/universe amd64 libimath-3-1-29t64 amd64 3.1.9-3.1ubuntu2 [72.2 kB]
+Get:321 https://archive.ubuntu.com/ubuntu noble/main amd64 libjson-glib-1.0-common all 1.8.0-2build2 [4244 B]
+Get:322 https://archive.ubuntu.com/ubuntu noble/main amd64 libjson-glib-1.0-0 amd64 1.8.0-2build2 [68.0 kB]
+Get:323 https://archive.ubuntu.com/ubuntu noble/main amd64 liblc3-1 amd64 1.0.4-3build1 [69.7 kB]
+Get:324 https://archive.ubuntu.com/ubuntu noble/main amd64 libldacbt-enc2 amd64 2.0.2.3+git20200429+ed310a0-4ubuntu2 [27.1 kB]
+Get:325 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libxslt1.1 amd64 1.1.39-0exp1ubuntu0.24.04.3 [168 kB]
+Get:326 https://archive.ubuntu.com/ubuntu noble/main amd64 libyajl2 amd64 2.1.0-5build1 [20.2 kB]
+Get:327 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libraptor2-0 amd64 2.0.16-3ubuntu0.1 [165 kB]
+Get:328 https://archive.ubuntu.com/ubuntu noble/universe amd64 liblrdf0 amd64 0.6.1-4build1 [18.5 kB]
+Get:329 https://archive.ubuntu.com/ubuntu noble/universe amd64 libltc11 amd64 1.3.2-1build1 [13.0 kB]
+Get:330 https://archive.ubuntu.com/ubuntu noble/main amd64 libmanette-0.2-0 amd64 0.2.7-1build2 [30.6 kB]
+Get:331 https://archive.ubuntu.com/ubuntu noble/universe amd64 libmfx1 amd64 22.5.4-1 [3124 kB]
+Get:332 https://archive.ubuntu.com/ubuntu noble/universe amd64 libmjpegutils-2.1-0t64 amd64 1:2.1.0+debian-8.1build1 [25.5 kB]
+Get:333 https://archive.ubuntu.com/ubuntu noble/universe amd64 libmodplug1 amd64 1:0.8.9.0-3build1 [166 kB]
+Get:334 https://archive.ubuntu.com/ubuntu noble/universe amd64 libmpcdec6 amd64 2:0.1~r495-2build1 [32.7 kB]
+Get:335 https://archive.ubuntu.com/ubuntu noble/universe amd64 libmpeg2encpp-2.1-0t64 amd64 1:2.1.0+debian-8.1build1 [75.6 kB]
+Get:336 https://archive.ubuntu.com/ubuntu noble/universe amd64 libmplex2-2.1-0t64 amd64 1:2.1.0+debian-8.1build1 [46.1 kB]
+Get:337 https://archive.ubuntu.com/ubuntu noble/universe amd64 libneon27t64 amd64 0.33.0-1.1build3 [102 kB]
+Get:338 https://archive.ubuntu.com/ubuntu noble/universe amd64 libnice10 amd64 0.1.21-2build3 [157 kB]
+Get:339 https://archive.ubuntu.com/ubuntu noble/main amd64 libnspr4 amd64 2:4.35-1.1build1 [117 kB]
+Get:340 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libnss3 amd64 2:3.98-1ubuntu0.3 [1445 kB]
+Get:341 https://archive.ubuntu.com/ubuntu noble/universe amd64 libopenal-data all 1:1.23.1-4build1 [161 kB]
+Get:342 https://archive.ubuntu.com/ubuntu noble/universe amd64 libopenexr-3-1-30 amd64 3.1.5-5.1build3 [1004 kB]
+Get:343 https://archive.ubuntu.com/ubuntu noble/universe amd64 libopenh264-7 amd64 2.4.1+dfsg-1 [409 kB]
+Get:344 https://archive.ubuntu.com/ubuntu noble/universe amd64 libopenni2-0 amd64 2.2.0.33+dfsg-18 [370 kB]
+Get:345 https://archive.ubuntu.com/ubuntu noble/universe amd64 libqrencode4 amd64 4.1.1-1build2 [25.0 kB]
+Get:346 https://archive.ubuntu.com/ubuntu noble/main amd64 libsecret-common all 0.21.4-1build3 [4962 B]
+Get:347 https://archive.ubuntu.com/ubuntu noble/main amd64 libsecret-1-0 amd64 0.21.4-1build3 [116 kB]
+Get:348 https://archive.ubuntu.com/ubuntu noble/main amd64 libsm6 amd64 2:1.2.3-1build3 [15.7 kB]
+Get:349 https://archive.ubuntu.com/ubuntu noble/universe amd64 libsndio7.0 amd64 1.9.0-0.3build3 [29.6 kB]
+Get:350 https://archive.ubuntu.com/ubuntu noble/universe amd64 libsoundtouch1 amd64 2.3.2+ds1-1build1 [60.5 kB]
+Get:351 https://archive.ubuntu.com/ubuntu noble/universe amd64 libspandsp2t64 amd64 0.0.6+dfsg-2.1build1 [311 kB]
+Get:352 https://archive.ubuntu.com/ubuntu noble/universe amd64 libsrtp2-1 amd64 2.5.0-3build1 [41.9 kB]
+Get:353 https://archive.ubuntu.com/ubuntu noble/main amd64 libwayland-server0 amd64 1.22.0-2.1build1 [33.9 kB]
+Get:354 https://archive.ubuntu.com/ubuntu noble/main amd64 libwebpdemux2 amd64 1.3.2-0.4build3 [12.4 kB]
+Get:355 https://archive.ubuntu.com/ubuntu noble/universe amd64 libwildmidi2 amd64 0.4.3-1build3 [68.5 kB]
+Get:356 https://archive.ubuntu.com/ubuntu noble/main amd64 libwoff1 amd64 1.0.2-2build1 [45.3 kB]
+Get:357 https://archive.ubuntu.com/ubuntu noble/main amd64 libxt6t64 amd64 1:1.2.1-1.2build1 [171 kB]
+Get:358 https://archive.ubuntu.com/ubuntu noble/main amd64 libxmu6 amd64 2:1.1.3-3build2 [47.6 kB]
+Get:359 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libxpm4 amd64 1:3.5.17-1ubuntu0.24.04.2 [36.7 kB]
+Get:360 https://archive.ubuntu.com/ubuntu noble/main amd64 libxaw7 amd64 2:1.0.14-1build2 [187 kB]
+Get:361 https://archive.ubuntu.com/ubuntu noble/main amd64 libxcb-xkb1 amd64 1.15-1ubuntu2 [32.3 kB]
+Get:362 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 libxfont2 amd64 1:2.0.6-1+deb13u1build0.24.04.2 [94.0 kB]
+Get:363 https://archive.ubuntu.com/ubuntu noble/main amd64 libxkbcommon-x11-0 amd64 1.6.0-1build1 [14.5 kB]
+Get:364 https://archive.ubuntu.com/ubuntu noble/main amd64 libxkbfile1 amd64 1:1.1.0-1build4 [70.0 kB]
+Get:365 https://archive.ubuntu.com/ubuntu noble/universe amd64 libzbar0t64 amd64 0.23.93-4build3 [123 kB]
+Get:366 https://archive.ubuntu.com/ubuntu noble/universe amd64 libzxing3 amd64 2.2.1-3 [583 kB]
+Get:367 https://archive.ubuntu.com/ubuntu noble/main amd64 x11-xkb-utils amd64 7.7+8build2 [170 kB]
+Get:368 https://archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+Get:369 https://archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+Get:370 https://archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+Get:371 https://archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+Get:372 https://archive.ubuntu.com/ubuntu noble-updates/main amd64 xserver-common all 2:21.1.12-1ubuntu1.9 [35.0 kB]
+Get:373 https://archive.ubuntu.com/ubuntu noble-updates/universe amd64 xvfb amd64 2:21.1.12-1ubuntu1.9 [877 kB]
+Get:374 https://archive.ubuntu.com/ubuntu noble/universe amd64 libgstreamer-plugins-bad1.0-0 amd64 1.24.2-1ubuntu4 [797 kB]
+Get:375 https://archive.ubuntu.com/ubuntu noble/universe amd64 libdca0 amd64 0.0.7-2build1 [93.8 kB]
+Get:376 https://archive.ubuntu.com/ubuntu noble/universe amd64 libopenal1 amd64 1:1.23.1-4build1 [540 kB]
+Get:377 https://archive.ubuntu.com/ubuntu noble/main amd64 libsbc1 amd64 2.0-1build1 [33.9 kB]
+Get:378 https://archive.ubuntu.com/ubuntu noble/universe amd64 libvo-aacenc0 amd64 0.1.3-2build1 [67.8 kB]
+Get:379 https://archive.ubuntu.com/ubuntu noble/universe amd64 libvo-amrwbenc0 amd64 0.1.3-2build1 [76.7 kB]
+Get:380 https://archive.ubuntu.com/ubuntu noble/universe amd64 gstreamer1.0-plugins-bad amd64 1.24.2-1ubuntu4 [3081 kB]
+Fetched 210 MB in 40s (5207 kB/s)
+Download complete and in download only mode

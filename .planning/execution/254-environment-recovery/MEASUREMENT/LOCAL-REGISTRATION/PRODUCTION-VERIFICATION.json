@@ -1,0 +1,27 @@
+{
+  "status": "production_bundle_development_checks_passed",
+  "scope": "local development only; no hosted acceptance outcome changed",
+  "binding": "PRODUCTION-BINDING.json",
+  "sha256": "3b7730aec7be5ff88c3c69d534abda86e762a5fa43ac0ed34272509f40351ca2",
+  "checks": [
+    {
+      "result": "PRODUCTION-WEBKIT-RESULT.json",
+      "cases": 1,
+      "passed": true,
+      "maximum_observed_event_ms": 4032
+    },
+    {
+      "result": "PRODUCTION-CHROMIUM-RESULT.json",
+      "cases": 1,
+      "passed": true,
+      "maximum_observed_event_ms": 3819
+    },
+    {
+      "result": "PRODUCTION-NORMAL-RESULT.json",
+      "cases": 5,
+      "passed": true,
+      "maximum_observed_event_ms": 755
+    }
+  ],
+  "cleanup": "CLEANUP.json"
+}

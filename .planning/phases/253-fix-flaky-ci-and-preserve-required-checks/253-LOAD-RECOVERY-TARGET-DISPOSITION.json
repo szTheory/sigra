@@ -1,0 +1,140 @@
+{
+  "schema_version": "sigra.phase253.load-target-disposition/v1",
+  "target": "admin-eval registration (D-03): admin-eval, admin-eval-mobile, admin-eval-dark",
+  "status": "not_reproduced",
+  "disposition_kind": "human_approved_not_reproduced",
+  "automatic": false,
+  "created_at": "2026-10-14T23:41:38.093Z",
+  "acceptance_evidence": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json",
+    "sha256": "f95393e39c2fc7d039556d627429de4a61af37a7aae69b9f40afbd0ef4988fc7"
+  },
+  "controls": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json",
+    "sha256": "14df65778c6e1ab924d0ed5430937383af95c499c1f00468028910eda9d9f9a1",
+    "stage": "complete",
+    "rows": 22
+  },
+  "historical_cause": {
+    "status": "diagnosis_incomplete",
+    "cause": null,
+    "causal_link": null,
+    "missing": [
+      "original preceding-order log (archived original log absent; rejected as a native receipt)",
+      "original control/DB state for the selected registration collision",
+      "any red-before counterexample on preserved exact source tied to a registration harness seam"
+    ]
+  },
+  "supporting_evidence_not_proof": {
+    "repairs": [
+      {
+        "group": "node20-loader",
+        "repair_ids": [
+          "node20-loader"
+        ],
+        "explains_historical_cause": false
+      },
+      {
+        "group": "253-40-host-sleep",
+        "repair_ids": [
+          "host-sleep-253-40"
+        ],
+        "explains_historical_cause": false
+      },
+      {
+        "group": "r3-control-library-deadline-diagnostics",
+        "repair_ids": [
+          "r3-library-enumeration-253-57",
+          "r3-positive-refill-253-58",
+          "r3-diagnostics-253-59",
+          "r3-setup-accounting-253-60"
+        ],
+        "explains_historical_cause": false
+      },
+      {
+        "group": "r4-annotation-double-count",
+        "repair_ids": [
+          "r4-per-row-union-253-69"
+        ],
+        "explains_historical_cause": false
+      },
+      {
+        "group": "r5-schema-qualified-count",
+        "repair_ids": [
+          "r5-count-query-253-79"
+        ],
+        "explains_historical_cause": false
+      }
+    ],
+    "controls": {
+      "description": "R5 native readiness/isolation controls accepted 22/22",
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-NATIVE-EVIDENCE-R5.json",
+      "sha256": "14df65778c6e1ab924d0ed5430937383af95c499c1f00468028910eda9d9f9a1",
+      "proves_historical_cause": false
+    }
+  },
+  "acceptance_slots": [
+    {
+      "id": "D20-ACCEPT-admin-eval-1",
+      "status": "expired_unused"
+    },
+    {
+      "id": "D20-ACCEPT-admin-eval-2",
+      "status": "expired_unused"
+    },
+    {
+      "id": "D20-ACCEPT-admin-eval-3",
+      "status": "expired_unused"
+    },
+    {
+      "id": "D20-ACCEPT-admin-eval-mobile-1",
+      "status": "expired_unused"
+    },
+    {
+      "id": "D20-ACCEPT-admin-eval-mobile-2",
+      "status": "expired_unused"
+    },
+    {
+      "id": "D20-ACCEPT-admin-eval-mobile-3",
+      "status": "expired_unused"
+    },
+    {
+      "id": "D20-ACCEPT-admin-eval-dark-1",
+      "status": "expired_unused"
+    },
+    {
+      "id": "D20-ACCEPT-admin-eval-dark-2",
+      "status": "expired_unused"
+    },
+    {
+      "id": "D20-ACCEPT-admin-eval-dark-3",
+      "status": "expired_unused"
+    }
+  ],
+  "requirements": {
+    "CIREL-01": {
+      "status": "partial",
+      "satisfied": false,
+      "unmet": [
+        "selected flaky failures reproduced",
+        "fixed with deterministic regression checks and repeat runs"
+      ],
+      "met": [
+        "no increased blanket retries",
+        "readiness asserted without sleeps",
+        "22/22 deterministic readiness/isolation controls"
+      ],
+      "amended": false
+    },
+    "CIREL-02": {
+      "status": "not_decided_by_this_record"
+    }
+  },
+  "roadmap_sc1_no_flake_clause": {
+    "applies": false,
+    "qualifies_as_no_flake": false,
+    "automatic": false,
+    "reason": "The Phase 252 baseline retained registration failures (D-03 runs 38139851334, 38141796613, 38205503164), so the no-flake clause does not apply."
+  },
+  "qualifies_as_no_flake": false
+}

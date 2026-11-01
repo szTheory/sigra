@@ -1,0 +1,528 @@
+{
+  "unit": {
+    "kind": "phase",
+    "phase": "253"
+  },
+  "status": "resolved",
+  "source": "task-commits",
+  "reason": null,
+  "commits": [
+    {
+      "sha": "d8d507b70a7f9730407fa7ce319480c07ab3cca8",
+      "subject": "test(253-01): require archived Test Z diagnosis without changing old outcomes",
+      "files": [
+        "scripts/ci/ci-run-metrics.test.sh"
+      ]
+    },
+    {
+      "sha": "0e806c830f4032d7493d93a4e16fb2d0cd81f9c1",
+      "subject": "feat(253-01): diagnose archived native failures in a separate versioned report",
+      "files": [
+        "scripts/ci/ci-run-metrics.sh",
+        "scripts/ci/ci_metrics_security.py"
+      ]
+    },
+    {
+      "sha": "e7ecae3f7c3063f27c06e826eb07bdb29157bd5e",
+      "subject": "test(253-01): require late failure context and reject changed archives",
+      "files": [
+        "scripts/ci/ci-run-metrics.test.sh"
+      ]
+    },
+    {
+      "sha": "e46c616a82214503e56fca24d25da9adb61f6fbf",
+      "subject": "feat(253-01): retain source-indexed failure context before clipping",
+      "files": [
+        "scripts/ci/ci_metrics_security.py"
+      ]
+    },
+    {
+      "sha": "810b6c3be2470b549fa65d1a6d082670ca2678fe",
+      "subject": "chore(253-02): preserve bounded registration diagnostics",
+      "files": [
+        "scripts/ci/ci-registration-repro.sh",
+        "scripts/ci/ci-registration-repro.test.sh"
+      ]
+    },
+    {
+      "sha": "91018cd82359fe3ed45f4b7ded576a11ab850927",
+      "subject": "test(253-03): require unit smoke in the actual release verdict",
+      "files": [
+        "scripts/ci/honest-skip-verdict.test.sh"
+      ]
+    },
+    {
+      "sha": "b4eb2f7ed9ba9157432311a0c1ffe4ded77e4de0",
+      "subject": "feat(253-03): make ci-gate own the unit smoke result",
+      "files": [
+        ".github/workflows/ci.yml",
+        "scripts/ci/honest-skip-verdict.sh",
+        "scripts/ci/honest-skip-verdict.test.sh"
+      ]
+    },
+    {
+      "sha": "2c64bcdbea9500f23ce64c27c46620ce5d52d109",
+      "subject": "test(253-03): reject a workflow that drops the unit result path",
+      "files": [
+        "scripts/ci/honest-skip-verdict.test.sh"
+      ]
+    },
+    {
+      "sha": "b0ab759baad55aafc04c3753487747e841dc6a09",
+      "subject": "feat(253-03): fail closed when unit ownership wiring drifts",
+      "files": [
+        "scripts/ci/honest-skip-verdict.sh"
+      ]
+    },
+    {
+      "sha": "acdfd5ce9272f57517599f92f56516ce610eeb1b",
+      "subject": "test(253-04): reject the synthetic browser aggregate skip entry",
+      "files": [
+        "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs"
+      ]
+    },
+    {
+      "sha": "56992d70f40b6a206a3a9ed78716bc7f15d6fc3d",
+      "subject": "feat(253-04): document actual browser body steps and keep aggregate mandatory",
+      "files": [
+        ".github/ci-skip-manifest.tsv",
+        ".github/workflows/ci.yml",
+        "MAINTAINING.md",
+        "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs"
+      ]
+    },
+    {
+      "sha": "bc812ddd5d5e418ae4c56f7d99cee8cc77932a45",
+      "subject": "test(253-04): reject unverified docs-only claims and stale browser bodies",
+      "files": [
+        "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs"
+      ]
+    },
+    {
+      "sha": "78bc6ce01567295fff0a6722e26121380e0a0202",
+      "subject": "feat(253-04): require verified PR classification for browser body skips",
+      "files": [
+        ".github/ci-skip-manifest.tsv",
+        ".github/workflows/ci.yml",
+        "MAINTAINING.md",
+        "scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs"
+      ]
+    },
+    {
+      "sha": "0be78675387ee46fa8b0a396f000cb9a17f9ba66",
+      "subject": "test(253-05): require native browser reports for a selected seam",
+      "files": [
+        "scripts/ci/ci-browser-records.test.mjs"
+      ]
+    },
+    {
+      "sha": "18953500607d4af80879976b4bcba59be4af8760",
+      "subject": "feat(253-05): validate a selected browser seam against native test inventory",
+      "files": [
+        "scripts/ci/ci-browser-records.mjs"
+      ]
+    },
+    {
+      "sha": "2488f43fd1735faba6e5f2b0be8b369093421b50",
+      "subject": "test(253-05): require all five browser producers and report selections",
+      "files": [
+        "scripts/ci/ci-browser-records.test.mjs"
+      ]
+    },
+    {
+      "sha": "15ec8fec4c55b65b9f1d6c3cbea2eb828a5855b9",
+      "subject": "feat(253-05): require exact five-seam native reports and reject incomplete records",
+      "files": [
+        "scripts/ci/ci-browser-records.mjs",
+        "scripts/ci/ci-browser-records.test.mjs"
+      ]
+    },
+    {
+      "sha": "a87e635dbad45d15a762dec4ff471e78746cb970",
+      "subject": "test(253-06): require producer artifacts in the mandatory browser verdict",
+      "files": [
+        "scripts/ci/ci-measure-workflow.test.mjs"
+      ]
+    },
+    {
+      "sha": "a44a49ba67bc973b72c36885590baef97fab08a2",
+      "subject": "feat(253-06): connect browser record artifacts to the required aggregate",
+      "files": [
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "sha": "efaa57161dbfd4c12ca41160b1098ede8a376ede",
+      "subject": "test(253-06): require complete native inventory for every browser producer",
+      "files": [
+        "scripts/ci/ci-measure-workflow.test.mjs"
+      ]
+    },
+    {
+      "sha": "9b27d48d3165eadcd4ffb9cee12ac6d699d621b0",
+      "subject": "feat(253-06): validate native inventories and records from every browser producer",
+      "files": [
+        ".github/workflows/ci.yml",
+        "scripts/ci/ci-playwright-report.test.mjs"
+      ]
+    },
+    {
+      "sha": "56170a130ebeb99105b4061289b257090bb6cf3d",
+      "subject": "test(253-07): add hosted canary verifier contracts",
+      "files": [
+        "scripts/ci/ci-hosted-gate-verify.test.py"
+      ]
+    },
+    {
+      "sha": "5fbf4babbfb54a2c609a588c4021e6fe686b60e8",
+      "subject": "test(253-07): reject unverified docs-only claims",
+      "files": [
+        "scripts/ci/honest-skip-verdict.test.sh"
+      ]
+    },
+    {
+      "sha": "4bc7c4249040c986d205d115f41cb5970d9d8ee2",
+      "subject": "fix(253-07): bind skips to classifier and add canary",
+      "files": [
+        ".github/ci-skip-manifest.tsv",
+        ".github/workflows/ci.yml",
+        "MAINTAINING.md",
+        "scripts/ci/ci-gate-canary.sh",
+        "scripts/ci/ci-gate-canary.test.sh",
+        "scripts/ci/ci-hosted-gate-verify.py",
+        "scripts/ci/honest-skip-verdict.sh"
+      ]
+    },
+    {
+      "sha": "8459c10df54623d6f69f68076556dd0f144ec58f",
+      "subject": "fix(253-07): correct canary request ledger jq",
+      "files": [
+        "scripts/ci/ci-gate-canary.sh"
+      ]
+    },
+    {
+      "sha": "258eb98a1971e01e32e5dcb239df4f8ad0cbb8eb",
+      "subject": "test(253-07): bind retained result to hosted artifact",
+      "files": [
+        "scripts/ci/ci-hosted-gate-verify.test.py"
+      ]
+    },
+    {
+      "sha": "4cc96210ae2ef4939486903b50fcf7f99d2e78a0",
+      "subject": "docs(253-07): distinguish verifier negative control",
+      "files": []
+    },
+    {
+      "sha": "a7685bcfbd8fd3b915df2b0d63fbc193a78b7420",
+      "subject": "test(253-07): reproduce hosted fixture and receipt capture failures",
+      "files": [
+        "scripts/ci/ci-gate-canary-recovery.test.py",
+        "scripts/ci/ci-hosted-gate-verify.test.py"
+      ]
+    },
+    {
+      "sha": "b0bed87cf1d44bf822e7d0345a77462af2023c0c",
+      "subject": "fix(253-07): bind fixture identity and capture terminal proof honestly",
+      "files": [
+        "scripts/ci/ci-gate-canary-recovery.test.py",
+        "scripts/ci/ci-gate-canary.sh",
+        "scripts/ci/ci-hosted-gate-verify.py",
+        "scripts/ci/ci-hosted-gate-verify.test.py"
+      ]
+    },
+    {
+      "sha": "7da6766eb361c9bd47a6bf0a875e41aa2229075f",
+      "subject": "fix(253-07): recognize skipped producer matrix in verifier run",
+      "files": [
+        "scripts/ci/ci-hosted-gate-verify.py",
+        "scripts/ci/ci-hosted-gate-verify.test.py"
+      ]
+    },
+    {
+      "sha": "6a898e0195bfcbc509af1b8fc1dee3ca1748346c",
+      "subject": "feat(253-103): R8 mapping, frozen 253-96 receipts, pins and real-SDK pairing proof",
+      "files": []
+    },
+    {
+      "sha": "e0ad49f8cace0e0938b4083ea6d76504d6894173",
+      "subject": "feat(253-103): committed R8 reconciliation contract",
+      "files": []
+    },
+    {
+      "sha": "17f3db955601b3bd3da7e126a7e1f6b57efead22",
+      "subject": "feat(253-112): R9 mapping, frozen 253-103 receipts, pins and real-SDK pairing proof",
+      "files": []
+    },
+    {
+      "sha": "0bda1cb3c4d84aedd747348d2521bb1577244efe",
+      "subject": "feat(253-112): R9 reconciliation contract (48 never-executed, 14 halted, final owner 253-115)",
+      "files": []
+    },
+    {
+      "sha": "3d73201b6efbfcdb57d12acc005644e0e125ad60",
+      "subject": "feat(253-121): R10 mapping, frozen 253-112 receipts, pins and real-SDK pairing proof",
+      "files": []
+    },
+    {
+      "sha": "bc3cdb208fdef98cfcc668ba30369afedaac6598",
+      "subject": "feat(253-121): R10 reconciliation contract (50 never-executed, 15 halted, final owner 253-124)",
+      "files": []
+    },
+    {
+      "sha": "4ec50b500a707a059db480e8b79db1f87bb70af7",
+      "subject": "docs(253-125): R11 hermetic-vs-live audit record",
+      "files": [
+        "scripts/ci/ci-hermetic-live-audit.test.py"
+      ]
+    },
+    {
+      "sha": "e5ce3d5780c30036f55651a5ee59a4fabd8047fd",
+      "subject": "feat(253-132): R11 mapping, frozen 253-121 receipts, pins and real-SDK pairing proof",
+      "files": []
+    },
+    {
+      "sha": "4e6bea18ea36726e10c4ce5fa20eb34218759a05",
+      "subject": "feat(253-132): R11 reconciliation contract",
+      "files": []
+    },
+    {
+      "sha": "fa2b080e20e2fc9995e5f05f68193ee92636947b",
+      "subject": "feat(253-142): R12 mapping, frozen 253-132 receipts, pins and real-SDK pairing proof",
+      "files": []
+    },
+    {
+      "sha": "8e47400611cbf7054b513b96e5a2b1c81196c810",
+      "subject": "feat(253-142): R12 reconciliation contract",
+      "files": []
+    },
+    {
+      "sha": "6a7994dfe3e1f208da31f8e6ef96d1e3dc50d0a2",
+      "subject": "test(253-18): add wire-level hosted transport contracts",
+      "files": [
+        "scripts/ci/ci-hosted-transport.test.py"
+      ]
+    },
+    {
+      "sha": "2b3181e74aa15b32e51a936e50381587e4f75a23",
+      "subject": "test(253-18): cover redirects and transport hard stops",
+      "files": [
+        "scripts/ci/ci-hosted-transport.test.py"
+      ]
+    },
+    {
+      "sha": "2135be352be9731e2cb40486786f4b0eb6853711",
+      "subject": "feat(253-26): add offline control timeout audit",
+      "files": [
+        "scripts/ci/ci-registration-control-audit.mjs",
+        "scripts/ci/ci-registration-control-audit.test.mjs"
+      ]
+    },
+    {
+      "sha": "72c554da160a8dbcd4e03eaaa7593578444514b5",
+      "subject": "fix(253-26): share registration controls and isolate accounts",
+      "files": [
+        "scripts/ci/ci-registration-control-audit.test.mjs",
+        "test/example/priv/playwright/helpers/registrationControls.mjs",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts"
+      ]
+    },
+    {
+      "sha": "28323da85cf674f4728ef82bcc70400b00a3457d",
+      "subject": "fix(253-36): load parse5 via native dynamic import under Node20 CJS transform",
+      "files": [
+        "scripts/ci/ci-playwright-load.test.mjs",
+        "test/example/priv/playwright/lib/eval/bundle.ts",
+        "test/example/priv/playwright/lib/eval/canonicalize.ts",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts"
+      ]
+    },
+    {
+      "sha": "06840d827af74a1fd7b46b95fe1a790605449e1c",
+      "subject": "test(253-36): await async renderSha256 in canonicalize self-test, keep 17 cases",
+      "files": [
+        "test/example/priv/playwright/lib/eval/canonicalize.test.ts"
+      ]
+    },
+    {
+      "sha": "df740b901bba964580dbeaff33f69acc8f1cb56e",
+      "subject": "test(253-42): literal limitations and exact UTF-8 near-miss coverage for accepted-only completion",
+      "files": [
+        "scripts/ci/ci-hosted-gate-verify.py",
+        "scripts/ci/ci-hosted-gate-verify.test.py",
+        "scripts/ci/ci-pr-proof.test.sh"
+      ]
+    },
+    {
+      "sha": "1c5e440dfdbccbbd1a3bcc1eaf368e99b28bc377",
+      "subject": "feat(253-50): generate and commit the R2 reconciliation contract",
+      "files": []
+    },
+    {
+      "sha": "1bb00a16d9b93a6276567fd4e7cfb14ed0411a0a",
+      "subject": "feat(253-59): per-test fsync JSONL reporter, attempt diagnostics preservation and R3 verifier",
+      "files": [
+        "scripts/ci/ci-registration-recovery.mjs",
+        "scripts/ci/ci-registration-recovery.test.mjs",
+        "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs",
+        "test/example/priv/playwright/playwright.config.ts"
+      ]
+    },
+    {
+      "sha": "c2b355482aa37366e53099215b4ca55440db8706",
+      "subject": "test(253-59): pin env-gated failure-jsonl reporter in production and recovery configs",
+      "files": [
+        "scripts/ci/ci-playwright-load.test.mjs"
+      ]
+    },
+    {
+      "sha": "dd72741ce1432c7b71940b1783460298a790d06f",
+      "subject": "feat(253-61): add additive R3 reconciliation revision and confine R2 tests to the R2 world",
+      "files": []
+    },
+    {
+      "sha": "50e6592b96ce8786a7ed463fe1c0ff4d0ce986be",
+      "subject": "feat(253-61): generate and commit the R3 reconciliation contract",
+      "files": []
+    },
+    {
+      "sha": "5e59b1afaa06f01230e5c2ade8760686cceb9000",
+      "subject": "feat(253-71): additive R4 reconciliation revision behind --revision r4",
+      "files": []
+    },
+    {
+      "sha": "65d670c0cb74d2d1f5a09654767014690f9bdbc6",
+      "subject": "feat(253-71): commit R4 reconciliation contract (33 responsibilities, 9 halted, final owner 253-78)",
+      "files": []
+    },
+    {
+      "sha": "a6ccee5803e77630b1e4c71d89563c97add42909",
+      "subject": "feat(253-96): R7 mapping, frozen 253-90 receipts, pins and real-SDK pairing proof",
+      "files": []
+    },
+    {
+      "sha": "a124e6c831e70272f9fa7419368a2d1be3a24c11",
+      "subject": "feat(253-96): commit the R7 reconciliation contract",
+      "files": []
+    }
+  ],
+  "changedFiles": [
+    ".github/ci-skip-manifest.tsv",
+    ".github/workflows/ci.yml",
+    "MAINTAINING.md",
+    "scripts/ci/ci-browser-records.mjs",
+    "scripts/ci/ci-browser-records.test.mjs",
+    "scripts/ci/ci-gate-canary-recovery.test.py",
+    "scripts/ci/ci-gate-canary.sh",
+    "scripts/ci/ci-gate-canary.test.sh",
+    "scripts/ci/ci-hermetic-live-audit.test.py",
+    "scripts/ci/ci-hosted-gate-verify.py",
+    "scripts/ci/ci-hosted-gate-verify.test.py",
+    "scripts/ci/ci-hosted-transport.test.py",
+    "scripts/ci/ci-measure-workflow.test.mjs",
+    "scripts/ci/ci-playwright-load.test.mjs",
+    "scripts/ci/ci-playwright-report.test.mjs",
+    "scripts/ci/ci-pr-proof.test.sh",
+    "scripts/ci/ci-registration-control-audit.mjs",
+    "scripts/ci/ci-registration-control-audit.test.mjs",
+    "scripts/ci/ci-registration-recovery.mjs",
+    "scripts/ci/ci-registration-recovery.test.mjs",
+    "scripts/ci/ci-registration-repro.sh",
+    "scripts/ci/ci-registration-repro.test.sh",
+    "scripts/ci/ci-run-metrics.sh",
+    "scripts/ci/ci-run-metrics.test.sh",
+    "scripts/ci/ci_metrics_security.py",
+    "scripts/ci/honest-skip-verdict.sh",
+    "scripts/ci/honest-skip-verdict.test.sh",
+    "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+    "scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs",
+    "test/example/priv/playwright/helpers/registrationControls.mjs",
+    "test/example/priv/playwright/lib/eval/bundle.ts",
+    "test/example/priv/playwright/lib/eval/canonicalize.test.ts",
+    "test/example/priv/playwright/lib/eval/canonicalize.ts",
+    "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs",
+    "test/example/priv/playwright/playwright.config.ts",
+    "test/example/priv/playwright/tests/admin-eval.spec.ts"
+  ],
+  "files": [
+    ".github/ci-skip-manifest.tsv",
+    ".github/workflows/ci.yml",
+    "MAINTAINING.md",
+    "scripts/ci/ci-browser-records.mjs",
+    "scripts/ci/ci-browser-records.test.mjs",
+    "scripts/ci/ci-gate-canary-recovery.test.py",
+    "scripts/ci/ci-gate-canary.sh",
+    "scripts/ci/ci-gate-canary.test.sh",
+    "scripts/ci/ci-hermetic-live-audit.test.py",
+    "scripts/ci/ci-hosted-gate-verify.py",
+    "scripts/ci/ci-hosted-gate-verify.test.py",
+    "scripts/ci/ci-hosted-transport.test.py",
+    "scripts/ci/ci-measure-workflow.test.mjs",
+    "scripts/ci/ci-playwright-load.test.mjs",
+    "scripts/ci/ci-playwright-report.test.mjs",
+    "scripts/ci/ci-pr-proof.test.sh",
+    "scripts/ci/ci-registration-control-audit.mjs",
+    "scripts/ci/ci-registration-control-audit.test.mjs",
+    "scripts/ci/ci-registration-recovery.mjs",
+    "scripts/ci/ci-registration-recovery.test.mjs",
+    "scripts/ci/ci-registration-repro.sh",
+    "scripts/ci/ci-registration-repro.test.sh",
+    "scripts/ci/ci-run-metrics.sh",
+    "scripts/ci/ci-run-metrics.test.sh",
+    "scripts/ci/ci_metrics_security.py",
+    "scripts/ci/honest-skip-verdict.sh",
+    "scripts/ci/honest-skip-verdict.test.sh",
+    "scripts/ci/prohibitions/p10-no-undocumented-demotion.test.mjs",
+    "scripts/ci/prohibitions/p21-honest-skip-parity.test.mjs",
+    "test/example/priv/playwright/helpers/registrationControls.mjs",
+    "test/example/priv/playwright/lib/eval/bundle.ts",
+    "test/example/priv/playwright/lib/eval/canonicalize.test.ts",
+    "test/example/priv/playwright/lib/eval/canonicalize.ts",
+    "test/example/priv/playwright/lib/reporters/failure-jsonl.mjs",
+    "test/example/priv/playwright/playwright.config.ts",
+    "test/example/priv/playwright/tests/admin-eval.spec.ts"
+  ],
+  "missingOnDisk": [],
+  "outsideUnion": [
+    "CHANGELOG.md",
+    "lib/sigra/auth.ex",
+    "priv/templates/sigra.install/core/registration_live.ex",
+    "scripts/ci/ci-exunit-timing.test.sh",
+    "scripts/ci/ci-gate-canary-dryrun.py",
+    "scripts/ci/ci-gate-canary-dryrun.test.py",
+    "scripts/ci/ci-gate-canary-flow.test.py",
+    "scripts/ci/ci-git-publication.py",
+    "scripts/ci/ci-git-publication.test.py",
+    "scripts/ci/ci-hosted-transport.py",
+    "scripts/ci/ci-live-policy-shim.py",
+    "scripts/ci/ci-measure-report.sh",
+    "scripts/ci/ci-measure-report.test.sh",
+    "scripts/ci/ci-metrics-security.test.py",
+    "scripts/ci/ci-playwright-report.mjs",
+    "scripts/ci/ci-pr-proof.sh",
+    "scripts/ci/ci-registration-recovery.pg.test.mjs",
+    "scripts/ci/ci-registration-setup-diagnostic.mjs",
+    "scripts/ci/ci-registration-setup-diagnostic.test.mjs",
+    "scripts/ci/ci-run-metrics-comparison.test.sh",
+    "scripts/ci/ci-run-metrics-replay.test.mjs",
+    "scripts/ci/ci-shape-probe.py",
+    "scripts/ci/ci-shape-probe.test.py",
+    "scripts/ci/exunit_timing_contract.py",
+    "scripts/ci/exunit_timing_contract_test.py",
+    "scripts/ci/fixtures/r3-mirrored-context-annotations.json",
+    "scripts/ci/fixtures/registration-native-tree.mjs",
+    "scripts/ci/sigra-dep-off.sh",
+    "scripts/ci/test-sigra-dep-off.sh",
+    "test/example/lib/example_web/live/registration_live.ex",
+    "test/example/priv/playwright/playwright.registration-recovery.config.ts",
+    "test/example/test/example_web/live/registration_live_test.exs",
+    "test/example/test/example_web/smoke/register_login_logout_test.exs",
+    "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/registration_live.ex",
+    "test/sigra/auth_test.exs",
+    "test/sigra/install/auth_ui_contract_test.exs",
+    "test/sigra/planning/ci_timing_formatter_test.exs",
+    "test/support/ci_timing_formatter.ex",
+    "test/test_helper.exs"
+  ],
+  "unreachable": [],
+  "rangeBase": "30b22bc16c0124151616e2dcab18ae25fdd1816a"
+}

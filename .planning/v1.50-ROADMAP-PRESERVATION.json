@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "preserved_at": "2026-10-12T15:25:47.243288+00:00",
+  "milestone": "v1.50",
+  "scope": "Roadmap review bytes only; canonical roadmap commit waits for user approval.",
+  "source_head": "394caa3642b7daa3dc7d219ebce2c5cf8ae0b088",
+  "ref": "refs/heads/v150-preservation/roadmap-review-20261012T152112Z",
+  "commit": "6b77c76585cf37a926869425b15b166fec25a80f",
+  "tree": "93abe94b70bf90377a501437e2a5dedcd9656132",
+  "files": [
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": " M",
+      "bytes": 8552,
+      "sha256": "4e5179dd3457ad67a4583e68373122c4919bc586efbcf22bc802b37ab5fae2bc",
+      "blob": "ba43274477e77196d0c74fda2648c7cde024b4a2",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/PROJECT.md",
+      "status": " M",
+      "bytes": 197366,
+      "sha256": "b7c4e6a62680cffdc181ad6173072388316c388ab95dfd71b50ea7dec534a6ae",
+      "blob": "e385b56a3f78344becb161777efadb4008cf8f78",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/REQUIREMENTS.md",
+      "status": " M",
+      "bytes": 5841,
+      "sha256": "3b7b15afe6308df16245ecb37d7e0c9f6e13de49b68ae60d3bf619b7723aceb6",
+      "blob": "97b699ac170d62972bff085e5dacb6629c3a4716",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/ROADMAP.md",
+      "status": " M",
+      "bytes": 9791,
+      "sha256": "923d0e25314ff99a42edb4d5b29b996e492b9d3edc0f90fad863ce7bfca6a03f",
+      "blob": "c597299156288f0f30c633379d810c2e0ed06be9",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/STATE.md",
+      "status": " M",
+      "bytes": 4996,
+      "sha256": "b075585aecbde1f6012b5f00dbc6ac76b08b0cd5a6cf0583eddff9c0f17d95c8",
+      "blob": "4ddbb0e1afbece7f59ef2b430607ee64d1868d71",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": " M",
+      "bytes": 2434,
+      "sha256": "59f04c6a6b267b5beda2faa7475a2a50227ce5abb66a2df448808e0f41dd128a",
+      "blob": "55d0ca77203d11b5d15fa09034debdbfa82acb3c",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/v1.50-START.json",
+      "status": " M",
+      "bytes": 8911,
+      "sha256": "a4d46e96d3b0b4bb6f7fd83d49fd453e0e9335b3bb9d02a2a78d9bf83145dc23",
+      "blob": "528a2678c168cb32bc53476148314e134415e9d1",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/252-measure-current-ci/.gitkeep",
+      "status": "??",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "blob": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/.gitkeep",
+      "status": "??",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "blob": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/254-speed-up-the-measured-slow-jobs/.gitkeep",
+      "status": "??",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "blob": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/255-make-failures-reproducible-and-report-the-result/.gitkeep",
+      "status": "??",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "blob": "8b137891791fe96927ad78e64b0aad7bded08bdc",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/v1.50-ROADMAP-CHECKS.json",
+      "status": "??",
+      "bytes": 10704,
+      "sha256": "24d136d259c892c853c29307a7515acffa1187dbcdd2cf8f7b665a28e4de33f7",
+      "blob": "7bf06168b62c601947dc2034ed2be4502e2ef35b",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/v1.50-ROADMAP-REVIEW.json",
+      "status": "??",
+      "bytes": 13319,
+      "sha256": "96f0c12455e7ec928b9892158e7cd63562b83395d548751dd5d56b7c802c7c25",
+      "blob": "516147f3be36ffb0a8cb199ad6488d6c8f90aa3e",
+      "git_readback_exact": true
+    }
+  ],
+  "exact_file_readbacks": 13,
+  "source_status_rechecked_after_preservation": " M .planning/HANDOFF.json\n M .planning/PROJECT.md\n M .planning/REQUIREMENTS.md\n M .planning/ROADMAP.md\n M .planning/STATE.md\n M .planning/state.json\n M .planning/v1.50-START.json\n?? .planning/phases/252-measure-current-ci/.gitkeep\n?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/.gitkeep\n?? .planning/phases/254-speed-up-the-measured-slow-jobs/.gitkeep\n?? .planning/phases/255-make-failures-reproducible-and-report-the-result/.gitkeep\n?? .planning/v1.50-ROADMAP-CHECKS.json\n?? .planning/v1.50-ROADMAP-REVIEW.json\n",
+  "source_bytes_rechecked_after_preservation": true,
+  "main_head_unchanged_by_snapshot": true,
+  "normal_git_index_unchanged": true,
+  "requirements_approved": true,
+  "roadmap_approved": false,
+  "immediate_command": "$gsd-new-milestone",
+  "after_approval_command": "$gsd-discuss-phase 252",
+  "state_validation": {
+    "valid": true,
+    "warnings": [],
+    "scope": "complete"
+  },
+  "historical_release_gap_is_forward_blocker": false,
+  "source_status_recheck_verified": true
+}

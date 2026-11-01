@@ -1,0 +1,12 @@
+{
+  "status": "complete",
+  "request_count": 3,
+  "stop_reason": null,
+  "reset_or_retry_at": "1792805215",
+  "unknown_inputs": [],
+  "requests": [
+    "rate_limit",
+    "/repos/szTheory/sigra/git/ref/heads/evidence/phase254-environment-before-20261024",
+    "/repos/szTheory/sigra/git/refs/heads/evidence/phase254-environment-before-20261024"
+  ]
+}

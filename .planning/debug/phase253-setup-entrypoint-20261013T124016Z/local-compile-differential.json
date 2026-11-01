@@ -1,0 +1,34 @@
+{
+  "schema_version": "sigra.phase253.jose-path-differential/v1",
+  "scope": "dependency-only compilation; no Phoenix or browser launch",
+  "source": "copied test/example/deps/jose with repository .tool-versions",
+  "source_path": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-jose-path.0vOHlb/repo/jose",
+  "temp_alias": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T",
+  "temp_realpath": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T",
+  "commands": [
+    {
+      "env": {
+        "MIX_ENV": "dev",
+        "MIX_BUILD_PATH": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-jose-path.0vOHlb/build"
+      },
+      "argv": ["mix", "compile", "--force", "--no-deps-check"],
+      "exit_code": 1,
+      "include_link": "../../../../../../../../../private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-jose-path.0vOHlb/repo/jose/include",
+      "include_link_resolves": false,
+      "log": "logs/jose-alias-red.log",
+      "log_sha256": "cbf06d4bcd3e1c183d6d5b6b7caa982ca17dca53e7cd5ce3ef73e82c9df3a3dd"
+    },
+    {
+      "env": {
+        "MIX_ENV": "dev",
+        "MIX_BUILD_PATH": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-jose-path.0vOHlb/build-canonical"
+      },
+      "argv": ["mix", "compile", "--force", "--no-deps-check"],
+      "exit_code": 0,
+      "include_link": "../../../repo/jose/include",
+      "include_link_resolves": true,
+      "log": "logs/jose-canonical-green.log",
+      "log_sha256": "1b18d3ea7eda3bc01e9d66e8b141172be0197b55117549b7fb6ddbed7d0be1fa"
+    }
+  ]
+}

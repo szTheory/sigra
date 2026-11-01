@@ -1,0 +1,248 @@
+{
+  "schema": "sigra.phase253.gap-planning-record/v1",
+  "phase": "253",
+  "mode": "gap_closure",
+  "status": "written_validated_awaiting_root_review_and_commit",
+  "capture": {
+    "head": "b6bc388d562e15982964a9846f0fdd196ae8dc10",
+    "clean": true,
+    "plans": 180,
+    "completed_implementation": 75,
+    "halted": 25,
+    "without_summary": 80
+  },
+  "gap_source": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-178-EXECUTION-RECORD.json",
+  "no_phase_verification_report_exists": true,
+  "scope": {
+    "new_plans": [
+      "253-181"
+    ],
+    "new_task_count": 3,
+    "new_waves": 1,
+    "eventual_active_chain_waves": 8,
+    "existing_plans_reused": [
+      179,
+      180,
+      168,
+      169,
+      170,
+      171,
+      172
+    ],
+    "existing_plan_amendments_during_planning": 0,
+    "source_changes_during_planning": 0,
+    "shared_state_changes_by_planner": 0,
+    "commits_by_planner": 0
+  },
+  "gap_mapping": {
+    "178-REVIEW-01": "181 task1: both automated-body receipt prefixes and refusal spies",
+    "178-REVIEW-02": "181 task2: parse exact raw SDK queries, validate args/identity/committed manifest",
+    "178-REVIEW-03": "181 task2:181 unique exact IDs before coercion in both stages",
+    "178-TEST-01": "181 task1: real Git/object fixture; task3 full suite"
+  },
+  "continuation": {
+    "execution_time_amendments": "181 task3 preserves179/180 originals at refs/gsd/phase253-repair181-inputs before amendments; uses repair181/acceptance179/bridge180",
+    "route": [
+      "253-181",
+      "253-179",
+      "253-180",
+      "253-168",
+      "253-169",
+      "253-170",
+      "253-171",
+      "253-172"
+    ],
+    "future_contract": {
+      "plan_pins": 181,
+      "literal_halts": 25,
+      "dispositions": 73,
+      "historical_sparse_members": 173,
+      "historical_completed": 75
+    },
+    "preserved_halted_plans_include": [
+      175,
+      178
+    ],
+    "never_ran_retirements": [
+      176,
+      177
+    ],
+    "no_new_acceptance_identity": true
+  },
+  "checks": {
+    "frontmatter": {
+      "valid": true,
+      "missing": [],
+      "present": [
+        "phase",
+        "plan",
+        "type",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "must_haves",
+        "gap_closure"
+      ],
+      "invalidValue": [],
+      "schema": "plan-gap-closure"
+    },
+    "structure": {
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "task_count": 3,
+      "tasks": [
+        {
+          "name": "Task 1: Prove both freeze commands stop on receipt refusal and repair the real Git fixture",
+          "type": "tracer",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 2: Validate SDK output semantics and the exact complete plan universe",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        },
+        {
+          "name": "Task 3: Preserve and reconnect existing179/180 through completed181, then prove the complete local route",
+          "type": "auto",
+          "hasFiles": true,
+          "hasAction": true,
+          "hasVerify": true,
+          "hasDone": true
+        }
+      ],
+      "frontmatter_fields": [
+        "phase",
+        "plan",
+        "type",
+        "gap_closure",
+        "wave",
+        "depends_on",
+        "files_modified",
+        "autonomous",
+        "requirements",
+        "tags",
+        "estimate",
+        "must_haves"
+      ]
+    },
+    "readiness": {
+      "plan_count": 181,
+      "ready_plans": [
+        "253-181"
+      ],
+      "halted_count": 25,
+      "incomplete_count": 81
+    }
+  },
+  "task_contracts": {
+    "task_count": 3,
+    "automated_commands": 5,
+    "all_task_fields": true,
+    "failure_directions_bound": true,
+    "decisions_covered": 24,
+    "requirements": [
+      "CIREL-01",
+      "CIREL-02"
+    ],
+    "tracer_first": true,
+    "write_tail_verified": true
+  },
+  "estimate_calibration": {
+    "factor": 1,
+    "sample_count": 0,
+    "confidence": "low",
+    "raw_tokens": 44000,
+    "tokens": 44000
+  },
+  "old_input_sha256": {
+    "253-RECOVERY-SUCCESSOR.py": "b54b870deb4f3b188c2f11af5b6b5771e73fa914d0cb8a908816d3db38fd87e2",
+    "253-RECOVERY-SUCCESSOR.test.py": "c9ecd64e042ed9d8735bf78607361ef092854868031e38a847009224ecb59713",
+    "253-179-PLAN.md": "3cbc45611348a107d6cd29d8b6b134290461ff9f1aa1b6234142ac50cec12a58",
+    "253-180-PLAN.md": "5a67471b4666b1f2b176b9a83b07181e0100223003352523ed46b4da04f6af49",
+    "253-178-PLAN.md": "f260cf0df47ab986c228bb8cf0b1cbfc5fdcb594b2adc3a3bb88cb4f733351b5",
+    "253-178-SUMMARY.md": "622517dff95bf2d7feef336c4d8e3c11af1bfc1bb0fbee51d7dc9a048ce259b0",
+    "253-178-REPAIR-REVIEW.json": "169ecf458eccc7ed440b7533875f3b580f8334bc8189a024efea55dac83212ee",
+    "253-178-EXECUTION-RECORD.json": "ab7a0282eb760b635376807062285c1361828b0ccb56915a4a93a3b404d15567"
+  },
+  "artifact_sha256": {
+    "253-181-PLAN.md": "14f66a4d3494ed60c448de4d01e96b5bd187aae240036eecc2e142acb9f38ed5",
+    "253-181-SOURCE-AUDIT.md": "e5c9c3f5c0979c8c8a7f93c0d5d201e6e2d8d682ebb861cb0361ed3b499cfd25"
+  },
+  "evidence": {
+    "halted_candidate": "d0a2433f1aae2894819dda270de2a60974c928e5",
+    "diagnostics_ref": "refs/gsd/phase253-execution178-diagnostics",
+    "diagnostics_commit": "9ca5fedd70f90e442976857ce1d45858a6693808",
+    "prior_full_suite": {
+      "tests": 16,
+      "passed": 15,
+      "errors": 1,
+      "exit": 1,
+      "duration_seconds": 167.106
+    },
+    "new_production_tests_executed": false,
+    "acceptance_attempts": 0,
+    "github_requests": 0,
+    "native_browser_launches": 0
+  },
+  "review01_revision": {
+    "checker": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-CHECK-01.md",
+    "issues_addressed": 1,
+    "issues_unaddressed": 0,
+    "required_property": "Both amended continuation plans pass automated frontmatter and task-structure validation before repair completion",
+    "mechanism": "Task3 reruns four validators; compares exact retained argv/stdout/SHA/exit, valid results and current amended file hashes; checks waves2/3 and dependencies181/179",
+    "retained_result_contract": "181-REPAIR-REVIEW.json.amended_plan_validation keyed253-179/253-180; each plan_path/plan_sha256 and frontmatter/structure argv,exit_code,stdout,stdout_sha256",
+    "fresh_schema_valid": true,
+    "fresh_structure_valid": true,
+    "structure_errors": [],
+    "structure_warnings": [],
+    "new_automated_body_python_syntax_valid": true,
+    "new_execution_verification_executed": false,
+    "scope_unchanged": true,
+    "preservation": {
+      "ref": "refs/gsd/phase253-plan181-review01-inputs",
+      "commit": "977418ed664a23723a1e714716e04c553f7f8b97",
+      "parent": "b6bc388d562e15982964a9846f0fdd196ae8dc10",
+      "root_all_four_readbacks_verified": true,
+      "worker_three_owned_paths_exact_git_bytes_and_current_sha_rechecked_before_mutation": true,
+      "paths": {
+        "253-181-PLAN.md": {"status": "??", "blob": "ed582d6aae9a83e1689be5e01d3259d84c7e7fd4", "bytes": 35834, "sha256": "93a3082e8ffcca67e044a448646b43a7f7775ead6268a8b4ff27f38122f7ac76"},
+        "253-181-SOURCE-AUDIT.md": {"status": "??", "blob": "cac736a4685287f868af41c1c40e9c481d4e733c", "bytes": 13888, "sha256": "902f413e3bbe519c84f4f55ac57811f676b2000ce8aee51d7342915cd8830844"},
+        "253-181-PLANNING-RECORD.json": {"status": "??", "blob": "8de588ff1815711cb5edccf63931b3ca1de1b92c", "bytes": 6694, "sha256": "59520114d0d2a69c2943716f280a9846c2329fdf4fea5378a53576332af6ccab"},
+        "253-181-CHECK-01.md": {"status": "??", "blob": "fe6a8df08165c812b12a9de2004d832fc893315c", "unchanged_by_worker": true}
+      }
+    }
+  },
+  "unresolved": {
+    "planning_decisions": [],
+    "requirements": {
+      "CIREL-01": "partial_not_reproduced",
+      "CIREL-02": "unaccepted"
+    },
+    "phase_verification_status": "not_started",
+    "registration_reproduction_or_cause": "missing",
+    "hosted_acceptance": "missing",
+    "inherited_specless_transparency_prohibition": "flagged-unverified; no wired descriptor invented"
+  },
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "first_ready_plan": "253-181",
+  "root_remaining_work": [
+    "independent plan review",
+    "commit only authorized additive planning outputs and root-owned route changes",
+    "fresh readiness check before final handoff"
+  ],
+  "tooling": {
+    "file_creation": "apply_patch; runtime has no local Write/Edit tool",
+    "discovery": "Level0 internal patterns",
+    "graphify": "disabled",
+    "agent_skills": "none configured",
+    "verification_skill": "/Users/jon/.agents/skills/verify-before-complete/SKILL.md"
+  }
+}

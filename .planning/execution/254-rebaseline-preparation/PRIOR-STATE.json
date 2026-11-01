@@ -1,0 +1,30 @@
+{
+  "ref": "refs/evidence/phase254-state-before-rebaseline-approved",
+  "commit": "2022b30f266b36b2ad6deb3c28197bf9b0a4c112",
+  "files": [
+    {
+      "path": ".planning/STATE.md",
+      "status": "clean",
+      "sha256": "8b2c20feff3958ebf1ded942f4398bc8de879dc307584e92ed829937d3266cbd",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/state.json",
+      "status": "clean",
+      "sha256": "5b0571f878a663dfc116536f30e5528f75871e7e99d07af37c4bc52fb73077b4",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/HANDOFF.json",
+      "status": "clean",
+      "sha256": "9515d160e3dfd69861d7bcb53d1942656f419a8889bdb6ba7657550e0b69c195",
+      "readback_verified": true
+    },
+    {
+      "path": ".planning/execution/254-CONTINUATION.json",
+      "status": "clean",
+      "sha256": "1115f9679e6dd1fbaf8fcaa2f53e103936785cd90b3e6769a7e693eefa17c8d9",
+      "readback_verified": true
+    }
+  ]
+}

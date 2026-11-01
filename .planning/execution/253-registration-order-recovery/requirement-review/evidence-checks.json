@@ -1,0 +1,81 @@
+{
+  "checks": [
+    {
+      "name": "registration-disposition",
+      "argv": [
+        "/Users/jon/.asdf/installs/nodejs/20.18.1/bin/node",
+        "scripts/ci/ci-registration-recovery.mjs",
+        "--verify-load-acceptance",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json",
+        "--require-target-disposition"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "stdout_sha256": "c51d32533f5a6b65741c63b53cd206d4016b447ea968191d69190a903e00a36a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "registration-strict",
+      "argv": [
+        "/Users/jon/.asdf/installs/nodejs/20.18.1/bin/node",
+        "scripts/ci/ci-registration-recovery.mjs",
+        "--verify-load-acceptance",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-ACCEPTANCE-EVIDENCE.json",
+        "--require-target-accepted"
+      ],
+      "exit_code": 3,
+      "expected_exit_code": 3,
+      "expectation_met": true,
+      "stdout_sha256": "38789e31a60511bb633e97561373e228dbc5140f0ae8ff683bc9055b7772cf7d",
+      "stderr_sha256": "8c42146341a5a4f09d65aa996cc4763f0c487e827fdf96d8a82978fae1f0dbc4"
+    },
+    {
+      "name": "retained-canary",
+      "argv": [
+        "python3",
+        "-B",
+        ".planning/execution/253-172-pr341-maintenance/offline-verifier/ci-hosted-gate-verify.py",
+        "--mode",
+        "canary",
+        "--scenario",
+        "matrix",
+        "--evidence",
+        ".planning/execution/253-proof-bundle-a6838a8f9/canary-evidence.json"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "stdout_sha256": "e54449630c4e804f8af6c95daac8e6fad62546fda1258495da8a58f377298cef",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "source-comparison",
+      "argv": [
+        "python3",
+        "-B",
+        ".planning/execution/253-plan172-persistent-ledger/check.py"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "stdout_sha256": "b9d42a4095088a63240d77b6a7a7f7ad28630c0686ab085784b781e99ff486d3",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "normal-and-docs",
+      "argv": [
+        "python3",
+        "-B",
+        ".planning/execution/253-pr344-closeout/verify.py"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "expectation_met": true,
+      "stdout_sha256": "5b86465a32a566c2e5bbb1349cfdf6d9eafe3ad255dcefdaebb5a7d9f71dacf4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "github_requests": 0,
+  "browser_launches": 0
+}

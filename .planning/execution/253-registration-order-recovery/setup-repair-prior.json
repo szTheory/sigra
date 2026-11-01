@@ -1,0 +1,22 @@
+{
+  ".planning/execution/253-registration-order-recovery/replay.mjs": {
+    "commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+    "sha256": "477eeea121cdaa64d91762469e7e8992c8207fd9c241a8a6e7da8a5d4222ac20",
+    "readback_verified": true
+  },
+  ".planning/execution/253-registration-order-recovery/preparation.json": {
+    "commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+    "sha256": "89027aef8636767328d1608153a181b91bbfe52b6eb51c05e48acdf5639558fb",
+    "readback_verified": true
+  },
+  ".planning/execution/253-registration-order-recovery/CHECKS.json": {
+    "commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+    "sha256": "0cb14202facd3cc0b51358e5f83a72bcaa2bf5d242a4cfe9fb243eebceeac5b3",
+    "readback_verified": true
+  },
+  ".planning/execution/253-registration-order-recovery/README.md": {
+    "commit": "b543a41f841c4cc0b04b5c6747e7970a6d863a52",
+    "sha256": "b8fac79470f8175fb5870de62f1a495187dad65931906897ef49ea4777b5f2ed",
+    "readback_verified": true
+  }
+}

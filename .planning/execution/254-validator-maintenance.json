@@ -1,0 +1,51 @@
+{
+  "schema_version": "sigra.phase254.validator-maintenance/v1",
+  "captured_at": "2026-10-23T19:51:32.502781+00:00",
+  "original_proof_commit": "7bfee2017fc68ccc54d5745018c6c7b8760d9ece",
+  "original_proof_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-PR-PATH-PROOF.json",
+  "contract_sha256": "77d89fbaebe9478a62659a2eea1fbacffec0579c7139c5f461bcb2d95b259ea4",
+  "contract_unchanged": true,
+  "command": [
+    "bash",
+    "scripts/ci/ci-run-metrics.sh",
+    "--validate-comparison-plan",
+    "--contract",
+    ".planning/phases/254-speed-up-the-measured-slow-jobs/254-COMPARISON-RUN-CONTRACT.json",
+    "--format",
+    "json"
+  ],
+  "exit_code": 1,
+  "stdout": {
+    "diagnostics": [
+      "comparison_candidate_identity_incomplete",
+      "comparison_pair_start_bound_invalid",
+      "comparison_plan_contract_invalid",
+      "comparison_preparation_not_predeclared",
+      "comparison_reservations_do_not_match_schedule",
+      "comparison_schedule_balance_invalid",
+      "comparison_schedule_incomplete",
+      "comparison_schedule_order_invalid",
+      "comparison_window_not_predeclared"
+    ],
+    "status": "invalid"
+  },
+  "stderr": "",
+  "fix": "Reject non-string timestamps with a caught validation error; never treat an unset window as ready.",
+  "checks": [
+    {
+      "command": "python3 -B scripts/ci/ci-metrics-security.test.py",
+      "status": "passed",
+      "tests": 20
+    },
+    {
+      "command": "bash scripts/ci/ci-run-metrics-comparison.test.sh",
+      "status": "passed"
+    },
+    {
+      "command": "frozen-source --check-only",
+      "status": "ready"
+    }
+  ],
+  "hosted_blocker_unchanged": true,
+  "families_started": 0
+}

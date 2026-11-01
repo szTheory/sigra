@@ -1,0 +1,146 @@
+{
+  "schema": "sigra.phase253.successor-repair-review/v1",
+  "status": "halted",
+  "repair_plan": "253-181",
+  "acceptance_plan": "253-179",
+  "bridge_plan": "253-180",
+  "reviewed_candidate_commit": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+  "source_files": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "14b1aba3aceca988aaf201f25b8fc84995e5766cac7a36c600e46b4a087d10b5",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "404a7dd7d30c60c25c742032db290e528eb03945bfb5de5beb5c87156b314677",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "ce2d5dda8b8b1d893eab99eaa78301048104eb0fdb5e8d4569f792008a1da52a",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "d7a2ccce92d6091fcc5d9ab665f8e3de64d9a91046565e2912e3a679c9e7cf65",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLAN.md": "14f66a4d3494ed60c448de4d01e96b5bd187aae240036eecc2e142acb9f38ed5"
+  },
+  "source_commits": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "c88c3f8d96b490abe49cd2812c491fc7dd04b400",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-PLAN.md": "c88c3f8d96b490abe49cd2812c491fc7dd04b400"
+  },
+  "task_commits": [
+    "59ffb8228",
+    "e03ab7c30",
+    "9090010e3",
+    "bbc5e50e8"
+  ],
+  "original_plan_readbacks": {
+    "preservation_ref": "refs/gsd/phase253-repair181-inputs",
+    "commit": "c090e22390cda1c17f62814d2be8181babf28830",
+    "179": {
+      "original_blob": "60205aa0fe2ad6a8a9e8c4278978cd4e18159278",
+      "original_sha256": "3cbc45611348a107d6cd29d8b6b134290461ff9f1aa1b6234142ac50cec12a58",
+      "original_bytes": 17823,
+      "amended_sha256": "ce2d5dda8b8b1d893eab99eaa78301048104eb0fdb5e8d4569f792008a1da52a",
+      "amended_bytes": 17886
+    },
+    "180": {
+      "original_blob": "db0160e76d40f09118b14ce09ab80a2b5b8428b7",
+      "original_sha256": "5a67471b4666b1f2b176b9a83b07181e0100223003352523ed46b4da04f6af49",
+      "original_bytes": 24023,
+      "amended_sha256": "d7a2ccce92d6091fcc5d9ab665f8e3de64d9a91046565e2912e3a679c9e7cf65",
+      "amended_bytes": 24389
+    }
+  },
+  "preserved_halted_178": {
+    "plan_sha256": "f260cf0df47ab986c228bb8cf0b1cbfc5fdcb594b2adc3a3bb88cb4f733351b5",
+    "plan_commit": "e22874ea687fadd72347ca539470287d1abc9475",
+    "summary_sha256": "622517dff95bf2d7feef336c4d8e3c11af1bfc1bb0fbee51d7dc9a048ce259b0",
+    "review_sha256": "169ecf458eccc7ed440b7533875f3b580f8334bc8189a024efea55dac83212ee",
+    "execution_record_sha256": "ab7a0282eb760b635376807062285c1361828b0ccb56915a4a93a3b404d15567",
+    "evidence_commit": "e2acfff8da38d8733248c602700d48f39625f3d2",
+    "status": "halted; original bytes and all four findings unchanged"
+  },
+  "native_suite": {
+    "command": "python3 -B .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+    "exit_code": 1,
+    "tests_run": 21,
+    "passed": 20,
+    "failed": 1,
+    "duration_seconds": 384.179,
+    "complete_output": {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-FULL-FAILED.log",
+      "bytes": 4647,
+      "sha256": "6864de43372cce91efb9b01ccc5404c6c72e20ee7ed791dd42b5c5b5ac1a39ab"
+    },
+    "failure": {
+      "test": "test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits",
+      "subtest": "22-halt",
+      "test_source": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "line": 949,
+      "assertion_line": 972,
+      "assertion": "ContractError not raised",
+      "mutation": "good169.replace(\"c.halted_plans.length!==24\", \"c.halted_plans.length!==22\", 1)",
+      "fixture_count_before": "c.halted_plans.length!==25",
+      "fixture_count_after": "c.halted_plans.length!==25",
+      "fixture_bytes_changed": false,
+      "interpretation": "The replacement matched nothing because the fixture already says 25. The test therefore rehashed and accepted unchanged valid bytes. This does not establish whether a genuinely changed 22-halt body is accepted."
+    }
+  },
+  "actual_installed_sdk_validation": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-181-TASK3-FINAL-VALIDATORS.json",
+    "bytes": 5297,
+    "sha256": "706d0351cf0a3af718e94ada37a92efe065e622bdd95995f01bbe6aa817c6083",
+    "result": "retained actual installed SDK frontmatter and structure queries for amended 179/180; all four fresh validator checks were exit 0 and matched retained argv/stdout/hash and current amended plan hashes",
+    "scope_limit": "This is planning-file validation only; it does not override the failed native suite or authorize acceptance."
+  },
+  "finding_dispositions": [
+    {
+      "id": "178-REVIEW-01",
+      "disposition": "implementation amended to put receipt checks in both command bodies; direct tests pass, final suite failure is unrelated but overall plan not accepted"
+    },
+    {
+      "id": "178-REVIEW-02",
+      "disposition": "semantic report validator and producer/consumer checks implemented; Task 2 committed and root-verified"
+    },
+    {
+      "id": "178-REVIEW-03",
+      "disposition": "exact index universe and source-manifest binding implemented; Task 2 committed and root-verified"
+    },
+    {
+      "id": "178-TEST-01",
+      "disposition": "real pinned Git fixture repair implemented; focused nested-history test passes; overall plan remains halted"
+    }
+  ],
+  "blocking_finding": {
+    "id": "181-FULL-SUITE-01",
+    "severity": "blocking",
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+    "location": "test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits, 22-halt mutation at line 949",
+    "finding": "The negative control replaces a 24-halt assertion in an amended fixture that contains 25, so replacement is a no-op; the test expects refusal but receives acceptance of unchanged bytes.",
+    "evidence": {
+      "test": "test_bridge_rejects_stale_174_routes_22_halts_pins_and_hosted_link_edits",
+      "subtest": "22-halt",
+      "test_source": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py",
+      "line": 949,
+      "assertion_line": 972,
+      "assertion": "ContractError not raised",
+      "mutation": "good169.replace(\"c.halted_plans.length!==24\", \"c.halted_plans.length!==22\", 1)",
+      "fixture_count_before": "c.halted_plans.length!==25",
+      "fixture_count_after": "c.halted_plans.length!==25",
+      "fixture_bytes_changed": false,
+      "interpretation": "The replacement matched nothing because the fixture already says 25. The test therefore rehashed and accepted unchanged valid bytes. This does not establish whether a genuinely changed 22-halt body is accepted."
+    },
+    "required_resolution": "A replanned bounded task must change the intended fixture bytes to a literal 22 assertion, recompute dependent hashes, and observe refusal with the named reason, while retaining a neighboring valid 25-halt control."
+  },
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted",
+    "phase_verification": "not_started",
+    "acceptance_179": "not_run",
+    "real_acceptance_attempts": 0,
+    "hosted_requests": 0,
+    "browser_launches": 0
+  },
+  "scope": {
+    "real_acceptance": "not run",
+    "browser": "not launched",
+    "hosted_requests": 0,
+    "network": "none",
+    "install": "none",
+    "shared_state_modified": false
+  },
+  "next_route": "$gsd-plan-phase 253 --gaps",
+  "preserved_diagnostics_ref": "refs/gsd/phase253-execution181-diagnostics"
+}

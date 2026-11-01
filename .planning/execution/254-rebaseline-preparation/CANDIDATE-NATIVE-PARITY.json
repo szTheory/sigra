@@ -1,0 +1,76 @@
+{
+  "status": "passed",
+  "comparisons": [
+    {
+      "owner": "admin_behavior",
+      "result": {
+        "status": "passed",
+        "before_rows": 43,
+        "after_rows": 43,
+        "before_setup_rows": 0,
+        "after_setup_rows": 0,
+        "before_source": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+        "after_source": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+        "differences": []
+      }
+    },
+    {
+      "owner": "admin_checkpoints",
+      "result": {
+        "status": "passed",
+        "before_rows": 3,
+        "after_rows": 3,
+        "before_setup_rows": 0,
+        "after_setup_rows": 0,
+        "before_source": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+        "after_source": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+        "differences": []
+      }
+    },
+    {
+      "owner": "design_gallery",
+      "result": {
+        "status": "passed",
+        "before_rows": 39,
+        "after_rows": 39,
+        "before_setup_rows": 3,
+        "after_setup_rows": 3,
+        "before_source": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+        "after_source": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+        "differences": []
+      }
+    },
+    {
+      "owner": "non_admin_smoke",
+      "result": {
+        "status": "passed",
+        "before_rows": 16,
+        "after_rows": 16,
+        "before_setup_rows": 0,
+        "after_setup_rows": 0,
+        "before_source": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+        "after_source": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+        "differences": []
+      }
+    },
+    {
+      "owner": "demo_showcase",
+      "result": {
+        "status": "passed",
+        "before_rows": 4,
+        "after_rows": 4,
+        "before_setup_rows": 0,
+        "after_setup_rows": 0,
+        "before_source": "d4dcc1939bd1f1590f6ca01d55b861e31acc745f",
+        "after_source": "fb0fd9b3292dc0274b08ee03a1d9b2207546f63e",
+        "differences": []
+      }
+    }
+  ],
+  "mapping_rows": 108,
+  "product_rows": 105,
+  "setup_rows": 3,
+  "before_source": "retained original baseline native reports; not the incomplete amended-baseline run",
+  "after_source": "actual candidate preparation run40035537413 attempt1",
+  "does_not_establish_a_speedup_or_a_valid_current_pair": true
+}

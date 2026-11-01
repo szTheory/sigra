@@ -1,0 +1,96 @@
+Test A/B/C: --jobs <id> emits a per-job table; 1053s/17m33s failure row not filtered; negative duration clamped to 0
+  PASS: table row present for failing job at 1053s/17m33s; negative duration clamped to 0s (exit 0)
+Test D: unknown flag -> exit 2, ci-run-metrics: FAIL: unknown arg, ZERO gh invocations
+  PASS: exit 2, correct message, zero gh calls (fail-closed before any gh invocation)
+Test E: gh absent from PATH -> non-zero exit, ci-run-metrics: FAIL: message
+  PASS: exit non-zero (1), FAIL message, no partial stdout
+Test F: gh exits non-zero -> non-zero exit, ci-run-metrics: FAIL: message, no partial table
+  PASS: exit non-zero (1) on gh failure, no partial table emitted
+Test G: empty job list -> non-zero exit, ci-run-metrics: FAIL: message, no partial table
+  PASS: exit non-zero (1) on empty job list, no partial table emitted
+Test H: --format json emits valid JSON; failure-conclusion job present; negative duration clamped
+  PASS: --format json valid, duration/clamp/no-filter semantics match table mode
+Test I/J: window --mode wall table header, per-trigger n/mean/p50/max/outcomes, negative clamp
+  PASS: exact header + odd(n=5)/even(n=4) p50 index rule + negative-duration clamp all correct (exit 0)
+Test K: --mode jobspan produces a strictly smaller mean than --mode wall on the identical canned window
+  PASS: jobspan mean (160s) strictly less than wall mean (180s) on the same window
+Test L: empty run list -> non-zero exit, ci-run-metrics: FAIL: message, no partial table
+  PASS: exit non-zero (1) on empty run list, no partial table emitted
+
+----------------------------------------
+test_archived_test_z_preserves_red_and_passing_test_d (__main__.DiagnosisContract.test_archived_test_z_preserves_red_and_passing_test_d) ... ok
+test_changed_archive_fails_closed_with_saved_diagnostic (__main__.DiagnosisContract.test_changed_archive_fails_closed_with_saved_diagnostic) ... ok
+test_fixture_members_keep_their_original_hashes_and_cannot_claim_acceptance (__main__.DiagnosisContract.test_fixture_members_keep_their_original_hashes_and_cannot_claim_acceptance) ... ok
+test_late_failure_context_and_incomplete_inputs (__main__.DiagnosisContract.test_late_failure_context_and_incomplete_inputs) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.290s
+
+OK
+  PASS: Versioned diagnosis consumes the saved native family
+Results: 10 passed, 0 failed
+----------------------------------------
+ci-run-metrics.test: PASS
+Test M: retained source pages are the authoritative wall-mode input
+  PASS: source pages preserve all conclusions, boundary equality, and stable run-id ordering
+Test N: source chronology, completeness, duplicates, and strict threshold fail closed
+  PASS: source-page faults rejected
+Test O: preflight and collection route every live request through explicit guarded GET
+  PASS: preflight reports current five contexts and guards all four initial requests
+Test O2: time, core-rate, 600-request boundary, and one transient retry are enforced before calls
+  PASS: 60-minute boundary stops before the first request and writes an incomplete ledger
+  PASS: request 600 is allowed and no 601st request is made
+  PASS: core budget at 250 stops before the next API request
+  PASS: core budget 251 permits one read, decrements to 250, then blocks
+  PASS: blocked hosted preflight names its missing capability while offline tests continue
+  PASS: 403/429 rate response records reset time and is never retried immediately
+  PASS: a transient GET is retried once and both requests count against the budget
+Test P: one PR family collects to a hash-checked offline replay with equal-duration job identities
+  PASS: five required contexts replay to a 120-second endpoint and 300 equal-job seconds without gh
+Test P2: native API job identity survives collection and conflicts cannot be relabeled
+  PASS: conflicting native run, attempt, and head identity remains in retained API bytes and is rejected
+Test Q: altered rules and incomplete or unbound required contexts remain unknown
+  PASS: a missing required-check timestamp yields unknown, never a numeric wait
+  PASS: check-run to job ID mismatch is reported as required_context_unbound
+  PASS: a foreign duplicate required check is rejected before it can affect either endpoint
+  PASS: changed raw rules with a refreshed hash invalidate timing despite an approved, unchanged manifest
+  PASS: standalone family replay measures the approved contexts from classic branch protection
+  PASS: a changed retained response is rejected by its saved SHA-256
+Test R: first-attempt and eventual endpoints stay separate while every rerun job contributes cost
+  PASS: rerun completion extends eventual wait and both attempts' five distinct jobs count
+Test S: multi-revision records remain one family and cannot claim an unmeasured endpoint
+  PASS: multiple source revisions are represented once and remain unknown without each revision's source bundle
+Test T: non-required failure, cancellation, timeout, and skip conclusions stay literal
+  PASS: replay retains failure, cancellation, timeout, and skip conclusions verbatim
+Test U: frozen cutoff keeps PR, main push and schedule populations separate and caps each at 100
+  PASS: fixed cutoff, 100-run cap, API totals and event separation are retained
+  PASS: offline replay rejects a changed required-check set despite a matching raw-source hash
+  PASS: failed artifact download remains unknown with the stop reason retained
+Test Z: legacy dependency-off-only timing cannot satisfy full-suite coverage
+  PASS: missing main and child invocation reports fail closed without a historical archive
+Test V: snapshot replay reads verified files offline without contacting gh
+  PASS: source bundle replays offline with API totals and outcomes intact
+Test V2: replay exposes source-backed cohort ranks, stages, provenance and unknowns
+  PASS: replay separates rankings and costs while withholding generic metadata without producer proof
+Test V2b: generic ranking rejects native API job identity conflicts despite matching local family labels
+  PASS: generic ranking rejects API run/attempt/head conflicts after all source hashes are refreshed
+Test V3: current failures stay bounded and one-off red evidence is not called flaky
+  PASS: failure shortlist inspects at most twelve families and keeps unavailable log evidence unknown
+Test W: concurrent lock, interruption ledger, and request ceiling are enforced
+  PASS: an active snapshot lock prevents mutation
+  PASS: signal interruption leaves request and selected-run ledgers with incomplete status
+  PASS: incomplete snapshots replay their verified ledgers offline
+  PASS: request 600 is allowed and the following event query is stopped
+Test X: redirect validation accepts only the exact HTTPS hosts and never echoes signed queries
+  PASS: both exact hosts accepted; downgrade, deceptive host, credentials, fragment, port, path and IP rejected
+Test Y: artifact provenance, bounded ZIP handling, and log redaction fail closed
+  PASS: GitHub artifact ID, producing run, SHA and digest are source-bound
+  PASS: wrong-run, wrong-SHA and expired artifacts are diagnostics, not measurements
+  PASS: timing JSON extracts while traversal and 64 MiB members are rejected
+  PASS: known token, bearer, password and signed-query patterns are redacted
+ci-run-metrics-comparison.test: PASS
+
+----------------------------------------
+Results: 48 passed, 0 failed
+----------------------------------------
+ci-run-metrics.test: PASS

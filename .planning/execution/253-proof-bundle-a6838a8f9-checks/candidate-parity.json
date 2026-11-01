@@ -1,0 +1,8 @@
+{
+  "status": "exact_product_paths_modes_blobs_match",
+  "source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "exported_candidate": "/tmp/253-pr340-candidate",
+  "product_files": 1488,
+  "library_log": ".planning/execution/253-172-pr340-maintenance/candidate-library-verified.log",
+  "note": "The full library suite ran on these exact product bytes with the unchanged main-parent planning layout."
+}

@@ -1,0 +1,23 @@
+test_01_real_sdk_copy_preserves_all28_halts_and_every_existing_summary (__main__.ConsumerTests.test_01_real_sdk_copy_preserves_all28_halts_and_every_existing_summary) ... ok
+test_02_versioned_bridge_accepts_exact_amendments_and_raw_sdk_report (__main__.ConsumerTests.test_02_versioned_bridge_accepts_exact_amendments_and_raw_sdk_report) ... ok
+test_03_old_index_validator_still_refuses_current28_halt_copy (__main__.ConsumerTests.test_03_old_index_validator_still_refuses_current28_halt_copy) ... ok
+test_04_versioned_index_refuses_forged183_completion (__main__.ConsumerTests.test_04_versioned_index_refuses_forged183_completion) ... ok
+test_05_duplicate_and_missing_plan_rows_refuse (__main__.ConsumerTests.test_05_duplicate_and_missing_plan_rows_refuse) ... ok
+test_06_169_uses_exact28_halts183_pins73_targets_and_no_halted_proof_owner (__main__.ConsumerTests.test_06_169_uses_exact28_halts183_pins73_targets_and_no_halted_proof_owner) ... ok
+test_07_frozen_hash_literals_and_deadline_commands_are_unchanged (__main__.ConsumerTests.test_07_frozen_hash_literals_and_deadline_commands_are_unchanged) ... ok
+test_08_hosted_operator_tasks_and_all_eight_completion_links_unchanged (__main__.ConsumerTests.test_08_hosted_operator_tasks_and_all_eight_completion_links_unchanged) ... ok
+test_09_tampered_hosted_tasks_and_caps_refuse_even_with_rehashed_record (__main__.ConsumerTests.test_09_tampered_hosted_tasks_and_caps_refuse_even_with_rehashed_record) ... ok
+test_10_changed_receipt_pinned_helper_or_historical_halt_refuses (__main__.ConsumerTests.test_10_changed_receipt_pinned_helper_or_historical_halt_refuses) ... ok
+test_11_169_stale_counts_and_wrong_owner_refuse (__main__.ConsumerTests.test_11_169_stale_counts_and_wrong_owner_refuse) ... ok
+test_12_report_missing_native_query_or_wrong_hash_refuses (__main__.ConsumerTests.test_12_report_missing_native_query_or_wrong_hash_refuses) ... ok
+test_13_report_rehashed_forged183_completion_still_refuses (__main__.ConsumerTests.test_13_report_rehashed_forged183_completion_still_refuses) ... ok
+test_14_no_disposition_for_a_halt_and_no_budget_replenishment (__main__.ConsumerTests.test_14_no_disposition_for_a_halt_and_no_budget_replenishment) ... ok
+test_15_render_rejects_checkout_destination_and_nonempty_directory (__main__.ConsumerTests.test_15_render_rejects_checkout_destination_and_nonempty_directory) ... ok
+test_16_cli_has_no_acceptance_or_ci_commands (__main__.ConsumerTests.test_16_cli_has_no_acceptance_or_ci_commands) ... ok
+test_17_native_receipt_verification_checks_are_unchanged (__main__.ConsumerTests.test_17_native_receipt_verification_checks_are_unchanged) ... ok
+test_18_cli_saves_real_sdk_copy_report_externally_and_refuses_overwrite (__main__.ConsumerTests.test_18_cli_saves_real_sdk_copy_report_externally_and_refuses_overwrite) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 93.735s
+
+OK

@@ -1,0 +1,54 @@
+{
+  "before": {
+    "hash_errors": [],
+    "cost": {
+      "status": "complete",
+      "run_id": 40046955449,
+      "conclusion": "failure",
+      "created_at": "2026-10-24T01:04:15Z",
+      "run_attempt": 2,
+      "attempt_origin_at": "2026-10-24T01:04:14Z",
+      "head_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+      "runner_seconds": 2046.0,
+      "runner_known_subtotal_seconds": 2046.0,
+      "runner_unknown_jobs": [],
+      "runner_diagnostics": [],
+      "attempt_costs": [
+        {
+          "attempt": 2,
+          "known_subtotal_seconds": 2046.0
+        }
+      ],
+      "required_result_wait_seconds": null,
+      "missing_required_contexts": [
+        "Example Playwright smoke (full lifecycle)"
+      ],
+      "wait_diagnostics": []
+    }
+  },
+  "after": {
+    "hash_errors": [],
+    "cost": {
+      "status": "complete",
+      "run_id": 40047078287,
+      "conclusion": "success",
+      "created_at": "2026-10-24T01:04:21Z",
+      "run_attempt": 2,
+      "attempt_origin_at": "2026-10-24T01:04:20Z",
+      "head_sha": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+      "runner_seconds": 1589.0,
+      "runner_known_subtotal_seconds": 1589.0,
+      "runner_unknown_jobs": [],
+      "runner_diagnostics": [],
+      "attempt_costs": [
+        {
+          "attempt": 2,
+          "known_subtotal_seconds": 1589.0
+        }
+      ],
+      "required_result_wait_seconds": 261.0,
+      "missing_required_contexts": [],
+      "wait_diagnostics": []
+    }
+  }
+}

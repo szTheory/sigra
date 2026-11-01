@@ -1,0 +1,11 @@
+test_actual_empty_listing_contradicts_actual_direct_run (test_discovery_candidate.Discovery.test_actual_empty_listing_contradicts_actual_direct_run) ... ok
+test_reject_mismatched_pr_base_or_head (test_discovery_candidate.Discovery.test_reject_mismatched_pr_base_or_head) ... ok
+test_reject_missing_other_or_duplicate_pr (test_discovery_candidate.Discovery.test_reject_missing_other_or_duplicate_pr) ... ok
+test_reject_other_run_source_workflow_event_attempt_or_repository (test_discovery_candidate.Discovery.test_reject_other_run_source_workflow_event_attempt_or_repository) ... ok
+test_truncated_checks_do_not_claim_absence (test_discovery_candidate.Discovery.test_truncated_checks_do_not_claim_absence) ... ok
+test_untrusted_check_url_app_or_source_is_not_a_hint (test_discovery_candidate.Discovery.test_untrusted_check_url_app_or_source_is_not_a_hint) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.003s
+
+OK

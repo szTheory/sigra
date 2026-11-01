@@ -1,0 +1,223 @@
+{
+  "complete": true,
+  "unit": "microsecond",
+  "seed": 253915,
+  "diagnostics": [],
+  "invocation": "scaffold",
+  "tests": [
+    {
+      "module": "Sigra.Install.VaultPromotionTest",
+      "name": "test mix sigra.install --passkeys emits the real vault and encrypted binary templates",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 25081045,
+      "test_id": "Sigra.Install.VaultPromotionTest.test mix sigra.install --passkeys emits the real vault and encrypted binary templates"
+    },
+    {
+      "module": "Sigra.Install.IdempotencyTest",
+      "name": "test second invocation produces zero new file writes and zero new injections",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 1302748,
+      "test_id": "Sigra.Install.IdempotencyTest.test second invocation produces zero new file writes and zero new injections"
+    },
+    {
+      "module": "Sigra.Install.IdempotencyTest",
+      "name": "test first invocation wrote real files (sanity floor for GEN-04)",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 2,
+      "test_id": "Sigra.Install.IdempotencyTest.test first invocation wrote real files (sanity floor for GEN-04)"
+    },
+    {
+      "module": "Sigra.Install.GoldenDiffTest",
+      "name": "test golden diff generated tree matches committed fixture byte-for-byte (migration filenames normalized)",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 21733382,
+      "test_id": "Sigra.Install.GoldenDiffTest.test golden diff generated tree matches committed fixture byte-for-byte (migration filenames normalized)"
+    },
+    {
+      "module": "Sigra.Install.GoldenDiffTest",
+      "name": "test golden diff captured stdout matches committed STDOUT.txt after normalization",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 21700444,
+      "test_id": "Sigra.Install.GoldenDiffTest.test golden diff captured stdout matches committed STDOUT.txt after normalization"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test passkey hook template contract destroyed teardown emits a single aborted event for the active ceremony",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 31014,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test passkey hook template contract destroyed teardown emits a single aborted event for the active ceremony"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test mix sigra.install --passkeys app.js wiring injects a marker-wrapped merged hooks block into the standard Phoenix app.js shape",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 20678987,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test mix sigra.install --passkeys app.js wiring injects a marker-wrapped merged hooks block into the standard Phoenix app.js shape"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test passkey hook template contract controller login keeps conditional UI startup failures silent",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 69957,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test passkey hook template contract controller login keeps conditional UI startup failures silent"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test passkey hook template contract ships controller completion and conditional UI template contracts",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 175,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test passkey hook template contract ships controller completion and conditional UI template contracts"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test mix sigra.install --passkeys app.js wiring rerunning install keeps a single passkey marker block",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 22826514,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test mix sigra.install --passkeys app.js wiring rerunning install keeps a single passkey marker block"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test passkey hook template contract controller login explicit click maps unsupported abort and timeout to safe copy",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 70744,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test passkey hook template contract controller login explicit click maps unsupported abort and timeout to safe copy"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test passkey hook template contract authenticate hook emits unsupported error from browser autofill",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 23172,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test passkey hook template contract authenticate hook emits unsupported error from browser autofill"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test passkey hook template contract controller login conditional UI fetches options without email and uses conditional mediation",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 25745,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test passkey hook template contract controller login conditional UI fetches options without email and uses conditional mediation"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test passkey hook template contract exports both passkey hook objects and ships the browser helper locally",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 242,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test passkey hook template contract exports both passkey hook objects and ships the browser helper locally"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test passkey hook template contract controller login explicit click includes email and submits without conditional mediation",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 25569,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test passkey hook template contract controller login explicit click includes email and submits without conditional mediation"
+    },
+    {
+      "module": "Sigra.Install.Features.PasskeysJsTest",
+      "name": "test mix sigra.install --passkeys app.js wiring leaves non-standard app.js untouched and prints exact manual instructions",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 24016189,
+      "test_id": "Sigra.Install.Features.PasskeysJsTest.test mix sigra.install --passkeys app.js wiring leaves non-standard app.js untouched and prints exact manual instructions"
+    },
+    {
+      "module": "Sigra.Install.GeneratorPasskeysOptOutTest",
+      "name": "test mix sigra.install opt out passkeys disabled omits passkey routes, files, dependencies, and residue",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 25921247,
+      "test_id": "Sigra.Install.GeneratorPasskeysOptOutTest.test mix sigra.install opt out passkeys disabled omits passkey routes, files, dependencies, and residue"
+    },
+    {
+      "module": "Sigra.Install.GeneratorPasskeysOptOutTest",
+      "name": "test mix sigra.install opt out passkeys disabled with organizations disabled omits passkey routes, files, dependencies, and residue",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 24044698,
+      "test_id": "Sigra.Install.GeneratorPasskeysOptOutTest.test mix sigra.install opt out passkeys disabled with organizations disabled omits passkey routes, files, dependencies, and residue"
+    },
+    {
+      "module": "Sigra.Install.GeneratorPasskeysOptOutTest",
+      "name": "test mix sigra.install opt out explicitly names both disabled flag combinations in this suite",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 4913,
+      "test_id": "Sigra.Install.GeneratorPasskeysOptOutTest.test mix sigra.install opt out explicitly names both disabled flag combinations in this suite"
+    },
+    {
+      "module": "Sigra.UpgradeIntegrationTest",
+      "name": "test upgrade after --no-organizations install (zero-org path \u2014 ORG-02 + GEN-03 org-axis) mix sigra.upgrade --yes on a --no-organizations install emits zero ALTERs and leaves the app bootable",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 30434893,
+      "test_id": "Sigra.UpgradeIntegrationTest.test upgrade after --no-organizations install (zero-org path \u2014 ORG-02 + GEN-03 org-axis) mix sigra.upgrade --yes on a --no-organizations install emits zero ALTERs and leaves the app bootable"
+    },
+    {
+      "module": "Sigra.UpgradeIntegrationTest",
+      "name": "test upgrade after default install (org-enabled path \u2014 ORG-UPGRADE-02) login after backfill-off upgrade redirects to /organizations with 302 and no 500s",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 30348720,
+      "test_id": "Sigra.UpgradeIntegrationTest.test upgrade after default install (org-enabled path \u2014 ORG-UPGRADE-02) login after backfill-off upgrade redirects to /organizations with 302 and no 500s"
+    },
+    {
+      "module": "Sigra.UpgradeIntegrationTest",
+      "name": "test mix sigra.upgrade --backfill-personal-orgs (ORG-UPGRADE-01) every user gets a personal org; re-run is a no-op",
+      "unit": "microsecond",
+      "result": "passed",
+      "invocation": "scaffold",
+      "duration_us": 37203336,
+      "test_id": "Sigra.UpgradeIntegrationTest.test mix sigra.upgrade --backfill-personal-orgs (ORG-UPGRADE-01) every user gets a personal org; re-run is a no-op"
+    }
+  ],
+  "counts": {
+    "excluded": 0,
+    "failed": 0,
+    "passed": 22,
+    "skipped": 0
+  },
+  "test_duration_sum_us": 285543736,
+  "async_us": null,
+  "excluded_count": 0,
+  "failed_count": 0,
+  "failed_test_ids": [],
+  "load_us": null,
+  "passed_count": 22,
+  "run_us": 308820957,
+  "skipped_count": 0,
+  "suite_elapsed_us": 308820958
+}

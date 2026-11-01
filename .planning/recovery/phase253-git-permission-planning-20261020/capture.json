@@ -1,0 +1,161 @@
+{
+  "schema": "sigra.phase253.git-permission-planning-capture/v1",
+  "captured_head": "4f4647983673423fb6d57cfa1a71790350949098",
+  "branch": "phase-244-playwright-measurement",
+  "mutable_plans": [
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-169-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-170-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-171-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md"
+  ],
+  "prior_bytes": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-168-PLAN.md",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "2cd634d7296a2ea6549f8214672e645345d1308e",
+      "sha256": "517362dfdabfd7b9200403f5bae5cba5b13d91797513c09c1947a62c3241ceb8",
+      "bytes": 33517,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-169-PLAN.md",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "a94ae40cb20a27e8454562a83b40b63a42627a42",
+      "sha256": "a9cb75230c2d4f45ba3ad3af864107958f4f5261e4753664b0c4e31f3488f9a7",
+      "bytes": 41266,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-170-PLAN.md",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "5dfb7fc879a30703be81d7cd866c233f74c0d226",
+      "sha256": "ccfc0f83914a4127f7def80072b390a00ecee620b3cd5b5d272e1329d3d3f0a0",
+      "bytes": 64422,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-171-PLAN.md",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "bc545d3aad2498d4578b63db7e6996ccaf0656f7",
+      "sha256": "2a12f7f8a51a2a358b3e932fc88a4dc62ead1977b9839b0e9cccb555ca0b0cac",
+      "bytes": 55147,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-172-PLAN.md",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "90d7bc36c10ae40496062722b1117fbe34014b18",
+      "sha256": "b9337980c6285bbdf91b1a0ace4678fc7d36aaffbbfd7088a32055d70a50ec73",
+      "bytes": 39231,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-PLAN.md",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "f45bc40fe918fae2d9dd20c2148a89bc2ff695eb",
+      "sha256": "7ffcb319bc5bf0dd15435b1c27c403cde3474e5da6c606f1e3832e30a925eaae",
+      "bytes": 40214,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-SUMMARY.md",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "9bc4634fd2360ae4c8df1afd2eeb14e9798029b0",
+      "sha256": "c7012462da9613261479be4494e6a56f8aecc9a0c2dfef1fbb716feebe5c53be",
+      "bytes": 21479,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLAN.md",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "91c53004d7cc5ceff9286eceb4714bb9f28215c6",
+      "sha256": "6efea294ec389717480364909414989b9d9b1b1e5a467051711c26c2b05e253c",
+      "bytes": 35933,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-SUMMARY.md",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "f77ce2ca092f3bb9f6e4127b3e8aa929b418c99c",
+      "sha256": "dd698ccee469ac4d685b31df599c1941bc93a13cb0a23b6a50e352f052f7e68b",
+      "bytes": 5467,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-REGRESSION.log",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "60343c430dbe6b4703052dfe4acf8ee3d092476d",
+      "sha256": "aeb25e295e13b263424cb23f29bdce33282046439c063b236453bea7e49111f9",
+      "bytes": 339,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-RECOVERY-REVIEW.json",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "2fd53353ec5d6225b361fba28c8d12af866a69fb",
+      "sha256": "30cb16fd6ee27ff440512767d113b61b859da059de61571ac87f9da649201e48",
+      "bytes": 7225,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-ENVIRONMENT-DIAGNOSTIC.json",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "dfde19adedd648fe77bf5677054e8b23dc7a0216",
+      "sha256": "371cb46d7bd3d87fc721d8ac8a2842015f1635d9670dbfc3673566b492bbf3a5",
+      "bytes": 1588,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-RECORD.json",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "c94ed1c2dcfe2b26d6d2706be5fcade26f00b9e6",
+      "sha256": "eb085f4e109ac383b04ee52cf03fe339a578450c1a19322f7cccaeaacf144393",
+      "bytes": 38381,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLANNING-RECORD.json",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "30ee96764495d6d346250cf6dbae414bccc423f4",
+      "sha256": "20afb073b1d8cf78b837dd5f1d4bb7abac73f8b2070ab9d72a38c3640d2a5c0b",
+      "bytes": 6139,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-SOURCE-AUDIT.md",
+      "prior_commit": "4f4647983673423fb6d57cfa1a71790350949098",
+      "blob": "afcaed909d457e0b28f59be465e2baece8bbfaa9",
+      "sha256": "c44aae9e3e1ade32f9db0c22f5a8883edb59e1c000950028f902f3951e70e42d",
+      "bytes": 14299,
+      "status_at_capture": "clean",
+      "readback_exact": true
+    }
+  ],
+  "protected_paths": [
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLAN.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-SUMMARY.md",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-REGRESSION.log",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-RECOVERY-REVIEW.json",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-ENVIRONMENT-DIAGNOSTIC.json",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-EXECUTION-RECORD.json",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-PLANNING-RECORD.json",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-173-SOURCE-AUDIT.md"
+  ]
+}

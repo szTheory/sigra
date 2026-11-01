@@ -1,0 +1,63 @@
+{
+  "schema_version": "sigra.phase253.summary-preservation/v1",
+  "recorded_at": "2026-10-13T04:59:36.342229+00:00",
+  "ref": "7da6766eb361c9bd47a6bf0a875e41aa2229075f",
+  "paths": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-01-SUMMARY.md",
+      "status": "clean",
+      "bytes": 3270,
+      "sha256": "2b50444cdc0c52c7d25413625199fdadeb54dcdbc669c89c446b252807b2b0b5",
+      "recoverable_ref": "7da6766eb361c9bd47a6bf0a875e41aa2229075f",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-02-SUMMARY.md",
+      "status": "clean",
+      "bytes": 7175,
+      "sha256": "9ad7739401280e0d5fc23e06e7d924eb46090824e5e7186dd4f69bf83b60fef7",
+      "recoverable_ref": "7da6766eb361c9bd47a6bf0a875e41aa2229075f",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-03-SUMMARY.md",
+      "status": "clean",
+      "bytes": 2273,
+      "sha256": "329ca2f8fea2fb80c7bc423b844735291ac7c69e1652f505d4a9727a99d291c4",
+      "recoverable_ref": "7da6766eb361c9bd47a6bf0a875e41aa2229075f",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-04-SUMMARY.md",
+      "status": "clean",
+      "bytes": 2789,
+      "sha256": "9ce694947f87d50c1b4eb501c29551a38e616f8a9e6be09a7240b0a08e607f25",
+      "recoverable_ref": "7da6766eb361c9bd47a6bf0a875e41aa2229075f",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-05-SUMMARY.md",
+      "status": "clean",
+      "bytes": 2968,
+      "sha256": "5232806148455b69f11ca196da43963ed699db0e8684711ece8363b1b17d8bd8",
+      "recoverable_ref": "7da6766eb361c9bd47a6bf0a875e41aa2229075f",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-06-SUMMARY.md",
+      "status": "clean",
+      "bytes": 3086,
+      "sha256": "a24707bf635828c74cfca3e863f815daaf49aa2086fea5a9087fabc185c05220",
+      "recoverable_ref": "7da6766eb361c9bd47a6bf0a875e41aa2229075f",
+      "git_readback_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-07-SUMMARY.md",
+      "status": "clean",
+      "bytes": 10789,
+      "sha256": "3316b7ddac7f96959294a6d41b3cb46a443030be05fd5bb953b6b5ff376ded7e",
+      "recoverable_ref": "7da6766eb361c9bd47a6bf0a875e41aa2229075f",
+      "git_readback_exact": true
+    }
+  ]
+}

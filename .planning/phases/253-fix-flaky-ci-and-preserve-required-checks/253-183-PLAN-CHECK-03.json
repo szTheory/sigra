@@ -1,0 +1,69 @@
+{
+  "schema": "sigra.gsd.plan-check/v1",
+  "phase": "253-fix-flaky-ci-and-preserve-required-checks",
+  "plan": "253-183",
+  "status": "issues_found",
+  "plans_checked": 1,
+  "plan_sha256": "cb60401e52a7be079e0089d37ec7715c2c1a1e118ba9e9948b860d15a5aba619",
+  "plan_metrics": {
+    "tasks": 3,
+    "files_modified": 5,
+    "automated_bodies": 13
+  },
+  "issues": [
+    {
+      "plan": "253-183",
+      "dimension": "nyquist_compliance",
+      "severity": "blocker",
+      "required_property": "Every runnable automated command has an explicit failing direction that identifies what output or condition means failure.",
+      "description": "The supplied failing-directions probe for 253-183 reports one missing direction with command '(.*?)' and no task attribution (status=missing, severity=blocker). The probe's exact verdict is unresolved, so the plan cannot pass this gate.",
+      "task": null,
+      "fix_hint": "Resolve the probe's missing-command entry and regenerate the failing-directions probe so every runnable command is accounted for."
+    }
+  ],
+  "resolved_prior_findings": [
+    {
+      "required_property": "Each finite corrective test run has an executable command, separately captured result, and defined success condition.",
+      "status": "resolved",
+      "evidence": "The plan declares the t1/t2 correction and final slots and t3 recovery/final slots, each with explicit command bodies and success/failure conditions."
+    },
+    {
+      "required_property": "A task's automated verification recognizes the explicitly required expected RED as successful evidence only for the exact intended failure.",
+      "status": "resolved",
+      "evidence": "The capture wrapper checks the exact t1-red and t2-red argv, native exit/count, failure headers/assertions, output, and terminal status before returning verification exit 0 while retaining native exit 1."
+    },
+    {
+      "required_property": "Each finite run slot enforces its declared command and prerequisite before launch, with eligible failure/diagnosis/committed correction and source transitions checked.",
+      "status": "resolved",
+      "evidence": "capture183.py derives a unique argv for every declared slot from the plan's automated bodies and compares invocation argv before launch; it requires the captured slots to form the allowed conditional prefix, checks prior result status and native outcome, enforces diagnosis JSON tied to the failed result and committed changed source for recovery slots, validates unchanged-source transitions and source commits, and requires passing selected full suite and validators before review."
+    }
+  ],
+  "probe_results": {
+    "verify_paths": {
+      "status": "not_applicable",
+      "readError": null,
+      "note": "Consumed supplied /tmp/sigra253-plan183-verify-paths03.json verdicts scoped to 253-183; no command-path issue was reported."
+    },
+    "failing_directions": {
+      "status": "blocked",
+      "readError": null,
+      "note": "Consumed supplied /tmp/sigra253-plan183-failure-directions03.json verdicts scoped to 253-183; one missing entry is reported as a blocker, with command '(.*?)' and no task attribution."
+    }
+  },
+  "evidence_scope": {
+    "review_type": "planning review only",
+    "plan_sha256": "cb60401e52a7be079e0089d37ec7715c2c1a1e118ba9e9948b860d15a5aba619",
+    "plan_metrics": {
+      "tasks": 3,
+      "files_modified": 5,
+      "automated_bodies": 13
+    },
+    "previous_review": "253-183-PLAN-CHECK-02.json",
+    "implementation_run": false,
+    "tests_run": false,
+    "phase_verification": "not_started",
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted",
+    "historical_halts": "unchanged"
+  }
+}

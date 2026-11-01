@@ -1,0 +1,2564 @@
+name: CI
+
+on:
+  # Release-ref evidence path: manually dispatch this workflow from a v* tag
+  # (`gh workflow run "CI" --ref v1.0.0` or Actions UI) to rerun canonical gates.
+  workflow_dispatch:
+    inputs:
+      force_fail_probe:
+        description: 'Intentionally fail a nightly-gated job to verify the nightly lane reports red (set true to probe).'
+        required: false
+        type: boolean
+        default: false
+      force_rot_probe:
+        description: 'Inject a synthetic rotted skip into the GATE-03 honest-skip verdict so the fail direction of ci-gate is provable on demand (set true to probe).'
+        required: false
+        type: boolean
+        default: false
+      recapture_branch:
+        description: 'Branch to run branch-scoped baseline recapture against (D-04). When set, the two amd64 recapture jobs (admin_design_recapture, admin_checkpoint_recapture) run on this ref and their PRs target it instead of main. Leave empty for ordinary release-evidence dispatches.'
+        required: false
+        type: string
+        default: ''
+      phase_244_final_main:
+        description: 'Run required Phase 244 final-main consumers without baseline recapture jobs.'
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    # Nightly-broad run (04:30 UTC). Avoids the 45 6 slot used by playwright-github-pages.yml.
+    # Runs the 5 exhaustive/low-probability jobs that are skipped on pull_request events.
+    - cron: '30 4 * * *'
+  push:
+    branches: [main, release-please--branches--main]
+  pull_request:
+    branches: [main, gsd/253-replan-proof-5e13621e5-docs-*]
+
+# Least-privilege default for GITHUB_TOKEN: CI only reads the repo and
+# uploads artifacts (via actions/upload-artifact, which does not require
+# contents: write). Any job that needs additional scopes must override
+# `permissions:` at the job level.
+permissions:
+  contents: read
+
+# Phase 230 (FAST-04 / D-12, D-13, D-14): PR runs on the same PR number supersede
+# each other (superseded run concludes `cancelled`). Every non-PR event (push,
+# schedule, workflow_dispatch) keys on its own unique github.run_id, giving it a
+# group of one that is structurally never queued and never cancelled — release
+# integrity does not depend on the value of any expression. SEED-005's verbatim
+# proposal (group on github.ref with a conditional cancel-in-progress) was
+# rejected: cancel-in-progress: false still *queues* (GitHub holds one running
+# plus one pending per group), and queueing two rapid main pushes compounds the
+# release lane's 30-minute gate-ci-green polling ceiling. cancel-in-progress is
+# a bare boolean, never an expression producing a quoted string — the string
+# "false" is truthy and would cancel anyway. ci.yml's triggers are
+# push: branches: [main] plus pull_request: branches: [main], so there is no
+# same-SHA double trigger and the "cancelled run strands a required context"
+# hazard does not apply.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+# Note: Repository secret HEX_API_KEY (Hex.pm) is not read by this workflow unless
+# you add an explicit publish job with `env: HEX_API_KEY: ${{ secrets.HEX_API_KEY }}`.
+# Library/install failures are unrelated to that secret.
+
+jobs:
+  release_ref_guard:
+    name: Release ref guard
+    runs-on: ubuntu-latest
+    # Phase 230 (FAST-07 / D-19, D-20): every job below declares an explicit
+    # timeout-minutes so a hung job fails in bounded time instead of consuming
+    # the 360-minute GitHub Actions default. Sizing rule: ~2x the live-measured
+    # duration from PR run 30390832059 / push run 30389700235 (230-EVIDENCE.md),
+    # floor 5 minutes, widened for warm-cache/network-bound/high-historical-max
+    # jobs. The clock starts when the job is scheduled onto a runner, so queue
+    # and setup time count against the ceiling. example_playwright_smoke is
+    # deliberately generous (45) per D-20: it measured 28.5m and has hit 41.7m
+    # historically, so a tighter ceiling would time out the very runs this
+    # phase is judged on -- tightening is Phase 235's job once the new steady
+    # state is measured post-reshape.
+    timeout-minutes: 5
+    steps:
+      - name: Require release tag ref for manual release evidence
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PHASE_244_FINAL_MAIN: ${{ inputs.phase_244_final_main }}
+          RECAPTURE_BRANCH: ${{ inputs.recapture_branch }}
+          FORCE_FAIL_PROBE: ${{ inputs.force_fail_probe }}
+          FORCE_ROT_PROBE: ${{ inputs.force_rot_probe }}
+          REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" != "workflow_dispatch" ]; then
+            echo "Non-manual CI run; release-ref guard not applicable."
+            exit 0
+          fi
+          if [ "$PHASE_244_FINAL_MAIN" = "true" ]; then
+            if [ "$REF" = "refs/heads/main" ] && [ -z "$RECAPTURE_BRANCH" ] \
+              && [ "$FORCE_FAIL_PROBE" = "false" ] && [ "$FORCE_ROT_PROBE" = "false" ]; then
+              echo "Authorized Phase 244 final-main dispatch; recapture jobs remain excluded."
+              exit 0
+            fi
+            echo "Phase 244 final-main dispatch requires exact main, empty recapture input, and false probes."
+            exit 1
+          fi
+          if [ -n "$RECAPTURE_BRANCH" ]; then
+            echo "Recapture dispatch (recapture_branch=$RECAPTURE_BRANCH); release-ref guard not applicable."
+            exit 0
+          fi
+          case "${GITHUB_REF}" in
+            refs/tags/v*) ;;
+            *)
+              echo "Manual CI release-evidence runs must use refs/tags/v*; got ${GITHUB_REF}"
+              echo "Run with: gh workflow run \"CI\" --ref v1.0.0"
+              exit 1
+              ;;
+          esac
+
+  # Phase 230 (FAST-05 / D-07): fail-open docs-only classifier. Placed
+  # immediately after release_ref_guard so it reads as the top of the DAG.
+  # This job NEVER decides whether a required job runs (that would be a
+  # trigger-level `paths:` filter, D-06's hard-fail boundary -- a
+  # required workflow filtered at the trigger never creates its check
+  # contexts and the PR sits permanently unmergeable). It only computes a
+  # boolean that the four app-behaviour required lanes consume at the STEP
+  # level (D-07) to skip their cost body while still reporting `success`.
+  changes:
+    name: Detect docs-only change
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.detect.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Detect docs-only change
+        id: detect
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        # Phase 230 (FAST-05 / D-07): polarity is fail-open -- consumers
+        # test `!= 'true'`, so an empty or missing output runs the heavy
+        # steps and the failure mode is "we ran the full matrix
+        # unnecessarily", never "a required lane silently skipped". The
+        # boolean is computed once here rather than in five jobs because
+        # four of the five consumers use a bare `actions/checkout` without
+        # `fetch-depth: 0`. Measured no-op cost of this shape: ~36s. The
+        # classification rule itself lives in
+        # scripts/ci/docs-only-classify.sh rather than in this run body
+        # because the docs_only=true branch cannot be observed on any
+        # pre-merge pull request (ci.yml triggers on
+        # pull_request: branches: [main], so any pre-merge PR's diff
+        # necessarily carries this phase's own non-Markdown changes) -- a
+        # hermetic self-test wired into fast_checks is the only evidence
+        # available inside the phase window, and an inlined rule would
+        # have none. github.base_ref/github.event_name reach this shell
+        # only via the env: mapping above, never inlined into the run
+        # body (ASVS V5, notify-failure-issue.sh:14-18), so a crafted
+        # context string cannot inject shell or workflow commands.
+        run: |
+          set -euo pipefail
+          if [ "${EVENT_NAME}" != "pull_request" ]; then
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch origin "${BASE_REF}" --depth=1
+          git diff --name-only "origin/${BASE_REF}...HEAD" | bash scripts/ci/docs-only-classify.sh | tee -a "$GITHUB_OUTPUT"
+
+  # Phase 194 (CACHE-02): 6 trivial leaf guard jobs folded into one fast_checks
+  # job (single checkout + single base-ref resolve) to cut 6 runner cold-starts.
+  # Each guard is a distinct named run: step so per-guard failure remains legible
+  # in the Actions UI. release_ref_guard stays standalone (D-12).
+  # Phase 230 (FAST-05 / D-07): deliberately EXEMPT from docs-only gating.
+  # milestone-verification-gate.sh walks .planning/**, getting-started-contract.sh
+  # link-checks guides/introduction/getting-started.md, and the ExUnit files under
+  # test/sigra/planning/ and test/sigra/*guides* read those paths directly --
+  # exactly what a docs-only PR changes. Gating this job would remove coverage
+  # in the one dimension the change touches.
+  fast_checks:
+    name: Fast checks (milestone/installer/contracts/snapshot/ledger guards)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Resolve base ref
+        id: base
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}"
+            MB=$(git merge-base "origin/${{ github.base_ref }}" HEAD)
+            echo "ref=${MB}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Milestone verification gate
+        run: bash scripts/ci/milestone-verification-gate.sh
+      - name: Detect installer-related changes (PRs only)
+        id: detect
+        shell: bash
+        # Phase 51: include GA-adjacent lib surfaces (MFA/OAuth/account/passkeys) — see MAINTAINING.md §Installer golden CI contract.
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^priv/templates/sigra\.install/|^lib/sigra/install/|^lib/sigra/mfa(\.ex|/)|^lib/sigra/oauth(\.ex|/)|^lib/sigra/account(\.ex|/)|^lib/sigra/passkeys(\.ex|/)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Installer milestone audit (INT-01..03)
+        if: steps.detect.outputs.run == 'true'
+        run: bash scripts/ci/installer-milestone-audit.sh
+      - name: Getting started doc contract
+        run: bash scripts/ci/getting-started-contract.sh
+      - name: Phase 34 UAT contracts
+        run: scripts/ci/phase34-uat-contracts.sh
+      - name: Snapshot drift guard (canary allowlist)
+        run: bash scripts/ci/snapshot-canary-guard.sh --base "${{ steps.base.outputs.ref }}"
+      - name: Snapshot drift guard — design lane
+        run: |
+          SNAP_DIR="test/example/priv/playwright/tests/admin-design.spec.ts-snapshots" \
+          bash scripts/ci/snapshot-canary-guard.sh \
+            --base "${{ steps.base.outputs.ref }}" \
+            --allowlist test/example/priv/playwright/snapshot-allowlist-design \
+            --canary board-notice
+      - name: Quality ledger monotonic guard
+        run: bash scripts/ci/quality-ledger-monotonic.sh --base "${{ steps.base.outputs.ref }}"
+      - name: Quality ledger monotonic guard self-test
+        run: bash scripts/ci/quality-ledger-monotonic.test.sh
+      # Phase 216 (HARNESS-FOUNDATION): admin eval guards — read committed ledgers + merge-base.
+      # These are the merge-blocking forward-only ratchets for the admin eval harness.
+      # The expensive render+probe Playwright run is in the separate admin_eval_render job (JUDGE-CI-01).
+      - name: Quality findings monotonic guard
+        # Phase 216 Plan 07: open finding counts in admin-render-sha.json may not increase vs merge-base.
+        run: bash scripts/ci/quality-findings-monotonic.sh --base "${{ steps.base.outputs.ref }}"
+      - name: Quality findings monotonic guard self-test
+        run: bash scripts/ci/quality-findings-monotonic.test.sh
+      - name: Award ledger verify-then-climb guard
+        # Phase 216 Plan 07 (D-20): axis up only with fresh verified_at_sha + resolving evidence; band==min(axes).
+        run: node scripts/ci/award-guard.mjs --base "${{ steps.base.outputs.ref }}"
+      - name: Award ledger verify-then-climb guard self-test
+        run: node scripts/ci/award-guard.test.mjs
+      - name: Settled findings lint
+        # Phase 216 Plan 07: settled-findings.tsv must be sorted + no duplicate finding_id.
+        run: bash scripts/ci/settled-findings-lint.sh
+      - name: Settled findings lint self-test
+        run: bash scripts/ci/settled-findings-lint.test.sh
+      - name: Evidence anchor integrity check
+        # Phase 216 Plan 07 (D-09): every finding anchor must resolve in captured DOM.
+        # Soft-skips (exit 0) when no bundles present in a clean checkout — the full
+        # check runs in admin_eval_render where bundles are produced.
+        run: node scripts/ci/evidence-anchor-check.mjs
+      - name: Stale-render guard self-test
+        # Phase 216 Plan 07: unit self-test only — stale-render-guard.sh itself runs in
+        # admin_eval_render (it hard-fails on absent bundles, so it cannot run here).
+        run: bash scripts/ci/stale-render-guard.test.sh
+      - name: Check app.css for orphaned corruption
+        # Phase 214 (DEBT-05 / D-17): guard against sg-* split orphaned value
+        # fragments re-entering the :root block of test/example's app.css.
+        run: bash scripts/ci/app-css-corruption-check.sh
+      - name: app.css corruption guard self-test
+        # Phase 221 Plan 02 (SHIP-03 / D-10): regression proof that the guard
+        # catches an orphan bare value immediately after a ;-terminated decl.
+        run: bash scripts/ci/app-css-corruption-check.test.sh
+      - name: Upgrade-smoke resolver self-test
+        # Phase 222 Plan 01 (HARD-01): offline proof that resolve-sigra-source.sh
+        # durably excludes the immutable Hex stray 1.20.0 without a hand-maintained
+        # per-release floor. No network call — stubs `mix hex.info sigra`.
+        run: bash scripts/ci/upgrade-smoke.test.sh
+      - name: Notify-failure-issue self-test
+        # Phase 222 Plan 02 (HARD-01/HARD-02/D-07): hermetic proof that the shared
+        # tracking-issue notifier is idempotent (create-once / comment-once) and
+        # fail-closed on missing LABEL/TITLE/BODY. No real `gh` CLI or network call.
+        run: bash scripts/ci/notify-failure-issue.test.sh
+      - name: Pages legacy-branch script self-test
+        # Phase 240 Plan 01 (GREEN-05/SC-3): hermetic proof that
+        # ensure-github-pages-legacy-branch.sh exits 1 on every non-2xx Pages API
+        # status except the one named, documented PUT-403, and never POST-creates
+        # a Pages site on a 403/500. PATH-shadowed fake `gh`; no network call.
+        run: bash scripts/ci/ensure-github-pages-legacy-branch.test.sh
+      - name: GREEN-04 evidence collector self-test
+        # Quick task 260918-lfq (CR-01/CR-02/SELFTEST-CI): hermetic proof that
+        # capture-green-04-evidence.sh fails CLOSED rather than emitting a clean
+        # receipt when an SC-2 job selector matches zero jobs, when a matched job
+        # has a null conclusion, when the `main` window is below the run floor, or
+        # when the window does not contain the dispatch run. Each token is observed
+        # RED against a stub payload that triggers it. Stub `gh` on PATH and a
+        # throwaway git repo: no token, no network, no Postgres.
+        run: bash scripts/ci/capture-green-04-evidence.test.sh
+      - name: Panel forced-floor check self-test
+        # Phase 217 Plan 03 (SC-1/D-06): 12-cell grid completeness + NONE token + anchor validation.
+        # Self-test only — does NOT run panel-forced-floor-check.mjs over live panel output
+        # (no committed panel-findings.json at this phase's scope).
+        run: node scripts/ci/panel-forced-floor-check.test.mjs
+      - name: Panel CI-isolation self-test
+        # Phase 217 Plan 03 (SC-5/JUDGE-CI-01): negative-assertion proof that no workflow
+        # run: step invokes the panel or auto-fix loop orchestrators.
+        run: bash scripts/ci/panel-ci-isolation.test.sh
+      - name: Fix-apply self-test
+        # Phase 217 Plan 06 (SC-4): hermetic proof that fix-apply.mjs enforces +/-1.0px band,
+        # refuses ties/>1.0px/CSS/component/judgment; copy-swap is text-node-only; !important preserved.
+        run: node scripts/panel/fix-apply.test.mjs
+      - name: Auto-fix loop self-test
+        # Phase 217 Plan 06 (SC-4): hermetic proof that admin-autofix-loop.sh fires git revert on
+        # rail 1 (count-monotonic), the finding lands in settled-findings.tsv (waived), and the
+        # poison-set prevents re-apply. The loop binary itself is NOT wired into CI (JUDGE-CI-01).
+        run: bash scripts/ci/admin-autofix-loop.test.sh
+      - name: Fix-queue lint
+        # Phase 217 (WR-01): validates guides/reference/fix-queue.json on the merge path
+        # (auto_eligible derivation, finding_id keyspace, sort/dedup). Reads committed
+        # state only — no DB, browser, or API key.
+        run: bash scripts/ci/fix-queue-lint.sh
+      - name: Panel verdicts lint
+        # Phase 217 (WR-01): validates guides/reference/admin-panel-verdicts.json on the
+        # merge path (T-217-05-EOP: never stores open_findings; finding_id integrity).
+        run: bash scripts/ci/panel-verdicts-lint.sh
+      # Phase 217 (WR-02): Phase-217 self-tests that were written but never executed
+      # on any merge lane. The five below are fully hermetic (built-in node modules /
+      # bash only — no cheerio, DB, browser, or API key) and run on the ubuntu-latest
+      # default node with zero added setup cost.
+      - name: Anchor lib self-test
+        run: node scripts/ci/lib/anchor.test.mjs
+      - name: Panel schema self-test
+        run: node scripts/panel/panel-schema.test.mjs
+      - name: Fix-queue build self-test
+        run: node scripts/ci/fix-queue-build.test.mjs
+      - name: Fix-queue lint self-test
+        run: bash scripts/ci/fix-queue-lint.test.sh
+      - name: Panel verdicts lint self-test
+        run: bash scripts/ci/panel-verdicts-lint.test.sh
+      - name: CI run metrics self-test
+        # Phase 230 (D-21 / SC-5): hermetic proof that ci-run-metrics.sh clamps negative
+        # durations to 0, never filters per-job durations by conclusion (a
+        # continue-on-error "failure" job still counts), and fails closed on a missing
+        # `gh`, a non-zero `gh` exit, or an empty job list. The measuring script itself
+        # is NOT run here -- it requires a live `gh` against a real run -- only its
+        # PATH-shadowed self-test, which makes no network call and needs no GH_TOKEN.
+        run: bash scripts/ci/ci-run-metrics.test.sh
+      - name: Offline attestation runtime self-test
+        run: bash scripts/ci/verify-terminal-ratification-attestation-offline.test.sh
+      - name: Verify retained terminal attestation offline
+        # This is intentionally in required fast_checks: every PR and main push
+        # revalidates the retained signature, policy, receipt digest, and
+        # adversarial failure cases with networking disabled.
+        # The verifier is sha256-pinned by the phase 235 contract tests, so it
+        # cannot be edited to look in the archive; the shim gives it a staged
+        # ROOT instead and runs its exact reviewed bytes.
+        run: >-
+          bash scripts/ci/run-pinned-phase-verifier.sh
+          verify-terminal-ratification-attestation-offline.sh
+          235-terminal-ratification-measured-not-read
+      - name: Docs-only classifier self-test
+        # Phase 230 (FAST-05 / D-07): hermetic proof that the docs-only
+        # classification rule is correct in both directions, plus the
+        # empty-input and crafted-path cases (docs.md/evil.ex,
+        # .planning-evil/x.ex, a git-quoted embedded-escape path never
+        # forces the true branch). No network, no git repository, no gh.
+        # This is deliberately NOT gated on docs_only -- fast_checks runs
+        # in full on every event -- and it is the only in-phase evidence
+        # for the true branch: ci.yml triggers on
+        # pull_request: branches: [main], so any pre-merge pull request's
+        # base-to-HEAD diff necessarily carries this phase's own
+        # non-Markdown commits and can never classify docs_only=true.
+        # AFTER-DOCSONLY (the end-to-end true observation) is a
+        # post-merge obligation recorded in 230-EVIDENCE.md; this
+        # self-test is what stands between the rule and silent rot until
+        # then.
+        run: bash scripts/ci/docs-only-classify.test.sh
+      - name: Playwright cache key guard
+        # Phase 230 (FAST-06 / D-18): proves the version embedded in
+        # example_playwright_smoke's Playwright browser cache key tracks
+        # the resolved @playwright/test version in
+        # test/example/priv/playwright/package-lock.json (D-16, D-18). Does
+        # NOT cover the browser set ("chromium-webkit") encoded in the same
+        # key -- that is D-16's concern and is asserted structurally by
+        # plan 06 Task 1's ci.yml verify block. No live `gh`, no
+        # artifacts -- both this guard and its self-test run unconditionally.
+        run: bash scripts/ci/playwright-cache-key-guard.sh
+      - name: Playwright cache key guard self-test
+        run: bash scripts/ci/playwright-cache-key-guard.test.sh
+      - name: Demotion observer self-test
+        # Phase 230 closeout: the observer behind .github/workflows/ci-observe.yml's
+        # demotion receipt -- the standing, permanent form of the AFTER-PUSH evidence
+        # item. Its load-bearing case is the fail-OPEN hole: an unfinished construct
+        # serializes `completedAt: "0001-01-01T00:00:00Z"` and `conclusion: ""`, which a
+        # duration check clamps to 0s (indistinguishable from a skip) and a
+        # `conclusion != 'skipped'` check waves through. Hermetic: a PATH-shadowed
+        # recording `gh`, no network, no GH_TOKEN.
+        run: bash scripts/ci/ci-demotion-observer.test.sh
+      - name: Wait-for-ci-gate self-test
+        # Phase 231 (DX-05 / D-20, D-21): hermetic proof that the extracted
+        # release-lane poll loop (scripts/ci/wait-for-ci-gate.sh, invoked by
+        # release-please.yml's gate-ci-green job) is fail-closed and its 120-attempt
+        # ceiling is wired. It is hermetic, so it proves the logic and never that a
+        # real release passed the gate -- that half is the standing receipt D-21
+        # books against the next real release (and the live invocation already
+        # recorded for this phase's own tracer slice against run 30466318240).
+        run: bash scripts/ci/wait-for-ci-gate.test.sh
+      - name: Honest-skip verdict self-test
+        # Phase 231 (GATE-03 / D-01, D-03, D-04): hermetic proof that the
+        # manifest-driven legitimacy verdict (scripts/ci/honest-skip-verdict.sh)
+        # is correct in both directions -- an allowed skip passes, the same
+        # skip on a non-pull_request event fails naming the lane, and an
+        # allowed skip with a rotted (branch- or SHA-keyed) manifest gate
+        # fails anyway -- and fails closed on its own vacuity (an empty
+        # manifest intersection, a fully empty lane-result map, a workflow
+        # needs: parse yielding nothing). It is hermetic, so it proves the
+        # logic and never that ci-gate actually invokes it -- that half is
+        # plan 231-09's wiring step plus SC-3's two dispatched runs.
+        run: bash scripts/ci/honest-skip-verdict.test.sh
+      - name: Phase 230 prohibition guards
+        # Phase 230 closeout: the 13 `verification: test` prohibitions recorded across
+        # 230-01..09-PLAN.md, mechanized. Each file is the `check_target` in its
+        # prohibition's frontmatter, and GSD's `check prohibition-enforcement` proves each
+        # one fail-FIRST against a known-bad fixture in test/fixtures/prohibitions/ before
+        # accepting a pass -- so these cannot rot into vacuous greens without the phase
+        # verification noticing. node:test rather than the repo's usual ExUnit idiom
+        # because that producer accepts only `node-test` / `lint-rule`.
+        # A bare directory arg is NOT valid here (node 22 resolves it as a module); the
+        # shell glob is load-bearing.
+        run: node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs
+      - name: Docs-only receipt self-test
+        # Phase 230 closeout: the observer behind ci-observe.yml's docs-only receipt --
+        # the standing form of AFTER-DOCSONLY. Asserts the five ruleset-required contexts
+        # stay merge-eligible on a docs_only=true run while fast_checks and the library
+        # suite still execute in full, and that an unestablishable classification is
+        # never silently read as `false`.
+        run: bash scripts/ci/docs-only-receipt.test.sh
+      # Phase 217 (WR-02): excerpt.test.mjs and judge.test.mjs transitively require
+      # cheerio (excerpt.mjs / judge.mjs load it from the Playwright subproject
+      # node_modules), so they need the playwright deps installed first. Pin node and
+      # do a scoped `npm ci` so these two self-tests still run on the merge path.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Install Playwright subproject deps (for cheerio-backed self-tests)
+        working-directory: test/example/priv/playwright
+        run: npm ci --ignore-scripts
+      - name: Excerpt self-test
+        run: node scripts/panel/excerpt.test.mjs
+      - name: Judge self-test
+        run: node scripts/panel/judge.test.mjs
+      - name: Judge CLI bundle-wiring self-test
+        run: node scripts/panel/judge-cli.test.mjs
+
+  install_golden_contract:
+    name: Install golden + idempotency contract (subprocess harness)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: release_ref_guard
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sigra_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Detect installer-related changes (PRs only)
+        id: detect
+        shell: bash
+        # Phase 51: include GA-adjacent lib surfaces (MFA/OAuth/account/passkeys) — see MAINTAINING.md §Installer golden CI contract.
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          if git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qE '^priv/templates/sigra\.install/|^lib/sigra/install/|^lib/sigra/mfa(\.ex|/)|^lib/sigra/oauth(\.ex|/)|^lib/sigra/account(\.ex|/)|^lib/sigra/passkeys(\.ex|/)'; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        if: steps.detect.outputs.run == 'true'
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache library deps
+        id: install_golden_deps_cache
+        if: steps.detect.outputs.run == 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Install Hex + Rebar
+        if: steps.detect.outputs.run == 'true'
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        if: steps.detect.outputs.run == 'true'
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch library deps
+        if: steps.detect.outputs.run == 'true'
+        run: mix deps.get
+      - name: Run install golden + idempotency tests
+        if: steps.detect.outputs.run == 'true'
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix test test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs
+      # D-06 (Phase 213): hard-gate drift-detector — rebless_golden --check verifies that
+      # the committed fixture exactly matches what the pinned phx_new archive generates.
+      # Exits 2 on drift (non-zero fails the job). No continue-on-error. Runs only when
+      # installer-related changes are detected (gated by the same detect step above).
+      - name: Fixture drift-detector (rebless_golden --check)
+        if: steps.detect.outputs.run == 'true'
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix sigra.fixture.rebless_golden --check
+
+  # DX-01: sole full-library-suite owner. It deliberately remains exempt from
+  # docs-only gating: repository-facing documentation changes still need the
+  # library contract checked on every pull request.
+  library_tests_shard:
+    name: Library tests shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: release_ref_guard
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
+          POSTGRES_DB: sigra_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache library deps
+        id: deps_cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      # phx_new archive is required by test/sigra/install/golden_diff_test.exs
+      # and idempotency_test.exs — both use InstallFixture.setup_tmp_app/1
+      # which shells out to `mix phx.new` to scaffold a fresh Phoenix app.
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch library deps
+        run: mix deps.get
+      - name: Prepare timing output directory
+        run: mkdir -p test-results
+      - name: Run contributor CI gate
+        env:
+          PGUSER: postgres
+          MIX_ENV: test
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          SIGRA_EXUNIT_TIMING_JSON: test-results/ci-exunit-timing-main.json
+          SIGRA_EXUNIT_TIMING_INVOCATION: main
+          SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON: test-results/ci-exunit-timing-threadline-guard.json
+        # Local equivalent: run: MIX_ENV=test mix ci (MIX_ENV is set above).
+        run: mix ci
+      - name: Upload library test timing
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: library-test-timing-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/ci-exunit-timing-main.json
+            test-results/ci-exunit-timing-threadline-guard.json
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Capture CI measurement metadata
+        if: always()
+        env:
+          JOB_NAME: Library tests shard
+          CONFIGURED_NODE: ''
+          DEPS_CACHE_HIT: ${{ steps.deps_cache.outputs.cache-hit }}
+          EXAMPLE_DEPS_CACHE_HIT: ''
+          INSTALL_DEPS_CACHE_HIT: ''
+          HTTP_DEPS_CACHE_HIT: ''
+          BROWSER_DEPS_CACHE_HIT: ''
+          BROWSER_CACHE_HIT: ''
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { spawnSync } = require('node:child_process');
+          const readTool = (name) => {
+            try { return fs.readFileSync('.tool-versions', 'utf8').split(/\n/).find((line) => line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1] ?? null; }
+            catch { return null; }
+          };
+          const commandVersion = (command, args, pattern) => {
+            const result = spawnSync(command, args, { encoding: 'utf8' });
+            if (result.error?.code === 'ENOENT') return { value: null, reason: 'binary_missing' };
+            if (result.status !== 0) return { value: null, reason: 'version_command_failed' };
+            const line = `${result.stdout ?? ''}\n${result.stderr ?? ''}`.split(/\r?\n/).map((s) => s.trim()).find((s) => pattern.test(s));
+            return line ? { value: line, reason: null } : { value: null, reason: 'version_line_unrecognized' };
+          };
+          const elixirOut = commandVersion('elixir', ['--version'], /^Elixir v?[0-9.]+/);
+          const otpOut = commandVersion('elixir', ['--version'], /^Erlang\/OTP [0-9.]+/);
+          const cache = (value) => value === 'true' ? 'hit' : value === 'false' ? 'miss' : null;
+          const lockVersion = () => {
+            try { return JSON.parse(fs.readFileSync('test/example/priv/playwright/package-lock.json', 'utf8')).packages['node_modules/@playwright/test'].version ?? null; }
+            catch { return null; }
+          };
+          const metadata = {
+            schema_version: 'sigra.ci-measurement-metadata/v1',
+            repository: process.env.GITHUB_REPOSITORY ?? null,
+            run_id: process.env.GITHUB_RUN_ID ?? null,
+            run_attempt: process.env.GITHUB_RUN_ATTEMPT ?? null,
+            source_sha: process.env.GITHUB_SHA ?? null,
+            event: process.env.GITHUB_EVENT_NAME ?? null,
+            matrix_seam: null,
+            job_name: process.env.JOB_NAME,
+            timing_artifact_name: `library-test-timing-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`,
+            exunit_reports: [
+              { invocation: 'main', path: 'ci-exunit-timing-main.json' },
+              { invocation: 'threadline_guard', path: 'ci-exunit-timing-threadline-guard.json' },
+            ],
+            runner_os: process.env.RUNNER_OS ?? null,
+            runner_arch: process.env.RUNNER_ARCH ?? null,
+            runner_image: { image_os: process.env.ImageOS ?? null, image_version: process.env.ImageVersion ?? null },
+            cache_outcome: { library_deps: cache(process.env.DEPS_CACHE_HIT) },
+            configured_versions: { erlang: readTool('erlang'), elixir: readTool('elixir'), node: null, playwright: lockVersion() },
+            observed_versions: { erlang: otpOut.value, elixir: elixirOut.value, node: null, playwright: null },
+            version_unavailable: { erlang: otpOut.reason, elixir: elixirOut.reason, node: 'not_applicable', playwright: 'not_applicable' },
+          };
+          fs.mkdirSync('test-results', { recursive: true });
+          fs.writeFileSync('test-results/ci-measurement-metadata.json', `${JSON.stringify(metadata, null, 2)}\n`);
+          NODE
+      - name: Upload library measurement metadata
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: library-measurement-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/ci-measurement-metadata.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
+  # and name `Library tests` — byte-identical to ruleset 14941512 required check string
+  # (confirmed via gh api repos/szTheory/sigra/rulesets/14941512 at execution time).
+  # A bare matrix on a named job emits "Library tests (1)"/"(2)" — never a bare
+  # "Library tests" — which would orphan the required check (stuck pending → merge outage).
+  # The aggregator restores the bare context and the job id ci-gate.needs references.
+  # ci-gate is UNCHANGED (D-03): still needs: library_tests and reads needs.library_tests.result.
+  # Phase 230 (FAST-05 / D-07): deliberately EXEMPT from docs-only gating --
+  # this aggregator only reflects library_tests_shard's own (already exempt)
+  # result; carries no `changes` dependency and no docs_only reference itself.
+  library_tests:
+    name: Library tests          # BYTE-IDENTICAL to ruleset 14941512 — DO NOT EDIT (D-02)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [library_tests_shard]
+    if: always()                 # must run even if a shard fails (mirrors ci-gate pattern)
+    steps:
+      - name: Require the library suite owner to pass
+        env:
+          SHARD: ${{ needs.library_tests_shard.result }}
+        run: |
+          set -euo pipefail
+          if [[ "$SHARD" != "success" ]]; then
+            echo "library_tests_shard result: $SHARD"
+            exit 1
+          fi
+          echo "all library tests passed"
+
+  library_tests_dep_off:
+    name: Library tests (dep-off — Threadline absent)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [release_ref_guard, changes]
+    # This lane owns the required docs build and full generated-index check,
+    # so it must run for docs-only candidates as well as other PRs.
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          # Sigra.Test.PostgresRepo and admin/audit integration tests expect this DB to exist.
+          POSTGRES_DB: sigra_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache library deps (dep-off lane)
+        id: dep_off_deps_cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-dep-off-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-dep-off-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch library deps
+        env:
+          MIX_ENV: test
+        run: mix deps.get
+      # The sole alias owner exercises dep-off. This lane now owns only the one
+      # docs build that is intentionally outside the contributor alias.
+      - name: Check docs build cleanly
+        run: mix docs --warnings-as-errors
+      - name: Check generated docs index
+        run: bash scripts/ci/check-docs-index.sh
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## library_tests_dep_off cache"
+            echo "- deps cache (exact hit): ${{ steps.dep_off_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  example_unit_smoke:
+    name: Example unit smoke (ExUnit + ConnTest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [changes]
+    # Phase 230 (FAST-05 / D-09, D-07): first time this required lane gains
+    # a dependency edge -- it had no `needs:` at all before this plan. That
+    # is safe specifically because `!cancelled()` is used, never `always()`
+    # (T-230-05-07): the two are identical for the failure case this gate
+    # exists to handle (a `changes` failure still leaves this job running,
+    # preserving fail-open intent), and they diverge only on cancellation --
+    # `always()` would keep this job running on a run FAST-04's
+    # `cancel-in-progress` just superseded.
+    if: ${{ !cancelled() }}
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache example deps
+        id: example_unit_deps_cache
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          restore-keys: ${{ runner.os }}-example-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Fetch example deps
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        working-directory: test/example
+        run: mix deps.get
+      - name: Compile example
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        working-directory: test/example
+        run: mix compile --warnings-as-errors
+      - name: Setup database
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        working-directory: test/example
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix ecto.create && mix ecto.migrate
+      - name: Run smoke tests
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        working-directory: test/example
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix test --include example_app
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## example_unit_smoke cache"
+            echo "- deps cache (exact hit): ${{ steps.example_unit_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Capture CI measurement metadata
+        if: always()
+        env:
+          JOB_NAME: Example unit smoke (ExUnit + ConnTest)
+          DEPS_CACHE_HIT: ''
+          EXAMPLE_DEPS_CACHE_HIT: ${{ steps.example_unit_deps_cache.outputs.cache-hit }}
+          INSTALL_DEPS_CACHE_HIT: ''
+          HTTP_DEPS_CACHE_HIT: ''
+          BROWSER_DEPS_CACHE_HIT: ''
+          BROWSER_CACHE_HIT: ''
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { spawnSync } = require('node:child_process');
+          const readTool = (name) => { try { return fs.readFileSync('.tool-versions', 'utf8').split(/\n/).find((line) => line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1] ?? null; } catch { return null; } };
+          const result = spawnSync('elixir', ['--version'], { encoding: 'utf8' });
+          const lines = `${result.stdout ?? ''}\n${result.stderr ?? ''}`.split(/\r?\n/).map((line) => line.trim());
+          const pick = (pattern) => result.status === 0 ? lines.find((line) => pattern.test(line)) ?? null : null;
+          const reasons = (value) => value ? null : (result.error?.code === 'ENOENT' ? 'binary_missing' : result.status === 0 ? 'version_line_unrecognized' : 'version_command_failed');
+          const cache = (value) => value === 'true' ? 'hit' : value === 'false' ? 'miss' : null;
+          const metadata = { schema_version:'sigra.ci-measurement-metadata/v1', repository:process.env.GITHUB_REPOSITORY ?? null, run_id:process.env.GITHUB_RUN_ID ?? null, run_attempt:process.env.GITHUB_RUN_ATTEMPT ?? null, source_sha:process.env.GITHUB_SHA ?? null, event:process.env.GITHUB_EVENT_NAME ?? null, matrix_seam:null, job_name:process.env.JOB_NAME, runner_os:process.env.RUNNER_OS ?? null, runner_arch:process.env.RUNNER_ARCH ?? null, runner_image:{image_os:process.env.ImageOS ?? null,image_version:process.env.ImageVersion ?? null}, cache_outcome:{example_deps:cache(process.env.EXAMPLE_DEPS_CACHE_HIT)}, configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null}, observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null}, version_unavailable:{erlang:reasons(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reasons(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'} };
+          fs.mkdirSync('test-results', { recursive:true }); fs.writeFileSync('test-results/ci-measurement-metadata.json', `${JSON.stringify(metadata,null,2)}\n`);
+          NODE
+      - name: Upload example unit measurement metadata
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: example-unit-measurement-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/ci-measurement-metadata.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  install_smoke:
+    # Also closes SEED-3 / UAT-01 greenfield: `mix sigra.gen.oauth` + path/migration/router
+    # checks (see scripts/ci/install-smoke.sh and docs/uat-ci-coverage.md).
+    name: Install smoke (fresh phx.new + sigra.install)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [release_ref_guard, changes]
+    # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
+    # gate explicitly while removing `changes` from the set of results that
+    # can skip this required lane -- `changes` in `needs:` would otherwise
+    # let a classifier failure skip a ruleset-required job. `!cancelled()`
+    # (never `always()`, T-230-05-07) preserves fail-open intent on a
+    # `changes` failure while still stopping when FAST-04 supersedes the run.
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        id: install_smoke_deps_cache
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Cache Hex registry
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-hex-registry-
+      - name: Install Hex + Rebar
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch Sigra library deps
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        run: mix deps.get
+      - name: Run install smoke harness
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+          # Fresh tmp_app includes Cloak.Vault; compile/boot needs a dummy key (same as admin-acceptance-smoke.sh).
+          CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+        run: scripts/ci/install-smoke.sh
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## install_smoke cache"
+            echo "- deps cache (exact hit): ${{ steps.install_smoke_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Capture CI measurement metadata
+        if: always()
+        env:
+          JOB_NAME: Install smoke (fresh phx.new + sigra.install)
+          DEPS_CACHE_HIT: ''
+          EXAMPLE_DEPS_CACHE_HIT: ''
+          INSTALL_DEPS_CACHE_HIT: ${{ steps.install_smoke_deps_cache.outputs.cache-hit }}
+          HTTP_DEPS_CACHE_HIT: ''
+          BROWSER_DEPS_CACHE_HIT: ''
+          BROWSER_CACHE_HIT: ''
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs'); const { spawnSync } = require('node:child_process');
+          const readTool = (name) => { try { return fs.readFileSync('.tool-versions','utf8').split(/\n/).find((line)=>line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1] ?? null; } catch { return null; } };
+          const result = spawnSync('elixir',['--version'],{encoding:'utf8'}); const lines=`${result.stdout ?? ''}\n${result.stderr ?? ''}`.split(/\r?\n/).map((line)=>line.trim());
+          const pick=(pattern)=>result.status===0 ? lines.find((line)=>pattern.test(line)) ?? null : null; const reason=(value)=>value?null:(result.error?.code==='ENOENT'?'binary_missing':result.status===0?'version_line_unrecognized':'version_command_failed'); const cache=(value)=>value==='true'?'hit':value==='false'?'miss':null;
+          const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{library_deps:cache(process.env.INSTALL_DEPS_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null},observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null},version_unavailable:{erlang:reason(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reason(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'}};
+          fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
+          NODE
+      - name: Upload install smoke measurement metadata
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: install-smoke-measurement-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/ci-measurement-metadata.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  upgrade_smoke:
+    name: Upgrade smoke (published source series -> local candidate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name != 'pull_request'
+    needs: release_ref_guard
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        id: upgrade_smoke_deps_cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Cache Hex registry
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-hex-registry-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Run upgrade smoke harness
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+          CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+        run: scripts/ci/upgrade-smoke.sh
+
+  passkeys_manual_fallback_smoke:
+    name: Passkeys manual fallback smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name != 'pull_request'
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        id: passkeys_fallback_deps_cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Cache Hex registry
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-hex-registry-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Run passkeys manual fallback smoke harness
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: scripts/ci/passkeys-manual-fallback-smoke.sh
+
+  install_matrix:
+    name: Install matrix (flag combinations)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name != 'pull_request'
+    env:
+      # tmp_app runs mix test + phx.server with Sigra-generated Cloak.Vault (decode_env!("CLOAK_KEY")).
+      CLOAK_KEY: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+    strategy:
+      fail-fast: false
+      matrix:
+        flags:
+          - ""
+          - "--no-passkeys"
+          - "--no-organizations"
+          - "--no-organizations --no-passkeys"
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        id: install_matrix_deps_cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Scaffold fresh Phoenix app
+        # --no-mailer removed: sigra.install generates accounts/mailer.ex
+        # which `use Swoosh.Mailer`; skipping the mailer scaffold drops
+        # Swoosh from the tmp app's deps and breaks `mix compile` with
+        # `module Swoosh.Mailer is not loaded`. scripts/ci/install-smoke.sh
+        # already scaffolds without --no-mailer for the same reason.
+        run: mix phx.new tmp_app --no-assets --no-install
+      - name: Patch tmp app mix.exs with sigra path dep
+        working-directory: tmp_app
+        run: |
+          # Mirrors InstallFixture.patch_mix_exs_with_path_dep! — insert
+          # `{:sigra, path: "..", override: true}` as the first entry of the
+          # deps/0 list. Perl -0777 for multiline match on `defp deps do\n    [`.
+          perl -i -0777 -pe 's/defp deps do\s*\n\s*\[/defp deps do\n    [\n      {:sigra, path: "..", override: true},/' mix.exs
+          grep -q "{:sigra, path:" mix.exs || { echo "failed to patch mix.exs"; exit 1; }
+      - name: Fetch tmp app deps
+        working-directory: tmp_app
+        env:
+          MIX_ENV: test
+        # `phx.new --no-install` skips deps fetch; mix refuses to run any
+        # task (including sigra.install) until deps are resolved. Must
+        # run before the install step. Mirrors install-smoke.sh:54.
+        run: mix deps.get
+      - name: Run sigra.install with matrix flags
+        working-directory: tmp_app
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          # WR-02: pipe matrix.flags through an env var instead of direct
+          # ${{ }} expansion into the shell string. Today `matrix.flags`
+          # comes from the repo itself (safe), but env-var-indirection is
+          # the pattern GitHub recommends because it prevents a future
+          # maintainer from unknowingly inheriting command-injection if
+          # the matrix value ever gets sourced from `github.event.*`.
+          MATRIX_FLAGS: ${{ matrix.flags }}
+        run: |
+          # MATRIX_FLAGS is an intentional space-separated list of install flags;
+          # word-splitting is desired.
+          # shellcheck disable=SC2086
+          mix sigra.install Accounts User users $MATRIX_FLAGS --yes
+      - name: Compile + migrate + test
+        working-directory: tmp_app
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: |
+          mix deps.get
+          mix compile --warnings-as-errors
+          mix ecto.create
+          mix ecto.migrate
+          mix test
+      - name: Boot app and verify root responds
+        working-directory: tmp_app
+        env:
+          MIX_ENV: test
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: |
+          PHX_SERVER=true mix phx.server > /tmp/install-matrix-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill ${SERVER_PID} 2>/dev/null || true' EXIT
+
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/ > /dev/null; then
+              echo "tmp_app responded after ${i}s"
+              exit 0
+            fi
+
+            if [[ "${i}" -eq 30 ]]; then
+              echo "FAIL: tmp_app did not boot within 30 seconds"
+              cat /tmp/install-matrix-server.log
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+  passkeys_opt_out_smoke:
+    name: Passkeys opt-out smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name != 'pull_request'
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache Sigra library deps
+        id: passkeys_opt_out_deps_cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-${{ hashFiles('mix.lock') }}-v1
+          restore-keys: ${{ runner.os }}-library-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-test-
+      - name: Cache Hex registry
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: ~/.hex
+          key: ${{ runner.os }}-hex-registry-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-hex-registry-
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Fetch Sigra library deps
+        run: mix deps.get
+      - name: Run passkeys opt-out smoke harness
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: scripts/ci/passkeys-opt-out-smoke.sh
+
+  example_http_smoke:
+    name: Example HTTP smoke (boot + curl critical routes)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [release_ref_guard, changes]
+    # Phase 230 (FAST-05 / D-07): re-imposes the original release_ref_guard
+    # gate explicitly while removing `changes` from the set of results that
+    # can skip this required lane. `!cancelled()` (never `always()`,
+    # T-230-05-07) preserves fail-open intent on a `changes` failure while
+    # still stopping when FAST-04 supersedes the run.
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        id: setup
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - name: Cache example deps
+        id: http_smoke_deps_cache
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            test/example/deps
+            test/example/_build
+          key: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-${{ hashFiles('test/example/mix.lock', 'test/example/config/**', 'test/example/lib/**/*.ex', 'lib/**/*.ex', 'mix.exs') }}-v1
+          restore-keys: ${{ runner.os }}-example-dev-otp${{ steps.setup.outputs.otp-version }}-elixir${{ steps.setup.outputs.elixir-version }}-dev-
+      - name: Fetch example deps
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix deps.get
+      - name: Compile example
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+        run: mix compile --warnings-as-errors
+      - name: Setup example dev DB
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+        run: mix ecto.create && mix ecto.migrate
+      - name: Boot example app in background
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        working-directory: test/example
+        env:
+          MIX_ENV: dev
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          PHX_SERVER: "true"
+        # WR-04: redirect stdout+stderr so boot output is not interleaved
+        # with later step output and is recoverable via a dedicated failure
+        # step. install_matrix:291 and admin-acceptance-smoke.sh:207 already
+        # follow this pattern — this step missed it.
+        run: mix phx.server > /tmp/example-http-server.log 2>&1 &
+      - name: Run HTTP smoke harness
+        if: ${{ needs.changes.result != 'success' || needs.changes.outputs.docs_only != 'true' }}
+        run: scripts/ci/http-smoke.sh
+      - name: Dump example app log (on failure)
+        if: failure()
+        run: |
+          echo "--- /tmp/example-http-server.log ---"
+          cat /tmp/example-http-server.log || echo "(no log file)"
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## example_http_smoke cache"
+            echo "- deps cache (exact hit): ${{ steps.http_smoke_deps_cache.outputs.cache-hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Capture CI measurement metadata
+        if: always()
+        env:
+          JOB_NAME: Example HTTP smoke (boot + curl critical routes)
+          DEPS_CACHE_HIT: ''
+          EXAMPLE_DEPS_CACHE_HIT: ''
+          INSTALL_DEPS_CACHE_HIT: ''
+          HTTP_DEPS_CACHE_HIT: ${{ steps.http_smoke_deps_cache.outputs.cache-hit }}
+          BROWSER_DEPS_CACHE_HIT: ''
+          BROWSER_CACHE_HIT: ''
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');const{spawnSync}=require('node:child_process');
+          const readTool=(name)=>{try{return fs.readFileSync('.tool-versions','utf8').split(/\n/).find((line)=>line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1]??null}catch{return null}};
+          const result=spawnSync('elixir',['--version'],{encoding:'utf8'});const lines=`${result.stdout??''}\n${result.stderr??''}`.split(/\r?\n/).map((line)=>line.trim());const pick=(pattern)=>result.status===0?lines.find((line)=>pattern.test(line))??null:null;const reason=(value)=>value?null:(result.error?.code==='ENOENT'?'binary_missing':result.status===0?'version_line_unrecognized':'version_command_failed');const cache=(value)=>value==='true'?'hit':value==='false'?'miss':null;
+          const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{example_deps:cache(process.env.HTTP_DEPS_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:null,playwright:null},observed_versions:{erlang:pick(/^Erlang\/OTP [0-9.]+/),elixir:pick(/^Elixir v?[0-9.]+/),node:null,playwright:null},version_unavailable:{erlang:reason(pick(/^Erlang\/OTP [0-9.]+/)),elixir:reason(pick(/^Elixir v?[0-9.]+/)),node:'not_applicable',playwright:'not_applicable'}};
+          fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
+          NODE
+      - name: Upload HTTP smoke measurement metadata
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: http-smoke-measurement-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/ci-measurement-metadata.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  example_playwright_shard:
+    name: Example Playwright shard (${{ matrix.seam }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [release_ref_guard, changes]
+    if: ${{ !cancelled() && needs.release_ref_guard.result == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - seam: admin_behavior
+            database: sigra_admin_behavior
+            port: "4001"
+            base_url: http://localhost:4001
+            server_log: /tmp/example-playwright-admin-behavior.log
+            browsers: chromium
+            browser_cache_key: playwright-chromium-1.59.1-v3
+          - seam: admin_checkpoints
+            database: sigra_admin_checkpoints
+            port: "4002"
+            base_url: http://localhost:4002
+            server_log: /tmp/example-playwright-admin-checkpoints.log
+            browsers: chromium webkit
+            browser_cache_key: playwright-chromium-webkit-1.59.1-v3
+          - seam: design_gallery
+            database: sigra_design_gallery
+            port: "4003"
+            base_url: http://localhost:4003
+            server_log: /tmp/example-playwright-design-gallery.log
+            browsers: chromium webkit
+            browser_cache_key: playwright-chromium-webkit-1.59.1-v3
+          - seam: non_admin_smoke
+            database: sigra_non_admin_smoke
+            port: "4004"
+            base_url: http://localhost:4004
+            server_log: /tmp/example-playwright-non-admin-smoke.log
+            # This seam includes the `mobile` Playwright project, which uses WebKit.
+            browsers: chromium webkit
+            browser_cache_key: playwright-chromium-webkit-1.59.1-v3
+          - seam: demo_showcase
+            database: sigra_demo_showcase
+            port: "4005"
+            base_url: http://localhost:4005
+            server_log: /tmp/example-playwright-demo-showcase.log
+            browsers: chromium
+            browser_cache_key: playwright-chromium-1.59.1-v3
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Boot isolated example app
+        id: boot
+        if: ${{ !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') }}
+        uses: ./.github/actions/example-playwright-boot
+        with:
+          database-name: ${{ matrix.database }}
+          app-port: ${{ matrix.port }}
+          base-url: ${{ matrix.base_url }}
+          server-log: ${{ matrix.server_log }}
+          browsers: ${{ matrix.browsers }}
+          cache-browsers: "true"
+          browser-cache-key: ${{ runner.os }}-${{ matrix.browser_cache_key }}
+
+      - name: Run admin behavior browser truth
+        id: admin_behavior
+        if: ${{ !cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'admin_behavior' }}
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+        run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/admin-user-operations.spec.ts \
+            tests/impersonation.spec.ts \
+            tests/admin-audit.spec.ts \
+            tests/admin-theme.spec.ts \
+            tests/admin-coherence-sweep.spec.ts \
+            tests/admin-modal-interaction.spec.ts \
+            tests/admin-flow-platform-admin.spec.ts \
+            tests/admin-flow-support-investigator.spec.ts \
+            tests/admin-flow-org-admin.spec.ts \
+            --project=chromium \
+            --retries=0 \
+            --list --reporter=json > playwright-report/admin-behavior.selection.json
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/admin-behavior.json npx playwright test \
+            tests/admin-user-operations.spec.ts \
+            tests/impersonation.spec.ts \
+            tests/admin-audit.spec.ts \
+            tests/admin-theme.spec.ts \
+            tests/admin-coherence-sweep.spec.ts \
+            tests/admin-modal-interaction.spec.ts \
+            tests/admin-flow-platform-admin.spec.ts \
+            tests/admin-flow-support-investigator.spec.ts \
+            tests/admin-flow-org-admin.spec.ts \
+            --project=chromium \
+            --retries=0
+
+      - name: Run admin checkpoints
+        id: admin_checkpoints
+        if: ${{ !cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'admin_checkpoints' }}
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+        run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/admin-checkpoints.spec.ts \
+            --project=admin-checkpoints-chromium \
+            --project=admin-checkpoints-mobile \
+            --project=admin-checkpoints-dark \
+            --retries=0 \
+            --list --reporter=json > playwright-report/admin-checkpoints.selection.json
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/admin-checkpoints.json npx playwright test \
+            tests/admin-checkpoints.spec.ts \
+            --project=admin-checkpoints-chromium \
+            --project=admin-checkpoints-mobile \
+            --project=admin-checkpoints-dark \
+            --retries=0
+
+      - name: Stage admin checkpoint PNGs
+        if: ${{ !cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'admin_checkpoints' }}
+        working-directory: test/example/priv/playwright
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \; || true
+
+      - name: Run design gallery behavior
+        id: design_gallery
+        if: ${{ !cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'design_gallery' && github.event_name == 'pull_request' }}
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+        run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep-invert '@snapshot' \
+            --retries=0 \
+            --list --reporter=json > playwright-report/design-gallery-pr-behavior.selection.json
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-pr-behavior.json npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep-invert '@snapshot' \
+            --retries=0
+
+      - name: Run design gallery behavior and snapshots
+        id: design_gallery_snapshots
+        if: ${{ !cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'design_gallery' && github.event_name != 'pull_request' }}
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+        run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep '@snapshot' \
+            --retries=0 \
+            --list --reporter=json > playwright-report/design-gallery-nonpr-snapshots.selection.json
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep-invert '@snapshot' \
+            --retries=0 \
+            --list --reporter=json > playwright-report/design-gallery-nonpr-behavior.selection.json
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-nonpr-snapshots.json npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep '@snapshot' \
+            --retries=0
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/design-gallery-nonpr-behavior.json npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --grep-invert '@snapshot' \
+            --retries=0
+
+      - name: Run non-admin example browser smoke
+        id: non_admin_smoke
+        if: ${{ !cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'non_admin_smoke' }}
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+        run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/golden-path.spec.ts \
+            tests/ga-uat-shift-left.spec.ts \
+            tests/passkeys-hooks.spec.ts \
+            tests/organizations.spec.ts \
+            tests/passkey-login.spec.ts \
+            tests/passkey-options.spec.ts \
+            --retries=0 \
+            --list --reporter=json > playwright-report/non-admin-smoke.selection.json
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/non-admin-smoke.json npx playwright test \
+            tests/golden-path.spec.ts \
+            tests/ga-uat-shift-left.spec.ts \
+            tests/passkeys-hooks.spec.ts \
+            tests/organizations.spec.ts \
+            tests/passkey-login.spec.ts \
+            tests/passkey-options.spec.ts \
+            --retries=0
+
+      - name: Run demo showcase
+        id: demo_showcase
+        if: ${{ !cancelled() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true') && matrix.seam == 'demo_showcase' }}
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+        run: |
+          mkdir -p playwright-report
+          npx playwright test \
+            tests/demo-showcase.spec.ts \
+            --project=demo-showcase-chromium \
+            --retries=0 \
+            --list --reporter=json > playwright-report/demo-showcase.selection.json
+          SIGRA_PLAYWRIGHT_JSON=playwright-report/demo-showcase.json npx playwright test \
+            tests/demo-showcase.spec.ts \
+            --project=demo-showcase-chromium \
+            --retries=0
+
+      - name: Record selected browser execution
+        id: browser_execution_record
+        if: always()
+        env:
+          CLASSIFIER_RESULT: ${{ needs.changes.result }}
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          SELECTED_STEPS_JSON: ${{ toJSON(steps) }}
+          MATRIX_SEAM: ${{ matrix.seam }}
+        run: |
+          node scripts/ci/ci-browser-records.mjs --record \
+            --seam "$MATRIX_SEAM" \
+            --reports-directory test/example/priv/playwright/playwright-report \
+            --directory ci-browser-execution
+
+      - name: Upload selected browser execution
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: browser-execution-${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ci-browser-execution/execution-record.json
+            ci-browser-execution/*.json
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Dump isolated example app log
+        if: failure()
+        env:
+          SERVER_LOG: ${{ matrix.server_log }}
+        run: |
+          echo "--- $SERVER_LOG ---"
+          cat "$SERVER_LOG" || echo "(no log file)"
+
+      - name: Upload shard diagnostics
+        if: always() && !(github.event_name == 'pull_request' && needs.changes.result == 'success' && needs.changes.outputs.docs_only == 'true')
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: example-playwright-${{ matrix.seam }}-${{ github.run_id }}
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/test-results/
+            test/example/priv/playwright/artifacts/
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Capture CI measurement metadata
+        if: always()
+        env:
+          JOB_NAME: Example Playwright shard
+          MATRIX_SEAM: ${{ matrix.seam }}
+          CONFIGURED_NODE: '20'
+          BROWSER_DEPS_CACHE_HIT: ${{ steps.boot.outputs.deps_cache_hit }}
+          BROWSER_CACHE_HIT: ${{ steps.boot.outputs.browser_cache_hit }}
+          DEPS_CACHE_HIT: ''
+          EXAMPLE_DEPS_CACHE_HIT: ''
+          INSTALL_DEPS_CACHE_HIT: ''
+          HTTP_DEPS_CACHE_HIT: ''
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');const{spawnSync}=require('node:child_process');
+          const readTool=(name)=>{try{return fs.readFileSync('.tool-versions','utf8').split(/\n/).find((line)=>line.trim().startsWith(`${name} `))?.trim().split(/\s+/)[1]??null}catch{return null}};
+          const capture=(command,args,pattern)=>{const result=spawnSync(command,args,{encoding:'utf8'});if(result.error?.code==='ENOENT')return{value:null,reason:'binary_missing'};if(result.status!==0)return{value:null,reason:'version_command_failed'};const line=`${result.stdout??''}\n${result.stderr??''}`.split(/\r?\n/).map((s)=>s.trim()).find((s)=>pattern.test(s));return line?{value:line,reason:null}:{value:null,reason:'version_line_unrecognized'}};
+          const elixir=capture('elixir',['--version'],/^Elixir v?[0-9.]+/);const otp=capture('elixir',['--version'],/^Erlang\/OTP [0-9.]+/);const node=capture('node',['--version'],/^v[0-9.]+/);const playwright=capture('test/example/priv/playwright/node_modules/.bin/playwright',['--version'],/^(Version )?[0-9]+\.[0-9]+\.[0-9]+$/);
+          let playwrightPin=null;try{playwrightPin=JSON.parse(fs.readFileSync('test/example/priv/playwright/package-lock.json','utf8')).packages['node_modules/@playwright/test'].version??null}catch{}
+          const cache=(value)=>value==='true'?'hit':value==='false'?'miss':null;
+          const metadata={schema_version:'sigra.ci-measurement-metadata/v1',repository:process.env.GITHUB_REPOSITORY??null,run_id:process.env.GITHUB_RUN_ID??null,run_attempt:process.env.GITHUB_RUN_ATTEMPT??null,source_sha:process.env.GITHUB_SHA??null,event:process.env.GITHUB_EVENT_NAME??null,matrix_seam:process.env.MATRIX_SEAM??null,job_name:process.env.JOB_NAME,runner_os:process.env.RUNNER_OS??null,runner_arch:process.env.RUNNER_ARCH??null,runner_image:{image_os:process.env.ImageOS??null,image_version:process.env.ImageVersion??null},cache_outcome:{example_deps:cache(process.env.BROWSER_DEPS_CACHE_HIT),browser_binaries:cache(process.env.BROWSER_CACHE_HIT)},configured_versions:{erlang:readTool('erlang'),elixir:readTool('elixir'),node:process.env.CONFIGURED_NODE??null,playwright:playwrightPin},observed_versions:{erlang:otp.value,elixir:elixir.value,node:node.value,playwright:playwright.value},version_unavailable:{erlang:otp.reason,elixir:elixir.reason,node:node.reason,playwright:playwright.reason}};
+          fs.mkdirSync('test-results',{recursive:true});fs.writeFileSync('test-results/ci-measurement-metadata.json',`${JSON.stringify(metadata,null,2)}\n`);
+          NODE
+      - name: Upload Playwright measurement metadata
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-measurement-metadata-${{ matrix.seam }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/ci-measurement-metadata.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  example_playwright_smoke:
+    name: Example Playwright smoke (full lifecycle)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [release_ref_guard, changes, example_playwright_shard]
+    if: always()
+    steps:
+      - name: Checkout browser record validator
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Download selected browser records
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          pattern: browser-execution-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: browser-execution-records
+          merge-multiple: false
+      - name: Validate selected native browser execution
+        env:
+          CLASSIFIER_RESULT: ${{ needs.changes.result }}
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          SHARDS: ${{ needs.example_playwright_shard.result }}
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const identity = {run_id: process.env.GITHUB_RUN_ID, run_attempt: process.env.GITHUB_RUN_ATTEMPT,
+            source_sha: process.env.GITHUB_SHA, event: process.env.GITHUB_EVENT_NAME,
+            workflow_ref: process.env.GITHUB_WORKFLOW_REF, workflow_sha: process.env.GITHUB_WORKFLOW_SHA,
+            classifier_result: process.env.CLASSIFIER_RESULT, docs_only: process.env.DOCS_ONLY};
+          fs.writeFileSync('/tmp/browser-execution-identity.json', JSON.stringify(identity));
+          NODE
+          node scripts/ci/ci-browser-records.mjs --verify \
+            --directory browser-execution-records \
+            --identity /tmp/browser-execution-identity.json --native-result "$SHARDS"
+      - name: Aggregate every Playwright shard result
+        env:
+          RELEASE_GUARD: ${{ needs.release_ref_guard.result }}
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          CLASSIFIER_RESULT: ${{ needs.changes.result }}
+          SHARDS: ${{ needs.example_playwright_shard.result }}
+        run: |
+          set -euo pipefail
+          if [ "$RELEASE_GUARD" != "success" ]; then
+            echo "::error::release_ref_guard=$RELEASE_GUARD"
+            exit 1
+          fi
+          if [ "$SHARDS" != "success" ]; then
+            echo "::error::example_playwright_shard=$SHARDS"
+            exit 1
+          fi
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ] && [ "$CLASSIFIER_RESULT" = "success" ] && [ "$DOCS_ONLY" = "true" ]; then
+            echo "docs-only fast path: every Playwright seam was skipped (all five shard browser bodies)"
+          else
+            echo "all five isolated Playwright shards passed"
+          fi
+
+  generated_admin_playwright_smoke:
+    name: Generated admin Playwright smoke
+    runs-on: ubuntu-latest
+    # Phase 230 (FAST-07): only the timeout value and its position changed
+    # here. 15 replaces the prior 60 -- about 16x this job's 3.73m measured
+    # duration (230-EVIDENCE.md) -- against the same 2x sizing rule applied
+    # to every other job.
+    timeout-minutes: 15
+    # Phase 231 GATE-02 / D-06: this job now runs on every event, including
+    # pull_request, with no condition at all. The branch-name condition it
+    # replaced (`... || github.head_ref == 'ship/v1.42-ci-gate-remediation'`)
+    # had evaluated false on every pull request since that branch merged
+    # months ago, so generated-host parity reported green while verifying
+    # nothing -- ci-gate counts a `skipped` conclusion as a pass. Do not
+    # replace this with the house `github.event_name != 'pull_request'`
+    # pattern either: that would still leave parity verified on no PR at
+    # all, which is the same defect restated rather than fixed. Measured
+    # cost: ~4 runner-minutes fully in parallel behind release_ref_guard
+    # (~3s), against a PR pole of 989s (example_playwright_smoke) -- FAST-01's
+    # p50 wall-clock target is unaffected (D-07).
+    needs: release_ref_guard
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124  # v1.24.1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020  # v7.0.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'test/example/priv/playwright/package-lock.json'
+      - name: Install Hex + Rebar
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+      - name: Install phx_new archive
+        run: mix archive.install --force hex phx_new 1.8.8
+      - name: Install Playwright deps
+        working-directory: test/example/priv/playwright
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: test/example/priv/playwright
+        run: npx playwright install --with-deps chromium webkit
+      - name: Run generated admin acceptance smoke
+        env:
+          PGUSER: postgres
+          PGPASSWORD: postgres
+          PGHOST: localhost
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        # Phase 31 Plan 4 (D-10, D-11, D-17): the generated-host parity
+        # seam runs the full acceptance target (`--test all` — both the
+        # desktop/mobile shell and the denial-response assertions) so
+        # generated-host admin parity stays explicit and narrow rather
+        # than collapsing into a single monolithic verification job.
+        run: scripts/ci/admin-acceptance-smoke.sh --test all
+      - name: Collect curated generated-host admin screenshots
+        if: always()
+        working-directory: test/example/priv/playwright
+        # D-19, D-20, D-25: curated reviewer PNGs for the generated-host
+        # admin checkpoints live alongside the example-app bundle so
+        # reviewers can diff generated vs example parity with the same
+        # artifact naming convention.
+        run: |
+          mkdir -p artifacts/admin-checkpoints/
+          if compgen -G "test-results/**/admin-*.png" > /dev/null; then
+            # WR-03: `cp -n` (no-clobber) surfaces basename collisions as
+            # cp warnings instead of silently overwriting an earlier
+            # checkpoint. See the matching block in the example_playwright
+            # _smoke job for the full rationale. Visible src_count pairs
+            # "expected" with ls -la's "collected" under this step's log.
+            src_count=$(find test-results -type f -name 'admin-*.png' | wc -l)
+            echo "source admin-*.png count under test-results/: ${src_count}"
+            find test-results -type f -name 'admin-*.png' -exec cp -n {} artifacts/admin-checkpoints/ \;
+          fi
+          echo "curated generated-host admin screenshots:"
+          ls -la artifacts/admin-checkpoints/ || true
+      # D-19, D-22: green-run generated-host reviewer bundle scoped to this
+      # dedicated admin parity job. Always uploaded so the Playwright HTML
+      # report and curated PNGs are available without needing the richer
+      # diagnostic bundle on successful runs.
+      #
+      # D-23: branch-aware retention expressed as two mutually exclusive
+      # upload steps — 14 days for main/release runs, 7 days for PR/push
+      # runs. Keeping the retention values literal makes the policy grep-
+      # auditable from the workflow file.
+      - name: Upload generated admin review bundle (main, 14d retention)
+        if: always() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: generated-admin-report
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          retention-days: 14
+      - name: Upload generated admin review bundle (PR/push, 7d retention)
+        if: always() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: generated-admin-report
+          path: |
+            test/example/priv/playwright/playwright-report/
+            test/example/priv/playwright/artifacts/admin-checkpoints/
+          retention-days: 7
+      # D-21, D-24: failure bundle publishes test-results/ so retained
+      # video (selective `retain-on-failure` on the `admin-generated`
+      # project), traces, and failure screenshots are published alongside
+      # the HTML report only when this job fails — keeping the seam's
+      # successful-run artifact policy lightweight per D-22.
+      - name: Upload generated admin failure diagnostics (main, 14d retention)
+        if: failure() && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: generated-admin-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: 14
+      - name: Upload generated admin failure diagnostics (PR/push, 7d retention)
+        if: failure() && github.ref != 'refs/heads/main'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: generated-admin-failure-diagnostics
+          path: test/example/priv/playwright/test-results/
+          retention-days: 7
+
+  ci-gate:
+    name: ci-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # GATE-03 (Phase 231 / D-02): `changes` (first in needs: below) is an
+    # input provider for the honest-skip verdict step, not a gated lane --
+    # `changes` is absent from NEVER_DOCS_GATED
+    # (scripts/ci/prohibitions/_lib.mjs), so this edge is permitted.
+    # `if: always()` on this job stays unchanged, so a red or skipped
+    # `changes` cannot make ci-gate vanish. NOTE: honest-skip-verdict.sh's
+    # own needs: extractor requires every line in the needs: list below to
+    # be a bare `      - id` entry -- no comments or blanks inside the list
+    # itself, or the extraction silently yields zero entries.
+    needs:
+      - changes
+      - install_golden_contract
+      - library_tests
+      - library_tests_dep_off
+      - install_smoke
+      - upgrade_smoke
+      - example_http_smoke
+      - example_unit_smoke
+      - example_playwright_smoke
+      - generated_admin_playwright_smoke
+      - fast_checks
+    if: always()
+    steps:
+      # GATE-03 (Phase 231 / D-02): ci-gate was a pure aggregation job with
+      # no working tree until now. This checkout exists solely so the
+      # honest-skip verdict step below can read the committed manifest
+      # (.github/ci-skip-manifest.tsv) and this workflow file. Default
+      # fetch depth is correct: the script reads a committed file, never
+      # history.
+      - name: Checkout (honest-skip manifest)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      # GATE-03 (Phase 231 / D-02, D-05): runs BEFORE the legacy loop below,
+      # which retains its verdict policy, so this diff is reviewable and today's
+      # behaviour is provably non-regressing. Distinguishes a correctly
+      # event-/diff-gated skip from a rotted one -- ci.yml's own legacy loop
+      # treats every skip as a pass with no such distinction. Every GitHub
+      # context value below reaches the shell only through this env: map,
+      # never inlined into the run: body (ci.yml:132-135, ASVS V5).
+      - name: Honest-skip verdict (GATE-03)
+        env:
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          CLASSIFIER_RESULT: ${{ needs.changes.result }}
+          EVENT_NAME: ${{ github.event_name }}
+          FORCE_ROT_PROBE: ${{ inputs.force_rot_probe }}
+          INSTALL_GOLDEN_CONTRACT: ${{ needs.install_golden_contract.result }}
+          LIBRARY_TESTS: ${{ needs.library_tests.result }}
+          LIBRARY_TESTS_DEP_OFF: ${{ needs.library_tests_dep_off.result }}
+          INSTALL_SMOKE: ${{ needs.install_smoke.result }}
+          UPGRADE_SMOKE: ${{ needs.upgrade_smoke.result }}
+          EXAMPLE_UNIT_SMOKE: ${{ needs.example_unit_smoke.result }}
+          EXAMPLE_HTTP_SMOKE: ${{ needs.example_http_smoke.result }}
+          EXAMPLE_PLAYWRIGHT_SMOKE: ${{ needs.example_playwright_smoke.result }}
+          GENERATED_ADMIN_PLAYWRIGHT_SMOKE: ${{ needs.generated_admin_playwright_smoke.result }}
+          FAST_CHECKS: ${{ needs.fast_checks.result }}
+        run: |
+          set -euo pipefail
+          bash scripts/ci/honest-skip-verdict.sh --format table --event "${EVENT_NAME}" --docs-only "${DOCS_ONLY}" \
+            --classifier-result "${CLASSIFIER_RESULT}" \
+            --lane install_golden_contract="${INSTALL_GOLDEN_CONTRACT}" \
+            --lane library_tests="${LIBRARY_TESTS}" \
+            --lane library_tests_dep_off="${LIBRARY_TESTS_DEP_OFF}" \
+            --lane install_smoke="${INSTALL_SMOKE}" \
+            --lane upgrade_smoke="${UPGRADE_SMOKE}" \
+            --lane example_unit_smoke="${EXAMPLE_UNIT_SMOKE}" \
+            --lane example_http_smoke="${EXAMPLE_HTTP_SMOKE}" \
+            --lane example_playwright_smoke="${EXAMPLE_PLAYWRIGHT_SMOKE}" \
+            --lane generated_admin_playwright_smoke="${GENERATED_ADMIN_PLAYWRIGHT_SMOKE}" \
+            --lane fast_checks="${FAST_CHECKS}"
+      - name: Verify required release CI lanes
+        env:
+          INSTALL_GOLDEN_CONTRACT: ${{ needs.install_golden_contract.result }}
+          LIBRARY_TESTS: ${{ needs.library_tests.result }}
+          LIBRARY_TESTS_DEP_OFF: ${{ needs.library_tests_dep_off.result }}
+          INSTALL_SMOKE: ${{ needs.install_smoke.result }}
+          UPGRADE_SMOKE: ${{ needs.upgrade_smoke.result }}
+          EXAMPLE_UNIT_SMOKE: ${{ needs.example_unit_smoke.result }}
+          EXAMPLE_HTTP_SMOKE: ${{ needs.example_http_smoke.result }}
+          EXAMPLE_PLAYWRIGHT_SMOKE: ${{ needs.example_playwright_smoke.result }}
+          GENERATED_ADMIN_PLAYWRIGHT_SMOKE: ${{ needs.generated_admin_playwright_smoke.result }}
+          FAST_CHECKS: ${{ needs.fast_checks.result }}
+        run: |
+          set -euo pipefail
+          failed=0
+          for lane in \
+            INSTALL_GOLDEN_CONTRACT \
+            LIBRARY_TESTS \
+            LIBRARY_TESTS_DEP_OFF \
+            INSTALL_SMOKE \
+            UPGRADE_SMOKE \
+            EXAMPLE_UNIT_SMOKE \
+            EXAMPLE_HTTP_SMOKE \
+            EXAMPLE_PLAYWRIGHT_SMOKE \
+            GENERATED_ADMIN_PLAYWRIGHT_SMOKE \
+            FAST_CHECKS
+          do
+            result="${!lane}"
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
+              echo "Required release lane $lane: $result"
+              failed=1
+            fi
+          done
+          if [[ "$failed" -ne 0 ]]; then
+            echo "ci-gate failed: one or more required release lanes did not succeed."
+            exit 1
+          fi
+          echo "ci-gate passed: all required release lanes succeeded."
+
+  # HARD-01 (Phase 222 Plan 02, D-02): loud, discoverable consumer for a red
+  # ci-gate on main -- upgrade_smoke (and any other required release lane)
+  # failing on push/schedule/dispatch previously had no failure consumer and
+  # rotted silently for as long as nobody happened to look. This job opens
+  # or updates a single durable tracking Issue via the shared
+  # scripts/ci/notify-failure-issue.sh (D-07). It is intentionally NOT added
+  # to ci-gate.needs and is NOT a required check -- mirrors nightly_probe's
+  # standalone, not-in-ci-gate posture (ci.yml:2180) -- a push-only required
+  # context risks stranding PR merges under ruleset 14941512 (Pitfall 2).
+  notify_release_lane_rot:
+    name: Notify on red ci-gate (release-lane-rot)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [ci-gate]
+    if: always() && github.event_name != 'pull_request' && needs.ci-gate.result == 'failure'
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Open or update release-lane-rot tracking issue
+        env:
+          LABEL: release-lane-rot
+          TITLE: "ci-gate red on main (release-lane-rot)"
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          echo "::error::ci-gate failed on main (event: ${EVENT_NAME}) -- opening/updating tracking issue release-lane-rot"
+          BODY="ci-gate failed on main (event: ${EVENT_NAME}).
+
+          - Run: ${RUN_URL}
+          - Commit: ${COMMIT_SHA}
+          - Surface: ci-gate aggregate (covers upgrade_smoke and the other required release lanes -- see MAINTAINING.md)
+
+          This is the HARD-01 loud-red-main signal (Phase 222 Plan 02). Investigate the failing lane(s) on the linked run, then close this issue once the lane is green again."
+          export BODY
+          bash scripts/ci/notify-failure-issue.sh
+
+  # D-09 (197-04): dedicated non-PR-gated job that recaptures the 84 admin-design
+  # baselines (28 boards × chromium/mobile/dark) in-CI so the committed PNGs match
+  # what ubuntu CI renders. This job
+  # carries job-level `permissions: contents: write` (the workflow default is
+  # `contents: read`, ci.yml:26) so it can commit the recaptured PNGs. It is
+  # NOT in ci-gate.needs — it is a one-time recapture utility, not a PR gate.
+  # The recaptured PNGs land on a ci/recapture-admin-design-<run_id> branch and
+  # a PR is opened for human review (OQ2) before anything merges to main.
+  admin_design_recapture:
+    name: Recapture admin-design baselines (in-CI)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
+    needs: release_ref_guard
+    permissions:
+      contents: write   # REQUIRED — workflow default is `contents: read` (ci.yml:26)
+      pull-requests: write  # required for gh pr create
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Boot example app through shared action
+        id: boot
+        uses: ./.github/actions/example-playwright-boot
+        with:
+          database-name: sigra_admin_design_recapture
+          app-port: "4000"
+          base-url: http://localhost:4000
+          server-log: /tmp/example-admin-design-recapture-server.log
+          browsers: chromium webkit
+          warmup-paths: /users/register /users/log_in /admin/_design
+
+      - name: Re-establish board-notice canary (OQ1 deliberate re-baseline)
+        # OQ1: The global --font-sans override modifies board-notice (the design-lane
+        # canary). snapshot-canary-guard.sh forbids a canary *modify* (line 104) but
+        # tolerates a canary *added* (line 100). To re-establish the canary with the
+        # new font, delete the existing board-notice PNGs BEFORE --update-snapshots
+        # so Playwright re-creates them as newly-added files rather than modifications.
+        # This is a one-time deliberate re-baseline, NOT allowlisting the canary.
+        run: |
+          echo "Removing existing board-notice PNGs so recapture creates them as 'added' (not 'modified')"
+          find test/example/priv/playwright/tests/admin-design.spec.ts-snapshots \
+            -name 'board-notice-admin-design-*.png' -delete || true
+          echo "Removed board-notice PNGs:"
+          shopt -s nullglob
+          board_notice_files=(test/example/priv/playwright/tests/admin-design.spec.ts-snapshots/board-notice-admin-design-*.png)
+          if (( ${#board_notice_files[@]} == 0 )); then
+            echo "(none — deletion successful)"
+          else
+            for path in "${board_notice_files[@]}"; do printf '%s\n' "${path##*/}"; done
+          fi
+      - name: Recapture admin-design baselines
+        # D-09: recapture all 84 admin-design PNGs (28 boards × chromium/mobile/dark)
+        # in the ubuntu CI environment so the committed baselines match what CI renders.
+        # The fonts.check hard guard in waitForLiveViewReady (197-03) ensures the font
+        # is loaded before any snapshot is taken.
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test \
+            tests/admin-design.spec.ts \
+            --project=admin-design-chromium \
+            --project=admin-design-mobile \
+            --project=admin-design-dark \
+            --update-snapshots
+      - name: Gate recaptured baselines via snapshot-canary-guard and commit to PR branch (OQ1, OQ2)
+        # Recapture PRs open on-demand only (workflow_dispatch) — see the checkpoint
+        # job for rationale. Prevents scheduled/push runs from opening baseline PRs.
+        if: github.event_name == 'workflow_dispatch'
+        # OQ1 (board-notice canary re-baseline): board-notice PNGs were deleted before
+        # recapture so they appear as 'added' to the guard — the guard's legitimate birth
+        # path (line 100). NOT allowlisted (canary is never allowlistable); NOT a
+        # forbidden 'modify'. The tripwire stays armed for future incremental PRs.
+        #
+        # OQ2 (reviewable commit): recaptured PNGs land on a ci/recapture-admin-design-<run_id>
+        # branch and a PR is opened via gh pr create — baseline changes get human review
+        # under branch protection rather than a silent push to main. The commit carries
+        # [skip ci] to avoid re-triggering this job. D-04: when dispatched with a
+        # non-empty recapture_branch, the PR targets that branch instead of main so
+        # recaptured PNGs land green-before-merge on the Phase 219 branch.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RECAPTURE_BASE: ${{ github.event.inputs.recapture_branch }}
+        run: |
+          set -euo pipefail
+          SNAP_DIR="test/example/priv/playwright/tests/admin-design.spec.ts-snapshots"
+
+          # Compute changed slugs (tracked diff vs HEAD + untracked new files).
+          # slug_of: strip -admin-design-{chromium,mobile,dark}.png suffix.
+          declare -A seen_slugs=()
+          while IFS=$'\t' read -r _status path; do
+            [[ -z "${path:-}" ]] && continue
+            case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
+            sl=$(basename "$path" | sed -E 's/-admin-design-(chromium|mobile|dark)\.png$//')
+            seen_slugs["$sl"]=1
+          done < <(git diff --name-status HEAD -- "$SNAP_DIR" 2>/dev/null || true)
+          while IFS= read -r line; do
+            [[ "$line" == '??'* ]] || continue
+            path="${line:3}"
+            case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
+            sl=$(basename "$path" | sed -E 's/-admin-design-(chromium|mobile|dark)\.png$//')
+            seen_slugs["$sl"]=1
+          done < <(git status --porcelain -- "$SNAP_DIR" 2>/dev/null || true)
+
+          echo "Changed slugs: ${!seen_slugs[*]}"
+
+          # Build --allow args for all non-canary changed slugs.
+          allow_args=()
+          for sl in "${!seen_slugs[@]}"; do
+            if [[ "$sl" != "board-notice" ]]; then
+              allow_args+=(--allow "$sl")
+            fi
+          done
+
+          # Run canary guard. board-notice should appear as 'added' (deleted before
+          # recapture) which the guard tolerates (line 100 of snapshot-canary-guard.sh).
+          bash scripts/ci/snapshot-canary-guard.sh \
+            --base HEAD \
+            --allowlist test/example/priv/playwright/snapshot-allowlist-design \
+            --canary board-notice \
+            "${allow_args[@]}"
+
+          # OQ2: commit to a reviewable branch, not main.
+          BRANCH="ci/recapture-admin-design-${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$SNAP_DIR/"
+          if git diff --cached --quiet; then
+            echo "No snapshot changes to commit -- baselines already match CI render."
+          else
+            git commit -m "ci(197): recapture admin-design baselines in ubuntu CI [skip ci]"
+            git push origin "$BRANCH"
+            gh pr create \
+              --title "ci: recapture admin-design baselines in ubuntu CI (${{ github.run_id }})" \
+              --body "Admin-design baseline recapture (automated). Triggered by the global --font-sans Space Grotesk override (Phase 197-03). OQ1: board-notice canary re-established as added (not modified). OQ2: reviewable PR instead of push to main. Merge after visual review." \
+              --base "${RECAPTURE_BASE:-main}" \
+              --head "$BRANCH"
+          fi
+      - name: Check cross-lane baseline drift from global --font-sans (OQ3, COMPARE mode only)
+        # OQ3: the :root --font-sans override is global; admin-checkpoints and demo-showcase
+        # may also shift under the font change. Run both in COMPARE mode (no --update-snapshots)
+        # against the font-loaded app to measure drift without recapturing them.
+        #
+        # Outcome A: both pass within existing tolerance -> scope stays admin-design only.
+        # Outcome B: either fails -> this step records the shift; the job continues but
+        #   a tracked todo is written below (see next step). Do NOT recapture sibling lanes
+        #   here (wrong-canary risk per OQ3 resolution).
+        #
+        # continue-on-error: true so a font-driven compare failure does not block the
+        # recapture job from committing its PNGs and opening the PR (the PR is the
+        # deliverable; OQ3 is a measurement step).
+        id: cross_lane_compare
+        continue-on-error: true
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          echo "=== OQ3: running admin-checkpoints in COMPARE mode (no --update-snapshots) ==="
+          npx playwright test \
+            tests/admin-checkpoints.spec.ts \
+            --project=admin-checkpoints-chromium \
+            --project=admin-checkpoints-mobile \
+            --project=admin-checkpoints-dark
+          CHECKPOINTS_EXIT=$?
+          echo "=== OQ3: running demo-showcase in COMPARE mode (no --update-snapshots) ==="
+          npx playwright test \
+            tests/demo-showcase.spec.ts \
+            --project=demo-showcase-chromium
+          DEMO_EXIT=$?
+          echo "cross_lane_checkpoints_exit=${CHECKPOINTS_EXIT}" >> "$GITHUB_OUTPUT"
+          echo "cross_lane_demo_exit=${DEMO_EXIT}" >> "$GITHUB_OUTPUT"
+          if [[ "$CHECKPOINTS_EXIT" -ne 0 || "$DEMO_EXIT" -ne 0 ]]; then
+            echo "OQ3: one or more sibling lanes shifted under the global --font-sans change."
+            exit 1
+          fi
+          echo "OQ3: all sibling lanes pass within existing tolerance -- scope stays admin-design only."
+      - name: Record OQ3 cross-lane drift result (tracked todo if shift detected)
+        # OQ3: if either sibling lane shifted, write a tracked todo with the concrete
+        # per-lane recapture path so the shift is not silently ignored. If both passed,
+        # record that the font does not move them (scope stays admin-design only).
+        if: always()
+        run: |
+          if [[ "${{ steps.cross_lane_compare.outcome }}" == "failure" ]]; then
+            echo "OQ3: sibling lane(s) shifted -- creating tracked todo."
+            mkdir -p .planning/todos/pending
+            TODO_DATE=$(date -u +%Y-%m-%d)
+            TODO_FILE=".planning/todos/pending/${TODO_DATE}-oq3-cross-lane-font-drift.md"
+            {
+              echo "# OQ3: Cross-lane font drift - sibling lane recapture needed"
+              echo ""
+              echo "Created: Auto-generated by admin_design_recapture CI job (OQ3 resolution)"
+              echo "Trigger: Global --font-sans Space Grotesk override (Phase 197-03) shifted one or"
+              echo "more sibling Playwright lanes when run in COMPARE mode against the font-loaded app."
+              echo ""
+              echo "## Which lane(s) shifted"
+              echo ""
+              echo "Check the admin_design_recapture CI job output (Step: Check cross-lane baseline drift)"
+              echo "for the specific compare failure. OQ3 runs admin-checkpoints and demo-showcase in"
+              echo "COMPARE mode; if either exits non-zero, that lane's baselines shifted."
+              echo ""
+              echo "## Per-lane recapture commands"
+              echo ""
+              echo "### admin-checkpoints lane"
+              echo "Boot example app on :4011 (avoid Rulestead Docker on :4000), then:"
+              echo "  cd test/example/priv/playwright"
+              echo "  SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/admin-checkpoints.spec.ts \\"
+              echo "    --project=admin-checkpoints-chromium --project=admin-checkpoints-mobile --project=admin-checkpoints-dark \\"
+              echo "    --update-snapshots"
+              echo "  # Then gate through snapshot-recapture-gate.sh (NOT snapshot-canary-guard.sh)"
+              echo "  # The admin-checkpoints canary is: impersonation-banner"
+              echo "  # The admin-checkpoints allowlist is: test/example/priv/playwright/snapshot-allowlist"
+              echo "  bash scripts/ci/snapshot-recapture-gate.sh --canary impersonation-banner --allow <each changed non-canary slug>"
+              echo ""
+              echo "### demo-showcase lane"
+              echo "Boot example app, then:"
+              echo "  cd test/example/priv/playwright"
+              echo "  SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test tests/demo-showcase.spec.ts \\"
+              echo "    --project=demo-showcase-chromium --update-snapshots"
+              echo "  # demo-showcase baselines live in tests/demo-showcase.spec.ts-snapshots/"
+              echo "  # No dedicated canary guard for demo-showcase; review PNGs manually."
+              echo ""
+              echo "## Notes"
+              echo "- Do NOT recapture these lanes in the admin_design_recapture job."
+              echo "  Per-lane allowlist/canary names differ; wrong-canary recapture would arm/disarm the wrong tripwire."
+              echo "- Plan 05 re-gate touches only the design lane's continue-on-error."
+              echo "  A deferred sibling recapture does NOT block the re-gate."
+              echo "- These lanes were green-gating pre-font; font-shifted lanes surface as a normal red."
+            } > "$TODO_FILE"
+            echo "Tracked todo written: $TODO_FILE"
+            echo "OQ3 DEFERRED: one or more sibling lanes shifted. See tracked todo for per-lane recapture path."
+          else
+            echo "OQ3 CLOSED: admin-checkpoints and demo-showcase pass within existing tolerance."
+            echo "The global --font-sans change does not move sibling lanes -- scope stays admin-design only."
+          fi
+      - name: Dump example app log (on failure)
+        if: failure()
+        # WR-04: surface the backgrounded server log directly in the failure step.
+        run: |
+          echo "--- /tmp/example-recapture-server.log ---"
+          cat /tmp/example-recapture-server.log || echo "(no log file)"
+
+  admin_checkpoint_recapture:
+    name: Recapture admin-checkpoint baselines (in-CI)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name != 'pull_request' && inputs.phase_244_final_main != true
+    needs: release_ref_guard
+    permissions:
+      contents: write   # REQUIRED — workflow default is `contents: read` (ci.yml:26)
+      pull-requests: write  # required for gh pr create
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Boot example app through shared action
+        id: boot
+        uses: ./.github/actions/example-playwright-boot
+        with:
+          database-name: sigra_admin_checkpoint_recapture
+          app-port: "4000"
+          base-url: http://localhost:4000
+          server-log: /tmp/example-checkpoint-recapture-server.log
+          browsers: chromium webkit
+
+      - name: Re-establish impersonation-banner canary (D-03.2 delete-rebirth)
+        # snapshot-canary-guard.sh forbids a canary *modify* but tolerates a canary
+        # *added*. A working-tree-only delete + recreate still reads as `modified`
+        # vs HEAD (HEAD retains the old bytes), so the deletion must be COMMITTED
+        # first: then the reborn PNG is a brand-new untracked file (pure `added`)
+        # relative to the delete commit, which the guard tolerates. (219 fix — the
+        # earlier `find -delete` yielded `modified` for a canary whose bytes actually
+        # change, e.g. the first amd64 re-baseline of a previously hand-reconciled
+        # baseline. The admin-design board-notice step shares this latent gap but
+        # only stays green while board-notice is byte-identical.)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "Deleting + committing impersonation-banner PNGs so recapture creates them as a pure 'added' (not 'modified')"
+          git rm -q --ignore-unmatch \
+            test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/impersonation-banner-admin-checkpoints-*.png
+          git commit -q -m "ci(219): delete impersonation-banner canary for amd64 rebirth [skip ci]" \
+            || echo "(no impersonation-banner PNGs to delete — nothing committed)"
+          echo "Committed canary deletion; recreate follows via --update-snapshots. Remaining files:"
+          shopt -s nullglob
+          impersonation_banner_files=(test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots/impersonation-banner-admin-checkpoints-*.png)
+          if (( ${#impersonation_banner_files[@]} == 0 )); then
+            echo "(none — deletion successful)"
+          else
+            for path in "${impersonation_banner_files[@]}"; do printf '%s\n' "${path##*/}"; done
+          fi
+      - name: Recapture admin-checkpoint baselines
+        # D-09: recapture admin-checkpoint PNGs in the ubuntu CI environment so
+        # committed baselines match what CI renders. The checkpoint lane covers
+        # 3 projects: chromium / mobile / dark.
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test \
+            tests/admin-checkpoints.spec.ts \
+            --project=admin-checkpoints-chromium \
+            --project=admin-checkpoints-mobile \
+            --project=admin-checkpoints-dark \
+            --update-snapshots
+      - name: Recapture demo-showcase baselines (D-03.1)
+        # demo-showcase (4 PNGs, chromium-only) has no dedicated recapture job; fold it
+        # into this job since it already boots the example on :4000. No canary/allowlist
+        # choreography — the lane has neither.
+        working-directory: test/example/priv/playwright
+        env:
+          CI: "true"
+          SIGRA_EXAMPLE_URL: "http://localhost:4000"
+        run: |
+          npx playwright test tests/demo-showcase.spec.ts --project=demo-showcase-chromium --update-snapshots
+      - name: Gate recaptured baselines via snapshot-canary-guard and commit to PR branch
+        # Recapture PRs open on-demand only (workflow_dispatch). On schedule/push the
+        # impersonation-banner canary's delete-rebirth always shows as drift, which
+        # previously opened a duplicate recapture PR every single day. The merge-gating
+        # snapshot guards live in fast_checks (committed-ledger), not here.
+        if: github.event_name == 'workflow_dispatch'
+        # D-05/D-06: the checkpoint job now self-gates like the design job instead of
+        # relying on human visual review — impersonation-banner PNGs were deleted before
+        # recapture so they appear as 'added' to the guard (the guard's legitimate birth
+        # path), and every other changed slug is passed via --allow so the guard's own
+        # never-allowlistable-canary assertion (D-06, snapshot-canary-guard.sh) stays the
+        # single source of truth. demo-showcase has no canary/allowlist, so its PNGs are
+        # git-added directly without going through the guard.
+        # Recaptured PNGs land on a ci/recapture-admin-checkpoints-<run_id> branch;
+        # [skip ci] prevents recursive triggering. D-04: the PR targets the dispatched
+        # recapture_branch when set, else main.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RECAPTURE_BASE: ${{ github.event.inputs.recapture_branch }}
+        run: |
+          set -euo pipefail
+          SNAP_DIR="test/example/priv/playwright/tests/admin-checkpoints.spec.ts-snapshots"
+          DEMO_SNAP_DIR="test/example/priv/playwright/tests/demo-showcase.spec.ts-snapshots"
+
+          # Compute changed slugs (tracked diff vs HEAD + untracked new files).
+          # slug_of: strip -admin-checkpoints-{chromium,mobile,dark}.png suffix.
+          declare -A seen_slugs=()
+          while IFS=$'\t' read -r _status path; do
+            [[ -z "${path:-}" ]] && continue
+            case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
+            sl=$(basename "$path" | sed -E 's/-admin-checkpoints-(chromium|mobile|dark)\.png$//')
+            seen_slugs["$sl"]=1
+          done < <(git diff --name-status HEAD -- "$SNAP_DIR" 2>/dev/null || true)
+          while IFS= read -r line; do
+            [[ "$line" == '??'* ]] || continue
+            path="${line:3}"
+            case "$path" in "${SNAP_DIR}"/*.png) ;; *) continue;; esac
+            sl=$(basename "$path" | sed -E 's/-admin-checkpoints-(chromium|mobile|dark)\.png$//')
+            seen_slugs["$sl"]=1
+          done < <(git status --porcelain -- "$SNAP_DIR" 2>/dev/null || true)
+
+          if [[ ${#seen_slugs[@]} -eq 0 ]]; then CHANGED="(none)"; else CHANGED="${!seen_slugs[*]}"; fi
+          echo "Recaptured/changed slugs: ${CHANGED}"
+
+          # Build --allow args for all non-canary changed slugs.
+          allow_args=()
+          for sl in "${!seen_slugs[@]}"; do
+            if [[ "$sl" != "impersonation-banner" ]]; then
+              allow_args+=(--allow "$sl")
+            fi
+          done
+
+          # Run canary guard. impersonation-banner should appear as 'added' (deleted
+          # before recapture) which the guard tolerates.
+          bash scripts/ci/snapshot-canary-guard.sh \
+            --base HEAD \
+            --allowlist test/example/priv/playwright/snapshot-allowlist \
+            --canary impersonation-banner \
+            "${allow_args[@]}"
+
+          # Commit to a reviewable branch, not main.
+          BRANCH="ci/recapture-admin-checkpoints-${{ github.run_id }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$SNAP_DIR/" "$DEMO_SNAP_DIR/"
+          if git diff --cached --quiet; then
+            echo "No snapshot changes to commit -- baselines already match CI render."
+          else
+            git commit -m "ci(219): recapture admin-checkpoint + demo-showcase baselines in ubuntu CI [skip ci]"
+            git push origin "$BRANCH"
+            gh pr create \
+              --title "ci: recapture admin-checkpoint + demo-showcase baselines in ubuntu CI (${{ github.run_id }})" \
+              --body "Admin-checkpoint + demo-showcase baseline recapture (automated, Phase 219 D-03). Changed admin-checkpoint slugs: ${CHANGED}. Includes the impersonation-banner canary re-baseline preserving the Phase 204-03 WCAG contrast fix (vt-status-pill color-mix corrected for WCAG AA), re-established as 'added' via delete-rebirth and guard-verified (not allowlisted). demo-showcase (4 PNGs) has no canary. Merge after reviewing the named slugs above." \
+              --base "${RECAPTURE_BASE:-main}" \
+              --head "$BRANCH"
+          fi
+      - name: Dump example app log (on failure)
+        if: failure()
+        run: |
+          echo "--- /tmp/example-checkpoint-recapture-server.log ---"
+          cat /tmp/example-checkpoint-recapture-server.log || echo "(no log file)"
+
+  # Phase 216 Plan 07 (JUDGE-CI-01): admin eval render + probe job.
+  # Boots the example app, runs the full admin-eval harness (render matrix + derivative guards),
+  # and uploads the gitignored eval bundles as CI artifacts.
+  #
+  # NOT in ci-gate.needs — this is the expensive render evidence job, not the merge gate.
+  # The merge-blocking forward-only signals are the committed-ledger guards in fast_checks.
+  #
+  # Phase 230 (FAST-03 / D-10, D-11): demoted to push, schedule and workflow_dispatch only.
+  # This job measured 17m33s and gated nothing, so charging it to every PR was pure waste;
+  # it is not in ci-gate.needs and is not a ruleset-required context, so demotion breaks no
+  # gate. To get render evidence for a PR branch, dispatch this workflow on that ref
+  # (workflow_dispatch).
+  #
+  # Phase 231 (GATE-04 / D-11 step 4): the job-level continue-on-error that used to mask
+  # this lane is REMOVED. Plan 231-05 observed the harness's b1-b6 guards run to completion
+  # in CI for the first time (run 30512523387, job 90775422130, `PASS — all phases green`);
+  # that observation is what makes removal honest rather than premature. This lane is now a
+  # hard signal on push/schedule/workflow_dispatch: a harness failure reddens the run. The
+  # step-level `continue-on-error: true` at `id: admin_eval_harness` below is retained
+  # DELIBERATELY (D-13) — it lets partial evidence bundles upload as artifacts before the
+  # "Fail the job if harness did not PASS" step re-fails the job, so an investigator still
+  # has something to download when it dies. p05 (scripts/ci/prohibitions/) mechanically
+  # forbids reinstating the job-level mask and requires the step-level flag to stay.
+  admin_eval_render:
+    name: Admin eval render + probe (hard signal on push/schedule/dispatch; not in ci-gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    needs: [release_ref_guard]
+    if: github.event_name != 'pull_request'
+    # PORT must agree at COMPILE and RUNTIME: config.exs bakes
+    # System.get_env("PORT", "4000") into ExampleWeb.Endpoint at compile time (a
+    # compile_env key), so booting on a different PORT trips validate_compile_env
+    # and aborts the app (→ ERR_CONNECTION_REFUSED for every eval test). Pin it
+    # job-wide so compile, ecto, seeds, and boot all use 4011.
+    env:
+      PORT: "4011"
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Boot example app through shared action
+        id: boot
+        uses: ./.github/actions/example-playwright-boot
+        with:
+          database-name: sigra_admin_eval_render
+          app-port: "4011"
+          base-url: http://localhost:4011
+          server-log: /tmp/example-admin-eval-render-server.log
+          browsers: chromium webkit
+          warmup-paths: /admin/_design
+
+      - name: Run admin-eval harness (render matrix + derivative guards)
+        # JUDGE-CI-01: render+probe is here (off the merge path), never in fast_checks.
+        # The harness runs the spec across all 3 projects and chains the 5 derivative guards.
+        # continue-on-error: true so we can upload any partial bundles as artifacts even on failure.
+        id: admin_eval_harness
+        continue-on-error: true
+        env:
+          SIGRA_EXAMPLE_URL: "http://localhost:4011"
+        run: bash scripts/ci/admin-eval-harness.sh
+      - name: Upload eval bundles as CI artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: admin-eval-bundles-${{ github.run_id }}
+          path: test/example/priv/playwright/eval/
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Fail the job if harness did not PASS
+        # Re-fail after artifact upload so investigators can download partial bundles.
+        if: steps.admin_eval_harness.outcome == 'failure'
+        run: |
+          echo "admin-eval harness reported failure (see Run admin-eval harness step above)"
+          exit 1
+      - name: Dump example app log (on failure)
+        if: failure()
+        run: |
+          echo "--- /tmp/example-admin-eval-render-server.log ---"
+          cat /tmp/example-admin-eval-render-server.log || echo "(no log file)"
+      - name: Cache hit summary
+        if: always()
+        run: |
+          {
+            echo "## admin_eval_render cache"
+            echo "- deps cache (exact hit): ${{ steps.boot.outputs.deps_cache_hit }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # D-14 forced-failure probe: a needs-free, nightly-gated job that proves the
+  # nightly trigger path reports red on a real failure. Dispatching with
+  # `gh workflow run "CI" -f force_fail_probe=true` reds this job and only
+  # this job. Normal nightly/push/dispatch runs (force_fail_probe=false) keep
+  # the step skipped and the job green. Never runs on pull_request events.
+  # NOT in ci-gate.needs — it is a standalone self-test, not a gate input.
+  nightly_probe:
+    name: Nightly probe (forced-failure self-test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Forced-failure probe (nightly self-test)
+        if: ${{ inputs.force_fail_probe }}
+        run: |
+          echo "force_fail_probe=true: intentionally failing to prove the nightly lane reports red"
+          exit 1

@@ -1,0 +1,23 @@
+{
+  "source": "a6838a8f9e107a49e11ea47ef34e3171fe15eed0",
+  "parent": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+  "date": "2026-10-22T01:13:38Z",
+  "workflow_path": ".github/workflows/ci.yml",
+  "fixture_file": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-LOAD-RECOVERY-CANARY-WORKFLOW.yml",
+    "sha256": "3c31cb72c3168c4e86a1ea529f16bfdd40b4405551459ca27b9b989cb762df7b"
+  },
+  "commits": [
+    "56d413b045e8852d16e119e3a3926f0d08b01d49",
+    "b12f53100ddaa99307de46294ec2ce07579c5b7d",
+    "98f0e9e6c1214b35c11f7addd1b92a9b1e5f47b7",
+    "879d628feeb0b894af1c0d842830b3002f905440"
+  ],
+  "object_count": 279,
+  "pack_sha256": "b1bdc9428f4c9e4bb1074b93567093be49ed959915cec41eac573d5de5a46928",
+  "candidate_product_tree_matches_new_source": true,
+  "corrections": [
+    "Fixture installed at registered ci.yml, not the old unregistered workflow path",
+    "Docs base trigger permits only main and the new scoped docs branches; source candidate includes the committed PR339 repairs"
+  ]
+}

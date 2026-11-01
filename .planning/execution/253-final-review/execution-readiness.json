@@ -1,0 +1,52 @@
+{
+  "phase_number": "253",
+  "plan_count": 110,
+  "incomplete_count": 0,
+  "runnable_count": 0,
+  "incomplete_plans": [],
+  "blocked_plans": null,
+  "halted_plans": [
+    "253-02-PLAN.md",
+    "253-07-PLAN.md",
+    "253-09-PLAN.md",
+    "253-104-PLAN.md",
+    "253-113-PLAN.md",
+    "253-12-PLAN.md",
+    "253-122-PLAN.md",
+    "253-134-PLAN.md",
+    "253-143-PLAN.md",
+    "253-146-PLAN.md",
+    "253-155-PLAN.md",
+    "253-16-PLAN.md",
+    "253-167-PLAN.md",
+    "253-171-PLAN.md",
+    "253-173-PLAN.md",
+    "253-174-PLAN.md",
+    "253-175-PLAN.md",
+    "253-178-PLAN.md",
+    "253-181-PLAN.md",
+    "253-182-PLAN.md",
+    "253-183-PLAN.md",
+    "253-27-PLAN.md",
+    "253-40-PLAN.md",
+    "253-51-PLAN.md",
+    "253-63-PLAN.md",
+    "253-73-PLAN.md",
+    "253-84-PLAN.md",
+    "253-92-PLAN.md",
+    "253-97-PLAN.md"
+  ],
+  "section_manifest": {
+    "workflow": "execute-phase",
+    "included": [
+      "regression-gate"
+    ],
+    "excluded": [
+      "partial-wave",
+      "gap-closure-artifacts"
+    ],
+    "read": [
+      "gsd-core/workflows/execute-phase/steps/regression-gate.md"
+    ]
+  }
+}

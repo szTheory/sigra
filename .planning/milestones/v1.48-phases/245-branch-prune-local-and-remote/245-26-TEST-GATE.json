@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "phase": "245",
+  "plan": "26",
+  "status": "passed",
+  "code_head": "f1085e79d3c3e5bfe0b8540836fabbe2c3eb8f57",
+  "started_at": "2026-10-01T18:24:46Z",
+  "completion_observed_at": "2026-10-01T18:36:47Z",
+  "command": "node --test --test-concurrency=1 scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs scripts/maintainers/prune-stale-branches-readiness.test.mjs scripts/maintainers/prune-stale-branches.test.mjs",
+  "environment": {
+    "node": "v22.14.0",
+    "node_path": "/Users/jon/.asdf/installs/nodejs/22.14.0/bin/node",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "git_path": "/usr/bin/git",
+    "node_options": null
+  },
+  "supervisor_timeout_seconds": 1800,
+  "exit_code": 0,
+  "counts": {
+    "tests": 53,
+    "pass": 53,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "duration_ms": 678082.821125,
+  "tests": [
+    {
+      "number": 1,
+      "name": "schema 2 accepts route-only metadata drift and records all three exact route identities",
+      "status": "passed"
+    },
+    {
+      "number": 2,
+      "name": "schema 2 captures and verifies a large committed markdown source",
+      "status": "passed"
+    },
+    {
+      "number": 3,
+      "name": "schema 1 keeps its strict state route identity rule",
+      "status": "passed"
+    },
+    {
+      "number": 4,
+      "name": "schema 2 blocks a missing immutable source path",
+      "status": "passed"
+    },
+    {
+      "number": 5,
+      "name": "schema 2 blocks Phase 244 status contradiction in head",
+      "status": "passed"
+    },
+    {
+      "number": 6,
+      "name": "schema 2 blocks Phase 244 status contradiction in index",
+      "status": "passed"
+    },
+    {
+      "number": 7,
+      "name": "schema 2 blocks Phase 244 status contradiction in worktree",
+      "status": "passed"
+    },
+    {
+      "number": 8,
+      "name": "schema 2 blocks an unparseable current route with a named predicate",
+      "status": "passed"
+    },
+    {
+      "number": 9,
+      "name": "schema 2 blocks a missing route observation instead of accepting the remaining complete copies",
+      "status": "passed"
+    },
+    {
+      "number": 10,
+      "name": "schema 2 re-evaluates changed verification facts from committed bytes",
+      "status": "passed"
+    },
+    {
+      "number": 11,
+      "name": "schema 2 re-evaluates changed CI evidence facts from committed bytes",
+      "status": "passed"
+    },
+    {
+      "number": 12,
+      "name": "schema 2 re-evaluates changed summary facts from committed bytes",
+      "status": "passed"
+    },
+    {
+      "number": 13,
+      "name": "schema 2 re-evaluates changed dependency facts from committed bytes",
+      "status": "passed"
+    },
+    {
+      "number": 14,
+      "name": "schema 2 verifies each recorded source commit identity",
+      "status": "passed"
+    },
+    {
+      "number": 15,
+      "name": "schema 2 verifies each recorded source path identity",
+      "status": "passed"
+    },
+    {
+      "number": 16,
+      "name": "schema 2 verifies each recorded source blob identity",
+      "status": "passed"
+    },
+    {
+      "number": 17,
+      "name": "schema 2 verifies each recorded source SHA-256 identity",
+      "status": "passed"
+    },
+    {
+      "number": 18,
+      "name": "schema 2 rejects duplicate source records",
+      "status": "passed"
+    },
+    {
+      "number": 19,
+      "name": "schema 2 rejects an invalid receipt schema",
+      "status": "passed"
+    },
+    {
+      "number": 20,
+      "name": "schema 2 blocks a changed immutable worktree blob after capture",
+      "status": "passed"
+    },
+    {
+      "number": 21,
+      "name": "schema 2 cannot be downgraded by changing only the worktree receipt schema",
+      "status": "passed"
+    },
+    {
+      "number": 22,
+      "name": "schema-2 operator read-only",
+      "status": "passed"
+    },
+    {
+      "number": 23,
+      "name": "schema-2 operator rejects one-byte worktree mismatch",
+      "status": "passed"
+    },
+    {
+      "number": 24,
+      "name": "public readiness negative matrix: missing receipt",
+      "status": "passed"
+    },
+    {
+      "number": 25,
+      "name": "public readiness negative matrix: uncommitted receipt",
+      "status": "passed"
+    },
+    {
+      "number": 26,
+      "name": "public readiness negative matrix: outside-repository receipt",
+      "status": "passed"
+    },
+    {
+      "number": 27,
+      "name": "public readiness negative matrix: null receipt",
+      "status": "passed"
+    },
+    {
+      "number": 28,
+      "name": "public readiness negative matrix: invalid schema",
+      "status": "passed"
+    },
+    {
+      "number": 29,
+      "name": "public readiness negative matrix: zero source records",
+      "status": "passed"
+    },
+    {
+      "number": 30,
+      "name": "public readiness negative matrix: invalid source commit",
+      "status": "passed"
+    },
+    {
+      "number": 31,
+      "name": "public readiness negative matrix: invalid source blob",
+      "status": "passed"
+    },
+    {
+      "number": 32,
+      "name": "public readiness negative matrix: invalid source hash",
+      "status": "passed"
+    },
+    {
+      "number": 33,
+      "name": "public readiness negative matrix: dirty immutable source",
+      "status": "passed"
+    },
+    {
+      "number": 34,
+      "name": "public readiness negative matrix: contradictory HEAD route",
+      "status": "passed"
+    },
+    {
+      "number": 35,
+      "name": "public readiness negative matrix: contradictory index route",
+      "status": "passed"
+    },
+    {
+      "number": 36,
+      "name": "public readiness negative matrix: contradictory worktree route",
+      "status": "passed"
+    },
+    {
+      "number": 37,
+      "name": "schema-2 operator preserves readiness evidence aliases",
+      "status": "passed"
+    },
+    {
+      "number": 38,
+      "name": "schema-2 tracking apply removes one admitted fixture ref under the shared coordinator",
+      "status": "passed"
+    },
+    {
+      "number": 39,
+      "name": "tracking apply serializes a concurrent local tracking-ref update and blocks on the following PR gate",
+      "status": "passed"
+    },
+    {
+      "number": 40,
+      "name": "tracking apply blocks a protected PR head without changing fixture refs",
+      "status": "passed"
+    },
+    {
+      "number": 41,
+      "name": "tracking apply blocks a protected PR base without changing fixture refs",
+      "status": "passed"
+    },
+    {
+      "number": 42,
+      "name": "tracking apply treats complete PR row order as an unordered identity set",
+      "status": "passed"
+    },
+    {
+      "number": 43,
+      "name": "runtime-probed local apply retains or deletes only its eligible fixture ref and preserves snapshot objects",
+      "status": "passed"
+    },
+    {
+      "number": 44,
+      "name": "remote leases preserve concurrent origin refs and PR identity checks reject incomplete results",
+      "status": "passed"
+    },
+    {
+      "number": 45,
+      "name": "top-level prune runner invokes local and remote suites once without nesting",
+      "status": "passed"
+    },
+    {
+      "number": 46,
+      "name": "rejects self-asserted readiness before an apply mode can delete refs",
+      "status": "passed"
+    },
+    {
+      "number": 47,
+      "name": "captures and verifies a source-pinned Phase 244 readiness receipt",
+      "status": "passed"
+    },
+    {
+      "number": 48,
+      "name": "D-05 local apply stays fail-closed after a branch moves and keeps snapshotted objects readable",
+      "status": "passed"
+    },
+    {
+      "number": 49,
+      "name": "all apply modes fail closed for missing Phase 244 readiness inputs",
+      "status": "passed"
+    },
+    {
+      "number": 50,
+      "name": "all apply modes fail closed for dirty Phase 244 readiness inputs",
+      "status": "passed"
+    },
+    {
+      "number": 51,
+      "name": "all apply modes fail closed for stale Phase 244 readiness inputs",
+      "status": "passed"
+    },
+    {
+      "number": 52,
+      "name": "all apply modes fail closed for contradictory Phase 244 readiness inputs",
+      "status": "passed"
+    },
+    {
+      "number": 53,
+      "name": "all apply modes fail closed for incomplete Phase 244 readiness inputs",
+      "status": "passed"
+    }
+  ],
+  "log": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-TESTS.tap",
+    "sha256": "16ca2d85235a235f5f3d4d58f8815ca3e1d20471e5360e1203dff9e5a99511b7"
+  },
+  "named_gate": {
+    "name": "schema-2 operator read-only",
+    "command": "bash -o pipefail -c 'node --test --test-concurrency=1 --test-reporter=tap --test-name-pattern=\"schema-2 operator read-only\" scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs | grep -E \"^ok [0-9]+ - schema-2 operator read-only$\"'",
+    "exit_code": 0,
+    "matched_output": "ok 1 - schema-2 operator read-only"
+  },
+  "review": {
+    "path": ".planning/phases/245-branch-prune-local-and-remote/245-26-REVIEW.md",
+    "status": "clean",
+    "findings": 0,
+    "source_hashes_match": true
+  },
+  "source_files": [
+    {
+      "path": "scripts/maintainers/prune-stale-branches.sh",
+      "sha256": "49a95a7980fd14c567ba8edc536f7829a5452cec4d997861a6719909dc65f285"
+    },
+    {
+      "path": "scripts/maintainers/prune-stale-branches.operator-readiness.test.mjs",
+      "sha256": "8b800ba0955fa2fccec4c688ede611fe9a532955d73357476ee6db5585571760"
+    },
+    {
+      "path": "scripts/maintainers/prune-stale-branches.remote.test.sh",
+      "sha256": "4d8214059dcb726344251d1a08e84b00326e4f319e8abc53366442c3d9449226"
+    },
+    {
+      "path": "scripts/maintainers/prune-stale-branches-readiness.mjs",
+      "sha256": "c0a8ccbcb4d5a92b6117db0db7ce266c1800e60c93a303eb1d126cec0a8ddf3b"
+    },
+    {
+      "path": "scripts/maintainers/prune-stale-branches-readiness.test.mjs",
+      "sha256": "2f9aba46dfe974eaf369badd3a222c0d6dd46eb1ff9c80600d65193e35086a42"
+    }
+  ],
+  "scope_preservation": {
+    "preexisting_modified_or_untracked_files": 152,
+    "unchanged": 152,
+    "changed": []
+  },
+  "interrupted_runs_counted_as_passed": false,
+  "runtime_diagnostic": ".planning/phases/245-branch-prune-local-and-remote/245-26-RUNTIME-DIAGNOSTIC.json",
+  "production_prune_operations": 0,
+  "workflow_gates": {
+    "verify.schema-drift": {
+      "exit_code": 0,
+      "block": false,
+      "drift_detected": false,
+      "schema_files": []
+    },
+    "verify.codebase-drift": {
+      "exit_code": 0,
+      "block": false,
+      "skipped": true,
+      "reason": "no-structure-md"
+    },
+    "ui.safety-gate": {
+      "exit_code": 0,
+      "block": false,
+      "frontend": false,
+      "hasUiFiles": false
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "acceptance_samples": 0,
+  "attempt": {
+    "command": "python3 -B scripts/ci/ci-mix-receivers.py --native --output /output/MIX-RECEIVERS.json",
+    "failure": "Unknown dependency :ecto given to :import_deps in formatter config; candidate deps had not been fetched before Mix CI formatter task",
+    "native_exit_code": 1,
+    "receiver_rows": 0,
+    "source_sha_observed": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+    "tests_started": false
+  },
+  "private_artifacts": {
+    "command_record": {
+      "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/full-candidate/output/native-run-1792893064004013424/commands/mix-ci/record.json",
+      "sha256": "0f32a484c65986943b2f2091100b2878fe06c63767498a9df006d9bfdb180ddf"
+    },
+    "report": {
+      "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/full-candidate/output/MIX-RECEIVERS.json",
+      "sha256": "0f331307de5a73c36ab74dcd165ee00e20760b13529dde5301e06a5c56675969"
+    },
+    "stderr": {
+      "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/full-candidate/output/native-run-1792893064004013424/commands/mix-ci/stderr.bin",
+      "sha256": "ef24d106af587adb408bf34160fdd507070d969bbf3fd50d3b2c61901db2acd3"
+    }
+  },
+  "runner_image_id": "sha256:e8467bcf8a3ee4f056cd8af572a1525a66224bf9ab2c603102e01785c646e3aa",
+  "schema_version": "sigra.phase255.1.local-linux-library-attempt/1",
+  "source": {
+    "archive_sha256": "18dcbf59d7f3ba4c09ba16abf82fa0479908810aa0ec1ae35d43f13b6cb7d499",
+    "role": "candidate",
+    "sha": "cfe5e8d3ee82358b625d2715d773afc5c494bcf9",
+    "tree": "a084992034c541a51df797e0a12eaa09edc7799a"
+  },
+  "status": "blocked_before_tests"
+}

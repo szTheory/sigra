@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-B",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-repaired-source/runtime/ci-hosted-transport.py",
+    "--allocation",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-repaired-source/publication-allocation.json",
+    "--ledger",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-repaired-source/publication-ledger.json",
+    "--request",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-repaired-source/publication-request-2.json",
+    "--output",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-repaired-source/publication-request-2-receipt.json",
+    "--body-output",
+    "/Users/jon/projects/sigra/.planning/execution/253-plan172-repaired-source/publication-request-2-body.json"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "ci-hosted-transport: preservation_failed: could not anchor the prior dirty ledger\n"
+}

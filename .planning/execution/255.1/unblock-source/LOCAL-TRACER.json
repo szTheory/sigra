@@ -1,0 +1,242 @@
+{
+  "acceptance_samples": 0,
+  "blockers": [],
+  "captured_at": "2026-10-24T23:15:35.575570+00:00",
+  "command": [
+    "python3",
+    "-B",
+    "scripts/ci/ci-mix-receivers.py",
+    "leg",
+    "ordinary",
+    "--",
+    "mix",
+    "test",
+    "test/sigra/config_test.exs"
+  ],
+  "data_root": "LOCAL-TRACER-data-1792883735588349000",
+  "driver_sha256": "92f1b17856e8e2ea739b71383d4d7f8f4ef74805e4f0284043750e961788e935",
+  "evaluation": {
+    "diagnostics": [
+      {
+        "detail": "local_only",
+        "reason": "contract_not_ready"
+      },
+      {
+        "reason": "baseline_source_bundle_identity_missing"
+      },
+      {
+        "reason": "candidate_identity_not_predeclared"
+      },
+      {
+        "reason": "comparison_window_not_predeclared"
+      },
+      {
+        "reason": "comparison_reservation_set_incomplete"
+      },
+      {
+        "reason": "comparison_registration_set_incomplete"
+      },
+      {
+        "reason": "comparison_window_not_predeclared"
+      },
+      {
+        "reason": "comparison_registrations_missing_for_origin_verification"
+      },
+      {
+        "detail": "unsupported operand type(s) for /: 'PosixPath' and 'NoneType'",
+        "reason": "native_coverage_parity_unverified"
+      },
+      {
+        "reason": "before_snapshot_incomplete"
+      },
+      {
+        "reason": "before_family_inputs_missing"
+      },
+      {
+        "reason": "after_snapshot_incomplete"
+      },
+      {
+        "reason": "after_family_inputs_missing"
+      },
+      {
+        "reason": "pair_identity_mismatch"
+      },
+      {
+        "detail": 0,
+        "reason": "insufficient_equivalent_successful_pairs"
+      },
+      {
+        "reason": "cache_stratum_allocation_missing"
+      }
+    ],
+    "metrics": {
+      "baseline_median_seconds": null,
+      "baseline_p95_seconds": null,
+      "baseline_runner_known_subtotal_seconds": 0,
+      "baseline_runner_seconds": 0,
+      "candidate_median_seconds": null,
+      "candidate_p95_seconds": null,
+      "candidate_runner_known_subtotal_seconds": 0,
+      "candidate_runner_seconds": 0,
+      "comparable_successful_pairs": 0,
+      "family_attempt_costs": [],
+      "native_parity": {
+        "comparisons": [],
+        "diagnostic": "unsupported operand type(s) for /: 'PosixPath' and 'NoneType'",
+        "status": "insufficient_data"
+      },
+      "overhead_disclosure": null,
+      "p95_method": "nearest-rank ceil(0.95*n); for n=20 this is sorted value 19",
+      "pair_count": 0
+    },
+    "performance_verdict": "insufficient_data",
+    "status": "insufficient_data"
+  },
+  "evaluation_limitation": "Native receipt validated locally; production evaluator sees zero GitHub families. Local timing is not a PR performance sample.",
+  "local_elapsed_seconds": 22.18,
+  "local_only": true,
+  "materialization": {
+    "clean_before_native": true,
+    "method": "local shared clone; detached exact commit",
+    "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37"
+  },
+  "native_exit_code": 0,
+  "native_report": "LOCAL-TRACER-data-1792883735588349000/receiver/legs/ordinary/exunit.json",
+  "observation": {
+    "acceptance_samples": 0,
+    "local_only": true,
+    "native_exit_code": 0,
+    "report_sha256": "ec297fc514a9892e9ce78004b7ae14f80f505bed1318b2ee76bcff22102e02f0",
+    "seed": 637948,
+    "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+    "test_ids": [
+      "Sigra.ConfigTest.test new!/1 accepts session_schema in session section",
+      "Sigra.ConfigTest.test new!/1 rejects deletion with invalid strategy :unknown",
+      "Sigra.ConfigTest.test new!/1 accepts email with from_address, delivery_mode, and oban_queue",
+      "Sigra.ConfigTest.test new!/1 raises when given empty options",
+      "Sigra.ConfigTest.test new!/1 accepts deletion with valid strategy :hard_delete",
+      "Sigra.ConfigTest.test new!/1 accepts confirmation with unconfirmed_access: :block",
+      "Sigra.ConfigTest.test new!/1 raises when :repo is not an atom",
+      "Sigra.ConfigTest.test new!/1 raises when :repo is missing",
+      "Sigra.ConfigTest.test new!/1 provides correct magic_link defaults",
+      "Sigra.ConfigTest.test new!/1 provides correct password invalidate_sessions_on_change default",
+      "Sigra.ConfigTest.test new!/1 provides correct password notify_on_change default",
+      "Sigra.ConfigTest.test new!/1 accepts optional mailer",
+      "Sigra.ConfigTest.test new!/1 accepts hooks with {Module, :function} tuples",
+      "Sigra.ConfigTest.test new!/1 provides correct email defaults",
+      "Sigra.ConfigTest.test new!/1 provides correct require_confirmation default",
+      "Sigra.ConfigTest.test new!/1 provides correct session_ttl default",
+      "Sigra.ConfigTest.test new!/1 accepts suspicious_login with enabled: false",
+      "Sigra.ConfigTest.test new!/1 provides correct confirmation defaults",
+      "Sigra.ConfigTest.test new!/1 raises when :user_schema is missing",
+      "Sigra.ConfigTest.test new!/1 creates config with required options",
+      "Sigra.ConfigTest.test new!/1 provides correct session absolute_timeout default",
+      "Sigra.ConfigTest.test new!/1 rejects email with delivery_mode: :invalid",
+      "Sigra.ConfigTest.test new!/1 provides correct geo_ip defaults",
+      "Sigra.ConfigTest.test new!/1 rejects hooks with non-tuple values",
+      "Sigra.ConfigTest.test new!/1 accepts optional otp_app",
+      "Sigra.ConfigTest.test new!/1 accepts deletion with valid strategy :anonymize",
+      "Sigra.ConfigTest.test new!/1 provides correct suspicious_login defaults",
+      "Sigra.ConfigTest.test new!/1 accepts confirmation with code_length: 6",
+      "Sigra.ConfigTest.test new!/1 accepts reset with rate_limit options",
+      "Sigra.ConfigTest.test new!/1 provides correct session activity_update_threshold default",
+      "Sigra.ConfigTest.test new!/1 provides correct email_change token TTL default",
+      "Sigra.ConfigTest.test new!/1 provides correct session sudo_timeout default",
+      "Sigra.ConfigTest.test new!/1 allows overriding require_confirmation",
+      "Sigra.ConfigTest.test new!/1 accepts confirmation with unconfirmed_access: :allow_with_banner",
+      "Sigra.ConfigTest.test new!/1 provides correct session idle_timeout default",
+      "Sigra.ConfigTest.test new!/1 allows overriding nested password options",
+      "Sigra.ConfigTest.test new!/1 provides correct password defaults",
+      "Sigra.ConfigTest.test new!/1 accepts geo_ip with module",
+      "Sigra.ConfigTest.test new!/1 accepts lockout with custom threshold and duration",
+      "Sigra.ConfigTest.test new!/1 accepts idle_timeout in session section",
+      "Sigra.ConfigTest.test new!/1 provides correct hooks defaults",
+      "Sigra.ConfigTest.test new!/1 session remember_me_max_age defaults to 60 days (5_184_000s)",
+      "Sigra.ConfigTest.test new!/1 allows overriding session_ttl",
+      "Sigra.ConfigTest.test new!/1 provides correct lockout defaults",
+      "Sigra.ConfigTest.test new!/1 rejects confirmation with unconfirmed_access: :invalid",
+      "Sigra.ConfigTest.test new!/1 provides correct reset defaults",
+      "Sigra.ConfigTest.test new!/1 provides correct session defaults",
+      "Sigra.ConfigTest.test new!/1 accepts deletion with valid strategy :soft_delete",
+      "Sigra.ConfigTest.test new!/1 provides correct password_policy defaults",
+      "Sigra.ConfigTest.test new!/1 provides correct deletion defaults",
+      "Sigra.ConfigTest.test new!/1 provides correct token_ttl defaults",
+      "Sigra.ConfigTest.test new!/1 provides correct rate_limiting defaults"
+    ],
+    "test_statuses": [
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed",
+      "passed"
+    ],
+    "workflow_sha256": "102765e6d77a75fe0b1321ff955b9384675ddf69b6037f3bd6374a7977af9bf2"
+  },
+  "performance_verdict": "insufficient_data",
+  "remote_mutations": 0,
+  "remote_requests": 0,
+  "runtime": "Erlang/OTP 28 [erts-16.4] [source] [64-bit] [smp:18:18] [ds:18:18:10] [async-threads:1] [jit]\n\nElixir 1.19.5 (compiled with Erlang/OTP 28)",
+  "schema_version": "sigra.ci-repaired-local-tracer/v1",
+  "source_file_sha256": {
+    ".github/workflows/ci.yml": "102765e6d77a75fe0b1321ff955b9384675ddf69b6037f3bd6374a7977af9bf2",
+    ".tool-versions": "bad70134e7aa0fecd1ef6ae4313f3f958d6a65e54cd7c32100336fee9b0b8499",
+    "mix.exs": "48bd5097e5ac07f6766333732c9cab222ef9d25632c58adb6490382de802333b",
+    "mix.lock": "d5e1ffd653afde7a70fb13fc9756156a10d4a3b0a726d9b79becd4c50afd2b6a",
+    "scripts/ci/ci-command-record.py": "50bbc048c656ef0c2a38bd1231b72fd40a97a2514299c9d6d5386ec5c1ecb7cb",
+    "scripts/ci/ci-mix-receivers.py": "448436b8d7bafa6c7f4b9d8e5df208aa3f5877ca2247ff7aef44e8dec1694eb2",
+    "test/example/priv/playwright/playwright.config.ts": "e6603651fef4c17e5bb2889f38eeff425fecb8587c97f90f08519935ece4f26a",
+    "test/example/priv/static/assets/js/app.js": "3b7730aec7be5ff88c3c69d534abda86e762a5fa43ac0ed34272509f40351ca2"
+  },
+  "source_requested": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+  "source_sha": "9eb8dd091bd6aea5c90474365b4a1645499b9c37",
+  "source_tree": "5de8edaba20ff7c6d3954bf79ded4c8f4e6f8572",
+  "status": "passed",
+  "timeout_seconds": 600
+}

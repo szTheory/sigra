@@ -1,0 +1,156 @@
+[
+  {
+    "args": [
+      "runtime-identity"
+    ],
+    "exit": 0,
+    "stdout": {
+      "packageName": "@opengsd/gsd-core",
+      "version": "1.16.0"
+    },
+    "stderr": ""
+  },
+  {
+    "args": [
+      "query",
+      "dispatch-isolation",
+      "--json",
+      "--phase",
+      "253",
+      "--force-isolation",
+      "none"
+    ],
+    "exit": 0,
+    "stdout": {
+      "runtime": "codex",
+      "isolation": "none",
+      "exec": null,
+      "harnessFlag": null
+    },
+    "stderr": ""
+  },
+  {
+    "args": [
+      "query",
+      "phase.mvp-mode",
+      "253"
+    ],
+    "exit": 0,
+    "stdout": {
+      "active": false,
+      "source": "none",
+      "roadmap_mode": null,
+      "config_mvp_mode": false,
+      "cli_flag_present": false
+    },
+    "stderr": "gsd-tools: warning: unknown config key(s) in .planning/config.json: sigra_defaults \u2014 these will be ignored\ngsd-tools: warning: /Users/jon/.gsd/defaults.json sets model_profile, resolve_model_ids, runtime, model_profile_overrides but a project config takes precedence here \u2014 those global keys are ignored for model resolution. (#3532)\n"
+  },
+  {
+    "args": [
+      "loop",
+      "render-hooks",
+      "execute:pre",
+      "--raw"
+    ],
+    "exit": 0,
+    "stdout": {
+      "point": "execute:pre",
+      "activeHooks": [],
+      "rendered": "_No active hooks at execute:pre._"
+    },
+    "stderr": "gsd-tools: warning: unknown config key(s) in .planning/config.json: sigra_defaults \u2014 these will be ignored\ngsd-tools: warning: /Users/jon/.gsd/defaults.json sets model_profile, resolve_model_ids, runtime, model_profile_overrides but a project config takes precedence here \u2014 those global keys are ignored for model resolution. (#3532)\n"
+  },
+  {
+    "args": [
+      "loop",
+      "render-hooks",
+      "execute:wave:pre",
+      "--raw"
+    ],
+    "exit": 0,
+    "stdout": {
+      "point": "execute:wave:pre",
+      "activeHooks": [],
+      "rendered": "_No active hooks at execute:wave:pre._"
+    },
+    "stderr": "gsd-tools: warning: unknown config key(s) in .planning/config.json: sigra_defaults \u2014 these will be ignored\ngsd-tools: warning: /Users/jon/.gsd/defaults.json sets model_profile, resolve_model_ids, runtime, model_profile_overrides but a project config takes precedence here \u2014 those global keys are ignored for model resolution. (#3532)\n"
+  },
+  {
+    "args": [
+      "loop",
+      "render-hooks",
+      "execute:wave:post",
+      "--raw"
+    ],
+    "exit": 0,
+    "stdout": {
+      "point": "execute:wave:post",
+      "activeHooks": [
+        {
+          "capId": "drift",
+          "kind": "gate",
+          "when": "workflow.schema_drift_gate",
+          "check": {
+            "query": "verify.schema-drift"
+          },
+          "blocking": true,
+          "onError": "skip"
+        },
+        {
+          "capId": "drift",
+          "kind": "gate",
+          "when": "workflow.schema_drift_gate",
+          "check": {
+            "query": "verify.codebase-drift"
+          },
+          "blocking": false,
+          "onError": "skip"
+        },
+        {
+          "capId": "ui",
+          "kind": "gate",
+          "when": "workflow.ui_safety_gate",
+          "check": {
+            "query": "ui.safety-gate"
+          },
+          "blocking": true,
+          "onError": "halt"
+        }
+      ],
+      "rendered": "**Gate** (drift): check={\"query\":\"verify.schema-drift\"}, blocking=true, onError=skip\n- when: `workflow.schema_drift_gate`\n\n**Gate** (drift): check={\"query\":\"verify.codebase-drift\"}, blocking=false, onError=skip\n- when: `workflow.schema_drift_gate`\n\n**Gate** (ui): check={\"query\":\"ui.safety-gate\"}, blocking=true, onError=halt\n- when: `workflow.ui_safety_gate`"
+    },
+    "stderr": "gsd-tools: warning: unknown config key(s) in .planning/config.json: sigra_defaults \u2014 these will be ignored\ngsd-tools: warning: /Users/jon/.gsd/defaults.json sets model_profile, resolve_model_ids, runtime, model_profile_overrides but a project config takes precedence here \u2014 those global keys are ignored for model resolution. (#3532)\n"
+  },
+  {
+    "args": [
+      "loop",
+      "render-hooks",
+      "execute:post",
+      "--raw"
+    ],
+    "exit": 0,
+    "stdout": {
+      "point": "execute:post",
+      "activeHooks": [
+        {
+          "capId": "code-review",
+          "kind": "step",
+          "ref": {
+            "skill": "code-review"
+          },
+          "when": "workflow.code_review",
+          "produces": [
+            "REVIEW.md"
+          ],
+          "consumes": [
+            "SUMMARY.md"
+          ],
+          "onError": "skip",
+          "supportsReviewerLanes": true
+        }
+      ],
+      "rendered": "### Step 1: skill:code-review (code-review)\n- produces: REVIEW.md\n- consumes: SUMMARY.md\n- when: `workflow.code_review`\n- onError: skip"
+    },
+    "stderr": "gsd-tools: warning: unknown config key(s) in .planning/config.json: sigra_defaults \u2014 these will be ignored\ngsd-tools: warning: /Users/jon/.gsd/defaults.json sets model_profile, resolve_model_ids, runtime, model_profile_overrides but a project config takes precedence here \u2014 those global keys are ignored for model resolution. (#3532)\n"
+  }
+]

@@ -1,0 +1,1298 @@
+{
+  "schema": "sigra.phase253.integration/v1",
+  "status": "prepared_not_approved",
+  "source": "a876647338095b6d280608cb75bcf886ab1da953",
+  "image_id": "sha256:a1cd80a920a62af498ae4f003173d9edc6e2bac35b6e239428c18c74ebc95d79",
+  "postgres_image": "docker.io/library/postgres@sha256:c961aa287d8698297cb26cdfadfbe9fd2cbaf77e53cfffe9636e8d8a1e4d842c",
+  "selections": {
+    "admin_behavior": [
+      "tests/admin-user-operations.spec.ts",
+      "tests/impersonation.spec.ts",
+      "tests/admin-audit.spec.ts",
+      "tests/admin-theme.spec.ts",
+      "tests/admin-coherence-sweep.spec.ts",
+      "tests/admin-modal-interaction.spec.ts",
+      "tests/admin-flow-platform-admin.spec.ts",
+      "tests/admin-flow-support-investigator.spec.ts",
+      "tests/admin-flow-org-admin.spec.ts",
+      "--project=chromium",
+      "--retries=0"
+    ],
+    "admin_checkpoints": [
+      "tests/admin-checkpoints.spec.ts",
+      "--project=admin-checkpoints-chromium",
+      "--project=admin-checkpoints-mobile",
+      "--project=admin-checkpoints-dark",
+      "--retries=0"
+    ],
+    "design_gallery": [
+      "tests/admin-design.spec.ts",
+      "--project=admin-design-chromium",
+      "--project=admin-design-mobile",
+      "--project=admin-design-dark",
+      "--grep-invert",
+      "@snapshot",
+      "--retries=0"
+    ],
+    "non_admin_smoke": [
+      "tests/golden-path.spec.ts",
+      "tests/ga-uat-shift-left.spec.ts",
+      "tests/passkeys-hooks.spec.ts",
+      "tests/organizations.spec.ts",
+      "tests/passkey-login.spec.ts",
+      "tests/passkey-options.spec.ts",
+      "--retries=0"
+    ],
+    "demo_showcase": [
+      "tests/demo-showcase.spec.ts",
+      "--project=demo-showcase-chromium",
+      "--retries=0"
+    ]
+  },
+  "inventory": {
+    "admin_behavior": [
+      {
+        "file": "admin-audit.spec.ts",
+        "line": 77,
+        "title": [
+          "admin-audit.spec.ts",
+          "Phase 31 admin audit browser contract (D-04 4)",
+          "global investigation and org-scoped per-user export keep filter semantics aligned"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-coherence-sweep.spec.ts",
+        "line": 77,
+        "title": [
+          "admin-coherence-sweep.spec.ts",
+          "Phase 159 coherence sweep",
+          "all 6 admin screens satisfy the coherence contract"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-org-admin.spec.ts",
+        "line": 110,
+        "title": [
+          "admin-flow-org-admin.spec.ts",
+          "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+          "happy path \u2014 morgan org-scoped admin access",
+          "org admin reaches Acme Corp admin scope, views member list, navigates to user detail"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-org-admin.spec.ts",
+        "line": 163,
+        "title": [
+          "admin-flow-org-admin.spec.ts",
+          "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+          "main-error \u2014 permission denied (global /admin blocked)",
+          "morgan hitting /admin is redirected home (blocked) \u2014 generic denial, no org/target disclosure"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-org-admin.spec.ts",
+        "line": 222,
+        "title": [
+          "admin-flow-org-admin.spec.ts",
+          "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+          "boundary \u2014 org audit empty state (filtered date range)",
+          "org audit empty state renders when date filter matches no events"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-org-admin.spec.ts",
+        "line": 266,
+        "title": [
+          "admin-flow-org-admin.spec.ts",
+          "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+          "keyboard operability (FLOW-02)",
+          "Tab navigation reaches interactive controls with visible focus in org-scoped view"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-org-admin.spec.ts",
+        "line": 323,
+        "title": [
+          "admin-flow-org-admin.spec.ts",
+          "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+          "theme persistence across org-scoped journey (FLOW-03)",
+          "dark theme persists across org-scoped admin journey and after page.reload()"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-platform-admin.spec.ts",
+        "line": 66,
+        "title": [
+          "admin-flow-platform-admin.spec.ts",
+          "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+          "reduced-motion: loading bar animation collapsed to none (FLOW-02)"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-platform-admin.spec.ts",
+        "line": 76,
+        "title": [
+          "admin-flow-platform-admin.spec.ts",
+          "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+          "happy path \u2014 alice (confirmed Acme member)",
+          "overview \u2192 users search \u2192 user detail \u2192 audit \u2192 return with scope/breadcrumb (FLOW-01)"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-platform-admin.spec.ts",
+        "line": 150,
+        "title": [
+          "admin-flow-platform-admin.spec.ts",
+          "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+          "main-error \u2014 dave locked/unconfirmed",
+          "user detail shows locked/unconfirmed state; audit shows auth.login.failure and auth.lockout.start"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-platform-admin.spec.ts",
+        "line": 215,
+        "title": [
+          "admin-flow-platform-admin.spec.ts",
+          "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+          "boundary \u2014 frank scheduled-deletion + empty/no-data filter",
+          "frank shows scheduled-deletion indicator; empty search renders empty state without error"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-platform-admin.spec.ts",
+        "line": 269,
+        "title": [
+          "admin-flow-platform-admin.spec.ts",
+          "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+          "keyboard operability (FLOW-02)",
+          "Tab to revoke trigger \u2192 Enter opens confirm dialog \u2192 focus containment \u2192 Escape closes \u2192 trigger refocused"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-platform-admin.spec.ts",
+        "line": 375,
+        "title": [
+          "admin-flow-platform-admin.spec.ts",
+          "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+          "theme persistence (FLOW-03)",
+          "dark theme persists across nav + reload + system flip; no-flash on first paint"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-support-investigator.spec.ts",
+        "line": 80,
+        "title": [
+          "admin-flow-support-investigator.spec.ts",
+          "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+          "happy path \u2014 alice (find \u2192 audit evidence \u2192 impersonate \u2192 return)",
+          "investigator finds alice, reads audit evidence, starts impersonation, sees persistent banner, stops and returns to scoped list"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-support-investigator.spec.ts",
+        "line": 157,
+        "title": [
+          "admin-flow-support-investigator.spec.ts",
+          "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+          "main-error \u2014 dave locked/unconfirmed",
+          "investigator finds dave, user detail shows locked state indicators \u2014 no impersonation attempt"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-support-investigator.spec.ts",
+        "line": 180,
+        "title": [
+          "admin-flow-support-investigator.spec.ts",
+          "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+          "boundary \u2014 frank scheduled-deletion",
+          "investigator finds frank, user detail shows deletion-scheduled indicator"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-support-investigator.spec.ts",
+        "line": 199,
+        "title": [
+          "admin-flow-support-investigator.spec.ts",
+          "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+          "keyboard operability (FLOW-02)",
+          "Tab navigation reaches interactive controls with visible focus; scope chrome is keyboard-reachable after impersonation stop"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-flow-support-investigator.spec.ts",
+        "line": 256,
+        "title": [
+          "admin-flow-support-investigator.spec.ts",
+          "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+          "theme persistence across impersonation journey (FLOW-03)",
+          "dark theme persists during impersonation journey and after page.reload()"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-modal-interaction.spec.ts",
+        "line": 68,
+        "title": [
+          "admin-modal-interaction.spec.ts",
+          "ConfirmDialog modal interaction (PAGE-03 APG gates)",
+          "proves all 7 APG hard gates: initial focus, tab containment, Escape close, focus return, ARIA, axe-while-open"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-modal-interaction.spec.ts",
+        "line": 204,
+        "title": [
+          "admin-modal-interaction.spec.ts",
+          "ConfirmDialog modal interaction (PAGE-03 APG gates)",
+          "branding #restore-defaults-overlay: proves all 7 APG hard gates + axe-while-open (D-06)"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 362,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "renders stable topbar controls and overview notice before deferred app JS"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 398,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "persists Light, Dark, and System without global DaisyUI theme state"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 489,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "overview notice action link is visibly actionable"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 595,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "users summary metrics expose accessible help on desktop and mobile"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 721,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "workspace navigation stays inside the LiveView session"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 759,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "admin page loading rail follows route-level LiveView navigation"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 848,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "user detail uses breadcrumbs for filtered list context"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 889,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "overview keeps notices and task cards without duplicate info sections"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 931,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "keeps primary button hover contrast readable in dark mode"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 956,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "auth branding theme picker updates login and email previews"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 1019,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "auth branding details field help works on hover, keyboard, and touch"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 1074,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "auth branding color changes update local previews before save"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 1114,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "auth branding color input updates previews before a LiveView round trip"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 1183,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "auth branding save toast can be dismissed"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 1201,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "auth branding restore defaults is explicit and confirmed"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 1271,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "auth branding discard changes only clears the unsaved preview"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 1303,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "auth branding color palettes keep swatches and hex values aligned"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 1345,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "keyboard navigation uses radiogroup semantics"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-theme.spec.ts",
+        "line": 1372,
+        "title": [
+          "admin-theme.spec.ts",
+          "admin theme switch",
+          "tone notice and status chip pairs meet WCAG AA in light and dark (axe-skipped soft backgrounds)"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-user-operations.spec.ts",
+        "line": 73,
+        "title": [
+          "admin-user-operations.spec.ts",
+          "Phase 31 admin user operations browser contract (D-04 1/2)",
+          "@smoke search -> filter -> open user -> revoke session keeps scope visible"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-user-operations.spec.ts",
+        "line": 161,
+        "title": [
+          "admin-user-operations.spec.ts",
+          "Phase 31 admin user operations browser contract (D-04 1/2)",
+          "global admins can pivot from user detail into an organization-scoped view"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "impersonation.spec.ts",
+        "line": 70,
+        "title": [
+          "impersonation.spec.ts",
+          "Phase 31 admin impersonation browser contract (D-04 3)",
+          "stale sudo redirects the impersonation start action through password confirmation"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "impersonation.spec.ts",
+        "line": 91,
+        "title": [
+          "impersonation.spec.ts",
+          "Phase 31 admin impersonation browser contract (D-04 3)",
+          "fresh sudo enables impersonation start, persistent banner visibility, and stop from a non-admin page"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      }
+    ],
+    "admin_checkpoints": [
+      {
+        "file": "admin-checkpoints.spec.ts",
+        "line": 172,
+        "title": [
+          "admin-checkpoints.spec.ts",
+          "Phase 31 admin checkpoint inventory (D-28)",
+          "captures curated admin review pages across desktop/mobile/dark"
+        ],
+        "project": "admin-checkpoints-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-checkpoints.spec.ts",
+        "line": 172,
+        "title": [
+          "admin-checkpoints.spec.ts",
+          "Phase 31 admin checkpoint inventory (D-28)",
+          "captures curated admin review pages across desktop/mobile/dark"
+        ],
+        "project": "admin-checkpoints-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-checkpoints.spec.ts",
+        "line": 172,
+        "title": [
+          "admin-checkpoints.spec.ts",
+          "Phase 31 admin checkpoint inventory (D-28)",
+          "captures curated admin review pages across desktop/mobile/dark"
+        ],
+        "project": "admin-checkpoints-dark",
+        "expected": "passed"
+      }
+    ],
+    "design_gallery": [
+      {
+        "file": "admin-design.setup.ts",
+        "line": 52,
+        "title": [
+          "admin-design.setup.ts",
+          "authenticate admin design dark"
+        ],
+        "project": "admin-design-setup-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.setup.ts",
+        "line": 44,
+        "title": [
+          "admin-design.setup.ts",
+          "authenticate admin design mobile"
+        ],
+        "project": "admin-design-setup-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.setup.ts",
+        "line": 36,
+        "title": [
+          "admin-design.setup.ts",
+          "authenticate admin design chromium"
+        ],
+        "project": "admin-design-setup-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 268,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "axe: full-page WCAG 2.1/2.2 AA on the design gallery"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 272,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "notice_link board is registered as a standalone L1 component"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 278,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "component and group boards do not overflow at required responsive widths"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 317,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "config boards expose expected archetype sections"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 327,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "group boards expose catalog states and right components"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 373,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "MG-5 and MG-6 desktop and mobile representations are content-equivalent"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 439,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "filter form submits via real GET submission and returns filtered results"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 487,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "reused group examples render byte-coherently for equivalent data"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 499,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "metrics and help boards expose required L1 state evidence"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 544,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "action boards expose required L1 state evidence and inert disabled examples"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 597,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "content and notice boards expose required L1 state evidence"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 641,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "skeleton and audit_row boards expose required L1 state evidence and reduced motion"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 700,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "help states open and close with Escape without trapping focus"
+        ],
+        "project": "admin-design-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 268,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "axe: full-page WCAG 2.1/2.2 AA on the design gallery"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 272,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "notice_link board is registered as a standalone L1 component"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 278,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "component and group boards do not overflow at required responsive widths"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 317,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "config boards expose expected archetype sections"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 327,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "group boards expose catalog states and right components"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 373,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "MG-5 and MG-6 desktop and mobile representations are content-equivalent"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 439,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "filter form submits via real GET submission and returns filtered results"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 487,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "reused group examples render byte-coherently for equivalent data"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 499,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "metrics and help boards expose required L1 state evidence"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 544,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "action boards expose required L1 state evidence and inert disabled examples"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 597,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "content and notice boards expose required L1 state evidence"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 641,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "skeleton and audit_row boards expose required L1 state evidence and reduced motion"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 700,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "help states open and close with Escape without trapping focus"
+        ],
+        "project": "admin-design-mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 268,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "axe: full-page WCAG 2.1/2.2 AA on the design gallery"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 272,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "notice_link board is registered as a standalone L1 component"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 278,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "component and group boards do not overflow at required responsive widths"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 317,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "config boards expose expected archetype sections"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 327,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "group boards expose catalog states and right components"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 373,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "MG-5 and MG-6 desktop and mobile representations are content-equivalent"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 439,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "filter form submits via real GET submission and returns filtered results"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 487,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "reused group examples render byte-coherently for equivalent data"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 499,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "metrics and help boards expose required L1 state evidence"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 544,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "action boards expose required L1 state evidence and inert disabled examples"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 597,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "content and notice boards expose required L1 state evidence"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 641,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "skeleton and audit_row boards expose required L1 state evidence and reduced motion"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      },
+      {
+        "file": "admin-design.spec.ts",
+        "line": 700,
+        "title": [
+          "admin-design.spec.ts",
+          "Design gallery board snapshots",
+          "help states open and close with Escape without trapping focus"
+        ],
+        "project": "admin-design-dark",
+        "expected": "passed"
+      }
+    ],
+    "non_admin_smoke": [
+      {
+        "file": "ga-uat-shift-left.spec.ts",
+        "line": 121,
+        "title": [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)",
+          "SEED-6: invitation signup rejects tampered email with locked-address error"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "ga-uat-shift-left.spec.ts",
+        "line": 164,
+        "title": [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)",
+          "SEED-7: MFA regenerate confirmation surface is reachable after enrollment"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "ga-uat-shift-left.spec.ts",
+        "line": 121,
+        "title": [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)",
+          "SEED-6: invitation signup rejects tampered email with locked-address error"
+        ],
+        "project": "mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "ga-uat-shift-left.spec.ts",
+        "line": 164,
+        "title": [
+          "ga-uat-shift-left.spec.ts",
+          "GA UAT shift-left (SEED-6 / SEED-7)",
+          "SEED-7: MFA regenerate confirmation surface is reachable after enrollment"
+        ],
+        "project": "mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "golden-path.spec.ts",
+        "line": 17,
+        "title": [
+          "golden-path.spec.ts",
+          "full user lifecycle: register \u2192 confirm \u2192 login \u2192 sessions \u2192 sudo \u2192 MFA enroll \u2192 logout \u2192 MFA challenge"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "golden-path.spec.ts",
+        "line": 17,
+        "title": [
+          "golden-path.spec.ts",
+          "full user lifecycle: register \u2192 confirm \u2192 login \u2192 sessions \u2192 sudo \u2192 MFA enroll \u2192 logout \u2192 MFA challenge"
+        ],
+        "project": "mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "organizations.spec.ts",
+        "line": 172,
+        "title": [
+          "organizations.spec.ts",
+          "phase 16 organizations UX: register \u2192 branch A \u2192 create \u2192 settings \u2192 slug change \u2192 members \u2192 multi-org switch"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "organizations.spec.ts",
+        "line": 442,
+        "title": [
+          "organizations.spec.ts",
+          "organization invitations: new user accepts through the mailbox signup path"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "organizations.spec.ts",
+        "line": 493,
+        "title": [
+          "organizations.spec.ts",
+          "organization invitations: signed-in matching user accepts through the mailbox link"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "organizations.spec.ts",
+        "line": 172,
+        "title": [
+          "organizations.spec.ts",
+          "phase 16 organizations UX: register \u2192 branch A \u2192 create \u2192 settings \u2192 slug change \u2192 members \u2192 multi-org switch"
+        ],
+        "project": "mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "organizations.spec.ts",
+        "line": 442,
+        "title": [
+          "organizations.spec.ts",
+          "organization invitations: new user accepts through the mailbox signup path"
+        ],
+        "project": "mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "organizations.spec.ts",
+        "line": 493,
+        "title": [
+          "organizations.spec.ts",
+          "organization invitations: signed-in matching user accepts through the mailbox link"
+        ],
+        "project": "mobile",
+        "expected": "passed"
+      },
+      {
+        "file": "passkey-login.spec.ts",
+        "line": 122,
+        "title": [
+          "passkey-login.spec.ts",
+          "passkey-primary login fallback smoke",
+          "keeps identifier, password, and magic-link fallback visible on the real login page"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "passkey-login.spec.ts",
+        "line": 182,
+        "title": [
+          "passkey-login.spec.ts",
+          "passkey-primary login fallback smoke",
+          "clicking passkey login requests real options path without leaking browser errors"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "passkey-options.spec.ts",
+        "line": 58,
+        "title": [
+          "passkey-options.spec.ts",
+          "enrollment requests real passkey options from the served MFA settings page"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "passkeys-hooks.spec.ts",
+        "line": 74,
+        "title": [
+          "passkeys-hooks.spec.ts",
+          "generated passkey hooks complete real browser registration and authentication with a virtual authenticator"
+        ],
+        "project": "chromium",
+        "expected": "passed"
+      }
+    ],
+    "demo_showcase": [
+      {
+        "file": "demo-showcase.spec.ts",
+        "line": 202,
+        "title": [
+          "demo-showcase.spec.ts",
+          "demo-showcase",
+          "the real login is locked to Tasklane \u2014 server-rendered, ignores the brand cookie"
+        ],
+        "project": "demo-showcase-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "demo-showcase.spec.ts",
+        "line": 307,
+        "title": [
+          "demo-showcase.spec.ts",
+          "demo-showcase",
+          "home page orients evaluators before login"
+        ],
+        "project": "demo-showcase-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "demo-showcase.spec.ts",
+        "line": 847,
+        "title": [
+          "demo-showcase.spec.ts",
+          "demo-showcase",
+          "documented evaluator path reaches authenticated flow within ten minutes"
+        ],
+        "project": "demo-showcase-chromium",
+        "expected": "passed"
+      },
+      {
+        "file": "demo-showcase.spec.ts",
+        "line": 881,
+        "title": [
+          "demo-showcase.spec.ts",
+          "demo-showcase",
+          "demo personas structural assertions and evaluator screenshots"
+        ],
+        "project": "demo-showcase-chromium",
+        "expected": "passed"
+      }
+    ]
+  },
+  "warmup_paths": [
+    "/users/register",
+    "/users/log_in",
+    "/users/confirm",
+    "/dev/mailbox",
+    "/users/sessions",
+    "/users/sudo",
+    "/users/settings/mfa",
+    "/admin/users"
+  ],
+  "limits": {
+    "browser_invocations": 5,
+    "seconds_including_cleanup": 3600,
+    "per_group_seconds": 1800,
+    "retries": 0,
+    "stop_at_first_failure": true,
+    "github_requests": 0,
+    "ci_launches": 0,
+    "old_slots_reopened": 0
+  },
+  "approval_received": false,
+  "command": "python3 .planning/execution/253-registration-integration/validate.py --run",
+  "file_sha256": {
+    "selection.py": "dfcbd7535a540327528e91a4630d9d9a72d1388517ee6fa496654d57c2e77aee",
+    "in_container.py": "57e446ae5cdaa5df5147fba34468c5557b064778c6d6182a959242ce327cd4ec",
+    "validate.py": "bf4b82bcaa8d1fbb63c12eacabb75775f3990c46d7eb0a76b795c63238c520b4",
+    "test_validate.py": "18d717c0f403ac625ab92fe9a818952f7944ad88573a916229377c6c92308ebc",
+    "prepare.py": "be4c3369e8d6b8d760026c1872bc633283c54593230bd5ce6934c91ba0136c29",
+    "collection.json": "859059d8377be3a65d6afab5f21492b5f23c2a21a68558b83e065dfc21bc8553"
+  },
+  "prior_bundle_sha256": {
+    "source-manifest.json": "82821b1c710c7fc5ef6506bd0be643a95ee37e1f1f6c2ee2f6ca15428da55e54",
+    "preparation.json": "53b3f3eb1ad3253ab5cf5851c833be96c57aca8bd4d4b71bd2193f5fec9004db",
+    "inspect.json": "9357aaa1f8fa7746bc04eccd202ef4601413a0f9079920ec7c71c8a49dc639c0",
+    "in_container.py": "dd4c09aa895880b6e75d70f73c9f1d9db394901dba1c65d83091c06efe545f37"
+  },
+  "candidate_workflow_sha256": "9773952b78d025c273b056ecf4c65645e4ca344803646cf0d801e5b7d89f2dc5",
+  "boot_action_sha256": "074bb63f04f84bf3cff749e854e0dff1942d3ab50c7655d8827786d936ef696f",
+  "limitations": [
+    "Local Linux x64 emulation on ARM with Erlang +JMsingle true; not a hosted PR run",
+    "PR behavior selections only; non-PR design screenshot matrix is outside this scope",
+    "Readiness/isolation browser controls and canonical phase review remain separate",
+    "Total deadline may stop later groups; no automatic extra time or retry"
+  ]
+}

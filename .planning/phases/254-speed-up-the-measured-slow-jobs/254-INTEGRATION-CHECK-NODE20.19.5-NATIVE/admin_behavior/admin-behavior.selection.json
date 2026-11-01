@@ -1,0 +1,1440 @@
+{
+  "config": {
+    "configFile": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/playwright.config.ts",
+    "rootDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [
+          "/(admin-user-operations|admin-audit|admin-theme|admin-coherence-sweep|impersonation|admin-flow-).*\\.spec\\.ts/",
+          "/admin-checkpoints\\.spec\\.ts/",
+          "/admin-design\\.spec\\.ts/",
+          "/admin-generated\\.spec\\.ts/",
+          "/generated-confirmation\\.spec\\.ts/",
+          "/passkeys-hooks\\.spec\\.ts|passkey-options\\.spec\\.ts|passkey-login\\.spec\\.ts/",
+          "/demo-showcase\\.spec\\.ts/",
+          "/admin-modal-interaction\\.spec\\.ts/",
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-checkpoints-chromium",
+        "name": "admin-checkpoints-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-checkpoints-mobile",
+        "name": "admin-checkpoints-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-checkpoints-dark",
+        "name": "admin-checkpoints-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-checkpoints\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-generated",
+        "name": "admin-generated",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-generated\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "generated-host-chromium",
+        "name": "generated-host-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/generated-confirmation\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "demo-showcase-chromium",
+        "name": "demo-showcase-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/demo-showcase\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-setup-chromium",
+        "name": "admin-design-setup-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-chromium",
+        "name": "admin-design-chromium",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-setup-mobile",
+        "name": "admin-design-setup-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-mobile",
+        "name": "admin-design-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-setup-dark",
+        "name": "admin-design-setup-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.setup\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-design-dark",
+        "name": "admin-design-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-design\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-eval",
+        "name": "admin-eval",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-eval-mobile",
+        "name": "admin-eval-mobile",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {},
+        "id": "admin-eval-dark",
+        "name": "admin-eval-dark",
+        "testDir": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-254-admin_behavior-mRHJrN/repo/test/example/priv/playwright/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/admin-eval\\.spec\\.ts/"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.59.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "admin-audit.spec.ts",
+      "file": "admin-audit.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Phase 31 admin audit browser contract (D-04 4)",
+          "file": "admin-audit.spec.ts",
+          "line": 76,
+          "column": 6,
+          "specs": [
+            {
+              "title": "global investigation and org-scoped per-user export keep filter semantics aligned",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "1e4164cbcd7d7052b193-0c97200b311199da8d3c",
+              "file": "admin-audit.spec.ts",
+              "line": 77,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "admin-coherence-sweep.spec.ts",
+      "file": "admin-coherence-sweep.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Phase 159 coherence sweep",
+          "file": "admin-coherence-sweep.spec.ts",
+          "line": 76,
+          "column": 6,
+          "specs": [
+            {
+              "title": "all 6 admin screens satisfy the coherence contract",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "742bbc08c1318fe1ca24-299902f16951fbbc0c78",
+              "file": "admin-coherence-sweep.spec.ts",
+              "line": 77,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "admin-flow-org-admin.spec.ts",
+      "file": "admin-flow-org-admin.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Phase 190 org admin flow (FLOW-01..03, DATA-01)",
+          "file": "admin-flow-org-admin.spec.ts",
+          "line": 81,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "happy path — morgan org-scoped admin access",
+              "file": "admin-flow-org-admin.spec.ts",
+              "line": 109,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "org admin reaches Acme Corp admin scope, views member list, navigates to user detail",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "df2a3ddf9a1b686e4428-70e5067e8296648b76ab",
+                  "file": "admin-flow-org-admin.spec.ts",
+                  "line": 110,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "main-error — permission denied (global /admin blocked)",
+              "file": "admin-flow-org-admin.spec.ts",
+              "line": 147,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "morgan hitting /admin is redirected home (blocked) — generic denial, no org/target disclosure",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "df2a3ddf9a1b686e4428-43b99fc8daa805fcbff3",
+                  "file": "admin-flow-org-admin.spec.ts",
+                  "line": 163,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "boundary — org audit empty state (filtered date range)",
+              "file": "admin-flow-org-admin.spec.ts",
+              "line": 204,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "org audit empty state renders when date filter matches no events",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "df2a3ddf9a1b686e4428-d05d8b18965b61a457ba",
+                  "file": "admin-flow-org-admin.spec.ts",
+                  "line": 222,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "keyboard operability (FLOW-02)",
+              "file": "admin-flow-org-admin.spec.ts",
+              "line": 257,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Tab navigation reaches interactive controls with visible focus in org-scoped view",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "df2a3ddf9a1b686e4428-e4a65ea047743a3cde1c",
+                  "file": "admin-flow-org-admin.spec.ts",
+                  "line": 266,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "theme persistence across org-scoped journey (FLOW-03)",
+              "file": "admin-flow-org-admin.spec.ts",
+              "line": 303,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "dark theme persists across org-scoped admin journey and after page.reload()",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "df2a3ddf9a1b686e4428-3d00ca9aabe222c7a972",
+                  "file": "admin-flow-org-admin.spec.ts",
+                  "line": 323,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "admin-flow-platform-admin.spec.ts",
+      "file": "admin-flow-platform-admin.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Phase 190 platform admin flow (FLOW-01..03, DATA-01)",
+          "file": "admin-flow-platform-admin.spec.ts",
+          "line": 49,
+          "column": 6,
+          "specs": [
+            {
+              "title": "reduced-motion: loading bar animation collapsed to none (FLOW-02)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e02642ab944175921674-4db7f5b53260d534c721",
+              "file": "admin-flow-platform-admin.spec.ts",
+              "line": 66,
+              "column": 7
+            }
+          ],
+          "suites": [
+            {
+              "title": "happy path — alice (confirmed Acme member)",
+              "file": "admin-flow-platform-admin.spec.ts",
+              "line": 75,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "overview → users search → user detail → audit → return with scope/breadcrumb (FLOW-01)",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "e02642ab944175921674-05920e2cb203faf517ae",
+                  "file": "admin-flow-platform-admin.spec.ts",
+                  "line": 76,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "main-error — dave locked/unconfirmed",
+              "file": "admin-flow-platform-admin.spec.ts",
+              "line": 149,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "user detail shows locked/unconfirmed state; audit shows auth.login.failure and auth.lockout.start",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "e02642ab944175921674-557dff8038730c13eebb",
+                  "file": "admin-flow-platform-admin.spec.ts",
+                  "line": 150,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "boundary — frank scheduled-deletion + empty/no-data filter",
+              "file": "admin-flow-platform-admin.spec.ts",
+              "line": 214,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "frank shows scheduled-deletion indicator; empty search renders empty state without error",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "e02642ab944175921674-01e852387f7d13a65cbc",
+                  "file": "admin-flow-platform-admin.spec.ts",
+                  "line": 215,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "keyboard operability (FLOW-02)",
+              "file": "admin-flow-platform-admin.spec.ts",
+              "line": 268,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Tab to revoke trigger → Enter opens confirm dialog → focus containment → Escape closes → trigger refocused",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "e02642ab944175921674-6b77e1d2ce0a21ff7a60",
+                  "file": "admin-flow-platform-admin.spec.ts",
+                  "line": 269,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "theme persistence (FLOW-03)",
+              "file": "admin-flow-platform-admin.spec.ts",
+              "line": 374,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "dark theme persists across nav + reload + system flip; no-flash on first paint",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "e02642ab944175921674-deb2917d7e2729fd9074",
+                  "file": "admin-flow-platform-admin.spec.ts",
+                  "line": 375,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "admin-flow-support-investigator.spec.ts",
+      "file": "admin-flow-support-investigator.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Phase 190 support investigator flow (FLOW-01..03, DATA-01)",
+          "file": "admin-flow-support-investigator.spec.ts",
+          "line": 64,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "happy path — alice (find → audit evidence → impersonate → return)",
+              "file": "admin-flow-support-investigator.spec.ts",
+              "line": 79,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "investigator finds alice, reads audit evidence, starts impersonation, sees persistent banner, stops and returns to scoped list",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d601eac7d5aba5101832-f6996ac1601050442a83",
+                  "file": "admin-flow-support-investigator.spec.ts",
+                  "line": 80,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "main-error — dave locked/unconfirmed",
+              "file": "admin-flow-support-investigator.spec.ts",
+              "line": 156,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "investigator finds dave, user detail shows locked state indicators — no impersonation attempt",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d601eac7d5aba5101832-52030cc603bddb84f02c",
+                  "file": "admin-flow-support-investigator.spec.ts",
+                  "line": 157,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "boundary — frank scheduled-deletion",
+              "file": "admin-flow-support-investigator.spec.ts",
+              "line": 179,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "investigator finds frank, user detail shows deletion-scheduled indicator",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d601eac7d5aba5101832-80b74cfec0005f5d0ea3",
+                  "file": "admin-flow-support-investigator.spec.ts",
+                  "line": 180,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "keyboard operability (FLOW-02)",
+              "file": "admin-flow-support-investigator.spec.ts",
+              "line": 198,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Tab navigation reaches interactive controls with visible focus; scope chrome is keyboard-reachable after impersonation stop",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d601eac7d5aba5101832-9aec11a6568657dc1f95",
+                  "file": "admin-flow-support-investigator.spec.ts",
+                  "line": 199,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "theme persistence across impersonation journey (FLOW-03)",
+              "file": "admin-flow-support-investigator.spec.ts",
+              "line": 255,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "dark theme persists during impersonation journey and after page.reload()",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d601eac7d5aba5101832-a90d8c7412b98d339a5d",
+                  "file": "admin-flow-support-investigator.spec.ts",
+                  "line": 256,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "admin-modal-interaction.spec.ts",
+      "file": "admin-modal-interaction.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "ConfirmDialog modal interaction (PAGE-03 APG gates)",
+          "file": "admin-modal-interaction.spec.ts",
+          "line": 67,
+          "column": 6,
+          "specs": [
+            {
+              "title": "proves all 7 APG hard gates: initial focus, tab containment, Escape close, focus return, ARIA, axe-while-open",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4cfb3f43b875e842c2e9-16ed92018d61ce047dca",
+              "file": "admin-modal-interaction.spec.ts",
+              "line": 68,
+              "column": 7
+            },
+            {
+              "title": "branding #restore-defaults-overlay: proves all 7 APG hard gates + axe-while-open (D-06)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "4cfb3f43b875e842c2e9-fe84753e8961f6619796",
+              "file": "admin-modal-interaction.spec.ts",
+              "line": 204,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "admin-theme.spec.ts",
+      "file": "admin-theme.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "admin theme switch",
+          "file": "admin-theme.spec.ts",
+          "line": 381,
+          "column": 6,
+          "specs": [
+            {
+              "title": "renders stable topbar controls and overview notice before deferred app JS",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-a59c7b95211cdb7bcdf6",
+              "file": "admin-theme.spec.ts",
+              "line": 382,
+              "column": 17
+            },
+            {
+              "title": "persists Light, Dark, and System without global DaisyUI theme state",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-1bae5f4e1ba3c2768cec",
+              "file": "admin-theme.spec.ts",
+              "line": 417,
+              "column": 17
+            },
+            {
+              "title": "overview notice action link is visibly actionable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-9213a6372801bc5f2804",
+              "file": "admin-theme.spec.ts",
+              "line": 507,
+              "column": 7
+            },
+            {
+              "title": "users summary metrics expose accessible help on desktop and mobile",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-57329abe41e2e0dc2ec8",
+              "file": "admin-theme.spec.ts",
+              "line": 613,
+              "column": 17
+            },
+            {
+              "title": "workspace navigation stays inside the LiveView session",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-82408e7c22fdf9fec3ad",
+              "file": "admin-theme.spec.ts",
+              "line": 738,
+              "column": 17
+            },
+            {
+              "title": "admin page loading rail follows route-level LiveView navigation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-f5fc24671198ce43aab8",
+              "file": "admin-theme.spec.ts",
+              "line": 775,
+              "column": 17
+            },
+            {
+              "title": "user detail uses breadcrumbs for filtered list context",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-8fd6a26eb4237db40092",
+              "file": "admin-theme.spec.ts",
+              "line": 863,
+              "column": 17
+            },
+            {
+              "title": "overview keeps notices and task cards without duplicate info sections",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-4e895948e3ff4616d719",
+              "file": "admin-theme.spec.ts",
+              "line": 903,
+              "column": 17
+            },
+            {
+              "title": "keeps primary button hover contrast readable in dark mode",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-fde8559004006155ac0f",
+              "file": "admin-theme.spec.ts",
+              "line": 944,
+              "column": 17
+            },
+            {
+              "title": "auth branding theme picker updates login and email previews",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-17e89dc3910be37d8e59",
+              "file": "admin-theme.spec.ts",
+              "line": 968,
+              "column": 17
+            },
+            {
+              "title": "auth branding details field help works on hover, keyboard, and touch",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-bdd418756a9a26ea0372",
+              "file": "admin-theme.spec.ts",
+              "line": 1030,
+              "column": 17
+            },
+            {
+              "title": "auth branding color changes update local previews before save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-90a9c3aaa71074fb3165",
+              "file": "admin-theme.spec.ts",
+              "line": 1084,
+              "column": 17
+            },
+            {
+              "title": "auth branding color input updates previews before a LiveView round trip",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-ae8538a7d56dc9735395",
+              "file": "admin-theme.spec.ts",
+              "line": 1123,
+              "column": 17
+            },
+            {
+              "title": "auth branding save toast can be dismissed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-7dd8128693f5273f1d4d",
+              "file": "admin-theme.spec.ts",
+              "line": 1191,
+              "column": 17
+            },
+            {
+              "title": "auth branding restore defaults is explicit and confirmed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-b28e02e92b8910e22ce1",
+              "file": "admin-theme.spec.ts",
+              "line": 1208,
+              "column": 17
+            },
+            {
+              "title": "auth branding discard changes only clears the unsaved preview",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-d705fc4f662a830d050a",
+              "file": "admin-theme.spec.ts",
+              "line": 1277,
+              "column": 17
+            },
+            {
+              "title": "auth branding color palettes keep swatches and hex values aligned",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-93685cfef3cf89cce6ca",
+              "file": "admin-theme.spec.ts",
+              "line": 1308,
+              "column": 17
+            },
+            {
+              "title": "keyboard navigation uses radiogroup semantics",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-420febe8ecb6dab25702",
+              "file": "admin-theme.spec.ts",
+              "line": 1349,
+              "column": 17
+            },
+            {
+              "title": "tone notice and status chip pairs meet WCAG AA in light and dark (axe-skipped soft backgrounds)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7d6feb0c08d7c1ca9e3-befd05bea1081488630b",
+              "file": "admin-theme.spec.ts",
+              "line": 1375,
+              "column": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "admin-user-operations.spec.ts",
+      "file": "admin-user-operations.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Phase 31 admin user operations browser contract (D-04 1/2)",
+          "file": "admin-user-operations.spec.ts",
+          "line": 72,
+          "column": 6,
+          "specs": [
+            {
+              "title": "@smoke search -> filter -> open user -> revoke session keeps scope visible",
+              "ok": true,
+              "tags": [
+                "smoke"
+              ],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "17630921eb29c965e575-465e068ccfa2585e1189",
+              "file": "admin-user-operations.spec.ts",
+              "line": 73,
+              "column": 7
+            },
+            {
+              "title": "global admins can pivot from user detail into an organization-scoped view",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "17630921eb29c965e575-e5963c848c1685e6e6b0",
+              "file": "admin-user-operations.spec.ts",
+              "line": 161,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "impersonation.spec.ts",
+      "file": "impersonation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Phase 31 admin impersonation browser contract (D-04 3)",
+          "file": "impersonation.spec.ts",
+          "line": 69,
+          "column": 6,
+          "specs": [
+            {
+              "title": "stale sudo redirects the impersonation start action through password confirmation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9cf24056ac11a77e6a67-97ca57204fee93ef84ec",
+              "file": "impersonation.spec.ts",
+              "line": 70,
+              "column": 7
+            },
+            {
+              "title": "fresh sudo enables impersonation start, persistent banner visibility, and stop from a non-admin page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "9cf24056ac11a77e6a67-42fefe6c1835b77eee0a",
+              "file": "impersonation.spec.ts",
+              "line": 91,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-23T19:12:54.358Z",
+    "duration": 237.91099999999994,
+    "expected": 0,
+    "skipped": 43,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

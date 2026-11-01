@@ -1,0 +1,24 @@
+{
+  "phase": 251,
+  "status": "blocked_pending_scoped_repairs",
+  "findings": [
+    "CR-04",
+    "CR-05",
+    "CR-06",
+    "CR-07"
+  ],
+  "affected_tasks": [
+    "251-04-01",
+    "251-04-02",
+    "251-05-03",
+    "251-07-01",
+    "251-07-02",
+    "251-07-03"
+  ],
+  "prior_validation": {
+    "commit": "43c45b7cc6de39953d834f4d20f2923510857169",
+    "path": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+    "sha256": "5ac0e9cd729a01e3e98fa5a285918fdbca635a1d197124148e558c20f714c915",
+    "readback_verified": true
+  }
+}

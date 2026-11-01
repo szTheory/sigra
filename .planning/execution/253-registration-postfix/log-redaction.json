@@ -1,0 +1,221 @@
+{
+  "rule": "strip ANSI; redact SQL arguments, request/session payloads and remaining authentication-value lines; retain native browser reports unchanged",
+  "files": [
+    {
+      "path": "runtime-output/1/app.log",
+      "original_sha256": "99d237b1bcf055ec819805a96a4bbcb7acbfdd153c5687e91b89ba3c6d3ae905",
+      "original_bytes": 22052,
+      "retained_sha256": "09da23681b20745ad9b393eb362d2553b01724e41ef8de6dc18a19108720ae88",
+      "retained_bytes": 15337,
+      "counts": {
+        "sql_arguments": 30,
+        "parameters": 18,
+        "sensitive_lines": 11
+      }
+    },
+    {
+      "path": "runtime-output/1/setup.log",
+      "original_sha256": "50f2211415a24e21388c37464471ae8a51997d0c74c6308450416ba326c9afdb",
+      "original_bytes": 131465,
+      "retained_sha256": "ce2ec788af12ed40ca1eaa5ddd7e957eaf3dc48acc1f7edc2c2b0d57b813c480",
+      "retained_bytes": 93594,
+      "counts": {
+        "sql_arguments": 218,
+        "parameters": 0,
+        "sensitive_lines": 5
+      }
+    },
+    {
+      "path": "runtime-output/2/app.log",
+      "original_sha256": "6c7d9e1aaa3a89c130a0a0def3a91df0f774d747b5332a80667c6f6c145738d5",
+      "original_bytes": 22043,
+      "retained_sha256": "96c5b311d2392b6db1631a3d18bcd41028cfa3b78047dc2137c6add2c51e5d4f",
+      "retained_bytes": 15342,
+      "counts": {
+        "sql_arguments": 30,
+        "parameters": 18,
+        "sensitive_lines": 11
+      }
+    },
+    {
+      "path": "runtime-output/2/setup.log",
+      "original_sha256": "c07d68ad42d94450df98eeafc4ed65b6fe77d5c51adb97d4232e5497fb275ea0",
+      "original_bytes": 131490,
+      "retained_sha256": "98e3a64333f941dfc1b907292abffad799d024a92464b90a66cf17c6208c7da9",
+      "retained_bytes": 93619,
+      "counts": {
+        "sql_arguments": 218,
+        "parameters": 0,
+        "sensitive_lines": 5
+      }
+    },
+    {
+      "path": "runtime-output/3/app.log",
+      "original_sha256": "8b7f096ff01b5f9c1940d1a9acc702928bb267482110bd7407039bbf481a6c8d",
+      "original_bytes": 22019,
+      "retained_sha256": "09d8cec0ecf21d3ecc3464f04034f71fb1f762a14ca48caed0fa051da35e7552",
+      "retained_bytes": 15327,
+      "counts": {
+        "sql_arguments": 30,
+        "parameters": 18,
+        "sensitive_lines": 11
+      }
+    },
+    {
+      "path": "runtime-output/3/setup.log",
+      "original_sha256": "e7539efc6b14fae007da1e1ea35e2bda7045e92153258c8ae3a9e6757aaa42e2",
+      "original_bytes": 131477,
+      "retained_sha256": "a8cc82c30759f66d98878e0889674e5d8f3de1d6d1aad3f7d6aabdea7eee49cd",
+      "retained_bytes": 93606,
+      "counts": {
+        "sql_arguments": 218,
+        "parameters": 0,
+        "sensitive_lines": 5
+      }
+    },
+    {
+      "path": "runtime-output/4/app.log",
+      "original_sha256": "98eaab2a2f3235f0d5e3d6fd06165d07479a448e266fecb0c809d5ec56ae147a",
+      "original_bytes": 22153,
+      "retained_sha256": "930f32e798c9e0aa3f1b19a1d63097677fdd8603ac51f45512cbf0d7673509b2",
+      "retained_bytes": 15330,
+      "counts": {
+        "sql_arguments": 30,
+        "parameters": 18,
+        "sensitive_lines": 11
+      }
+    },
+    {
+      "path": "runtime-output/4/setup.log",
+      "original_sha256": "bbaf35bba095650f1a4cb035b73b03c714bd9e8ed3febdcd51269ef0c86cfb7e",
+      "original_bytes": 131478,
+      "retained_sha256": "dd6330c67e84d620c977ffc2e19bbf1d3aada63cb7a687c28327491654ef9b6c",
+      "retained_bytes": 93607,
+      "counts": {
+        "sql_arguments": 218,
+        "parameters": 0,
+        "sensitive_lines": 5
+      }
+    },
+    {
+      "path": "runtime-output/5/app.log",
+      "original_sha256": "1f41becfc961ea31dc702fb1666ed2d0e2bc2850e3ee2cb91dcec52cee94ada7",
+      "original_bytes": 22136,
+      "retained_sha256": "1519b682a27566ea8505ad9b6f2f41192bd13f2332b33566479fae4d02f0f8c0",
+      "retained_bytes": 15338,
+      "counts": {
+        "sql_arguments": 30,
+        "parameters": 18,
+        "sensitive_lines": 11
+      }
+    },
+    {
+      "path": "runtime-output/5/setup.log",
+      "original_sha256": "0faaf0abf11b99b06cc130ef8a55f00a51af2d41932e970c162ef0dd912db0c8",
+      "original_bytes": 131477,
+      "retained_sha256": "5ecc5aa49c131b39e0efd0c072132883ce2526316949ba96297528aec5536212",
+      "retained_bytes": 93606,
+      "counts": {
+        "sql_arguments": 218,
+        "parameters": 0,
+        "sensitive_lines": 5
+      }
+    },
+    {
+      "path": "runtime-output/6/app.log",
+      "original_sha256": "fc6400c38523b403c50c113dba9c2a070b15d29fc6af93760058986023126574",
+      "original_bytes": 22137,
+      "retained_sha256": "893169fd6c4aae8b815001dcb51e221b660ec74c43c2f70b3c7a906b7b6b7772",
+      "retained_bytes": 15356,
+      "counts": {
+        "sql_arguments": 30,
+        "parameters": 18,
+        "sensitive_lines": 11
+      }
+    },
+    {
+      "path": "runtime-output/6/setup.log",
+      "original_sha256": "7d9612294652bca8e4446a9f7a2b6ff09ed1fc559d5db0581dd9556ddd07155f",
+      "original_bytes": 131488,
+      "retained_sha256": "c574146054eb20383938ec3ebc36779509fba56d8fed12671c7ce579c92a2611",
+      "retained_bytes": 93617,
+      "counts": {
+        "sql_arguments": 218,
+        "parameters": 0,
+        "sensitive_lines": 5
+      }
+    },
+    {
+      "path": "runtime-output/7/app.log",
+      "original_sha256": "9ddfef2c3520756887ba36da64b984626b0a10d7371fdece99b0dc4aebf3d5f5",
+      "original_bytes": 22083,
+      "retained_sha256": "09c213c84e4087754e17b44baa70c06cf8cb3cf441c65a60d092cc186c6e1379",
+      "retained_bytes": 15330,
+      "counts": {
+        "sql_arguments": 30,
+        "parameters": 18,
+        "sensitive_lines": 11
+      }
+    },
+    {
+      "path": "runtime-output/7/setup.log",
+      "original_sha256": "aaef93b589d2b03b8a967e9b7c0951aa42ba3c9ce279a161568587d6d9cae6ba",
+      "original_bytes": 131502,
+      "retained_sha256": "8c06ec9ab0ae4dd9c8eb3753c85acf40fdc21c1626c4afedfc6b107057105e0f",
+      "retained_bytes": 93631,
+      "counts": {
+        "sql_arguments": 218,
+        "parameters": 0,
+        "sensitive_lines": 5
+      }
+    },
+    {
+      "path": "runtime-output/8/app.log",
+      "original_sha256": "7beaca11b93541cdfee840ca3933df11431f9a8e9a3ee4a2f2858bdb4ae70436",
+      "original_bytes": 22095,
+      "retained_sha256": "0a48f6bda191b911edd90c982681028d7be1e6624d80d7d94ab2136b08ee3482",
+      "retained_bytes": 15353,
+      "counts": {
+        "sql_arguments": 30,
+        "parameters": 18,
+        "sensitive_lines": 11
+      }
+    },
+    {
+      "path": "runtime-output/8/setup.log",
+      "original_sha256": "7c9526bb8d629f9715db522da69aad42992379dfd77eccf433734601fd3c26ed",
+      "original_bytes": 131477,
+      "retained_sha256": "d82f75111a7c195faaadfd2552fc22e1b0bb3b3fc18d503f422d442ca4fcd166",
+      "retained_bytes": 93606,
+      "counts": {
+        "sql_arguments": 218,
+        "parameters": 0,
+        "sensitive_lines": 5
+      }
+    },
+    {
+      "path": "runtime-output/9/app.log",
+      "original_sha256": "0bb0a85d64370eb28532cfa8a86cbe83fae3185d41392189631140aab2b732a4",
+      "original_bytes": 22058,
+      "retained_sha256": "fe312cd35af969efa78ae542890f6e72208f52ad699f3444db748f28d20410ba",
+      "retained_bytes": 15324,
+      "counts": {
+        "sql_arguments": 30,
+        "parameters": 18,
+        "sensitive_lines": 11
+      }
+    },
+    {
+      "path": "runtime-output/9/setup.log",
+      "original_sha256": "71904f0e680b16f6daf75a2638445f111cd9db48e1e4b7d411fb78a402eb262d",
+      "original_bytes": 131465,
+      "retained_sha256": "ddae69ab4dfe13b2f9b889ac16e422b43b84d60af19c52e0cca96dcf2126c6ea",
+      "retained_bytes": 93594,
+      "counts": {
+        "sql_arguments": 218,
+        "parameters": 0,
+        "sensitive_lines": 5
+      }
+    }
+  ]
+}

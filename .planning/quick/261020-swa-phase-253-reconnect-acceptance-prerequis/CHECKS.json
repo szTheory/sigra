@@ -1,0 +1,164 @@
+{
+  "schema": "sigra.phase253.quick-prerequisite-checks/v1",
+  "status": "passed",
+  "source_sha256": {
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "041dcbea95d1b5b18e8699d71f984c59c2039466a10e5eb10daa8a3fdcd9d36d",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "15d8eb16d60d21d41a6e047316e8667425b33475aae99560b7537c0d640d4469",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-PREREQUISITE.test.py": "d5c0eda1532f67ae08ada203ac917a3b1b94ba3b25a0004af4beb0f2abad10a3",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "1c673f4cbb48816f118ac0aefd7a2bb7d425636d390a23b7ac36769201d3c4ff",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "67b14c596d7186f633dda6b31967d83250357cee439b76a83740b007d630d607"
+  },
+  "runs": [
+    {
+      "name": "regression",
+      "exit_code": 0,
+      "native_tests": 26,
+      "outputs": {
+        "stdout": {
+          "path": ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/regression.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "path": ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/regression.stderr.log",
+          "sha256": "b93a81416c49bdd43f32e626549a05834fe7478a94656b02a08b60815ac433fc",
+          "bytes": 4530
+        }
+      },
+      "kind": "local_development_not_acceptance",
+      "source_sha256": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "f56301466c8d94b3ff74fd9b2e94b9ea449974f601fb197457718f3a51c098e6",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "15d8eb16d60d21d41a6e047316e8667425b33475aae99560b7537c0d640d4469",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-PREREQUISITE.test.py": "612772dfa6e2052cb378f8ab582287b1c11fa8ed0e52e4b3a1e6ce47de3aa0b5",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "1c673f4cbb48816f118ac0aefd7a2bb7d425636d390a23b7ac36769201d3c4ff",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "67b14c596d7186f633dda6b31967d83250357cee439b76a83740b007d630d607"
+      }
+    },
+    {
+      "name": "prerequisite",
+      "exit_code": 0,
+      "native_tests": 6,
+      "outputs": {
+        "stdout": {
+          "path": ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/prerequisite.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr": {
+          "path": ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/prerequisite.stderr.log",
+          "sha256": "38b431b2ceaac14e67500eaa776281ec0db971763a60b3e9ada8bd27937b9abf",
+          "bytes": 1057
+        }
+      },
+      "kind": "local_development_not_acceptance",
+      "source_sha256": {
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "041dcbea95d1b5b18e8699d71f984c59c2039466a10e5eb10daa8a3fdcd9d36d",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "15d8eb16d60d21d41a6e047316e8667425b33475aae99560b7537c0d640d4469",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-PREREQUISITE.test.py": "d5c0eda1532f67ae08ada203ac917a3b1b94ba3b25a0004af4beb0f2abad10a3",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "1c673f4cbb48816f118ac0aefd7a2bb7d425636d390a23b7ac36769201d3c4ff",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "67b14c596d7186f633dda6b31967d83250357cee439b76a83740b007d630d607"
+      }
+    }
+  ],
+  "interrupted_run": {
+    "exit_code": 130,
+    "reason": "Stopped after identifying live-plan leakage into the historical183 fixture; no pass claimed",
+    "path": ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/regression-interrupted.stderr.log",
+    "sha256": "749d637e54b50d8b00e3ec523c438007315ea36bdbcf0d878652d13d45398254"
+  },
+  "final_scoped_validation": "After the26-test historical suite, only the new maintenance gate gained inherited CI-source protection and its bridge-consumer exception. Six focused tests were rerun on the final sources; historical183 execution logic stayed unchanged.",
+  "plan_validators": [
+    {
+      "argv": [
+        "node",
+        "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+        "query",
+        "frontmatter.validate",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md",
+        "--schema",
+        "plan-gap-closure"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+        "query",
+        "verify.plan-structure",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [],\n  \"task_count\": 2,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: Execute the new179 acceptance once in the exact root elevated process\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 2: Produce and independently reopen the actual179 local success receipt\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+        "query",
+        "frontmatter.validate",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md",
+        "--schema",
+        "plan-gap-closure"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"valid\": true,\n  \"missing\": [],\n  \"present\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"must_haves\",\n    \"gap_closure\"\n  ],\n  \"invalidValue\": [],\n  \"schema\": \"plan-gap-closure\"\n}",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "node",
+        "/Users/jon/.codex/gsd-core/bin/gsd-tools.cjs",
+        "query",
+        "verify.plan-structure",
+        ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"valid\": true,\n  \"errors\": [],\n  \"warnings\": [],\n  \"task_count\": 2,\n  \"tasks\": [\n    {\n      \"name\": \"Task 1: Preserve seven originals and repair the actual freeze/reconciliation entry\",\n      \"type\": \"tracer\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    },\n    {\n      \"name\": \"Task 2: Preserve hosted contracts, correct the actual completion bundle check and prove SDK routing\",\n      \"type\": \"auto\",\n      \"hasFiles\": true,\n      \"hasAction\": true,\n      \"hasVerify\": true,\n      \"hasDone\": true\n    }\n  ],\n  \"frontmatter_fields\": [\n    \"phase\",\n    \"plan\",\n    \"type\",\n    \"gap_closure\",\n    \"wave\",\n    \"depends_on\",\n    \"files_modified\",\n    \"autonomous\",\n    \"requirements\",\n    \"tags\",\n    \"estimate\",\n    \"must_haves\"\n  ]\n}",
+      "stderr": ""
+    }
+  ],
+  "acceptance_attempts": 0,
+  "github_requests": 0,
+  "browser_launches": 0,
+  "budget_renewal": false,
+  "historical183_status": "halted",
+  "phase_verification_status": "not_started",
+  "capture_boundary": {
+    "commit": "697b6e328e07d8c307246e13a7aa77e7db0c3c24",
+    "git_status": "clean"
+  },
+  "immutable_preservation_refs": [
+    {
+      "ref": "refs/gsd/phase253-quick-261020-swa-work-777f0e1236",
+      "commit": "777f0e12368ab822dac76f15baf9ef6b5d48e01c",
+      "verified": true
+    },
+    {
+      "ref": "refs/gsd/phase253-quick-261020-swa-work-9bb531baf4",
+      "commit": "9bb531baf46ecc820958c7a621944a3e06016d49",
+      "verified": true
+    },
+    {
+      "ref": "refs/gsd/phase253-quick-261020-swa-work-12da8ac13f",
+      "commit": "12da8ac13f3bfee358686604d6a54a9254ab8e3a",
+      "verified": true
+    }
+  ],
+  "preserved_intermediate_revision": {
+    "ref": "refs/gsd/phase253-quick-261020-swa-work",
+    "commit": "12da8ac13f3bfee358686604d6a54a9254ab8e3a",
+    "status_base64": "IE0gLnBsYW5uaW5nL3BoYXNlcy8yNTMtZml4LWZsYWt5LWNpLWFuZC1wcmVzZXJ2ZS1yZXF1aXJlZC1jaGVja3MvMjUzLTE3OS1QTEFOLm1kACBNIC5wbGFubmluZy9waGFzZXMvMjUzLWZpeC1mbGFreS1jaS1hbmQtcHJlc2VydmUtcmVxdWlyZWQtY2hlY2tzLzI1My0xODAtUExBTi5tZAAgTSAucGxhbm5pbmcvcGhhc2VzLzI1My1maXgtZmxha3ktY2ktYW5kLXByZXNlcnZlLXJlcXVpcmVkLWNoZWNrcy8yNTMtUkVDT1ZFUlktU1VDQ0VTU09SLnB5ACBNIC5wbGFubmluZy9waGFzZXMvMjUzLWZpeC1mbGFreS1jaS1hbmQtcHJlc2VydmUtcmVxdWlyZWQtY2hlY2tzLzI1My1SRUNPVkVSWS1TVUNDRVNTT1IudGVzdC5weQA/PyAucGxhbm5pbmcvcGhhc2VzLzI1My1maXgtZmxha3ktY2ktYW5kLXByZXNlcnZlLXJlcXVpcmVkLWNoZWNrcy8yNTMtTUFJTlRFTkFOQ0UtUFJFUkVRVUlTSVRFLnRlc3QucHkAPz8gLnBsYW5uaW5nL3F1aWNrLzI2MTAyMC1zd2EtcGhhc2UtMjUzLXJlY29ubmVjdC1hY2NlcHRhbmNlLXByZXJlcXVpcy8yNjEwMjAtc3dhLVBMQU4ubWQA",
+    "files": {
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-179-PLAN.md": "1c673f4cbb48816f118ac0aefd7a2bb7d425636d390a23b7ac36769201d3c4ff",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-180-PLAN.md": "67b14c596d7186f633dda6b31967d83250357cee439b76a83740b007d630d607",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.py": "f56301466c8d94b3ff74fd9b2e94b9ea449974f601fb197457718f3a51c098e6",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-SUCCESSOR.test.py": "15d8eb16d60d21d41a6e047316e8667425b33475aae99560b7537c0d640d4469",
+      ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-MAINTENANCE-PREREQUISITE.test.py": "612772dfa6e2052cb378f8ab582287b1c11fa8ed0e52e4b3a1e6ce47de3aa0b5",
+      ".planning/quick/261020-swa-phase-253-reconnect-acceptance-prerequis/261020-swa-PLAN.md": "71c8fa406b6a1165e3da3f9f3991de712d3bb56330e93dad18a4b9f74359312b"
+    }
+  }
+}

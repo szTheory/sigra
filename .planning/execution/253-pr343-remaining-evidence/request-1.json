@@ -1,0 +1,7 @@
+{
+  "category": "preflight",
+  "family": "shared",
+  "method": "GET",
+  "params": {},
+  "route_id": "rate_limit"
+}

@@ -1,0 +1,8 @@
+{
+  "path": ".planning/execution/254-environment-recovery/MEASUREMENT/LOCAL-REGISTRATION/served-production-app.js",
+  "ref": "refs/evidence/phase254-transport-development-final-recovery",
+  "commit": "cf2107cd871960355c0cc06f2b45ceaa24a40c61",
+  "sha256": "3b7730aec7be5ff88c3c69d534abda86e762a5fa43ac0ed34272509f40351ca2",
+  "readback_verified": true,
+  "reason": "The exact served bytes are recoverable under this ref and identical to the tracked production bundle; remove the redundant working copy."
+}

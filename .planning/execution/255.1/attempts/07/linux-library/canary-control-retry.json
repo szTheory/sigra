@@ -1,0 +1,43 @@
+{
+  "acceptance_samples": 0,
+  "command": "mix test test/upgrade_test.exs:40 test/upgrade_test.exs:92 test/upgrade_test.exs:144 test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:145 test/sigra/planning/phase_235_fast_01_source_complete_contract_test.exs:171",
+  "private_console": {
+    "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/canary/retry-console.log",
+    "sha256": "9be890e3ad698ac952da440b044c0af9bb36edb332f8745caa83c0335191881f"
+  },
+  "private_exunit_report": {
+    "path": ".gsd/255.1-linux-library/attempt-pz94hsuz/canary/retry-output/canary-exunit.json",
+    "sha256": "592df4c345e368556d1a34cca537ef05e94c87b503d17db8b7d6729d5f0399a6"
+  },
+  "result": {
+    "excluded": 14,
+    "failed": 1,
+    "failed_test_ids": [
+      "Sigra.UpgradeIntegrationTest.test upgrade after default install (org-enabled path \u2014 ORG-UPGRADE-02) login after backfill-off upgrade redirects to /organizations with 302 and no 500s"
+    ],
+    "passed": 4,
+    "status": "one_generated_app_argon2_failure",
+    "tests": 5
+  },
+  "runner": {
+    "elixir": "1.19.5 / OTP 28",
+    "gh": "2.103.2",
+    "image_id": "sha256:e8467bcf8a3ee4f056cd8af572a1525a66224bf9ab2c603102e01785c646e3aa",
+    "mix_build_path": "unset",
+    "node": "20.20.2",
+    "pg_image": "postgres:15-alpine",
+    "platform": "linux/amd64 emulated on arm64/v8",
+    "seccomp_sha256": "d8039f0ff04eea8ede7481d12ca49c1485e1314415a9cfa067c3dfb288d0d2dd"
+  },
+  "schema_version": "sigra.phase255.1.local-linux-library-canary/1",
+  "source": {
+    "archive_sha256": "f3ec0a6fee28795a12b09b6cc5134c6a44e2ea83bfcb594faec6ca9492ba4782",
+    "role": "control",
+    "sha": "8d7355185ca95f2310b701d95c79646b2002916f",
+    "tree": "a1c0dd48a6c3d2acb037791298558e012c658142"
+  },
+  "tooling": {
+    "packages_path": ".gsd/255.1-linux-library/attempt-pz94hsuz/tooling-packages.txt",
+    "packages_sha256": "2b17202156236adc4b697b7e36a28b513c78503bb4678a3be2c100336e72e376"
+  }
+}

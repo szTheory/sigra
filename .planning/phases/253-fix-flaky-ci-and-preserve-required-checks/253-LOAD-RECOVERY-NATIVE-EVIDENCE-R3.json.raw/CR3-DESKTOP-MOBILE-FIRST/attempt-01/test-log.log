@@ -1,0 +1,347 @@
+
+Running 16 tests using 1 worker
+
+  ✓   1 [admin-eval] › tests/admin-eval.spec.ts:271:7 › registration waits for explicitly released LiveView readiness (2.4s)
+  ✘   2 [admin-eval] › tests/admin-eval.spec.ts:371:7 › registration stops when LiveView readiness is never released (1.9s)
+  ✘   3 [admin-eval] › tests/admin-eval.spec.ts:384:7 › registration fails when the readiness wait is deliberately broken (1.8s)
+  ✓   4 [admin-eval] › tests/admin-eval.spec.ts:394:7 › registration detects a deliberate same-account collision (2.4s)
+  ✘   5 [admin-eval] › tests/admin-eval.spec.ts:416:7 › registration retains the first forced assertion failure trace (3.0s)
+  ✓   6 [admin-eval-mobile] › tests/admin-eval.spec.ts:271:7 › registration waits for explicitly released LiveView readiness (3.7s)
+  ✘   7 [admin-eval-mobile] › tests/admin-eval.spec.ts:371:7 › registration stops when LiveView readiness is never released (1.9s)
+  ✘   8 [admin-eval-mobile] › tests/admin-eval.spec.ts:384:7 › registration fails when the readiness wait is deliberately broken (2.1s)
+  ✓   9 [admin-eval-mobile] › tests/admin-eval.spec.ts:394:7 › registration detects a deliberate same-account collision (2.5s)
+  ✘  10 [admin-eval-mobile] › tests/admin-eval.spec.ts:416:7 › registration retains the first forced assertion failure trace (3.0s)
+  ✓  11 [admin-eval-dark] › tests/admin-eval.spec.ts:271:7 › registration waits for explicitly released LiveView readiness (2.3s)
+  ✘  12 [admin-eval-dark] › tests/admin-eval.spec.ts:371:7 › registration stops when LiveView readiness is never released (1.8s)
+  ✘  13 [admin-eval-dark] › tests/admin-eval.spec.ts:384:7 › registration fails when the readiness wait is deliberately broken (1.8s)
+  ✓  14 [admin-eval-dark] › tests/admin-eval.spec.ts:394:7 › registration detects a deliberate same-account collision (2.9s)
+  ✘  15 [admin-eval-dark] › tests/admin-eval.spec.ts:416:7 › registration retains the first forced assertion failure trace (2.9s)
+  ✓  16 [admin-eval-dark] › tests/admin-eval.spec.ts:671:11 › Admin eval — render matrix, probes, bundles › render bundle: board-mg-9/populated (4.2s)
+
+
+  1) [admin-eval] › tests/admin-eval.spec.ts:371:7 › registration stops when LiveView readiness is never released 
+
+    TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected')[22m
+
+
+      145 |   timeout?: number,
+      146 | ) {
+    > 147 |   await page.waitForSelector(selector, {
+          |              ^
+      148 |     state: 'attached',
+      149 |     ...(timeout === undefined ? {} : { timeout }),
+      150 |   });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:380:13
+        at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:372:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [admin-eval] › tests/admin-eval.spec.ts:384:7 › registration fails when the readiness wait is deliberately broken 
+
+    TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')[22m
+
+
+      145 |   timeout?: number,
+      146 | ) {
+    > 147 |   await page.waitForSelector(selector, {
+          |              ^
+      148 |     state: 'attached',
+      149 |     ...(timeout === undefined ? {} : { timeout }),
+      150 |   });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:168:9)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:387:7
+        at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:386:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [admin-eval] › tests/admin-eval.spec.ts:416:7 › registration retains the first forced assertion failure trace 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/sigra-control-forced-assertion-must-fail$/[39m
+    Received string:  [31m"http://127.0.0.1:25311/users/log_in"[39m
+    Timeout: 1500ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 1500ms[22m
+    [2m    5 × unexpected value "http://127.0.0.1:25311/users/log_in"[22m
+
+
+      431 |       await page.waitForURL((url) => url.pathname === '/users/log_in', { waitUntil: 'domcontentloaded' });
+      432 |       annotateRegistrationControl(testInfo, { navigation_started: true, submit_post_path: requestPaths[0] ?? null });
+    > 433 |       await expect(page).toHaveURL(/\/sigra-control-forced-assertion-must-fail$/, { timeout: 1_500 });
+          |                          ^
+      434 |     });
+      435 |   });
+      436 | }
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:433:26
+        at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:418:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [admin-eval-mobile] › tests/admin-eval.spec.ts:371:7 › registration stops when LiveView readiness is never released 
+
+    TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected')[22m
+
+
+      145 |   timeout?: number,
+      146 | ) {
+    > 147 |   await page.waitForSelector(selector, {
+          |              ^
+      148 |     state: 'attached',
+      149 |     ...(timeout === undefined ? {} : { timeout }),
+      150 |   });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:380:13
+        at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:372:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [admin-eval-mobile] › tests/admin-eval.spec.ts:384:7 › registration fails when the readiness wait is deliberately broken 
+
+    TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')[22m
+
+
+      145 |   timeout?: number,
+      146 | ) {
+    > 147 |   await page.waitForSelector(selector, {
+          |              ^
+      148 |     state: 'attached',
+      149 |     ...(timeout === undefined ? {} : { timeout }),
+      150 |   });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:168:9)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:387:7
+        at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:386:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [admin-eval-mobile] › tests/admin-eval.spec.ts:416:7 › registration retains the first forced assertion failure trace 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/sigra-control-forced-assertion-must-fail$/[39m
+    Received string:  [31m"http://127.0.0.1:25311/users/log_in"[39m
+    Timeout: 1500ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 1500ms[22m
+    [2m    5 × unexpected value "http://127.0.0.1:25311/users/log_in"[22m
+
+
+      431 |       await page.waitForURL((url) => url.pathname === '/users/log_in', { waitUntil: 'domcontentloaded' });
+      432 |       annotateRegistrationControl(testInfo, { navigation_started: true, submit_post_path: requestPaths[0] ?? null });
+    > 433 |       await expect(page).toHaveURL(/\/sigra-control-forced-assertion-must-fail$/, { timeout: 1_500 });
+          |                          ^
+      434 |     });
+      435 |   });
+      436 | }
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:433:26
+        at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:418:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [admin-eval-dark] › tests/admin-eval.spec.ts:371:7 › registration stops when LiveView readiness is never released 
+
+    TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected')[22m
+
+
+      145 |   timeout?: number,
+      146 | ) {
+    > 147 |   await page.waitForSelector(selector, {
+          |              ^
+      148 |     state: 'attached',
+      149 |     ...(timeout === undefined ? {} : { timeout }),
+      150 |   });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:380:13
+        at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:372:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-dark/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-st-a0d67-readiness-is-never-released-admin-eval-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [admin-eval-dark] › tests/admin-eval.spec.ts:384:7 › registration fails when the readiness wait is deliberately broken 
+
+    TimeoutError: page.waitForSelector: Timeout 1500ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-phx-session].phx-connected[data-sigra-never-connected]')[22m
+
+
+      145 |   timeout?: number,
+      146 | ) {
+    > 147 |   await page.waitForSelector(selector, {
+          |              ^
+      148 |     state: 'attached',
+      149 |     ...(timeout === undefined ? {} : { timeout }),
+      150 |   });
+        at waitForLiveViewReady (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:147:14)
+        at registerUser (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:168:9)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:387:7
+        at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:386:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-dark/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-fa-b76fb-wait-is-deliberately-broken-admin-eval-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [admin-eval-dark] › tests/admin-eval.spec.ts:416:7 › registration retains the first forced assertion failure trace 
+
+    Error: [2mexpect([22m[31mpage[39m[2m).[22mtoHaveURL[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Expected pattern: [32m/\/sigra-control-forced-assertion-must-fail$/[39m
+    Received string:  [31m"http://127.0.0.1:25311/users/log_in"[39m
+    Timeout: 1500ms
+
+    Call log:
+    [2m  - Expect "toHaveURL" with timeout 1500ms[22m
+    [2m    5 × unexpected value "http://127.0.0.1:25311/users/log_in"[22m
+
+
+      431 |       await page.waitForURL((url) => url.pathname === '/users/log_in', { waitUntil: 'domcontentloaded' });
+      432 |       annotateRegistrationControl(testInfo, { navigation_started: true, submit_post_path: requestPaths[0] ?? null });
+    > 433 |       await expect(page).toHaveURL(/\/sigra-control-forced-assertion-must-fail$/, { timeout: 1_500 });
+          |                          ^
+      434 |     });
+      435 |   });
+      436 | }
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:433:26
+        at withRegistrationControlContext (/Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:252:5)
+        at /Users/jon/projects/sigra/test/example/priv/playwright/tests/admin-eval.spec.ts:418:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-dark/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-dark/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-dark/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-load-r3-0NIcVb/playwright-output/admin-eval-registration-re-bb9e7-ced-assertion-failure-trace-admin-eval-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    [admin-eval] › tests/admin-eval.spec.ts:371:7 › registration stops when LiveView readiness is never released 
+    [admin-eval] › tests/admin-eval.spec.ts:384:7 › registration fails when the readiness wait is deliberately broken 
+    [admin-eval] › tests/admin-eval.spec.ts:416:7 › registration retains the first forced assertion failure trace 
+    [admin-eval-mobile] › tests/admin-eval.spec.ts:371:7 › registration stops when LiveView readiness is never released 
+    [admin-eval-mobile] › tests/admin-eval.spec.ts:384:7 › registration fails when the readiness wait is deliberately broken 
+    [admin-eval-mobile] › tests/admin-eval.spec.ts:416:7 › registration retains the first forced assertion failure trace 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:371:7 › registration stops when LiveView readiness is never released 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:384:7 › registration fails when the readiness wait is deliberately broken 
+    [admin-eval-dark] › tests/admin-eval.spec.ts:416:7 › registration retains the first forced assertion failure trace 
+  7 passed (44.9s)

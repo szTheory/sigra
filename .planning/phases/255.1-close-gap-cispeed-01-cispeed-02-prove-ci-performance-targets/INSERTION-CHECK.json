@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "phase": "255.1",
+  "checked_at": "2026-10-24T20:55:58.859Z",
+  "phase_count": 5,
+  "has_context": false,
+  "has_research": false,
+  "has_plans": false,
+  "next_command": "$gsd-discuss-phase 255.1",
+  "phase255_detail_unchanged": true,
+  "phase255_verified": true,
+  "phase254_comparison_unchanged": true,
+  "all_prior_custom_state_fields_preserved": true,
+  "preservation_read_back_equal": true,
+  "implementation_status": "not_started",
+  "verification_status": "pending",
+  "changes_committed": false,
+  "prior_check_failure": "GSD updater discarded custom state fields; restored exact prior fields from HEAD before fresh check."
+}

@@ -1,0 +1,10 @@
+{
+  "command": "node --test scripts/maintainers/prune-stale-branches-current.test.mjs",
+  "exitCode": 1,
+  "targetTest": "local apply validates the current-contract pair before attempting a mutation",
+  "targetFile": "scripts/maintainers/prune-stale-branches-current.test.mjs",
+  "expected": "a current-contract path without its immutable commit is rejected as current_contract_commit_required before coordinator installation or any mutation",
+  "actual": "the operator entered shared coordinator admission first and failed on coordinator_symbolic_head_hook_unsupported instead of validating the current-contract pair",
+  "output": "TAP version 13\n# Subtest: verify-prs recognizes explicit current-contract mode and rejects a missing pair member\nok 1 - verify-prs recognizes explicit current-contract mode and rejects a missing pair member\n# Subtest: local apply validates the current-contract pair before attempting a mutation\nnot ok 2 - local apply validates the current-contract pair before attempting a mutation\n  failureType: 'testCodeFailure'\n  error: | -\n    expected current_contract_commit_required; got shared_coordinator_unavailable: coordinator_symbolic_head_hook_unsupported\n# Subtest: captured current PR/ref contract verifies from committed bytes through the shell selector\nok 3 - captured current PR/ref contract verifies from committed bytes through the shell selector\n1..3\n# tests 3\n# pass 2\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n",
+  "production_repository_mutated": false
+}

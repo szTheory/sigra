@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "prior": {
+    ".planning/STATE.md": {
+      "commit": "6dc1cf20daf53b7067e59696c6cd78e99fc5acfa",
+      "sha256": "84b24189f80a4c180036644907b5871db6fd5fda047f1e78d001909b03b1291f",
+      "read_back_equal": true
+    },
+    ".planning/state.json": {
+      "commit": "6dc1cf20daf53b7067e59696c6cd78e99fc5acfa",
+      "sha256": "da53432796a341cdb3a32d91ee1d2e918ed0279c9f835df26e7a75bf2d8a0b1f",
+      "read_back_equal": true
+    },
+    ".planning/HANDOFF.json": {
+      "commit": "6dc1cf20daf53b7067e59696c6cd78e99fc5acfa",
+      "sha256": "8f261b306907d6a8b877ff14db8e57b68344a5192e868f878b28aa811b62aa03",
+      "read_back_equal": true
+    },
+    ".planning/phases/255.1-close-gap-cispeed-01-cispeed-02-prove-ci-performance-targets/255.1-04-SUMMARY.md": {
+      "commit": "6dc1cf20daf53b7067e59696c6cd78e99fc5acfa",
+      "sha256": "3c617aa583c8877737ff05717254e7185f16e3f32a05bafa568355581d15a44d",
+      "read_back_equal": true
+    }
+  },
+  "completed_local_plans": [
+    "255.1-01",
+    "255.1-02",
+    "255.1-03",
+    "255.1-04"
+  ],
+  "current_plan": "255.1-05",
+  "next_command": "$gsd-execute-phase 255.1",
+  "phase_verification": "pending",
+  "hosted_authority": false,
+  "acceptance_samples": 0,
+  "package_boundary_maintenance": {
+    "commit": "6dc1cf20daf53b7067e59696c6cd78e99fc5acfa",
+    "focused_tests": 5,
+    "full_strict_offline_integration": {
+      "tests": 1,
+      "elapsed_seconds": 76.7,
+      "exit_code": 0
+    },
+    "changes": [
+      "strict comparison_kind",
+      "declared input closure including hashed coverage map/parity paths",
+      "unexpected input rejection",
+      "existing output and output inside input refusal"
+    ]
+  },
+  "plan05_seams": ".gsd/phase2551-plan05-seams.md",
+  "known_cache_constraint": "If eligible exact shared caches do not already exist, four prep PR/rerun invocations cannot create missing shared entries; bounded read-only inventory must precede workflow launch."
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": "sigra.phase254.hosted-readiness/v1",
+  "captured_at_utc": "2026-10-23T19:46:36Z",
+  "status": "blocked",
+  "implementation_complete": true,
+  "comparison_outcome": "blocked_before_collection",
+  "phase_verification_status": "pending",
+  "proof_path": ".planning/phases/254-speed-up-the-measured-slow-jobs/254-HOSTED-PR-PATH-PROOF.json",
+  "source_preflight": {
+    "command": "node scripts/ci/ci-baseline-source-preflight.mjs --root . --contract .planning/phases/252-measure-current-ci/252-COMPARISON-CONTRACT.json --bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --check-only",
+    "status": "ready",
+    "diagnostics": []
+  },
+  "current_context_and_merge_tree_check": {
+    "status": "blocked",
+    "reason": "Current effective rules require five contexts on main. The current GitHub PR merge preview for the frozen baseline is based on main SHA 09df342a82e03c3d5d40173c912b70e827f7eadc and has merge tree cc2038166f1847e2e2f5ce2428d9a53ba0ae8cae, which differs from frozen baseline tree bcda2b1eb386bdbaaf1bde2b6f034e0c7ee74452. The merge workflow blob also differs from the frozen baseline workflow blob."
+  },
+  "candidate_availability": {
+    "status": "blocked",
+    "candidate_application_sha": "da6401170e4295cba8099fd6f3ec348c6867de47",
+    "github_commit_lookup": "not_found_http_422",
+    "open_pr_head_match": false
+  },
+  "cache_image_readiness": "not_evaluated_because_baseline_path_blocked",
+  "preparation": {
+    "status": "not_started",
+    "extra_budget_required": null,
+    "authorization_reference": null,
+    "reason": "Baseline execution feasibility is unresolved; extra warm-ups cannot address this blocker."
+  },
+  "comparison_window": {
+    "status": "not_started",
+    "start_utc": null,
+    "end_utc": null,
+    "duration_hours": 48
+  },
+  "collection": {
+    "status": "not_started",
+    "reserved_pairs": 0,
+    "families_started": 0,
+    "requests_spent": 0,
+    "acceptance_budget_spent": false
+  },
+  "requirements": {
+    "CISPEED-01": "open",
+    "CISPEED-02": "open"
+  },
+  "missing_fact_to_resolve": "A current lawful pull_request path against main must prove, from its actual merge/source/workflow trees, the exact frozen baseline application, producer and workflow and the reviewed candidate identities."
+}

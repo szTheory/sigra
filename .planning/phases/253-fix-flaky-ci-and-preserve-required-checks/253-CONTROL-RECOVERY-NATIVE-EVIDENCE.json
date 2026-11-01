@@ -1,0 +1,267 @@
+{
+  "schema_version": "sigra.phase253.registration-control-recovery-evidence/v1",
+  "status": "halted",
+  "freeze_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-FREEZE.json",
+  "freeze_sha256": "bef539ef0803a5e035266fd2d5334b02dc87893c285114e7f70cbec3b46a0778",
+  "source": {
+    "repository": "szTheory/sigra",
+    "checkout_head": "a881094ca250723e26142da6f67e8e9475ba5caa",
+    "blobs": {
+      "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+      "scripts/ci/ci-registration-recovery.mjs": "572fd804c91d05f7d3e40c40977a7302ca4d1af3",
+      "scripts/ci/ci-registration-recovery.test.mjs": "6a7e243fdc4fadcf871574a4870bc63a26408dac",
+      "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+      "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+      "test/example/priv/playwright/tests/admin-eval.spec.ts": "b9c3e564918699599ef89cb65cface046761d195",
+      "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+      "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+      "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+      ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+    }
+  },
+  "historical": {
+    "artifacts": [
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-09-TERMINAL-DIAGNOSTIC.json",
+        "sha256": "cb97baa38d43ad59f3370114d9b493959264079d4a29e076e7e3b816741c9122"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-REPLAN-REGISTRATION-EVIDENCE.json",
+        "sha256": "0d1054b4628fd2287f89447f10644fa7a650dc15d43ca9d29eb5c025eb1b4960"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-15-VERIFIED-REGISTRATION-EVIDENCE.json",
+        "sha256": "a2ca73dbdad8b4e00766d28b98f7841a9ac2233e7c481ea7fda309b5a310fdfb"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-CONTROL-EVIDENCE.json",
+        "sha256": "25a8d094b64bb97233ed8d3b5c2b4453903a1305b256bf249bd1b4aa342b8746"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-16-POST-HALT-CLEANUP.json",
+        "sha256": "956b43875a7431e52b3683954d7ebf8d2f72ac9a52665d7cf6594a4349fa1f11"
+      },
+      {
+        "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-TIMEOUT-ASSESSMENT.json",
+        "sha256": "bdb1b9d5aa0dc8fb6422708228276ade641b60cc91db1fca556e3f788e264a40"
+      }
+    ],
+    "carried_charge_ms": 243044,
+    "physical_playwright_cli_launches": 4,
+    "spent_reservations": [
+      "D19-DIAG-01",
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE",
+      "R-DIAG-CONTROL-DARK"
+    ],
+    "spent_retry": {
+      "used": 1,
+      "available": 0
+    },
+    "failed_dark": {
+      "slot_id": "R-DIAG-CONTROL-DARK",
+      "charged_ms": 121252,
+      "native_report_present": false,
+      "cleanup_ms": 112,
+      "database_absent": true
+    },
+    "preceding_order": "unknown",
+    "original_dark_failure_remains_failed": true
+  },
+  "created_at": "2026-10-14T01:19:06.877Z",
+  "attempts": [
+    {
+      "slot_id": "CR-DARK-FIRST",
+      "sequence": 1,
+      "stage": "first",
+      "project": "admin-eval-dark",
+      "argv": [
+        "--project=admin-eval-dark",
+        "--grep=(render bundle: board-mg-9/populated|registration waits for explicitly released LiveView readiness|registration stops when LiveView readiness is never released|registration fails when the readiness wait is deliberately broken|registration detects a deliberate same-account collision|registration retains the first forced assertion failure trace)",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure"
+      ],
+      "source_commit": "a881094ca250723e26142da6f67e8e9475ba5caa",
+      "source_blobs": {
+        "scripts/ci/ci-registration-repro.sh": "3a98aad5fe7b59753ceed5858012efcb00bf7f4e",
+        "scripts/ci/ci-registration-recovery.mjs": "572fd804c91d05f7d3e40c40977a7302ca4d1af3",
+        "scripts/ci/ci-registration-recovery.test.mjs": "6a7e243fdc4fadcf871574a4870bc63a26408dac",
+        "scripts/ci/ci-playwright-report.mjs": "51cfe7d0f600477a100ac45eeb61becb0f75e749",
+        "test/example/priv/playwright/playwright.config.ts": "96ac3495464c36fdfcc604f99c130aee12f289b0",
+        "test/example/priv/playwright/tests/admin-eval.spec.ts": "b9c3e564918699599ef89cb65cface046761d195",
+        "test/example/priv/playwright/helpers/adminFlows.ts": "ddf7dbf5df0d6c2350af6f72741ce318fa50b16e",
+        "test/example/priv/playwright/package-lock.json": "c429e4a05fb5606a7fbc9d128a2d46af068c50f5",
+        "test/example/mix.lock": "1a7d84c08459b3911da3899ec36a9282430750b4",
+        ".github/workflows/ci.yml": "072a1ea3793213309d89f0c46d75810c6b7df341"
+      },
+      "started_monotonic_ns": "281098349910708",
+      "database": {
+        "name": "sigra_253_control_dark_mv7f9q37_99351",
+        "setup_exit_code": 0,
+        "drop_exit_code": 0
+      },
+      "server": {
+        "port": 25313,
+        "http_status": 200,
+        "app_pid": 7911
+      },
+      "browser": {
+        "launched": true,
+        "exit_code": 1
+      },
+      "playwright_cli": {
+        "launched": true,
+        "exit_code": 1
+      },
+      "observed_outcome": "halted",
+      "files": {
+        "traces": [],
+        "playwright_report": {
+          "path": "CR-DARK-FIRST/attempt-01/playwright-report.json",
+          "sha256": "5f70aff4403961f602d55df81cd838148eb74ae511fa532ee3545ec74b1ae7d4",
+          "bytes": 12735
+        },
+        "setup_log": {
+          "path": "CR-DARK-FIRST/attempt-01/setup-log.log",
+          "sha256": "a753e85953d2268c34f96a789d016579d7b240fd7c02f828a9f022be4f773704",
+          "bytes": 134188
+        },
+        "app_log": {
+          "path": "CR-DARK-FIRST/attempt-01/app-log.log",
+          "sha256": "139bd894cd47e49abc94d664c2bc2b8d00dfa6450af4a09e0fc5ffa07be4cbb0",
+          "bytes": 319
+        },
+        "test_log": {
+          "path": "CR-DARK-FIRST/attempt-01/test-log.log",
+          "sha256": "8dffed877249d7f7415b233d81d38522db1d30305ca5d372db66153948d43931",
+          "bytes": 1316
+        },
+        "drop_log": {
+          "path": "CR-DARK-FIRST/attempt-01/drop-log.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      "traces": [],
+      "trace_assertion": [],
+      "transport_observations": [],
+      "registration": {
+        "server_post_confirmed": false
+      },
+      "toolchain": {
+        "playwright": "1.59.1",
+        "ecto_sql": "3.13.5",
+        "phoenix_live_view": "1.1.28"
+      },
+      "build_path": "/private/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/mix-build",
+      "stage_deadlines": {
+        "command_ms": 120000,
+        "work_ms": 105000,
+        "cleanup_ms": 15000,
+        "cleanup_reserved": true
+      },
+      "setup": {
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "duration_ms": 28015,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 1
+      },
+      "browser_command_argv": [
+        "test",
+        "tests/admin-eval.spec.ts",
+        "--project=admin-eval-dark",
+        "--grep=(render bundle: board-mg-9/populated|registration waits for explicitly released LiveView readiness|registration stops when LiveView readiness is never released|registration fails when the readiness wait is deliberately broken|registration detects a deliberate same-account collision|registration retains the first forced assertion failure trace)",
+        "--workers=1",
+        "--retries=0",
+        "--trace=retain-on-failure",
+        "--output=/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-control-recovery-ghMf2R/playwright-output"
+      ],
+      "test_command": {
+        "exit_code": 1,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "duration_ms": 655,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "native_selection": {
+        "project": "admin-eval-dark",
+        "spec": "tests/admin-eval.spec.ts",
+        "selected_titles": [
+          "render bundle: board-mg-9/populated",
+          "registration waits for explicitly released LiveView readiness",
+          "registration stops when LiveView readiness is never released",
+          "registration fails when the readiness wait is deliberately broken",
+          "registration detects a deliberate same-account collision",
+          "registration retains the first forced assertion failure trace"
+        ],
+        "expected_cli_exit": 1
+      },
+      "log_redactions_app": {
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "drop_command": {
+        "exit_code": 0,
+        "signal": null,
+        "error": null,
+        "timed_out": false,
+        "duration_ms": 978,
+        "redacted_secret_fields": 0,
+        "redacted_credential_blocks": 0
+      },
+      "build_directory_removed": true,
+      "ended_monotonic_ns": "281131758308791",
+      "execution_duration_ms": 33409,
+      "charged_duration_ms": 33409
+    }
+  ],
+  "reservation": null,
+  "preserved_revisions": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+      "status": "",
+      "sha256": "f8296ac13f20ca1b43b8a560a917b7d4964f377de9a462c2a262025d45c68e4d",
+      "blob": "bd0bbe0d3cc23f1ffe5debfcbb553a2d81b2fdaa",
+      "ref": "refs/gsd/phase253-control-recovery-native-evidence/f8296ac13f20ca1b43b8a560a917b7d4964f377de9a462c2a262025d45c68e4d",
+      "bytes": 3952,
+      "read_back_exact": true
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+      "status": " M .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-CONTROL-RECOVERY-NATIVE-EVIDENCE.json",
+      "sha256": "c23f6a529b29edbb745fda4e200c4f1e3ed1ce569baf093d50ca21356b388cf4",
+      "blob": "3521607ca029635669f4d16cb994ba2411fe45fc",
+      "ref": "refs/gsd/phase253-control-recovery-native-evidence/c23f6a529b29edbb745fda4e200c4f1e3ed1ce569baf093d50ca21356b388cf4",
+      "bytes": 4678,
+      "read_back_exact": true
+    }
+  ],
+  "limits": {
+    "prior_charge_ms": 243044,
+    "preparation_charge_ms": 0,
+    "preparation_remaining_ms": 112489,
+    "charged_duration_ms": 276453,
+    "physical_playwright_cli_launches": 5,
+    "used_slots": [
+      "D19-DIAG-01",
+      "R-DIAG-DESKTOP",
+      "R-INFRA-RETRY-DESKTOP",
+      "R-DIAG-MOBILE",
+      "R-DIAG-CONTROL-DARK",
+      "CR-DARK-FIRST"
+    ],
+    "max_d19_ms": 955533,
+    "max_total_ms": 3480000,
+    "max_physical_playwright_cli_launches": 18,
+    "retry_used": 1,
+    "retry_available": 0
+  },
+  "stop_reason": "setup_log contains an unsanitized credential block or auth header; sanitized native drop log is empty; native Playwright JSON report is empty; native Playwright report contains top-level errors; native report must contain exactly one selected result for render bundle: board-mg-9/populated; native report must contain exactly one selected result for registration waits for explicitly released LiveView readiness; native report must contain exactly one selected result for registration stops when LiveView readiness is never released; native report must contain exactly one selected result for registration fails when the readiness wait is deliberately broken; native report must contain exactly one selected result for registration detects a deliberate same-account collision; native report must contain exactly one selected result for registration retains the first forced assertion failure trace; forced failure trace command has no server-confirmed registration submission; Playwright CLI exit does not match the frozen intended control failures"
+}

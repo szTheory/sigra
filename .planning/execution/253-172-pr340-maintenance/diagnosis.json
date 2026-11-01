@@ -1,0 +1,61 @@
+{
+  "schema": "sigra.phase253.pr340-offline-diagnosis/v1",
+  "status": "offline_reproduced_and_repaired",
+  "actual_attempt_commit": "dc1e552aa",
+  "actual_attempt": ".planning/execution/253-proof-bundle-4734916ee/attempt-result.json",
+  "actual_attempt_sha256": "148210e1df2a33bf36a2a4a54d3e27880fff9f9916610748a492d70792a4047c",
+  "source_sha": "4734916eeca6ce4b5726c740ac468264338cb300",
+  "pr": 340,
+  "run": {
+    "id": 39702539995,
+    "url": "https://github.com/szTheory/sigra/actions/runs/39702539995",
+    "conclusion": "failure"
+  },
+  "defects": [
+    {
+      "id": "collector-skips-required-preflight",
+      "observed": "Both operator rows are now typed shared, but Collector.preflight returned for any shared row and skipped rules, protection and workflow reads.",
+      "reproduction": "preflight-before.log: actual transport + both collectors + independent verifier reproduce exactly one shared fresh preflight is required against a local HTTPS server.",
+      "fix": "Only a complete successful required-check/workflow snapshot is reusable; operator rate/main rows do not replace it. Partial, duplicated or failed snapshots stop before any request.",
+      "historical_verifier_unchanged": true
+    },
+    {
+      "id": "elixir-guard-stale-after-fixture-move",
+      "observed": "Hosted job metadata shows Run contributor CI gate failed. Exact exported candidate reproduces the stale Phase236 Elixir assertion. Detailed hosted logs were not collected before closure, so this is an offline reproduction, not a quoted hosted stacktrace.",
+      "reproduction": "candidate-provenance-before.log: five tests, one failure.",
+      "fix": "The Elixir consumer checks the same explicit source fixture and its recorded origin/digest as the Node guard, preserving the exact three run-backed slots and original known-bad controls."
+    }
+  ],
+  "budget": {
+    "canary_requests": 93,
+    "pr_requests": 30,
+    "canary_seconds": 805,
+    "pr_seconds": 505,
+    "workflow_dispatches": 7,
+    "pr_creations": 1,
+    "canary_jobs": 37,
+    "reruns": 0,
+    "windows_reopened": 0
+  },
+  "requirements": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted"
+  },
+  "browser_report_retention": {
+    "all_five_selection_files_present": true,
+    "full_lifecycle_job": "success",
+    "details": "browser-artifacts.json"
+  },
+  "local_environment_failures_retained": [
+    "candidate-library-after.log: saved database port58624 was unavailable; stopped exact local process",
+    "candidate-library-local-db.log: candidate export lacked Git identity and nested sandbox-exec was restricted",
+    "candidate-library-final.log: disposable checkout HEAD initially pointed at its empty default branch"
+  ],
+  "local_library_result": "candidate-library-verified.log: 2656 tests,33 doctests,3 properties,0 failures,12 skipped,22 excluded",
+  "new_ci_after_halt": 0,
+  "next_command": "$gsd-execute-phase 253 --gaps-only",
+  "next_action": "Continue this same unfinished172 offline; verify full collector suite and prepare exact new-source bundle before any new hosted approval.",
+  "phase_verification_status": "not_started",
+  "new_quick_or_numbered_plan": false,
+  "collector_tests": 113
+}

@@ -1,0 +1,99 @@
+{
+  "scope": "controlled local transport fault; not evidence of original failure cause",
+  "source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "platform": "darwin",
+  "results": [
+    {
+      "mode": "drop_primary_replies",
+      "passed": true,
+      "state": {
+        "readyState": "complete",
+        "connected": 1,
+        "socketConnected": true,
+        "transport": "g"
+      },
+      "events": [
+        {
+          "ms": 110,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 306,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 315,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 561,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "liveview",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 561,
+          "type": "primary_server_reply",
+          "event": "phx_reply",
+          "topic": "phoenix",
+          "status": "ok",
+          "dropped": true
+        },
+        {
+          "ms": 3063,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3357,
+          "type": "response",
+          "status": 200,
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3357,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3358,
+          "type": "request",
+          "method": "POST",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3818,
+          "type": "response",
+          "status": 200,
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3818,
+          "type": "response",
+          "status": 200,
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3818,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3819,
+          "type": "navigation",
+          "path": "/users/register"
+        }
+      ]
+    }
+  ]
+}

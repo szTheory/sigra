@@ -1,0 +1,169 @@
+{
+  "boundary": "d57869d114471921162d453a9db5c75935edea93",
+  "rows": [
+    {
+      "path": ".github/ci-skip-manifest.tsv",
+      "phase253_255_changed": true
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "phase253_255_changed": true
+    },
+    {
+      "path": ".github/workflows/phase-244-playwright-measure.yml",
+      "phase253_255_changed": false
+    },
+    {
+      "path": ".github/workflows/phase-247-hex-dry-run.yml",
+      "phase253_255_changed": false
+    },
+    {
+      "path": ".github/workflows/release-pr-automerge.yml",
+      "phase253_255_changed": false
+    },
+    {
+      "path": ".github/workflows/release-run-observer.yml",
+      "phase253_255_changed": false
+    },
+    {
+      "path": ".planning/STATE.md",
+      "phase253_255_changed": true
+    },
+    {
+      "path": ".planning/estimation-calibration.json",
+      "phase253_255_changed": true
+    },
+    {
+      "path": "CHANGELOG.md",
+      "phase253_255_changed": true
+    },
+    {
+      "path": "lib/sigra/install/features/core.ex",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "priv/templates/sigra.install/core/confirmation_live.ex",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/generated-confirmation-probe.exs",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/honest-skip-verdict.sh",
+      "phase253_255_changed": true
+    },
+    {
+      "path": "scripts/ci/phase-247-hex-dry-run.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/phase-247-hex-dry-run.test.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/refresh-release-docs.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/refresh-release-docs.test.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/release-canary.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/release-canary.test.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/release-candidate-preflight.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/release-candidate-preflight.test.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/release-exact-source.test.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/release-observer.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/release-observer.test.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/release-receipt.test.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/run-playwright-drift.sh",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "scripts/ci/test-sigra-dep-off.sh",
+      "phase253_255_changed": true
+    },
+    {
+      "path": "test/example/priv/playwright/tests/admin-eval.spec.ts",
+      "phase253_255_changed": true
+    },
+    {
+      "path": "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/live/confirmation_live.ex",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/router.ex",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "test/sigra/install/auth_ui_contract_test.exs",
+      "phase253_255_changed": true
+    },
+    {
+      "path": "test/sigra/install/generated_confirmation_ci_contract_test.exs",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "test/sigra/planning/phase_146_release_validation_test.exs",
+      "phase253_255_changed": true
+    },
+    {
+      "path": "test/sigra/planning/phase_222_release_lane_hardening_test.exs",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "test/sigra/planning/phase_234_action_pinning_contract_test.exs",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "test/sigra/planning/phase_234_playwright_inventory_contract_test.exs",
+      "phase253_255_changed": true
+    },
+    {
+      "path": "test/sigra/planning/phase_242_shift_left_contract_test.exs",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "test/sigra/planning/phase_248_release_gate_contract_test.exs",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "test/sigra/planning/phase_248_release_observer_contract_test.exs",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "test/sigra/planning/phase_249_release_docs_contract_test.exs",
+      "phase253_255_changed": false
+    },
+    {
+      "path": "test/sigra/planning/phase_250_canary_contract_test.exs",
+      "phase253_255_changed": false
+    }
+  ]
+}

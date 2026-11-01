@@ -1,0 +1,7 @@
+test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure (__main__.CallerTests.test_every_live_receipt_caller_uses_current_consumer_and_exits_on_failure) ... ok
+test_plan172_other_work_is_unchanged (__main__.CallerTests.test_plan172_other_work_is_unchanged) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.008s
+
+OK

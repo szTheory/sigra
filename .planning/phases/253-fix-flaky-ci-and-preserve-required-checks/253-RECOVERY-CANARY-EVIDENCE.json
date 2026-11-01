@@ -1,0 +1,155 @@
+{
+  "schema_version": "sigra.hosted-gate-canary/v1",
+  "repository": "szTheory/sigra",
+  "expected": {
+    "candidate_sha": "a740517229ffa2d7573d23af76f9e98fadd27f84",
+    "fixture_ref": "refs/heads/gsd/253-recovery-canary-fixture-20261013T164004Z-plan12",
+    "fixture_ref_state": "verified",
+    "workflow_id": 259268962,
+    "workflow_path": ".github/workflows/ci.yml",
+    "workflow_name": "Phase 253 Gate Canary",
+    "workflow_sha": "f15eb9af5668a14995416d8c1ae053c0ec876c62",
+    "workflow_blob": "a09297bc6be68ad412d1ed0e31724e1b707e7e60"
+  },
+  "preflight": {},
+  "budget": {
+    "max_requests": 120,
+    "request_count": 3,
+    "max_jobs": 45,
+    "max_minutes": 60,
+    "started_epoch": 1791909792,
+    "actual_jobs": 0,
+    "elapsed_seconds": 34
+  },
+  "transport_ledger": {
+    "schema_version": "sigra.canary-transport-ledger/v1",
+    "transactions": [
+      {
+        "sequence": 1,
+        "method": "GET",
+        "url": "https://api.github.com/repos/szTheory/sigra/rate_limit",
+        "status": 200,
+        "kind": "observed"
+      },
+      {
+        "sequence": 2,
+        "method": "GET",
+        "url": "https://api.github.com/repos/szTheory/sigra/rulesets?includes_parents=true",
+        "status": 200,
+        "kind": "observed"
+      },
+      {
+        "sequence": 3,
+        "method": "GET",
+        "url": "https://api.github.com/repos/szTheory/sigra/actions/workflows/259268962",
+        "status": 200,
+        "kind": "observed"
+      }
+    ]
+  },
+  "dispatch_inputs": {},
+  "dispatch_input_metrics": [],
+  "preserved_revisions": [
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+      "ref": "refs/gsd/phase253-12-canary-evidence/542ddc0fcce27a24a6be5cfa2041d1c9a21c06f495ae15faaba81901044c9219",
+      "sha256": "542ddc0fcce27a24a6be5cfa2041d1c9a21c06f495ae15faaba81901044c9219",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+      "ref": "refs/gsd/phase253-12-canary-evidence/758f04636b1fa32a365ba660bf075ed21c44e7a593fefe6073c4bae69eec7d8f",
+      "sha256": "758f04636b1fa32a365ba660bf075ed21c44e7a593fefe6073c4bae69eec7d8f",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json",
+      "ref": "refs/gsd/phase253-12-canary-requests/bd37127b8d3f35d39dc8e74e6a41fa2ac09ff9fed161ca786038f0502a6acc04",
+      "sha256": "bd37127b8d3f35d39dc8e74e6a41fa2ac09ff9fed161ca786038f0502a6acc04",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+      "ref": "refs/gsd/phase253-12-canary-evidence/98f4a9c37a9095e9e1fd67d9ac3ae97ad934d2efcce03c5e94a2a1b168db7017",
+      "sha256": "98f4a9c37a9095e9e1fd67d9ac3ae97ad934d2efcce03c5e94a2a1b168db7017",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json",
+      "ref": "refs/gsd/phase253-12-canary-requests/cd1486a56f7b70367f2a76eca72839b63d51c2f45daab6e704537fee48b54ed5",
+      "sha256": "cd1486a56f7b70367f2a76eca72839b63d51c2f45daab6e704537fee48b54ed5",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+      "ref": "refs/gsd/phase253-12-canary-evidence/f9cb9a678626616bcc5c48ee0bf916e8e9e762a44f57c7874d7bbae164f7792c",
+      "sha256": "f9cb9a678626616bcc5c48ee0bf916e8e9e762a44f57c7874d7bbae164f7792c",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json",
+      "ref": "refs/gsd/phase253-12-canary-requests/40cc078dee527bf3769e4bc296154239235575b77154b65927a491bcb620e822",
+      "sha256": "40cc078dee527bf3769e4bc296154239235575b77154b65927a491bcb620e822",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+      "ref": "refs/gsd/phase253-12-canary-evidence/58b0fb7e79eba696697c319ba427ac84c1707fedf02c7c3fc148e27411207709",
+      "sha256": "58b0fb7e79eba696697c319ba427ac84c1707fedf02c7c3fc148e27411207709",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json",
+      "ref": "refs/gsd/phase253-12-canary-requests/f0507b82e5f70718f0c96b184a40006c8fed92fcbec14f7233544a57f7765007",
+      "sha256": "f0507b82e5f70718f0c96b184a40006c8fed92fcbec14f7233544a57f7765007",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+      "ref": "refs/gsd/phase253-12-canary-evidence/2d428299c09e01e07ac9b3a72992f14fb8b6c90ffee987ee7e24890630915665",
+      "sha256": "2d428299c09e01e07ac9b3a72992f14fb8b6c90ffee987ee7e24890630915665",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json",
+      "ref": "refs/gsd/phase253-12-canary-requests/2e8b9e8c7b00c6eeadc0b216955524e6c815669f90b122dc26dcecdc3fc45b9a",
+      "sha256": "2e8b9e8c7b00c6eeadc0b216955524e6c815669f90b122dc26dcecdc3fc45b9a",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+      "ref": "refs/gsd/phase253-12-canary-evidence/2c39c2be7f4a5ee66c30a1d6059c5d31c0b00085771537e4a37d54f34d6ed8c1",
+      "sha256": "2c39c2be7f4a5ee66c30a1d6059c5d31c0b00085771537e4a37d54f34d6ed8c1",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json",
+      "ref": "refs/gsd/phase253-12-canary-requests/11be87a1608a058f0886ee982ad23c9d84db88067110537b300cc54f1ee21085",
+      "sha256": "11be87a1608a058f0886ee982ad23c9d84db88067110537b300cc54f1ee21085",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json",
+      "ref": "refs/gsd/phase253-12-canary-evidence/b2b7eddd5f4ce531a610cc49157825b252c855d7636dd2926b9abd47f38c3a04",
+      "sha256": "b2b7eddd5f4ce531a610cc49157825b252c855d7636dd2926b9abd47f38c3a04",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-EVIDENCE.json"
+    },
+    {
+      "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json",
+      "ref": "refs/gsd/phase253-12-canary-requests/11be87a1608a058f0886ee982ad23c9d84db88067110537b300cc54f1ee21085",
+      "sha256": "11be87a1608a058f0886ee982ad23c9d84db88067110537b300cc54f1ee21085",
+      "status": "?? .planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-CANARY-REQUESTS.json"
+    }
+  ],
+  "scenarios": {},
+  "separate_verifier": {
+    "status": "pending"
+  },
+  "diagnostics": [
+    {
+      "kind": "canary-stop",
+      "message": "fresh effective required-check names differ from the frozen five-name contract"
+    }
+  ],
+  "status": "halted"
+}

@@ -1,0 +1,24 @@
+{
+  "accepted_live": true,
+  "category_counts": {
+    "artifact_downloads": 10,
+    "artifact_metadata": 1,
+    "attempt_jobs": 1,
+    "native_checks": 1,
+    "pr_create": 1,
+    "pr_identity": 3,
+    "pre_watch_rate": 1,
+    "preflight": 6,
+    "run_discovery": 2,
+    "terminal_polls": 8
+  },
+  "family": "normal",
+  "head_sha": "56d413b045e8852d16e119e3a3926f0d08b01d49",
+  "merge_sha": "44c8f97d33a5cce32798d847729c4bebfee5eb6a",
+  "pr_number": 341,
+  "requests": 34,
+  "run_attempt": 1,
+  "run_id": 39706873401,
+  "status": "pr_family_verified",
+  "window_id": "gsd/253-replan-proof-a6838a8f9-prs-1"
+}

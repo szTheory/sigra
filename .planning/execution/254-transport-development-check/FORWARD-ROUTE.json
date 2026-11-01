@@ -1,0 +1,17 @@
+{
+  "checked_at": "2026-10-24T02:33:28.957337+00:00",
+  "command_used": "node /Users/jon/.codex/gsd-core/bin/gsd-tools.cjs query init.plan-phase 255",
+  "next_roadmap_phase": 255,
+  "phase_status": "Pending",
+  "has_plans": false,
+  "has_context": false,
+  "has_research": false,
+  "prerequisite_blocker_reported": false,
+  "next_command": "$gsd-discuss-phase 255",
+  "reason": "The next pending phase can make the repaired failure reproducible and report the literal result. Readiness reported no prerequisite blocker; context/research/plans are absent.",
+  "phase254_implementation_status": "complete",
+  "phase254_comparison_status": "insufficient_data",
+  "phase254_verification_status": "not_achieved_CISPEED_01_02_open",
+  "phase254_not_marked_complete": true,
+  "new_comparison_authorized": false
+}

@@ -1,0 +1,3693 @@
+{
+  "milestone": "v1.49",
+  "status": "archive_bytes_checked",
+  "source_commit": "13cb1e0de2effac476b979fe4c89151812a6d156",
+  "phase_files_verified": 361,
+  "phase_file_hashes_and_mapping": [
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-01-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-01-PLAN.md",
+      "kind": "file",
+      "bytes": 12106,
+      "sha256": "d57b8e6f19cc071c3bba858c3e35ab83452e202d40f18dd3a8c62805e2e2c732",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-01-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-01-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8286,
+      "sha256": "957bcc12cd3b0972d9865e65c180223bfc0c43adb007b64d08ba05a2933b9901",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-01-tdd-red.json",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-01-tdd-red.json",
+      "kind": "file",
+      "bytes": 912,
+      "sha256": "a7fe6155856ec85027b9d68fd275dae2878470178c286d143ca6748ffba9bc81",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-02-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-02-PLAN.md",
+      "kind": "file",
+      "bytes": 12898,
+      "sha256": "dbc71b59a6629492b744e33e55f635857736a29252617981841f0b7f5fd338b5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-02-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-02-SUMMARY.md",
+      "kind": "file",
+      "bytes": 9865,
+      "sha256": "f67e5485a8138917dfb12649b143f558e935d144f9d76119167587b2dd31df14",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-03-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-03-PLAN.md",
+      "kind": "file",
+      "bytes": 16142,
+      "sha256": "7cf8ee8a193c5ae6b1b80ed1a769cca3d2f2be302d95fa24ab9aaf8482096b1d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-03-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-03-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8552,
+      "sha256": "1f146680e75efe77b3b754de730add02b0c18c9eecbe1c9f3330d95732d523a3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-CI-EVIDENCE.json",
+      "kind": "file",
+      "bytes": 13609,
+      "sha256": "66c28407296898426b2cd65df987ebc92d87a9fd95dc2409bdefc548e512236c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-CONTEXT.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-CONTEXT.md",
+      "kind": "file",
+      "bytes": 14107,
+      "sha256": "a7e5df9b3eca404a3bac88a10268b0a883413ed0a90b1e7968790a2df39dc1c9",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-DISCUSSION-LOG.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-DISCUSSION-LOG.md",
+      "kind": "file",
+      "bytes": 4216,
+      "sha256": "f3f6d6cd17f087eacf84534101a821417270bd9b52f82cfd9a4bdf3a6041f4af",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-FORWARD-ROUTE.json",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-FORWARD-ROUTE.json",
+      "kind": "file",
+      "bytes": 1332,
+      "sha256": "8253da8449e2ac8e888e1732a8fcf8689b361d1d3e98bf7e5973c8aa589cfe88",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-MIX-CI-BLOCKED.md",
+      "kind": "file",
+      "bytes": 3880,
+      "sha256": "80226d803953e76cf9385096c32714c922b8ee71402fad1b3b54ff337ea02504",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-MIX-CI-FAILURES.json",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-MIX-CI-FAILURES.json",
+      "kind": "file",
+      "bytes": 5656,
+      "sha256": "2003c9ea8314defbb4a8f62010bdae80d4547998fe11194db1d1fc06f0707b75",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-PATTERNS.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-PATTERNS.md",
+      "kind": "file",
+      "bytes": 15051,
+      "sha256": "1b170740d9fa17819ec5edb0b5466385f901853f91363e7fc8662b070449d644",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-RESEARCH.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-RESEARCH.md",
+      "kind": "file",
+      "bytes": 42455,
+      "sha256": "3a05042468f9c2f7e8d82652067a60895e00c8e266e825e3ae684d6114650079",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-REVIEW-DISPOSITION.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-REVIEW-DISPOSITION.md",
+      "kind": "file",
+      "bytes": 1294,
+      "sha256": "8813de870383f7c1912863609d540800e151eaf1ec4d711a8d3f3c113ebbfd1e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-REVIEW-FINAL.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-REVIEW-FINAL.md",
+      "kind": "file",
+      "bytes": 1987,
+      "sha256": "9b8e7be53cd036d986b06dacc31c251e1c29ff783a92811c2cfe2b1549976842",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-REVIEW-FIX.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-REVIEW-FIX.md",
+      "kind": "file",
+      "bytes": 973,
+      "sha256": "630221f03778df19906a442979870f0ba0ba123ed840d0813410f82a5e30b754",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-REVIEW.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-REVIEW.md",
+      "kind": "file",
+      "bytes": 2472,
+      "sha256": "9de87b62b138b7a03eca717704899bbb79e483d72724e9f7170f5c29fa091893",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-SECURITY.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-SECURITY.md",
+      "kind": "file",
+      "bytes": 4750,
+      "sha256": "7171eeab78cda3cb67dda2ca503fb3b05ea29d1df08b544e569ed64912ccf4f8",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-UI-REVIEW.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-UI-REVIEW.md",
+      "kind": "file",
+      "bytes": 9134,
+      "sha256": "4f852f2503f2f2e913cf5a8320c38e9461edd549d6d1bc15e15567ac5be4e84e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-VALIDATION.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-VALIDATION.md",
+      "kind": "file",
+      "bytes": 7621,
+      "sha256": "56fb54570b1001d70b67f3fcb1864f1c755b34a7c98285ec7bb388f11f6bf336",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/246-VERIFICATION.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/246-VERIFICATION.md",
+      "kind": "file",
+      "bytes": 16416,
+      "sha256": "9d90c546cc3891bd823695450065550f5441b8eb182fa2e1be3dc45506b1570e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/246-generated-confirmation-recovery/continue.md",
+      "target": ".planning/milestones/v1.49-phases/246-generated-confirmation-recovery/continue.md",
+      "kind": "file",
+      "bytes": 2384,
+      "sha256": "24a7886cd5fa2cdcc1c96e1480646d4ca9716a2ce1de5ac75b90c308e903b295",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-01-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-01-PLAN.md",
+      "kind": "file",
+      "bytes": 13471,
+      "sha256": "fe7cfe062434c5754f8c5e93bb0ed14338805edaf0e91c88f6055247f28bbe8c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-01-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-01-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8051,
+      "sha256": "cef88f5f1e3af610708fb4a81060bdcbb0e91c5a5ed2d907f40b9ba88f511d6a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-01-tdd-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-01-tdd-red-evidence.json",
+      "kind": "file",
+      "bytes": 3141,
+      "sha256": "0a88efea8d2fe19ff71aba985b2ed0873a128265b3747e27c22d1006ed6f4cdc",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-02-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-02-PLAN.md",
+      "kind": "file",
+      "bytes": 16404,
+      "sha256": "4619b40da1341c8e02a4d488379e0cb3ab30504a703b032af049b5c0d3f6d44b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-02-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-02-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8336,
+      "sha256": "32248461a914bfa3a8c90b1fd3c21d264eca989d4944fdb08f92a34b0c1d83df",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-03-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-03-PLAN.md",
+      "kind": "file",
+      "bytes": 9697,
+      "sha256": "9fc70625700c13ba4c0b192646d3cb4d8e73268d87f4ce684576435b8f612ae3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-03-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-03-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8291,
+      "sha256": "4e035abdbc56840b56c5cb78db2f168b88b324bb57197d79c7351c9f9148f777",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-04-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-04-PLAN.md",
+      "kind": "file",
+      "bytes": 14611,
+      "sha256": "7e5697a7c43d8d2882958eb1d56f1fe029d71f66d9c9da4c7ebb9f19e3579a8b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-04-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-04-SUMMARY.md",
+      "kind": "file",
+      "bytes": 7010,
+      "sha256": "7165daf86fde90badde108b313d942280a5852ed1305db21a5ff8e5b742e4e7e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-05-PLAN.md",
+      "kind": "file",
+      "bytes": 31263,
+      "sha256": "6665f658132753666861b2a28e4eb845695762a9baed409ed5346041cb1762ac",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-05-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-05-SUMMARY.md",
+      "kind": "file",
+      "bytes": 6249,
+      "sha256": "84a99ff0e48eb98d92be04ed83a32870e26dfa97a4497e096199f40e0d3e3eeb",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-06-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-06-PLAN.md",
+      "kind": "file",
+      "bytes": 14855,
+      "sha256": "1c76a40f4989c2e082f96235c31def92135ea53725ecc863b31393ce9ea274f4",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-06-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-06-SUMMARY.md",
+      "kind": "file",
+      "bytes": 7892,
+      "sha256": "2c4b810f65234dcd4d4e0e042b72094e5f83bc9f37d9baed64ff9bba93c2fee0",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-07-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-07-PLAN.md",
+      "kind": "file",
+      "bytes": 16298,
+      "sha256": "495023361d7e67f212c87f5c5c69ca85e38a5589427d761905d74fc17c2a9d7f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-07-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-07-SUMMARY.md",
+      "kind": "file",
+      "bytes": 7409,
+      "sha256": "eef03ede49f91c9986b7fbb3def2f75519e08923b46f50f2f42201826fac0c30",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-DRY-RUN-RECOVERY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-08-DRY-RUN-RECOVERY.md",
+      "kind": "file",
+      "bytes": 2799,
+      "sha256": "6e527a5977fddbb2672c914d2fc0112bc562642a0c39f871952382b98536123c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-08-PLAN.md",
+      "kind": "file",
+      "bytes": 25664,
+      "sha256": "1aebf29602938cd841805925ed69a7d7fa35ef96d2519ef9f84ebb9906dea14d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-08-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8481,
+      "sha256": "17a12ce02d7a954924c48bfcf65b43efc4ae0f87e0aa3b49155e75a9a774aa84",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-09-LOCAL-RESULT.json",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-09-LOCAL-RESULT.json",
+      "kind": "file",
+      "bytes": 1352,
+      "sha256": "5aa14054659a7a838bdc32cad43000cd0281620b31d4c33ccdb7c482e3f24ba2",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-09-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-09-PLAN.md",
+      "kind": "file",
+      "bytes": 23855,
+      "sha256": "3d57c17db9ee4741a5dd173282472e18d8509340b89b8514ade5526b943c5da1",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-09-PLAYWRIGHT-RESULT.json",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-09-PLAYWRIGHT-RESULT.json",
+      "kind": "file",
+      "bytes": 800,
+      "sha256": "e9517b1a9bd8d2497b282f3ad34c020823198eb10f09239e6f86faa936371c43",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-09-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-09-SUMMARY.md",
+      "kind": "file",
+      "bytes": 3215,
+      "sha256": "52d919e20d4e3d4f16077494b004fb43f5a5fa6573e73db75394df1532ea38df",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-10-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-10-PLAN.md",
+      "kind": "file",
+      "bytes": 22890,
+      "sha256": "789422bc967b71d60d2608ad0ece86e843f3bbdf9880a549844b22e972c18f4d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-10-REBIND-PROPOSAL.json",
+      "kind": "file",
+      "bytes": 10364,
+      "sha256": "980ba5e413efc7ad0b594a44771af2b3f15bac2fdcabfa88aa3db4bf1bcc9452",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-10-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-10-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8296,
+      "sha256": "ecc778f2a90905edcad467ddbf7aa123d496a615790b4eab13956d08cb176ccd",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-11-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-11-PLAN.md",
+      "kind": "file",
+      "bytes": 21298,
+      "sha256": "02a088dc6c0fa270771abfd07a3ff7c6d4a4467a2ae0c101a0ec75ba8d9d58da",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-11-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-11-SUMMARY.md",
+      "kind": "file",
+      "bytes": 4996,
+      "sha256": "e2d51bb3d9a60931f8120306ef7759e654c11166221b74edc7bf51392e7a263a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-CANDIDATE-DIFF-BASELINE.json",
+      "kind": "file",
+      "bytes": 302,
+      "sha256": "9e540e1a90b01ce36b914b91cf3c9e1af273106913c3e55c1a1ca1ce29c78b85",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-CONTEXT.md",
+      "kind": "file",
+      "bytes": 14366,
+      "sha256": "159ef3dbe48ab4b7ee66a7c8b32cba2e04502fad6af478b3fa3d4a5490690233",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-DISCUSSION-LOG.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-DISCUSSION-LOG.md",
+      "kind": "file",
+      "bytes": 7994,
+      "sha256": "7f3ff4968c9f184ba6b152422c09c64f62a7f65d915e79dfcb9393b35577ad19",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-HEX-DRY-RUN-RECEIPT.json",
+      "kind": "file",
+      "bytes": 1645,
+      "sha256": "3685c58429e2fddf33b4cffb0aadb39919d6d567ae15f9508abc7d0590ca7cb7",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-PATTERNS.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-PATTERNS.md",
+      "kind": "file",
+      "bytes": 9288,
+      "sha256": "f3536cacb2ec4497f0486d743e05f9d77c450d65025f0da00a395cd78dba90ee",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-RELEASE-READINESS.json",
+      "kind": "file",
+      "bytes": 5073274,
+      "sha256": "7464b4e00c9a3082887ae1ff83c43414b807eda1e653274ca5bad79c1dca0fc8",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-RESEARCH.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-RESEARCH.md",
+      "kind": "file",
+      "bytes": 46562,
+      "sha256": "446373790f897bc0d336be22d69200d2fe79bbb720bbb2084b16847116b035ba",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-SECURITY.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-SECURITY.md",
+      "kind": "file",
+      "bytes": 3872,
+      "sha256": "b869bbc456641ca3072366b858b261f7f376e450080e0b01cd3daeea77b2d85c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-STALE-HEX-DRY-RUN-RECEIPT.fixture.json",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-STALE-HEX-DRY-RUN-RECEIPT.fixture.json",
+      "kind": "file",
+      "bytes": 1645,
+      "sha256": "8a8707d3b719eb7a91db0df159be9a1c61e8df9f659025b0a8dba2e442d9c418",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-VALIDATION.md",
+      "kind": "file",
+      "bytes": 20091,
+      "sha256": "f1ff60a86690ad45d3732d4a244f298cc4f15b9a7c201275a6af724fa2a2c425",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/247-VERIFICATION.md",
+      "kind": "file",
+      "bytes": 2058,
+      "sha256": "4529597b6cf838dfc8e404cbc531c47b111bfda885e591db15510554c43aaf9c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/validate-release-readiness.mjs",
+      "kind": "file",
+      "bytes": 71870,
+      "sha256": "52e396a85971e5dbb836f0aa4013d9c4aca9816a86f5aad2ca254447c6469c33",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+      "target": ".planning/milestones/v1.49-phases/247-release-candidate-and-repository-readiness/validate-release-readiness.test.mjs",
+      "kind": "file",
+      "bytes": 36898,
+      "sha256": "211bf20bb8925a7ab601afc3729d303705d3bc9204c4797bdfd9ceb0e8e7110b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-01-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-01-PLAN.md",
+      "kind": "file",
+      "bytes": 9196,
+      "sha256": "0528723d1e70afe6611de309a7d34ae7e8286adc77a5b829829e9a0e41cb671e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-01-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-01-SUMMARY.md",
+      "kind": "file",
+      "bytes": 5453,
+      "sha256": "eeaab7267965afc123caece3afda675dfbee178bf856fe16aa74f079b2ae5b8c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-02-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-02-PLAN.md",
+      "kind": "file",
+      "bytes": 12042,
+      "sha256": "e239fb912f0944a461031d75cfa661ea6dff1b925b16341114b6dd11a5a65af0",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-02-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-02-SUMMARY.md",
+      "kind": "file",
+      "bytes": 9268,
+      "sha256": "a775d134fb6e52e7794394cc3a2616bbbba0b88587fbf70018834b71b0e904a0",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-03-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-03-PLAN.md",
+      "kind": "file",
+      "bytes": 19581,
+      "sha256": "d34ea13a774be3220d22c269a0b7782ce812ab533635aec0187276cc812a545b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-03-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-03-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8157,
+      "sha256": "ab9ef393e66c1dd7f43a6dce088ebc3addff9c33ddf1c9caf6281595ed6b1782",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-04-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-04-PLAN.md",
+      "kind": "file",
+      "bytes": 10566,
+      "sha256": "414fb50dbb2cc0ce78e869b98e6e343009dbc969541649ff7e02f91e80de306f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-04-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-04-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8770,
+      "sha256": "865ddbdfe45ae4533d730c1ee422be62c9196ec1c2eca582e1f86c2a1f36a6df",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-05-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-05-PLAN.md",
+      "kind": "file",
+      "bytes": 20417,
+      "sha256": "4280b0e478e6497ae3f5c05e3490cd14d0550d616f5a390f3bef079dbe13b874",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-05-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-05-SUMMARY.md",
+      "kind": "file",
+      "bytes": 7763,
+      "sha256": "a4e4c21c4e0ca0f73e440fe136950ef9a1c9aa304a5b6629351acd6eebc7888a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-CONTEXT.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-CONTEXT.md",
+      "kind": "file",
+      "bytes": 14655,
+      "sha256": "186c79c42a4e07dc1994b5d4d9a9cd156fb678530bc50ab5883cae746ffab611",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-DISCUSSION-LOG.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-DISCUSSION-LOG.md",
+      "kind": "file",
+      "bytes": 5269,
+      "sha256": "6f0223bb4a86a08d88af614f3cb60a6e66248e49cc8653b74973aa7e15a0d676",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-PATTERNS.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-PATTERNS.md",
+      "kind": "file",
+      "bytes": 17235,
+      "sha256": "41ac3558177d1eb6dd5b6281b8a599261a5bd960accdda350d5d4ff67074dfdb",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-RESEARCH.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-RESEARCH.md",
+      "kind": "file",
+      "bytes": 52791,
+      "sha256": "794576df94d07befc15b096388314e0f1ff724b50adc852cf8e94e0d03ff87a3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-REVIEW-DISPOSITION.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-REVIEW-DISPOSITION.md",
+      "kind": "file",
+      "bytes": 1500,
+      "sha256": "eb2eb1660aa0f1147b53f0a0be3f570fc4f84dd0768013df7012e3fa26a6f8cf",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-REVIEW-FIX.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-REVIEW-FIX.md",
+      "kind": "file",
+      "bytes": 1888,
+      "sha256": "e3c265a8b2e9131e356b6fa6900458da195b699ef1d12f5d569ba8a4119a01bd",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-REVIEW.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-REVIEW.md",
+      "kind": "file",
+      "bytes": 4358,
+      "sha256": "522b49dbcc462f93c07369fa2717ea47bc9ffe402112f77bad51b7edfea510f5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-SECURITY.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-SECURITY.md",
+      "kind": "file",
+      "bytes": 6019,
+      "sha256": "bdf72741dbb284b0634d8a3209ce5ca7fab6e03a6f0294affe9ac57b7266c0af",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-UI-REVIEW.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-UI-REVIEW.md",
+      "kind": "file",
+      "bytes": 2992,
+      "sha256": "275b1d24d012000b2eeb9111d5e2c27140e0966709e1580a602ab58c964a11d9",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-USER-SETUP.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-USER-SETUP.md",
+      "kind": "file",
+      "bytes": 2301,
+      "sha256": "67f42dc3b80d8837110ed5911f133b3673ac4045c7d6b6df922883a491707baf",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-VALIDATION.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-VALIDATION.md",
+      "kind": "file",
+      "bytes": 15923,
+      "sha256": "086267acb7d2b17db7520c57416a9e6231d9f28512e53bbad1cb80dca9642a8e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/248-VERIFICATION.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/248-VERIFICATION.md",
+      "kind": "file",
+      "bytes": 23079,
+      "sha256": "7274e9017ba6e46d5f919d4acc478698b344f21caf1203975f7574c7acde06ad",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/248-exact-source-release-gate/COVERAGE.md",
+      "target": ".planning/milestones/v1.49-phases/248-exact-source-release-gate/COVERAGE.md",
+      "kind": "file",
+      "bytes": 188,
+      "sha256": "86beddd640fef48d67f8eb3988e393e927746006555b886f0320b5f1deac4f30",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-01-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-01-PLAN.md",
+      "kind": "file",
+      "bytes": 10074,
+      "sha256": "b4343fcde4ce20b95709bf655f27991d129acf62a47fb016c8fd3b6d0d963deb",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-01-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-01-SUMMARY.md",
+      "kind": "file",
+      "bytes": 4704,
+      "sha256": "a58e5dbb6b5d4f40af534d3d361edebe1ec89529e68732050f2a6ac6b4f2c595",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-02-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-02-PLAN.md",
+      "kind": "file",
+      "bytes": 9643,
+      "sha256": "b22245172e81ccaef88cb410ad20f1c2b88b306733286ea1a9f1ddff50285422",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-02-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-02-SUMMARY.md",
+      "kind": "file",
+      "bytes": 6928,
+      "sha256": "56e7f3f73a398bbea4a43ca388b7e42f654d7fcf1d82bb5f4b767d824755069e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-02-TASK-1-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-02-TASK-1-RED.json",
+      "kind": "file",
+      "bytes": 1448,
+      "sha256": "89fcf91e405e4aa06b912f8244f75f437d0b7b509833de384b5f88697232f81e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-02-TASK-2-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-02-TASK-2-RED.json",
+      "kind": "file",
+      "bytes": 3325,
+      "sha256": "b7b46fce636449ee30380c3b806468cab8fb0bf7e81d6a3c6ff3177e6caa7e41",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-03-PLAN.md",
+      "kind": "file",
+      "bytes": 11534,
+      "sha256": "a484f63c35e877cec692dba534bc128f889c6e1e3d7e1579e3c170608459d452",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-03-SUMMARY.md",
+      "kind": "file",
+      "bytes": 7281,
+      "sha256": "c15177263b0848d1f387d26013808e03c6834f6965f87d9c405163b457b2e8d3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-TASK-1-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-03-TASK-1-RED.json",
+      "kind": "file",
+      "bytes": 2190,
+      "sha256": "f910ef3f8f488a04073a0f9675129767ff8b33634a4d7b28d56ea8df370660bf",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-03-TASK-2-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-03-TASK-2-RED.json",
+      "kind": "file",
+      "bytes": 2069,
+      "sha256": "734a0aa64c0d150cfc175354d1be5ea20da06971eabae9dca6cbe590e48cba22",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-04-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-04-PLAN.md",
+      "kind": "file",
+      "bytes": 9548,
+      "sha256": "f431794fd0e710441625255879a7c7610d24252020567cfac892f628256be51f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-04-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-04-SUMMARY.md",
+      "kind": "file",
+      "bytes": 2138,
+      "sha256": "7e09412a4ff59ad5faf5d9259dbfdadec230cb2df7067d581efadc8fab2c2088",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-04-TASK-1-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-04-TASK-1-RED.json",
+      "kind": "file",
+      "bytes": 14535,
+      "sha256": "94c817f0303ec9a5edfa2d37a67acd5a06ff18cd67abcd241c315ab94b1ab284",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-05-PLAN.md",
+      "kind": "file",
+      "bytes": 12592,
+      "sha256": "4cbb4ff43986451373dc74f696dff0e8eff60ec7a77ee849e0105b371a3a87ea",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-05-SUMMARY.md",
+      "kind": "file",
+      "bytes": 3541,
+      "sha256": "6fde2d0d443b62e9166df22be30fbc820893108f547cff34de8167e1f2199551",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-1-GREEN.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-1-GREEN.json",
+      "kind": "file",
+      "bytes": 555,
+      "sha256": "6204d407316f6ac67616a98dc9404ea579aa50a0f6afc8ef2a08ef0a5c86d2a6",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-1-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-1-RED.json",
+      "kind": "file",
+      "bytes": 554,
+      "sha256": "fa9c89eb09428cc96837fd7762b0b70e5c03cf8300462e37323577c803356406",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-2-GREEN.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-2-GREEN.json",
+      "kind": "file",
+      "bytes": 545,
+      "sha256": "9620156ea1ba1f398ac2f30aa9fcfc90c9c3ff335c2f0ddcb151804a159ece04",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-2-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-05-TASK-2-RED.json",
+      "kind": "file",
+      "bytes": 583,
+      "sha256": "e8d5756582ffe75dffc46809142d3c452bc67c337fdfe1eee8f4e3747a92f8aa",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-05-VALIDATION.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-05-VALIDATION.json",
+      "kind": "file",
+      "bytes": 3563,
+      "sha256": "0ad89b52ab380ba15c934021811a58247c8bd103f135320dcc26499921af55d2",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-06-PLAN.md",
+      "kind": "file",
+      "bytes": 15426,
+      "sha256": "3df44bfa931fb0d8c9cfbc7b8e44ea38de7c90348236b20b4623023f703088a1",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-06-SUMMARY.md",
+      "kind": "file",
+      "bytes": 4266,
+      "sha256": "123ff8d2d105ee0024e926b4576f9dad41947e3b1f9fe9030a0a961bc28bfed5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-1-GREEN.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-1-GREEN.json",
+      "kind": "file",
+      "bytes": 525,
+      "sha256": "f519e72aba8c29bfdcf5e075041c457e65f6bc2f43cbc9fb89e0c298d8696076",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-1-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-1-RED.json",
+      "kind": "file",
+      "bytes": 625,
+      "sha256": "3693b43d5c55de9a390386193576006290267933be5f4ee753dec44477f981bd",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-2-GREEN.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-2-GREEN.json",
+      "kind": "file",
+      "bytes": 525,
+      "sha256": "64d84c54ce93b8c08b307145beac2a54066df80960370c80eb9aec4466590241",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-2-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-06-TASK-2-RED.json",
+      "kind": "file",
+      "bytes": 622,
+      "sha256": "102b0b7f3513f828556afbfe733c05e1179e5774c49cabf477cd8d0910219414",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-07-PLAN.md",
+      "kind": "file",
+      "bytes": 9547,
+      "sha256": "90256a35f8d2762d82c01e6e6e18871cf597d48aef1f89a262dac05765cee13a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-07-SUMMARY.md",
+      "kind": "file",
+      "bytes": 6497,
+      "sha256": "6f3b074ff241d68c725e90d56bd13ab19fba6fbd0944e41b0fc5cfd63045beaa",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-TASK-1-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-07-TASK-1-RED.json",
+      "kind": "file",
+      "bytes": 3680,
+      "sha256": "ea5261ad7b3c1a27aad032fb4b23bb329f582e13a12f52c76cd0ed238c8f9e8d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-07-TASK-2-RED.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-07-TASK-2-RED.json",
+      "kind": "file",
+      "bytes": 1824,
+      "sha256": "c396949804bd6131c1390274c4dedd2fea10359e04b91b64ef0ff5c908af0191",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-08-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-08-PLAN.md",
+      "kind": "file",
+      "bytes": 15511,
+      "sha256": "6fe247763b4ce700c03a43ce739ff0af3ed38facbab22e6a6194b68b8d012b85",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-08-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-08-SUMMARY.md",
+      "kind": "file",
+      "bytes": 9917,
+      "sha256": "c2975a137ca42585f1258236456cb7bff85fefc40890bde4c6b7e0ef21578a4f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-09-CANDIDATE.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-09-CANDIDATE.json",
+      "kind": "file",
+      "bytes": 5951,
+      "sha256": "ee5abfba7d231cce5c2abbbf2c8dae021f6d5bf9d8d9a3bad6ed00fab2b6ba3d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-09-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-09-PLAN.md",
+      "kind": "file",
+      "bytes": 10224,
+      "sha256": "4e4746998235e84b3a61e8f9b8149a504585b49ddd1bf2caf63475a8732a8721",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-09-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-09-SUMMARY.md",
+      "kind": "file",
+      "bytes": 6625,
+      "sha256": "826bd80c585b668e7534427f8347c6c6f27a75f16582557327f5e14caba99a7f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-CANDIDATE.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-10-CANDIDATE.json",
+      "kind": "file",
+      "bytes": 6588,
+      "sha256": "191d7f571b47d748c83f5c189e76db029de9b032b131b939d804ca16d6683fb4",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-10-PLAN.md",
+      "kind": "file",
+      "bytes": 9663,
+      "sha256": "3c5c45f295c61b8e4bf5c5b735441cf24ba3d7f395dafdf2192ec3241b9097b6",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-10-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-10-SUMMARY.md",
+      "kind": "file",
+      "bytes": 5097,
+      "sha256": "64ace8f8f57e5390d595acc693251c24c51c8f8e9aebfe4cc9b0a5fe2d899ce9",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-11-PLAN.md",
+      "kind": "file",
+      "bytes": 13299,
+      "sha256": "f00b2309e83adbc1c8f58f7a3daa405ba69dbdc14141817ab224fe2f3b41465c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-11-SUMMARY.md",
+      "kind": "file",
+      "bytes": 4269,
+      "sha256": "2117cbe021688d731b60f2f939f780549c63f1da655dd5fe750f56b5f9300a07",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-12-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-12-PLAN.md",
+      "kind": "file",
+      "bytes": 19898,
+      "sha256": "bc4492ed24d58993ef7bffbf56bc9897512ed2ac5b6208051ccb2ff0073c0bda",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-12-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-12-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8688,
+      "sha256": "09a030ea8066fac5c0a01a95caae6d989e1e98db75dc8fa8e5823a05633b4f42",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-CLOSEOUT.json",
+      "kind": "file",
+      "bytes": 511899,
+      "sha256": "49d94a35b3b23e6dfd38844bfe7d2238e1d798f72a62668e2bbf82629643428b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-CONTEXT.md",
+      "kind": "file",
+      "bytes": 14810,
+      "sha256": "82c3446744b8cf3a2323c1014a67fc6b2b233dd754be79b8aec4bfd930bd79be",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-DISCUSSION-LOG.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-DISCUSSION-LOG.md",
+      "kind": "file",
+      "bytes": 3850,
+      "sha256": "eb0dac8c12bfce67fe83c65685653d953c6441070617daab1433b10a368e4cab",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-ACCEPTANCE.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-ACCEPTANCE.json",
+      "kind": "file",
+      "bytes": 51333,
+      "sha256": "e2a8af755798e8d5ca1e3cca38a619666faa53f7ac32ea9dad13df2ad1043c17",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-FINAL-MAIN-PROOF.json",
+      "kind": "file",
+      "bytes": 5746,
+      "sha256": "9228e81eb0145a1a97099d89be85d14f7514c07731401a6f681bc14c6f1b38cb",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PATTERNS.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-PATTERNS.md",
+      "kind": "file",
+      "bytes": 13199,
+      "sha256": "a00753baf5beab19f23a6e0ec09c308141f628d5118d76cb557c902a54e5fd6e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PREFLIGHT.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-PREFLIGHT.json",
+      "kind": "file",
+      "bytes": 3824,
+      "sha256": "92077bcb6582d2c8ca3467c476081455e7bed0660ce05b8b25cffc8b8dd96843",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-PRESERVATION.json",
+      "kind": "file",
+      "bytes": 233374,
+      "sha256": "2d06c607a815ffc05fb78f3a79861d22a81ce7bd4a397920eceb5c3e5feb915d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-RELEASE-RECEIPT.json",
+      "kind": "file",
+      "bytes": 1574,
+      "sha256": "c1a58f6a36656194387b0006dac9aab447d8f445cce9b060dcfb638ba6c4fff5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-RESEARCH.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-RESEARCH.md",
+      "kind": "file",
+      "bytes": 49852,
+      "sha256": "296bd7aa5fcb549df9990b8566c99db252cbb7e4458bfe632e2e4c817a85f20d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-REVIEW-DISPOSITION.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-REVIEW-DISPOSITION.md",
+      "kind": "file",
+      "bytes": 594,
+      "sha256": "f198f1e449776a93c662985576ba7a52e3f740288b18dcc5a7181435e15a712a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-REVIEW.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-REVIEW.md",
+      "kind": "file",
+      "bytes": 1340,
+      "sha256": "cb368e0fc9bb56b7cef6527b0e8b317b2fab96fd762f3c3f7cdd7b0e4d995aae",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-SECURITY.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-SECURITY.md",
+      "kind": "file",
+      "bytes": 8435,
+      "sha256": "6ca110e814d39e24c6b5642618aed07a665467c85ac2fd43d8dd5f89e2eaf267",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VALIDATION.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-VALIDATION.md",
+      "kind": "file",
+      "bytes": 15836,
+      "sha256": "3497379bcdb02492dd6d7db8075d89e8e7ab36c65e5d3ef24a44684a0a294c75",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/249-VERIFICATION.md",
+      "kind": "file",
+      "bytes": 36502,
+      "sha256": "1245ce7bfc639c102cb50ac4dfc96a12ca5773393aa664fdcdef51e2db74dd74",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/COVERAGE.md",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/COVERAGE.md",
+      "kind": "file",
+      "bytes": 2338,
+      "sha256": "49338992418f374eaf8a29d3506cdda9359a8f934b23f9231a158ca2b5d0f128",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.mjs",
+      "kind": "file",
+      "bytes": 128907,
+      "sha256": "bfd708abb9981f1dc73478acc4324a1916bd3937d666b23ccdc663da1e4e1b0d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+      "target": ".planning/milestones/v1.49-phases/249-publish-and-prove-sigra-1-6-0/validate-closeout.test.mjs",
+      "kind": "file",
+      "bytes": 54982,
+      "sha256": "6d1044ba9b50f8eab2c34604a7f2264493e3adbb2c934f7742e8968de93253b9",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/.gitkeep",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/.gitkeep",
+      "kind": "file",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-PLAN.md",
+      "kind": "file",
+      "bytes": 16032,
+      "sha256": "70094dc9914fa490a9696cc4db17e1839772329adc6c2e48036e9e1276ce5b0b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-SUMMARY.md",
+      "kind": "file",
+      "bytes": 8589,
+      "sha256": "72b29cc7f9ff167a1102c4f1550b10d9b951c1620bd3d488b34cbbad8930b61a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-TASK2-RED.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-01-TASK2-RED.json",
+      "kind": "file",
+      "bytes": 7038,
+      "sha256": "4897281c04e24cc7a5b4288ec741f8f9f97a55e3208e0b520ef931e499ea30c7",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-PLAN.md",
+      "kind": "file",
+      "bytes": 11307,
+      "sha256": "9a8a0d03a5f505992ef2f55d3f174026f5782516fcc9783add0740a29812ff4b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-SUMMARY.md",
+      "kind": "file",
+      "bytes": 9723,
+      "sha256": "9f8b83cf3c5c82e4ca8c2445882f7c75a3d4a8c547c1ec2070fa5ccb84032702",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-TDD-RED.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-02-TDD-RED.json",
+      "kind": "file",
+      "bytes": 1875,
+      "sha256": "d12dcd2acd447a3a5cc462d5bc1daa0aad779d66c6ace352835938b6cdc202bb",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-PLAN.md",
+      "kind": "file",
+      "bytes": 10324,
+      "sha256": "2117313bc7a4380167ebfac80cbf8c91945ccd3e7aff7788f1e83247b8f2d05d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-SUMMARY.md",
+      "kind": "file",
+      "bytes": 9398,
+      "sha256": "8e5c76c9084a2688215a0503e80a7ea6c0d8dea5e1e96efe257d1f06d0c3e20e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-TDD-RED.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-03-TDD-RED.json",
+      "kind": "file",
+      "bytes": 8219,
+      "sha256": "3c1a915a9a008f8e9ee8d82dd7906d4388723261dee4c5d2295d71ea2d77367c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-PLAN.md",
+      "kind": "file",
+      "bytes": 11696,
+      "sha256": "ebd6908c86fb059f74368f7a64a9bc19694269286690566ea79245899742b500",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-SUMMARY.md",
+      "kind": "file",
+      "bytes": 7445,
+      "sha256": "eb62b86090c746c7d058791784352098c15ef57ce3fe3ac3a1e910eab69fa455",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-TDD-RED.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-04-TDD-RED.json",
+      "kind": "file",
+      "bytes": 6134,
+      "sha256": "7af5235dcf41a76cd66e04d51a99c639ab482dc01198ac10c20f19e08eb44d8e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-CURRENT-INVENTORY.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-CURRENT-INVENTORY.json",
+      "kind": "file",
+      "bytes": 1701,
+      "sha256": "24e310f8e3bd325bfd9769190cf4cf4d4d9fb7ffeeafedb70f4c20f9bf278930",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-PLAN.md",
+      "kind": "file",
+      "bytes": 15175,
+      "sha256": "2336783e30eb5c05a135dda775ce0b225bf9adbce8b4b3b2e7bfbd426b9b9377",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-SUMMARY.md",
+      "kind": "file",
+      "bytes": 6980,
+      "sha256": "022719a2e1ebd3ce41bf6342c5b3db15d59ea466362fbbe63315e73a06632fe7",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-TASK-1-RECONCILIATION.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-TASK-1-RECONCILIATION.json",
+      "kind": "file",
+      "bytes": 1631,
+      "sha256": "8373621a6904dd3de92a2a57c30a314ab4cad3393839ddab01554abfaf7b5116",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-TASK-2-RED.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-TASK-2-RED.json",
+      "kind": "file",
+      "bytes": 4825,
+      "sha256": "a7961c5e89a82d2da8fdf1ec230bfe2bebd334e041f73222ab6ee9958a9921b4",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-TASK-2-RED.tap",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-05-TASK-2-RED.tap",
+      "kind": "file",
+      "bytes": 3841,
+      "sha256": "009ea431e16440aa8c9bfa5cd7cd62e61ad87aa856c7a2c33bc017ad598ddc71",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-06-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-06-PLAN.md",
+      "kind": "file",
+      "bytes": 10271,
+      "sha256": "f6005f1260e5c0f0e68638a9ee3f634217e697333789bf7fdcbe1700872f6bd2",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-06-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-06-SUMMARY.md",
+      "kind": "file",
+      "bytes": 6321,
+      "sha256": "14a201ddc4818b2790dda9b742d2e5630f9191c1fe080f5310074e7bd8d09f64",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/cancellation-11702216188.zip",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/cancellation-11702216188.zip",
+      "kind": "file",
+      "bytes": 603,
+      "sha256": "57d3d1667a61483edbe85182fee995697fdb3c502de2c5f97ab464cc24529707",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/cancellation-receipt-38137614523.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/cancellation-receipt-38137614523.json",
+      "kind": "file",
+      "bytes": 1039,
+      "sha256": "ed5adb5ac6d1b0a0b12cf7a328c8789d9b99951badeb0aabd71e1791ea7840c3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/controller-11702305814.zip",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/controller-11702305814.zip",
+      "kind": "file",
+      "bytes": 665,
+      "sha256": "c6a0381a4663e38a3f60fa431dd50194767620bfe56ca17cf34dbfdaf6565526",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/controller-proof-38137539834.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/controller-proof-38137539834.json",
+      "kind": "file",
+      "bytes": 1298,
+      "sha256": "31845ad8407aef21d304525c7fb6c93a8d707d53ee117cbff980c69010277508",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/failure-11701436633.zip",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/failure-11701436633.zip",
+      "kind": "file",
+      "bytes": 534,
+      "sha256": "94cc44aaa38388e89bb4790e504328ff70c0a163d90ed6301be7a8e912c5565e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/failure-receipt-38137550871.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-ARTIFACTS-38137539834/failure-receipt-38137550871.json",
+      "kind": "file",
+      "bytes": 801,
+      "sha256": "d3c09829c42dd4dbe55a10e16a1a75432cdf04e7077afd0b6948f1283dd28d6d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-ARTIFACT-RETRIEVAL-38135003478.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-ARTIFACT-RETRIEVAL-38135003478.json",
+      "kind": "file",
+      "bytes": 5563,
+      "sha256": "fc90e673be5070c0b6e4933f48d551364b6cd7f6d37d9a52b863047d78c5de19",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-ARTIFACT-RETRIEVAL-38137539834.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-ARTIFACT-RETRIEVAL-38137539834.json",
+      "kind": "file",
+      "bytes": 3227,
+      "sha256": "10f35836f8233a0258bfe29f5d95ba8a8acd60efd746af4999c97eb932d2d8be",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-33fccd8.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-33fccd8.json",
+      "kind": "file",
+      "bytes": 9735,
+      "sha256": "6eae864e8c9dd5afcda4f7ed9c5e29cecc32185f9833626e62fe9d5d4877f9d1",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-9cb1c48-consumed.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-9cb1c48-consumed.json",
+      "kind": "file",
+      "bytes": 14712,
+      "sha256": "c4e909c889d63ffe359a741a6194e8c5ace6738120e693be2d7c3e48157e2ab7",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-9cb1c48-prerefresh.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-9cb1c48-prerefresh.json",
+      "kind": "file",
+      "bytes": 9435,
+      "sha256": "66c3a16f769f3a8de2499969a1fe3eeaa30914e7c082cc999681a043fa658e3f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-v4-consumed.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-v4-consumed.json",
+      "kind": "file",
+      "bytes": 17904,
+      "sha256": "7142736b9cc51dc4ea8bdfeaf671903a8b63e16a342a39aa8d8523aff636426f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-v5.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-SUPERSEDED-v5.json",
+      "kind": "file",
+      "bytes": 14513,
+      "sha256": "b592d088881cd1a2ed6ea2e848f3168206fd79d953431722834d9eaab9cde287",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v6.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v6.json",
+      "kind": "file",
+      "bytes": 16914,
+      "sha256": "2e6805e7050267c18dfcb0273a21b678c26eb2d2b4421daacbc6845cdb7a6f50",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET-v8.json",
+      "kind": "file",
+      "bytes": 6781,
+      "sha256": "0ff7cb08354750e1b5f24c9a46e258c99c93342285958a41abfdc33e4638f628",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORITY-PACKET.json",
+      "kind": "file",
+      "bytes": 20193,
+      "sha256": "208ea69cc0dbd0fd352a9ab298b983c1f3e0985a0910eb8cc9779b61b80d719f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORIZATION-DECISION-v8.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-AUTHORIZATION-DECISION-v8.json",
+      "kind": "file",
+      "bytes": 4045,
+      "sha256": "3929673c2fae1f9d783ce00c15ec1229646576c165d125f70c9d3bbe5f562c8b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-38135003478.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-38135003478.json",
+      "kind": "file",
+      "bytes": 1448,
+      "sha256": "404bdd15c0d3059e34dee908ff23b14c745509606649f2d8b380b083ee16393c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-PREPARATION-v8.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-PREPARATION-v8.json",
+      "kind": "file",
+      "bytes": 2126,
+      "sha256": "4d66cc1bd52ae218bde0f8a41f1bf78e0beccf545a13837b6ec6edaed5f7aad2",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-REQUEST-v8.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-REQUEST-v8.json",
+      "kind": "file",
+      "bytes": 802,
+      "sha256": "cda7e0eb2b3ee9851f4101d78d6d4160e44aa28d076d6cb070b4db7271383f6d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-SUBMISSION-v8.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-DISPATCH-SUBMISSION-v8.json",
+      "kind": "file",
+      "bytes": 738,
+      "sha256": "086732400ae9a77273198970558b44755aa9cd3d55d48337e8b68650b6b96e45",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T114545Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T114545Z.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "044e8b4050b7602e6b39fd7d40764690257278900c3c73ddddc2ffcdc41e9ede",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T115503Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-84ebcea-20261011T115503Z.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-IMMEDIATE-VALIDATION-20261011T115503Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-IMMEDIATE-VALIDATION-20261011T115503Z.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-PRESERVATION-20261011T115340Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-PRESERVATION-20261011T115340Z.json",
+      "kind": "file",
+      "bytes": 992,
+      "sha256": "2de1f2d305b1824ea9ab2185ba6a76e55efeb0ef7c6ac0c8caffdbc1b089b679",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-VALIDATED-84ebcea-20261011T115503Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-VALIDATED-84ebcea-20261011T115503Z.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-VALIDATION-BLOCKED-20261011T115340Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PREFLIGHT-VALIDATION-BLOCKED-20261011T115340Z.json",
+      "kind": "file",
+      "bytes": 612,
+      "sha256": "9d430ec500a36d792f1506863dfaaf4895863445431ad511e68be672f6407508",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PROOF-38087516844.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PROOF-38087516844.json",
+      "kind": "file",
+      "bytes": 1295,
+      "sha256": "4bae9aa3677e1535637a315ef5e5958166b274bffb5365bd6e39d96b87194ffb",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PROOF-38135003478.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-PROOF-38135003478.json",
+      "kind": "file",
+      "bytes": 1300,
+      "sha256": "a59435ae47b3327eb3d6b3ebab4e5f74630f62ab797905e19867c5e925752fbe",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38087516844.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38087516844.json",
+      "kind": "file",
+      "bytes": 4501,
+      "sha256": "cf552002ed566aa32c5b9a0921cb59cfded03b242d6aa7580b819fb29b7c94a5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38091955379.json",
+      "kind": "file",
+      "bytes": 7540,
+      "sha256": "80c83aaf5be91f76e7be4dcd535134621acaac6d9b946bc1e6b3d515802b0474",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38137539834-IN_PROGRESS-OBSERVATION.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38137539834-IN_PROGRESS-OBSERVATION.json",
+      "kind": "file",
+      "bytes": 884,
+      "sha256": "8dde48953b0a55a35132cde9d35d25b44872c8caee0f254238747fd1b246936c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38137539834.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-RUN-38137539834.json",
+      "kind": "file",
+      "bytes": 884,
+      "sha256": "8dde48953b0a55a35132cde9d35d25b44872c8caee0f254238747fd1b246936c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-TERMINAL-38137539834.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-CANARY-TERMINAL-38137539834.json",
+      "kind": "file",
+      "bytes": 2245,
+      "sha256": "f5baa9779222ef66e48c2ba13e090885d8f0b0405e0f7a3cda3a4cf219af537c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-EXECUTION-BLOCKER.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-EXECUTION-BLOCKER.json",
+      "kind": "file",
+      "bytes": 2664,
+      "sha256": "2f3155691e5444acb8e8cd7e773962045d0e109f303bd95ee79c0adcc22b5ad5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-FAILURE-RECEIPT-38087529909.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-FAILURE-RECEIPT-38087529909.json",
+      "kind": "file",
+      "bytes": 801,
+      "sha256": "09a735dc1ee8dcdfd44a648ae0f5aca3ecb84000151f94646572f4b788b8bd4a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-FAILURE-RECEIPT-38135014843.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-FAILURE-RECEIPT-38135014843.json",
+      "kind": "file",
+      "bytes": 801,
+      "sha256": "503b00b675a16ce4a34cec2e646ae0af3b6aadb0cf1185220bdd5f29d61e8e07",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-DISPATCH-REPAIR.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-DISPATCH-REPAIR.json",
+      "kind": "file",
+      "bytes": 2700,
+      "sha256": "2cde3bb2e98a7a863d41ca26f5827e8b70b6783b40368131284fca1a5d29dd21",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-PARSER-REPAIR.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-OBSERVER-PARSER-REPAIR.json",
+      "kind": "file",
+      "bytes": 3902,
+      "sha256": "6feab0bf814812fc6c29a964efc480ea3709d9a2b6e93fe2e8e4292aa010e0b8",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PLAN.md",
+      "kind": "file",
+      "bytes": 13655,
+      "sha256": "b515584abe1ebb0c876c7eb649ea13529d7c73d83cd88cfc5c396d55ef70f0a3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PREFLIGHT-DELIVERY-REPAIR.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PREFLIGHT-DELIVERY-REPAIR.json",
+      "kind": "file",
+      "bytes": 3267,
+      "sha256": "7e49884aef122cdcb0f37d8d38bd992ad04559695d322d255394fa745f0d07d6",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PREFLIGHT-DELIVERY-REPAIR.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PREFLIGHT-DELIVERY-REPAIR.md",
+      "kind": "file",
+      "bytes": 5290,
+      "sha256": "e8502387c2284c12d1650c5b65436b4864678825f084be5e523b60f2f22c81a3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PREFLIGHT-PRESERVATION-20261011.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PREFLIGHT-PRESERVATION-20261011.json",
+      "kind": "file",
+      "bytes": 1328,
+      "sha256": "311fc0cc5e60531ce4d03fc16e58691c595b8f5e785ceedf3831fbf19ff36a35",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PROOF-HISTORY-PRESERVATION-20261011.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-PROOF-HISTORY-PRESERVATION-20261011.json",
+      "kind": "file",
+      "bytes": 1271,
+      "sha256": "16bf586d70696431b80b198a5db7fb18d6e9d6bbbddb9051079c451f1ff3b644",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-84ebcea-20261011T114701Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-84ebcea-20261011T114701Z.json",
+      "kind": "file",
+      "bytes": 2170,
+      "sha256": "de02a0d9cb888214792b52d847755b4615a168e8eb3e0604aa924c70d9b791c3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-REPAIR.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-REPAIR.json",
+      "kind": "file",
+      "bytes": 3275,
+      "sha256": "d0558316de18492a310d71ffddd10f7cc1f5130510a4577b1ad2cf0283996145",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-REPAIR.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-REPAIR.md",
+      "kind": "file",
+      "bytes": 3343,
+      "sha256": "759ef7f69d31ed09aeb14c73244261e16350961b66fb78aae8b24761dd959904",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-ff96768-20261011T0323Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SOURCE-IDENTITY-ff96768-20261011T0323Z.json",
+      "kind": "file",
+      "bytes": 4075,
+      "sha256": "f47daee40a947ee38e11533f56e86ee9bedd370a5a0a75457b014e6db0d573b8",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/250-GAP-EXECUTION-CHECKPOINT.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/250-GAP-EXECUTION-CHECKPOINT.json",
+      "kind": "file",
+      "bytes": 12666,
+      "sha256": "e33ccd88fa0df4eba452e193d0dfe90166db201db53d943417da1edc8a07b8ef",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/HANDOFF.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/HANDOFF.json",
+      "kind": "file",
+      "bytes": 40567,
+      "sha256": "c3517aa5ce006afa2424da7692a22550433173e609b0800db713336c009232b5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/PRESERVATION.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/PRESERVATION.json",
+      "kind": "file",
+      "bytes": 4645,
+      "sha256": "7f7881232bfb825c3cd366facf5c38b8d5493ec554798d48ba474b83b5a56253",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/STATE.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/STATE.md",
+      "kind": "file",
+      "bytes": 157674,
+      "sha256": "c2907b7d4a91c6949fd2f4e91b92be2137369dd78b9f78e69697675f08c1a937",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/state.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-STATE-HANDOFF-SNAPSHOT-20261010T210600Z/state.json",
+      "kind": "file",
+      "bytes": 1366,
+      "sha256": "6160188004f420235d2b8e6a6aaf543117c2502d685a27f9019902aa28f44dd5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY-HALTED-HISTORICAL-20261011.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY-HALTED-HISTORICAL-20261011.md",
+      "kind": "file",
+      "bytes": 5433,
+      "sha256": "067372f8fa8fbf25098a1b276db01750763a7f0b95a22e70c6af253a1efcc074",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY-HISTORY-20261011.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY-HISTORY-20261011.json",
+      "kind": "file",
+      "bytes": 639,
+      "sha256": "e0fa55bc4219fe2730bf5219280e3322799b8294fe9d067c20ecfef723dc1038",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-07-SUMMARY.md",
+      "kind": "file",
+      "bytes": 7038,
+      "sha256": "d6bae19393686f5679fd81b479d51e3de97a8a975c1ae05ec8e09568dcb3ce31",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-PLAN.md",
+      "kind": "file",
+      "bytes": 11725,
+      "sha256": "b4c1f377dc37309eb575ebca0bbb634ece30ff3699cd1b82f2b37cf9783fad6f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-08-SUMMARY.md",
+      "kind": "file",
+      "bytes": 2789,
+      "sha256": "4fe2c5c4ef0e5806126a76c12a73e2636b05eb6a5e2845877a9f4346d0686f11",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-09-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-09-PLAN.md",
+      "kind": "file",
+      "bytes": 16439,
+      "sha256": "3c7fce439b93ca54ae3ca1173336c598cfd24ce721a08ff10dbb0e5306ec9549",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-PLAN.md",
+      "kind": "file",
+      "bytes": 17000,
+      "sha256": "f740522ecce0c2ab17c9c292d5062cba69a967474b90ce2426fec4073fd5457a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-10-SUMMARY.md",
+      "kind": "file",
+      "bytes": 11056,
+      "sha256": "086e06f3b600ca4c3084c6cbf49eb480e3ed90e4b77068c3396f65388af8b866",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-11-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-11-PLAN.md",
+      "kind": "file",
+      "bytes": 12242,
+      "sha256": "d0a21b5489994d04ca115c602aaa51ea7e1982d4b42847c334f8729c3e9e11fb",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-12-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-12-PLAN.md",
+      "kind": "file",
+      "bytes": 13463,
+      "sha256": "ec166ebb4cf5e67f63d4031fef93a894a26ae04b02aaa6d852ad9bbb4c3dfcc2",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-CLOSEOUT-AUDIT.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-CLOSEOUT-AUDIT.md",
+      "kind": "file",
+      "bytes": 13689,
+      "sha256": "648f291c683b88bf94c071160519d79976bc666a10dbcc87503f78b3f96e0f0e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-EXECUTION-RESULTS.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-EXECUTION-RESULTS.json",
+      "kind": "file",
+      "bytes": 2947,
+      "sha256": "df9cdf6c14ce6901316b665367c6524af8530b52c6775f54c6b2ce3126d548c4",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-PLAN.md",
+      "kind": "file",
+      "bytes": 19868,
+      "sha256": "7f7c42f7da29d4fb4d22d40ab80c7658f37e676afa15cc6bb23878cb38f574cb",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-13-SUMMARY.md",
+      "kind": "file",
+      "bytes": 3067,
+      "sha256": "ce13c9f7b3ee85aa909bfa3869e32100a49b33086f5cf6fe55d90d8a34afeef0",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-CHILD-SUPPLEMENTAL-MOBILE-PLAYWRIGHT-REPORT.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-CHILD-SUPPLEMENTAL-MOBILE-PLAYWRIGHT-REPORT.json",
+      "kind": "file",
+      "bytes": 31797,
+      "sha256": "11cd478a7a3fd11ca9850abb6be9113974040574903e52ebf069c1d0c4f5d8fa",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-PARENT-MOBILE-PLAYWRIGHT-REPORT.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-PARENT-MOBILE-PLAYWRIGHT-REPORT.json",
+      "kind": "file",
+      "bytes": 17161,
+      "sha256": "4c774b9d2439abd608213f381ee93f178127d16b1f926ad1f0cc06632a560db3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-RECONCILIATION.json",
+      "kind": "file",
+      "bytes": 16533,
+      "sha256": "1e532d16385b8276e473d20ec98723f9015d4ccecc258f7b406c82d0084360c4",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-ROUTING-RECONCILIATION.json",
+      "kind": "file",
+      "bytes": 5460,
+      "sha256": "da42f405f5ac78510bc045741416d19091d79669d287d8860a1a2ddc01041952",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-247-TUPLE-DECISION-PACKET.json",
+      "kind": "file",
+      "bytes": 18697,
+      "sha256": "8bd91219652636f38780847daaa417908f6d8b9dda9d003cf0789978ab53c660",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-248-SOURCE-SNAPSHOT.json",
+      "kind": "file",
+      "bytes": 19088,
+      "sha256": "87e5681a5ae24a3cce32ef4d0a7e8e3e14c66b07ee871762f68bab2e789ea223",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-CURRENT-PROOF-DIAGNOSTIC.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-CURRENT-PROOF-DIAGNOSTIC.json",
+      "kind": "file",
+      "bytes": 37720,
+      "sha256": "8944e075e02989700ccb9d0a1fba8b6937df2a74e63bf336214a3599b5fbc066",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-249-SOURCE-SNAPSHOT.json",
+      "kind": "file",
+      "bytes": 82755,
+      "sha256": "c78756977c05d8f13e1cf5de5c174852e90b33b42f71a82a39364c08985bd09d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-ACCEPTANCE-AMENDMENT.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-ACCEPTANCE-AMENDMENT.json",
+      "kind": "file",
+      "bytes": 3966,
+      "sha256": "e8a1a8f346f4d002bddddcab8859c8a202eaae9ddb72e2dedc8eaca33d123eb0",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-CONTROLLER-PROOF-38059620443.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-CONTROLLER-PROOF-38059620443.json",
+      "kind": "file",
+      "bytes": 1305,
+      "sha256": "bcd1292967c87c2ecef0095cabbcfd41f0027a1f2e9d88638ed9f70e364684b2",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-CONTROLLER-PROOF-38083752867.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-CONTROLLER-PROOF-38083752867.json",
+      "kind": "file",
+      "bytes": 1336,
+      "sha256": "60fbcafa3d8663babb08cda6c989d0e192ffb9ec8031c8e4096d9dd86ce5a216",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936-refresh-20261010T223159Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936-refresh-20261010T223159Z.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "9788d1f5ac9b2bbee1fb75331c79ad7953008d4e5a0a5b62d0d47cf64b487cb9",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-1b420936.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "c17c2ac0f4a4f86062e27e236a025942e8e93fe503f335fb4dd1ffb3d8ea486e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-HISTORICAL-9cb1c48-20261010.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-HISTORICAL-9cb1c48-20261010.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "9f5d5a8599b0c07d8d8c409b0307253e14a2dab9ad25fa8a2f7bee62cf648539",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-SUPERSEDED-33fccd8.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-SUPERSEDED-33fccd8.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "b2f0de837a735f809207291be98510cbed85051f9f9fa8156f17479cb0ebcc7b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-SUPERSEDED-9cb1c48-prerefresh.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-SUPERSEDED-9cb1c48-prerefresh.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "4b4e6532a2b0fa53b49317c194d88f6812ea4b00e2b00a06b9c0be40da948bf8",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-e0c66d6-refresh-20261010T230919Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-e0c66d6-refresh-20261010T230919Z.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "96c92236157ba4eb99fdc5f0f37ecd97a4033f02d7accbbabf3623109247630c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T023636Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T023636Z.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "dab2c900dffac98aac07e9767f27496d16a4a4fa69777d993ceece86142746c5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T032312Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T032312Z.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "2b131e3b8df4a7219b74992de9ead09bf2c95d7729b1753bfc08851dc7fbf20f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T034118Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T034118Z.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "afe2a3f87b373267f4997547c86711d03e2b405e986a251a2cccf030356470e3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T111036Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT-ff96768-refresh-20261011T111036Z.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "00317a71840eb2d0277d162c1f9dcb00bbe97e29b4dfe3df6a28708fba5cf1d9",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PREFLIGHT.json",
+      "kind": "file",
+      "bytes": 979,
+      "sha256": "3430fb617e4dd9f7f4ae1c4b9181816f475e194f12fa94c6574465f7ef63d953",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-38137539834.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-38137539834.json",
+      "kind": "file",
+      "bytes": 5741,
+      "sha256": "a3ee9f4604c071788a69d2b97db49c52f616cec6cec4a65472241ae3b086f27c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-ATTEMPT-38054862873.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-ATTEMPT-38054862873.json",
+      "kind": "file",
+      "bytes": 4918,
+      "sha256": "5d80dd349b3e7c5b42c40a64d9e133daa8819536f59f5e1e9315caf1ec356348",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-BLOCKED-38059620443.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-BLOCKED-38059620443.json",
+      "kind": "file",
+      "bytes": 6124,
+      "sha256": "b483da84a7cc0c6650bda74b146779fe220911aec6b35ff3c78c5c1e702e8644",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-BLOCKED-38083752867-HISTORICAL.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF-BLOCKED-38083752867-HISTORICAL.json",
+      "kind": "file",
+      "bytes": 6272,
+      "sha256": "bacee6c2b3f9a7c789a10835a2a76f233d90505195c88e2c5fdc254c87cd86a4",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CANARY-PROOF.json",
+      "kind": "file",
+      "bytes": 7191,
+      "sha256": "6eb5fb2e373d2bca6efd3dc9161793e4a3ca0f260bfcf4f6a208aa3c40952289",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CHECKPOINT-PRESERVATION.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CHECKPOINT-PRESERVATION.json",
+      "kind": "file",
+      "bytes": 1560,
+      "sha256": "bc7fa6181bdb2f09669eefb2f97c391ff65001cb699214cc42cdd3f4723fb451",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CONTEXT.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-CONTEXT.md",
+      "kind": "file",
+      "bytes": 14684,
+      "sha256": "dfda7a8f4bb6fefff6681cb6d6f0dd20d906a50c73de434431dbb01f16887efd",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-DISCUSSION-LOG.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-DISCUSSION-LOG.md",
+      "kind": "file",
+      "bytes": 4295,
+      "sha256": "325410d7ddb720338c29fb332c4a13e96b33bd1b472b9883006795f179025837",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-EXECUTION-OUTCOME.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-EXECUTION-OUTCOME.json",
+      "kind": "file",
+      "bytes": 5988,
+      "sha256": "43e3520f34caa9d97920a2c1f467c955ec23b9b479f2f1433bafabac863a715a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-EXECUTION-CHECKPOINT.json",
+      "kind": "file",
+      "bytes": 33942,
+      "sha256": "166ea9e85ac1ad0025f71107f41db16d9c377bcb8573e60107f548887e0d684f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLAN-COVERAGE.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLAN-COVERAGE.md",
+      "kind": "file",
+      "bytes": 9407,
+      "sha256": "6a71eb6fa5082fc568f074eba4d0130e640c4a370f6aa2a37831b20f1645270c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-EVIDENCE.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-EVIDENCE.json",
+      "kind": "file",
+      "bytes": 81970,
+      "sha256": "3acb59940bb9efc6fec902fc7cc1c8c859cc4377e70150745c4071287e2a7d52",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011.json",
+      "kind": "file",
+      "bytes": 3099,
+      "sha256": "3f3a077ac6ff80c285003a6aeb2fa1051e04f941006baa64e6d97101f973f3b3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T030026Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T030026Z.json",
+      "kind": "file",
+      "bytes": 3217,
+      "sha256": "d0630d5c4853c07ee404e9317de2ea6ad120fca0dd2e8b1606c21137c7f6f137",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T1148Z.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-GAP-PLANNING-OUTCOME-20261011T1148Z.json",
+      "kind": "file",
+      "bytes": 2296,
+      "sha256": "49ae2645eacc9fc785c3d3c79d037c40f3bd66fe82f4af6bea10c5c7a538d239",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-PATTERNS.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-PATTERNS.md",
+      "kind": "file",
+      "bytes": 11289,
+      "sha256": "2bafb4495605851448f1aef4d3bb74d6ccfe71eb4ba73c029979efa59bb2056c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-POST-HOOK-EVIDENCE.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-POST-HOOK-EVIDENCE.json",
+      "kind": "file",
+      "bytes": 3522,
+      "sha256": "a0d62136fbc65caebd86c04e5c8b1d5277c0919daf0815b37368661fcca2b8b7",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REGRESSION-EVIDENCE.json",
+      "kind": "file",
+      "bytes": 11791,
+      "sha256": "fc075fa8f756de27e47e930b4d6a9be71269e9a79f433919cc910f3160b33460",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-RESEARCH.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-RESEARCH.md",
+      "kind": "file",
+      "bytes": 51099,
+      "sha256": "59d3511f302af9a32af63917db64ec677aae8e6b2dc6ca58f136eff6054a0a99",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-DISPOSITION.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-DISPOSITION.md",
+      "kind": "file",
+      "bytes": 3658,
+      "sha256": "c8b6ff7e11b594f35d92b13486e6ffbccac2116638e9414df8a14f586f1c8454",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-FIX.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-FIX.md",
+      "kind": "file",
+      "bytes": 10698,
+      "sha256": "b9503213ba773b8f4df86ae283be1308bab0b8ec200fb9c6d0f0f3b11ae7f818",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-RECHECK-2.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-RECHECK-2.md",
+      "kind": "file",
+      "bytes": 7205,
+      "sha256": "ba6148e7f29462cc10f140ed3420e63d27302d1fc44a9db08b2dffa39146a6eb",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-RECHECK-3.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-RECHECK-3.md",
+      "kind": "file",
+      "bytes": 3421,
+      "sha256": "e98eb47d43116b5d80c3466a170ae35ddf0acd29dfbaf192f114a85bcc5fb913",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-RECHECK.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW-RECHECK.md",
+      "kind": "file",
+      "bytes": 7683,
+      "sha256": "17f532706bd7c684a4859dd94ca5bc22c88e4e5ae5016e64186928bbfffa11b0",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-REVIEW.md",
+      "kind": "file",
+      "bytes": 9872,
+      "sha256": "bfd57a34a49aef6a61c4bc678ff3b82e9b8f53cc250f52b51e2085dc35a23ea1",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SAFE-RESUME-RECONCILIATION.json",
+      "kind": "file",
+      "bytes": 9398,
+      "sha256": "71c00917b04ce7ad4f39292918aeb1a7dbebc72cd411edbf977b6d247ff3fb28",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SECURITY.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SECURITY.md",
+      "kind": "file",
+      "bytes": 7886,
+      "sha256": "7f29f679a3a78a570951ad60354b6b52fbf147d234e8c67cde6b1d34a04f7931",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-SEPARATE-RELEASE-1.7.0-OBSERVATION.json",
+      "kind": "file",
+      "bytes": 4867,
+      "sha256": "280b5f584c21fc5bbcb8deecb75c142ab8333ee1eee899fc104e363b8b938192",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-UI-REVIEW.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-UI-REVIEW.md",
+      "kind": "file",
+      "bytes": 606,
+      "sha256": "559753abce97206721567dd9d48c91980eb7900a48b453a00c7e0a3b3ad7720d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VALIDATION.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VALIDATION.md",
+      "kind": "file",
+      "bytes": 3260,
+      "sha256": "a6da282052b6ff257ab2b9fe52ac4d40bf97b111cf6f2ed9f73affb16153e027",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/250-VERIFICATION.md",
+      "kind": "file",
+      "bytes": 2691,
+      "sha256": "0c9be15104116c30b41d048cbd33e546c6d673bc80636e4e5a8ba68d43ce8b88",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/COVERAGE.md",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/COVERAGE.md",
+      "kind": "file",
+      "bytes": 2598,
+      "sha256": "f43d19a4a51f7fc4cc84caef5dcccb136eaa6723dfe4d6c255772376c7595224",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.mjs",
+      "kind": "file",
+      "bytes": 101211,
+      "sha256": "536243396a482dae7c4ca27763fc1481dbf25e320eb192f847f83b1a681f093f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-247-readiness.test.mjs",
+      "kind": "file",
+      "bytes": 56733,
+      "sha256": "7d57657ee97381a7cee7edc634e32ec2250cf6ad66ca52c61948fd6c2512b79d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.mjs",
+      "kind": "file",
+      "bytes": 54324,
+      "sha256": "0d7552f481fc70377546b11221b79849c95999a41d2568ebecf0165d96aca59e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.test.mjs",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-248-release.test.mjs",
+      "kind": "file",
+      "bytes": 31275,
+      "sha256": "2d3db1429ebbc00713f29e891ea6f4c09fda2b7e0fd454ea5f970c9ee0c33206",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.mjs",
+      "kind": "file",
+      "bytes": 37338,
+      "sha256": "781984356bffa6f5779c809c1c67c1aa7825926fe433279a7fcf4f5cd9a3f6f7",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-249-release.test.mjs",
+      "kind": "file",
+      "bytes": 14366,
+      "sha256": "8e33ba8c220b7903fb0d1246fd1a8d088bbb0ba09206f9ff3e49408d606611a9",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.mjs",
+      "kind": "file",
+      "bytes": 91242,
+      "sha256": "b19de9d2ea961b0b08d93268f2acd6803aacdba93fa3b14f0f68c8eb7de79a06",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+      "target": ".planning/milestones/v1.49-phases/250-close-v1-49-audit-gaps-reconcile-phase-247-248-249-verificat/verify-v149-traceability.test.mjs",
+      "kind": "file",
+      "bytes": 59667,
+      "sha256": "bc36e4b4486448531f13eaa55688929eecd174fc890c1f2d88a89f84fa591cc5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/.gitkeep",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/.gitkeep",
+      "kind": "file",
+      "bytes": 1,
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-PLAN.md",
+      "kind": "file",
+      "bytes": 43894,
+      "sha256": "7ad88bd1b7d1252aef74be944eb1c66138abb41fe9cf1efce068e2723fc1418a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-01-SUMMARY.md",
+      "kind": "file",
+      "bytes": 9553,
+      "sha256": "cbed1444d620e7304e671b2ef330175519fdf17fefb08d04a8479241b2404f6f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-PLAN.md",
+      "kind": "file",
+      "bytes": 15340,
+      "sha256": "ba381922373cbb1acf5c8058d881cd84dc3e5ae20df7e31cda19f974fb8411a1",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-SUMMARY.md",
+      "kind": "file",
+      "bytes": 9200,
+      "sha256": "f7c0d17043f9886ef0845ba23f448f8b59c77f50b00b28054754207cba82c688",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-task1-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-02-task1-red-evidence.json",
+      "kind": "file",
+      "bytes": 2402,
+      "sha256": "df5fb5abfb8801356274851fcb41b7b836e9086c98e1bd39d7db900162953094",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-PLAN.md",
+      "kind": "file",
+      "bytes": 8523,
+      "sha256": "f1ab5a6fc78754dc35172ba50a157368e05f0719423e582bb2e5382a5c2c8a1d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-SUMMARY.md",
+      "kind": "file",
+      "bytes": 6568,
+      "sha256": "963cb8ca20c4b63556725221541f67dd86925ccfa66a65bc3c5e109380f1fa9e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-task1-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-task1-red-evidence.json",
+      "kind": "file",
+      "bytes": 8463,
+      "sha256": "97a199935dec67fe73f087beb67e95b98b1878ea880343f3f6124958ddc39e56",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-task2-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-03-task2-red-evidence.json",
+      "kind": "file",
+      "bytes": 8985,
+      "sha256": "7b555fcf46037ac403047d5e24c9c7f6f640eaf89a4328f5ed9247aa0f29bb4d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-PLAN.md",
+      "kind": "file",
+      "bytes": 10051,
+      "sha256": "b944f3dab7adbb80f27bafcfff9e77fd07ed59cf29aa9775868ce7056d7d0cc1",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-SUMMARY.md",
+      "kind": "file",
+      "bytes": 6705,
+      "sha256": "0810b4287adf627b63982d100f282d7c3a152f13bb127e80cc074287cdf0c38c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-task1-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-task1-red-evidence.json",
+      "kind": "file",
+      "bytes": 1937,
+      "sha256": "d726dc59ff24cdbb6a84e615120074987c8bb60842c8a85834e17de6acc54c5a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-task2-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-04-task2-red-evidence.json",
+      "kind": "file",
+      "bytes": 2347,
+      "sha256": "4cffcee3faeac9bb570caaa0466acc21697c0100cd7aa265ecec8de0265b759b",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-PLAN.md",
+      "kind": "file",
+      "bytes": 15008,
+      "sha256": "b4f1566e2c705d998edcd4c22b3d2e648f678f06d21d96afa038ce797dc09ab5",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-SUMMARY.md",
+      "kind": "file",
+      "bytes": 9460,
+      "sha256": "443484654fb4560a6e458a1dde5bcfa70a089eaceda65c4cecd3b50584b30472",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-task1-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-task1-red-evidence.json",
+      "kind": "file",
+      "bytes": 11731,
+      "sha256": "10c47f9932c0157139d46c119d47a5535fe4bf7916326c1378566c81da49b7ee",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-task2-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-05-task2-red-evidence.json",
+      "kind": "file",
+      "bytes": 2129,
+      "sha256": "983443476014fefb5d751468638bcc77e2ce966569492ed5263e9d2030796785",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-PLAN.md",
+      "kind": "file",
+      "bytes": 12989,
+      "sha256": "5cdf701d74aadb98a1f402871f4ab410062c71a4c1a84fb4e9e10526dc7f20e9",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-SUMMARY.md",
+      "kind": "file",
+      "bytes": 7205,
+      "sha256": "a803cc7031e16d13a051d0e1ce12e0bb235913b99bf3aae8cf9bbfa4cc29ec31",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-task1-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-task1-red-evidence.json",
+      "kind": "file",
+      "bytes": 2052,
+      "sha256": "b76583bdbe0215d5e52f461fe96089c42846fafa6a90d5a7a38c9a905e26eb5e",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-task2-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-06-task2-red-evidence.json",
+      "kind": "file",
+      "bytes": 2015,
+      "sha256": "da680013ab9b3369de20c6111d14dcd61e97829e89de394876f5e3bcc0b97a18",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-PLAN.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-PLAN.md",
+      "kind": "file",
+      "bytes": 17479,
+      "sha256": "67c8b4fc5057c1da762975c0afe88503f9f1120a18816a20e00928a9775dd6d8",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-SUMMARY.md",
+      "kind": "file",
+      "bytes": 10419,
+      "sha256": "8f3e82a5e088eadb8c8dc48f9788169087310710d0efd8046d327b835ff54dc6",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-task1-red-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-task1-red-evidence.json",
+      "kind": "file",
+      "bytes": 9773,
+      "sha256": "ba98a36a3e5646b8923e6127541f8e2517e1872f1f868d7a1a9248835c46ccad",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-validation-evidence.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-07-validation-evidence.json",
+      "kind": "file",
+      "bytes": 4628,
+      "sha256": "b593cb35c3d953e4a88450bd17a670030cc836625c9a2c72f31bc9cb30c5f8f8",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-247-RECONCILIATION.json",
+      "kind": "file",
+      "bytes": 4451491,
+      "sha256": "fc1ff22f496c41b6baf01c0ec15480dd3cbaecdc6f94fecf769feab414910140",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CONTEXT.md",
+      "kind": "file",
+      "bytes": 16069,
+      "sha256": "3b6d2e3b202106907f06a71aca30ed40e5eba45666322b163c561ecf4254c410",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CR04-CR07-REGRESSION-RECEIPT.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CR04-CR07-REGRESSION-RECEIPT.json",
+      "kind": "file",
+      "bytes": 12271,
+      "sha256": "cecb751699a63786c8664f26adc24e2eed6ec6788696194d4b07cb16d93961c1",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CR08-REPRODUCTION.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-CR08-REPRODUCTION.json",
+      "kind": "file",
+      "bytes": 559,
+      "sha256": "65b5c0e1ac148faa2976cfffdbfd49d343b420850417739660facc16b1cf57f2",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-LOG.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-LOG.md",
+      "kind": "file",
+      "bytes": 6464,
+      "sha256": "9294b156ded2b469679b86221a1aa1b7318c2f54768359e3af8a6b1c4b81956d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-RESOLUTION.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-DISCUSSION-RESOLUTION.json",
+      "kind": "file",
+      "bytes": 19499,
+      "sha256": "5de750140c17b3cfde432687efae2ae3f6d3196589d2eb5fe15e916d832b4ec1",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-FEASIBILITY.json",
+      "kind": "file",
+      "bytes": 99529,
+      "sha256": "f3d2067afbe16299122d32f1741bcfcd98a564e450bbfa93c69badbb4c6042a9",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-SUMMARY.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-EVIDENCE-SUMMARY.md",
+      "kind": "file",
+      "bytes": 1811,
+      "sha256": "0d459c90a3049a1f57de1122a052e94a72469ab5c67c3d856a0fe90ca4cdac48",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-CLOSEOUT-CHECKS.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-CLOSEOUT-CHECKS.json",
+      "kind": "file",
+      "bytes": 1503,
+      "sha256": "64c30257931ce667dbef2c8156a95cc2571746d150963dac4695c9f112e276ba",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-EXECUTION-OUTCOME.json",
+      "kind": "file",
+      "bytes": 8840,
+      "sha256": "0e482a6b372e5e144d11f6b9be59296a83ec663a8d0d7a94b74d5977b946f56d",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-PLANNING-CLOSEOUT-CHECKS.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-PLANNING-CLOSEOUT-CHECKS.json",
+      "kind": "file",
+      "bytes": 1616,
+      "sha256": "d74cb2abc28b825a0ca96fc2f8b18ce33060aefbaf30fe283179e8cf3a6910b7",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-PLANNING-OUTCOME.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-PLANNING-OUTCOME.json",
+      "kind": "file",
+      "bytes": 58238,
+      "sha256": "56d0b24562dcfbebce571eb00bad3050eb705b35f5237d5b1086d2b5e498a65f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-RESULT.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-RESULT.json",
+      "kind": "file",
+      "bytes": 4429,
+      "sha256": "b3ca03307df835a830d86d168f0f5d596c34c88b3e1ecab22e9aeeba7539c651",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-mix.log",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-mix.log",
+      "kind": "file",
+      "bytes": 672,
+      "sha256": "6120c13f4ddf73f74d58d57f93ba94c1cf0b7cc80e903ff73729f67a5067abaf",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-node.log",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REGRESSION-node.log",
+      "kind": "file",
+      "bytes": 20019,
+      "sha256": "35f6c4775880c3252e1d20c67b9a11b52476fd6e8e6261ecc6c7f4da6be0c190",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CAPTURE.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CAPTURE.json",
+      "kind": "file",
+      "bytes": 2831,
+      "sha256": "24f43fb11ce9541841fd516f542b1358acd8f3e85a0150805d2736e283a99c42",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CHECKS.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CHECKS.json",
+      "kind": "file",
+      "bytes": 102392,
+      "sha256": "538cb4852a3b7adebb58bad5ca7c8bba57e17a9402abbe67cdb56353123e2f83",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CLOSEOUT-CHECKS.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-CLOSEOUT-CHECKS.json",
+      "kind": "file",
+      "bytes": 48493,
+      "sha256": "4a2f193fc1f8afb268d1c788782547c827e08fde0c45e653e8b74cd2b11b65c8",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-EDGE-COVERAGE.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-EDGE-COVERAGE.json",
+      "kind": "file",
+      "bytes": 1530,
+      "sha256": "91fd09bf33e0d092ad92efa6efc4e375e3d1f7d39d361a16c75c831fe7aca8de",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-REPLANNING-INCONCLUSIVE.json",
+      "kind": "file",
+      "bytes": 7968,
+      "sha256": "e0c97cb7a357928b6013d4d35e3598c5312795e31e9e47b2a62fa93355c17413",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-WAVE3-CHECKS.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-GAP-WAVE3-CHECKS.json",
+      "kind": "file",
+      "bytes": 734,
+      "sha256": "7d860b1fbef51b84d33d98cd873a1e8c0eb3f808c12c10ccb07ddd9aee677d36",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-PATTERNS.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-PATTERNS.md",
+      "kind": "file",
+      "bytes": 15825,
+      "sha256": "4ed15fa389ba4ec800903eff5643d3bb9ecb07744615532cc75ed34c9cbcdee6",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-RESEARCH.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-RESEARCH.md",
+      "kind": "file",
+      "bytes": 35423,
+      "sha256": "0880b403771f845c07d8cce01f8d2040dccf738bd3c9a02d952c725699ffb431",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW-DISPOSITION.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW-DISPOSITION.md",
+      "kind": "file",
+      "bytes": 4138,
+      "sha256": "4b122cff8c36b274f37be2a45f346d6d73070c6c68fd27e2c8ef6193c726b085",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW-FIX.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW-FIX.md",
+      "kind": "file",
+      "bytes": 9070,
+      "sha256": "b101180ea1406bd325132431ae15e096865e9fd0b31be24d7a5ccb4ea006fe91",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-REVIEW.md",
+      "kind": "file",
+      "bytes": 2390,
+      "sha256": "1d51025305c949e61a3bb7aaa7dd3f7637adf60dc1c903afffbc2e20be542157",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-AUDIT-GAPS.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-AUDIT-GAPS.json",
+      "kind": "file",
+      "bytes": 5934,
+      "sha256": "438860c4a8ce5c0169d0143f6c26110c756d639ed6ae6d4b0653fd52ea15cd77",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-CLOSEOUT-CHECKS.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-CLOSEOUT-CHECKS.json",
+      "kind": "file",
+      "bytes": 7603,
+      "sha256": "e1ac09b1a818f117158bd15cce948b75a825ce3e2ec3523390b99c70f89a6a3a",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-FINAL-CHECKS.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-FINAL-CHECKS.json",
+      "kind": "file",
+      "bytes": 7462,
+      "sha256": "26e6e140b01939aebc7b07f740439e4003a25b6e89a1afd51793cc414c4e6be3",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-RECHECK-1.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-RECHECK-1.json",
+      "kind": "file",
+      "bytes": 6056,
+      "sha256": "8bf57318b2c8ee8a894ecf91bbf93282903ae0b8d0f1490a7882a1ebcdcf078c",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-RECHECK-2.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY-RECHECK-2.json",
+      "kind": "file",
+      "bytes": 6118,
+      "sha256": "f02017951d50f772653a43216198597c1b2b15ce55f7f196c2af57d1dc3d8fc2",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-SECURITY.md",
+      "kind": "file",
+      "bytes": 3576,
+      "sha256": "f0fb228d9d75aebc34d387a5794851b176012b643f461bb3e6ece671716b6600",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-UI-REVIEW.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-UI-REVIEW.md",
+      "kind": "file",
+      "bytes": 2528,
+      "sha256": "f833465e2b578675e64fb3393843c36425eb9093345a6f1b6b67e3b8ebdf4a52",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION-SECURITY-RECHECK.json",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION-SECURITY-RECHECK.json",
+      "kind": "file",
+      "bytes": 569,
+      "sha256": "0a3f1185bd769b58f4014fb72efc87231857945402fdd519ccf2aff93f1cbfb8",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VALIDATION.md",
+      "kind": "file",
+      "bytes": 23371,
+      "sha256": "cd199f0d917f8ca1f1e734177c7bffb93c40f99971fcff5b9562652b614e7d8f",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION-PRESERVED-20261011T2129Z.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION-PRESERVED-20261011T2129Z.md",
+      "kind": "file",
+      "bytes": 17053,
+      "sha256": "a6eb68a2ab2973d874bb201cdda9597c71525aa0a0e85e07f61ecefa263051cb",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/251-VERIFICATION.md",
+      "kind": "file",
+      "bytes": 20828,
+      "sha256": "ad029735945db49585226d237274cc8f1ffd329b2f6ea7a3684d6d221d2e0e47",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    },
+    {
+      "source": ".planning/phases/251-close-ready-01-and-ready-02-release-readiness-gaps/COVERAGE.md",
+      "target": ".planning/milestones/v1.49-phases/251-close-ready-01-and-ready-02-release-readiness-gaps/COVERAGE.md",
+      "kind": "file",
+      "bytes": 1510,
+      "sha256": "63f09c14ed7d0841428fb9d25795631b6a183dea6152c971455986962e483766",
+      "tracked": true,
+      "recovery_ref": "13cb1e0de2effac476b979fe4c89151812a6d156",
+      "read_back_verified": true
+    }
+  ],
+  "roadmap_snapshot_exact": true,
+  "strict_audit_exact": true,
+  "requirements_original_bytes_retained": true,
+  "READY01_checkbox_unchecked": true,
+  "READY02_checkbox_checked": true,
+  "three_tracking_snapshots_exact": true,
+  "archive_cli_result": {
+    "version": "v1.49",
+    "name": "RELEASE-1.6.0",
+    "date": "2026-10-12",
+    "phases": 6,
+    "plans": 47,
+    "tasks": 73,
+    "accomplishments": [
+      "Generated email confirmation now changes the token owner's persisted state only on explicit submit while preserving the visitor session.",
+      "Generated confirmation accepts the email's spaced code only for the current account and announces visible success or retryable validation feedback.",
+      "The generated-host Chromium journey and required-CI route are implemented and verified on the exact final source.",
+      "PR #224 now carries a curated, source-backed Sigra 1.6.0 candidate with live source-promotion validation and exact-head CI documentation proof.",
+      "PR #224 now has a source-backed v1.6 adopter path, and its corrected exact-head documentation build and required CI passed.",
+      "A fail-closed final validator now checks the reviewed 1.6.0 candidate, adopter docs, exact-head CI, Hex package output, live PR population, and inherited checkout; readiness remains blocked by the local Hex dry run.",
+      "PR #224 now carries the complete v1.6 adopter path and a deterministic mobile signup test on exact source SHA `6f8028658f0bdd7f26e13c3fe4d45437880c341b`.",
+      "The existing dry-run workflow and immutable diff proof now name the reviewed PR #224 source and survive a four-file protected main merge.",
+      "The protected workflow produced an authenticated non-publishing receipt for the exact curated candidate, and the refreshed final readiness validator passed with complete live inventory evidence.",
+      "The Release Please package job now asserts tag/SHA/HEAD identity before setup, and the ci-gate poller proves the successful run belongs to that same full SHA.",
+      "Release Please candidates now pass through source-bound CI and changelog preflight before a fresh, exact-head squash-merge decision.",
+      "Release evaluation and recovery now use least-privilege permissions, non-cancelling run identities, exact-main environment policies, and step-scoped credentials.",
+      "A trusted default-branch observer records source-linked cancellation receipts and adds deterministic contracts for the complete release lane.",
+      "Sigra 1.6.0 now has a live, source-bound receipt joining its published package to the exact tagged source and successful required CI.",
+      "Sigra 1.6.0 now tracks the complete ExDoc index and requires byte-exact index validation in CI for every PR.",
+      "Release proof now rejects mismatched source-CI run objects, redirected source pages, and symlinked artifact members while preserving the existing receipt schema.",
+      "The no-publish canary and receipt validator are covered locally and by exact-head CI; the one authorized hosted retry produced no failure receipt, so AUTO-02 remains open.",
+      "A read-only verifier binds Phase 247 evidence to explicit source identities and records READY-01/02 as unsatisfied when the candidate tuple cannot be approved and joined.",
+      "A source-bound verifier proves AUTO-01 from current environment and success-receipt evidence while keeping AUTO-02 open until hosted failure and cancellation artifacts both validate.",
+      "A read-only verifier joins Sigra 1.6.0 public proof to its historical acceptance and separately checks current main and live repository inventory.",
+      "Phase 249 now has passing public-source and exact-main CI evidence, with all 15 open PRs dispositioned against their current identities and all five registered worktrees clean.",
+      "Source-bound audit logic now verifies historical Phase 250 evidence separately from current Phase 247 verdicts, preserving the incomplete 7/9 milestone status.",
+      "READY-02 now binds all 15 open PRs and 2,421 inherited items to explicit dispositions and read-back-verified scoped preservation records.",
+      "The refreshed evidence keeps READY-01 pending on independently untrusted historical bytes, absent approval, and missing published guide/link evidence while preserving READY-02 as satisfied."
+    ],
+    "archived": {
+      "roadmap": true,
+      "requirements": true,
+      "audit": true,
+      "phases": true,
+      "phases_archive_skipped": false,
+      "phases_archive_skip_reason": null,
+      "quick": false
+    },
+    "milestones_updated": true,
+    "state_updated": true,
+    "preservation_warnings": [
+      {
+        "field": "current_plan",
+        "reason": "preserved-over-disagreeing-derived"
+      },
+      {
+        "field": "current_phase",
+        "reason": "preserved-over-disagreeing-derived"
+      },
+      {
+        "field": "current_phase_name",
+        "reason": "preserved-over-disagreeing-derived"
+      }
+    ]
+  },
+  "next_phase_readiness": {
+    "phase_found": false,
+    "phase_number": null,
+    "has_context": false,
+    "has_plans": false,
+    "phase_status": "Pending"
+  },
+  "qualified_next_command": "$gsd-new-milestone",
+  "phase_verification_passed": false,
+  "milestone_verification_passed": false
+}

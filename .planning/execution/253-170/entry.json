@@ -1,0 +1,22 @@
+{
+  "head": "19b1a2a3bf34f1f196b3a9db3ec99d64fc949b56",
+  "approval_text": "yes u can run it",
+  "files": {
+    "config.json": {
+      "sha256": "225737694e79b502993ffa4a64a8e437d758711432aca20da8caa18ef3e52f7c",
+      "bytes": 1821
+    },
+    "state.json": {
+      "sha256": "3fa108a202240b22c94c88d3cd45f0646c978426ff480e969312a324212c00ee",
+      "bytes": 115905
+    },
+    "STATE.md": {
+      "sha256": "2325cbff0ef8c1eba1926ba1fe9d9354b0f33fc0fe33ec058c6e038c78cf170a",
+      "bytes": 34149
+    },
+    "HANDOFF.json": {
+      "sha256": "c95df4a1a9c5699a447dcbb7657dab26aad229c7fbc1ed8bfeab4e1c5bc33b08",
+      "bytes": 184599
+    }
+  }
+}

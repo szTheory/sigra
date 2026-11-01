@@ -1,0 +1,223 @@
+{
+  "scope": "controlled local transport fault; not evidence of original failure cause",
+  "source_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+  "platform": "darwin",
+  "results": [
+    {
+      "mode": "drop_primary_replies",
+      "passed": true,
+      "state": {
+        "readyState": "complete",
+        "connected": 1,
+        "socketConnected": true,
+        "transport": "g",
+        "xhrEvents": [
+          {
+            "type": "readystatechange",
+            "readyState": 1,
+            "status": 0,
+            "at": 2956
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 2,
+            "status": 200,
+            "at": 3163.0000000000005
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 3,
+            "status": 200,
+            "at": 3163.0000000000005
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 4,
+            "status": 200,
+            "at": 3163.0000000000005
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 1,
+            "status": 0,
+            "at": 3163.0000000000005
+          },
+          {
+            "type": "load",
+            "readyState": 4,
+            "status": 200,
+            "at": 3163.0000000000005
+          },
+          {
+            "type": "loadend",
+            "readyState": 4,
+            "status": 200,
+            "at": 3163.0000000000005
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 1,
+            "status": 0,
+            "at": 3163.0000000000005
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 2,
+            "status": 200,
+            "at": 3564
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 3,
+            "status": 200,
+            "at": 3564
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 2,
+            "status": 200,
+            "at": 3564
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 3,
+            "status": 200,
+            "at": 3564
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 4,
+            "status": 200,
+            "at": 3564
+          },
+          {
+            "type": "load",
+            "readyState": 4,
+            "status": 200,
+            "at": 3564
+          },
+          {
+            "type": "loadend",
+            "readyState": 4,
+            "status": 200,
+            "at": 3564
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 4,
+            "status": 200,
+            "at": 3564
+          },
+          {
+            "type": "readystatechange",
+            "readyState": 1,
+            "status": 0,
+            "at": 3565
+          },
+          {
+            "type": "load",
+            "readyState": 4,
+            "status": 200,
+            "at": 3565
+          },
+          {
+            "type": "loadend",
+            "readyState": 4,
+            "status": 200,
+            "at": 3565
+          }
+        ],
+        "xhr": [
+          {
+            "readyState": 4,
+            "status": 200,
+            "responseLength": 261
+          },
+          {
+            "readyState": 4,
+            "status": 200,
+            "responseLength": 5693
+          },
+          {
+            "readyState": 4,
+            "status": 200,
+            "responseLength": 14
+          },
+          {
+            "readyState": 1,
+            "status": 0,
+            "responseLength": 0
+          }
+        ],
+        "longpollState": 1,
+        "longpollReqs": 1
+      },
+      "events": [
+        {
+          "ms": 175,
+          "type": "request",
+          "method": "GET",
+          "path": "/users/register"
+        },
+        {
+          "ms": 396,
+          "type": "navigation",
+          "path": "/users/register"
+        },
+        {
+          "ms": 401,
+          "type": "request",
+          "method": "GET",
+          "path": "/phoenix/live_reload/frame"
+        },
+        {
+          "ms": 3131,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3338,
+          "type": "response",
+          "status": 200,
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3338,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3339,
+          "type": "request",
+          "method": "POST",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3739,
+          "type": "response",
+          "status": 200,
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3739,
+          "type": "response",
+          "status": 200,
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3739,
+          "type": "request",
+          "method": "GET",
+          "path": "/live/longpoll"
+        },
+        {
+          "ms": 3740,
+          "type": "navigation",
+          "path": "/users/register"
+        }
+      ]
+    }
+  ]
+}

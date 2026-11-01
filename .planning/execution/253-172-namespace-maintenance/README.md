@@ -1,0 +1,3 @@
+# Namespace diagnosis, offline only
+
+before.log reproduces the actual unmodified checker command failure against the preserved41-request hosted result. after.log is a diagnostic narrow local checker edit on a temporary copy: it verified that actual full-pass run, but is not a deployable fix because the pinned candidate checker has the same old-prefix restriction. No hosted evidence was changed or accepted by this diagnostic. The executable fix is to prepare fresh refs inside the unchanged checker's supported gsd/253-replan- namespace, then test both the candidate checker and generated checker with all six explicitly synthetic cases. Those tests belong to the compatible bundle. The original window remains closed; no rerun is authorized.

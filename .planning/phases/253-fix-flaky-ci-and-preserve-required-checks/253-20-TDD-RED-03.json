@@ -1,0 +1,10 @@
+{
+  "command": "python3 scripts/ci/ci-git-publication.test.py PublicationTests.test_prepare_reports_complete_product_tree_request_that_exceeds_hard_body_limit",
+  "exitCode": 1,
+  "output": "test_prepare_reports_complete_product_tree_request_that_exceeds_hard_body_limit (__main__.PublicationTests.test_prepare_reports_complete_product_tree_request_that_exceeds_hard_body_limit) ... FAIL\n\n======================================================================\nFAIL: test_prepare_reports_complete_product_tree_request_that_exceeds_hard_body_limit (__main__.PublicationTests.test_prepare_reports_complete_product_tree_request_that_exceeds_hard_body_limit)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/jon/projects/sigra/scripts/ci/ci-git-publication.test.py\", line 143, in test_prepare_reports_complete_product_tree_request_that_exceeds_hard_body_limit\n    self.assertEqual(result.returncode, 0, result.stderr)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 2 != 0 : /opt/homebrew/Cellar/python@3.14/3.14.4/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jon/projects/sigra/scripts/ci/ci-git-publication.py': [Errno 2] No such file or directory\n\n\n----------------------------------------------------------------------\nRan 1 test in 0.031s\n\nFAILED (failures=1)\n",
+  "targetTest": "test_prepare_reports_complete_product_tree_request_that_exceeds_hard_body_limit",
+  "targetFile": "scripts/ci/ci-git-publication.test.py",
+  "expected": "A complete source delta over 2 MiB is refused and recorded as a blocker.",
+  "actual": "The publication CLI is absent; its subprocess returns nonzero, failing the named contract assertion.",
+  "semanticAssessment": "The named unittest executed and failed on the expected-success assertion because --prepare cannot produce the required blocker manifest before implementation."
+}

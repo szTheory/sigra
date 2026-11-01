@@ -1,0 +1,24 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-RECOVERY-BRIDGE-V2.py",
+    "verify-receipt",
+    "--consumer",
+    "168"
+  ],
+  "exit": 0,
+  "head": "f354798196cc89d22ad2d1c7eaf89f4c3cd47b65",
+  "git_status": "",
+  "timestamp": "2026-10-21T14:16:57.870070+00:00",
+  "raw": {
+    "stdout": {
+      "path": "/Users/jon/projects/sigra/.planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/receipt-reopen.stdout.log",
+      "sha256": "1c269263328fab6fdd5e0727480e9ef2b0653fc247cbee97a1a7105796450a99"
+    },
+    "stderr": {
+      "path": "/Users/jon/projects/sigra/.planning/quick/261021-drl-phase-253-resolve-plan-180-28-halt-incom/receipt-reopen.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

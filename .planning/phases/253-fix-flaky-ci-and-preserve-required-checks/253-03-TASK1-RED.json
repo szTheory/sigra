@@ -1,0 +1,10 @@
+{
+  "command": "bash scripts/ci/honest-skip-verdict.test.sh --unit-contract",
+  "exitCode": 1,
+  "output": "test_unit_result_is_owned_by_actual_verdict (__main__.UnitOwner.test_unit_result_is_owned_by_actual_verdict) ... FAIL\n\n======================================================================\nFAIL: test_unit_result_is_owned_by_actual_verdict (__main__.UnitOwner.test_unit_result_is_owned_by_actual_verdict)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"<stdin>\", line 10, in test_unit_result_is_owned_by_actual_verdict\nAssertionError: 'example_unit_smoke' not found in ['install_golden_contract', 'library_tests', 'library_tests_dep_off', 'install_smoke', 'upgrade_smoke', 'example_http_smoke', 'example_playwright_smoke', 'generated_admin_playwright_smoke', 'fast_checks']\n\n----------------------------------------------------------------------\nRan 1 test in 0.111s\n\nFAILED (failures=1)\n",
+  "targetTest": "test_unit_result_is_owned_by_actual_verdict",
+  "targetFile": "scripts/ci/honest-skip-verdict.test.sh",
+  "expected": "unit smoke appears in actual successful verdict",
+  "actual": "verdict has only nine lanes, omitting unit smoke",
+  "semanticAssessment": "Native verdict invoked successfully; target assertion observes omission of the actual unit lane."
+}

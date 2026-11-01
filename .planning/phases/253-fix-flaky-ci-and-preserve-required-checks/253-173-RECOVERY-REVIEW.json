@@ -1,0 +1,83 @@
+{
+  "schema": "sigra.phase253.execution-halt-review/v1",
+  "status": "reviewed_for_new_acceptance",
+  "plan": "253-173",
+  "reviewed_at_utc": "2026-10-20T16:17:29Z",
+  "entry": {
+    "branch": "phase-244-playwright-measurement",
+    "head": "a26049c3dc95bd5139ee2682fd02f340a6f07890",
+    "clean": true,
+    "exact_input_commit": "a868a40286540ed06bb500aa7f892b87b5312107",
+    "deadline_guard": {
+      "margin_days_1": {"exit": 0, "output": "R13 canary deadline guard: margin 1 d, projected check_runs pages 4 of 10, canary deadline 2026-11-02T19:18:40.000Z"},
+      "margin_days_20_positive_control": {"exit": 1, "output": "R13 canary deadline guard: margin 20 d, projected check_runs pages 14 of 10, canary deadline 2026-11-02T19:18:40.000Z"}
+    },
+    "origin_main": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "main_record_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+    "direct_inputs": {
+      "166_summary_sha256": "ebce73cb67dbf6666282480f5c1ec33189c32745d3e8821603ea2cb391b95d7a",
+      "ci_git_publication_sha256": "7bf205869e74ce2101e0df91e8615af81f75393e3eadd2b5fd01dd126681d5b6",
+      "ci_gate_canary_dryrun_sha256": "b6e6be484112926539e8b53aab685dd61d4b72105c063044576c449f94b27ae6"
+    },
+    "shared_bytes_sha256": {
+      ".planning/config.json": "225737694e79b502993ffa4a64a8e437d758711432aca20da8caa18ef3e52f7c",
+      ".planning/state.json": "10ccc6c7f53e860a6b7012eac55e1306e8703cdfaef90682955588dde1b5936c",
+      ".planning/STATE.md": "2f2591b3d1c3a94876267fcc8c306be8a05bcfe1719b8e38cd8415d5ee10d0b1",
+      ".planning/HANDOFF.json": "7918d469f3035a3c1e9e8c96074bae9d91dc7b57bf6681337efccef736f7c2b5"
+    }
+  },
+  "original_halt": {
+    "path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-SUMMARY.md",
+    "status": "halted",
+    "summary_sha256": "c7012462da9613261479be4494e6a56f8aecc9a0c2dfef1fbb716feebe5c53be",
+    "plan_path": ".planning/phases/253-fix-flaky-ci-and-preserve-required-checks/253-167-PLAN.md",
+    "plan_sha256": "7ffcb319bc5bf0dd15435b1c27c403cde3474e5da6c606f1e3832e30a925eaae",
+    "failure": "Task 3 verify block overwrote the Node executable variable N with the full-suite count, then tried to execute the count; the block ended VERIFY-EXIT 1. This diagnostic tail remains a failure and is not acceptance.",
+    "delivered_task_1_2_commits": ["e1e593863", "44ce53f4b", "0d5ca0df8", "3f1166de9"]
+  },
+  "command_correction": {
+    "new_attempt": "One new complete Task 3 acceptance block, run once after this review is committed.",
+    "variables": {"node_executable": "NODE_BIN", "full_suite_count": "DRYRUN_TEST_COUNT"},
+    "invocation": "Use the exact first automated body from 253-173-PLAN.md under bash, once, with caffeinate -i -s; retain the full output and final VERIFY-EXIT sentinel.",
+    "regression_minimum": 79,
+    "no_historical_retry": true
+  },
+  "findings": [
+    {"id": 1, "item": "repositories-id acceptance is limited to the live branch", "result": "Reconfirmed: both hermetic returns precede the live-only path; id paths are built from the approved route; next_url is used for termination and cycle detection, not as a request target.", "disposition": "pass"},
+    {"id": 2, "item": "Hermetic branches unchanged", "result": "Reconfirmed against unchanged source; no new acceptance attempt changes product code.", "disposition": "pass"},
+    {"id": 3, "item": "Duplicate rule is server-parent only; PR-head rule remains strict", "result": "Reconfirmed: server-parent source checks are scoped; PR-head missing/duplicate refusal and exact head_sha comparison remain. Complete 100-item single pages remain fail-closed through total_count equality.", "disposition": "pass; observation retained"},
+    {"id": 4, "item": "retained_preflight is one contiguous read", "result": "Reconfirmed existing ordinal, status, commit identity, and page-count checks; unchanged source is pinned above.", "disposition": "pass"},
+    {"id": 5, "item": "R13 ref pair and main-freshness pair set are exact", "result": "Reconfirmed exact literals and the shared r12/r13 main-freshness pair set; unchanged source is pinned above.", "disposition": "pass"},
+    {"id": 6, "item": "Legacy tables remain byte-identical to FREEZE-R12", "result": "The existing summary records CANARY_CATEGORIES, PRODUCTION_CATEGORIES and PRODUCTION_CATEGORY_LIMITS unchanged; R13 alone has preflight 16 and infrastructure_retry 5, total 117.", "disposition": "pass; no budget changes"},
+    {"id": 7, "item": "No new network path", "result": "The offline dry-run reads committed ledger bytes; this plan makes no network request and changes no product file.", "disposition": "pass"},
+    {"id": 8, "item": "--repos-link-form knob remains scoped", "result": "Existing refusals and unchanged default live base line remain as recorded in 253-167; scoped paging uses --stop-after full-pass.", "disposition": "pass"},
+    {"id": 9, "item": "attempt_jobs has no spare allocation in a full paged run", "result": "The observed full run remains stopped at attempt_jobs 7/7 with category_budget_exhausted. Acceptance is only the previously proven --stop-after full-pass slice; no retry or budget increase.", "disposition": "limitation retained; fail-closed"},
+    {"id": 10, "item": "R15-FULL-SUITE review", "result": "The 64c075d4b lines are route assertions, not fake Link/route/Location/host emissions, matching the documented must_haves reading. They remain listed and are not counted as emissions. The new complete unfiltered suite is gated at 79 or more.", "disposition": "pass; interpretation retained"}
+  ],
+  "r15_full_suite_interpretation": {
+    "rule": "Actual fake emission of a Link header, route, redirect Location or host triggers the full suite.",
+    "64c075d4b": "Three /repos/ route assertions in ci-hosted-transport.test.py are assertions, not emissions; list them as the prior review did.",
+    "new_suite": "Full unfiltered ci-gate-canary-dryrun.test.py with literal native count >=79 and OK required."
+  },
+  "paging_and_projection": {
+    "accepted_paged_mode": "--live-policy --paged-listings --stop-after full-pass --ref-pair r13 with r8-r12 refs seeded, matching 253-165.",
+    "full_run_limit": "Previously observed full-run attempt_jobs 7/7 stop remains a limitation; do not rerun it.",
+    "request_limit": 22,
+    "binary_blob_limit": 10,
+    "tree_body_limit_bytes": 2097152,
+    "prior_largest_tree_body_bytes": 2096775,
+    "prior_remaining_margin_bytes": 377,
+    "over_cap_action": "Halt before 168 using measured projection; no rebase, fetch, repack under altered policy, or cap increase."
+  },
+  "status_dispositions": {
+    "CIREL-01": "partial_not_reproduced",
+    "CIREL-02": "unaccepted pending 170/171 hosted proof and 172 completion",
+    "full_phase_verification": "not_started",
+    "product_changes": []
+  },
+  "known_flake": {
+    "test": "LivePolicyPRTests.test_live_policy_token_and_host_rules_hold_across_both_families",
+    "prior_observation": "253-166 recorded one recurrence of a 0.001 second CPython subprocess wait sleep in a non-verify development run; it did not recur in that plan's verify block.",
+    "disposition": "If it recurs in this one new run, treat it as a failure. Do not edit or ignore it."
+  }
+}

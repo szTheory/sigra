@@ -1,0 +1,15 @@
+{
+  "status": "halted",
+  "stage": "closed",
+  "bundle_sha256": "723893190ae070c03c91b9da0fbeeeed952b21b438a7d28ecade114ef2db674a",
+  "approval_sha256": "7c284686e539ad52ba82cecde3207a81bde0bc32be96819fe24e39dc4ed6abe4",
+  "started_epoch": 1792686854,
+  "publication_started_epoch": 1792686854,
+  "publication_allocation_sha256": "57eccae6ae92cb43718cf88f305ae0eb27adf2210ec74d45d789b44b7d2ed08c",
+  "commands": 19,
+  "publication_closed_epoch": 1792686870,
+  "prs_started_epoch": 1792686870,
+  "prs_allocation_sha256": "7d1d52c581c4c2ffa6cd161b1bf5c6195588089cc6c24887b3ab7a857b9b281a",
+  "stop": "command failed: /Users/jon/projects/sigra/.planning/execution/253-plan172-persistent-ledger/runtime/ci-pr-proof.sh: ",
+  "completed_epoch": 1792686939
+}

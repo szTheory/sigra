@@ -1,0 +1,28 @@
+{
+  "baseline_prohibition_tests": 93,
+  "candidate_prohibition_tests": 118,
+  "both_passed": true,
+  "source_trees": {
+    "before": {
+      "application_sha": "fb2d3faa4b25918d14415dd00a51545f0a9c6683",
+      "tree_sha": "4207b705356619ddc7fdc20edf7190fc7330c117",
+      "branch": "evidence/phase254-environment-before-20261024",
+      "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "preparation_attempt": 1,
+      "reviewed_source": "05f1a4a428c095a31c46b58893e74c21aed6c670",
+      "workflow_sha256": "dac4d3b92115f29d8c7ce73cb05cc0af00d94cbc0fad11d9ca6a871d6a3f884e",
+      "source_ref": "refs/evidence/phase254-parity-fixed-source-before"
+    },
+    "after": {
+      "application_sha": "ebb1d3ef0207d64f5f22f409032cf6125abab941",
+      "tree_sha": "75a08a5631aed56703f2ef1f20d60bd13ecf5d4a",
+      "branch": "evidence/phase254-environment-after-20261024",
+      "parent_main_sha": "09df342a82e03c3d5d40173c912b70e827f7eadc",
+      "preparation_attempt": 1,
+      "reviewed_source": "efff737c74ce10c7689a61e06a39b828d2d81a0d",
+      "workflow_sha256": "2a1a141140c5a0ee260da8d411e5c6afddeb3e5bf73d79c688eaf075c132afc1",
+      "source_ref": "refs/evidence/phase254-parity-fixed-source-after"
+    }
+  },
+  "harness": "Read-only source archive plus a separate tracked-file index for each exact commit; no branch checkout or code substitution."
+}

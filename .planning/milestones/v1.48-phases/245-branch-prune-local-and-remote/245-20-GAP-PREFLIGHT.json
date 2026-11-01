@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "20",
+  "captured_at": "2026-09-30T19:13:13Z",
+  "status": "ready",
+  "scope": "Read-only D-06 source feasibility for a bounded Plan 19 transition repair from its already-mutated state; this is not mutation admission or REPO-04 completion evidence.",
+  "production_mutations": 0,
+  "authoritative_sources": ["this local checkout", "GitHub repository szTheory/sigra"],
+  "pinned_evidence": {
+    "plan_18_current_contract": {
+      "commit": "319bc487e8b438ff135d84f5d42018f3f35940e7",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-18-CURRENT-CONTRACT.json",
+      "blob": "f915228a4da2ad8555d5c2032248ce9618c04445",
+      "sha256": "2e96192a7beb4ab53dd517a61f31d42ae1534735908eeea26f8d19b3277910d1"
+    },
+    "plan_19_current_contract": {
+      "commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-CURRENT-CONTRACT.json",
+      "blob": "6de6c4b6d928efc2212f5e62c916c72ca0bd2fc8",
+      "sha256": "bb146084214bd9777e9f07cb2150d1ad61ad3492a80be80266f8b80fef8c84a3",
+      "sha256_sidecar_matches": true,
+      "cited_precommit_artifact_blobs_verified": 3,
+      "cited_precommit_artifacts": [
+        ".planning/phases/245-branch-prune-local-and-remote/245-19-CANDIDATES.json",
+        ".planning/phases/245-branch-prune-local-and-remote/245-19-BRANCH-DELETE-ALLOWLIST.tsv",
+        ".planning/phases/245-branch-prune-local-and-remote/245-19-ADMISSION.json"
+      ]
+    },
+    "plan_19_blocked_result": {
+      "commit": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+      "path": ".planning/phases/245-branch-prune-local-and-remote/245-19-RESULT.json",
+      "blob": "0e663a0d8610c44dfd5e96c78a2d1190da00c703",
+      "sha256": "20f5083d8a356e056287bc2e54457e48a7cae00cf3b7dee1fbdd9bdb2b037f3e",
+      "outcome": "blocked",
+      "production_mutations": 1,
+      "admitted_local_deleted_count": 1,
+      "sole_parent_is_plan_19_contract_commit": true
+    },
+    "plan_18_pinned_input_count": 14,
+    "plan_19_pinned_input_count": 7,
+    "commit_blob_sha256_checks": "passed",
+    "plan_18_snapshot_direct_and_peeled_object_checks": 488,
+    "plan_18_snapshot_unreadable_object_count": 0
+  },
+  "current_local_checkout": {
+    "head_ref": "refs/heads/phase-244-playwright-measurement",
+    "head_oid": "d27a43a21e22aad0978b2069340d8605c37a3fb9",
+    "full_ref_count": 128,
+    "for_each_ref_sha256": "07d58ce879b598fa5305eb52ff102841340bcadd78a5db980441fd4db715167e",
+    "difference_from_plan_19_contract": {
+      "missing_admitted_local_ref": {
+        "ref": "refs/heads/agent-241-08",
+        "contract_oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
+        "object_still_readable": true
+      },
+      "active_evidence_ref_advance": {
+        "contract_capture_oid": "d6d922caad647594c565ff9aca0a854b6c61b395",
+        "current_oid": "d27a43a21e22aad0978b2069340d8605c37a3fb9"
+      },
+      "other_missing_refs": [],
+      "other_changed_refs": [],
+      "unexpected_refs": []
+    },
+    "remaining_pinned_tracking_refs": [
+      {"ref": "refs/remotes/origin/brandbook-rail-accent-logo-system", "oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd"},
+      {"ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish", "oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f"}
+    ]
+  },
+  "current_origin": {
+    "access": "ready",
+    "ls_remote_symref_sha256": "4010c80cabe090483f80d651ebccb0af42f19d754c8f92902e258ae8ef5f7f62",
+    "ref_count_excluding_head_symref_lines": 357,
+    "default_branch": {"ref": "refs/heads/main", "oid": "5a00b90d2314bc93f27aec4090b5928018743d1b"},
+    "required_safety_refs": [
+      {"ref": "refs/heads/ci/phase-235-16-source-complete", "oid": "e932a2c84fd356b5a3fe561fb9c77925fa836b34"},
+      {"ref": "refs/heads/safety/local-main-before-release-cleanup-20260831", "oid": "04ae0ba753e4f0613df5b3f840955018742ffbb9"},
+      {"ref": "refs/tags/archive/local-main-pre-235-recovery", "oid": "f9e036d2a2b28bc63eac34d7d8ae9bbeab6cd972"}
+    ],
+    "corresponding_origin_branches_for_remaining_tracking_refs": [
+      {"ref": "refs/heads/brandbook-rail-accent-logo-system", "status": "absent"},
+      {"ref": "refs/heads/v1.37-auth-branding-admin-polish", "status": "absent"}
+    ],
+    "object_readability_observation": {
+      "ref": "refs/heads/gh-pages",
+      "oid": "dd671004a276c24fafa8ece80e341706085a999e",
+      "status": "not_locally_readable",
+      "plan_18_snapshot_oid_for_same_ref": "b71c1cbeb239941af09933193dd8e3b04b425588",
+      "effect": "A future fresh current snapshot cannot claim every recorded origin SHA is locally cat-file-resolvable without resolving this current object. The Plan 18 pre-prune snapshot's 488 required object checks passed."
+    }
+  },
+  "github_open_prs": {
+    "access": "ready",
+    "rest_core_remaining_at_probe": 5000,
+    "cli_query": "gh pr list --repo szTheory/sigra --state open --limit 1000 --json number,state,headRefName,baseRefName,headRefOid,baseRefOid",
+    "api_query": "gh api repos/szTheory/sigra/pulls?state=open&per_page=100",
+    "cli_count": 13,
+    "api_count": 13,
+    "api_page_capacity": 100,
+    "exact_cli_api_identity_projection_match": true,
+    "all_head_and_base_repositories": "szTheory/sigra",
+    "identities": [
+      {"number": 283, "head": "phase-244/measurement", "head_oid": "f62e252648db66706cf27c3e37241fcd7b78a3de", "base": "main", "base_oid": "5a00b90d2314bc93f27aec4090b5928018743d1b"},
+      {"number": 275, "head": "dependabot/hex/ex_doc-0.40.4", "head_oid": "75b00619d287694ac55643584923011538933660", "base": "main", "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765"},
+      {"number": 274, "head": "dependabot/hex/threadline-0.10.1", "head_oid": "714b6e4ef377d81ada327f0b0840cfcf874ffb84", "base": "main", "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765"},
+      {"number": 273, "head": "dependabot/npm_and_yarn/test/example/priv/playwright/simplewebauthn/browser-14.0.0", "head_oid": "e8c028591ccd806180f0ea048ad5278028fc7c0f", "base": "main", "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765"},
+      {"number": 272, "head": "dependabot/hex/mox-1.3.2", "head_oid": "85a9d29f645229c90bd30da8860147591e510aa9", "base": "main", "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765"},
+      {"number": 271, "head": "dependabot/npm_and_yarn/test/example/priv/playwright/zod-4.6.5", "head_oid": "8bb65f8f78d726318dad6c81361009dada8b917c", "base": "main", "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765"},
+      {"number": 270, "head": "dependabot/npm_and_yarn/test/example/priv/playwright/anthropic-ai/sdk-0.128.0", "head_oid": "bb5416341f08e5547962d42aefbd2c012920180c", "base": "main", "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765"},
+      {"number": 269, "head": "dependabot/hex/stream_data-1.4.0", "head_oid": "c6e0cc4083656155c14213a88de2a5c646516661", "base": "main", "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765"},
+      {"number": 268, "head": "dependabot/npm_and_yarn/test/example/priv/playwright/playwright/test-1.63.0", "head_oid": "fcb165adbd4c9d8cc0f09eef1091334495a4700f", "base": "main", "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765"},
+      {"number": 267, "head": "dependabot/hex/dialyxir-1.4.8", "head_oid": "7eb414854c836f8b45784fca3ffb89ad623e8085", "base": "main", "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765"},
+      {"number": 266, "head": "evidence/phase-241-final-head-cd1e7e1252da", "head_oid": "cd1e7e1252da9388727641160d45bb4f1bf4f1d6", "base": "main", "base_oid": "fed35a4a3725d217486f45a571421dbbf5721765"},
+      {"number": 224, "head": "release-please--branches--main", "head_oid": "276e8c3fc504d2c0497d801083668267327fab84", "base": "main", "base_oid": "5a00b90d2314bc93f27aec4090b5928018743d1b"},
+      {"number": 219, "head": "gsd/238-generated-auth-runtime-proof-evidence", "head_oid": "78e08d09135d4d0ae0d3e5636ef166d60d1d82f3", "base": "main", "base_oid": "f06137b2ac0e9b2094aa1250e3c036b41e997651"}
+    ]
+  },
+  "independent_current_trust_registry": {
+    "source": "shared Git common-directory coordinator hook and worktree registry",
+    "read_only_verify_command": "bash scripts/maintainers/repo-mutation-coordinator.sh verify --repo .",
+    "status": "passed",
+    "exact_git_runtime": {
+      "path": "/usr/bin/git",
+      "version": "git version 2.50.1 (Apple Git-155)",
+      "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+    }
+  },
+  "historical_evidence": {
+    "unavailable_old_baseline": "not required and not probed",
+    "full_window_command_history_source": "not required, not probed, unknown",
+    "independent_historical_trust_registry": "not required, not probed, unknown",
+    "prior_11_row_pr_mismatch": "unresolved",
+    "prior_30_row_cleanup_history": "unresolved"
+  },
+  "planning_boundary": "The pinned current-source files, live checkout, GitHub PR inventory and installed coordinator are available for a Plan 20 transition repair. The already deleted local ref must be treated as completed prior mutation. This preflight does not authorize another local deletion, tracking deletion, origin mutation, new current-snapshot object-retention claim, or REPO-04 closure. Recheck all live identities immediately before any future mutation."
+}

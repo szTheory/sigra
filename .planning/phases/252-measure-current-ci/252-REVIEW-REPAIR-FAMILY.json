@@ -1,0 +1,45 @@
+{
+  "schema_version": "sigra.phase252.review-repair-family/v1",
+  "finding": "CR-01",
+  "status": "implemented_pending_independent_recheck",
+  "implementation_commit": "eb5ab1a2e682ec4114081d9d5ebced4c221de2b5",
+  "files": {
+    "scripts/ci/ci-run-metrics.sh": "d1df22ed360c5886ea887c5386e2de9c66debf98dd4837e67fe93f4307288c7c",
+    "scripts/ci/ci-run-metrics.test.sh": "93c6e57bb0a36506d28f82e303e65ebf06ea0c72d50b40fb4645b81836ef306b"
+  },
+  "repair": {
+    "behavior": "Standalone family replay re-derives required contexts from retained effective-rules and classic branch-protection responses whose bytes match manifest hashes. It compares the derived set with the approved five checks and the manifest's context assertions; an absent or changed required set makes both wait values unknown.",
+    "fixtures": [
+      "Public --replay fixture changes a required context in effective-rules.json, updates that raw file's correct SHA-256, and leaves the manifest's approved contexts and unchanged flag intact; replay returns unknown with null first-attempt and eventual waits.",
+      "Public --replay fixture empties effective required checks and supplies the approved five contexts in classic branch protection; replay measures the expected 120-second waits."
+    ]
+  },
+  "verification": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 bash scripts/ci/ci-run-metrics.test.sh",
+      "exit_code": 0,
+      "result": "PASS: 47 collector tests; comparison-contract suite passed."
+    },
+    {
+      "command": "bash scripts/ci/ci-run-metrics.sh --replay --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --format json (run twice)",
+      "exit_code": 0,
+      "result": "PASS: both outputs have SHA-256 0e047cb23f8c33e4aa41cb03da7fc6043f46047ed49e26842f80d58b4501643a."
+    },
+    {
+      "command": "bash scripts/ci/ci-run-metrics.sh --verify-baseline --source-bundle .planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz --baseline .planning/phases/252-measure-current-ci/252-BASELINE.json",
+      "exit_code": 0,
+      "result": "PASS: ready with no diagnostics."
+    }
+  ],
+  "preservation": {
+    "prior_summary_commit": "eb5ab1a2e682ec4114081d9d5ebced4c221de2b5",
+    "prior_summary_sha256": "26f2a10890743fd67cf9be44f54f6380f4d3a8b2300fdb3415920f48216f4d86",
+    "prior_summary_git_readback_sha256": "26f2a10890743fd67cf9be44f54f6380f4d3a8b2300fdb3415920f48216f4d86",
+    "source_archive_sha256_unchanged": "95334957b5b05494028ec72be5c95ee00e9ed4328e53fa78b35264c482a5af30",
+    "baseline_json_sha256_unchanged": "f397a4624c1a18e5418795b00b3e7510fab34bd858f9540f2f76f2c386319843",
+    "baseline_report_sha256_unchanged": "7d0f7fff31b0a266ecc0c76853f8e6a98a193860c97ddea866bca1c3f6018237",
+    "comparison_contract_sha256_unchanged": "8d3d0d991eff2955b9d8e29bd845df1d848150352ef808984350b801ed018d6c",
+    "replay_outputs_sha256": "0e047cb23f8c33e4aa41cb03da7fc6043f46047ed49e26842f80d58b4501643a"
+  },
+  "scope": "No hosted API calls, workflow runs, producer changes, or comparison families were started. Independent review remains open; phase requirements remain pending verification."
+}

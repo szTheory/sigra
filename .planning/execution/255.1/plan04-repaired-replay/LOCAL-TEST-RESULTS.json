@@ -1,0 +1,76 @@
+{
+  "schema_version": "sigra.ci-repaired-replay-local-verification/v1",
+  "plan": "255.1-04",
+  "scope": "Local synthetic implementation checks only; not hosted acceptance evidence.",
+  "source_identity": {
+    "base_commit": "f29ad4ec5a23068a3e143ab91b548c0add69480d",
+    "implementation_commit": "121855b9455d46aa1f394400a171fd2a5fe96d52",
+    "implementation_tree": "6f27532b78954d26988e2d107c7f219b6bf47495",
+    "branch": "phase-244-playwright-measurement",
+    "plan_sha256": "e7966132ccac2c7a68b7ca643747dd235af7924458fb142f0969ae93c42a75d9",
+    "fixture_builder_sha256": "252cf314cf7b44005405a28071457e647995feff2698172fc085f872c8a35f6a",
+    "replay_tool_sha256": "a5391c4ae40f80f068c65c445a86b12d3ceb9ea39238664f70ff7e810c7dc3d0",
+    "replay_test_sha256": "247e2306734d1887bc754be50c5c4fbca4f780e204eca8f6b5e9f618c57c0799"
+  },
+  "sandbox": {
+    "runtime_image": "sha256:e8467bcf8a3ee4f056cd8af572a1525a66224bf9ab2c603102e01785c646e3aa",
+    "platform": "linux/amd64",
+    "docker_network": "none",
+    "seccomp_profile": ".gsd/255.1-linux-parity/namespace-probe/user-net-only.json",
+    "seccomp_profile_sha256": "d8039f0ff04eea8ede7481d12ca49c1485e1314415a9cfa067c3dfb288d0d2dd",
+    "inner_network_isolation": "unshare --user --map-root-user --net",
+    "network_isolation_verified": true
+  },
+  "runs": [
+    {
+      "command": "python3 -B scripts/ci/ci-repaired-replay.test.py (inside the sandbox command below)",
+      "sandbox_argv": ["docker", "run", "--rm", "--network", "none", "--platform", "linux/amd64", "--security-opt", "seccomp=.gsd/255.1-linux-parity/namespace-probe/user-net-only.json", "--entrypoint", "/bin/bash", "-e", "ERL_AFLAGS=+JMsingle true", "-v", "$PWD:/workspace", "-w", "/workspace", "sha256:e8467bcf8a3ee4f056cd8af572a1525a66224bf9ab2c603102e01785c646e3aa", "-lc", "python3 -B scripts/ci/ci-repaired-replay.test.py"],
+      "exit_code": 0,
+      "summary": "Ran 7 tests in 89.278s; OK.",
+      "coverage": [
+        "Strict comparison_kind=repaired_control_pr 20-pair positive package/replay.",
+        "All 40 registration origins verified; candidate median 80 vs control 100; p95 100/100; runner cost 2400/2400; pass at inclusive boundaries.",
+        "Report retained 40 family observations; verify-result independently recalculated the saved result.",
+        "Package input bytes were unchanged by replay; tampered result/helper and unsafe, duplicate, prefix-colliding, symlinked, and escaping paths were refused.",
+        "Equal wait diagnostics sort by immutable family ID and preserve order under input permutation."
+      ]
+    },
+    {
+      "command": "python3 -B scripts/ci/ci-repaired-replay.test.py RepairedReplay.test_repaired_calculator_count_threshold_and_permutation_matrix (inside the sandbox command below)",
+      "sandbox_argv": ["docker", "run", "--rm", "--network", "none", "--platform", "linux/amd64", "--security-opt", "seccomp=.gsd/255.1-linux-parity/namespace-probe/user-net-only.json", "--entrypoint", "/bin/bash", "-e", "ERL_AFLAGS=+JMsingle true", "-v", "$PWD:/workspace", "-w", "/workspace", "sha256:e8467bcf8a3ee4f056cd8af572a1525a66224bf9ab2c603102e01785c646e3aa", "-lc", "python3 -B scripts/ci/ci-repaired-replay.test.py RepairedReplay.test_repaired_calculator_count_threshold_and_permutation_matrix"],
+      "exit_code": 0,
+      "summary": "Ran 1 test in 291.565s; OK.",
+      "coverage": [
+        "0, 1, and 19 valid pairs returned insufficient_data; 0-pair wait statistics remained null and all observed raw runner costs remained represented.",
+        "At 20 pairs, a candidate median miss, p95 miss, and runner-cost miss each returned miss.",
+        "Reversing family input order preserved median, p95, cost totals, and verdict."
+      ]
+    },
+    {
+      "command": "python3 -B scripts/ci/ci-comparison-replay.test.py",
+      "exit_code": 0,
+      "summary": "Ran 9 historical replay tests in 26.604s; OK.",
+      "result": "Phase 254 remains insufficient_data; the pinned Phase 255 replay expectations were unchanged."
+    },
+    {
+      "command": "bash scripts/ci/ci-run-metrics-comparison.test.sh",
+      "exit_code": 0,
+      "summary": "ci-run-metrics-comparison.test: PASS"
+    },
+    {
+      "command": "python3 -B scripts/ci/ci-comparison-report.test.py",
+      "exit_code": 0,
+      "summary": "Ran 6 historical report tests; OK."
+    }
+  ],
+  "acceptance": {
+    "hosted_api_requests": 0,
+    "workflow_dispatches": 0,
+    "pull_requests_or_pushes": 0,
+    "hosted_preparation": false,
+    "acceptance_samples": 0,
+    "cispeed_requirements_marked_complete": false,
+    "phase_verification_status": "pending"
+  },
+  "completed_at_utc": "2026-10-25T03:39:56Z"
+}

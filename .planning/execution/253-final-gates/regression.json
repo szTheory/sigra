@@ -1,0 +1,102 @@
+{
+  "status": "passed",
+  "origin_phase": 252,
+  "checks": [
+    {
+      "command": [
+        "bash",
+        "scripts/ci/ci-run-metrics.test.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 25.662560707947705,
+      "output": ".planning/execution/253-final-gates/regression-01.log",
+      "sha256": "300fe6de35cdd9cdeeaa59938b61c6cca2000479037a92aef337290d495cf202"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/ci/ci-run-metrics.sh",
+        "--verify-baseline",
+        "--source-bundle",
+        ".planning/phases/252-measure-current-ci/252-CI-SOURCE-BUNDLE.tar.gz",
+        "--baseline",
+        ".planning/phases/252-measure-current-ci/252-BASELINE.json"
+      ],
+      "exit_code": 0,
+      "seconds": 3.2843409170163795,
+      "output": ".planning/execution/253-final-gates/regression-02.log",
+      "sha256": "289b730636e0c1b4a5368aa8311b9c61def256c0c064244d90b7fcbea71477bd"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/ci/ci-measure-report.test.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 0.19422883400693536,
+      "output": ".planning/execution/253-final-gates/regression-03.log",
+      "sha256": "6f6b71f92bd439d09054136132e1df96325e0d7cb8375a738ffed6e7202eeb5f"
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "scripts/ci/ci-playwright-report.test.mjs",
+        "scripts/ci/ci-measure-workflow.test.mjs",
+        "scripts/ci/ci-run-metrics-replay.test.mjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.7300889160251245,
+      "output": ".planning/execution/253-final-gates/regression-04.log",
+      "sha256": "69a2af95d9423445c689c6dca05ed6001ccb552defdd5b673b2c85ee0a1d6d9c"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "scripts/ci/exunit_timing_contract_test.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.03357183298794553,
+      "output": ".planning/execution/253-final-gates/regression-05.log",
+      "sha256": "f8f7b0ac7f2b53ac4e96000f166430c488f2c37e059ad5502b09d60f29d363b8"
+    },
+    {
+      "command": [
+        "python3",
+        "-B",
+        "scripts/ci/ci-metrics-security.test.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.06385650002630427,
+      "output": ".planning/execution/253-final-gates/regression-06.log",
+      "sha256": "7066c0f75a6c6d848b6aa413102ffc77f94f706234a0c9e1e9c65a3d929e3152"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/ci/test-sigra-dep-off.sh"
+      ],
+      "exit_code": 0,
+      "seconds": 0.24823145801201463,
+      "output": ".planning/execution/253-final-gates/regression-07.log",
+      "sha256": "b65b430f4adb76b512d1cac4e84f1dc48ee863144cd2daed6d83bf736a30700c"
+    },
+    {
+      "command": [
+        "/Users/jon/.asdf/installs/elixir/1.19.5-otp-28/bin/elixir",
+        "-pa",
+        "_build/test/lib/jason/ebin",
+        "-r",
+        "test/support/ci_timing_formatter.ex",
+        "-e",
+        "ExUnit.start(); Code.require_file(\"test/sigra/planning/ci_timing_formatter_test.exs\")"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4016678750049323,
+      "output": ".planning/execution/253-final-gates/regression-08.log",
+      "sha256": "788451eb26c1b6b0810f56070dfb4a76a9f86c45e8e53aad497c971906e35238"
+    }
+  ],
+  "scope_note": "Prior phase offline suites; focused formatter invoked directly to avoid starting application/database. Full timing/overhead wrapper not repeated. No new browser or hosted execution."
+}

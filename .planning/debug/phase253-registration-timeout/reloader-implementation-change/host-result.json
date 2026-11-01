@@ -1,0 +1,11 @@
+{
+  "kind": "offline_unit_experiment",
+  "script_sha256": "e8b691265b65d33dc2ae61fdc4087e84ebe58b79bb29846a47b923bb2d6f4495",
+  "browser_invocations": 0,
+  "ci_launches": 0,
+  "network_requests": 0,
+  "consolidate_protocols": true,
+  "source_change": "implementation",
+  "exit_code": 0,
+  "duration_seconds": 4.832652124983724
+}

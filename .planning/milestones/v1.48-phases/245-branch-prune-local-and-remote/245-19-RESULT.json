@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "phase": "245-branch-prune-local-and-remote",
+  "plan": "19",
+  "outcome": "blocked",
+  "captured_at": "2026-09-30T17:58:54Z",
+  "active_ref": {
+    "ref": "refs/heads/phase-244-playwright-measurement",
+    "contract_commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e"
+  },
+  "blocked_reasons": [
+    "The local operator deleted the single admitted local candidate with its expected-OID guard while the shared coordinator lock was held, then exited 1 because its immediate current-contract after check requires the final evidence child before that child can be created (evidence_transition_final_child_missing).",
+    "A subsequent tracking apply exited 1 before mutation: the current-contract preflight rejected the already absent allowlisted local candidate (evidence_transition_local_ref_set_changed). Both allowlisted tracking refs remain present at their exact pinned OIDs.",
+    "The current-contract transition verifier compares the live local-ref set to the original pre-mutation set even at the final after stage, so it cannot verify an authorized allowlisted deletion. The current operator also invokes that final after stage before writing the final receipt."
+  ],
+  "verifier_exits": {
+    "plan18_pinned_inputs_and_objects_before_mutation": 0,
+    "admission_tests": 0,
+    "current_contract_tests": 0,
+    "coordinator_tests": 0,
+    "operator_tests": 0,
+    "production_coordinator_verify_after_install": 0,
+    "d07_live_contract_before_mutation": 0,
+    "admission_before_mutation": 0,
+    "local_apply": 1,
+    "tracking_apply_after_local": 1,
+    "final_after_stage": "blocked_by_evidence_transition_local_ref_set_changed"
+  },
+  "pinned_git": {
+    "path": "/usr/bin/git",
+    "version": "git version 2.50.1 (Apple Git-155)",
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+    "binary_identity_verified": true
+  },
+  "coordinator": {
+    "installed": true,
+    "verification": "passed",
+    "lock_after_operations": "free",
+    "transaction_leases": 0,
+    "git_config_sha256_before_install": "1acc5fe809e4f61c54e9845af8639f956e0260ab0e96b28f6169dd1b76415b7b",
+    "git_config_sha256_after_install": "61da254c163e3ebba10c42b4aa4136a62e1ef3dce0a73645b5f3e79b76c2c822"
+  },
+  "candidate_classification": "passed: 3 exact allowlist rows; 1 local ref and 2 tracking refs",
+  "current_contract": {
+    "commit": "7f30df02a9640276eb69cb5c377fa7a116077c0e",
+    "before_mutation_check": "passed",
+    "final_transition_check": "blocked by the verifier behavior recorded above"
+  },
+  "admitted_local_deleted_count": 1,
+  "mutations": {
+    "local_ref_deletions": [
+      {
+        "ref": "refs/heads/agent-241-08",
+        "expected_oid": "4bfa4f348ec48d7db80ff0b3f4e99b2e7b19b8b4",
+        "readback": "absent",
+        "method": "operator expected-OID update-ref under shared coordinator lock"
+      }
+    ],
+    "tracking_ref_deletions": [],
+    "origin_ref_deletions": [],
+    "coordinator_installation": "completed and verified"
+  },
+  "remaining_tracking_refs": [
+    {
+      "ref": "refs/remotes/origin/brandbook-rail-accent-logo-system",
+      "expected_oid": "093a2a77b3ff13ea17a4cc2a2439a56ddf54c8cd",
+      "readback": "present"
+    },
+    {
+      "ref": "refs/remotes/origin/v1.37-auth-branding-admin-polish",
+      "expected_oid": "b9cbb7a7b442f0d04b985c01c30a4a4db24a1d1f",
+      "readback": "present"
+    }
+  ],
+  "eligible_remote_disposition_check": "no remote-side allowlist rows; both corresponding live origin branches are absent",
+  "current_pr_check": "pre-mutation passed; post-mutation full inventory not captured",
+  "safety_check": "pre-mutation passed; post-mutation check not run",
+  "object_check": "Plan 18 pinned objects passed before mutation; post-mutation check not run",
+  "exact_ref_check": "partial readback only; candidate absence and remaining tracking identities verified, full post snapshot not captured",
+  "local_coordinator_check": "passed; verified with free lock after the blocked apply",
+  "post_readback_check": "partial readback passed for the three allowlisted refs; complete local/origin/PR post snapshots not captured",
+  "production_mutations": 1,
+  "requirements": {
+    "REPO-04": "open"
+  },
+  "success_summary_created": false,
+  "historical_audits": {
+    "prior_11_row_pr_mismatch": "unresolved",
+    "prior_30_row_cleanup_history": "unresolved"
+  }
+}

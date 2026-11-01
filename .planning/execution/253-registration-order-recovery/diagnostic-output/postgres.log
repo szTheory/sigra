@@ -1,0 +1,13 @@
+2026-10-22 16:23:36.899 EDT [96455] LOG:  starting PostgreSQL 14.17 (Homebrew) on aarch64-apple-darwin24.2.0, compiled by Apple clang version 16.0.0 (clang-1600.0.26.6), 64-bit
+2026-10-22 16:23:36.899 EDT [96455] LOG:  listening on IPv4 address "127.0.0.1", port 58624
+2026-10-22 16:23:36.899 EDT [96455] LOG:  listening on Unix socket "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-order-diagnostic-cfaqFG/.s.PGSQL.58624"
+2026-10-22 16:23:36.901 EDT [96466] LOG:  database system was shut down at 2026-10-22 16:23:36 EDT
+2026-10-22 16:23:36.904 EDT [96455] LOG:  database system is ready to accept connections
+2026-10-22 16:23:37.168 EDT [96488] FATAL:  database "sigra253_order_diagnostic" does not exist
+2026-10-22 16:23:54.758 EDT [97536] ERROR:  new encoding (UTF8) is incompatible with the encoding of the template database (SQL_ASCII)
+2026-10-22 16:23:54.758 EDT [97536] HINT:  Use the same encoding as in the template database, or use template0 as template.
+2026-10-22 16:23:54.758 EDT [97536] STATEMENT:  CREATE DATABASE "sigra253_order_diagnostic" ENCODING 'UTF8'
+2026-10-22 16:23:54.769 EDT [96455] LOG:  received smart shutdown request
+2026-10-22 16:23:54.770 EDT [96455] LOG:  background worker "logical replication launcher" (PID 96472) exited with exit code 1
+2026-10-22 16:23:54.770 EDT [96467] LOG:  shutting down
+2026-10-22 16:23:54.772 EDT [96455] LOG:  database system is shut down

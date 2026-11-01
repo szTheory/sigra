@@ -1,0 +1,15 @@
+{
+  "phase": 252,
+  "hook": "verify:post/ui-review",
+  "status": "not_applicable",
+  "reason": "No UI source files or UI design contract in this phase; Playwright config change is timing instrumentation only.",
+  "safety_gate": {
+    "frontend": true,
+    "hasUiFiles": false,
+    "hasUiSpec": false,
+    "block": false
+  },
+  "scope_file": "252-REVIEW-SCOPE.json",
+  "visual_audit_claimed": false,
+  "user_scope": "UI research and audit only if applicable; no unrelated UI expansion."
+}

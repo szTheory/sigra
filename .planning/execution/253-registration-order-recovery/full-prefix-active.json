@@ -1,0 +1,17 @@
+{
+  "status": "completed_not_reproduced",
+  "approval": "full-prefix-approval.json",
+  "reservation": "full-prefix-reservation.json",
+  "source": "4ff6c50e4c6122ed8f27e67473f3b6408b3aaa97",
+  "started_at": "2026-10-22T20:39:46.073Z",
+  "deadline": "2026-10-22T20:59:46.073000+00:00",
+  "local_watcher_session": 55061,
+  "output_directory": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T/sigra-253-order-diagnostic-v0WEqG",
+  "browser_invocations_reserved": 1,
+  "additional_invocations_authorized": 0,
+  "github_requests": 0,
+  "ci_launches": 0,
+  "next_action": "Review original requirements from retained evidence; this invocation is complete and cannot restart",
+  "result": "full-prefix-result-review.json",
+  "browser_invocations_used": 1
+}
