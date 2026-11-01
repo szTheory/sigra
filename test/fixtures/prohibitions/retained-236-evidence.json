@@ -1,0 +1,6 @@
+{
+  "source_commit": "16800f4319cdd0e2554938071d4ebc48caa969ac",
+  "source_path": ".planning/milestones/v1.48-phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md",
+  "sha256": "81e80839881831575046d7846aa9bad0099a0730077004a4f296028da173c65a",
+  "explanation": "Exact already-corrected source ledger for product-only publication. The server parent still contains the old live ledger. Neither historical copy is modified."
+}

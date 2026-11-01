@@ -1,0 +1,357 @@
+#!/usr/bin/env python3
+"""Run and verify the native Mix CI receiver commands."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import pathlib
+import subprocess
+import sys
+import tempfile
+import time
+
+
+ROOT = pathlib.Path(__file__).resolve().parents[2]
+RECORDER = ROOT / "scripts/ci/ci-command-record.py"
+BASELINE_OBSERVATION = {
+    "source_sha": "bb97e10fdcfe4cd49253555f27e1813472f90a94",
+    "source_ref": "phase-244-playwright-measurement",
+    "command": ["MIX_ENV=test", "mix", "ci"],
+    "exit_code": 0,
+    "runtime": {"elixir": "1.19.5", "otp": "28.5"},
+    "ordinary": {"tests": 2659, "failures": 0, "skipped": 12, "excluded": 22},
+    "scaffold": {
+        "status": "not_observed",
+        "observation": "The command returned 0 without a separate scaffold ExUnit start or summary between the ordinary suite and dep-off suite.",
+    },
+    "threadline_guard": {"tests": 65, "failures": 0, "excluded": 2652},
+    "captured_before_source_changes": True,
+}
+SCAFFOLD = {
+    "Sigra.Install.Features.PasskeysJsTest": "test/sigra/install/features/passkeys_js_test.exs",
+    "Sigra.Install.GeneratorPasskeysOptOutTest": "test/sigra/install/generator_passkeys_opt_out_test.exs",
+    "Sigra.Install.GoldenDiffTest": "test/sigra/install/golden_diff_test.exs",
+    "Sigra.Install.IdempotencyTest": "test/sigra/install/idempotency_test.exs",
+    "Sigra.Install.VaultPromotionTest": "test/sigra/install/vault_promotion_test.exs",
+    "Sigra.UpgradeIntegrationTest": "test/upgrade_test.exs",
+}
+
+
+def validate_native_report(value: dict) -> tuple[bool, list[str]]:
+    """Check that each expected receiver ran and retained useful test identities."""
+    errors: list[str] = []
+    order = ["format", "deps.get", "deps.unlock", "compile", "ordinary", "scaffold", "dep-off"]
+    if value.get("leg_records") != order:
+        errors.append("receiver_order_mismatch")
+
+    ordinary = value.get("ordinary") or {}
+    scaffold = value.get("scaffold") or {}
+    guard = value.get("threadline_guard") or {}
+    ordinary_modules = {row.get("module") for row in ordinary.get("tests", [])}
+    scaffold_rows = scaffold.get("tests", [])
+    scaffold_modules = {row.get("module") for row in scaffold_rows}
+    guard_rows = guard.get("tests", [])
+    guard_modules = {
+        "Sigra.ApplicationForwardersTest", "Sigra.ConfigForwardersTest", "Sigra.OptionalDepsTest",
+        "Sigra.Workers.AuditForwardTest", "Sigra.DoctorTest", "Mix.Tasks.Sigra.DoctorTest",
+        "Sigra.Audit.Forwarders.NoopTest",
+    }
+
+    for name, report in (("ordinary", ordinary), ("scaffold", scaffold), ("threadline_guard", guard)):
+        if not isinstance(report.get("seed"), int):
+            errors.append(f"missing_seed:{name}")
+        if not report.get("tests"):
+            errors.append(f"no_executed_tests:{name}")
+        if not isinstance(report.get("failed_test_ids"), list):
+            errors.append(f"missing_failure_identity_field:{name}")
+        if report.get("complete") is not True:
+            errors.append(f"incomplete_receiver_report:{name}")
+        if report.get("failed_count") != 0 or report.get("failed_test_ids"):
+            errors.append(f"receiver_test_failures:{name}")
+        test_rows = report.get("tests", [])
+        test_ids = [row.get("test_id") for row in test_rows if isinstance(row, dict)]
+        if (len(test_ids) != len(test_rows) or any(not isinstance(test_id, str) or not test_id for test_id in test_ids)
+                or len(set(test_ids)) != len(test_ids)
+                or any(row.get("result") not in ("passed", "skipped") for row in test_rows if isinstance(row, dict))):
+            errors.append(f"test_identity_or_status_invalid:{name}")
+        excluded = report.get("excluded_tests")
+        if not isinstance(excluded, list) or not isinstance(report.get("excluded_count"), int):
+            errors.append(f"missing_excluded_identity_field:{name}")
+        elif (len(excluded) != report["excluded_count"]
+              or any(not isinstance(row, dict) or not isinstance(row.get("test_id"), str)
+                     or row.get("result") != "excluded" for row in excluded)
+              or len({row.get("test_id") for row in excluded if isinstance(row, dict)}) != len(excluded)):
+            errors.append(f"excluded_identity_mismatch:{name}")
+        actual_skips = [row for row in report.get("tests", []) if row.get("result") == "skipped"]
+        if not isinstance(report.get("skipped_count"), int) or len(actual_skips) != report["skipped_count"]:
+            errors.append(f"skipped_identity_mismatch:{name}")
+        skipped_rows = report.get("skipped_tests")
+        if (not isinstance(skipped_rows, list)
+                or any(not isinstance(row, dict) or not isinstance(row.get("test_id"), str)
+                       or not isinstance(row.get("reason"), str) or not row["reason"].strip()
+                       for row in skipped_rows)
+                or {row.get("test_id") for row in skipped_rows if isinstance(row, dict)}
+                != {row.get("test_id") for row in actual_skips if isinstance(row, dict)}):
+            errors.append(f"missing_documented_skip_identity:{name}")
+        actual_passes = [row for row in report.get("tests", []) if row.get("result") == "passed"]
+        if not isinstance(report.get("passed_count"), int) or len(actual_passes) != report["passed_count"]:
+            errors.append(f"passed_identity_mismatch:{name}")
+
+    for module in SCAFFOLD:
+        if module in ordinary_modules:
+            errors.append(f"scaffold_in_ordinary:{module}")
+        if module not in scaffold_modules:
+            errors.append(f"missing_scaffold:{module}")
+
+    unexpected_scaffold = scaffold_modules.difference(SCAFFOLD)
+    for module in sorted(unexpected_scaffold):
+        errors.append(f"unexpected_scaffold:{module}")
+
+    for row in guard_rows:
+        if row.get("module") not in guard_modules:
+            errors.append(f"non_guard_test_executed:{row.get('test_id', '<unknown>')}")
+
+    for name in ("ordinary", "scaffold", "dep-off"):
+        record = value.get("leg_command_records", {}).get(name)
+        if not record:
+            errors.append(f"missing_native_command_record:{name}")
+        elif record.get("primary_exit_code") != 0:
+            errors.append(f"native_command_failed:{name}")
+        else:
+            receiver = "threadline_guard" if name == "dep-off" else name
+            if record.get("seed") != (value.get(receiver) or {}).get("seed"):
+                errors.append(f"command_seed_mismatch:{name}")
+            if record.get("excluded_test_ids") != [row.get("test_id") for row in (value.get(receiver) or {}).get("excluded_tests", [])]:
+                errors.append(f"command_exclusions_mismatch:{name}")
+            if record.get("skipped_test_ids") != [row.get("test_id") for row in (value.get(receiver) or {}).get("skipped_tests", [])]:
+                errors.append(f"command_skips_mismatch:{name}")
+    return not errors, errors
+
+
+def record_leg(name: str, argv: list[str]) -> int:
+    output_value = os.environ.get("SIGRA_CI_RECEIVER_OUTPUT")
+    temporary = None
+    if not output_value:
+        temporary = tempfile.TemporaryDirectory(prefix="sigra-ci-receiver-")
+        output_value = temporary.name
+    output = pathlib.Path(output_value).resolve()
+    invocation_dir = output / "legs" / name
+    timing = invocation_dir / "exunit.json"
+    invocation_dir.mkdir(parents=True, exist_ok=False)
+
+    env = os.environ.copy()
+    env.update({
+        "MIX_ENV": "test",
+        "SIGRA_CI_REQUIRED": "1",
+        "SIGRA_EXUNIT_TIMING_JSON": str(timing),
+        "SIGRA_EXUNIT_TIMING_INVOCATION": name,
+    })
+    if os.environ.get("SIGRA_CI_INJECT_FAILURE") == name:
+        argv = [sys.executable, "-c", "import sys; print('injected receiver failure', file=sys.stderr); sys.exit(42)"]
+    if name == "dep-off":
+        env["SIGRA_EXUNIT_TIMING_THREADLINE_GUARD_JSON"] = str(invocation_dir / "threadline_guard.json")
+
+    command = [sys.executable, str(RECORDER), "--cwd", str(ROOT), "--output-root",
+               str(output / "commands"), "--invocation", name, "--", *argv]
+    result = subprocess.run(command, cwd=ROOT, env=env, check=False)
+    timing_report = (invocation_dir / "threadline_guard.json") if name == "dep-off" else timing
+    record_path = output / "commands" / name / "record.json"
+    if record_path.is_file():
+        record = json.loads(record_path.read_text())
+        if timing_report.is_file():
+            timing_data = json.loads(timing_report.read_text())
+            record["seed"] = timing_data.get("seed")
+            record["seed_reason"] = "observed_exunit_suite" if isinstance(record["seed"], int) else "not_applicable"
+            record["failed_test_ids"] = timing_data.get("failed_test_ids", [])
+            record["test_invocation"] = timing_data.get("invocation")
+            record["excluded_test_ids"] = [row.get("test_id") for row in timing_data.get("excluded_tests", []) if isinstance(row, dict)]
+            record["skipped_test_ids"] = [row.get("test_id") for row in timing_data.get("skipped_tests", []) if isinstance(row, dict)]
+        else:
+            record["seed"] = None
+            record["seed_reason"] = "not_applicable"
+        record_path.write_text(json.dumps(record, indent=2, sort_keys=True) + "\n")
+    if temporary is not None:
+        temporary.cleanup()
+    return result.returncode
+
+
+def finalize_reports(output: pathlib.Path, report_output: pathlib.Path, primary_exit: int | None) -> tuple[dict, bool]:
+    """Assemble persistent native reports without rerunning any CI commands."""
+    root = output.resolve()
+    reports = {}
+    missing = []
+    command_records = {}
+    report_paths = {
+        "ordinary": "legs/ordinary/exunit.json",
+        "scaffold": "legs/scaffold/exunit.json",
+        "threadline_guard": "legs/dep-off/threadline_guard.json",
+    }
+    for name, relative in report_paths.items():
+        path = root / relative
+        if path.is_file():
+            try:
+                value = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                value = {}
+                missing.append({"path": relative, "reason": "report_unreadable"})
+            else:
+                if not isinstance(value, dict):
+                    value = {}
+                    missing.append({"path": relative, "reason": "report_not_object"})
+                elif value.get("complete") is not True:
+                    missing.append({"path": relative, "reason": "report_incomplete"})
+        else:
+            value = {}
+            missing.append({"path": relative, "reason": "receiver_did_not_write_report"})
+        reports[name] = value
+
+    for name in ("ordinary", "scaffold", "dep-off"):
+        relative = f"commands/{name}/record.json"
+        path = root / relative
+        if path.is_file():
+            try:
+                command_records[name] = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                command_records[name] = None
+                missing.append({"path": relative, "reason": "command_record_unreadable"})
+        else:
+            command_records[name] = None
+            missing.append({"path": relative, "reason": "receiver_command_not_reached"})
+
+    payload = {
+        "schema_version": "sigra.ci-mix-receivers/v2",
+        "command": ["mix", "ci"],
+        "primary_exit_code": primary_exit,
+        "primary_status": "success" if primary_exit == 0 else "failure" if primary_exit is not None else "unavailable",
+        "receiver_reports": report_paths,
+        "reports": reports,
+        **reports,
+        "leg_records": ["format", "deps.get", "deps.unlock", "compile", "ordinary", "scaffold", "dep-off"],
+        "leg_command_records": command_records,
+        "missing_reports": missing,
+        "acceptance_samples": 0,
+    }
+    valid, validation_errors = validate_native_report(payload)
+    payload["validation_errors"] = validation_errors
+    report_output = report_output.resolve()
+    report_output.parent.mkdir(parents=True, exist_ok=True)
+    report_output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    complete = valid and not missing and all(
+        report.get("complete") is True and isinstance(report.get("seed"), int)
+        and isinstance(report.get("tests"), list) and bool(report["tests"])
+        for report in reports.values()
+    )
+    return payload, complete
+
+
+def main() -> int:
+    if sys.argv[1:2] == ["--native"]:
+        native_parser = argparse.ArgumentParser(description=__doc__)
+        native_parser.add_argument("--native", action="store_true")
+        native_parser.add_argument("--output", required=True, help="MIX-RECEIVERS.json output file")
+        native_parser.add_argument("--inject-failure", choices=("ordinary", "scaffold", "dep-off"))
+        native_args = native_parser.parse_args()
+        report_path = pathlib.Path(native_args.output).resolve()
+        output = report_path.parent / f"native-run-{time.time_ns()}"
+        args = argparse.Namespace(mode="native", output=str(output), report_output=str(report_path),
+                                  inject_failure=native_args.inject_failure)
+    else:
+        parser = argparse.ArgumentParser(description=__doc__)
+        sub = parser.add_subparsers(dest="mode", required=True)
+        leg = sub.add_parser("leg")
+        leg.add_argument("name", choices=("ordinary", "scaffold", "dep-off"))
+        leg.add_argument("argv", nargs=argparse.REMAINDER)
+        native = sub.add_parser("native")
+        native.add_argument("--output", required=True)
+        native.add_argument("--report-output")
+        native.add_argument("--inject-failure", choices=("ordinary", "scaffold", "dep-off"))
+        finalize = sub.add_parser("finalize", help="assemble the receiver files already written by mix ci")
+        finalize.add_argument("--output", required=True, help="persistent receiver root")
+        finalize.add_argument("--report-output", required=True, help="assembled report path")
+        finalize.add_argument("--primary-exit", type=int, help="mix ci exit code; omit when the command was cancelled")
+        args = parser.parse_args()
+
+    if args.mode == "leg":
+        argv = args.argv[1:] if args.argv[:1] == ["--"] else args.argv
+        if not argv:
+            raise SystemExit("leg requires a native command after --")
+        return record_leg(args.name, argv)
+
+    if args.mode == "finalize":
+        payload, complete = finalize_reports(pathlib.Path(args.output), pathlib.Path(args.report_output), args.primary_exit)
+        print(json.dumps({"report": str(pathlib.Path(args.report_output)), "primary_exit_code": args.primary_exit,
+                          "complete": complete, "missing_reports": payload["missing_reports"]}, sort_keys=True))
+        # A failed primary command remains the job's original failure. Only fail
+        # finalization when the primary succeeded but its required reports are absent.
+        return 1 if args.primary_exit == 0 and not complete else 0
+
+    output = pathlib.Path(args.output).resolve()
+    output.mkdir(parents=True, exist_ok=False)
+    started = time.monotonic()
+    env = os.environ.copy()
+    env.update({"MIX_ENV": "test", "SIGRA_CI_RECEIVER_OUTPUT": str(output)})
+    if args.inject_failure:
+        env["SIGRA_CI_INJECT_FAILURE"] = args.inject_failure
+    command = [sys.executable, str(RECORDER), "--cwd", str(ROOT), "--output-root",
+               str(output / "commands"), "--invocation", "mix-ci", "--", "mix", "ci"]
+    result = subprocess.run(command, cwd=ROOT, env=env, check=False)
+    outer_record_path = output / "commands" / "mix-ci" / "record.json"
+    reports = {}
+    for name, relative in (("ordinary", "legs/ordinary/exunit.json"),
+                           ("scaffold", "legs/scaffold/exunit.json"),
+                           ("threadline_guard", "legs/dep-off/threadline_guard.json")):
+        path = output / relative
+        if path.is_file():
+            reports[name] = json.loads(path.read_text())
+        else:
+            reports[name] = {}
+
+    command_records = {}
+    outer_record = json.loads(outer_record_path.read_text()) if outer_record_path.is_file() else None
+    if outer_record is not None:
+        outer_record["seed"] = None
+        outer_record["seed_reason"] = "not_applicable"
+        outer_record_path.write_text(json.dumps(outer_record, indent=2, sort_keys=True) + "\n")
+    for name in ("ordinary", "scaffold", "dep-off"):
+        leg_record_path = output / "commands" / name / "record.json"
+        command_records[name] = json.loads(leg_record_path.read_text()) if leg_record_path.is_file() else None
+    payload = {
+        "schema_version": "sigra.ci-mix-receivers/v1",
+        "command": ["mix", "ci"],
+        "baseline_observation": BASELINE_OBSERVATION,
+        "elapsed_seconds": round(time.monotonic() - started, 3),
+        "record": str(outer_record_path.relative_to(output)),
+        "receiver_order": ["format", "deps.get", "deps.unlock", "compile", "ordinary", "scaffold", "dep-off"],
+        "native_exit_code": result.returncode,
+        **reports,
+        "leg_records": ["format", "deps.get", "deps.unlock", "compile", "ordinary", "scaffold", "dep-off"],
+        "leg_command_records": command_records,
+    }
+    errors = ["native_mix_ci_failed"] if result.returncode else []
+    if not result.returncode:
+        ok, validation_errors = validate_native_report(payload)
+        if not ok:
+            errors.extend(validation_errors)
+    payload["errors"] = errors
+    report_path = pathlib.Path(args.report_output).resolve() if args.report_output else output / "MIX-RECEIVERS.json"
+    payload["record"] = os.path.relpath(outer_record_path, report_path.parent)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps(payload, indent=2) + "\n")
+    print(json.dumps({
+        "native_exit_code": payload["native_exit_code"],
+        "elapsed_seconds": payload["elapsed_seconds"],
+        "report": os.path.relpath(report_path, ROOT),
+        "errors": errors,
+        "receiver_counts": {
+            name: {"tests": len(payload[name].get("tests", [])), "seed": payload[name].get("seed"),
+                   "failed": payload[name].get("failed_count")}
+            for name in ("ordinary", "scaffold", "threadline_guard")
+        },
+    }, indent=2))
+    return 0 if not errors else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

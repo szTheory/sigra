@@ -969,12 +969,17 @@ var Phoenix = (() => {
       return g;
     }
     replaceTransport(e) {
-      (this.connectClock++,
-        (this.closeWasClean = !0),
-        clearTimeout(this.fallbackTimer),
-        this.reconnectTimer.reset(),
-        this.conn && (this.conn.close(), (this.conn = null)),
-        (this.transport = e));
+      this.connectClock++;
+      this.closeWasClean = !0;
+      clearTimeout(this.fallbackTimer);
+      this.reconnectTimer.reset();
+      this.clearHeartbeats();
+      this.pendingHeartbeatRef = null;
+      const previousConn = this.conn;
+      this.conn = null;
+      this.transport = e;
+      if (previousConn) previousConn.close();
+      this.triggerChanError();
     }
     protocol() {
       return location.protocol.match(/^https/) ? "wss" : "ws";
@@ -1058,15 +1063,16 @@ var Phoenix = (() => {
     transportConnect() {
       (this.connectClock++, (this.closeWasClean = !1));
       let e;
-      (this.authToken &&
-        (e = ["phoenix", `${A}${btoa(this.authToken).replace(/=/g, "")}`]),
-        (this.conn = new this.transport(this.endPointURL(), e)),
-        (this.conn.binaryType = this.binaryType),
-        (this.conn.timeout = this.longpollerTimeout),
-        (this.conn.onopen = () => this.onConnOpen()),
-        (this.conn.onerror = (t) => this.onConnError(t)),
-        (this.conn.onmessage = (t) => this.onConnMessage(t)),
-        (this.conn.onclose = (t) => this.onConnClose(t)));
+      if (this.authToken)
+        e = ["phoenix", `${A}${btoa(this.authToken).replace(/=/g, "")}`];
+      const transportConn = new this.transport(this.endPointURL(), e);
+      this.conn = transportConn;
+      transportConn.binaryType = this.binaryType;
+      transportConn.timeout = this.longpollerTimeout;
+      transportConn.onopen = () => this.conn === transportConn && this.onConnOpen();
+      transportConn.onerror = (t) => this.conn === transportConn && this.onConnError(t);
+      transportConn.onmessage = (t) => this.conn === transportConn && this.onConnMessage(t);
+      transportConn.onclose = (t) => this.conn === transportConn && this.onConnClose(t);
     }
     getSession(e) {
       return this.sessionStore && this.sessionStore.getItem(e);
@@ -1082,11 +1088,13 @@ var Phoenix = (() => {
         r,
         n = this.transportName(e),
         h = (l) => {
+          const nextConnectClock = this.connectClock + 1;
           (this.log("transport", `falling back to ${n}...`, l),
             this.off([o, r]),
             (s = !1),
             this.replaceTransport(e),
-            this.transportConnect());
+            this.connectClock === nextConnectClock &&
+              !this.conn && this.transportConnect());
         };
       if (this.getSession(`phx:fallback:${n}`)) return h("memorized");
       ((this.fallbackTimer = setTimeout(h, t)),

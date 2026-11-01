@@ -30,7 +30,7 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
       "deps.get --check-locked",
       "deps.unlock --check-unused",
       "compile --warnings-as-errors",
-      "test --exclude scaffold",
+      "cmd python3 scripts/ci/ci-mix-receivers.py leg ordinary -- mix test --exclude scaffold",
       "ci.install_golden",
       "sigra.dep_off"
     ]
@@ -95,7 +95,7 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
       )
       |> List.first()
 
-    assert dep_off =~ "cmd bash scripts/ci/sigra-dep-off.sh"
+    assert dep_off =~ "ci-mix-receivers.py leg dep-off -- bash scripts/ci/sigra-dep-off.sh"
     assert length(Regex.scan(~r/sigra-dep-off\.sh/, dep_off)) == 1
     refute dep_off =~ "deps.unlock threadline"
     refute dep_off =~ "deps.clean threadline --build"
