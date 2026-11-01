@@ -13,7 +13,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readSubject, readRepoFile, stripYamlComments, stripJsComments } from './_lib.mjs';
+import { readSubject, readRepoFile, stripYamlComments, stripJsComments, effectiveBrowserCommand } from './_lib.mjs';
 
 const SPEC = 'test/example/priv/playwright/tests/admin-design.spec.ts';
 // Comments stripped: the spec documents that its axe scan "carries no `.include()`", so
@@ -70,17 +70,26 @@ test('all three design projects still run the spec on the PR lane', () => {
   const ci = stripYamlComments(readRepoFile('.github/workflows/ci.yml'));
   const prStep = ci.match(/id: design_gallery\n[\s\S]*?(?=- name:|\n {6}- )/);
   assert.ok(prStep, 'the PR-lane design_gallery step was not found — the parse broke.');
+  const command = effectiveBrowserCommand(prStep[0]);
   for (const project of ['admin-design-chromium', 'admin-design-mobile', 'admin-design-dark']) {
     assert.ok(
-      prStep[0].includes(project),
+      command.includes(project),
       `project \`${project}\` is not passed to the PR-lane gallery step. The three projects are ` +
         `the viewport and theme axes on which repeated axe scans are genuinely non-redundant ` +
         `(color-contrast and target-size evaluate computed style); dropping one drops coverage.`,
     );
   }
   assert.ok(
-    prStep[0].includes('--grep-invert'),
+    command.includes('--grep-invert'),
     'the PR-lane gallery step no longer uses --grep-invert. If it switched to --grep, the axe ' +
       'test (untagged) would stop running on pull requests entirely.',
   );
+});
+
+test('a wrapped gallery step cannot silently run another seam or omit selection', () => {
+  const step = "id: design_gallery\nrun: node ci-browser-command.mjs list --seam design_gallery --event \"$GITHUB_EVENT_NAME\" --output-root playwright-report; node ci-browser-command.mjs run --seam design_gallery --event \"$GITHUB_EVENT_NAME\" --output-root playwright-report";
+  assert.match(effectiveBrowserCommand(step), /--project=admin-design-dark/);
+  assert.throws(() => effectiveBrowserCommand(step.replaceAll('--seam design_gallery', '--seam admin_behavior')));
+  assert.throws(() => effectiveBrowserCommand(step.replace('ci-browser-command.mjs list', 'ci-browser-command.mjs run')));
+  assert.throws(() => effectiveBrowserCommand(step + ' --grep only-a-subset'));
 });

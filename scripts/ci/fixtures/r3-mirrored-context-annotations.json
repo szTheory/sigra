@@ -1,0 +1,794 @@
+{
+  "provenance": {
+    "source_sha256": "ef73675158c0e260eefff8d0d3b672cb63546dc7da74fc1d49c556f46a62f53c",
+    "label": "R3 CR3-DESKTOP-MOBILE-FIRST attempt-01 sanitized playwright report (halted 253-63), faithful excerpt",
+    "retained_fields": [
+      "suites[].title/file/line",
+      "specs[].title/file",
+      "tests[].projectName/expectedStatus/status/annotations",
+      "results[].status/duration/workerIndex/annotations",
+      "results[].error.message (first line only)",
+      "errors"
+    ]
+  },
+  "suites": [
+    {
+      "title": "admin-eval.spec.ts",
+      "file": "admin-eval.spec.ts",
+      "line": 0,
+      "specs": [
+        {
+          "title": "registration waits for explicitly released LiveView readiness",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:37583742-f9d1-4bd9-99c0-e2ea7d02df82"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                }
+              ],
+              "results": [
+                {
+                  "status": "passed",
+                  "duration": 2439,
+                  "workerIndex": 0,
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:37583742-f9d1-4bd9-99c0-e2ea7d02df82"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration stops when LiveView readiness is never released",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval",
+              "expectedStatus": "passed",
+              "status": "unexpected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:620f2178-9ed7-4c58-9ab8-189a19d996ac"
+                }
+              ],
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 1852,
+                  "workerIndex": 0,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded."
+                  },
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:620f2178-9ed7-4c58-9ab8-189a19d996ac"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval",
+              "expectedStatus": "passed",
+              "status": "unexpected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:69b86e4c-9e57-4a4d-adf7-ae3c6f3b7570"
+                }
+              ],
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 1826,
+                  "workerIndex": 1,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded."
+                  },
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:69b86e4c-9e57-4a4d-adf7-ae3c6f3b7570"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration detects a deliberate same-account collision",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:c7009681-912f-4052-9206-2d0141d00029"
+                },
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:3dd71925-e67a-41d1-8bba-14622d5e832f"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"collision_email_sha256\":\"e828059b220dbc7b2f8d4dc7ae3a52a9b62f482c2d7dac3d903206c3fcedac61\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                }
+              ],
+              "results": [
+                {
+                  "status": "passed",
+                  "duration": 2391,
+                  "workerIndex": 2,
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:c7009681-912f-4052-9206-2d0141d00029"
+                    },
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:3dd71925-e67a-41d1-8bba-14622d5e832f"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"collision_email_sha256\":\"e828059b220dbc7b2f8d4dc7ae3a52a9b62f482c2d7dac3d903206c3fcedac61\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration retains the first forced assertion failure trace",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval",
+              "expectedStatus": "passed",
+              "status": "unexpected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:5a2a6499-8798-4920-b6bb-4c5322ce193c"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                }
+              ],
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 2956,
+                  "workerIndex": 2,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed"
+                  },
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:5a2a6499-8798-4920-b6bb-4c5322ce193c"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration waits for explicitly released LiveView readiness",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval-mobile",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:6f6f6ee8-65ab-40bb-ac58-d972752e31db"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                }
+              ],
+              "results": [
+                {
+                  "status": "passed",
+                  "duration": 3656,
+                  "workerIndex": 3,
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:6f6f6ee8-65ab-40bb-ac58-d972752e31db"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration stops when LiveView readiness is never released",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval-mobile",
+              "expectedStatus": "passed",
+              "status": "unexpected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:4c5f34da-239e-48ce-a9ba-a869ed3a3dc7"
+                }
+              ],
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 1920,
+                  "workerIndex": 3,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded."
+                  },
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:4c5f34da-239e-48ce-a9ba-a869ed3a3dc7"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval-mobile",
+              "expectedStatus": "passed",
+              "status": "unexpected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:fe4eb5a9-dcfa-4850-9577-43a901081277"
+                }
+              ],
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 2101,
+                  "workerIndex": 4,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded."
+                  },
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:fe4eb5a9-dcfa-4850-9577-43a901081277"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration detects a deliberate same-account collision",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval-mobile",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:9cefbc22-bb1f-4945-baa7-c7c594156b5e"
+                },
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:dd8f642c-ce9c-444f-be68-46e85b505684"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"collision_email_sha256\":\"1bd742423d99e8657f5c27325ccc3f8d2d5e467edba404f9f7feb278d1b6516d\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                }
+              ],
+              "results": [
+                {
+                  "status": "passed",
+                  "duration": 2529,
+                  "workerIndex": 5,
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:9cefbc22-bb1f-4945-baa7-c7c594156b5e"
+                    },
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:dd8f642c-ce9c-444f-be68-46e85b505684"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"collision_email_sha256\":\"1bd742423d99e8657f5c27325ccc3f8d2d5e467edba404f9f7feb278d1b6516d\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration retains the first forced assertion failure trace",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval-mobile",
+              "expectedStatus": "passed",
+              "status": "unexpected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:5aa40fe2-1881-4437-981d-079f9cac07f7"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                }
+              ],
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 2975,
+                  "workerIndex": 5,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed"
+                  },
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:5aa40fe2-1881-4437-981d-079f9cac07f7"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration waits for explicitly released LiveView readiness",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval-dark",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:1e5cf26e-822d-4e46-9b8f-30f0cc1efe58"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                },
+                {
+                  "type": "sigra-registration-control-stage",
+                  "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                }
+              ],
+              "results": [
+                {
+                  "status": "passed",
+                  "duration": 2288,
+                  "workerIndex": 6,
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:1e5cf26e-822d-4e46-9b8f-30f0cc1efe58"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":1,\"stage\":\"connection_hold_observed\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":2,\"stage\":\"fill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":3,\"stage\":\"connection_released\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":4,\"stage\":\"readiness_ready\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":5,\"stage\":\"readiness_refill\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":6,\"stage\":\"submit\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-stage",
+                      "description": "{\"sequence\":7,\"stage\":\"original_assertion\"}"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"websocket_route_observed\":true,\"readiness_released_by_signal\":true,\"posts_before_release\":0,\"server_registration_posts\":1,\"email_value_after_ready_was_empty\":true,\"longpoll_requests_observed\":0,\"longpoll_requests_held_until_release\":0,\"stage_order\":[\"connection_hold_observed\",\"fill\",\"connection_released\",\"readiness_ready\",\"readiness_refill\",\"submit\",\"original_assertion\"]}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration stops when LiveView readiness is never released",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval-dark",
+              "expectedStatus": "passed",
+              "status": "unexpected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:1b7662ee-a527-4e42-87b8-cba292c79d21"
+                }
+              ],
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 1815,
+                  "workerIndex": 6,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded."
+                  },
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:1b7662ee-a527-4e42-87b8-cba292c79d21"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration fails when the readiness wait is deliberately broken",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval-dark",
+              "expectedStatus": "passed",
+              "status": "unexpected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:a47377f9-de76-4dda-a9f7-b9b1b26f23d0"
+                }
+              ],
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 1815,
+                  "workerIndex": 7,
+                  "error": {
+                    "message": "TimeoutError: page.waitForSelector: Timeout 1500ms exceeded."
+                  },
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:a47377f9-de76-4dda-a9f7-b9b1b26f23d0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration detects a deliberate same-account collision",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval-dark",
+              "expectedStatus": "passed",
+              "status": "expected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:85570b30-df5f-4fa5-9089-f1e4ecb7267e"
+                },
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:a6db86bb-b323-48f1-b4bc-0fbef3009414"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"collision_email_sha256\":\"32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                }
+              ],
+              "results": [
+                {
+                  "status": "passed",
+                  "duration": 2917,
+                  "workerIndex": 8,
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:85570b30-df5f-4fa5-9089-f1e4ecb7267e"
+                    },
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:a6db86bb-b323-48f1-b4bc-0fbef3009414"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"collision_email_sha256\":\"32b7ee338ebc9a751fbc2fcaa9dce4bc48473cee3ded9541514b3d13f5c1118d\",\"first_registration_succeeded\":true,\"duplicate_response_confirmed\":true}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "registration retains the first forced assertion failure trace",
+          "file": "admin-eval.spec.ts",
+          "tests": [
+            {
+              "projectName": "admin-eval-dark",
+              "expectedStatus": "passed",
+              "status": "unexpected",
+              "annotations": [
+                {
+                  "type": "sigra-registration-control-context",
+                  "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:3d82d542-a9b1-46da-9e30-66413810f38c"
+                },
+                {
+                  "type": "sigra-registration-control-result",
+                  "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                }
+              ],
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 2946,
+                  "workerIndex": 8,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mpage\u001b[39m\u001b[2m).\u001b[22mtoHaveURL\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed"
+                  },
+                  "annotations": [
+                    {
+                      "type": "sigra-registration-control-context",
+                      "description": "cr3-desktop-mobile-first-7ccea280-cc37-482f-959e-611f0cf561bd:3d82d542-a9b1-46da-9e30-66413810f38c"
+                    },
+                    {
+                      "type": "sigra-registration-control-result",
+                      "description": "{\"navigation_started\":true,\"submit_post_path\":\"/users/log_in\"}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "suites": [
+        {
+          "title": "Admin eval — render matrix, probes, bundles",
+          "file": "admin-eval.spec.ts",
+          "line": 639,
+          "specs": [
+            {
+              "title": "render bundle: board-mg-9/populated",
+              "file": "admin-eval.spec.ts",
+              "tests": [
+                {
+                  "projectName": "admin-eval-dark",
+                  "expectedStatus": "passed",
+                  "status": "expected",
+                  "annotations": [],
+                  "results": [
+                    {
+                      "status": "passed",
+                      "duration": 4197,
+                      "workerIndex": 9,
+                      "annotations": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

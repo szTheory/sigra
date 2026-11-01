@@ -76,6 +76,7 @@ async function readDownload(download: Download) {
 test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
   test('global investigation and org-scoped per-user export keep filter semantics aligned', async ({
     page,
+    browser,
   }) => {
     const suffix = Date.now();
     const password = TEST_PASSWORD;
@@ -112,6 +113,58 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     await expect(page.getByRole('heading', { name: 'Audit' })).toBeVisible();
     await expect(page.getByText('Impersonation').first()).toBeVisible();
     await expect(page.getByText('acting as').first()).toBeVisible();
+
+    // The first submit adds the canonical sort/page defaults. Repeating that
+    // submit must then preserve both its canonical URL and rendered rows.
+    await page.getByRole('textbox', { name: 'Action prefix' }).fill('admin.impersonation');
+    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await expect(page).toHaveURL((url) =>
+      url.pathname === '/admin/audit' &&
+      url.searchParams.get('action_prefix') === 'admin.impersonation' &&
+      url.searchParams.get('order_by') === 'inserted_at' &&
+      url.searchParams.get('order_direction') === 'desc' &&
+      url.searchParams.get('page_size') === '25',
+    );
+    await waitForLiveViewReady(page);
+    const connectedAuditUrl = page.url();
+    const connectedRows = await page
+      .locator('#admin-audit-desktop-results tbody tr')
+      .allInnerTexts();
+    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await expect(page.locator('form.phx-submit-loading')).toHaveCount(0);
+    await waitForLiveViewReady(page);
+    await expect(page).toHaveURL(connectedAuditUrl);
+    await expect(page.locator('#admin-audit-desktop-results tbody tr')).toHaveText(connectedRows, { useInnerText: true });
+
+    // JavaScript disabled gives a deterministic pre-connect path: the
+    // disconnected server-rendered form must submit through its native GET
+    // action and produce the same filtered rows as the connected patch path.
+    const noJavaScriptContext = await browser.newContext({
+      javaScriptEnabled: false,
+    });
+    await noJavaScriptContext.addCookies(await page.context().cookies());
+    const noJavaScriptPage = await noJavaScriptContext.newPage();
+    const baseUrl = new URL(page.url()).origin;
+    await noJavaScriptPage.goto(new URL('/admin/audit', baseUrl).toString());
+    await expect(
+      noJavaScriptPage.locator('[data-phx-session].phx-connected'),
+    ).toHaveCount(0);
+    await noJavaScriptPage
+      .getByRole('textbox', { name: 'Action prefix' })
+      .fill('admin.impersonation');
+    await noJavaScriptPage
+      .getByRole('button', { name: 'Apply filters' })
+      .click();
+    await expect(noJavaScriptPage).toHaveURL(/\/admin\/audit\?/);
+    await expect(
+      noJavaScriptPage.getByRole('textbox', { name: 'Action prefix' }),
+    ).toHaveValue('admin.impersonation');
+    expect(
+      await noJavaScriptPage
+        .locator('#admin-audit-desktop-results tbody tr')
+        .allInnerTexts(),
+    ).toEqual(connectedRows);
+    await noJavaScriptContext.close();
 
     const globalDownload = page.waitForEvent('download');
     await page.getByRole('link', { name: 'Export CSV' }).click();

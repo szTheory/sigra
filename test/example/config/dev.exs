@@ -30,13 +30,15 @@ dev_bind_ip =
   end
 
 dev_endpoint_port = String.to_integer(System.get_env("PORT", "4000"))
+# CI serves fixed source; protocol purges during reload can race with LiveView saves.
+dev_code_reloading? = System.get_env("CI") not in ["true", "1"]
 
 config :example, ExampleWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [ip: dev_bind_ip, port: dev_endpoint_port],
   check_origin: false,
-  code_reloader: true,
+  code_reloader: dev_code_reloading?,
   reloadable_apps: [:example, :sigra],
   debug_errors: true,
   secret_key_base: "mOKn1H2AvPQiYaRIJDUU2R2Zwbm4HADb5KXl2nLFxcA4nCwO9DXLCkIo7zMFperi",

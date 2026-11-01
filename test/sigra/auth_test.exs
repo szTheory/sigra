@@ -127,6 +127,78 @@ defmodule Sigra.AuthTest do
       assert {:error, :email_taken} = result
     end
 
+    test "with unsafe_validate_unique rejection returns {:error, :email_taken}" do
+      error_changeset = %Ecto.Changeset{
+        valid?: false,
+        data: %TestUser{},
+        errors: [
+          email: {"has already been taken", [validation: :unsafe_unique, fields: [:email]]}
+        ]
+      }
+
+      Sigra.MockRepo
+      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+        {:error, :user, error_changeset, %{}}
+      end)
+
+      result =
+        Auth.register(
+          Sigra.MockRepo,
+          %{"email" => "dup@e.com", "password" => "long_enough_pw"},
+          changeset_fn: fn _attrs -> %Ecto.Changeset{valid?: true, data: %TestUser{}} end
+        )
+
+      assert {:error, :email_taken} = result
+    end
+
+    test "unsafe_unique email error alongside other errors is withheld from the changeset" do
+      error_changeset = %Ecto.Changeset{
+        valid?: false,
+        data: %TestUser{},
+        errors: [
+          email: {"has already been taken", [validation: :unsafe_unique, fields: [:email]]},
+          password: {"too short", [validation: :length]}
+        ]
+      }
+
+      Sigra.MockRepo
+      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+        {:error, :user, error_changeset, %{}}
+      end)
+
+      result =
+        Auth.register(
+          Sigra.MockRepo,
+          %{"email" => "dup@e.com", "password" => "short"},
+          changeset_fn: fn _attrs -> %Ecto.Changeset{valid?: true, data: %TestUser{}} end
+        )
+
+      assert {:error, %Ecto.Changeset{errors: errors}} = result
+      assert errors == [password: {"too short", [validation: :length]}]
+    end
+
+    test "non-uniqueness email error is returned intact" do
+      error_changeset = %Ecto.Changeset{
+        valid?: false,
+        data: %TestUser{},
+        errors: [email: {"has invalid format", [validation: :format]}]
+      }
+
+      Sigra.MockRepo
+      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+        {:error, :user, error_changeset, %{}}
+      end)
+
+      result =
+        Auth.register(
+          Sigra.MockRepo,
+          %{"email" => "bad", "password" => "long_enough_pw"},
+          changeset_fn: fn _attrs -> %Ecto.Changeset{valid?: true, data: %TestUser{}} end
+        )
+
+      assert {:error, %Ecto.Changeset{errors: [email: {"has invalid format", _}]}} = result
+    end
+
     test "emits register telemetry event" do
       ref = :telemetry_test.attach_event_handlers(self(), [[:sigra, :auth, :register, :stop]])
 

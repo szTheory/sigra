@@ -1,4 +1,5 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
+import path from 'node:path';
 
 // Phase 10.1.1 Plan 07: full-lifecycle golden-path browser smoke for test/example.
 // Phase 31 Plan 1: partition admin verification across a single behavior-truth lane
@@ -51,14 +52,54 @@ const ADMIN_EVAL_SPEC = /admin-eval\.spec\.ts/;
 // videos are retained on green runs (default CI keeps video on failure only).
 const pagesPublish = process.env.SIGRA_PLAYWRIGHT_PAGES_PUBLISH === '1';
 const checkpointVideo = pagesPublish ? 'on' : 'retain-on-failure';
+const diagnosticsEnabled = process.env.SIGRA_CI_DIAGNOSTICS === '1';
+const diagnosticsRoot = diagnosticsEnabled && process.env.SIGRA_CI_DIAGNOSTICS_ROOT
+  ? path.resolve(process.env.SIGRA_CI_DIAGNOSTICS_ROOT)
+  : null;
+const invocationOutputRoot = diagnosticsRoot ?? (process.env.SIGRA_CI_NATIVE_OUTPUT_ROOT
+  ? path.resolve(process.env.SIGRA_CI_NATIVE_OUTPUT_ROOT)
+  : null);
+if (diagnosticsEnabled && !diagnosticsRoot) {
+  throw new Error('SIGRA_CI_DIAGNOSTICS_ROOT is required when SIGRA_CI_DIAGNOSTICS=1');
+}
+const jsonReportPath = diagnosticsRoot
+  ? path.join(diagnosticsRoot, 'native-report.json')
+  : process.env.SIGRA_PLAYWRIGHT_JSON;
+// HTML reporting clears its output directory. Keep it below the independently
+// collected selection/execution JSON, which the native coverage guard must retain.
+const reporters: ReporterDescription[] = [
+  ['list'],
+  ['html', { open: 'never', outputFolder: invocationOutputRoot ? path.join(invocationOutputRoot, 'html-report') : 'playwright-report/html' }],
+];
+
+if (jsonReportPath) {
+  reporters.push(['json', { outputFile: jsonReportPath }]);
+}
+
+// Phase 253 plan 59 (D-24): per-test fsync'd JSONL, active only when a native recovery
+// window names an output path. Unset in ordinary CI, so the reporter list is unchanged.
+const failureJsonlPath = diagnosticsRoot
+  ? path.join(diagnosticsRoot, 'failure-events.jsonl')
+  : process.env.SIGRA_PLAYWRIGHT_FAILURE_JSONL;
+
+if (failureJsonlPath) {
+  reporters.push([
+    path.resolve(__dirname, 'lib/reporters/failure-jsonl.mjs'),
+    {
+      outputFile: failureJsonlPath,
+      invocationId: process.env.SIGRA_CI_INVOCATION_ID,
+      nativeIdentity: process.env.SIGRA_CI_NATIVE_IDENTITY,
+    },
+  ]);
+}
 
 export default defineConfig({
   testDir: './tests',
-  outputDir: './test-results',
+  outputDir: invocationOutputRoot ? path.join(invocationOutputRoot, 'test-output') : './test-results',
   fullyParallel: false,
   workers: 1,
   retries: 0,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: reporters,
   // The example app boots in MIX_ENV=dev which falls back to :longpoll
   // transport when the WebSocket handshake can't complete (common in
   // headless-chromium + Node.js Playwright runners). Every LiveView event
@@ -79,7 +120,7 @@ export default defineConfig({
   timeout: 60_000,
   use: {
     baseURL: process.env.SIGRA_EXAMPLE_URL ?? 'http://localhost:4000',
-    trace: 'on-first-retry',
+    trace: diagnosticsEnabled ? 'retain-on-failure' : 'on-first-retry',
     // D-24: screenshot-on-failure globally so any failing run has a frame of
     // evidence without retaining output from every passing run.
     screenshot: 'only-on-failure',
