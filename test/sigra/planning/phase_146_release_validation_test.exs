@@ -22,8 +22,10 @@ defmodule Sigra.Planning.Phase146ReleaseValidationTest do
     assert ci =~ ~r/^  workflow_dispatch:$/m
     assert ci =~ ~r/release-ref evidence path/i
     assert ci =~ ~s(gh workflow run "CI" --ref v1.0.0)
-    assert ci =~ ~r/^  push:\n    branches: \[main, release-please--branches--main\]/m
-    assert ci =~ ~r/^  pull_request:\n    branches: \[main\]/m
+    assert ci =~ ~r/^  push:\n    branches: \[main(?:, release-please--branches--main)?\]/m
+    # Proof PRs may add an isolated base branch. Main must remain an exact
+    # branch entry; an additive proof filter must not break the library suite.
+    assert ci =~ ~r/^  pull_request:\n    branches: \[main(?:, [^\]\n]+)*\]$/m
 
     for job_id <-
           ~w(install_golden_contract library_tests library_tests_dep_off install_smoke example_http_smoke example_playwright_smoke generated_admin_playwright_smoke) do

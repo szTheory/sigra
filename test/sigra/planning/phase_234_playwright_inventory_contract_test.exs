@@ -3,6 +3,7 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
   @workflow_path ".github/workflows/ci.yml"
   @config_path "test/example/priv/playwright/playwright.config.ts"
+  @browser_command_path "scripts/ci/ci-browser-command.mjs"
   # The archived Phase 234 snapshot is immutable input to Phase 235's captured
   # evidence. Keep live-spec reconciliation in a current registry instead.
   @inventory_path "test/example/priv/playwright/spec-ownership.json"
@@ -30,13 +31,21 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     shard = job_body(workflow, "example_playwright_shard")
     admin_behavior = run_block(shard, "Run admin behavior browser truth")
 
+    assert admin_behavior =~ "ci-browser-command.mjs list --seam admin_behavior"
+    assert admin_behavior =~ "ci-browser-command.mjs run --seam admin_behavior"
+
+    {output, 0} = browser_policy("admin_behavior", "pull_request")
+    [policy] = JSON.decode!(output)
+    [invocation] = policy["invocations"]
+
     for spec <- ["admin-theme.spec.ts", "admin-coherence-sweep.spec.ts"] do
-      assert occurrences(admin_behavior, "tests/#{spec}") == 1,
-             "admin_behavior must name tests/#{spec} exactly once"
+      assert Enum.count(invocation["specs"], &(&1 == "tests/#{spec}")) == 1,
+             "the shared admin_behavior command must select tests/#{spec} exactly once"
     end
 
-    assert admin_behavior =~ "--project=chromium"
-    assert admin_behavior =~ "--retries=0"
+    assert invocation["projects"] == ["chromium"]
+    assert invocation["retries"] == 0
+
     assert shard =~ "uses: ./.github/actions/example-playwright-boot"
     assert shard =~ "seam: admin_behavior"
     assert config =~ "admin-theme"
@@ -51,7 +60,7 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     assert terminal =~ "exit 1"
   end
 
-  test "the Phase 235 inventory exactly reconciles live specs and executable lane seams" do
+  test "the current inventory exactly reconciles live specs and executable lane seams" do
     inventory = inventory!()
 
     assert inventory["phase_235_gate_input"] == true
@@ -341,12 +350,45 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
     unless lane["command_marker"] == expected_marker do
       raise ArgumentError,
-            "spec #{spec} must use direct command marker #{expected_marker}, got #{lane["command_marker"]}"
+            "missing command marker for #{spec}: expected #{expected_marker}, got #{lane["command_marker"]}"
     end
 
-    unless job =~ expected_marker do
+    seam = String.replace_prefix(lane["seam"], "seam: ", "")
+
+    unless job =~ "ci-browser-command.mjs list --seam #{seam} --event" and
+             job =~ "ci-browser-command.mjs run --seam #{seam} --event" do
       raise ArgumentError, "missing command marker for #{spec}: #{expected_marker}"
     end
+
+    {output, status} = browser_policy(seam, List.first(lane["events"]))
+
+    unless status == 0 do
+      raise ArgumentError, "missing command marker for #{spec}: #{expected_marker}"
+    end
+
+    invocations = JSON.decode!(output)
+    expected_spec = expected_marker
+
+    selected? =
+      Enum.any?(invocations, fn policy ->
+        Enum.any?(policy["invocations"], fn invocation ->
+          expected_spec in invocation["specs"] and lane["project"] in invocation["projects"] and
+            invocation["retries"] == 0
+        end)
+      end)
+
+    unless selected? do
+      raise ArgumentError,
+            "spec #{spec} is not selected by shared browser seam #{seam} for #{lane["project"]}"
+    end
+  end
+
+  defp browser_policy(seam, event) do
+    script =
+      "import { browserInvocations } from './#{@browser_command_path}'; " <>
+        "process.stdout.write(JSON.stringify(browserInvocations('#{seam}', '#{event}')));"
+
+    System.cmd("node", ["--input-type=module", "-e", script])
   end
 
   defp validate_harness_invocation!(spec, lane, job, mapping) do
@@ -424,6 +466,4 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
       _ -> flunk("missing workflow step #{name}")
     end
   end
-
-  defp occurrences(source, marker), do: source |> String.split(marker) |> length() |> Kernel.-(1)
 end

@@ -59,6 +59,15 @@ async function registerAndConfirmUser(
   await logInIfNeeded(page, email, password);
 }
 
+async function assertAuthenticatedZeroOrganizationState(
+  page: Parameters<typeof test>[0]['page'],
+) {
+  const response = await page.request.get('/organizations', { maxRedirects: 0 });
+
+  expect(response.status()).toBe(200);
+  expect(await response.text()).toContain('Create your first organization');
+}
+
 async function logInIfNeeded(
   page: Parameters<typeof test>[0]['page'],
   email: string,
@@ -453,6 +462,7 @@ test('organization invitations: new user accepts through the mailbox signup path
 
   await registerAndConfirmUser(page, ownerEmail, ownerPassword);
   await logInIfNeeded(page, ownerEmail, ownerPassword);
+  await assertAuthenticatedZeroOrganizationState(page);
   await createOrganizationFromZeroState(page, orgName, orgSlug);
   await sendInvitation(page, inviteeEmail);
   const invitationHref = await extractInvitationLink(page, inviteeEmail);
@@ -504,6 +514,7 @@ test('organization invitations: signed-in matching user accepts through the mail
 
   await registerAndConfirmUser(page, ownerEmail, ownerPassword);
   await logInIfNeeded(page, ownerEmail, ownerPassword);
+  await assertAuthenticatedZeroOrganizationState(page);
   await createOrganizationFromZeroState(page, orgName, orgSlug);
   await sendInvitation(page, inviteeEmail);
   const invitationHref = await extractInvitationLink(page, inviteeEmail);

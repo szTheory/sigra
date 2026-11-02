@@ -87,6 +87,53 @@ defmodule Sigra.Test.PlanningPaths do
   def resolve(".planning/REQUIREMENTS.md"), do: requirements()
   def resolve(declared), do: declared
 
+  @doc "Verify a pinned top-level historical blob without requiring Git history in a shallow checkout."
+  def historical_blob!(commit, path, expected_sha256, fixture_root \\ nil) do
+    fixture_root = fixture_root || Path.join(@root, "test/fixtures/planning/phase235-historical")
+    proof = fixture_root |> Path.join("PROOF.json") |> File.read!() |> Jason.decode!()
+
+    unless Path.basename(path) == path and
+             proof["schema_version"] == "sigra.historical-git-blob/v1" and
+             proof["source_commit"] == commit and proof["source_path"] == path and
+             proof["content_sha256"] == expected_sha256 do
+      raise ArgumentError, "historical source proof identity mismatch"
+    end
+
+    commit_body = Base.decode64!(proof["commit_body_b64"])
+    tree_body = Base.decode64!(proof["root_tree_body_b64"])
+    contents = File.read!(Path.join(fixture_root, path))
+
+    tree =
+      commit_body |> String.split("\n", parts: 2) |> hd() |> String.replace_prefix("tree ", "")
+
+    unless git_object_id("commit", commit_body) == commit and
+             git_object_id("tree", tree_body) == tree and
+             historical_tree_blob!(tree_body, path) == git_object_id("blob", contents) and
+             Base.encode16(:crypto.hash(:sha256, contents), case: :lower) == expected_sha256 do
+      raise ArgumentError, "historical source proof digest mismatch"
+    end
+
+    contents
+  end
+
+  defp git_object_id(kind, bytes) do
+    :crypto.hash(:sha, "#{kind} #{byte_size(bytes)}" <> <<0>> <> bytes)
+    |> Base.encode16(case: :lower)
+  end
+
+  defp historical_tree_blob!(<<>>, _path),
+    do: raise(ArgumentError, "historical source proof tree entry missing")
+
+  defp historical_tree_blob!(tree, path) do
+    [header, rest] = :binary.split(tree, <<0>>)
+    <<oid::binary-size(20), tail::binary>> = rest
+    [mode, name] = String.split(header, " ", parts: 2)
+
+    if name == path and mode in ["100644", "100755"],
+      do: Base.encode16(oid, case: :lower),
+      else: historical_tree_blob!(tail, path)
+  end
+
   defp archived_phase_dir(slug) do
     @root
     |> Path.join(".planning/milestones/v*-phases")

@@ -26,8 +26,34 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { browserInvocations } from '../ci-browser-command.mjs';
 
 export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+
+/** Resolve the checked browser wrapper through the production selection model. */
+export function effectiveBrowserCommand(body) {
+  const calls = [...body.matchAll(/ci-browser-command\.mjs\s+(list|run)\s+([^;\n]+)/g)];
+  if (calls.length === 0) {
+    if (!/\bnpx playwright test\b/.test(body)) throw new Error('browser command is missing');
+    return body;
+  }
+  const parsed = calls.map((call) => /^--seam\s+([a-z_]+)\s+--event\s+(?:"\$GITHUB_EVENT_NAME"|'\$GITHUB_EVENT_NAME'|\$GITHUB_EVENT_NAME)\s+--output-root\s+(?:[\w./$-]+|"[^"\n]+"|'[^'\n]+')'?\s*$/.exec(call[2]));
+  if (calls.length !== 2 || calls[0][1] !== 'list' || calls[1][1] !== 'run'
+      || parsed.some((call) => !call) || parsed[0][1] !== parsed[1][1]) {
+    throw new Error('browser wrapper must list and run the same seam exactly once');
+  }
+  const id = /^\s*id: (\S+)\s*$/m.exec(body)?.[1];
+  const event = id === 'design_gallery_snapshots' ? 'push' : 'pull_request';
+  const selected = browserInvocations(parsed[0][1], event);
+  if (selected.length !== 1 || selected[0].id !== id) throw new Error('browser wrapper seam does not match its step');
+  return selected[0].invocations.map((entry) => [
+    'npx playwright test', ...entry.specs,
+    ...entry.projectArgs.map((project) => `--project=${project}`),
+    ...(entry.grep ? ['--grep', entry.grep] : []),
+    ...(entry.grepInvert ? ['--grep-invert', entry.grepInvert] : []),
+    `--retries=${entry.retries}`,
+  ].join(' ')).join('\n');
+}
 
 /** Resolve a guard's primary subject, honouring the fail-first injection. */
 export function subjectPath(defaultRelPath) {

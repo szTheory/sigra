@@ -169,14 +169,18 @@ else
   fail "valid candidate content rejected (rc=$RC): $OUT"
 fi
 
-echo "Test H2: repository CHANGELOG release section satisfies Phase 247 source claims -> PASS"
+# Exact CHANGELOG.md bytes from published-source snapshot
+# 09df342a82e03c3d5d40173c912b70e827f7eadc. These historical 1.6.0 claims
+# must not float with later Unreleased work; CI reads committed fixture bytes,
+# so shallow clones do not need the historical Git object.
+echo "Test H2: published changelog fixture satisfies Phase 247 source claims -> PASS"
 write_valid_fixtures
-cp "$ROOT/CHANGELOG.md" "$TMP/changelog.md"
+cp "$ROOT/test/fixtures/release-candidate-preflight/published-1.6-changelog.md" "$TMP/changelog.md"
 run_content_preflight
 if [[ "$RC" -eq 0 ]] && jq -e '.verdict == "PASS" and .source_blobs_verified == true' >/dev/null 2>&1 <<<"$OUT"; then
-  pass "repository changelog source-backed summaries satisfy the actual candidate-content gate"
+  pass "published changelog fixture source-backed summaries satisfy the actual candidate-content gate"
 else
-  fail "repository changelog does not satisfy the candidate-content gate (rc=$RC): $OUT"
+  fail "published changelog fixture does not satisfy the candidate-content gate (rc=$RC): $OUT"
 fi
 
 echo "Test H3: current 1.7.0 release validates source claims in their published 1.6.0 section -> PASS"
