@@ -19,6 +19,10 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
+### Security
+
+- `Sigra.Auth.register/3` now returns `{:error, :email_taken}` when the host changeset rejects a duplicate email via `unsafe_validate_unique/3` (error option `validation: :unsafe_unique`), in addition to the database unique constraint, closing an account-enumeration leak where hosts surfaced "has already been taken". When a duplicate email coincides with other validation errors, `{:error, changeset}` is returned with the email uniqueness error withheld. The generated registration LiveView now renders flash (`flash={@flash}` on `sigra_auth_page`) so the generic "If this email is available..." message is visible; existing hosts should add that attribute to their `registration_live.ex` or regenerate it.
+
 ## [1.7.2](https://github.com/szTheory/sigra/compare/v1.7.1...v1.7.2) (2026-10-11)
 
 

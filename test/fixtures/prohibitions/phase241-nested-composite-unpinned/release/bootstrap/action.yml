@@ -1,0 +1,7 @@
+name: Nested composite pinning fixture
+description: A nested composite action with a deliberately floating third-party action.
+runs:
+  using: composite
+  steps:
+    - name: Check out source
+      uses: actions/checkout@v4 # v4.2.2

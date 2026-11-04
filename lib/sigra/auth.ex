@@ -128,8 +128,12 @@ defmodule Sigra.Auth do
   option must be a function that takes attrs and returns an `Ecto.Changeset`.
 
   Returns `{:ok, user}` on success, `{:error, changeset}` for validation
-  errors, or `{:error, :email_taken}` when the email uniqueness constraint
-  is violated (enumeration-safe -- callers should show a generic message).
+  errors, or `{:error, :email_taken}` when the email is already registered
+  (enumeration-safe -- callers should show a generic message). A duplicate is
+  recognised whether the host changeset rejected it via `unsafe_validate_unique/3`
+  or the database unique constraint rejected it on insert. When a duplicate
+  coincides with other field errors, `{:error, changeset}` is returned with the
+  email uniqueness error removed, so the response never reveals the email exists.
 
   ## Options
 
@@ -163,6 +167,11 @@ defmodule Sigra.Auth do
 
         {:error, :user, %Ecto.Changeset{} = changeset, _changes} ->
           if email_taken_error?(changeset) do
+            # Enumeration-safe: never reveal that the email exists. When the
+            # duplicate is the only error, collapse to `:email_taken`; when
+            # other errors coexist, withhold just the uniqueness entries.
+            stripped = strip_email_taken_errors(changeset)
+
             # 15-02 Category 3: no user resolved — nil scope + target_id: nil.
             Audit.log_safe(
               "auth.register.failure",
@@ -175,7 +184,7 @@ defmodule Sigra.Auth do
               )
             )
 
-            {:error, :email_taken}
+            if stripped.errors == [], do: {:error, :email_taken}, else: {:error, stripped}
           else
             Audit.log_safe(
               "auth.register.failure",
@@ -1836,12 +1845,23 @@ defmodule Sigra.Auth do
     {session_store, store_opts}
   end
 
+  # A duplicate email surfaces two ways: the DB unique constraint
+  # (`constraint: :unique`) and the host's `unsafe_validate_unique/3`
+  # (`validation: :unsafe_unique`). Both must be treated as "taken".
   defp email_taken_error?(%Ecto.Changeset{errors: errors}) do
-    Enum.any?(errors, fn
-      {:email, {_msg, opts}} -> Keyword.get(opts, :constraint) == :unique
-      _ -> false
-    end)
+    Enum.any?(errors, &email_taken_entry?/1)
   end
+
+  defp strip_email_taken_errors(%Ecto.Changeset{errors: errors} = changeset) do
+    %{changeset | errors: Enum.reject(errors, &email_taken_entry?/1)}
+  end
+
+  defp email_taken_entry?({:email, {_msg, opts}}) do
+    Keyword.get(opts, :constraint) == :unique or
+      Keyword.get(opts, :validation) == :unsafe_unique
+  end
+
+  defp email_taken_entry?(_), do: false
 
   defp handle_valid_login(repo, user, require_confirmation, extra_changes, _opts) do
     if require_confirmation and is_nil(Map.get(user, :confirmed_at)) do

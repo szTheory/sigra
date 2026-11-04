@@ -7,8 +7,8 @@
 # changes and can never classify docs_only=true end-to-end (an observed
 # `true` run is a post-merge obligation -- AFTER-DOCSONLY). This self-test
 # proves the classification rule in both directions, plus the empty-input
-# and crafted-path cases, entirely hermetically -- no network, no `git`, no
-# `gh` -- so the rule cannot rot silently between phases.
+# and crafted-path cases without network or GitHub requests. The workflow
+# regression below also uses temporary local Git histories to cover old PRs.
 #
 # Test cases:
 #   A: Markdown + .planning/** list                        -> docs_only=true
@@ -164,6 +164,8 @@ if [[ "$FAIL" -gt 0 ]]; then
   echo "docs-only-classify.test: FAIL"
   exit 1
 fi
+
+python3 -B "$SCRIPT_DIR/docs-only-workflow.test.py"
 
 echo "docs-only-classify.test: PASS"
 exit 0
