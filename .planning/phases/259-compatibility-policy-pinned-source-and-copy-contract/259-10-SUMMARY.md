@@ -148,14 +148,14 @@ These are security-model wording changes in published docs. None blocks the plan
 
 **1. [Rule 1 - Bug] Library primitive return value stated as the source returns it**
 - **Found during:** Task 1
-- **Issue:** The plan asked for "returns `:ok` whether or not the email exists". `Sigra.Auth.request_password_reset/3` returns `{:ok, :sent}` for an unknown address and `{:ok, {token, url}}` for an account (`lib/sigra/auth.ex:1125-1131`, `:1140+`); the generated context wraps both into `{:ok, :sent}`. A bare `:ok` would have been a second inaccuracy in the sentence being fixed.
+- **Issue:** The plan asked for "returns `:ok` whether or not the email exists". `Sigra.Auth.request_password_reset/3` returns `{:ok, :sent}` for an unknown address and `{:ok, {token, url}}` for an account (`lib/sigra/auth.ex:1112` for the spec, `:1125-1129` for the unknown-address branch); the generated context wraps both into `{:ok, :sent}`. A bare `:ok` would have been a second inaccuracy in the sentence being fixed.
 - **Fix:** the bullet states those shapes.
 - **Files modified:** guides/flows/password-reset.md
 - **Commit:** `332c168f8`
 
 **2. [Rule 1 - Bug] Throttled reset stated as `{:error, :rate_limited}`, not `:ok`**
 - **Found during:** Task 1
-- **Issue:** The plan asked for "throttled requests return :ok". The library and the generated context return `{:error, :rate_limited}` (`lib/sigra/auth.ex:1137`, `priv/templates/sigra.install/core/auth.ex:465`); the old guide sentence was wrong about this too.
+- **Issue:** The plan asked for "throttled requests return :ok". The library and the generated context return `{:error, :rate_limited}` (`lib/sigra/auth.ex:1131-1133`, `priv/templates/sigra.install/core/auth.ex:465`); the old guide sentence was wrong about this too.
 - **Fix:** the sentence says the request is throttled, never enqueues the email, and the library reports `{:error, :rate_limited}`; it keeps the plan's point that only addresses with an account are counted, so request counts can differ.
 - **Files modified:** guides/flows/password-reset.md
 - **Commit:** `332c168f8`
