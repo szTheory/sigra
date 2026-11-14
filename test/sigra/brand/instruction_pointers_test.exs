@@ -9,11 +9,18 @@ defmodule Sigra.Brand.InstructionPointersTest do
   """
   use ExUnit.Case, async: true
 
-  # Files covered by the pointer fix. The two admin guides join this list in
-  # the second task of the plan.
+  # Files covered by the pointer fix: the two root instruction files and the
+  # two admin guides executors read before touching admin UI.
   @instruction_files [
     "CLAUDE.md",
-    "AGENTS.md"
+    "AGENTS.md",
+    "guides/reference/admin-ui-principles.md",
+    "guides/reference/admin-design-contract.md"
+  ]
+
+  @admin_guides [
+    "guides/reference/admin-ui-principles.md",
+    "guides/reference/admin-design-contract.md"
   ]
 
   # Pure matchers, one per defect class. Each is applied line by line so a
@@ -107,6 +114,28 @@ defmodule Sigra.Brand.InstructionPointersTest do
       assert line =~ "`brand/tokens.json`"
       assert line =~ "`--sg-*` token names stay"
       assert line =~ "later phase"
+    end
+
+    test "admin guides keep their H1 and say token values move to the book in a later phase" do
+      principles = read!("guides/reference/admin-ui-principles.md")
+      contract = read!("guides/reference/admin-design-contract.md")
+
+      assert String.starts_with?(principles, "# Sigra Admin UI Principles\n")
+      assert String.starts_with?(contract, "# Sigra Admin Design Contract\n")
+
+      for guide <- @admin_guides do
+        content = read!(guide)
+
+        assert content =~ "`brand/tokens.json`", "#{guide} does not name brand/tokens.json"
+
+        assert content =~ "later phase",
+               "#{guide} does not say token values move in a later phase"
+      end
+
+      assert principles =~ "`brand/BRAND.md`"
+      assert principles =~ "Preserve existing `--sg-*` names"
+      assert contract =~ "`brand/assets/logo/`"
+      assert contract =~ "never use a placeholder tile or a black wordmark on dark surfaces"
     end
 
     test "AGENTS.md keeps the sg-* design system and theme bullets next to the pointer" do
