@@ -38,6 +38,8 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   await waitForLiveViewReady();
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
+  // Wait for the server-rendered strength label so the phx-change validation has landed before submit.
+  await expect(page.getByRole('status')).toBeVisible();
   await page.click('button:has-text("Create an account")');
   // After successful register, the form trigger_submit reposts to
   // /users/log_in?_action=registered which logs the user in. Expect to land

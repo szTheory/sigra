@@ -23,6 +23,8 @@ async function registerAndConfirm(
   await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
+  // Wait for the server-rendered strength label so the phx-change validation has landed before submit.
+  await expect(page.getByRole('status')).toBeVisible();
   await page.click('button:has-text("Create an account")');
   await expect(page).not.toHaveURL(/\/users\/register/);
   const confirmHref = await extractConfirmationLink(page, email);

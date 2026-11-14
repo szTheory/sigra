@@ -19,6 +19,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 import urllib.parse
@@ -105,8 +106,17 @@ def ubuntu_sources(original: str, mirrorlists: dict[str, str]) -> str:
                 mirrorlist = mirrorlists.get(uri, "")
                 mirrors = [line.split()[0] for line in mirrorlist.splitlines()
                            if line.strip() and not line.lstrip().startswith("#")]
-                if not mirrors or not all(_official_uri(item) for item in mirrors):
+                if not mirrors:
                     raise ValueError("unrecognized_ubuntu_mirrorlist")
+                # Mirror-list contents never reach apt: every URI is rewritten to a fixed
+                # official host below. Runner images ship differing lists, so an
+                # unfamiliar entry is reported, not fatal (it used to fail the step
+                # silently on some images).
+                unfamiliar = sorted({urllib.parse.urlsplit(item).hostname or item for item in mirrors
+                                     if not _official_uri(item)})
+                if unfamiliar:
+                    print(f"playwright-os-deps: ignoring unfamiliar mirror hosts: {', '.join(unfamiliar)}",
+                          file=sys.stderr)
             elif not _official_uri(uri):
                 raise ValueError("unrecognized_ubuntu_source_uri")
         if not fields["uris"].split():
@@ -244,6 +254,7 @@ def install(playwright_dir: Path, browsers: list[str], report_path: Path, *,
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         report["status"] = "failed"
         report["diagnostic"] = str(error)
+        print(f"playwright-os-deps: failed: {error}", file=sys.stderr)
         return 1
     finally:
         save()

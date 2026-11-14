@@ -64,12 +64,19 @@ class OsDependencies(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "mirrorlist"):
             deps.ubuntu_sources(source, {"mirror+file:/etc/apt/apt-mirrors.txt": MIRRORS})
 
+    def test_unfamiliar_mirror_entries_are_ignored_and_never_reach_apt(self):
+        output = deps.ubuntu_sources(SOURCE, {key: "https://evil.example/ubuntu/\n" for key in MIRRORLISTS})
+        self.assertNotIn("evil.example", output)
+        self.assertEqual(output, deps.ubuntu_sources(SOURCE, MIRRORLISTS))
+        for empty in ("", "# only a comment\n"):
+            with self.subTest(empty=empty), self.assertRaisesRegex(ValueError, "mirrorlist"):
+                deps.ubuntu_sources(SOURCE, {key: empty for key in MIRRORLISTS})
+
     def test_unrecognized_sources_and_security_overrides_are_rejected(self):
         for source, mirrors in [(SOURCE.replace("noble-updates", "jammy-updates"), MIRRORS),
                                 (SOURCE.replace("Signed-By:", "Trusted:"), MIRRORS),
                                 (SOURCE + "Trusted: yes\n", MIRRORS),
                                 (SOURCE.replace("http://security.ubuntu.com/ubuntu/", "https://evil.example/ubuntu/"), MIRRORS),
-                                (SOURCE, "https://evil.example/ubuntu/\n"),
                                 (SOURCE.replace("http://security.ubuntu.com/ubuntu/", "https://user:pass@security.ubuntu.com/ubuntu/"), MIRRORS),
                                 (SOURCE.replace("http://security.ubuntu.com/ubuntu/", "https://security.ubuntu.com/ubuntu/?override=1"), MIRRORS)]:
             with self.subTest(source=source), self.assertRaises(ValueError):
