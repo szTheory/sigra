@@ -7,7 +7,7 @@ Sigra uses database-backed session tokens (not stateful JWTs for sessions). A lo
 - **`MyAppWeb.UserAuth.log_in_user/3`** — creates a session token, renews the session ID (defeats session fixation), sets the remember-me cookie when requested, and redirects.
 - **`MyAppWeb.UserAuth.log_out_user/1`** — deletes the token from the database, renews the session, clears the remember-me cookie, and redirects.
 - **`MyAppWeb.UserAuth.fetch_current_scope/2`** — plug that reads the session/remember-me cookie on every request and assigns `:current_scope` to the conn.
-- **`MyApp.Accounts.get_user_by_email_and_password/2`** — enumeration-safe lookup; returns `nil` for both wrong password and unknown email.
+- **`MyApp.Accounts.get_user_by_email_and_password/2`** — returns `nil` for both a wrong password and an unknown email.
 - **`MyApp.Accounts.delete_user_session_token/1`** — deletes a single session token.
 - **`MyApp.Accounts.delete_all_user_session_tokens/1`** — the "log out everywhere" primitive.
 
@@ -35,6 +35,8 @@ The generated `SessionController.create/2` (or its LiveView equivalent) calls:
 2. Calls `Plug.Conn.configure_session(renew: true)` to rotate the Phoenix session ID.
 3. Writes the raw token to the Phoenix session under `:user_token`.
 4. If `params["user"]["remember_me"] == "true"`, sets the signed remember-me cookie with the same token.
+
+**Scope of this claim:** for a single attempt, the lookup returns `nil` for a wrong password and for an unknown email. Sigra's example application is tested on that compared case, one failed attempt, for the same response status, redirect, flash and page shown next; your generated copy is yours to check. Lockout state is not part of that comparison: after repeated failures an existing account is locked while an unknown address is never tracked, so the library results differ even where your controller shows one message. Response timing is not covered either.
 
 ## Remember-me
 

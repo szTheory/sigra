@@ -1,6 +1,6 @@
 # User Registration
 
-Sigra ships a complete, enumeration-safe registration flow: a LiveView form, a context function, Argon2id password hashing, and a confirmation email. This guide covers the happy path, common customizations, the confirmation lifecycle, and how to test it.
+Sigra ships a complete registration flow: a LiveView form, a context function, Argon2id password hashing, and a confirmation email. This guide covers the happy path, common customizations, how to handle a duplicate address, the confirmation lifecycle, and how to test it.
 
 ## What Sigra gives you
 
@@ -8,7 +8,7 @@ Sigra ships a complete, enumeration-safe registration flow: a LiveView form, a c
 - **`MyApp.Accounts.register_user/2`** — the context function that calls `Sigra.Auth.register/3` with the generated changeset. This is where you add custom side effects (welcome email, analytics, billing signup).
 - **`MyApp.Accounts.User.registration_changeset/2`** — the Ecto changeset. Validates email format, password length, password complexity, and email uniqueness. Hashes the password via `Sigra.Crypto.hash_password/1` on `prepare_changes`.
 - **`MyApp.Accounts.deliver_user_confirmation_instructions/2`** — sends a signed, 24-hour TTL confirmation token to the user's email via the configured mailer.
-- **`Sigra.Auth.register/3`** — the library-level primitive. Handles audit logging, telemetry spans, and the enumeration-safe `{:error, :email_taken}` return shape.
+- **`Sigra.Auth.register/3`** — the library-level primitive. Handles audit logging, telemetry spans, and the `{:error, :email_taken}` return shape for a duplicate address.
 
 ## Happy path
 
@@ -42,9 +42,9 @@ And this in `lib/my_app_web/live/user_registration_live.ex`:
       end
     end
 
-That's the whole flow. Hashing, validation, enumeration prevention, and audit logging are all handled for you.
+That's the whole flow. Hashing, validation, and audit logging are handled for you; what a visitor is shown for a duplicate address is your decision (see below).
 
-## Enumeration-safe error handling
+## Handling a duplicate email
 
 `Sigra.Auth.register/3` returns:
 
@@ -52,7 +52,9 @@ That's the whole flow. Hashing, validation, enumeration prevention, and audit lo
 - `{:error, %Ecto.Changeset{}}` — validation error (format, length, confirmation mismatch)
 - `{:error, :email_taken}` — the email is already registered
 
-**Important:** render the same message for `:email_taken` as for "email was sent" if an attacker can see the response. A common pattern is to show "If an account exists, we sent a confirmation email" on both branches. Or, accept the tradeoff and show "Email is already taken" — enumeration is mitigated by rate limiting.
+**Your choice:** if an attacker can see the response, a duplicate address that gets its own message tells them the address is registered. One pattern is to show the same message for `:email_taken` as for "email was sent", for example "If an account exists, we sent a confirmation email" on both branches. The other is to accept the tradeoff and show "Email is already taken", and add rate limiting to the registration route yourself.
+
+**Scope of this claim:** `register/3` keeps the uniqueness error out of the changeset for a duplicate address, and nothing more. A successful registration signs the new user in, while a duplicate address shows only a flash on the form, so the two outcomes differ in what the visitor sees whichever message you pick. Response timing is not covered, and a duplicate address can answer faster than a new registration, which also hashes a password. How the duplicate case is presented, and whether to throttle it, is a decision for your application.
 
 ## Requiring confirmation before login
 
