@@ -36,6 +36,19 @@ Canonical term table and voice rubric for the Sigra admin interface. One concept
 
 **Security idiom exception:** "account takeover" is a compound security phrase (industry-standard terminology, not a person-noun) and is **not** a violation of the account ban. Do not flag it.
 
+## Brand book v2.0 reconciliation
+
+The brand book v2.0 (2026-11-13) is kept read-only in `brand/`. This section sets its vocabulary (`voice.terms` in `brand/brand.json`, and the wording its open risks flag) beside the Canonical Terms above. Each row opens its Context rule with **Agrees** (the glossary already says the same) or **Differs** (the book and the glossary disagree, or the book names a word or state the glossary has no row for), and says which wording governs Sigra-owned copy. The ownership lanes are in `guides/reference/brand-compatibility.md`; the demo app in `test/example` is a host, so its own wording sits outside Sigra's copy lane.
+
+Product-truth anchors are written as a full repo path and a line number. `test/sigra/brand/vocabulary_docs_test.exs` checks that each anchor names a real file and line, and that the line still holds the term the row cites.
+
+| Canonical | Banned synonyms | Context rule | Enforcement |
+|-----------|-----------------|--------------|-------------|
+| **sign in** / **sign out** (verbs) | log in, login (as verb), log out, logout (as verb), signin, sign off | Agrees with the book: both spell the verbs as two words and the noun or modifier with a hyphen, and Sigra-owned copy says "sign in" and "sign out". The demo host's own "Log in" wording (`test/example/lib/example_web/controllers/session_html.ex:58`) is host-owned and outside Sigra's copy lane, so it is not a defect in Sigra copy. Phoenix's `phx.gen.auth` documentation says "log in"; the book keeps "sign in" and flags the mix. | `test/sigra/admin/glossary_test.exs` (admin source files); `test/sigra/brand/copy_contract_test.exs` (admin and generated copy) |
+| **lock** / **unlock** (state shown as **Locked**) | freeze, suspend, disable | Agrees with the book: Locked is the system state, set after repeated failed sign-in attempts, and it clears by itself when the configured duration ends (`lib/sigra/lockout.ex:8`). It is not an admin action. The book adds that an admin can unlock it; the admin interface has no unlock control today, and the shipped risk text "Locked — revoke active sessions and unlock below." (`lib/sigra/admin/live/user_show_live.ex:385`) points at one that is not there. The status pill reads "Locked" (`lib/sigra/admin/live/user_show_live.ex:335`). The glossary also bans "disable" for this state; the book does not. | `test/sigra/admin/glossary_test.exs` (admin source files); `test/sigra/brand/copy_contract_test.exs` (the book's "freeze") |
+| **suspend** (state shown as **Suspended**) | deactivate, disable, ban | Differs from the book, which draws a Suspended status. Suspended is an admin action that does not exist: Sigra has no suspend control and no Suspended state, and the brand adoption does not build one, so no Suspended copy may appear on a shipped surface. The glossary row for "suspend" stays as vocabulary for a future admin action; it does not describe a control that exists today. | editorial |
+| **Deletion scheduled** (pending-deletion status label) | Deleting | Differs from the book, which writes "Deleting" for a user scheduled for deletion. Sigra keeps "Deletion scheduled" because it names a reversible grace period; a label that reads as immediate deletion would misdescribe it. The shipped pill already says "Deletion scheduled" (`lib/sigra/admin/live/user_show_live.ex:336`). | editorial |
+
 ---
 
 ## Voice Rubric
