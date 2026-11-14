@@ -36,7 +36,7 @@ These nine personas come from `Example.Demo.Personas.feature_map/0` and are the 
 - `alice@demo.tasklane.test`: happy-path confirmed login baseline.
 - `bob@demo.tasklane.test`: second TOTP/MFA-enabled user plus org-owner coverage.
 - `carol@demo.tasklane.test`: seeded GitHub OAuth-linked identity row for inspection; live GitHub OAuth still requires evaluator-supplied provider credentials.
-- `dave@demo.tasklane.test`: locked and unconfirmed rough edge for enumeration-resistant login behavior.
+- `dave@demo.tasklane.test`: locked and unconfirmed rough edge for exploring the sign-in failure message.
 - `frank@demo.tasklane.test`: scheduled deletion lifecycle state while still active.
 - `morgan@demo.tasklane.test`: non-platform Acme org admin for org-scoped admin-console evaluation.
 - `pat@demo.tasklane.test`: passkey-only persona for the no-MFA passkey state.

@@ -106,7 +106,7 @@ All personas use the `@demo.tasklane.test` email domain. Passwords are public-by
 
 ## Rough Edges
 
-**Dave — locked and unconfirmed:** Dave's account is locked AND unconfirmed. Try logging in — with the correct password or a wrong one — to see Sigra's enumeration-resistant response. The error does not reveal whether the account exists, is locked, or is unconfirmed. Unlock via /admin/users as the admin persona.
+**Dave — locked and unconfirmed:** Dave's account is locked AND unconfirmed. Try signing in — with the correct password or a wrong one — and look at the failure message. The message comparison Sigra tests for the sign-in screen is an existing versus an unknown address at a single attempt; the locked and unconfirmed states, repeated attempts and timing are not part of that comparison. Unlock via /admin/users as the admin persona.
 
 **Frank — scheduled deletion:** Frank's `scheduled_deletion_at` is set — the account is still active and accessible. Inspect via /admin/users as the admin persona.
 

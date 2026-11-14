@@ -9,13 +9,18 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   a duplicate, password reset requests and passkey sign-in are not covered, and
   the docs must say so instead of promising safety.
 
-  This module holds four kinds of checks, each with a planted control so it can
+  This module holds five kinds of checks, each with a planted control so it can
   go red:
 
     * the retired unbounded phrases are gone from the files that carried them;
     * the three flow guides each carry a paragraph that opens with the bold
       words "Scope of this claim:" and names the uncovered dimensions;
     * `unbounded?/1` recognises an unbounded enumeration claim in prose;
+    * a sweep over `README.md`, every `guides/**/*.md` and `test/example/README.md`
+      flags any prose paragraph (fenced code and HTML comments stripped) that
+      makes an unbounded claim without a qualifier phrase. The sweep allow-list
+      is shrink-only and every hit is fixed by rewording the doc, never by
+      adding an entry;
     * the edited docs cite no planning artifact, todo file or registry id (one
       explicit, shrink-only, pre-existing allow-list entry).
 
@@ -33,13 +38,32 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @getting_started "guides/introduction/getting-started.md"
   @architecture "guides/introduction/architecture.md"
   @walkthrough "guides/introduction/code-walkthrough.md"
+  @demo_showcase "guides/introduction/demo-showcase.md"
+  @example_readme "test/example/README.md"
 
   @scope_opener "**Scope of this claim:**"
+
+  # A paragraph that makes an unbounded claim is allowed when it also carries
+  # one of these phrases, because the phrase bounds the claim to what is tested.
+  @qualifiers [
+    "Scope of this claim",
+    "single attempt",
+    "compared case",
+    "not covered",
+    "not part of that comparison"
+  ]
 
   # Files whose wording this plan owns, grouped by the task that edits them.
   @flow_guides [@registration, @password_reset, @login_logout]
   @intro_guides [@getting_started, @architecture, @walkthrough]
-  @files [@readme | @flow_guides] ++ @intro_guides
+  @demo_files [@demo_showcase, @example_readme]
+  @files [@readme | @flow_guides] ++ @intro_guides ++ @demo_files
+
+  # Sweep allow-list: `{file, normalized substring}` pairs naming a paragraph
+  # that may stay unqualified. It starts empty and every hit is fixed by
+  # rewording the doc; it is shrink-only (a stale entry fails), so it can never
+  # quietly cover a paragraph that no longer exists.
+  @sweep_allow_list []
 
   # The exact old strings captured from the docs before they were reworded. A
   # retired string coming back is a regression, so these are never allow-listed.
@@ -63,6 +87,11 @@ defmodule Sigra.Brand.ClaimsDocsTest do
     @walkthrough => [
       "enumeration-safe public failure",
       "it does not reveal whether an unknown email was the cause"
+    ],
+    @demo_showcase => ["enumeration-resistant login behavior"],
+    @example_readme => [
+      "enumeration-resistant response",
+      "The error does not reveal whether the account exists, is locked, or is unconfirmed"
     ]
   }
 
@@ -116,6 +145,68 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
   # Retired phrases still present in `text`.
   defp retired_present(text, phrases), do: Enum.filter(phrases, &String.contains?(text, &1))
+
+  # Prose of a Markdown text: fenced code blocks, then HTML comments, removed.
+  # Indented code is kept on purpose: a reader still sees it, so a claim in an
+  # indented example counts and is reworded rather than exempted.
+  defp prose(text) do
+    text
+    |> then(&Regex.replace(~r/^[ \t]*(`{3,}|~{3,})[^\n]*\n.*?^[ \t]*\1[ \t]*$/ms, &1, "\n"))
+    |> then(&Regex.replace(~r/<!--.*?-->/s, &1, ""))
+  end
+
+  # True when the paragraph carries one of the qualifier phrases (case-blind).
+  defp qualified?(paragraph, qualifiers) do
+    flat = paragraph |> collapse() |> String.downcase()
+    Enum.any?(qualifiers, &String.contains?(flat, String.downcase(&1)))
+  end
+
+  # The prose paragraphs of `text` that make an unbounded enumeration claim and
+  # carry none of the `qualifiers`, with whitespace collapsed.
+  defp unbounded_paragraphs(text, qualifiers) do
+    for paragraph <- text |> prose() |> paragraphs(),
+        unbounded?(paragraph),
+        not qualified?(paragraph, qualifiers),
+        do: collapse(paragraph)
+  end
+
+  # Drops the paragraphs a `{file, substring}` allow-list entry for `file`
+  # covers (substring compared after whitespace is collapsed).
+  defp apply_sweep_allow_list(file, paragraphs, allow_list) do
+    covered =
+      for {allowed_file, substring} <- allow_list, allowed_file == file, do: collapse(substring)
+
+    Enum.reject(paragraphs, fn paragraph ->
+      Enum.any?(covered, &String.contains?(paragraph, &1))
+    end)
+  end
+
+  # Allow-list entries whose substring no longer matches any prose paragraph of
+  # its file; `reader` maps a relative path to its text.
+  defp stale_sweep_entries(allow_list, reader) do
+    Enum.reject(allow_list, fn {file, substring} ->
+      needle = collapse(substring)
+
+      reader.(file)
+      |> prose()
+      |> paragraphs()
+      |> Enum.any?(&String.contains?(collapse(&1), needle))
+    end)
+  end
+
+  # Every file the sweep covers, relative to the repo root, sorted.
+  defp sweep_files do
+    guides =
+      @root
+      |> Path.join("guides/**/*.md")
+      |> Path.wildcard()
+      |> Enum.map(&Path.relative_to(&1, @root))
+
+    [@readme, @example_readme | guides]
+    |> Enum.filter(&File.regular?(Path.join(@root, &1)))
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
 
   # The paragraph that opens with the bold scope words, when exactly one does.
   defp scope_paragraphs(text) do
@@ -297,6 +388,165 @@ defmodule Sigra.Brand.ClaimsDocsTest do
           ] do
         refute unbounded?(text), "should not have been flagged: #{inspect(text)}"
       end
+    end
+  end
+
+  # --- the repo-wide sweep -----------------------------------------------
+
+  describe "unbounded-claim sweep over README.md, guides/**/*.md and test/example/README.md" do
+    test "the sweep cannot pass vacuously" do
+      files = sweep_files()
+
+      assert @readme in files
+      assert @example_readme in files
+      assert Enum.any?(files, &String.starts_with?(&1, "guides/flows/"))
+      assert Enum.any?(files, &String.starts_with?(&1, "guides/introduction/"))
+      assert Enum.any?(files, &String.starts_with?(&1, "guides/reference/"))
+      assert length(files) > 20
+
+      for file <- files do
+        assert read!(file) != "", "#{file} is empty; the sweep would pass vacuously"
+      end
+    end
+
+    test "no paragraph makes an unqualified enumeration claim" do
+      offenders =
+        for file <- sweep_files(),
+            paragraph <-
+              file
+              |> read!()
+              |> unbounded_paragraphs(@qualifiers)
+              |> then(&apply_sweep_allow_list(file, &1, @sweep_allow_list)),
+            do: "#{file}: #{String.slice(paragraph, 0, 200)}"
+
+      assert offenders == [],
+             """
+             Unbounded enumeration claims found. Reword each paragraph so it names the
+             compared case and what is not covered; do not add an allow-list entry.
+
+             #{Enum.join(offenders, "\n")}
+             """
+    end
+
+    test "the sweep allow-list is shrink-only: every entry still matches a paragraph" do
+      assert stale_sweep_entries(@sweep_allow_list, &read!/1) == []
+    end
+
+    test "the files this plan edited are inside the sweep" do
+      files = sweep_files()
+
+      for file <- @files do
+        assert file in files, "#{file} is not covered by the sweep"
+      end
+    end
+  end
+
+  describe "sweep helpers (planted controls)" do
+    test "a planted unqualified paragraph is flagged" do
+      planted =
+        "Intro.\n\nBy design the form shows one message; this prevents enumeration attacks.\n"
+
+      assert unbounded_paragraphs(planted, @qualifiers) ==
+               ["By design the form shows one message; this prevents enumeration attacks."]
+    end
+
+    test "a planted family B paragraph is flagged, and qualified it is not" do
+      bare = "It does not reveal whether an unknown email was the cause."
+      qualified = bare <> " This holds at a single attempt."
+
+      assert unbounded_paragraphs(bare, @qualifiers) == [bare]
+      assert unbounded_paragraphs(qualified, @qualifiers) == []
+    end
+
+    test "each qualifier phrase bounds a planted claim, whatever its case" do
+      for qualifier <- @qualifiers do
+        planted = "The flow is enumeration-safe. " <> String.upcase(qualifier) <> "."
+
+        assert unbounded_paragraphs(planted, @qualifiers) == [],
+               "qualifier #{inspect(qualifier)} did not bound the paragraph"
+      end
+    end
+
+    test "a qualifier in a different paragraph does not bound the claim" do
+      planted = "The flow is enumeration-safe.\n\nNot covered: timing.\n"
+
+      assert unbounded_paragraphs(planted, @qualifiers) == ["The flow is enumeration-safe."]
+    end
+
+    test "a claim wrapped across lines is flagged as one collapsed paragraph" do
+      planted = "The error does not\nreveal whether the account exists."
+
+      assert unbounded_paragraphs(planted, @qualifiers) ==
+               ["The error does not reveal whether the account exists."]
+    end
+
+    test "fenced code and HTML comments are stripped, indented code is not" do
+      fenced = "Prose.\n\n```elixir\n# this prevents enumeration attacks\n```\n\nAfter.\n"
+      tilde = "Prose.\n\n~~~\nenumeration-safe\n~~~\n\nAfter.\n"
+      comment = "Prose. <!-- enumeration-resistant -->\n\n<!--\nenumeration-safe\n-->\n\nAfter.\n"
+      indented = "Prose:\n\n    # Enumeration-safe: same response\n    redirect(to: \"/\")\n"
+
+      assert unbounded_paragraphs(fenced, @qualifiers) == []
+      assert unbounded_paragraphs(tilde, @qualifiers) == []
+      assert unbounded_paragraphs(comment, @qualifiers) == []
+      assert [_one] = unbounded_paragraphs(indented, @qualifiers)
+    end
+
+    test "prose after a fenced block closes is still scanned" do
+      planted = "```\ncode\n```\n\nThis is enumeration-safe.\n"
+
+      assert unbounded_paragraphs(planted, @qualifiers) == ["This is enumeration-safe."]
+    end
+
+    test "the retired strings are flagged when planted in memory" do
+      retired = @retired |> Map.values() |> List.flatten()
+      detectable = Enum.filter(retired, &unbounded?/1)
+
+      # Every retired phrase is either recognised as an unbounded claim by the
+      # sweep or caught by the retired-phrase check; plant each in memory. The
+      # only retired phrase the sweep families do not describe is the README's
+      # vague "Safer defaults" row, which the retired-phrase check owns.
+      assert retired -- detectable == Map.fetch!(@retired, @readme)
+
+      for phrase <- detectable do
+        planted = "Intro.\n\nThe guide says #{phrase} here.\n"
+
+        assert [_one] = unbounded_paragraphs(planted, @qualifiers),
+               "planted #{inspect(phrase)} was not flagged by the sweep"
+      end
+
+      for phrase <- retired -- detectable do
+        assert retired_present("Intro #{phrase} end.", [phrase]) == [phrase]
+      end
+    end
+
+    test "an allow-list entry drops only its own paragraph in its own file" do
+      paragraphs = ["The flow is enumeration-safe.", "This prevents enumeration attacks."]
+      allow = [{"a.md", "The flow is  enumeration-safe"}]
+
+      assert apply_sweep_allow_list("a.md", paragraphs, allow) == [
+               "This prevents enumeration attacks."
+             ]
+
+      assert apply_sweep_allow_list("b.md", paragraphs, allow) == paragraphs
+    end
+
+    test "a stale allow-list entry is reported, a live one is not" do
+      reader = fn "a.md" -> "Intro.\n\nThe flow is enumeration-safe.\n" end
+
+      live = {"a.md", "The flow is enumeration-safe"}
+      stale = {"a.md", "text that is not in the file"}
+
+      assert stale_sweep_entries([live, stale], reader) == [stale]
+      assert stale_sweep_entries([live], reader) == []
+    end
+
+    test "an allow-list entry for text inside a fenced block is stale" do
+      reader = fn "a.md" -> "Intro.\n\n```\nThe flow is enumeration-safe\n```\n" end
+
+      entry = {"a.md", "The flow is enumeration-safe"}
+
+      assert stale_sweep_entries([entry], reader) == [entry]
     end
   end
 
