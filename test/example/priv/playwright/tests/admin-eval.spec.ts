@@ -158,6 +158,10 @@ async function registerUser(page: Page, email: string, password: string) {
   await waitForLiveViewReady(page);
   await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
+  // `fill()` dispatches phx-change asynchronously. Wait for the server-rendered
+  // strength label before submitting so LiveView does not have a validation diff
+  // and the submit event in flight at the same time under CI load.
+  await expect(page.getByRole('status')).toBeVisible();
   let registrationRequest: { method: string; path: string } | null = null;
   let registrationPost: { path: string; status: number; redirectPath: string | null } | null = null;
   let registrationRequestFailure: string | null = null;

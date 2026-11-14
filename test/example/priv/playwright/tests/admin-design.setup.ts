@@ -20,6 +20,8 @@ async function registerDesignAdmin(page: Page, email: string) {
   await waitForLiveViewReady(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', TEST_PASSWORD);
+  // Wait for the server-rendered strength label so the phx-change validation has landed before submit.
+  await expect(page.getByRole('status')).toBeVisible();
   await Promise.all([
     page.waitForURL((url: URL) => !url.pathname.endsWith('/users/register'), { timeout: 30_000 }),
     page.getByRole('button', { name: /Create an account/ }).click(),

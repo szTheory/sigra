@@ -72,7 +72,10 @@ defmodule ExampleWeb.RegistrationLive do
                 style={"width: #{password_strength_width(@password_strength)}%"}
               />
             </div>
-            <span class={"text-xs font-medium #{password_strength_text_color(@password_strength)}"}>
+            <span
+              role="status"
+              class={"text-xs font-medium #{password_strength_text_color(@password_strength)}"}
+            >
               {password_strength_label(@password_strength)}
             </span>
           </div>
