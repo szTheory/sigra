@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 259
 current_phase_name: Compatibility Policy, Pinned Source and Copy Contract
-current_plan: 4
+current_plan: 5
 status: executing
-stopped_at: Completed 259-03-PLAN.md
-last_updated: "2026-11-14T15:51:29.954Z"
+stopped_at: Completed 259-04-PLAN.md
+last_updated: "2026-11-14T15:55:28.972Z"
 last_activity: 2026-11-13
 last_activity_desc: v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
-state_head: 2a74d4816312964e99fc31cdd9181c4f02cadc65
+state_head: fafd38ce740677a39e6611947dac99654a739291
 progress:
   total_phases: 5
   completed_phases: 0
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 259 (Compatibility Policy, Pinned Source and Copy Contract) — EXECUTING
-Current Plan: 4
+Current Plan: 5
 Total Plans in Phase: 13
 Status: Ready to execute
 Last activity: 2026-11-13 — v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-14T15:51:29.917Z
-Stopped at: Completed 259-03-PLAN.md
+Last session: 2026-11-14T15:55:28.933Z
+Stopped at: Completed 259-04-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
@@ -121,6 +121,7 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 | Phase 259 P01 | 6 min | 3 tasks | 4 files |
 | Phase 259 P02 | 5 min | 2 tasks | 3 files |
 | Phase 259 P03 | 4 min | 2 tasks | 8 files |
+| Phase 259 P04 | 3 min | 1 tasks | 1 files |
 
 ## Decisions
 
@@ -130,3 +131,5 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 - [Phase 259]: Pin the whole tracked brand/ tree with brand.sha256 and one drift module; privacy scan has no URL rule or allowlist, names are covered by the 259-11 run-time gate — Home paths, emails and SVG/PDF/PNG/JPG metadata are scanned here with planted controls; personal names cannot be written into test source, so Plan 259-11 derives the name at run time
 - [Phase 259]: 259-03: login submit selector is '#login_form button:not([type="button"])' (excludes type=button, not [type=submit], because the example host button has no type attribute); exported as a string constant for the one probe call site
 - [Phase 259]: 259-03: Playwright behavioral proof of the loginSubmit edits is the PR example_playwright_shard lanes only; local proof is the exactly-one-match ConnTest plus the node import (Playwright not installed locally)
+- [Phase 259]: 259-04: install-snippet test asserts shape (anchored three-segment) and set size 1, never a version value, so the later pin bump needs no test edit
+- [Phase 259]: 259-04: install-snippet scan has no allow-list or per-file skip; real-tree redness proven only by planted inputs and a tmp_dir tree (no doc edits)
