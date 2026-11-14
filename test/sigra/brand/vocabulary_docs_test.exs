@@ -36,10 +36,21 @@ defmodule Sigra.Brand.VocabularyDocsTest do
 
   # One word or phrase per ruling the section records. A ruling that loses its
   # word from the section fails here.
-  @required_terms ["Suspended", "Deletion scheduled", "Locked", "sign in"]
+  @required_terms [
+    "Suspended",
+    "Deletion scheduled",
+    "Locked",
+    "sign in",
+    "revoke",
+    "Unconfirmed",
+    "Active",
+    "Admin (operator)",
+    "Review users",
+    "Review accounts"
+  ]
 
   # Fewer full-path anchors than this in the section is a failure.
-  @min_anchors 2
+  @min_anchors 6
 
   # {term, file}: the section must cite, for the file, at least one line that
   # holds the term.
@@ -48,7 +59,14 @@ defmodule Sigra.Brand.VocabularyDocsTest do
     {"Deletion scheduled", "lib/sigra/admin/live/user_show_live.ex"},
     {"unlock below", "lib/sigra/admin/live/user_show_live.ex"},
     {"auto-unlocks", "lib/sigra/lockout.ex"},
-    {"Log in", "test/example/lib/example_web/controllers/session_html.ex"}
+    {"Log in", "test/example/lib/example_web/controllers/session_html.ex"},
+    {"Confirmed", "lib/sigra/admin/live/user_show_live.ex"},
+    {"Unconfirmed", "lib/sigra/admin/live/user_show_live.ex"},
+    {"Active", "lib/sigra/admin/live/index_live.ex"},
+    {"Review users", "lib/sigra/admin/live/index_live.ex"},
+    {"No flagged accounts", "lib/sigra/admin/live/index_live.ex"},
+    {"Review accounts", "lib/sigra/admin/components.ex"},
+    {"Admin (operator)", "test/example/lib/example/demo/personas.ex"}
   ]
 
   # --- file and text helpers ------------------------------------------------
@@ -287,7 +305,7 @@ defmodule Sigra.Brand.VocabularyDocsTest do
 
     test "planted control: an in-memory section that omits one term reports exactly that term" do
       # Arrange
-      slice = "Suspended, Deletion scheduled and sign in only."
+      slice = @required_terms |> List.delete("Locked") |> Enum.join(", ")
 
       # Act
       missing = missing_terms(slice, @required_terms)
@@ -389,19 +407,20 @@ defmodule Sigra.Brand.VocabularyDocsTest do
       end
     end
 
-    test "planted control: an anchor to a line that lacks the term reports a miss" do
-      # Arrange
-      file = "lib/sigra/admin/live/user_show_live.ex"
-      lines = term_lines(file, "Locked")
-      lacking = Enum.find(1..line_count(file), &(&1 not in lines))
-      text = "`#{file}:#{lacking}`"
+    test "planted control: for every cited pair, an anchor to a line that lacks the term reports a miss" do
+      for {term, file} <- @anchor_pairs do
+        # Arrange
+        lines = term_lines(file, term)
+        lacking = Enum.find(1..line_count(file), &(&1 not in lines))
+        text = "`#{file}:#{lacking}`"
 
-      # Act
-      hits = anchor_hits(text, file, lines)
+        # Act
+        hits = anchor_hits(text, file, lines)
 
-      # Assert
-      assert MapSet.size(lines) > 0
-      assert hits == []
+        # Assert
+        assert MapSet.size(lines) > 0, "#{file} no longer contains #{inspect(term)}"
+        assert hits == [], "a line without #{inspect(term)} was accepted as an anchor in #{file}"
+      end
     end
   end
 
