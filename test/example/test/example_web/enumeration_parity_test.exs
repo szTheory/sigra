@@ -51,7 +51,8 @@ defmodule ExampleWeb.EnumerationParityTest do
     "redirect" => :location,
     "flash" => :flash,
     "body" => :body,
-    "json_keys" => :json_keys
+    "json_keys" => :json_keys,
+    "result" => :result
   }
   @leak_text "No account found for"
   @blocker_shape ~r/[\w.\/-]+:\d+/
@@ -61,6 +62,40 @@ defmodule ExampleWeb.EnumerationParityTest do
   @named_parity_ids ~w(password-signin magic-link-request password-reset-request confirmation-resend mfa-challenge)
   # A LiveView event has no HTTP status; "re-rendered in place" is reported as 200.
   @live_render_status 200
+
+  # The leaks that exist today. None of them may ever be registered as parity.
+  @named_leak_ids ~w(passkey-signin-options registration password-signin-repeat-attempts magic-link-rate-limit password-reset-rate-limit)
+
+  # The exact todo path each row carries (single path per row, every other row
+  # null). Plan 259-13 asserts the three new files exist; this test only fixes
+  # the strings, so it stays green on its own.
+  @expected_todos %{
+    "passkey-signin-options" =>
+      ".planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md",
+    "password-signin-repeat-attempts" =>
+      ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
+    "magic-link-rate-limit" =>
+      ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
+    "password-reset-rate-limit" =>
+      ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
+    "lib-moduledoc-claims" =>
+      ".planning/todos/pending/2026-11-13-lib-moduledoc-enumeration-overclaims.md",
+    "registration" =>
+      ".planning/todos/pending/2026-11-13-duplicate-registration-timing-oracle.md",
+    "confirmation-resend" =>
+      ".planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md"
+  }
+
+  # Dimensions on which each known divergence differs today. Asserted exactly, so
+  # a partial fix also forces the registry row to be updated.
+  @expected_divergence_dims %{
+    "registration" => [:body, :flash],
+    "passkey-signin-options" => [:json_keys],
+    "password-signin-repeat-attempts" => [:result]
+  }
+
+  # by_design rows that have a documented-behaviour assertion below.
+  @by_design_ids ~w(invitation-accept enterprise-sso-discovery)
 
   # ---------------------------------------------------------------------------
   # Registry
@@ -134,6 +169,44 @@ defmodule ExampleWeb.EnumerationParityTest do
              "at least three of the five named surfaces must be parity"
     end
 
+    test "the leaks that exist today are never registered as parity" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+
+      for id <- @named_leak_ids do
+        assert Map.has_key?(by_id, id), "leak row #{id} is missing from the registry"
+
+        assert by_id[id]["state"] != "parity",
+               "#{id} is a known leak and must not be registered as parity"
+
+        assert by_id[id]["state"] in ~w(known_divergence not_proven)
+      end
+    end
+
+    test "rows carry exactly the fixed todo paths, every other row carries null" do
+      rows = surfaces()
+
+      for row <- rows do
+        assert row["todo"] == Map.get(@expected_todos, row["id"]),
+               "row #{row["id"]} todo is #{inspect(row["todo"])}, expected " <>
+                 inspect(Map.get(@expected_todos, row["id"]))
+      end
+
+      ids = Enum.map(rows, & &1["id"])
+
+      for id <- Map.keys(@expected_todos) do
+        assert id in ids, "row #{id} (which carries a todo) is missing from the registry"
+      end
+    end
+
+    test "the library-claims row is a not_proven library row with no probe dimensions" do
+      row = Enum.find(surfaces(), &(&1["id"] == "lib-moduledoc-claims"))
+
+      assert row["kind"] == "library"
+      assert row["state"] == "not_proven"
+      assert row["compare"] == []
+      assert row["blocker"] =~ "lib/sigra/lockout.ex:13"
+    end
+
     test "every blocker citation points at a real file and an existing line" do
       for %{"id" => id, "blocker" => blocker} when is_binary(blocker) <- surfaces() do
         citations = Regex.scan(@citation_shape, blocker)
@@ -190,6 +263,8 @@ defmodule ExampleWeb.EnumerationParityTest do
         ~s(<meta name="csrf-token" content="abc123XYZ"> ) <>
           ~s(<input name="_csrf_token" type="hidden" hidden value="zzz999QQQ"> ) <>
           ~s(<input type="email" value="#{email}"> ) <>
+          ~s(<div id="phx-GOf2PoyjnnHHrwZD" data-phx-session="SFMyNTY.abc" data-phx-static="SFMyNTY.def"> ) <>
+          ~s(<form id="login_form"> ) <>
           ~s(request_id=F9xk2Lw0aBcDeF12 ) <>
           "No account found for #{email}"
 
@@ -199,6 +274,13 @@ defmodule ExampleWeb.EnumerationParityTest do
       assert normalized =~ ~s(value="{{CSRF}}")
       assert normalized =~ ~s(value="{{EMAIL}}")
       assert normalized =~ "request_id={{REQUEST_ID}}"
+      # LiveView per-mount ids and session/static tokens are request-scoped
+      # identifiers; every other id and attribute is left alone.
+      assert normalized =~ ~s(id="phx-{{REQUEST_ID}}")
+      assert normalized =~ ~s(data-phx-session="{{REQUEST_ID}}")
+      assert normalized =~ ~s(data-phx-static="{{REQUEST_ID}}")
+      assert normalized =~ ~s(id="login_form")
+      refute normalized =~ "GOf2PoyjnnHHrwZD"
       refute normalized =~ "abc123XYZ"
       refute normalized =~ "zzz999QQQ"
       refute normalized =~ email
@@ -229,6 +311,112 @@ defmodule ExampleWeb.EnumerationParityTest do
 
       failures = for {id, {:diff, details}} <- results, do: "#{id}: #{inspect_diff(details)}"
       assert failures == [], "parity rows differ:\n" <> Enum.join(failures, "\n")
+    end
+  end
+
+  describe "known divergences (asserted: fixing the product must change the registry)" do
+    setup :ensure_passkey_config_secret
+
+    test "every known_divergence row still differs on exactly the registered dimensions" do
+      rows = for %{"state" => "known_divergence"} = row <- surfaces(), do: row
+      ids = Enum.map(rows, & &1["id"])
+
+      assert Enum.sort(ids) == Enum.sort(Map.keys(@expected_divergence_dims)),
+             "known_divergence rows #{inspect(ids)} do not match the asserted set"
+
+      for row <- rows do
+        {existing, unknown} = probe_pair(row["id"])
+
+        case compare(existing, unknown, dimensions(row)) do
+          :same ->
+            flunk(
+              "#{row["id"]} no longer differs. The divergence is fixed: remove or change " <>
+                "its row in test/fixtures/brand/public-surfaces.json and its todo."
+            )
+
+          {:diff, details} ->
+            assert details |> Enum.map(&elem(&1, 0)) |> Enum.sort() ==
+                     Enum.sort(Map.fetch!(@expected_divergence_dims, row["id"])),
+                   "#{row["id"]} differs on other dimensions than registered: " <>
+                     inspect_diff(details)
+        end
+      end
+    end
+
+    test "the lockout divergence is masked at the example sign-in controller" do
+      # The library result differs (asserted above); the example controller maps
+      # every error to one flash, so the HTTP response does not expose it.
+      attempts = lockout_attempts()
+
+      masked =
+        for identity <- [:existing, :unknown] do
+          email = identity_email(identity)
+
+          conn =
+            Enum.reduce(1..attempts, nil, fn _n, _last ->
+              post(build_conn(), ~p"/users/log_in", %{
+                "user" => %{"email" => email, "password" => "wrong-password"}
+              })
+            end)
+
+          normalize(
+            response(
+              status: conn.status,
+              location: redirected_to(conn),
+              flash: conn.assigns.flash
+            ),
+            email
+          )
+        end
+
+      assert [existing, unknown] = masked
+      assert compare(existing, unknown, [:status, :location, :flash]) == :same
+      assert existing.flash["error"] == "Invalid email or password"
+    end
+
+    test "the email-less conditional passkey flow involves no identity: two anonymous calls match" do
+      [first, second] =
+        for _call <- 1..2 do
+          build_conn()
+          |> put_passkey_json_headers()
+          |> post(~p"/users/log_in/passkey/options", %{"conditional" => "true"})
+          |> capture_json("nobody@example.com")
+        end
+
+      assert first.json_keys == ["options"]
+      assert compare(first, second, [:status, :json_keys]) == :same
+    end
+  end
+
+  describe "by design (documented behaviour is asserted)" do
+    test "every by_design row has an asserted behaviour in this module" do
+      ids = for %{"state" => "by_design", "id" => id} <- surfaces(), do: id
+      assert Enum.sort(ids) == Enum.sort(@by_design_ids)
+    end
+
+    test "invitation-accept: the signup branch does not depend on the invitee having an account" do
+      row = Enum.find(surfaces(), &(&1["id"] == "invitation-accept"))
+      {existing, unknown} = probe_pair("invitation-accept")
+
+      assert existing.body =~ "Join Parity Org"
+      assert existing.body =~ ~s(phx-submit="accept_with_signup")
+      assert compare(existing, unknown, dimensions(row)) == :same
+    end
+
+    test "enterprise-sso-discovery: answers per email domain, never per user" do
+      row = Enum.find(surfaces(), &(&1["id"] == "enterprise-sso-discovery"))
+      {existing, unknown} = probe_pair("enterprise-sso-discovery")
+
+      assert existing.location =~ "routing_source=domain_discovery"
+      assert compare(existing, unknown, dimensions(row)) == :same
+
+      # What is revealed is the connection for the DOMAIN: an address on a domain
+      # without one gets a different answer, by design.
+      ctx = prepare("enterprise-sso-discovery")
+      other_domain = probe("enterprise-sso-discovery", :other_domain, ctx)
+
+      assert {:diff, details} = compare(existing, other_domain, dimensions(row))
+      assert Enum.any?(details, &match?({:location, _, _}, &1))
     end
   end
 
@@ -296,11 +484,18 @@ defmodule ExampleWeb.EnumerationParityTest do
     leak = Keyword.get(opts, :leak)
 
     for %{"state" => "parity"} = row <- registry["surfaces"] do
-      existing = probe(row["id"], :existing)
-      unknown = probe(row["id"], :unknown) |> maybe_leak(row["id"], leak)
+      {existing, unknown} = probe_pair(row["id"])
+      unknown = maybe_leak(unknown, row["id"], leak)
 
       {row["id"], compare(existing, unknown, dimensions(row))}
     end
+  end
+
+  # Probes one surface for an existing identity and an unknown identity against
+  # the same shared fixtures (`prepare/1`).
+  defp probe_pair(id) do
+    ctx = prepare(id)
+    {probe(id, :existing, ctx), probe(id, :unknown, ctx)}
   end
 
   defp maybe_leak(response, id, {id, text}), do: leak(response, text)
@@ -328,7 +523,7 @@ defmodule ExampleWeb.EnumerationParityTest do
 
   defp response(attrs) do
     Map.merge(
-      %{status: 200, location: nil, flash: %{}, body: "", json_keys: nil},
+      %{status: 200, location: nil, flash: %{}, body: "", json_keys: nil, result: nil},
       Map.new(attrs)
     )
   end
@@ -343,7 +538,7 @@ defmodule ExampleWeb.EnumerationParityTest do
 
   # --- probes -----------------------------------------------------------------
 
-  defp probe("password-signin", identity) do
+  defp probe("password-signin", identity, _ctx) do
     email = identity_email(identity)
 
     build_conn()
@@ -351,7 +546,7 @@ defmodule ExampleWeb.EnumerationParityTest do
     |> capture_redirect(email)
   end
 
-  defp probe("magic-link-request", identity) do
+  defp probe("magic-link-request", identity, _ctx) do
     email = identity_email(identity)
 
     build_conn()
@@ -362,7 +557,7 @@ defmodule ExampleWeb.EnumerationParityTest do
   # Identity here is the code KIND: a wrong authenticator code (:existing)
   # versus a wrong backup code (:unknown), each for a freshly enrolled user
   # with an MFA-pending session.
-  defp probe("mfa-challenge", identity) do
+  defp probe("mfa-challenge", identity, _ctx) do
     %{user: user, totp_secret: secret} = mfa_pending_session_fixture()
 
     conn =
@@ -387,7 +582,128 @@ defmodule ExampleWeb.EnumerationParityTest do
     capture_live(view, result, user.email)
   end
 
-  defp probe(id, _identity), do: raise(ArgumentError, "no probe defined for surface #{id}")
+  # Identity here is whether the invitee email already has an account. The org
+  # and owner are shared (`prepare/1`) so only the invitee differs.
+  defp probe("invitation-accept", identity, %{owner: owner, org: org, scope: scope}) do
+    email = identity_email(identity)
+
+    {:ok, invitation} =
+      Example.Organizations.create_invitation(%{
+        actor: scope,
+        organization_id: org.id,
+        email: email,
+        role: :member,
+        invited_by_id: owner.id
+      })
+
+    {:ok, view, html} =
+      live(build_conn(), ~p"/invitations/#{invitation.__encoded_token__}/accept")
+
+    capture_live(view, html, email)
+  end
+
+  # By design: discovery answers per email DOMAIN. :existing and :unknown are both
+  # on the connected domain; :other_domain is not.
+  defp probe("enterprise-sso-discovery", identity, %{domain: domain}) do
+    email =
+      case identity do
+        :existing -> user_fixture(%{email: "member-#{unique()}@#{domain}"}).email
+        :unknown -> "nobody-#{unique()}@#{domain}"
+        :other_domain -> "nobody-#{unique()}@unconnected-#{unique()}.example"
+      end
+
+    build_conn()
+    |> post(~p"/users/log_in", %{"_action" => "enterprise", "user" => %{"email" => email}})
+    |> capture_redirect(email, follow: false)
+  end
+
+  defp probe("registration", identity, _ctx) do
+    # :existing is a duplicate registration, :unknown is a new one.
+    email = identity_email(identity)
+    {:ok, view, _html} = live(build_conn(), ~p"/users/register")
+
+    result =
+      view
+      |> form("#registration_form", user: %{email: email, password: valid_user_password()})
+      |> render_submit()
+
+    capture_live(view, result, email)
+  end
+
+  defp probe("passkey-signin-options", identity, _ctx) do
+    email = identity_email(identity)
+
+    build_conn()
+    |> put_passkey_json_headers()
+    |> post(~p"/users/log_in/passkey/options", %{"user" => %{"email" => email}})
+    |> capture_json(email)
+  end
+
+  # Library level: the same wrong password repeated past the lockout threshold.
+  defp probe("password-signin-repeat-attempts", identity, _ctx) do
+    email = identity_email(identity)
+
+    {:error, reason} =
+      Enum.reduce(1..lockout_attempts(), nil, fn _n, _last ->
+        Example.Accounts.authenticate_user(email, "wrong-password")
+      end)
+
+    normalize(
+      response(result: %{reason: reason, safe_message: Sigra.Error.safe_message(reason)}),
+      email
+    )
+  end
+
+  defp probe(id, _identity, _ctx), do: raise(ArgumentError, "no probe defined for surface #{id}")
+
+  # Shared fixtures for the two probes of one surface; most surfaces need none.
+  defp prepare("invitation-accept") do
+    owner = user_fixture()
+    org = create_organization(%{name: "Parity Org"})
+    create_membership(owner, org, :owner)
+
+    scope = %Example.Accounts.Scope{
+      user: owner,
+      active_organization: org,
+      membership: %Example.Accounts.OrganizationMembership{role: :owner}
+    }
+
+    %{owner: owner, org: org, scope: scope}
+  end
+
+  defp prepare("enterprise-sso-discovery") do
+    domain = "parity-#{unique()}.example"
+    organization = create_organization(%{name: "Parity SSO Org"})
+
+    %Example.Accounts.EnterpriseConnection{}
+    |> Example.Accounts.EnterpriseConnection.changeset(%{
+      organization_id: organization.id,
+      protocol: :oidc,
+      status: :active,
+      display_name: "Parity enterprise connection",
+      login_hint_domains: [domain],
+      oidc_settings: %{
+        issuer: "https://idp.example.com",
+        discovery_document_uri: "https://idp.example.com/.well-known/openid-configuration",
+        client_id: "client-id",
+        encrypted_client_secret: "super-secret",
+        client_authentication_method: "client_secret_basic",
+        scopes: ["openid", "profile", "email"]
+      }
+    })
+    |> Example.Repo.insert!()
+
+    %{domain: domain, organization: organization}
+  end
+
+  defp prepare(_id), do: nil
+
+  defp unique, do: System.unique_integer([:positive])
+
+  # One more than the configured lockout threshold.
+  defp lockout_attempts do
+    Keyword.fetch!(Example.Accounts.sigra_config().lockout, :threshold) + 1
+  end
 
   # A well-formed 6-digit code that is outside the +/-1 step drift window, so
   # the probe is deterministic.
@@ -402,17 +718,29 @@ defmodule ExampleWeb.EnumerationParityTest do
 
   # Captures a controller redirect response: the POST status, location and
   # server-side flash map, plus the page the redirect lands on.
-  defp capture_redirect(conn, email) do
+  defp capture_redirect(conn, email, opts \\ []) do
     location = redirected_to(conn)
-    followed = conn |> recycle() |> get(location)
+
+    body =
+      if Keyword.get(opts, :follow, true) do
+        conn |> recycle() |> get(location) |> html_response(200)
+      else
+        ""
+      end
 
     normalize(
-      response(
-        status: conn.status,
-        location: location,
-        flash: conn.assigns.flash,
-        body: html_response(followed, 200)
-      ),
+      response(status: conn.status, location: location, flash: conn.assigns.flash, body: body),
+      email
+    )
+  end
+
+  # Captures a JSON endpoint response: status and the sorted top-level keys. The
+  # body is not compared (it carries a per-request challenge).
+  defp capture_json(conn, email) do
+    decoded = json_response(conn, 200)
+
+    normalize(
+      response(status: conn.status, json_keys: decoded |> Map.keys() |> Enum.sort()),
       email
     )
   end
@@ -458,6 +786,8 @@ defmodule ExampleWeb.EnumerationParityTest do
       )
     )
     |> then(&Regex.replace(~r/(data-csrf=")[^"]*"/, &1, "\\1{{CSRF}}\""))
+    |> then(&Regex.replace(~r/(\bid="phx-)[A-Za-z0-9_-]+"/, &1, "\\1{{REQUEST_ID}}\""))
+    |> then(&Regex.replace(~r/(data-phx-(?:session|static)=")[^"]*"/, &1, "\\1{{REQUEST_ID}}\""))
     |> then(
       &Regex.replace(
         ~r/(request[-_]id["']?\s*[:=]\s*["']?)[A-Za-z0-9_=-]{8,}/i,
@@ -474,5 +804,40 @@ defmodule ExampleWeb.EnumerationParityTest do
     |> String.replace(email, "{{EMAIL}}")
     |> String.replace(Plug.HTML.html_escape(email), "{{EMAIL}}")
     |> String.replace(URI.encode_www_form(email), "{{EMAIL}}")
+  end
+
+  # --- passkey helpers (copied: the originals in passkey_session_controller_test
+  # are private) --------------------------------------------------------------
+
+  defp ensure_passkey_config_secret(_context) do
+    old_config = Application.get_env(:example, :sigra_config)
+    old_otp_app = Application.get_env(:sigra, :otp_app)
+
+    Application.put_env(:sigra, :otp_app, :example)
+
+    Application.put_env(
+      :example,
+      :sigra_config,
+      Keyword.put(old_config, :secret_key_base, ExampleWeb.Endpoint.config(:secret_key_base))
+    )
+
+    Sigra.Passkeys.reset_cached_config()
+
+    on_exit(fn ->
+      restore_env(:sigra, :otp_app, old_otp_app)
+      restore_env(:example, :sigra_config, old_config)
+      Sigra.Passkeys.reset_cached_config()
+    end)
+
+    :ok
+  end
+
+  defp restore_env(app, key, nil), do: Application.delete_env(app, key)
+  defp restore_env(app, key, value), do: Application.put_env(app, key, value)
+
+  defp put_passkey_json_headers(conn) do
+    conn
+    |> put_req_header("accept", "application/json")
+    |> put_req_header("content-type", "application/json")
   end
 end
