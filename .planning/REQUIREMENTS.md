@@ -15,7 +15,7 @@ Priority: **M** must, **S** should (cut first if capacity is short). Net-new dep
 - [ ] **BPOL-03** (M): Add-only ratchet test: CSS custom-property names, `sg-*`/`sigra-auth-*` classes, `Profile` keys and defaults, config keys, routes/helpers, Gettext domain, `data-testid`s, logo filenames; legacy Branding profiles (explicit, partial, defaults) render byte-identically.
 - [ ] **BPOL-04** (M): Name-clearance record titled "search log, not clearance" (includes the same-name `crosswake_sigra` Hex package), claims register, decisions on logo-use statement and clear-space authority. No trademark claim.
 - [ ] **BPOL-05** (M): Decision records: `Profile` defaults frozen; fonts via additive tokens only; SemVer level minor (`feat`/`fix`/`docs`, no `!`/BREAKING); msgid renames targeted with a rename table; Suspended/unlock/seven-day rule out of scope; status labels (keep "Deletion scheduled"); PNG-lane policy.
-- [ ] **BPOL-06** (M): Instruction-file pointer fix (`CLAUDE.md`, `AGENTS.md`, admin guides still direct executors to the retired `brandbook/` Rail assets). Minimal edit; **requires explicit owner approval**.
+- [ ] **BPOL-06** (M): Instruction-file pointer fix (`CLAUDE.md`, `AGENTS.md`, admin guides still direct executors to the retired `brandbook/` Rail assets). Minimal edit; **owner approval granted 2026-11-13** (pointers to the new `brand/` book).
 - [ ] **BPOL-07** (S): Upgrade-note skeleton (which lane auto-updates, what hosts re-copy).
 
 ### Copy contract (BCOPY) — Phase 1
