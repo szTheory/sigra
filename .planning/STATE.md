@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 259
 current_phase_name: Compatibility Policy, Pinned Source and Copy Contract
-current_plan: 7
+current_plan: 8
 status: executing
-stopped_at: Completed 259-06-PLAN.md
-last_updated: "2026-11-14T16:18:28.838Z"
+stopped_at: Completed 259-07-PLAN.md
+last_updated: "2026-11-14T16:33:59.088Z"
 last_activity: 2026-11-13
 last_activity_desc: v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
-state_head: 4d9f3ff4b0bbcbac426863bafa01c71f4adddab5
+state_head: ad8b863ea6729d170cdd3125eca015d6e0b14287
 progress:
   total_phases: 5
   completed_phases: 0
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 259 (Compatibility Policy, Pinned Source and Copy Contract) — EXECUTING
-Current Plan: 7
+Current Plan: 8
 Total Plans in Phase: 13
 Status: Ready to execute
 Last activity: 2026-11-13 — v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-14T16:18:28.760Z
-Stopped at: Completed 259-06-PLAN.md
+Last session: 2026-11-14T16:33:59.055Z
+Stopped at: Completed 259-07-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
@@ -124,6 +124,7 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 | Phase 259 P04 | 3 min | 1 tasks | 1 files |
 | Phase 259 P05 | 5 min | 3 tasks | 4 files |
 | Phase 259 P06 | 12 min | 3 tasks | 5 files |
+| Phase 259 P07 | 16min | 3 tasks | 2 files |
 
 ## Decisions
 
@@ -139,3 +140,6 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 - [Phase 259]: 259-05: Msgids, preview HTML and admin copy are not frozen (only the Gettext domain); legacy Branding fixture is generated once behind SIGRA_BRAND_LEGACY=write and never overwritten; frozen baseline extends only through the guarded SIGRA_BRAND_BASELINE=extend union
 - [Phase 259]: 259-06: Copy inventory rows are prose-only per lane: host excludes hex design tokens, library keeps capitalized single words and scopes error.ex to safe_message/1, and generated/library never evaluate repo content (regex or Code.string_to_quoted only)
 - [Phase 259]: 259-06: Inventory lanes as specified leave raw template literals, HEEx attribute copy and browser JS copy uncovered (listed in SUMMARY Deferred Issues); extending them is a regeneration-flow follow-up, not recorded in the ship ledger
+- [Phase 259]: 259-07: password-reset-request and confirmation-resend registered not_proven (example host cannot drive either); 3 of 5 named surfaces are parity
+- [Phase 259]: 259-07: added a result compare dimension for library-level rows; LiveView per-mount ids normalized as request ids; known-divergence rows assert exact differing dimensions
+- [Phase 259]: 259-07: passkey conditional flow is a sub-case test, not a parity registry row (no identity involved)
