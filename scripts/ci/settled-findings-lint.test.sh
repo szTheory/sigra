@@ -144,7 +144,7 @@ bash "$GUARD" \
   --class "off-token-spacing" \
   --anchor ".sg-btn" \
   --disposition "waived" \
-  --waived-by "jon" \
+  --waived-by "owner" \
   --note "test note B" \
   2>"$STDERR_D1"
 EXIT_D1=$?

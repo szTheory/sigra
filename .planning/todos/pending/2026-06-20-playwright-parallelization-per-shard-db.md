@@ -8,7 +8,7 @@ files:
   - test/example/priv/playwright/playwright.config.ts
   - .github/workflows/ci.yml
 
-source: Jon (v1.40 ship, PR #58) — re-raise of SEED-005 thesis #4 with phase-197 evidence
+source: the owner (v1.40 ship, PR #58) — re-raise of SEED-005 thesis #4 with phase-197 evidence
 resolves_phase: 232
 audit_acknowledged:
   milestone: v1.47

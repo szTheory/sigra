@@ -2,7 +2,7 @@
 id: SEED-009
 status: open
 planted: 2026-07-18
-planted_during: "quick task 260718-qxg — home front-door polish (Jon's live click-through of /admin/audit)"
+planted_during: "quick task 260718-qxg — home front-door polish (the owner's live click-through of /admin/audit)"
 trigger_when: The admin/operator-UI coherence milestone reaches the audit surface (or any admin filter-heavy surface — user search, session review, org views), or an evaluator reports 'I can't tell which filters are applied.'
 scope: Small–Medium
 ---
@@ -18,7 +18,7 @@ active**. The filter inputs are mostly tucked behind a **"More filters"**
 dropdown/expander, so once applied+collapsed there is no at-a-glance summary of
 the applied state — the user has to re-open the expander and read each control.
 
-Jon (live, 2026-07-18): "it's not clear after you hit Apply filters which filters
+the owner (live, 2026-07-18): "it's not clear after you hit Apply filters which filters
 are being applied … maybe because most of them are progressively shown with the
 'More filters' dropdown/expander … make this more obvious."
 
@@ -38,7 +38,7 @@ serialization as part of this (empty filters shouldn't be echoed).
   chip/badge primitive if one exists) rather than the demo-app `vt-*` layer.
   Follow `guides/reference/admin-ui-principles.md` + `admin-design-contract.md`
   and support Light/Dark/System.
-- **Possibly retire "More filters"**: Jon — "maybe we just get rid of 'More
+- **Possibly retire "More filters"**: the owner — "maybe we just get rid of 'More
   filters' for now b/c right now it's basically all of the controls anyways lol."
   If the expander hides ~all controls it adds a click without real progressive
   disclosure. Evaluate flattening the filter bar (show the common filters inline;
@@ -60,7 +60,7 @@ serialization as part of this (empty filters shouldn't be echoed).
 
 ## Why deferred
 
-Raised mid-flow during unrelated demo front-door polish; Jon explicitly did not
+Raised mid-flow during unrelated demo front-door polish; the owner explicitly did not
 want to get sidetracked. Belongs in the admin/operator-UI coherence milestone
 where the audit surface gets deliberate iteration, alongside the other
 under-iterated admin overviews. Related: [[project_sigra_admin_coherence_milestone]],

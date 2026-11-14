@@ -215,7 +215,7 @@ residual judgment calls + earned gradient raises — not an open-ended issue hun
 <specifics>
 ## Specific Ideas
 
-- Operator (Jon) will run the panel locally with his `ANTHROPIC_API_KEY`, `--changed-only`, so
+- Operator (the owner) will run the panel locally with his `ANTHROPIC_API_KEY`, `--changed-only`, so
   first-run token spend is bounded and re-runs are ~free via the skip cache.
 - Verify-hold is the primary deliverable; earned raises are the exception, decided at PR sign-off.
 - The 6 not-yet-mapped L3→board proxies should mirror the two documented pilots
@@ -234,5 +234,5 @@ residual judgment calls + earned gradient raises — not an open-ended issue hun
 - `2026-06-20-runtime-auth-prefix-override` (FEAT-01) — config feature, deferred.
 - `2026-06-22-white-label-auth-email-theming` (FEAT-03) — non-admin/auth theming, deferred.
 - `2026-07-02-app-css-corruption-guard-blind-spot` — CI-guard hardening (not admin-UI elevation); v1.43 already added the base guard. Defer unless it bites the UI-02 CSS work.
-- `2026-07-03-hex-retire-stray-1-20-0` — Jon-manual release chore, not roadmap work.
+- `2026-07-03-hex-retire-stray-1-20-0` — owner-manual release chore, not roadmap work.
 </deferred>

@@ -8,6 +8,9 @@ source: phase 237 plan 06 boundary check
 files:
   - doc/llms.txt
   - mix.exs
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

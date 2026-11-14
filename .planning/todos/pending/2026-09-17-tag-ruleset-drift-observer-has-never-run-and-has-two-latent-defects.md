@@ -7,6 +7,9 @@ severity: minor
 source: phase 238 code review (IN-03)
 files:
   - .github/workflows/ci-observe.yml
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

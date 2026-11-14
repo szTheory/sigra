@@ -3,7 +3,9 @@ created: 2026-09-15
 source: v1.47 CI-EFFICIENCY milestone audit (re-audit at close)
 severity: medium
 requirements: [DX-01, DX-02, PW-02]
-audit_acknowledged: v1.47
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 resolves_phase: 241
 ---
 
@@ -24,3 +26,15 @@ them:
 Net: the composite action Phase 232 created will silently rot. Add a
 `github-actions` Dependabot entry for `/.github/actions/example-playwright-boot` and widen
 the pin guard's file set.
+
+## Phase 241 update (2026-09-19): partially closed
+
+Phase 241 closed the DX-01 pinning-guard half: the guard now discovers composite action
+manifests through `.github/actions/*/action.yml`, rejects both dashed and bare unpinned
+`uses:` references through committed known-bad fixtures, and keeps a 16-entry inventory
+floor. The real composite action is exercised without ever mutating it.
+
+The DX-02 Dependabot half remains open. A `github-actions` entry for
+`/.github/actions/example-playwright-boot` is not added here because
+`phase_234_dependabot_contract_test.exs` deliberately locks the configuration to exactly
+three entries; changing that contract is outside Phase 241's authorized DEBT-04 scope.

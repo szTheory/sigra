@@ -9,6 +9,9 @@ files:
   - guides/introduction/code-walkthrough.md
   - priv/templates/sigra.install/core/session_controller.ex
   - test/sigra/architecture_guides_contract_test.exs
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

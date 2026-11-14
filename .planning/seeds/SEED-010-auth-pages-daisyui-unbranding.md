@@ -2,7 +2,7 @@
 id: SEED-010
 status: open
 planted: 2026-07-18
-planted_during: "quick task 260718-t7o — MFA settings page brand polish (Jon flagged the purple button)"
+planted_during: "quick task 260718-t7o — MFA settings page brand polish (the owner flagged the purple button)"
 trigger_when: A dedicated auth-surface brand pass, or an adopter-onboarding / generated-code-quality milestone, or an adopter asking why generated auth pages look unstyled.
 scope: Large
 ---
@@ -49,6 +49,6 @@ Every generated auth page an adopter receives (`core/mfa_settings_live.ex`, `cor
 ## Why deferred
 
 Fixing the whole auth surface is a large, multi-file effort; the installer-template layer additionally
-needs a product decision (above) rather than a mechanical change. Jon's 260718-t7o ask was the Tasklane
+needs a product decision (above) rather than a mechanical change. the owner's 260718-t7o ask was the Tasklane
 demo MFA page specifically — done. Related: [[project_next_milestone_admin_ui]],
 [[reference_installer_template_drift]], [[project_admin_ui_design_system]].

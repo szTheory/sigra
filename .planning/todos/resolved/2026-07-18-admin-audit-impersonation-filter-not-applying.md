@@ -10,7 +10,7 @@ files:
   - lib/sigra/admin/live/audit_live.ex
   - lib/sigra/admin/components.ex
 
-source: 2026-07-18 Jon spotted the chip on /admin/audit not filtering; flagged during the demo-DX polish burst
+source: 2026-07-18 the owner spotted the chip on /admin/audit not filtering; flagged during the demo-DX polish burst
 audit_acknowledged:
   milestone: v1.47
   at: 2026-09-15

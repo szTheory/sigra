@@ -97,9 +97,9 @@ Plan 19 fixes the literal-terminal-conclusion defect: the verifier now derives t
 
 **Classification:** BLOCKER
 
-**File:** `/Users/jon/projects/sigra/scripts/ci/install-smoke.sh:20-21,43-46`
+**File:** `~/projects/sigra/scripts/ci/install-smoke.sh:20-21,43-46`
 
-**Issue:** `TMP_APP_DIR` is accepted verbatim from the environment and passed to `rm -rf`. A typo such as `TMP_APP_DIR=/Users/jon/projects` destroys unrelated work, and `/`, the repository root, or another broad directory is not rejected. This is a direct data-loss risk in a developer-facing verification script.
+**Issue:** `TMP_APP_DIR` is accepted verbatim from the environment and passed to `rm -rf`. A typo such as `TMP_APP_DIR=~/projects` destroys unrelated work, and `/`, the repository root, or another broad directory is not rejected. This is a direct data-loss risk in a developer-facing verification script.
 
 **Fix:** Create a private parent with a trusted `mktemp -d`, place the generated app beneath it, and clean only that validated child. If the override must remain, resolve it, require it to be a non-root descendant of an explicit temporary parent, reject the workspace and empty/broad paths, and only then remove it.
 
@@ -109,9 +109,9 @@ Plan 19 fixes the literal-terminal-conclusion defect: the verifier now derives t
 
 **Files:**
 
-- `/Users/jon/projects/sigra/scripts/ci/verify-fast-01-source-complete-attestation-offline.sh:95-113`
-- `/Users/jon/projects/sigra/scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh:21-30,82-90`
-- `/Users/jon/projects/sigra/scripts/ci/verify-terminal-ratification-attestation-offline.sh:15-21,56-64`
+- `~/projects/sigra/scripts/ci/verify-fast-01-source-complete-attestation-offline.sh:95-113`
+- `~/projects/sigra/scripts/ci/verify-fast-01-gap-closure-attestation-offline.sh:21-30,82-90`
+- `~/projects/sigra/scripts/ci/verify-terminal-ratification-attestation-offline.sh:15-21,56-64`
 
 **Issue:** Each verifier resolves `mktemp` from caller-controlled `PATH`, does not whitelist the resolved executable or validate its returned directory, and later recursively removes that value. A broken or shadowed `mktemp` can print an existing broad directory and exit successfully; any later failure triggers the EXIT trap and deletes it. The scripts whitelist `gh` and `jq`, making this omission inconsistent with their executable trust boundary. The source-complete verifier also lacks the sudo-aware cleanup used by the other two.
 
@@ -121,7 +121,7 @@ Plan 19 fixes the literal-terminal-conclusion defect: the verifier now derives t
 
 **Classification:** BLOCKER
 
-**File:** `/Users/jon/projects/sigra/lib/sigra/oauth.ex:157-168,239-251`
+**File:** `~/projects/sigra/lib/sigra/oauth.ex:157-168,239-251`
 
 **Issue:** The public evidence callback accepts any configured provider atom and unconditionally invokes `strategy_module.callback/4`. Only Apple and Google implement that arity. GitHub, Facebook, Generic, and custom strategies resolve successfully and then raise `UndefinedFunctionError`, contradicting the documented `{:error, %OAuthError{}}` contract. Authorization already accepts evidence mode for a custom provider (`oauth_test.exs:226`), so callers can enter a flow guaranteed to crash at callback.
 
@@ -133,7 +133,7 @@ Plan 19 fixes the literal-terminal-conclusion defect: the verifier now derives t
 
 **Classification:** WARNING
 
-**File:** `/Users/jon/projects/sigra/scripts/ci/verify-fast-01-source-complete-attestation-offline.sh:26-58`
+**File:** `~/projects/sigra/scripts/ci/verify-fast-01-source-complete-attestation-offline.sh:26-58`
 
 **Issue:** Literal outcomes are now correct, but the extracted validator does not enforce the `ci-run-metrics.sh` input/output contract. It accepts source rows with required `url` fields removed and accepts forged `instrument_receipt.output.schema_version`, `threshold_seconds`, and `diagnostics`. Reproduction: deleting every URL, setting the schema to `"forged"`, threshold to `999999`, and diagnostics to `["forged"]` still prints `source_complete_semantic_fixture_verified`. Thus the fixture path is not an equivalent test of the authenticated path's authoritative instrument.
 
@@ -143,7 +143,7 @@ Plan 19 fixes the literal-terminal-conclusion defect: the verifier now derives t
 
 **Classification:** WARNING
 
-**File:** `/Users/jon/projects/sigra/scripts/ci/verify-fast-01-source-complete-attestation-offline.sh:59-68`
+**File:** `~/projects/sigra/scripts/ci/verify-fast-01-source-complete-attestation-offline.sh:59-68`
 
 **Issue:** The miss branch checks page continuity and run linkage but not `job_id` type/uniqueness, pole role/resource/query, job/step conclusion presence, or declared field types. Duplicate or malformed jobs can pass if timestamps and `run_id` compare. This is latent because the retained result is a pass.
 
@@ -153,7 +153,7 @@ Plan 19 fixes the literal-terminal-conclusion defect: the verifier now derives t
 
 **Classification:** WARNING
 
-**File:** `/Users/jon/projects/sigra/scripts/ci/ci-run-metrics.sh:97-104`
+**File:** `~/projects/sigra/scripts/ci/ci-run-metrics.sh:97-104`
 
 **Issue:** The phase contract describes a file/stdin source-page seam, but `--source-pages -` fails the `-s` file check because `-` is treated as a filename. Production uses a temporary file, but the declared interface is incomplete.
 
@@ -163,7 +163,7 @@ Plan 19 fixes the literal-terminal-conclusion defect: the verifier now derives t
 
 **Classification:** WARNING
 
-**File:** `/Users/jon/projects/sigra/scripts/ci/ci-run-metrics.sh:63-76`
+**File:** `~/projects/sigra/scripts/ci/ci-run-metrics.sh:63-76`
 
 **Issue:** Every value-taking option reads `$2` without checking that an argument remains. With `set -u`, `ci-run-metrics.sh --source-pages` aborts with a shell `unbound variable` message rather than the stable fail-closed diagnostic contract.
 

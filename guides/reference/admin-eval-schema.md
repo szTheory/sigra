@@ -160,7 +160,7 @@ Zero data rows is correct at phase start — no findings are settled yet.
 scripts/ci/settled-findings-add.sh --surface users-index-live \
   --class off-token-spacing \
   --anchor '[data-testid="admin-users-desktop-results"] .sg-applied-chip' \
-  --disposition waived --waived-by jon --note "dense admin inline chip — D-08 precedent"
+  --disposition waived --waived-by owner --note "dense admin inline chip — D-08 precedent"
 ```
 
 ---

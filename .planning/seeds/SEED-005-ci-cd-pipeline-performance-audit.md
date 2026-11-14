@@ -104,7 +104,7 @@ P-levels, tradeoffs, patches, and the broader audit (caching keys, `mix test --s
 dialyzer/credo decisions, matrix/trigger redesign, security/release hardening) are the audit
 milestone's job — see the companion playbook embedded below.
 
-## Scope guardrails (preserve verbatim — Jon's intent)
+## Scope guardrails (preserve verbatim — the owner's intent)
 - **Keep the high-value tests.** Demote or delete **only** the lowest-signal / redundant /
   flaky / over-scoped checks — and only with evidence, never on vibes.
 - **Deterministic and reliable gates.** No flake; do not "fix" flake by blanket retries
@@ -140,9 +140,9 @@ recommendations + concrete patches as stepwise PRs.
 
 ---
 
-## Companion execution playbook (preserved verbatim — Jon's prompt, 2026-06-18)
+## Companion execution playbook (preserved verbatim — the owner's prompt, 2026-06-18)
 
-Jon's framing:
+the owner's framing:
 
 > capture this idea for maybe next GSD milestone or whatever b/c this CI is too long we can
 > probably parallelize it taking advantage properly of cores on the github action runner
@@ -170,7 +170,7 @@ Jon's framing:
 
 ## Addendum 2026-06-20 — Playwright parallelization is the #1 unrealized win (phase-197 evidence)
 
-Jon, re-raising during the v1.40 ship (PR #58): **"that playwright time is way too
+the owner, re-raising during the v1.40 ship (PR #58): **"that playwright time is way too
 slow we should be able to parallelize it somehow."** This sharpens thesis #4 with
 ground truth discovered while executing/verifying **Phase 197** (Playwright Lanes &
 Design-Gallery Re-Gate):

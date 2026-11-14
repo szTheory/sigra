@@ -45,7 +45,7 @@ live-proof-vs-backstop) because it touches the public/semver Hex contract + oper
 
 ## Corrections / Decisions Made
 
-### HARD-02 verification stance (escalated to Jon)
+### HARD-02 verification stance (escalated to the owner)
 - **Question:** loud-failure backstop + dry-run **vs** also cut a live throwaway v1.3.1 proof.
 - **User decision:** **Loud-failure backstop + dry-run (recommended)** — no new Hex version cut.
   Satisfies HARD-02's explicit OR-branch; the next real release exercises auto-publish live with the

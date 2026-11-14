@@ -59,8 +59,8 @@ This remains documentation configuration only. Reuse `brandbook/favicon.svg` byt
 @test/sigra/architecture_guides_contract_test.exs
 
 Reference behavior inspected locally:
-- `/Users/developer/projects/accrue/accrue/mix.exs` is the implementation model: it derives `dark`/`default` from `body.dark`, serializes rendering, observes body-class changes, remembers diagram source/theme, and rerenders existing diagrams without duplication.
-- `/Users/developer/projects/mailglass/mix.exs` confirms the same ExDoc favicon option/copy pattern and Mermaid `dark`/`default` choice.
+- `~/projects/accrue/accrue/mix.exs` is the implementation model: it derives `dark`/`default` from `body.dark`, serializes rendering, observes body-class changes, remembers diagram source/theme, and rerenders existing diagrams without duplication.
+- `~/projects/mailglass/mix.exs` confirms the same ExDoc favicon option/copy pattern and Mermaid `dark`/`default` choice.
 - Sigra's current hook already pins Mermaid 11.16.0 with SRI, sets `securityLevel: "strict"`, listens for `exdoc:loaded`, and hides source only after render success; preserve those guarantees.
 </context>
 

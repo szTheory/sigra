@@ -16,6 +16,9 @@ files:
   - .planning/milestones/v1.47-phases/235-terminal-ratification-measured-not-read/235-REVIEW.md
   - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-EVIDENCE.md
   - .planning/phases/236-flake-root-cause-reproduce-name-fix/236-RESEARCH.md
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem
@@ -42,14 +45,14 @@ control, and the generalized form is:
 
 ```bash
 ! git grep -qE '/Users/[a-zA-Z0-9._-]+' -- . ':!*positive-control*'
-# positive control: printf '/Users/example/x' | grep -qE '/Users/[a-zA-Z0-9._-]+'
+# positive control: printf '~/x' | grep -qE '/Users/[a-zA-Z0-9._-]+'
 ```
 
 The positive control is required: a bare "no output" from the guard is ambiguous between
 "clean" and "the guard did not run".
 
 Note the guard must not match the *intentional* occurrences — several planning files contain
-`/Users/example/x` literals and `/Users/[a-zA-Z0-9._-]+` regexes **as** the scrub's own positive
+`~/x` literals and `/Users/[a-zA-Z0-9._-]+` regexes **as** the scrub's own positive
 controls, plus already-redacted forms like `/Users/<username>/` and `/Users/<redacted>/`. A
 naive grep flags all of those. Scope the pattern to a real account name, or exclude the
 control literals explicitly.

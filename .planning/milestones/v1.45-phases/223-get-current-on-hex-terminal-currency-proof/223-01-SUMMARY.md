@@ -117,7 +117,7 @@ must run to close this plan. Until Task 3 verifies `latest_stable_version == "1.
 
 ## Operator decision (2026-07-11): retire DEFERRED indefinitely
 
-At the Task 2 checkpoint the operator (Jon) declined to perform the retire: no time now, and
+At the Task 2 checkpoint the operator (the owner) declined to perform the retire: no time now, and
 there are no real Sigra adopters yet, so the stray `1.20.0` is low-stakes to leave in place.
 The retire is deferred indefinitely as a low-priority future follow-up
 (`.planning/todos/pending/2026-07-03-hex-retire-stray-1-20-0.md`, third deferral) — NOT force-

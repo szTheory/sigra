@@ -37,7 +37,7 @@ resolution proof, PROOF-01) remains **Phase 223**; release-lane hardening remain
   so the smoke's newest-published floor is clean and `ci-gate` greens naturally — **no gate
   weakening, no `--warnings-as-errors` relaxation, no `sigra.upgrade` codemod.** Publish via the
   ungated `workflow_dispatch` `hex-publish.yml` (manual recovery; not gated on `ci-gate`), dry-run
-  first then real. (Chosen by Jon over re-scope / gate-semantics-fix / codemod alternatives.)
+  first then real. (Chosen by the owner over re-scope / gate-semantics-fix / codemod alternatives.)
 - **D-04:** **Hard dependency — the version the smoke resolves to must be `type=`-clean.**
   `upgrade-smoke.sh:52` selects `versions | sort -V | tail -n1` over series-1. The stray Hex
   **`1.20.0`** (if published as series-1) out-sorts `1.2.0`/`1.3.0`, so publishing `v1.2.0` **alone
@@ -52,7 +52,7 @@ resolution proof, PROOF-01) remains **Phase 223**; release-lane hardening remain
 
 ### PUB-01 — DECISION UPDATE (planning, 2026-07-10 — SUPERSEDES D-02/D-03/D-04 assumptions)
 Research (`221-RESEARCH.md`, HIGH confidence, live-Hex + local repro) overturned the assumptions
-behind D-02/D-03/D-04, and Jon chose **Option 4a** in the plan-phase escalation. The authoritative
+behind D-02/D-03/D-04, and the owner chose **Option 4a** in the plan-phase escalation. The authoritative
 reconciled resolution for PUB-01 is:
 - **D-12 (supersedes D-02):** The smoke floor is **`1.20.0` today**, NOT `v1.1.0`. Under `sort -V`,
   `1.20.0 > 1.3.0 > 1.2.0 > 1.1.0`, so publishing `v1.2.0`/`v1.3.0` **cannot** raise the floor above
@@ -63,7 +63,7 @@ reconciled resolution for PUB-01 is:
   resolving to `1.20.0`** via the **existing sanctioned override** — set
   `SIGRA_UPGRADE_SMOKE_START_VERSION=1.3.0` in the `upgrade_smoke` job `env:` in
   `.github/workflows/ci.yml` (one line; the override at `upgrade-smoke.sh:56-77` validates the version
-  is published + in-series). This is **Option 4a**, chosen by Jon over the algorithm-level
+  is published + in-series). This is **Option 4a**, chosen by the owner over the algorithm-level
   retired-filter (Option 4b → deferred to Phase 222/HARD-01 as the durable fix) and over deferring
   PUB-01. This is a minimal env pin, NOT a gate-algorithm change.
 - **D-14 (Option 4a sequence, pulls PUB-02/03/04 forward per D-05):** In Phase 221 —

@@ -24,7 +24,7 @@ unsatisfiable until 1.20.0 is retired.
 ### Retire path (Area 1)
 | Assumption | Confidence | Evidence |
 |------------|-----------|----------|
-| Un-defer PUB-04; operator mints dashboard write key + `mix hex.retire sigra 1.20.0`; only lever that greens PUB-05/PROOF-01 | Likely (mechanics Confident; decision is Jon's) | retire runbook `2026-07-03-hex-retire-stray-1-20-0.md:39-52`; live API `latest_stable=1.20.0` |
+| Un-defer PUB-04; operator mints dashboard write key + `mix hex.retire sigra 1.20.0`; only lever that greens PUB-05/PROOF-01 | Likely (mechanics Confident; decision is the owner's) | retire runbook `2026-07-03-hex-retire-stray-1-20-0.md:39-52`; live API `latest_stable=1.20.0` |
 
 ### PUB-05 verification mechanism (Area 2)
 | Assumption | Confidence | Evidence |
@@ -43,7 +43,7 @@ unsatisfiable until 1.20.0 is retired.
 
 ## Corrections Made
 
-**Area 1 — Retire path:** Presented as a high-stakes user-owned decision (Jon had deferred
+**Area 1 — Retire path:** Presented as a high-stakes user-owned decision (the owner had deferred
 the retire twice). Asked explicitly rather than assuming.
 
 - **Question:** How should Phase 223 handle the operator-gated retire of stray 1.20.0?

@@ -50,7 +50,7 @@ decomposition, the newly-found waste, the locked 2026-07-28 decisions, and the `
 proposed phases 230-235.
 
 **`git diff --numstat` reported `74  0`** — 74 insertions, **zero deletions**. The verbatim
-playbook, Jon's framing prompt, and the scope guardrails are byte-identical.
+playbook, the owner's framing prompt, and the scope guardrails are byte-identical.
 
 ### Task 2 — admin_eval_render todo (commit `274521b1`)
 

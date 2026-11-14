@@ -8,6 +8,9 @@ source: phase 237 plan 06 Task 3 (MIX_ENV=test mix ci gate run)
 files:
   - test/test_helper.exs
   - test/upgrade_test.exs
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

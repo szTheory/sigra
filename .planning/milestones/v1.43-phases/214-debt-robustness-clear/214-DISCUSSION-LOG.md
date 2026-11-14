@@ -59,9 +59,9 @@ API / published-package contract). Both resolved by user:
 - **Original assumption:** Root cause confirmed; scope fork between full retire (interactive)
   and repo-hygiene-only.
 - **User decision:** **Repo slice + runbook.** Delete stray `v1.20.0` git tag + fix
-  `contract.md` in-phase; document `mix hex.retire` as a manual runbook for Jon; do not
+  `contract.md` in-phase; document `mix hex.retire` as a manual runbook for the owner; do not
   block the phase on the interactive Hex retire.
-- **Reason:** The retire needs interactive Hex write-key auth only Jon can run; the
+- **Reason:** The retire needs interactive Hex write-key auth only the owner can run; the
   automatable repo slice + a tracked runbook closes DEBT-04 without blocking.
 
 All other assumptions confirmed as presented.

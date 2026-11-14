@@ -290,3 +290,14 @@ To protect the architectural integrity and maintainability of Sigra, we explicit
 **Greenfield SCIM directory-sync is explicitly deprioritized below both of the above.** It is already a stated `ENT-SSO` non-goal ("full SCIM directory sync layer beyond JIT"). With Sigra at 90-95% done-for-scope, inventing a new greenfield primitive violates Ranking Rule 1 (deepen substrate over new primitives) and the Diminishing Returns Wall. Do not pull SCIM forward unless a concrete enterprise adopter proves JIT provisioning is insufficient for a real contract.
 
 If a future milestone proposal does not clearly advance production trust, integration clarity, or DX on rough edges, treat it as lower priority than the ranked candidates above. After `DEMO-SHOWCASE`, default to the adoption push over any further feature wedge unless a concrete adopter need proves a new seam.
+
+## Rolling roadmap (refreshed 2026-11-13)
+
+Near term (ordered):
+1. **v1.51 BRAND-IDENTITY-ADOPTION**: adopt the owner-approved brand book (kept in `brand/`, pinned by hash). Phases: compatibility policy + copy contract + name-clearance record; deterministic generated output + before-screen catalog; tokens/fonts/logo/favicon with browser contrast checks; words + layout (one operator job first); README/HexDocs/Hex assets, announcement/trademark claim last. Seeds in scope: SEED-010 (auth pages unbranding), SEED-003 (auth copy hardening). Public API names, config keys and `--sg-*`/`--sigra-auth-*` tokens stay unchanged.
+2. **Security hardening follow-up**: duplicate-registration timing oracle; upgrade tests silently excluded on main (see `todos/pending/2026-11-13-*`).
+3. **Admin/operator UI via a component catalog (Storybook-style)** replacing Playwright baseline machinery; then cut the old UI-process jobs on main.
+
+Mid term: CI guard for personal names/home paths; decide shared-cache writer (#363); W-3 generated-auth browser proof; deferred v1.50 CI requirements only with fresh scope and a real hosted before/after.
+
+Lessons from v1.50 are in `notes/2026-11-13-v1.50-closeout-lessons-and-cuts.md`.

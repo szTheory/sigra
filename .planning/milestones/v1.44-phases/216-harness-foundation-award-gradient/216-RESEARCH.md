@@ -410,7 +410,7 @@ done
 ### `guides/reference/settled-findings.tsv` (D-22)
 ```
 # finding_id\tsurface\tclass\tanchor\tdisposition\twaived_by\tnote   (header comment; sorted, one entry/line)
-<sha256>	users-index-live	off-token-spacing	[data-testid="admin-users-desktop-results"] .sg-applied-chip	waived	jon	dense-control exempt
+<sha256>	users-index-live	off-token-spacing	[data-testid="admin-users-desktop-results"] .sg-applied-chip	waived	owner	dense-control exempt
 ```
 **Key (MUST match Phase 217 AUTOFIX-01 exactly — plan both together, D-22):**
 ```

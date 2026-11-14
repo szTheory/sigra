@@ -6,7 +6,7 @@ status: ready
 
 # Remove the home `vt-domain-strip` (Cohort / Local host). Example-only, trivial.
 
-Jon: the `vt-domain-strip` "Cohort @demo.tasklane.test / Local host http://sigra.localhost" strip
+the owner: the `vt-domain-strip` "Cohort @demo.tasklane.test / Local host http://sigra.localhost" strip
 below the home header doesn't do anything useful — remove it. Example-only (demo home page); no
 installer/golden (verified — not present in priv/templates or test/fixtures). No test asserts it
 (`home-domain-context` / "Cohort" / "Local host" / `vt-domain-strip` have zero test hits; the

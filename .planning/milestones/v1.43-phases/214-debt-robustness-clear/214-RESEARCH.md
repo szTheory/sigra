@@ -341,7 +341,7 @@ D-13's actions are confirmed correct:
 1. `git tag -d v1.20.0` + `git push origin :refs/tags/v1.20.0` — deletes local and remote tag
 2. Edit `guides/introduction/contract.md` line 9 — replace `1.20.0` with `1.1.0`
 
-The Hex retire (`mix hex.retire sigra 1.20.0 invalid`) must be documented as a manual runbook step per D-14 — this cannot be automated in-phase because it requires Jon's Hex credentials.
+The Hex retire (`mix hex.retire sigra 1.20.0 invalid`) must be documented as a manual runbook step per D-14 — this cannot be automated in-phase because it requires the owner's Hex credentials.
 
 ---
 
@@ -623,7 +623,7 @@ No new external dependencies. All required tools (`mix`, `git`, `bash`) are stan
 | PostgreSQL (test DB) | HEALTH-03, DEBT-01 regression test | ✓ (per CLAUDE.md setup) | — | None (required) |
 | git | DEBT-04 tag deletion | ✓ | — | None |
 | phx_new 1.8.8 | UpgradeIntegrationTest (HEALTH-03) | ✗ locally without setup | — | Preflight skip (D-19) |
-| Hex CLI | DEBT-04 retire runbook | ✓ (Jon's env) | — | N/A — documented as manual step |
+| Hex CLI | DEBT-04 retire runbook | ✓ (the owner's env) | — | N/A — documented as manual step |
 
 ---
 

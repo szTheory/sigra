@@ -65,7 +65,7 @@ created: 2026-07-02
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
-| Hex retire of published `1.20.0` | DEBT-04 (D-14) | External Hex service; local key is read-only; no web retire button; past grace window | Runbook for Jon: `mix hex.user key generate` → `mix hex.retire sigra 1.20.0 invalid --message "..."` (retire, NOT delete) |
+| Hex retire of published `1.20.0` | DEBT-04 (D-14) | External Hex service; local key is read-only; no web retire button; past grace window | Runbook for the owner: `mix hex.user key generate` → `mix hex.retire sigra 1.20.0 invalid --message "..."` (retire, NOT delete) |
 
 *All other phase behaviors have automated verification.*
 

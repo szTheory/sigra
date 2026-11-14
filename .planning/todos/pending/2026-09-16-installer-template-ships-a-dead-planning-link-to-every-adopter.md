@@ -8,6 +8,9 @@ source: phase 237 code review (WR-01)
 files:
   - priv/templates/sigra.install/organizations/organizations.ex
   - test/example/lib/example/organizations.ex
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem
