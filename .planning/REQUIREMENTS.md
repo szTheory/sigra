@@ -24,7 +24,7 @@ Priority: **M** must, **S** should (cut first if capacity is short). Net-new dep
 - [ ] **BCOPY-03** (M): Enumeration-boundary contract: public-surface registry and existing-vs-unknown identity parity tests (sign-in, reset, magic link, resend, registration, invitation, MFA, passkey) with a **positive control** (a deliberately leaky string turns the test red once).
 - [ ] **BCOPY-04** (M): Committed copy inventory per ownership lane so every copy change is a reviewable diff.
 - [ ] **BCOPY-05** (M): Three-segment install-snippet test: `{:sigra, "~> x.y.z"}` with all segments equal across README, guides, docs and templates (the book's `~> 1.7` resolves to the retired stray 1.20.0).
-- [ ] **BCOPY-06** (M): Test-only `loginSubmit` Playwright helper replacing the "Log in" text locators in eight specs.
+- [x] **BCOPY-06** (M): Test-only `loginSubmit` Playwright helper replacing the "Log in" text locators in eight specs.
 - [ ] **BCOPY-07** (S): Honest-claims pass: docs and tests do not claim enumeration safety beyond what is proven (timing-oracle todo cited).
 
 ### Deterministic output, latent-defect repair, before catalog (BGEN) — Phase 2
@@ -116,7 +116,7 @@ Filled by the roadmapper 2026-11-13. Every v1 requirement maps to exactly one ph
 | BCOPY-03 | Phase 259 | Pending |
 | BCOPY-04 | Phase 259 | Pending |
 | BCOPY-05 | Phase 259 | Pending |
-| BCOPY-06 | Phase 259 | Pending |
+| BCOPY-06 | Phase 259 | Complete |
 | BCOPY-07 | Phase 259 | Pending |
 | BGEN-01 | Phase 260 | Pending |
 | BGEN-02 | Phase 260 | Pending |
