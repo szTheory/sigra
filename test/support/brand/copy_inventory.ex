@@ -9,7 +9,12 @@ defmodule Sigra.Test.Brand.CopyInventory do
     * `:host` - `Sigra.Branding.Profile` default strings, plus one row stating
       that host-owned CSS and logos carry no Sigra copy.
     * `:generated` - copy in the installer templates under
-      `priv/templates/sigra.install/`.
+      `priv/templates/sigra.install/`: `dgettext("sigra", ...)` msgids, literal
+      `put_flash` messages, HEEx text nodes inside `~H` blocks, and literal
+      multi-word text in the email builders. Browser-side copy in the `.js`
+      hooks, HEEx attribute values, and raw string literals returned from helper
+      functions are not extracted; the inventory documents what it covers, it
+      does not claim to be exhaustive beyond that.
     * `:library` - copy in the library-owned admin LiveViews and components.
 
   A row is `{file, kind, string}`: a repo-relative file (or a lane note), the
@@ -35,12 +40,38 @@ defmodule Sigra.Test.Brand.CopyInventory do
   @host_note "no Sigra copy by design: host-owned CSS and logos carry no Sigra copy, and the Tasklane demo app is out of lane"
   @hex_color ~r/^#[0-9a-fA-F]{6}$/
 
-  @type lane :: :host
+  @lanes [:host, :generated]
+
+  @templates_dir "priv/templates/sigra.install"
+  # Installer templates are Elixir carrying EEx tags, so they are NOT valid Elixir
+  # and are read with regexes only. Every other file type must be classified here:
+  # an unknown type raises rather than being silently skipped.
+  @elixir_template_exts [".ex", ".exs"]
+  @unextracted_template_exts [".css", ".svg", ".json", ".js"]
+
+  # A double-quoted literal body: anything but an unescaped quote.
+  @msgid_regex ~r/\bdgettext\(\s*"sigra"\s*,\s*"((?:[^"\\]|\\.)*)"/s
+  @flash_regex ~r/\bput_flash\(\s*(?:[a-z_@][\w.@]*\s*,\s*)?:[a-z_]+\s*,\s*"((?:[^"\\]|\\.)*)"/s
+  @doc_heredoc ~r/^[ \t]*@(?:moduledoc|doc|typedoc)[ \t]+(?:~[sS])?"""\n.*?\n[ \t]*"""[ \t]*$/ms
+  @doc_line ~r/^[ \t]*@(?:moduledoc|doc|typedoc)[ \t]+(?:false|"(?:[^"\\\n]|\\.)*")[ \t]*$/m
+  # `#{` at a line start is interpolation inside a heredoc, not a comment.
+  @comment_line ~r/^[ \t]*#(?!\{)[^\n]*$/m
+  @heex_sigil ~r/~H"""\n(.*?)\n[ \t]*"""/s
+  @raw_element ~r/<(script|style)\b.*?<\/\1>/s
+  @html_comment ~r/<!--.*?-->/s
+  @eex_tag ~r/<%.*?%>/s
+  @html_entity ~r/&(?:#\d+|#x[0-9a-fA-F]+|[A-Za-z]+);/
+  @heredoc_block ~r/"""\n.*?\n[ \t]*"""/s
+  @attribute_line ~r/^[ \t]*@[a-z_]+[ \t].*$/m
+  @dgettext_head ~r/\bdgettext\(\s*"sigra"\s*,\s*"(?:[^"\\]|\\.)*"/s
+  @quoted_literal ~r/"((?:[^"\\\n]|\\.)*)"/
+
+  @type lane :: :host | :generated
   @type row :: {file :: String.t(), kind :: String.t(), string :: String.t()}
 
   @doc "Lanes that have a committed inventory."
   @spec lanes() :: [lane()]
-  def lanes, do: [:host]
+  def lanes, do: @lanes
 
   @doc "True only when the opt-in regeneration environment variable is `regen`."
   @spec regenerate?() :: boolean()
@@ -52,7 +83,7 @@ defmodule Sigra.Test.Brand.CopyInventory do
 
   @doc "Absolute path of a lane's committed inventory."
   @spec path_for(lane()) :: Path.t()
-  def path_for(lane) when lane in [:host] do
+  def path_for(lane) when lane in @lanes do
     Path.join([@root, @fixture_dir, "#{lane}.tsv"])
   end
 
@@ -71,8 +102,43 @@ defmodule Sigra.Test.Brand.CopyInventory do
     normalize([{@host_note_file, "lane_note", @host_note} | defaults])
   end
 
+  def extract(:generated) do
+    templates = Path.join(@root, @templates_dir)
+
+    templates
+    |> Path.join("**/*")
+    |> Path.wildcard()
+    |> Enum.filter(&File.regular?/1)
+    |> Enum.flat_map(&template_rows(&1, Path.relative_to(&1, templates)))
+    |> normalize()
+  end
+
   def extract(lane) do
     raise ArgumentError, "unknown copy inventory lane: #{inspect(lane)}"
+  end
+
+  @doc """
+  Returns the text nodes of a HEEx body as trimmed, whitespace-collapsed lines.
+
+  Multi-line tags are consumed whole (newlines inside a tag never leak out), so
+  a tag split over several lines cannot leave attribute fragments behind. Tags,
+  `{...}` expressions, EEx tags, HTML comments and `<script>`/`<style>`
+  elements contribute nothing. Lines with no letter or digit left, once HTML
+  entities are removed, are dropped as pure punctuation.
+
+  Raises `ArgumentError` on an unterminated tag or expression, so malformed
+  input fails loudly instead of silently dropping the rest of the body.
+  """
+  @spec heex_text_lines(String.t()) :: [String.t()]
+  def heex_text_lines(body) do
+    body
+    |> remove(@raw_element)
+    |> remove(@html_comment)
+    |> remove(@eex_tag)
+    |> scan_text([])
+    |> String.split("\n")
+    |> Enum.map(&(&1 |> String.replace(~r/\s+/u, " ") |> String.trim()))
+    |> Enum.reject(&noise_line?/1)
   end
 
   @doc """
@@ -145,6 +211,117 @@ defmodule Sigra.Test.Brand.CopyInventory do
   end
 
   defp normalize(rows), do: rows |> Enum.uniq() |> Enum.sort()
+
+  defp remove(text, regex), do: Regex.replace(regex, text, "")
+
+  # -- generated lane --------------------------------------------------------
+
+  defp template_rows(path, rel) do
+    case Path.extname(path) do
+      ext when ext in @elixir_template_exts ->
+        code = path |> File.read!() |> strip_comments_and_docs()
+
+        msgids = for [_, msgid] <- Regex.scan(@msgid_regex, code), do: {rel, "msgid", msgid}
+        flashes = for [_, text] <- Regex.scan(@flash_regex, code), do: {rel, "flash", text}
+
+        msgids ++ flashes ++ heex_rows(rel, code) ++ email_rows(rel, code)
+
+      ext when ext in @unextracted_template_exts ->
+        []
+
+      ext ->
+        raise ArgumentError,
+              "unclassified installer template file type #{inspect(ext)}: #{rel}. " <>
+                "Classify it in #{inspect(__MODULE__)} before the inventory can claim coverage."
+    end
+  end
+
+  # Comments and doc attributes are not shipped copy. A heredoc line that starts
+  # with an interpolation (`#{...}`) is code, not a comment.
+  defp strip_comments_and_docs(text) do
+    text |> remove(@doc_heredoc) |> remove(@doc_line) |> remove(@comment_line)
+  end
+
+  defp heex_rows(rel, code) do
+    for [_, body] <- Regex.scan(@heex_sigil, code),
+        line <- heex_text_lines(body),
+        do: {rel, "heex_text", line}
+  rescue
+    error in ArgumentError ->
+      reraise ArgumentError, "#{rel}: #{Exception.message(error)}", __STACKTRACE__
+  end
+
+  # Email builders: multi-word quoted literals that are not already a msgid. The
+  # copy itself is almost entirely `dgettext("sigra", ...)`, captured above; this
+  # catches the literal fallbacks that sit beside it.
+  defp email_rows(rel, code) do
+    if email_template?(rel) do
+      code
+      |> remove(@heredoc_block)
+      |> remove(@attribute_line)
+      |> remove(@dgettext_head)
+      |> then(&Regex.scan(@quoted_literal, &1))
+      |> Enum.map(fn [_, text] -> text end)
+      |> Enum.filter(&email_copy?/1)
+      |> Enum.map(&{rel, "email_text", &1})
+    else
+      []
+    end
+  end
+
+  defp email_template?(rel) do
+    base = Path.basename(rel, ".ex")
+    base == "emails" or String.ends_with?(base, "_email")
+  end
+
+  # At least two alphabetic words, and not interpolated code, an EEx tag or a
+  # strftime format string.
+  defp email_copy?(text) do
+    Regex.match?(~r/[[:alpha:]]+\s+[[:alpha:]]+/u, text) and
+      not String.contains?(text, ["\#{", "<%"]) and
+      not Regex.match?(~r/%[A-Za-z]/, text)
+  end
+
+  defp noise_line?(line) do
+    line |> remove(@html_entity) |> String.match?(~r/^[^\p{L}\p{N}]*$/u)
+  end
+
+  # Text scanner over a HEEx body: copies text, consumes tags and `{...}`.
+  defp scan_text(<<>>, acc), do: acc |> Enum.reverse() |> IO.iodata_to_binary()
+
+  defp scan_text(<<"<", next, rest::binary>>, acc)
+       when next in ?a..?z or next in ?A..?Z or next in [?/, ?., ?:] do
+    scan_text(skip_tag(rest), acc)
+  end
+
+  defp scan_text(<<"{", rest::binary>>, acc), do: scan_text(skip_braces(rest, 1), acc)
+  defp scan_text(<<char::utf8, rest::binary>>, acc), do: scan_text(rest, [<<char::utf8>> | acc])
+
+  defp skip_tag(<<>>), do: raise(ArgumentError, "unterminated HEEx tag")
+  defp skip_tag(<<">", rest::binary>>), do: rest
+
+  defp skip_tag(<<quote, rest::binary>>) when quote in [?", ?'],
+    do: rest |> skip_quoted(quote) |> skip_tag()
+
+  defp skip_tag(<<"{", rest::binary>>), do: rest |> skip_braces(1) |> skip_tag()
+  defp skip_tag(<<_char, rest::binary>>), do: skip_tag(rest)
+
+  defp skip_quoted(<<>>, _quote), do: raise(ArgumentError, "unterminated quoted attribute value")
+  defp skip_quoted(<<quote, rest::binary>>, quote), do: rest
+  defp skip_quoted(<<_char, rest::binary>>, quote), do: skip_quoted(rest, quote)
+
+  defp skip_braces(<<>>, _depth), do: raise(ArgumentError, "unterminated HEEx expression")
+  defp skip_braces(<<"}", rest::binary>>, 1), do: rest
+  defp skip_braces(<<"}", rest::binary>>, depth), do: skip_braces(rest, depth - 1)
+  defp skip_braces(<<"{", rest::binary>>, depth), do: skip_braces(rest, depth + 1)
+  defp skip_braces(<<"\"", rest::binary>>, depth), do: rest |> skip_string() |> skip_braces(depth)
+  defp skip_braces(<<_char, rest::binary>>, depth), do: skip_braces(rest, depth)
+
+  defp skip_string(<<>>), do: raise(ArgumentError, "unterminated string in HEEx expression")
+  defp skip_string(<<"\\", _escaped, rest::binary>>), do: skip_string(rest)
+  defp skip_string(<<"\"", rest::binary>>), do: rest
+  defp skip_string(<<"\#{", rest::binary>>), do: rest |> skip_braces(1) |> skip_string()
+  defp skip_string(<<_char, rest::binary>>), do: skip_string(rest)
 
   defp color_token?(value), do: Regex.match?(@hex_color, value)
 

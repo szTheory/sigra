@@ -13,6 +13,10 @@ defmodule Sigra.Brand.CopyInventoryTest do
 
   alias Sigra.Test.Brand.CopyInventory
 
+  @root Path.expand("../../..", __DIR__)
+  @template_root Path.join(@root, "priv/templates/sigra.install")
+  @msgid_scan ~r/dgettext\(\s*"sigra"\s*,\s*"((?:[^"\\]|\\.)*)"/s
+
   # Written once, before any test reads a TSV, so the async tests never race the
   # regeneration. Off unless the opt-in environment variable is set.
   setup_all do
@@ -51,6 +55,74 @@ defmodule Sigra.Brand.CopyInventoryTest do
 
     test "the committed inventory equals the extraction" do
       assert_inventory_current(:host)
+    end
+  end
+
+  describe "generated lane" do
+    test "the committed inventory equals the extraction" do
+      assert_inventory_current(:generated)
+    end
+
+    test "every dgettext msgid in the templates has a row, counted by an independent scan" do
+      # Independent of the extractor: raw file text, no comment or doc stripping.
+      # If the extractor silently dropped a msgid, the two sets would differ.
+      scanned =
+        for path <- template_files(),
+            [_, msgid] <- Regex.scan(@msgid_scan, File.read!(path)),
+            uniq: true,
+            do: {Path.relative_to(path, @template_root), msgid}
+
+      rows = CopyInventory.extract(:generated)
+      msgid_rows = for {file, "msgid", msgid} <- rows, do: {file, msgid}
+
+      assert Enum.sort(msgid_rows) == Enum.sort(scanned)
+      assert msgid_rows |> Enum.map(&elem(&1, 1)) |> Enum.uniq() |> length() >= 150
+    end
+
+    test "rows are prose only: no Elixir or EEx code leaked in" do
+      rows = CopyInventory.extract(:generated)
+
+      leaked =
+        Enum.filter(rows, fn {_file, _kind, string} ->
+          String.contains?(string, ["defmodule", "<%", "%>", "|>", "defp "])
+        end)
+
+      assert leaked == []
+    end
+
+    test "heex_text_lines/1 collapses a multi-line tag and strips expressions" do
+      body = """
+      <.link
+        navigate={~p"/users/log_in"}
+        class={if @a > 1, do: "x {y}", else: "z"}
+      >
+        Back to sign in
+      </.link>
+      <p>Hello {@name}, welcome <b>back</b>.</p>
+      <script>var message = "not copy";</script>
+      <!-- not copy -->
+      <span aria-hidden="true">&rarr;</span>
+      """
+
+      assert CopyInventory.heex_text_lines(body) == ["Back to sign in", "Hello , welcome back."]
+    end
+
+    test "heex_text_lines/1 raises on an unterminated tag instead of dropping the rest" do
+      assert_raise ArgumentError, ~r/unterminated HEEx tag/, fn ->
+        CopyInventory.heex_text_lines("<p>Kept</p>\n<div class=\"a\"\nDropped silently")
+      end
+    end
+
+    test "every template file type is classified, so a new type cannot be skipped silently" do
+      known = ~w(.ex .exs .css .svg .json .js)
+
+      unclassified =
+        template_files()
+        |> Enum.map(&Path.extname/1)
+        |> Enum.uniq()
+        |> Enum.reject(&(&1 in known))
+
+      assert unclassified == []
     end
   end
 
@@ -94,6 +166,10 @@ defmodule Sigra.Brand.CopyInventoryTest do
       assert String.contains?(text, CopyInventory.regen_command())
       assert CopyInventory.parse(text) == [{"a.ex", "literal", "Only row"}]
     end
+  end
+
+  defp template_files do
+    @template_root |> Path.join("**/*") |> Path.wildcard() |> Enum.filter(&File.regular?/1)
   end
 
   defp assert_inventory_current(lane) do
