@@ -16,12 +16,17 @@ defmodule Sigra.Brand.VocabularyDocsTest do
     * the row marker: a row cannot say nothing about whether the book and the
       glossary agree;
     * the required terms: every ruling keeps its word in the section;
+    * the book's vocabulary: the pinned `brand/brand.json` is read at run time
+      and every `voice.terms[].term` must head a row that is marked Agrees or
+      Differs, so a term added by a future re-vendoring forces a new row;
     * anchors: a product-truth anchor is a full repo path plus a line number
       (`lib/...` or `test/example/lib/...`). The Voice Rubric's older
       short-name form (a bare file name and a line number) never counts. An
       anchor must name a file that exists, a line inside it, and a line that
       still holds the term the row cites, so a later edit that moves the copy
-      turns this test red instead of leaving a stale citation;
+      turns this test red instead of leaving a stale citation. Every anchor in
+      the section must also sit on a line that holds a term registered for its
+      file, so no single anchor can drift while a sibling anchor still passes;
     * the anchor floor: a section with too few anchors fails;
     * hygiene: the published section carries no planning citation, and the
       Enforcement column names a test file that exists or the word "editorial".
@@ -188,6 +193,16 @@ defmodule Sigra.Brand.VocabularyDocsTest do
         do: anchor
   end
 
+  # Anchors whose line holds none of the pair terms registered for their file.
+  # An anchor that drifts off its line, or that no pair vouches for, is listed.
+  defp unverified_anchors(text, pairs) do
+    for {file, line} = anchor <- anchors(text),
+        not Enum.any?(pairs, fn {term, pair_file} ->
+          pair_file == file and line in term_lines(file, term)
+        end),
+        do: anchor
+  end
+
   # Planning citations that do not belong in a published guide.
   defp forbidden_citations(slice) do
     ~r/Plan 259|\.planning|ADR 0/ |> Regex.scan(slice) |> List.flatten()
@@ -217,6 +232,52 @@ defmodule Sigra.Brand.VocabularyDocsTest do
         path <- test_paths(enforcement),
         uniq: true,
         do: path
+  end
+
+  # The book's terms, read from the pinned `brand/brand.json` at run time so a
+  # re-vendored book is handled without editing this test.
+  defp book_terms do
+    "brand/brand.json"
+    |> read!()
+    |> JSON.decode!()
+    |> get_in(["voice", "terms"])
+    |> Enum.map(& &1["term"])
+  end
+
+  # Lowercase, straight apostrophes, and no emphasis or code markers, so a term
+  # the book writes with a curly apostrophe matches a cell that says
+  # "**Confirm it's you again**".
+  defp normalize(text) do
+    text
+    |> String.downcase()
+    |> String.replace(["\u2019", "\u2018"], "'")
+    |> String.replace(["*", "`"], "")
+  end
+
+  defp contains_phrase?(normalized_cell, normalized_part) do
+    Regex.match?(
+      Regex.compile!(
+        "(?<![[:alnum:]])" <> Regex.escape(normalized_part) <> "(?![[:alnum:]])",
+        "u"
+      ),
+      normalized_cell
+    )
+  end
+
+  # The terms for which no row of `slice` has every part (a term written
+  # "A, b" has two parts) in its Canonical cell while its Context rule opens
+  # with Agrees or Differs.
+  defp uncovered_terms(slice, terms) do
+    headings =
+      for [canonical | _rest] = cells <- body_rows(slice),
+          marked?(cells),
+          do: normalize(canonical)
+
+    Enum.reject(terms, fn term ->
+      parts = term |> String.split(", ") |> Enum.map(&normalize/1)
+
+      Enum.any?(headings, fn heading -> Enum.all?(parts, &contains_phrase?(heading, &1)) end)
+    end)
   end
 
   # --- tests -----------------------------------------------------------------
@@ -315,6 +376,102 @@ defmodule Sigra.Brand.VocabularyDocsTest do
     end
   end
 
+  describe "the book's vocabulary" do
+    test "the pinned brand.json lists terms, and none is blank" do
+      # Arrange / Act
+      terms = book_terms()
+
+      # Assert
+      assert terms != []
+      assert Enum.all?(terms, &(is_binary(&1) and String.trim(&1) != ""))
+    end
+
+    test "every voice.terms term heads a row marked Agrees or Differs" do
+      # Arrange
+      slice = section_slice(glossary(), @heading)
+
+      # Act
+      uncovered = uncovered_terms(slice, book_terms())
+
+      # Assert
+      assert slice != ""
+
+      assert uncovered == [],
+             "book terms with no Agrees/Differs row in the section: #{inspect(uncovered)}"
+    end
+
+    test "planted control: a term the section lacks is reported" do
+      # Arrange
+      slice = section_slice(glossary(), @heading)
+      terms = book_terms() ++ ["Zzz planted term"]
+
+      # Act
+      uncovered = uncovered_terms(slice, terms)
+
+      # Assert
+      assert uncovered == ["Zzz planted term"]
+    end
+
+    test "planted control: a row whose marker word is replaced is no longer coverage" do
+      # Arrange
+      slice = section_slice(glossary(), @heading)
+      term = "Passkey"
+      pattern = ~r/^(\|[^|]*\|[^|]*\| *)(?:Agrees|Differs)/
+
+      broken =
+        slice
+        |> String.split("\n")
+        |> Enum.map(fn line ->
+          if String.starts_with?(line, "| **passkey**") do
+            Regex.replace(pattern, line, "\\1Unmarked")
+          else
+            line
+          end
+        end)
+        |> Enum.join("\n")
+
+      # Act
+      uncovered_before = uncovered_terms(slice, [term])
+      uncovered_after = uncovered_terms(broken, [term])
+
+      # Assert
+      assert uncovered_before == []
+      assert broken != slice
+      assert uncovered_after == [term]
+    end
+
+    test "matching ignores case, emphasis markers and the curly apostrophe" do
+      # Arrange
+      slice = """
+      | Canonical | Banned synonyms | Context rule | Enforcement |
+      |-----------|-----------------|--------------|-------------|
+      | **Confirm it's you again** (prompt) | x | Differs. | editorial |
+      | **sign in** / **sign out** (verbs) | x | Agrees. | editorial |
+      """
+
+      # Act
+      uncovered = uncovered_terms(slice, ["Confirm it\u2019s you again", "Sign in, sign out"])
+
+      # Assert
+      assert uncovered == []
+    end
+
+    test "a term inside a longer word does not count" do
+      # Arrange
+      slice = """
+      | Canonical | Banned synonyms | Context rule | Enforcement |
+      |-----------|-----------------|--------------|-------------|
+      | **Review users** | x | Agrees. | editorial |
+      """
+
+      # Act
+      uncovered = uncovered_terms(slice, ["User"])
+
+      # Assert
+      assert uncovered == ["User"]
+    end
+  end
+
   describe "anchors" do
     test "every anchor names a file that exists and a line inside it" do
       # Arrange
@@ -387,6 +544,40 @@ defmodule Sigra.Brand.VocabularyDocsTest do
 
       # Assert
       assert short == ["user_show_live.ex:81"]
+    end
+
+    test "every anchor in the section sits on a line that holds a registered term" do
+      # Arrange
+      slice = section_slice(glossary(), @heading)
+
+      # Act
+      unverified = unverified_anchors(slice, @anchor_pairs)
+
+      # Assert
+      assert slice != ""
+
+      assert unverified == [],
+             "anchors on a line that holds none of the registered terms for that file: #{inspect(unverified)}"
+    end
+
+    test "planted control: an anchor that drifted off its line, or sits in an unregistered file, is listed" do
+      # Arrange
+      drifted = "lib/sigra/admin/live/user_show_live.ex"
+
+      lines =
+        Enum.reduce(@anchor_pairs, MapSet.new(), fn
+          {term, ^drifted}, acc -> MapSet.union(acc, term_lines(drifted, term))
+          _pair, acc -> acc
+        end)
+
+      off = Enum.find(1..line_count(drifted), &(&1 not in lines))
+      text = "`#{drifted}:#{off}` and `lib/sigra/admin/live/audit_index_live.ex:1`"
+
+      # Act
+      unverified = unverified_anchors(text, @anchor_pairs)
+
+      # Assert
+      assert unverified == [{drifted, off}, {"lib/sigra/admin/live/audit_index_live.ex", 1}]
     end
 
     test "each cited term sits on a line the section actually cites" do
