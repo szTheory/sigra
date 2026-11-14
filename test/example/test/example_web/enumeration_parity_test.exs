@@ -35,10 +35,13 @@ defmodule ExampleWeb.EnumerationParityTest do
   use ExampleWeb.ConnCase, async: false
 
   import Example.AccountsFixtures
+  import Phoenix.LiveViewTest
 
   @moduletag :example_app
 
   @registry_path Path.expand("../../../fixtures/brand/public-surfaces.json", __DIR__)
+  # __DIR__ is <root>/test/example/test/example_web: four levels up is the repo root.
+  @repo_root Path.expand("../../../..", __DIR__)
   @schema_version "sigra.brand-public-surfaces/v1"
   @states ~w(parity known_divergence by_design not_proven)
   @kinds ~w(controller liveview json library)
@@ -52,6 +55,12 @@ defmodule ExampleWeb.EnumerationParityTest do
   }
   @leak_text "No account found for"
   @blocker_shape ~r/[\w.\/-]+:\d+/
+  @citation_shape ~r/([\w.\/-]+\.\w+):(\d+)/
+  # BCOPY-03 requires these five surfaces by name; each is parity or, only where
+  # the example host cannot drive it, not_proven with a path:line blocker.
+  @named_parity_ids ~w(password-signin magic-link-request password-reset-request confirmation-resend mfa-challenge)
+  # A LiveView event has no HTTP status; "re-rendered in place" is reported as 200.
+  @live_render_status 200
 
   # ---------------------------------------------------------------------------
   # Registry
@@ -100,6 +109,46 @@ defmodule ExampleWeb.EnumerationParityTest do
 
       ids = Enum.map(rows, & &1["id"])
       assert ids == Enum.uniq(ids), "registry ids must be unique"
+    end
+
+    test "the five named parity surfaces exist, downgrades carry a blocker, at least three are parity" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+
+      named =
+        for id <- @named_parity_ids do
+          assert Map.has_key?(by_id, id), "named surface #{id} is missing from the registry"
+          Map.fetch!(by_id, id)
+        end
+
+      for row <- named do
+        assert row["state"] in ~w(parity not_proven),
+               "named surface #{row["id"]} may only be parity or not_proven, got #{row["state"]}"
+
+        if row["state"] == "not_proven" do
+          assert is_binary(row["blocker"]) and row["blocker"] =~ @blocker_shape,
+                 "named surface #{row["id"]} is not_proven without a path:line blocker"
+        end
+      end
+
+      assert Enum.count(named, &(&1["state"] == "parity")) >= 3,
+             "at least three of the five named surfaces must be parity"
+    end
+
+    test "every blocker citation points at a real file and an existing line" do
+      for %{"id" => id, "blocker" => blocker} when is_binary(blocker) <- surfaces() do
+        citations = Regex.scan(@citation_shape, blocker)
+        assert citations != [], "#{id}: blocker holds no path:line citation"
+
+        for [_whole, path, line] <- citations do
+          full = Path.join(@repo_root, path)
+          assert File.regular?(full), "#{id}: blocker cites #{path}, which does not exist"
+
+          line_count = full |> File.read!() |> String.split("\n") |> length()
+
+          assert String.to_integer(line) in 1..line_count//1,
+                 "#{id}: blocker cites #{path}:#{line}, beyond the #{line_count} lines in the file"
+        end
+      end
     end
   end
 
@@ -184,7 +233,7 @@ defmodule ExampleWeb.EnumerationParityTest do
   end
 
   describe "positive control" do
-    test "a leak on exactly one parity surface yields exactly one diff" do
+    test "a leak on exactly one parity surface yields exactly one diff, the others stay :same" do
       registry = registry()
 
       clean = run_all(registry)
@@ -197,6 +246,26 @@ defmodule ExampleWeb.EnumerationParityTest do
       assert [{"password-signin", details}] = diffs, "expected one diff, got: #{inspect(diffs)}"
       assert Enum.any?(details, &match?({:body, _, _}, &1))
       assert Enum.any?(details, &match?({:flash, _, _}, &1))
+
+      # Non-vacuity: "the others stay same" must be about real rows, never an
+      # empty list. The named-surface rule guarantees at least three parity rows.
+      others = for {id, result} <- leaked, id != "password-signin", do: {id, result}
+      assert length(others) >= 2, "vacuous control: fewer than two other parity rows"
+      assert Enum.all?(others, fn {_id, result} -> result == :same end)
+    end
+
+    test "every parity surface can go red: leaking any one yields exactly that one diff" do
+      registry = registry()
+      parity_ids = for %{"state" => "parity", "id" => id} <- registry["surfaces"], do: id
+      assert length(parity_ids) >= 3
+
+      for id <- parity_ids do
+        leaked = run_all(registry, leak: {id, @leak_text})
+        diffs = for {surface, {:diff, _} = diff} <- leaked, do: {surface, diff}
+
+        assert [{^id, _}] = diffs,
+               "leaking #{id} should produce exactly one diff at #{id}, got: #{inspect(diffs)}"
+      end
     end
   end
 
@@ -282,7 +351,54 @@ defmodule ExampleWeb.EnumerationParityTest do
     |> capture_redirect(email)
   end
 
+  defp probe("magic-link-request", identity) do
+    email = identity_email(identity)
+
+    build_conn()
+    |> post(~p"/users/log_in", %{"_action" => "magic_link", "user" => %{"email" => email}})
+    |> capture_redirect(email)
+  end
+
+  # Identity here is the code KIND: a wrong authenticator code (:existing)
+  # versus a wrong backup code (:unknown), each for a freshly enrolled user
+  # with an MFA-pending session.
+  defp probe("mfa-challenge", identity) do
+    %{user: user, totp_secret: secret} = mfa_pending_session_fixture()
+
+    conn =
+      build_conn()
+      |> log_in_user(user, type: :mfa_pending)
+      |> put_session(:mfa_pending, true)
+
+    {:ok, view, _html} = live(conn, ~p"/users/mfa")
+
+    result =
+      case identity do
+        :existing ->
+          view
+          |> form("#mfa_totp_form", mfa: %{code: wrong_totp_code(secret)})
+          |> render_submit()
+
+        :unknown ->
+          render_click(view, "show_backup")
+          view |> form("#mfa_backup_form", mfa: %{code: "AAAA-BBBB"}) |> render_submit()
+      end
+
+    capture_live(view, result, user.email)
+  end
+
   defp probe(id, _identity), do: raise(ArgumentError, "no probe defined for surface #{id}")
+
+  # A well-formed 6-digit code that is outside the +/-1 step drift window, so
+  # the probe is deterministic.
+  defp wrong_totp_code(secret) do
+    now = System.os_time(:second)
+
+    valid =
+      for offset <- -90..90//30, do: NimbleTOTP.verification_code(secret, time: now + offset)
+
+    Enum.find(~w(000000 111111 222222), &(&1 not in valid))
+  end
 
   # Captures a controller redirect response: the POST status, location and
   # server-side flash map, plus the page the redirect lands on.
@@ -299,6 +415,23 @@ defmodule ExampleWeb.EnumerationParityTest do
       ),
       email
     )
+  end
+
+  # Captures an in-place LiveView re-render. A LiveView event has no HTTP status
+  # and the views here do not render their flash in their own markup, so the
+  # flash is read from the LiveView process state (test-only introspection).
+  # Anything other than a re-render (a redirect tuple) fails loudly.
+  defp capture_live(view, html, email) when is_binary(html) do
+    flash = :sys.get_state(view.pid).socket.assigns.flash
+
+    normalize(
+      response(status: @live_render_status, location: nil, flash: flash, body: html),
+      email
+    )
+  end
+
+  defp capture_live(_view, other, _email) do
+    flunk("expected an in-place LiveView re-render, got: #{inspect(other, limit: 5)}")
   end
 
   # --- normalization ------------------------------------------------------------
