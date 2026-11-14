@@ -1,0 +1,182 @@
+{
+  "profiles": {
+    "defaults": {
+      "color_tokens": {
+        "dark": {
+          "accent_color": "#f05211",
+          "accent_foreground": "#000000",
+          "background_color": "#171614",
+          "border_color": "#4a4035",
+          "muted_color": "#bdb5aa",
+          "surface_color": "#211f1c",
+          "text_color": "#f4f1eb"
+        },
+        "light": {
+          "accent_color": "#c2410c",
+          "accent_foreground": "#ffffff",
+          "background_color": "#f7f4ee",
+          "border_color": "#ded8cf",
+          "muted_color": "#6b6258",
+          "surface_color": "#ffffff",
+          "text_color": "#171717"
+        }
+      },
+      "css_variables": "--sigra-auth-light-accent: #c2410c; --sigra-auth-light-on-accent: #ffffff; --sigra-auth-light-bg: #f7f4ee; --sigra-auth-light-surface: #ffffff; --sigra-auth-light-text: #171717; --sigra-auth-light-muted: #6b6258; --sigra-auth-light-border: #ded8cf; --sigra-auth-dark-accent: #f05211; --sigra-auth-dark-on-accent: #000000; --sigra-auth-dark-bg: #171614; --sigra-auth-dark-surface: #211f1c; --sigra-auth-dark-text: #f4f1eb; --sigra-auth-dark-muted: #bdb5aa; --sigra-auth-dark-border: #4a4035;",
+      "dark_accent_source": [
+        "derived",
+        "#f05211"
+      ],
+      "email_logo": null,
+      "logo": {
+        "dark": null,
+        "light": null
+      },
+      "to_map": {
+        "accent_color": "#c2410c",
+        "accent_foreground": "#ffffff",
+        "background_color": "#f7f4ee",
+        "border_color": "#ded8cf",
+        "dark_accent_color": null,
+        "dark_accent_foreground": null,
+        "dark_background_color": null,
+        "dark_border_color": null,
+        "dark_logo_url": null,
+        "dark_muted_color": null,
+        "dark_surface_color": null,
+        "dark_text_color": null,
+        "email_from_address": null,
+        "email_from_name": "Your app",
+        "email_reply_to": null,
+        "logo_alt": "Application logo",
+        "logo_url": null,
+        "muted_color": "#6b6258",
+        "privacy_url": null,
+        "product_name": "Your app",
+        "support_url": null,
+        "surface_color": "#ffffff",
+        "terms_url": null,
+        "text_color": "#171717",
+        "theme": "system"
+      }
+    },
+    "explicit": {
+      "color_tokens": {
+        "dark": {
+          "accent_color": "#5eead4",
+          "accent_foreground": "#042f2e",
+          "background_color": "#08111f",
+          "border_color": "#334155",
+          "muted_color": "#94a3b8",
+          "surface_color": "#0f1b2d",
+          "text_color": "#e2e8f0"
+        },
+        "light": {
+          "accent_color": "#0f766e",
+          "accent_foreground": "#ffffff",
+          "background_color": "#f8fafc",
+          "border_color": "#cbd5e1",
+          "muted_color": "#475569",
+          "surface_color": "#ffffff",
+          "text_color": "#0f172a"
+        }
+      },
+      "css_variables": "--sigra-auth-light-accent: #0f766e; --sigra-auth-light-on-accent: #ffffff; --sigra-auth-light-bg: #f8fafc; --sigra-auth-light-surface: #ffffff; --sigra-auth-light-text: #0f172a; --sigra-auth-light-muted: #475569; --sigra-auth-light-border: #cbd5e1; --sigra-auth-dark-accent: #5eead4; --sigra-auth-dark-on-accent: #042f2e; --sigra-auth-dark-bg: #08111f; --sigra-auth-dark-surface: #0f1b2d; --sigra-auth-dark-text: #e2e8f0; --sigra-auth-dark-muted: #94a3b8; --sigra-auth-dark-border: #334155;",
+      "dark_accent_source": [
+        "explicit",
+        "#5eead4"
+      ],
+      "email_logo": "/images/acme-logo.svg",
+      "logo": {
+        "dark": "/images/acme-logo-dark.svg",
+        "light": "/images/acme-logo.svg"
+      },
+      "to_map": {
+        "accent_color": "#0f766e",
+        "accent_foreground": "#ffffff",
+        "background_color": "#f8fafc",
+        "border_color": "#cbd5e1",
+        "dark_accent_color": "#5eead4",
+        "dark_accent_foreground": "#042f2e",
+        "dark_background_color": "#08111f",
+        "dark_border_color": "#334155",
+        "dark_logo_url": "/images/acme-logo-dark.svg",
+        "dark_muted_color": "#94a3b8",
+        "dark_surface_color": "#0f1b2d",
+        "dark_text_color": "#e2e8f0",
+        "email_from_address": "auth@example.test",
+        "email_from_name": "Acme Auth",
+        "email_reply_to": "help@example.test",
+        "logo_alt": "Acme logo",
+        "logo_url": "/images/acme-logo.svg",
+        "muted_color": "#475569",
+        "privacy_url": "https://example.test/privacy",
+        "product_name": "Acme Auth",
+        "support_url": "https://example.test/support",
+        "surface_color": "#ffffff",
+        "terms_url": "https://example.test/terms",
+        "text_color": "#0f172a",
+        "theme": "dark"
+      }
+    },
+    "partial": {
+      "color_tokens": {
+        "dark": {
+          "accent_color": "#13968c",
+          "accent_foreground": "#000000",
+          "background_color": "#171614",
+          "border_color": "#4a4035",
+          "muted_color": "#bdb5aa",
+          "surface_color": "#211f1c",
+          "text_color": "#f4f1eb"
+        },
+        "light": {
+          "accent_color": "#0f766e",
+          "accent_foreground": "#ffffff",
+          "background_color": "#f7f4ee",
+          "border_color": "#ded8cf",
+          "muted_color": "#6b6258",
+          "surface_color": "#ffffff",
+          "text_color": "#171717"
+        }
+      },
+      "css_variables": "--sigra-auth-light-accent: #0f766e; --sigra-auth-light-on-accent: #ffffff; --sigra-auth-light-bg: #f7f4ee; --sigra-auth-light-surface: #ffffff; --sigra-auth-light-text: #171717; --sigra-auth-light-muted: #6b6258; --sigra-auth-light-border: #ded8cf; --sigra-auth-dark-accent: #13968c; --sigra-auth-dark-on-accent: #000000; --sigra-auth-dark-bg: #171614; --sigra-auth-dark-surface: #211f1c; --sigra-auth-dark-text: #f4f1eb; --sigra-auth-dark-muted: #bdb5aa; --sigra-auth-dark-border: #4a4035;",
+      "dark_accent_source": [
+        "derived",
+        "#13968c"
+      ],
+      "email_logo": null,
+      "logo": {
+        "dark": null,
+        "light": null
+      },
+      "to_map": {
+        "accent_color": "#0f766e",
+        "accent_foreground": "#ffffff",
+        "background_color": "#f7f4ee",
+        "border_color": "#ded8cf",
+        "dark_accent_color": null,
+        "dark_accent_foreground": null,
+        "dark_background_color": null,
+        "dark_border_color": null,
+        "dark_logo_url": null,
+        "dark_muted_color": null,
+        "dark_surface_color": null,
+        "dark_text_color": null,
+        "email_from_address": null,
+        "email_from_name": "Your app",
+        "email_reply_to": null,
+        "logo_alt": "Application logo",
+        "logo_url": null,
+        "muted_color": "#6b6258",
+        "privacy_url": null,
+        "product_name": "Acme Auth",
+        "support_url": null,
+        "surface_color": "#ffffff",
+        "terms_url": null,
+        "text_color": "#171717",
+        "theme": "system"
+      }
+    }
+  },
+  "schema_version": "sigra.brand-legacy-profiles/v1"
+}
