@@ -4,12 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 259
 current_phase_name: Compatibility Policy, Pinned Source and Copy Contract
-status: planning
-stopped_at: Completed 259-01-PLAN.md
-last_updated: "2026-11-14T15:39:24.887Z"
+current_plan: 3
+status: executing
+stopped_at: Completed 259-02-PLAN.md
+last_updated: "2026-11-14T15:46:48.217Z"
 last_activity: 2026-11-13
 last_activity_desc: v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
-state_head: 93fbedd42aa5c2c1c337cfd753af9f010925d997
+state_head: 0ced895601211bdcb9903ec9f14148c4a8472236
 progress:
   total_phases: 5
   completed_phases: 0
@@ -28,9 +29,10 @@ See: .planning/PROJECT.md
 
 ## Current Position
 
-Phase: 259 (Compatibility Policy, Pinned Source and Copy Contract) — READY TO EXECUTE
-Plan: —
-Status: Roadmap created; ready to plan Phase 259
+Phase: 259 (Compatibility Policy, Pinned Source and Copy Contract) — EXECUTING
+Current Plan: 3
+Total Plans in Phase: 13
+Status: Ready to execute
 Last activity: 2026-11-13 — v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
 
 Progress: [░░░░░░░░░░] 0% (0/5 phases)
@@ -106,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-14T15:39:24.857Z
-Stopped at: Completed 259-01-PLAN.md
+Last session: 2026-11-14T15:46:35.219Z
+Stopped at: Completed 259-02-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
@@ -117,9 +119,11 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 259 P01 | 6 min | 3 tasks | 4 files |
+| Phase 259 P02 | 5 min | 2 tasks | 3 files |
 
 ## Decisions
 
 - [Phase 259]: ADR 005 records every brand-adoption decision except #12 as a recommended default awaiting owner confirmation; #12 confirmed 2026-11-13 — Only the pointer-fix approval was given; the rest are research defaults the owner has not yet ratified
 - [Phase 259]: v1.51 ships as a minor release: feat/fix/docs only, no bang marker, no BREAKING footer, nothing hand-added under CHANGELOG Unreleased — Every frozen name stays, so no documented API is removed; release-please owns the Unreleased block
 - [Phase 259]: Pin the whole tracked brand/ tree and document the consumed subset as a table; install-pin shape enforced now, value bump in Phase 263 — Pruning leaves the book's own index and manifest dangling; a two-segment requirement still resolves to the retired stray 1.20.0
+- [Phase 259]: Pin the whole tracked brand/ tree with brand.sha256 and one drift module; privacy scan has no URL rule or allowlist, names are covered by the 259-11 run-time gate — Home paths, emails and SVG/PDF/PNG/JPG metadata are scanned here with planted controls; personal names cannot be written into test source, so Plan 259-11 derives the name at run time
