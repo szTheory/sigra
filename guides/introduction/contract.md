@@ -40,6 +40,18 @@ Private, internal, undocumented, and experimental surfaces are outside that guar
 
 Deprecations should identify the replacement path, preserve a migration lane when practical, and avoid surprise removal inside the same minor line unless a security issue requires a narrower path.
 
+## Brand and visual compatibility
+
+Visual identity is something adopters build on. CSS custom properties, `sg-*` and `sigra-auth*` classes, `Sigra.Branding.Profile` keys and defaults, configuration keys, routes and verified-route helpers, the `sigra` Gettext domain, `data-testid` values, and logo filenames are part of the compatibility surface and are add-only: they may grow, and an existing name is not removed or renamed in a `1.x` release. Token values and wording are visual matters rather than API, and they reach a host through the lanes below.
+
+| Lane | Update behaviour |
+|------|------------------|
+| Library-owned | Admin screens and `Sigra.Branding` functions update with `mix deps.update`. |
+| Generated | Templates apply to new installs only. An existing host compares a new template with its own file rather than overwriting it. |
+| Host-owned | Stylesheets and logo files are copied once at install and are never refreshed. |
+
+Visual and copy changes ship in a minor release, with no breaking marker on the commits. The frozen and add-only lists, the surface map, and the upgrade notes are in `guides/reference/brand-compatibility.md`.
+
 ## Security Invariants
 
 Sigra's security contract is bounded by the library/generator split:

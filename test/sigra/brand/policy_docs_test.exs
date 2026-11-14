@@ -3,6 +3,7 @@ defmodule Sigra.Brand.PolicyDocsTest do
 
   @adr ".planning/decisions/005-brand-adoption-compatibility-policy.md"
   @guide "guides/reference/brand-compatibility.md"
+  @contract "guides/introduction/contract.md"
 
   @adr_headings [
     "Owner decision table",
@@ -75,6 +76,17 @@ defmodule Sigra.Brand.PolicyDocsTest do
   defp cells(line) do
     line |> String.trim() |> String.trim("|") |> String.split("|") |> Enum.map(&String.trim/1)
   end
+
+  # Pure helper: byte offset of `needle` in `body`; fails the test by name when absent.
+  defp byte_index!(body, needle) do
+    case :binary.match(body, needle) do
+      {index, _length} -> index
+      :nomatch -> flunk("expected to find #{inspect(needle)}")
+    end
+  end
+
+  # Pure helper: number of non-overlapping occurrences of `needle` in `body`.
+  defp occurrences(body, needle), do: length(:binary.matches(body, needle))
 
   # Pure helper: data rows (cell lists) of the first table in a slice, header and
   # separator excluded.
@@ -196,6 +208,37 @@ defmodule Sigra.Brand.PolicyDocsTest do
     end
   end
 
+  describe "contract.md brand section" do
+    test "adds the new H2 exactly once and keeps the original H1" do
+      assert File.regular?(path(@contract)), "missing #{@contract}"
+
+      contract = read!(@contract)
+
+      assert String.starts_with?(contract, "# Sigra 1.0 Contract\n")
+      assert occurrences(contract, h2("Brand and visual compatibility")) == 1
+    end
+
+    test "places the section after SemVer And Deprecation Policy and before Security Invariants" do
+      assert File.regular?(path(@contract)), "missing #{@contract}"
+
+      contract = read!(@contract)
+      semver = byte_index!(contract, h2("SemVer And Deprecation Policy"))
+      brand = byte_index!(contract, h2("Brand and visual compatibility"))
+      security = byte_index!(contract, h2("Security Invariants"))
+
+      assert semver < brand and brand < security
+    end
+
+    test "points at the reference guide by backticked path, not by markdown link" do
+      assert File.regular?(path(@contract)), "missing #{@contract}"
+
+      slice = section_slice(read!(@contract), "## Brand and visual compatibility")
+
+      assert slice =~ "`guides/reference/brand-compatibility.md`"
+      refute slice =~ "]("
+    end
+  end
+
   describe "helpers (positive controls)" do
     test "planted missing term is reported, and an all-present set reports nothing" do
       content = "alpha beta gamma"
@@ -212,6 +255,12 @@ defmodule Sigra.Brand.PolicyDocsTest do
 
       assert missing_terms(adr, ["Deletion scheduled"]) == []
       assert missing_terms(planted, ["Deletion scheduled"]) == ["Deletion scheduled"]
+    end
+
+    test "occurrences counts repeats, so a duplicated heading would be caught" do
+      assert occurrences("## A\n## A\n", "## A\n") == 2
+      assert occurrences("## A\n", "## A\n") == 1
+      assert occurrences("## B\n", "## A\n") == 0
     end
 
     test "section_slice stops at the next H2 and returns empty for an absent heading" do
