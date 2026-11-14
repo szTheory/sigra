@@ -1,20 +1,16 @@
 ---
 gsd_state_version: "1.0"
-milestone: v1.50
-milestone_name: CI-SPEED-AND-RELIABILITY
-current_phase: null
-current_phase_name: null
-current_plan: null
-status: closed_with_deferred_scope
-last_updated: "2026-11-10"
-state_head: b11bcca1db7c0186b4610ab4f10aeb7f84567540
+milestone: v1.51
+milestone_name: BRAND-IDENTITY-ADOPTION
+status: planning
+last_updated: "2026-11-14T03:08:21.463Z"
+last_activity: 2026-11-13
 progress:
-  total_phases: 8
-  completed_phases: 2
-  total_plan_records: 164
-  plans_with_terminal_summaries: 157
-last_activity: 2026-11-10
-last_activity_desc: v1.50 archived as a partial internal closeout; four requirements remain deferred and the next route is new-milestone planning.
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -24,17 +20,14 @@ last_activity_desc: v1.50 archived as a partial internal closeout; four requirem
 See: .planning/PROJECT.md
 
 **Core value:** Authentication that works out of the box with a clear path for Phoenix adopters.
-**Current focus:** Define the next milestone. No phase or plan is active.
+**Current focus:** v1.51 BRAND-IDENTITY-ADOPTION — defining requirements (research first). No phase or plan is active.
 
 ## Current Position
 
-v1.50 is closed as an internal planning milestone with deferred scope. Phase252 and Phase255 have passed current verification (2/8). Phase253 remains `gaps_found`; Phase254 lacks a verification report; Phases255.1–258 remain incomplete. The audit remains `gaps_found`.
-
-Main CI run `42756400672` passed on `970055abcf1ee4e8b5d8ebcf79de0eeecf4f223d`. That does not prove the current dirty diagnostics edits. The Git worktree remains dirty; `.git` is read-only in this session, so no broad staging or commit was attempted.
-
-**Next command:** `$gsd-new-milestone`
-**Next actor:** User
-**External authority:** None for new GitHub requests, merges, releases, tags, or retries/renewals of consumed source-bound attempts.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-11-13 — Milestone v1.51 started
 
 ## Deferred Requirements
 
