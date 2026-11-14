@@ -2,6 +2,7 @@ defmodule Sigra.Brand.PolicyDocsTest do
   use ExUnit.Case, async: true
 
   @adr ".planning/decisions/005-brand-adoption-compatibility-policy.md"
+  @guide "guides/reference/brand-compatibility.md"
 
   @adr_headings [
     "Owner decision table",
@@ -24,6 +25,17 @@ defmodule Sigra.Brand.PolicyDocsTest do
     "seven-day",
     "Deletion scheduled",
     "PNG-lane policy is park"
+  ]
+
+  @guide_headings [
+    "Scope and audience",
+    "Frozen list",
+    "Add-only list",
+    "Ownership lanes",
+    "Surface map",
+    "Consumed brand subset",
+    "SemVer and changelog treatment",
+    "Upgrade notes"
   ]
 
   # Decision numbers recorded by Phase 259 (#10 and #13 belong to later phases).
@@ -127,6 +139,60 @@ defmodule Sigra.Brand.PolicyDocsTest do
       assert Enum.all?(owners, &(&1 in ["Sigra", "host"]))
       assert "Sigra" in owners
       assert "host" in owners
+    end
+  end
+
+  describe "brand-compatibility guide" do
+    test "exists with the eight required H2 headings and a plain-text title" do
+      assert File.regular?(path(@guide)), "missing #{@guide}"
+
+      guide = read!(@guide)
+
+      assert String.starts_with?(guide, "# Brand and visual compatibility\n")
+      assert missing_terms(guide, Enum.map(@guide_headings, &h2/1)) == []
+    end
+
+    test "surface map names a brand owner of Sigra or host for every surface" do
+      assert File.regular?(path(@guide)), "missing #{@guide}"
+
+      slice = section_slice(read!(@guide), "## Surface map")
+      rows = table_data_rows(slice)
+      owners = Enum.map(rows, fn [_surface, owner | _rest] -> owner end)
+
+      assert slice =~ "Brand owner"
+      assert length(rows) >= 9
+      assert Enum.all?(owners, &(&1 in ["Sigra", "host"]))
+      assert "Sigra" in owners
+      assert "host" in owners
+    end
+
+    test "states the whole-tree pin, the compare-rather-than-overwrite rule and the changelog section" do
+      assert File.regular?(path(@guide)), "missing #{@guide}"
+
+      guide = read!(@guide)
+
+      assert guide =~ "whole tracked tree" or guide =~ "whole tree"
+
+      assert missing_terms(guide, ["compare rather than overwrite", "Visual and copy changes"]) ==
+               []
+    end
+
+    test "carries the upgrade-note skeleton: numbered steps, command block and changes heading" do
+      assert File.regular?(path(@guide)), "missing #{@guide}"
+
+      slice = section_slice(read!(@guide), "## Upgrade notes")
+
+      expected = [
+        "\n### 1. ",
+        "\n### 2. ",
+        "\n### 3. ",
+        "\n### 4. ",
+        "\n### 5. Visual and copy changes\n",
+        "\n    mix deps.update sigra\n",
+        "compare rather than overwrite"
+      ]
+
+      assert missing_terms(slice, expected) == []
     end
   end
 
