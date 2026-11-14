@@ -5,7 +5,7 @@ For admin UI work, follow `guides/reference/admin-ui-principles.md` and `guides/
 Key constraints:
 
 - Preserve the `sg-*` cascade-layer/BEM design system.
-- Use the Rail Accent brand assets from `brandbook/`.
+- Use the brand book in `brand/` (identity rules in `brand/BRAND.md`, tokens in `brand/tokens.json`). The `--sg-*` token names stay; token values move to the book in a later phase.
 - Support Light, Dark, and System modes.
 - Keep Playwright/admin UI tests deterministic: role selectors, stable hooks, LiveView readiness, no sleeps.
 

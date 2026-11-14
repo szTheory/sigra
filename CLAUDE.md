@@ -227,7 +227,7 @@ No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skill
 
 ## Admin UI Direction
 
-When changing Sigra admin UI, follow `guides/reference/admin-ui-principles.md` and `guides/reference/admin-design-contract.md`. Preserve the `sg-*` cascade-layer/BEM design system, use the Rail Accent brand assets from `brandbook/`, support Light/Dark/System theme behavior, and keep browser tests deterministic.
+When changing Sigra admin UI, follow `guides/reference/admin-ui-principles.md` and `guides/reference/admin-design-contract.md`. Preserve the `sg-*` cascade-layer/BEM design system, use the brand book in `brand/` (identity rules in `brand/BRAND.md`, tokens in `brand/tokens.json`), support Light/Dark/System theme behavior, and keep browser tests deterministic. The `--sg-*` token names stay; token values move to the book in a later phase.
 
 <!-- GSD:workflow-start source:GSD defaults -->
 ## GSD Workflow Enforcement
