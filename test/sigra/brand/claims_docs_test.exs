@@ -30,12 +30,16 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @registration "guides/flows/registration.md"
   @password_reset "guides/flows/password-reset.md"
   @login_logout "guides/flows/login-and-logout.md"
+  @getting_started "guides/introduction/getting-started.md"
+  @architecture "guides/introduction/architecture.md"
+  @walkthrough "guides/introduction/code-walkthrough.md"
 
   @scope_opener "**Scope of this claim:**"
 
   # Files whose wording this plan owns, grouped by the task that edits them.
   @flow_guides [@registration, @password_reset, @login_logout]
-  @files [@readme | @flow_guides]
+  @intro_guides [@getting_started, @architecture, @walkthrough]
+  @files [@readme | @flow_guides] ++ @intro_guides
 
   # The exact old strings captured from the docs before they were reworded. A
   # retired string coming back is a regression, so these are never allow-listed.
@@ -53,7 +57,13 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       "returns `:ok` (enumeration-safe)",
       "Enumeration-safe: same response whether or not the email exists"
     ],
-    @login_logout => ["enumeration-safe lookup"]
+    @login_logout => ["enumeration-safe lookup"],
+    @getting_started => ["prevents enumeration attacks"],
+    @architecture => ["public failures remain enumeration-safe"],
+    @walkthrough => [
+      "enumeration-safe public failure",
+      "it does not reveal whether an unknown email was the cause"
+    ]
   }
 
   # Pre-existing planning citations that this plan neither edits nor may edit.
@@ -153,6 +163,22 @@ defmodule Sigra.Brand.ClaimsDocsTest do
                ["enumeration-safe lookup"]
 
       assert retired_present("Nothing retired here.", Map.fetch!(@retired, @login_logout)) == []
+    end
+
+    test "positive control: every registered retired phrase is reported when planted" do
+      for {file, phrases} <- @retired do
+        planted = "Intro. " <> Enum.join(phrases, " and ") <> " End."
+
+        assert retired_present(planted, phrases) == phrases,
+               "#{file}: a planted retired phrase went unreported"
+      end
+    end
+
+    test "the introduction guides are part of the retired-phrase check" do
+      for file <- @intro_guides do
+        assert Map.has_key?(@retired, file), "#{file} is not covered by the retired-phrase map"
+        assert file in @files
+      end
     end
 
     test "the README keeps its Enumeration row, now with scope" do
