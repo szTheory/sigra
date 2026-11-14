@@ -10,6 +10,9 @@ files:
   - guides/introduction/upgrading-to-v1.11.md
   - mix.exs
   - lib/sigra/audit.ex
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

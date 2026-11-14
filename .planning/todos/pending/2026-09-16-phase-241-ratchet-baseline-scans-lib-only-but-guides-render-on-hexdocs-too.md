@@ -8,6 +8,9 @@ source: phase 237 verification (advisory)
 files:
   - .planning/phases/237-clean-working-tree-green-pages-clean-lib-docs-surface/237-RATCHET-BASELINE.md
   - .planning/ROADMAP.md
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

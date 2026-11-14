@@ -84,7 +84,7 @@ nits, config/installer features, and CI-perf work are deferred to later mileston
   `v1.20.0` (`git tag -d v1.20.0` + `git push origin :refs/tags/v1.20.0`) so it can't be
   re-parsed as a package version; (b) correct `guides/introduction/contract.md:9`, which
   still cites `1.20.0` as the "current published package truth" — set to `1.1.0`.
-- **D-14:** Document the Hex-side retire as a **runbook step for Jon to run**
+- **D-14:** Document the Hex-side retire as a **runbook step for the owner to run**
   (`mix hex.user key generate` → `mix hex.retire sigra 1.20.0 invalid --message "..."`;
   retire, NOT delete — past the grace window; Hex has no web retire button, local key is
   read-only). DEBT-04 is marked resolved with this manual action tracked as a runbook,
@@ -225,7 +225,7 @@ These pending todos ARE the phase requirements (resolved here, then closed):
 - **DEBT-03 WR-01 → library-layer hardening** (user decision): guard inside
   `Sigra.Auth.delete_session/3`, protecting all callers, not just the admin Actions path.
 - **DEBT-04 → repo slice + runbook** (user decision): fix the git tag + `contract.md` in
-  this phase; document `mix hex.retire sigra 1.20.0` as a manual runbook for Jon; do NOT
+  this phase; document `mix hex.retire sigra 1.20.0` as a manual runbook for the owner; do NOT
   block the phase on the interactive Hex retire.
 </specifics>
 

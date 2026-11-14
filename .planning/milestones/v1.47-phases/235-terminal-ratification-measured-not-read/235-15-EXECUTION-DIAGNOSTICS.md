@@ -32,7 +32,7 @@ MIX_ENV=test mix test test/sigra/planning/phase_233_library_economics_contract_t
 erlang 29.0.5
 erlang 28.4.1
 No version is set for command erl
-Consider adding one of the following versions in your config file at /Users/jon/projects/sigra/.tool-versions
+Consider adding one of the following versions in your config file at ~/projects/sigra/.tool-versions
 ```
 
 The repository requests Erlang `28.5`; this machine currently has `28.4.1` and

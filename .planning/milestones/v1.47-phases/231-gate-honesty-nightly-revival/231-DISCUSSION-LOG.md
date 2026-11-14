@@ -161,7 +161,7 @@ Carried into `231-RESEARCH.md` scope:
 
 ## Human-Gated Steps
 
-- **`release-lane-rot` label — already done.** Created manually by Jon on 2026-07-28
+- **`release-lane-rot` label — already done.** Created manually by the owner on 2026-07-28
   (`gh label create release-lane-rot --color b60205`). No further manual action *provided* D-22's
   self-heal lands; without it the manual step silently becomes load-bearing again on any fork or
   accidental deletion.

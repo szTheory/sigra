@@ -9,6 +9,9 @@ files:
   - lib/sigra/admin/components.ex
 severity: medium
 source: "Phase 236 (Flake Root Cause — Reproduce, Name, Fix), D-30 scope boundary, filed by plan 236-04"
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## What

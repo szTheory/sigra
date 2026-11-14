@@ -146,7 +146,7 @@ Recorded here so the executor does not re-litigate them mid-task.
       and the `gate_renamed` sibling.
   </action>
   <verify>
-    <automated>bash -c 'cd /Users/jon/projects/sigra && bash scripts/ci/capture-green-04-evidence.test.sh >/tmp/g04-t1.out 2>&1; rc=$?; tail -2 /tmp/g04-t1.out; grep -c "ok   - sc2_smoke_job_renamed\|ok   - sc2_gate_job_renamed" /tmp/g04-t1.out; exit $rc'</automated>
+    <automated>bash -c 'cd ~/projects/sigra && bash scripts/ci/capture-green-04-evidence.test.sh >/tmp/g04-t1.out 2>&1; rc=$?; tail -2 /tmp/g04-t1.out; grep -c "ok   - sc2_smoke_job_renamed\|ok   - sc2_gate_job_renamed" /tmp/g04-t1.out; exit $rc'</automated>
   </verify>
   <done>Self-test exits 0, prints `fail=0`, and reports 6 ok-lines across the two new labels (exits non-zero / names the token / no receipt, x2). The ten original `ok:` assertions still pass unchanged.</done>
 </task>
@@ -232,7 +232,7 @@ Recorded here so the executor does not re-litigate them mid-task.
       non-empty string.
   </action>
   <verify>
-    <automated>bash -c 'cd /Users/jon/projects/sigra && bash scripts/ci/capture-green-04-evidence.test.sh >/tmp/g04-t2.out 2>&1; rc=$?; tail -2 /tmp/g04-t2.out; grep -c "ok   - sc2_smoke_conclusion_null\|ok   - sc2_gate_conclusion_null\|ok   - default_min_runs_floor\|ok   - min_runs_malformed\|ok   - window_excludes_dispatch" /tmp/g04-t2.out; exit $rc'</automated>
+    <automated>bash -c 'cd ~/projects/sigra && bash scripts/ci/capture-green-04-evidence.test.sh >/tmp/g04-t2.out 2>&1; rc=$?; tail -2 /tmp/g04-t2.out; grep -c "ok   - sc2_smoke_conclusion_null\|ok   - sc2_gate_conclusion_null\|ok   - default_min_runs_floor\|ok   - min_runs_malformed\|ok   - window_excludes_dispatch" /tmp/g04-t2.out; exit $rc'</automated>
   </verify>
   <done>Self-test exits 0 with `fail=0`; the five new labels contribute 15 ok-lines; `jq -e '.sc2.min_runs and .sc2.window.dispatch_run_created_at and .sc2.window.binding'` is true on the ok receipt; the shipped `240-GREEN-04-EVIDENCE.json` keys are all still produced (no key removed or retyped).</done>
 </task>
@@ -260,7 +260,7 @@ Recorded here so the executor does not re-litigate them mid-task.
     ci.yml's `generated_admin_playwright_smoke` job only, and this edit touches `fast_checks`.
   </action>
   <verify>
-    <automated>bash -c 'cd /Users/jon/projects/sigra && grep -n "capture-green-04-evidence.test.sh" .github/workflows/ci.yml && node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs >/tmp/g04-prohib.out 2>&1; tail -6 /tmp/g04-prohib.out; bash scripts/ci/capture-green-04-evidence.test.sh | tail -2'</automated>
+    <automated>bash -c 'cd ~/projects/sigra && grep -n "capture-green-04-evidence.test.sh" .github/workflows/ci.yml && node --test --test-reporter=tap scripts/ci/prohibitions/*.test.mjs >/tmp/g04-prohib.out 2>&1; tail -6 /tmp/g04-prohib.out; bash scripts/ci/capture-green-04-evidence.test.sh | tail -2'</automated>
   </verify>
   <done>`ci.yml` contains exactly one `fast_checks` step invoking the self-test, positioned after the Pages self-test step with matching indentation and no `if:`; all prohibition tests still pass (`p20` and `p06` in particular); the self-test still ends `PASS`.</done>
 </task>

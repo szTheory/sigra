@@ -3,7 +3,9 @@ created: 2026-09-15
 source: v1.47 CI-EFFICIENCY milestone audit (re-audit at close)
 severity: medium
 requirements: [GATE-04, FAST-06]
-audit_acknowledged: v1.47
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 # An isolated `admin_eval_render` failure notifies nobody, and it skips the browser cache

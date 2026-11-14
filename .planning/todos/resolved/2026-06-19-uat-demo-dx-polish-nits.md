@@ -38,7 +38,7 @@ aren't lost:
   + `--attach` foreground IEx) and the **bind-mount hot-reload** path. The default
   proxy boot is live-verified; these two were only static-checked + reasoned.
 - **Reap stale leaked UAT stacks** from before the `down.sh` profile fix: a
-  `sigra-uat-jon-main-39bab8dd-web-1` (Up 26h) container and `…-main…` / `…-v1-37
+  `sigra-uat-user-main-39bab8dd-web-1` (Up 26h) container and `…-main…` / `…-v1-37
   -auth-branding…` volume sets were found orphaned. Clean with
   `docker compose -p <project> --profile '*' down -v --remove-orphans` per stale
   project, or `docker rm -f <web> && docker volume rm <vols>`.

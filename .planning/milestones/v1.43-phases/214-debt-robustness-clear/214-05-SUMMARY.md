@@ -13,7 +13,7 @@ provides:
   - DEBT-02 todo closed (WR-01/WR-02/IN-02/IN-03/IN-04 all resolved)
   - git tag v1.20.0 deleted from local and remote (D-13)
   - guides/introduction/contract.md line 9 corrected from 1.20.0 to 1.1.0 (D-13)
-  - Hex retire runbook documented for Jon (D-14)
+  - Hex retire runbook documented for the owner (D-14)
 
 affects: [hex-publishing, dependency-resolution, ci-debt]
 
@@ -33,7 +33,7 @@ key-decisions:
   - "DEBT-02 D-05: panel-schema-check.sh retired in-place (not deleted) with RETIRED banner; inputs are frozen v1.42 milestone deliverables that cannot be corrupted by future development"
   - "DEBT-02 D-06/D-07: IN-02/IN-03/IN-04 validator nits and WR-01 residual are won't-fix on the retired script"
   - "DEBT-04 D-13: git tag v1.20.0 deleted local and remote; contract.md line 9 corrected to 1.1.0"
-  - "DEBT-04 D-14: mix hex.retire sigra 1.20.0 is a manual runbook step for Jon — cannot be automated in-phase (requires interactive Hex credentials)"
+  - "DEBT-04 D-14: mix hex.retire sigra 1.20.0 is a manual runbook step for the owner — cannot be automated in-phase (requires interactive Hex credentials)"
 
 patterns-established:
   - "Retired CI scripts: keep file, add prominent RETIRED comment at top with date, decision phase, and rationale"
@@ -76,7 +76,7 @@ coverage:
         status: pass
     human_judgment: false
   - id: D5
-    description: "mix hex.retire runbook documented in SUMMARY.md for Jon to run manually"
+    description: "mix hex.retire runbook documented in SUMMARY.md for the owner to run manually"
     requirement: DEBT-04
     verification: []
     human_judgment: true
@@ -89,7 +89,7 @@ status: complete
 
 # Phase 214 Plan 05: Debt & Robustness Clear — Script Retire + Version Wart Summary
 
-**panel-schema-check.sh retired in-place with DEBT-02 rationale; git tag v1.20.0 deleted local+remote and contract.md corrected to 1.1.0; hex retire runbook documented for Jon**
+**panel-schema-check.sh retired in-place with DEBT-02 rationale; git tag v1.20.0 deleted local+remote and contract.md corrected to 1.1.0; hex retire runbook documented for the owner**
 
 ## Performance
 
@@ -105,7 +105,7 @@ status: complete
 - Closed the DEBT-02 todo: moved `2026-07-01-phase209-code-review-deferred.md` to resolved/ with a resolution note — WR-01 already resolved post-merge; WR-02 decided as retire; IN-02/IN-03/IN-04 won't-fix on retired script (D-06, D-07)
 - Deleted git tag `v1.20.0` from both local and remote — the stray three-segment milestone tag that Hex misinterpreted as a package version, causing `{:sigra, "~> 1.0"}` to resolve to `1.20.0` instead of `1.1.0` (D-13)
 - Corrected `guides/introduction/contract.md` line 9 from `1.20.0` to `1.1.0` (D-13)
-- Documented the Hex retire runbook below for Jon to run manually (D-14)
+- Documented the Hex retire runbook below for the owner to run manually (D-14)
 
 ## Task Commits
 
@@ -120,7 +120,7 @@ Each task was committed atomically:
 - `guides/introduction/contract.md` — Line 9 corrected: `1.20.0` → `1.1.0` (D-13)
 - `.planning/todos/resolved/2026-07-01-phase209-code-review-deferred.md` — Created (moved from pending/) with resolution note
 
-## Hex Retire Runbook (Manual — Jon to run)
+## Hex Retire Runbook (Manual — the owner to run)
 
 The git tag `v1.20.0` has been deleted from local and remote. The Hex registry still lists
 `sigra 1.20.0` as a published version. To prevent Hex from resolving `{:sigra, "~> 1.0"}` to
@@ -151,7 +151,7 @@ in-phase because it requires interactive Hex credentials.
 - D-05: Retire `panel-schema-check.sh` in-place with a RETIRED banner comment rather than deleting the file — keeping it documents the retire decision and makes it auditable
 - D-06/D-07: IN-02/IN-03/IN-04 validator nits and WR-01 residual are all won't-fix on the retired script — no work required
 - D-13: Delete `v1.20.0` git tag (local and remote) and correct `contract.md` line 9 — both automatable in-phase
-- D-14: `mix hex.retire sigra 1.20.0` is a manual runbook step for Jon — cannot be automated (requires interactive Hex credentials); DEBT-04 is marked resolved with this runbook tracked
+- D-14: `mix hex.retire sigra 1.20.0` is a manual runbook step for the owner — cannot be automated (requires interactive Hex credentials); DEBT-04 is marked resolved with this runbook tracked
 
 ## Deviations from Plan
 
@@ -163,7 +163,7 @@ None.
 
 ## User Setup Required
 
-**Jon must run the Hex retire command manually.** See the "Hex Retire Runbook" section above.
+**the owner must run the Hex retire command manually.** See the "Hex Retire Runbook" section above.
 
 The git tag deletion is complete (automated). The Hex registry retire requires interactive credentials:
 ```bash

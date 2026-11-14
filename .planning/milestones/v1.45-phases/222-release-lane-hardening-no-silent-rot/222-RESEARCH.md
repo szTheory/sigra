@@ -71,7 +71,7 @@ subsection under MAINTAINING.md "Release automation (default)".
 
 ### Deferred Ideas (OUT OF SCOPE)
 - Retiring the stray Hex `1.20.0` (PUB-04) — deferred (Hex 2.5 blocks programmatic retire).
-- Live green auto-publish via throwaway v1.3.1 bump — declined by Jon.
+- Live green auto-publish via throwaway v1.3.1 bump — declined by the owner.
 - Playwright per-shard-DB perf (PERF-01 / SEED-005).
 - The admin `impersonation-banner` canary-recapture-lane noise (different lane).
 - PUB-05 adopter `~> 1.0` proof / PROOF-01 trust bundle → Phase 223.

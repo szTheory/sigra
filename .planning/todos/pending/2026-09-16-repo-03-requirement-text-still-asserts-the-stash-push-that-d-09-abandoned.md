@@ -7,6 +7,9 @@ severity: major
 source: phase 237 orchestrator close-out
 files:
   - .planning/REQUIREMENTS.md
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

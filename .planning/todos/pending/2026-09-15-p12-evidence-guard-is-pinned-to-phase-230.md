@@ -7,6 +7,9 @@ severity: major
 source: phase 236 wave-1 boundary check
 files:
   - scripts/ci/prohibitions/p12-run-id-provenance.test.mjs:26
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

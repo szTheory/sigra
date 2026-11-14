@@ -64,7 +64,7 @@ Requirements in scope: **HARD-01, HARD-02**.
   `gate-ci-green` job timing out (~30 min, release-please.yml:119-169) against the then-red gate,
   then failing with no alert. This is the exact silent-rot failure mode HARD-02 targets, and it is
   real, not hypothetical.
-- **D-06:** Do **NOT** cut a throwaway version bump to force a live green auto-publish (chosen by Jon
+- **D-06:** Do **NOT** cut a throwaway version bump to force a live green auto-publish (chosen by the owner
   over a live `release-as` v1.3.1 proof, 2026-07-10). Satisfy HARD-02's explicit **OR**
   ("fire end-to-end **OR** fail loudly") via the buildable-now branch:
   1. **Prove the publish path is green** by running `hex-publish.yml` with `dry_run=true` against the
@@ -175,7 +175,7 @@ Requirements in scope: **HARD-01, HARD-02**.
 ## Deferred Ideas
 
 - **Live green auto-publish proof via throwaway v1.3.1 bump** — considered for HARD-02; declined by
-  Jon (2026-07-10). The OR-branch (loud-failure backstop + dry-run) satisfies the requirement without
+  the owner (2026-07-10). The OR-branch (loud-failure backstop + dry-run) satisfies the requirement without
   churning a real Hex version. Could be revisited at the next natural release.
 - **PUB-04 retire stray 1.20.0 / PUB-05 adopter `~> 1.0` proof / PROOF-01 trust bundle** → Phase 223
   (or deferred, per REQUIREMENTS PUB-04 note). Not this phase.

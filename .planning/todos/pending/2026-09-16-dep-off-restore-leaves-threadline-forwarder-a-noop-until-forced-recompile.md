@@ -8,6 +8,9 @@ source: phase 237 plan 06 Task 3 (MIX_ENV=test mix ci gate run, reproduced 5 tim
 files:
   - scripts/ci/sigra-dep-off.sh
   - lib/sigra/audit/forwarders/threadline.ex
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

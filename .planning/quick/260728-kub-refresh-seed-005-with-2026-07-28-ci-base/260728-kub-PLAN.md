@@ -17,7 +17,7 @@ must_haves:
   truths:
     - "SEED-005 states, in-repo, that the CI/CD audit is already finished and its Phase 198-203 sequence was orphaned by v1.41 phase-number reuse, so the next reader executes the audit instead of re-running the playbook."
     - "SEED-005 carries the re-measured 2026-07-28 baseline table (40 runs), the example_playwright_smoke critical-path decomposition, the waste items absent from the 2026-06-20 audit, the locked 2026-07-28 decisions, and the <12m target."
-    - "The verbatim companion playbook, Jon's verbatim framing, and the scope guardrails in SEED-005 are byte-identical after the edit."
+    - "The verbatim companion playbook, the owner's verbatim framing, and the scope guardrails in SEED-005 are byte-identical after the edit."
     - "A pending todo records that admin_eval_render burns ~17m on every PR for an artifact nothing reads, names both root causes, and states that harness phases a2/b1-b6 have never executed in CI."
     - "A pending todo records that generated_admin_playwright_smoke is skipped on every real PR while ci-gate treats skipped as pass, so generated-host parity is verified on no PR at all."
   artifacts:
@@ -86,7 +86,7 @@ then the line `The full inflated companion prompt to use as the audit playbook:`
 line and the `---`. Net effect: the addendum lands AFTER the bracketed CORRECTION blockquote and
 BEFORE the `---` separator, so the verbatim playbook remains the last thing in the file.
 
-Preserve-verbatim, do not touch: the scope guardrails section, Jon's verbatim framing prompt,
+Preserve-verbatim, do not touch: the scope guardrails section, the owner's verbatim framing prompt,
 the Addendum 2026-06-20 section, the CORRECTION blockquote, and everything from the `---`
 separator to EOF. The edit must be purely additive — zero deleted lines.
 
@@ -180,7 +180,7 @@ grep -c 'Proposed phases' .planning/seeds/SEED-005-ci-cd-pipeline-performance-au
   <done>
 The addendum heading sits between the CORRECTION blockquote and the playbook line (order check
 passes). `git diff --numstat` reports **0 deleted lines** for the seed, proving the playbook,
-Jon's framing, and the scope guardrails are byte-identical. All four content greps return 1 or
+the owner's framing, and the scope guardrails are byte-identical. All four content greps return 1 or
 more. No file other than the seed is modified by this task.
   </done>
 </task>

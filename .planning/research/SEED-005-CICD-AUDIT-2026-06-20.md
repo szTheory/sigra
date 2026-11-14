@@ -5,7 +5,7 @@
 **Baseline run:** `27883386841` (PR `ship/v1.40-ci-perf`, event=pull_request, green). Representative-confirmed against `27854244136`, `27846034918`, `27847562459`.
 **Status of prior work:** v1.40 CI-PERF phases 193–197 already landed: baseline/observability, cache-key precision + micro-job fold (`fast_checks`), `library_tests` 2-way partition + per-shard PG + name-preserving aggregator, PR-fast/nightly-broad trigger split for install-matrix/upgrade/passkeys/generated-admin/recapture, and Playwright failure-surfacing + determinism (`!cancelled()` seams, `expect.poll`, self-hosted font). This audit finds the **remaining** wins only. None of the recommendations below re-do 193–197.
 
-> **North Star (Jon, verbatim intent):** fast PR feedback; deterministic non-flaky gates; never trade trust for speed (any speed-for-trust change is flagged + moved to optional/nightly); keep HIGH-value tests, demote/delete ONLY lowest-signal/redundant/flaky/over-scoped with evidence; use all runner cores intelligently without a Rube Goldberg pipeline; caching done right; one local `mix ci` mirroring CI; fast/deterministic/bulletproof specs.
+> **North Star (the owner, verbatim intent):** fast PR feedback; deterministic non-flaky gates; never trade trust for speed (any speed-for-trust change is flagged + moved to optional/nightly); keep HIGH-value tests, demote/delete ONLY lowest-signal/redundant/flaky/over-scoped with evidence; use all runner cores intelligently without a Rube Goldberg pipeline; caching done right; one local `mix ci` mirroring CI; fast/deterministic/bulletproof specs.
 
 ---
 

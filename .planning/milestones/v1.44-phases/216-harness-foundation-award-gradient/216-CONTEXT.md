@@ -319,7 +319,7 @@ models, axe-core `target-size` (WCAG-2.2), WCAG 2.5.8 / 2.4.13, Awwwards weighte
 - `2026-06-20-mix-sigra-migrate-schema-helper`, `2026-06-20-runtime-auth-prefix-override`,
   `2026-06-22-white-label-auth-email-theming` — v2 FEAT-01/02/03, out of milestone scope.
 - `2026-07-02-app-css-corruption-guard-blind-spot` — general robustness, not this phase.
-- `2026-07-03-hex-retire-stray-1-20-0` — Jon-manual release chore, out of roadmap scope.
+- `2026-07-03-hex-retire-stray-1-20-0` — owner-manual release chore, out of roadmap scope.
 </deferred>
 </content>
 </invoke>

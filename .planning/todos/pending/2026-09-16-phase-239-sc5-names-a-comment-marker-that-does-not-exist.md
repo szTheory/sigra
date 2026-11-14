@@ -7,6 +7,9 @@ severity: major
 source: phase 237 plan 06 boundary check
 files:
   - .planning/ROADMAP.md
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

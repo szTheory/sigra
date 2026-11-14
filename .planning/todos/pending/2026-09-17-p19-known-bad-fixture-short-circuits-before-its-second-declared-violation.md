@@ -8,6 +8,9 @@ source: phase 238 code review (IN-01)
 files:
   - test/fixtures/prohibitions/p19-tag-ruleset-absent-or-altered.json
   - scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem

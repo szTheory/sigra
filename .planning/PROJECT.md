@@ -2,15 +2,61 @@
 
 ## What This Is
 
-Sigra is a comprehensive authentication library for Elixir/Phoenix that fills the critical gap left by Pow's incompatibility with Phoenix 1.8+. It uses a hybrid lib+generator architecture: security-critical code lives in the library (updated via `mix deps.update`), while customizable application code (schemas, routes, LiveViews) is generated into the developer's project. Sigra targets Phoenix/Ecto as the blessed path, with Plug compatibility where it doesn't compromise DX.
+Sigra is a comprehensive authentication library for Elixir/Phoenix that fills the critical gap left by Pow's incompatibility with Phoenix 1.8+. It uses a hybrid lib+generator architecture: security-critical code lives in the library (updated via `mix deps.update`), while customizable application code (schemas, routes, LiveViews) is generated into the developer's project. Sigra targets Phoenix/Ecto as the blessed path, with Plug compatibility where it does not compromise developer experience.
 
 ## Core Value
 
-Authentication that works out of the box with great DX on the happy path AND on the rough edges — so developers can ship SaaS apps fast and grow with confidence, without wiring together 4+ libraries or maintaining security-sensitive code themselves.
+Authentication that works out of the box with great DX on the happy path and rough edges, so developers can ship SaaS apps fast and grow with confidence without wiring together multiple libraries or maintaining security-sensitive code themselves.
 
-## Current Milestone: v1.48 CLEAN-BASELINE
+## Verification Default
 
-**Goal:** Get main honestly green, the repo and release namespace unambiguous, the shipped
+Shift verification left: automate phase acceptance criteria with deterministic tests and durable CI evidence wherever practical. Keep human verification for genuinely irreducible judgment or manual actions. See [VERIFICATION-POLICY.md](VERIFICATION-POLICY.md).
+
+## Latest Closed Milestone: v1.50 CI-SPEED-AND-RELIABILITY
+
+**Closed:** 2026-11-10 as a partial internal closeout (`override_closeout`); no package release or Git tag.
+**Outcome:** Four requirements satisfied, one adjusted, and four deferred/open. Only Phase252 and Phase255 are currently verified complete (2/8); Phase253 is `gaps_found`, Phase254 verification is missing, and Phases255.1–258 remain incomplete. The audit stays `gaps_found`.
+**Performance:** The saved replay faithfully reports `insufficient_data`, with zero comparable successful pairs and no median/p95. No speed improvement is claimed.
+**Reliability:** Required-check behavior is covered; the selected Phase253 registration failure remains unreproduced, so CIREL-01 is deferred.
+**CI:** Main CI run `42756400672` passed on `970055abcf1ee4e8b5d8ebcf79de0eeecf4f223d`. It does not cover the current dirty diagnostics edits. The working tree remains dirty; `.git` was read-only during this closeout.
+**Next:** Define a new scope with `$gsd-new-milestone`. Deferred requirements need fresh scope and authorization before any new external attempt.
+
+## Current State — 2026-11-10
+
+The project is between milestones. The prior v1.50 phase plans, receipts, and summaries are archived under `.planning/milestones/v1.50-phases/`; the full roadmap, requirements, and final audit are in `.planning/milestones/`. The closeout and artifact acknowledgment receipts remain under `.planning/recovery/opengsd-health-20261106/`. No plan is active. No merge, release, tag, or new GitHub request was made.
+
+## Historical project records
+
+All milestone, state, and next-goal sections below are retained snapshots from earlier project cycles. The v1.50 closeout and `.planning/ROADMAP.md` above contain the current status and route.
+
+## Historical Milestone: v1.49 RELEASE-1.6.0
+
+**Goal:** Ship Sigra 1.6.0 from reviewed, exactly tested source, with an accurate adopter upgrade path,
+green main CI, clean worktrees, triaged open PRs, and durable package-to-source evidence.
+
+**Target features:**
+- Close the pre-committed generated confirmation defects A and D, plus the adjacent verified code-paste
+  defect B from SEED-011, with deterministic generated-host regression coverage.
+- Prepare the existing Release Please 1.6.0 candidate from a clean, reviewed source; curate its
+  changelog and upgrade guidance; preserve inherited work and disposition every open PR.
+- Harden the existing release lane so the tag, tested source SHA, package, and docs are tied together,
+  with bounded permissions, publish-only credentials, and durable success/failure receipts.
+- Publish 1.6.0 and verify the Hex package, versioned HexDocs, source reference, final main CI, and a
+  clean set of local worktrees.
+
+**Package version choice:** The user delegated the version decision. Use the existing protected-main
+Release Please PR #224 proposing 1.6.0; the GSD milestone version remains v1.49.
+
+</details>
+
+## Archived Milestone Context: v1.48 CLEAN-BASELINE (opened 2026-09-15; closed 2026-10-05)
+
+**Closeout:** Internal `override_closeout`, not a Hex release. The milestone audit records 21/27
+requirements satisfied, four partial, and two unsatisfied. Live GSD readiness is 2/10 phases
+complete and passed, seven stale, and Phase 245 `gaps_found`; none of those statuses was promoted
+to passed during archival. No 1.5.1 release was published.
+
+**Original goal:** Get main honestly green, the repo and release namespace unambiguous, the shipped
 code free of planning artifacts, and a release cut — so Sigra sits in a quiet, ready posture
 where the next milestone can start whenever we choose.
 
@@ -57,7 +103,41 @@ intended *next* milestone), admin/operator-UI iteration, pruning `.planning/` ou
 BFG/filter-repo history slimming (the 645M `.git` is acknowledged and deliberately untouched),
 and any new feature work.
 
-## Current State
+## Previous State (2026-10-06)
+
+**v1.48 CLEAN-BASELINE is archived as an internal override closeout.** It advanced the generated-
+admin flake fix, release-tag namespace cleanup, adopter-surface ratchets, queue triage, and
+fail-closed branch-prune tooling. Its closeout record preserves unfinished work: no 1.5.1 release
+receipt, REPO-04 unsatisfied, and GREEN-04, GREEN-05, REL-05, and SURF-01 partial. The archive and
+milestone audit are under `.planning/milestones/`.
+
+**Hex status:** 1.20.0 is retired and the HexDocs root serves v1.5.0 documentation, but Hex still
+reports `latest_stable_version: 1.20.0`. This closeout did not publish 1.5.1 and does not claim
+that dependency resolution is repaired.
+
+**v1.49 RELEASE-1.6.0 is now being initialized.** Phase numbering continues at 246. The selected
+package target is the existing Release Please PR #224, proposing 1.6.0 from protected-main source;
+the existing release checks and public state must be rechecked at execution time. The milestone also
+honors SEED-011's explicit fast-follow commitment to verify and close generated confirmation defects
+A and D in its first phase batch, with adjacent confirmed finding B included in the same generated-host
+flow and test seam.
+
+**Carryover boundaries:** Phase 245's 11 historical PR-base rows and 30 cleanup-history pairs remain
+unresolved and out of scope absent new evidence. The Hex 1.20.0 resolver-ranking issue, remaining
+SEED-011 findings, and unrelated auth/UI work are also out of scope.
+
+**Repository baseline:** On 2026-10-06 there was one local worktree, on
+`phase-244-playwright-measurement` at `94051d8c`, with inherited changes and no upstream. Fourteen
+open PRs were visible, including #224 and ten Dependabot updates. Phase 247 will refresh this
+inventory, classify every PR, and preserve/disposition the inherited worktree before release-source
+work proceeds; this snapshot is not a substitute for that live check.
+
+**Closeout inventory:** The read-only pre-close inventory recorded 175 dirty paths across phase
+evidence, planning, docs, CI, and tests. The phase directories were moved intact into the v1.48
+archive and checkpointed separately from the remaining mixed product/CI worktree. The current
+branch has no upstream and was not treated as a PR candidate.
+
+## State at v1.48 Start (2026-09-15)
 
 **Milestone v1.47 CI-EFFICIENCY shipped 2026-09-15** as an `override_closeout`. Six phases
 (230-235) cut PR wall-clock p50 from **27.3 minutes to 469 seconds (7m49s)** across n=52
@@ -193,7 +273,7 @@ Full detail in `milestones/v1.46-ROADMAP.md`; findings in `milestones/v1.46-MILE
 
 **Shipped 9/11 requirements.** The substantive release IS live: Sigra is current on Hex — `v1.2.0` then `v1.3.0` published (contiguous after `v1.1.0`), so adopters now receive three milestones (v1.42/43/44) of shipped work. The publish gate was unblocked (PUB-01), the release lane hardened against silent rot (HARD-01/02: PR-visible/loud-red signal + shared find-or-create issue notifier + verified auto-publish path + runbook), and the ship-honest generated-host debt paid down (SHIP-01/02/03). Archived: `milestones/v1.45-{ROADMAP,REQUIREMENTS}.md`. No `v1.45` git tag (Hex-collision convention — a `v1.45` tag is the exact ADR-003 footgun).
 
-**Deferred at close (override_closeout):** Phase 223 (PUB-04 retire stray Hex `1.20.0` + PUB-05 adopter-resolution proof + PROOF-01 currency trust bundle) — all blocked on the operator/interactive Hex retire, which Jon deferred indefinitely (near-zero adoption; Hex 2.5.0 blocks programmatic retire). Non-blocking: the CI gate is green regardless via the `1.3.0` pin. Resume `/gsd-execute-phase 223` after the retire lands. **Root cause of the phantom `1.20.0`** captured in ADR 003 (`.planning/decisions/003-hex-release-versioning-no-tag-derived-publish.md`) — an early publish pipeline derived the Hex version from any `v*` git tag; already structurally closed.
+**Deferred at close (override_closeout):** Phase 223 (PUB-04 retire stray Hex `1.20.0` + PUB-05 adopter-resolution proof + PROOF-01 currency trust bundle) — all blocked on the operator/interactive Hex retire, which the owner deferred indefinitely (near-zero adoption; Hex 2.5.0 blocks programmatic retire). Non-blocking: the CI gate is green regardless via the `1.3.0` pin. Resume `/gsd-execute-phase 223` after the retire lands. **Root cause of the phantom `1.20.0`** captured in ADR 003 (`.planning/decisions/003-hex-release-versioning-no-tag-derived-publish.md`) — an early publish pipeline derived the Hex version from any `v*` git tag; already structurally closed.
 
 **Original goal (as set):** Get Sigra current and trustworthy on Hex — fix the upgrade-smoke blocker, publish v1.2.0 + v1.3.0, retire the stray 1.20.0, and harden the release lane so a red gate can't silently strand a release again — so adopters can `mix deps.update` and actually receive three milestones (v1.42/43/44) of shipped work.
 
@@ -233,7 +313,7 @@ Future milestones should begin from this assumption:
 
 ## Latest Shipped Milestone: v1.43 STABILIZE (shipped 2026-07-03)
 
-**Shipped via PR #67** (merge commit to origin/main). 3 phases (213-215), 11 plans, 18 tasks. Phase 215 terminal-ratification served as the milestone audit — 9/9 must-haves verified, deferred-items ledger reconciled (RATIFY-01), all 5 required CI checks green on the merged PR. Outcome: latest-Phoenix compatibility restored (phx.new ≥1.8.8, 1.8.7 pin dropped), real-bug/robustness/review debt cleared (Oban guard, IDOR guard, app.css corruption + CI guard, Chimeway.Repo + `:upgrade` skip, panel-schema-check retired, stray v1.20.0 tag deleted), and the foundation proven green (library 2404/0, example 323/0). Also completed the overdue v1.42 phase-dir archive-move (205-212 → milestones/v1.42-phases/). No git tag (internal milestone). Deferred beyond v1.43 (→ next admin/operator-UI + feature milestone): UI-01/02 demo nits, FEAT-01/02/03 config/installer features, SEED-005/006 CI-perf — see STATE.md "Acknowledged at v1.43 close". Hex `1.20.0` retire still Jon-manual.
+**Shipped via PR #67** (merge commit to origin/main). 3 phases (213-215), 11 plans, 18 tasks. Phase 215 terminal-ratification served as the milestone audit — 9/9 must-haves verified, deferred-items ledger reconciled (RATIFY-01), all 5 required CI checks green on the merged PR. Outcome: latest-Phoenix compatibility restored (phx.new ≥1.8.8, 1.8.7 pin dropped), real-bug/robustness/review debt cleared (Oban guard, IDOR guard, app.css corruption + CI guard, Chimeway.Repo + `:upgrade` skip, panel-schema-check retired, stray v1.20.0 tag deleted), and the foundation proven green (library 2404/0, example 323/0). Also completed the overdue v1.42 phase-dir archive-move (205-212 → milestones/v1.42-phases/). No git tag (internal milestone). Deferred beyond v1.43 (→ next admin/operator-UI + feature milestone): UI-01/02 demo nits, FEAT-01/02/03 config/installer features, SEED-005/006 CI-perf — see STATE.md "Acknowledged at v1.43 close". Hex `1.20.0` retire still owner-manual.
 
 **Goal (as set):** Prove the foundation is green and trustworthy, unblock adopters on the latest Phoenix, and clear accumulated real-bug / robustness / review debt — no new features, no UI redesign — so the next milestone can be a clean-base admin/operator UI cleanup & feedback pass.
 
@@ -479,9 +559,9 @@ Archives:
 - [`.planning/milestones/v1.27-REQUIREMENTS.md`](milestones/v1.27-REQUIREMENTS.md)
 - [`.planning/milestones/v1.27-MILESTONE-AUDIT.md`](milestones/v1.27-MILESTONE-AUDIT.md)
 
-## Current State
+## Historical State Snapshot
 
-**v1.45 RELEASE-CURRENCY: CLOSED 2026-07-11 (override_closeout) — 9/11 requirements shipped.** Sigra is current on Hex: `v1.2.0` + `v1.3.0` published (contiguous after `v1.1.0`), publish gate unblocked (PUB-01), release lane hardened against silent rot (HARD-01/02), generated-host debt paid (SHIP-01/02/03). **Phase 223 deferred:** the stray Hex `1.20.0` retire (PUB-04) is an operator/interactive Hex write step Jon deferred indefinitely (no adopters; Hex 2.5.0 blocks programmatic retire), so PUB-05 (adopter-resolution proof) + PROOF-01 (currency trust bundle) are carried/unproven (unsatisfiable while `latest_stable_version=1.20.0` outranks `1.3.0`). Non-blocking (CI gate green via the `1.3.0` pin). Root cause of the phantom `1.20.0`: **ADR 003** (early tag-derived publish; already structurally closed). Milestone archived (`milestones/v1.45-{ROADMAP,REQUIREMENTS}.md`); phase dirs 221–223 kept in place so 223 can resume. No `v1.45` git tag (ADR-003 collision convention). Local `main` carries the work + close-out commits **unpushed** — a close-out PR is the operator's next step (ruleset blocks direct push to `main`). **Sigra is between milestones — start the next via `/gsd-new-milestone` (phases continue from 224); or run the ~5-min operator retire to let `/gsd-execute-phase 223` finish PROOF-01.**
+**v1.45 RELEASE-CURRENCY: CLOSED 2026-07-11 (override_closeout) — 9/11 requirements shipped.** Sigra is current on Hex: `v1.2.0` + `v1.3.0` published (contiguous after `v1.1.0`), publish gate unblocked (PUB-01), release lane hardened against silent rot (HARD-01/02), generated-host debt paid (SHIP-01/02/03). **Phase 223 deferred:** the stray Hex `1.20.0` retire (PUB-04) is an operator/interactive Hex write step the owner deferred indefinitely (no adopters; Hex 2.5.0 blocks programmatic retire), so PUB-05 (adopter-resolution proof) + PROOF-01 (currency trust bundle) are carried/unproven (unsatisfiable while `latest_stable_version=1.20.0` outranks `1.3.0`). Non-blocking (CI gate green via the `1.3.0` pin). Root cause of the phantom `1.20.0`: **ADR 003** (early tag-derived publish; already structurally closed). Milestone archived (`milestones/v1.45-{ROADMAP,REQUIREMENTS}.md`); phase dirs 221–223 kept in place so 223 can resume. No `v1.45` git tag (ADR-003 collision convention). Local `main` carries the work + close-out commits **unpushed** — a close-out PR is the operator's next step (ruleset blocks direct push to `main`). **Sigra is between milestones — start the next via `/gsd-new-milestone` (phases continue from 224); or run the ~5-min operator retire to let `/gsd-execute-phase 223` finish PROOF-01.**
 
 **v1.44 ADMIN-UX-RATCHET: SHIPPED 2026-07-10 — MERGED to origin/main via terminal PR #73 (`c0595e09`)** (5 phases 216-220 / 36 plans). Sigra now has an **automated, forward-only ratcheting harness** for admin/operator UI/UX quality: a single command renders every admin surface into tamper-proof evidence bundles; deterministic visual probes + a monotonic findings/award-ledger guard lock quality forward; an adversarial 4-lens LLM panel (persona/JTBD + graphic-design, k=3 consensus) finds issues and an auto-fix loop applies only provably-safe classes with per-fix `git revert` — **the panel never gates CI and never flips a ledger cell** (JUDGE-CI-01 held). The harness was applied in one broad wave to elevate all 8 admin surfaces + the L1/L2 component fractal, ~115 baselines were recaptured amd64-native in-CI, and the milestone shipped via a caveat-free terminal PR gated on all 5 required checks (quarantine-first canary reconciliation → v1.2.0 → rebase → terminal PR → v1.3.0). Milestone archived (`milestones/v1.44-{ROADMAP,REQUIREMENTS}.md`, phases → `milestones/v1.44-phases/`); ~20 open-artifact items acknowledged-deferred (override_closeout). No `v1.44` git tag (Hex-collision convention). **Deferred:** v1.2.0 + v1.3.0 are git-tagged + GitHub-released but NOT on Hex (stays v1.1.0) — blocked by a pre-existing upgrade-smoke `<.button type>` failure (tracked TODO). **Sigra is between milestones — start the next via `/gsd-new-milestone`.**
 
@@ -493,7 +573,7 @@ Archives:
 
 Next focus: planning the next milestone via `/gsd-new-milestone`; phases continue from Phase 193. Deferred carry-forwards: SEED-004 (phx_new ≥1.8.8 `<.button>` forward-compat + drop the 1.8.7 pin), SEED-005 (CI/CD performance audit), SEED-006 (admin-design gallery CI baseline recapture), and the stray hex `1.20.0` version-ranking wart.
 
-## Next Milestone Goals
+## Historical Next Milestone Goals
 
 - Treat regressions, security/trust findings, release failures, dependency drift, and adopter-reported friction as the default highest-value work.
 - Keep strategic bets gated by the v1.33 decision: enterprise features such as SCIM, `sigra_lockspire`, and Threadline correlation need explicit demand before implementation.
@@ -585,7 +665,7 @@ Archives: [`.planning/milestones/v1.27-ROADMAP.md`](milestones/v1.27-ROADMAP.md)
 
 **Reference (continuing work):** **`.planning/seeds/SEED-002-phase-9-log-safe-atomicity-followup.md`** for further **SEED-002** batches when scheduled.
 
-## Current State
+## Historical State Snapshot
 
 **v1.23 (shipped 2026-05-08):** Phases **103–107** closed the webhook operator-trust follow-ons to v1.22. Phase **103** shipped overlap-safe secret rotation with a dual-slot lifecycle and overlap-window signatures (**WH-04**). Phase **104** implemented replay recovery as new delivery lineage, and Phase **106** authoritatively verified that recovery path through `104-VERIFICATION.md` (**WH-05**). Phase **105** implemented webhook egress policy enforcement, and Phase **107** closed the remaining operator-truth and evidence gap for `WH-06` through `105-VERIFICATION.md`, `105-VALIDATION.md`, and the blocked-policy proof bundle under `.planning/uat-evidence/v1.23/webhook-policy-operator-truth/`.
 
@@ -633,7 +713,7 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 **Verification:** v1.4 requirements **10/10** satisfied in archive (Complete or Waived with documented substitutes); v1.3 milestone audit **passed** at close (2026-04-19); v1.2 audit **passed** (2026-04-17) with **23/23** in archive; v1.1 remains **79/79** in its archive.
 
-## Next milestone goals
+## Historical Next Milestone Goals
 
 **Current ranking source:** [`.planning/MILESTONE-ARC.md`](MILESTONE-ARC.md)
 
@@ -687,6 +767,36 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 </details>
 
 ## Requirements
+
+### Validated — v1.50 partial closeout
+
+- ✓ **CIMEAS-02:** Ranked runtime-cost evidence from Phase252; verification passed.
+- ✓ **CIMEAS-03:** Saved comparison replay works and faithfully reports `insufficient_data`; no performance outcome is claimed.
+- ✓ **CIREL-02:** Required-check names and failure/cancellation/missing-job behavior are retained.
+- ✓ **CIDX-01:** Documented local contributor commands and the `mix ci` entry point are verified by Phase255.
+
+### Adjusted — v1.50
+
+- **CIMEAS-01:** Accept the accurate dated 2026-10-12 baseline; a fresh November snapshot is deferred.
+
+### Deferred — v1.50 (still open)
+
+- **CISPEED-01 / CISPEED-02:** No successful comparable pairs; median and p95 are unavailable.
+- **CIREL-01:** Selected registration failure remains unreproduced; Phase253 verification is `gaps_found`.
+- **CIDX-02:** Current diagnostics changes lack proof on the exact source covered by main CI.
+
+See `.planning/milestones/v1.50-MILESTONE-AUDIT.md` and the approved rescope decision for the complete evidence and boundaries.
+
+### Validated — v1.49 RELEASE-1.6.0 (closed with known gaps)
+
+- ✓ **CONF-01, CONF-02, CONF-03:** Generated confirmation, pasted spaced codes, and visible feedback proved by the archived owner/CI records.
+- ✓ **READY-02:** Complete captured PR and inherited-work decisions with readable preserved copies.
+- ✓ **AUTO-01, AUTO-02:** Exact tested release source and retained success/failure/cancellation records proved by the archived owner reports.
+- ✓ **REL-01, REL-02:** Published 1.6.0 source/package/docs proof and recorded final CI/repository closeout.
+
+### Outstanding at v1.49 close
+
+- [ ] **READY-01:** Original approval and matching readiness/test records remain missing; the published source also lacks the upgrade guide/link. This remains a failed original requirement and does not block the next planning cycle. Follow up on the guide through `.planning/todos/pending/2026-10-12-add-missing-v16-upgrade-guidance.md`.
 
 ### Validated — Phase 235
 - ✓ **FAST-01** — authenticated source-complete protected evidence verifies 52 eligible PR runs at a 469-second wall-clock p50, below the strict 720-second threshold, with literal terminal conclusions and immutable miss history.
@@ -1083,8 +1193,15 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 
 ## Key Decisions
 
+**v1.49 closeout decision:** The user explicitly instructed us to move on when original records could not be recovered. Preserve the failed requirement and strict audit; close the planning cycle with the failure disclosed. Require original approval/test records at the time of future release preparation so this situation does not recur. No release safety gate is weakened.
+
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
+| Keep the saved comparison terminal insufficient_data (Phase 255) | Failed baseline and zero successful comparable pairs cannot establish a speed improvement | Replayed independently from 191 unchanged inputs; CISPEED-01/02 stay open |
+| Retain original failures and separately verified sanitized diagnostics (Phase 255) | Contributors need exact commands, signals and seeds without publishing auth storage | Native Mix/browser and real hosted terminal outcomes verified; missing cancellation files stay missing |
+| Close hosted and distribution allowances after their bounded proof (Phase 255) | Ordinary local repairs must not silently renew external or acceptance budgets | Later repairs tested locally; original hosted/distribution source identities retained |
+| CI values tied to saved GitHub job/check/artifact/source identities | Prevent wrong-run timing, overwritten reports and unverified metadata claims | ✓ Verified Phase 252; archive replays identically |
+| Fixed later 20-pair comparison and disclosed unknowns | Prevent favorable replacements and distinguish one observation from a population estimate | ✓ Contract verified Phase 252; comparison not yet run |
 | Hybrid lib+generator architecture | Security patches propagate via dep updates; devs own customizable code. Respects José's philosophy while solving the patch propagation problem. | ✓ Validated v1.0 — no regret |
 | Phoenix context pattern for generated code | `MyApp.Auth` context follows DDD boundaries, is idiomatic Phoenix, and keeps the public API clean. | ✓ Validated v1.0 — no regret |
 | Assent over Ueberauth for OAuth | Framework-agnostic, PKCE/OIDC built-in, single package vs N strategy deps, actively maintained. | ✓ Validated v1.0 — shipped 5 strategy wrappers (Google/GitHub/Apple/Facebook/Generic); Assent's PKCE + OIDC + single-package design paid off |
@@ -1114,6 +1231,13 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 | A green gate must prove a lane actually ran | Phase 231 found stale conditions and skip-tolerant aggregation could report green without executing required work; live run evidence is the acceptance boundary. | ✓ Validated Phase 231 — honest-skip verdict wired into `ci-gate`; scheduled run `30607570671` closed the nightly on a real `schedule` event |
 | Source-complete signed evidence is the FAST-01 authority | Derived statistics cannot prove membership, chronology, pagination exhaustion, or preserved terminal outcomes; the signed raw source must replay exactly against the metrics instrument. | ✓ Validated Phase 235 — protected run `34350618761`, n=52, p50=469 seconds, exact offline replay |
 | FAST-01 reconciliation cannot reopen GATE-05 | Performance evidence and ownership evidence have separate protected receipts and verifiers, preventing a favorable performance result from weakening coverage ownership. | ✓ Validated Phase 235 — independent 93-row GATE-05 proof remained byte-stable and green |
+| Internal milestone closeout does not create a release tag | Planning IDs such as v1.48 are not Hex releases; two-component `v*` tags collide with the release namespace. | ✓ Recorded for v1.48 — `git.create_tag` is false and `init.complete-milestone` excludes `git-tag` |
+| Current GSD readiness takes precedence over historical pass reports | Stale verification and gaps must remain visible through closeout; archiving plans does not make their evidence current. | ✓ Applied at v1.48 close — 2/10 phases current, seven stale, Phase 245 gaps_found |
+| Shift verification left and minimize human handoffs | Prefer deterministic checks, browser automation, CI evidence, and durable machine-readable receipts; reserve human review for irreducible judgment or external actions. | ✓ Recorded as the default in `VERIFICATION-POLICY.md` and this project's Verification Default |
+
+| Close v1.50 as a partial internal milestone with explicit deferred requirements | Stale routes and consumed source-bound attempts made further execution unavailable within the approved scope | ✓ Approved 2026-11-10; four satisfied, one adjusted, four deferred; no release/tag |
+| Keep performance claims tied to measured comparable samples | Replay wiring cannot establish speed when the population is empty | ✓ Zero comparable pairs; median and p95 remain null |
+| Treat green main CI separately from dirty local changes | CI on one exact SHA does not validate edits outside that SHA | ✓ Run 42756400672 is green on 970055abcf1ee4e8b5d8ebcf79de0eeecf4f223d; diagnostics edits remain unproved |
 
 ## Evolution
 
@@ -1219,9 +1343,9 @@ This document evolves at phase transitions and milestone boundaries.
 
 *Last updated: 2026-07-02 — Phase **213 Latest-Phoenix Compatibility** complete (v1.43 STABILIZE; 2/2 plans, verification PASSED 9/9; COMPAT-01/02/03 validated). SEED-004 latest-Phoenix forward-compat closed: reblessed the install golden fixture under `phx.new 1.8.8` (single expected `config :phoenix_live_view, root_tag_attribute: "phx-r"` delta; two extra files carried only phx.new 1.8.8's cosmetic HexDocs-URL reformatting in moduledoc comments — adjudicated benign, D-05 guard correctly not tripped), proved COMPAT-01 fresh-host compile-clean under `--warnings-as-errors` with **zero** source change (the `<.button type>` concern was verified a non-issue — `type` is a built-in LiveView global), then flipped all 11 `phx_new 1.8.7` archive pins → concrete `1.8.8` across the 3 workflow files + refreshed CLAUDE.md/CONTRIBUTING.md/mix.exs/local-development.md + the phase-198 DX-contract test (same commit, Pitfall 2), added a `rebless_golden --check` hard-gate drift-detector (D-06) and D-11 resolved-version asserts to both smoke scripts, and proved COMPAT-03 via the generated-host acceptance chrome smoke. D-09 load-bearing ordering honored (fixture committed before pins flipped). Executed sequentially on `main` (worktree auto-degrade — the `#683` guard couldn't self-fire because `worktree.base-check` is absent from this gsd-tools build; forks default to stale `origin/main`, 11 commits behind local `main`, so single-plan-per-wave worktrees were correctly dropped for the main-tree path). Commits `d5797e91` / `654a183a` / `6cab0c5a`. Next: Phase **214** Debt & Robustness Clear.*
 
-*Last updated: 2026-07-03 — **v1.43 STABILIZE SHIPPED + MILESTONE CLOSED** (3 phases 213-215 / 11 plans / 18 tasks; 13/13 requirements validated). Phases 214 (debt clear: Oban guard, `delete_session/3` IDOR guard, app.css corruption + CI guard, Chimeway.Repo + conditional `:upgrade` skip, panel-schema-check retired + stray `v1.20.0` tag deleted) and 215 (terminal ratification: library 2404/0 + example 323/0 recorded as release signals, deferred-items ledger reconciled, HEALTH-04 gated on all 5 required CI checks) executed via `/gsd-execute-phase` — worktrees force-degraded to sequential on `main` (this gsd build lacks `worktree.base-check`/`verification.status`/`git.base-branch` verbs). Surfaced the never-CI'd 51-commit body as ship **PR #67** (`ship/v1.43-stabilize`), all 5 required checks green, then **merged via merge-commit `85d85ca1`** (`/gsd-ship`; no admin bypass — `required_approving_review_count=0` so CLEAN/mergeable). Phase 215 served as the milestone audit (no `/gsd-audit-milestone` run). Milestone close: archived ROADMAP/REQUIREMENTS to `milestones/v1.43-*`, hand-curated the MILESTONES entry (CLI globbed noisy `one_liner`s), moved v1.43 phase dirs → `milestones/v1.43-phases/`, and completed the **overdue v1.42 phase-dir archive-move** (205-212 → `milestones/v1.42-phases/`, missed at v1.42 close). No git tag (internal milestone; avoids Hex-version collision). 19 `audit-open` items acknowledged-deferred (10 completed quick-tasks are the known false-flag; the rest reconciled/deferred by 215-03). Close-out commits ride a follow-up PR (ruleset blocks direct push to main). Hex `1.20.0` retire still Jon-manual. Next: `/gsd-new-milestone` — Jon's direction is admin/operator-UI cleanup + feedback.*
+*Last updated: 2026-07-03 — **v1.43 STABILIZE SHIPPED + MILESTONE CLOSED** (3 phases 213-215 / 11 plans / 18 tasks; 13/13 requirements validated). Phases 214 (debt clear: Oban guard, `delete_session/3` IDOR guard, app.css corruption + CI guard, Chimeway.Repo + conditional `:upgrade` skip, panel-schema-check retired + stray `v1.20.0` tag deleted) and 215 (terminal ratification: library 2404/0 + example 323/0 recorded as release signals, deferred-items ledger reconciled, HEALTH-04 gated on all 5 required CI checks) executed via `/gsd-execute-phase` — worktrees force-degraded to sequential on `main` (this gsd build lacks `worktree.base-check`/`verification.status`/`git.base-branch` verbs). Surfaced the never-CI'd 51-commit body as ship **PR #67** (`ship/v1.43-stabilize`), all 5 required checks green, then **merged via merge-commit `85d85ca1`** (`/gsd-ship`; no admin bypass — `required_approving_review_count=0` so CLEAN/mergeable). Phase 215 served as the milestone audit (no `/gsd-audit-milestone` run). Milestone close: archived ROADMAP/REQUIREMENTS to `milestones/v1.43-*`, hand-curated the MILESTONES entry (CLI globbed noisy `one_liner`s), moved v1.43 phase dirs → `milestones/v1.43-phases/`, and completed the **overdue v1.42 phase-dir archive-move** (205-212 → `milestones/v1.42-phases/`, missed at v1.42 close). No git tag (internal milestone; avoids Hex-version collision). 19 `audit-open` items acknowledged-deferred (10 completed quick-tasks are the known false-flag; the rest reconciled/deferred by 215-03). Close-out commits ride a follow-up PR (ruleset blocks direct push to main). Hex `1.20.0` retire still owner-manual. Next: `/gsd-new-milestone` — the owner's direction is admin/operator-UI cleanup + feedback.*
 
-*Last updated: 2026-07-03 — `/gsd-new-milestone` opened **v1.44 ADMIN-UX-RATCHET** (Phases 216–220). Meta milestone: AUTOMATE award-grade admin UI/UX evaluation + forward-only ratcheting (adversarial LLM persona/JTBD + graphic-design panels, deterministic-first with LLM-residual) so Jon escapes the tedious manual hunt-and-fix loop — then apply it in one broad elevation wave. Deep research done in plan mode (3 Explore + 3 Plan agents; design at `~/.claude/plans/a-pure-ui-ux-cleanup-peaceful-star.md`): ~70% of scaffolding already exists (quality-ledger monotonic guard, persona/JTBD rubric, fractal scorecard, `/admin/_design` gallery + ~115 baselines, machine-readable tokens). Locked decisions: verify-then-climb gradient (re-verify existing Tier-2 vs rendered output, then a finer award sub-score above the ceiling — all 36 cells already read Tier-2 from the manual era); lean ~5-phase shape; auto-apply safe-class fixes with per-fix auto-revert + review-PR sign-off. Invariant: LLM never gates CI / never flips a ledger cell (durable signal stays 100% deterministic). Designed around cite-and-flip (evaluate rendered output, never code) + LLM-nondeterminism (judge off the merge path). Next: define REQUIREMENTS.md (HARNESS/PANEL/RATCHET/AUTOFIX/ELEVATE/RECAP/RATIFY) → roadmap.*
+*Last updated: 2026-07-03 — `/gsd-new-milestone` opened **v1.44 ADMIN-UX-RATCHET** (Phases 216–220). Meta milestone: AUTOMATE award-grade admin UI/UX evaluation + forward-only ratcheting (adversarial LLM persona/JTBD + graphic-design panels, deterministic-first with LLM-residual) so the owner escapes the tedious manual hunt-and-fix loop — then apply it in one broad elevation wave. Deep research done in plan mode (3 Explore + 3 Plan agents; design at `~/.claude/plans/a-pure-ui-ux-cleanup-peaceful-star.md`): ~70% of scaffolding already exists (quality-ledger monotonic guard, persona/JTBD rubric, fractal scorecard, `/admin/_design` gallery + ~115 baselines, machine-readable tokens). Locked decisions: verify-then-climb gradient (re-verify existing Tier-2 vs rendered output, then a finer award sub-score above the ceiling — all 36 cells already read Tier-2 from the manual era); lean ~5-phase shape; auto-apply safe-class fixes with per-fix auto-revert + review-PR sign-off. Invariant: LLM never gates CI / never flips a ledger cell (durable signal stays 100% deterministic). Designed around cite-and-flip (evaluate rendered output, never code) + LLM-nondeterminism (judge off the merge path). Next: define REQUIREMENTS.md (HARNESS/PANEL/RATCHET/AUTOFIX/ELEVATE/RECAP/RATIFY) → roadmap.*
 
 *Last updated: 2026-07-04 — Phase **217 Adversarial Panel + Auto-Fix Safety Rails** complete (v1.44 ADMIN-UX-RATCHET; 8/8 plans incl. gap-closure 217-08; re-verification PASSED 7/7; PANEL-01/02 + AUTOFIX-01/02 validated). The 4-lens LLM panel (3 persona/JTBD + 1 graphic-design, k=3 consensus, settled-findings suppression) evaluates deterministically-clean surfaces under a forced-finding floor, dedupes into a stable fix queue (`fix-queue-build.mjs` the sole `open_findings` writer), and auto-applies only provably-safe copy/token fix classes with per-fix `git revert` on regression — the whole chain proven by an injected-regression test. Gap-closure **217-08** (the deferred live-check debt from the first UAT pass) closed three items: (1) aligned `admin-panel.sh` PILOT_SURFACES with the `admin-render-sha.json` render matrix on the same board-mg-5/9 surfaces (LOCKED Option 2 — repoint the panel, never render pilot surfaces), so a live run enumerates cells with real on-disk bundles; (2) hardened `judge.mjs` so the empty-DOM refuse guard runs BEFORE any Anthropic SDK import/construction and added a deterministic KEY-FREE `judge-cli.test.mjs` (4/4, no skip — 0 calls on cache hit, k=3 on miss via injected SDK double against a real board-mg bundle); (3) seeded one appliable in-band SPACE-token finding and made the SC-4 apply→rail-trip→`git revert`→waive chain run AUTONOMOUSLY and API-free inside a throwaway git clone of committed HEAD — asserted by an automated `<verify>` (git log/reflog/ledger-diff/settled-findings.tsv), turning the previously human-blocked SC-4 into an automated check. Invariant held: LLM never gates CI and never flips a ledger cell — JUDGE-CI-01 preserved (`admin-panel.sh`/`admin-autofix-loop.sh` wired into NO CI lane; only `judge-cli.test.mjs` joins `fast_checks`), new board-mg cells introduced at `open_findings: 0` (monotonic guard PASS vs merge-base), no seed render cell, no committed key. One sound deviation: `fix-queue-lint.sh` exempts exactly-0 sentinel cells from the cross-surface open_findings-agreement check (nonzero-cell consistency + null/negative checks stay enforced). Executed sequentially on `main` (worktree auto-degrade — `worktree.base-check` reports origin/HEAD unresolved, #683). Verifier independently reproduced the throwaway-clone SC-4 chain. 217-UAT.md reconciled (SC-2/SC-4 → resolved; residual TRUE-live SC-2 paid run documented as OPTIONAL/post-merge/non-gating). Todos: `panel-pilot-surface-render-mismatch` closed; `admin-eval-first-nav-flake` + `probe-ids-single-source-d12` re-pointed to Phase 218 (genuinely open follow-ups 217-08 did not touch). Commits `ca1c03a9` / `665a304c` / `d8b571c2`. Next: Phase **218** Elevation Wave + Nit Cleanup.*
 
@@ -1235,4 +1359,42 @@ This document evolves at phase transitions and milestone boundaries.
 
 *Last updated: 2026-09-15 — `/gsd-new-milestone` opened **v1.48 CLEAN-BASELINE** (phases continue from 236). Housekeeping/release-readiness lane chosen over the W-3/W-4 auth-UI proof milestone, which is deliberately queued next. Evidence gathered this session: `ci-gate` intermittently red on `main` via a flaky `Generated admin Playwright smoke` (the v1.45 silent-strand mechanism recurring); `pages build` red on every push; Hex `latest_stable_version` still the phantom `1.20.0`, unretired, so `{:sigra, "~> 1.0"}` misresolves; 28 `v1.NN` planning tags + 11 `phase-238-*` proof tags polluting the release-tag namespace (ADR-003 footgun, still being fed); 171 planning-bookkeeping references in `lib/`+`priv/templates/`, 5 of them dead `.planning/` paths incl. one shipping to adopters; 18 open PRs, 19 local / 31 remote branches, 3 stale worktrees, 6 stashes, 41 pending todos. Six target features: (1) green main honestly; (2) unambiguous release namespace + cut the release, incl. gated Hex `1.20.0` retire; (3) clean shipped surface; (4) clean git working state; (5) drain the PR/todo queue; (6) retire v1.47's dishonest debt (TEST-01/02 supersession, fictional parity guard, composite-action supply-chain gap). Also corrected a stale Current State claim that `1.4.0` was latest — `v1.5.0` is live. Human-gated: `mix hex.retire sigra 1.20.0 invalid`. Out of scope: W-3/W-4 auth-UI runtime proof, admin/operator-UI iteration, `.planning/` pruning, BFG history slimming, all new features. Next: define REQUIREMENTS.md → roadmap.*
 
+
 *Last updated: 2026-09-17 after Phase **238 Tag Guard, Then Tag Deletion** completed (6/6 plans; verification passed, UAT 1/1, security threats_open 0 across a 35-entry register). REL-01 satisfied as a **supersession** — its "server-side ruleset + paired contract test, demonstrated RED, before any deletion" holds, but its implied SemVer-validator mechanism does not: Tier 1 `tag_name_pattern` is enterprise-gated and was rejected live (`HTTP 422`) on this Free-tier repo, so the landed Tier 2 `creation` rule with `exclude: refs/tags/v*.*.*` is a shape guard. REL-02 satisfied: 39 tags deleted from a committed allowlist (never a glob), one literal name per invocation, `pre_delete_sha` captured for every ref, release surface unchanged and zero untagged drafts. The last UAT item — whether the `tag_ruleset_drift` observer actually executes post-merge — was closed by evidence, not by eye: observe run `35249205910` ran the job green (`live tag-namespace ruleset (id 23574716) matches the committed snapshot`). Recorded trap: two earlier observe runs at the same head SHA reported the RUN green while the job was `skipped` (its guard is `workflow_run.event != 'pull_request'`), so a green run is not proof — only the job's own conclusion and stdout are. Carry-forward: `.planning/todos/pending/2026-09-17-tag-ruleset-drift-observer-*` now tracks three items — the unreachable `ABSENT` branch, the unpaginated ruleset list, and the absent assertion that the job ran; all three fail closed. **Never run `git gc`, `reflog expire` or `prune`** — the allowlist's `pre_delete_sha` column is Phase 245's forward-feed and the deleted objects must stay reachable by SHA. Phase 239 (`priv/templates/` sweep + one batched re-bless) is next.*
+
+*Last updated: 2026-10-06 — Opened milestone v1.49 RELEASE-1.6.0; phases continue at 246. Package version 1.6.0 was selected from existing Release Please PR #224 by user delegation. Four bounded phases cover the committed generated-confirmation fast-follow, release-source readiness, exact-source automation, and publication. Shift-left verification is the default per VERIFICATION-POLICY.md.*
+
+---
+*Last updated: 2026-10-12 after starting v1.50 CI-SPEED-AND-RELIABILITY with user-confirmed scope.*
+
+*Last updated: 2026-10-12 after Phase 252 implementation and verification; Phase 253 discussion is next.*
+
+*Last updated: 2026-10-23 after Phase 253 implementation and final verification; Phase 254 discussion is next.*
+
+*Last updated: 2026-10-24 after Phase 255 passed verification; v1.50 milestone audit remains next.*
+
+*Last updated: 2026-11-07 after reconciling Phase258’s six readiness GETs and fixing the exact candidate-commit route allowlist. The one-use claim is consumed; CISPEED-01/02 remain open and no measurement claim is made.*
+
+*Last updated: 2026-11-07T15:17:27Z after recording Phase258 Plan03’s consumed preparation halt, reconciling spend, and routing to local readiness repair.*
+
+*Last updated: 2026-11-07 — Phase258 recovery05 proposal `8fe0e938b8afc3d1d992b03019df9ae00a8e24fd434b2b00fc2c85e64fb9a3db` passed local checks and the production verifier. The exact-approval checkpoint is active; the prior attempt stays consumed, CISPEED-01/02 remain open, and this route refresh did not authorize hosted work.*
+
+
+*Last updated: 2026-11-08T10:58:30Z — Phase258 local recovery completed. Root cause and route: `.planning/recovery/opengsd-health-20261106/phase258-local-repair-01/LOCAL-REPAIR.json` (SHA-256 `11c7bb793849117b5ba6731f94512f3ae4f7b273896b92909f3993d3762c313f`). Next: `$gsd-plan-phase 258 --skip-research` to add a distinct continuation plan while preserving halted Plan03. Any hosted action waits for approval of its exact new source-bound scope.*
+
+*Last updated: 2026-11-09 — Plan05 was added after the Gen09 publication-schema halt. The current helper accepts Phase258 reservations; Gen09's archived helper did not. Plan05 is ready in Wave1 and covers a local production-path regression, complete fresh budget/source binding, run-history estimates, then one exact proposal decision before any new external action. See `.planning/recovery/opengsd-health-20261106/phase258-plan-route-02/POST-PLAN-PHASE-PLAN-INDEX.json` and `.planning/phases/258-re-anchor-cispeed-proof-under-fresh-source-scope/258-05-PLAN.md`.*
+
+*Last updated: 2026-11-09T17:02:51Z — Phase258 Plan05 Task1 prepared a locally verified Gen10 proposal (SHA-256 `5d0bf89efa4bf86fefc8317b35c71de66b6e5144b1a50ccdcf7cd1b6e7d7ca09`); source, publisher and persisted-reader checks passed, with zero new external activity. The proposal waits at one exact-scope decision; if approved, Plan05 Task3 continues under its fixed caps/deadline. CISPEED-01/02 remain unproved. See `.planning/execution/258/generations/phase258-recovery-10/PREP-PROPOSAL.json` and `.planning/recovery/opengsd-health-20261106/phase258-continuation-10/LOCAL-PROPOSAL-VERIFICATION.json`.*
+
+*Last updated: 2026-11-09T22:34:42Z — The exact Gen12 proposal was approved and production-authorized. Its one-use claim is prepared but unconsumed; the bounded preparation attempt has not started. No external spend or performance sample exists. See `.planning/execution/258/generations/phase258-recovery-12/PREP-APPROVAL.json` and `.planning/recovery/opengsd-health-20261106/phase258-execution-wave-01/POST-APPROVAL-ROUTE.json`.
+
+
+*Last updated: 2026-11-09T23:07:22Z — Gen12’s one approved preparation invocation halted and is recorded in `258-05-SUMMARY.md`; its one-use claim is consumed. Phase258 has no ready plans. Continue the two offline verifier repairs; no new GitHub action is covered by Gen12. See `.planning/recovery/opengsd-health-20261106/phase258-continuation-12/ATTEMPT-RECONCILIATION.json`, `.planning/recovery/opengsd-health-20261106/phase258-continuation-12/INDEPENDENT-VERIFICATION.json`, and `.planning/recovery/opengsd-health-20261106/phase258-execution-wave-01/POST-SUMMARY-READINESS.json`. CISPEED-01/02 remain open.*
+
+
+*Last updated: 2026-11-10T04:37:01Z — Restored the active route to Phase253 Plan185, the only live ready plan; it still awaits exact approval for PR372. Phase258 Plan05 remains halted after its consumed Gen12 attempt. The two offline verifier repairs pass, but there is no workflow or performance sample and the old proposal source binding is stale. See `.planning/recovery/opengsd-health-20261106/phase258-continuation-12/LOCAL-REPAIR-VERIFICATION-01.json` and `.planning/recovery/opengsd-health-20261106/phase258-continuation-12/ROUTE-REFRESH-03.json`.*
+
+
+*Route update 2026-11-10T04:57:39Z: Phase258 budget review found no preparation headroom under current limits after reserving the unchanged comparison. See `.planning/recovery/opengsd-health-20261106/phase258-budget-review-01/CAPACITY-REVIEW.json` and `.planning/recovery/opengsd-health-20261106/phase258-budget-review-01/ROUTE-REFRESH-04.json`.*
+
+*Last updated: 2026-11-10 after the approved v1.50 partial internal closeout; see the archived audit for deferred outcomes.*

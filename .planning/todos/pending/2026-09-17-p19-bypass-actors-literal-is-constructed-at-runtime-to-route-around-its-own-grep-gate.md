@@ -8,6 +8,9 @@ source: phase 238 code review (WR-02)
 files:
   - scripts/ci/prohibitions/p19-tag-namespace-ruleset.test.mjs
   - .planning/phases/238-tag-guard-then-tag-deletion/238-03-PLAN.md
+audit_acknowledged:
+  milestone: v1.50
+  at: 2026-11-10
 ---
 
 ## Problem
