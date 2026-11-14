@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-11-14T03:08:21.463Z"
 last_activity: 2026-11-13
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,16 @@ progress:
 See: .planning/PROJECT.md
 
 **Core value:** Authentication that works out of the box with a clear path for Phoenix adopters.
-**Current focus:** v1.51 BRAND-IDENTITY-ADOPTION — defining requirements (research first). No phase or plan is active.
+**Current focus:** v1.51 BRAND-IDENTITY-ADOPTION — roadmap created (Phases 259-263, 53/53 requirements mapped). Next: `/gsd-plan-phase 259`. No plan is active.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 259 of 263 (Compatibility Policy, Pinned Source and Copy Contract) — not started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-11-13 — Milestone v1.51 started
+Status: Roadmap created; ready to plan Phase 259
+Last activity: 2026-11-13 — v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
+
+Progress: [░░░░░░░░░░] 0% (0/5 phases)
 
 ## Deferred Requirements
 
@@ -102,4 +104,4 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 Last session: 2026-11-13 — resumed via /gsd-resume-work; stopped at: session resumed, proceeding to `$gsd-new-milestone` scoping (no phase/plan active).
 
-No phase command is active. Define the next scope with `$gsd-new-milestone`. Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
+No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.

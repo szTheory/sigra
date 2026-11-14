@@ -100,11 +100,65 @@ Priority: **M** must, **S** should (cut first if capacity is short). Net-new dep
 | Any push, merge, release, tag or announcement publish without explicit approval | Standing constraint |
 
 ## Traceability
-Filled by the roadmapper.
+Filled by the roadmapper 2026-11-13. Every v1 requirement maps to exactly one phase.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (pending roadmap) | | |
+| BPOL-01 | Phase 259 | Pending |
+| BPOL-02 | Phase 259 | Pending |
+| BPOL-03 | Phase 259 | Pending |
+| BPOL-04 | Phase 259 | Pending |
+| BPOL-05 | Phase 259 | Pending |
+| BPOL-06 | Phase 259 | Pending |
+| BPOL-07 | Phase 259 | Pending |
+| BCOPY-01 | Phase 259 | Pending |
+| BCOPY-02 | Phase 259 | Pending |
+| BCOPY-03 | Phase 259 | Pending |
+| BCOPY-04 | Phase 259 | Pending |
+| BCOPY-05 | Phase 259 | Pending |
+| BCOPY-06 | Phase 259 | Pending |
+| BCOPY-07 | Phase 259 | Pending |
+| BGEN-01 | Phase 260 | Pending |
+| BGEN-02 | Phase 260 | Pending |
+| BGEN-03 | Phase 260 | Pending |
+| BGEN-04 | Phase 260 | Pending |
+| BGEN-05 | Phase 260 | Pending |
+| BGEN-06 | Phase 260 | Pending |
+| BGEN-07 | Phase 260 | Pending |
+| BGEN-08 | Phase 260 | Pending |
+| BTOK-01 | Phase 261 | Pending |
+| BTOK-02 | Phase 261 | Pending |
+| BTOK-03 | Phase 261 | Pending |
+| BTOK-04 | Phase 261 | Pending |
+| BTOK-05 | Phase 261 | Pending |
+| BTOK-06 | Phase 261 | Pending |
+| BTOK-07 | Phase 261 | Pending |
+| BTOK-08 | Phase 261 | Pending |
+| BOPS-01 | Phase 262 | Pending |
+| BOPS-02 | Phase 262 | Pending |
+| BOPS-03 | Phase 262 | Pending |
+| BOPS-04 | Phase 262 | Pending |
+| BOPS-05 | Phase 262 | Pending |
+| BOPS-06 | Phase 262 | Pending |
+| BOPS-07 | Phase 262 | Pending |
+| BOPS-08 | Phase 262 | Pending |
+| BAUTH-01 | Phase 262 | Pending |
+| BAUTH-02 | Phase 262 | Pending |
+| BAUTH-03 | Phase 262 | Pending |
+| BAUTH-04 | Phase 262 | Pending |
+| BAUTH-05 | Phase 262 | Pending |
+| BAUTH-06 | Phase 262 | Pending |
+| BAUTH-07 | Phase 262 | Pending |
+| BPUB-01 | Phase 263 | Pending |
+| BPUB-02 | Phase 263 | Pending |
+| BPUB-03 | Phase 263 | Pending |
+| BPUB-04 | Phase 263 | Pending |
+| BPUB-05 | Phase 263 | Pending |
+| BPUB-06 | Phase 263 | Pending |
+| BREL-01 | Phase 263 | Pending |
+| BREL-02 | Phase 263 | Pending |
+
+**Coverage:** 53/53 v1 requirements mapped (259: 14, 260: 8, 261: 8, 262: 15, 263: 8).
 
 ---
 *Requirements defined: 2026-11-13*
