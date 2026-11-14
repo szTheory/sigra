@@ -19,6 +19,15 @@ released package that still carries the "Unreleased" heading — and CHANGELOG.m
 packaged into the Hex tarball, so the mistake is permanent for that release.
 -->
 
+## [1.7.3](https://github.com/szTheory/sigra/compare/v1.7.2...v1.7.3) (2026-11-14)
+
+
+### Bug Fixes
+
+* **auth:** treat unsafe_validate_unique duplicates as email_taken (enumeration-safe) ([#375](https://github.com/szTheory/sigra/issues/375)) ([bf50713](https://github.com/szTheory/sigra/commit/bf507137b29e5fd39cbb557035aa154e8300e91a))
+* **auth:** treat unsafe_validate_unique duplicates as email_taken, enumeration-safe ([bf50713](https://github.com/szTheory/sigra/commit/bf507137b29e5fd39cbb557035aa154e8300e91a))
+* **ci:** stop two intermittent Playwright lane failures (os-deps mirror check, registration race) ([#377](https://github.com/szTheory/sigra/issues/377)) ([b4ade81](https://github.com/szTheory/sigra/commit/b4ade81745224501b06a1e4b4ea64279d4d17242))
+
 ## [1.7.2](https://github.com/szTheory/sigra/compare/v1.7.1...v1.7.2) (2026-10-11)
 
 
