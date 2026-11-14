@@ -12,7 +12,22 @@ Authentication that works out of the box with great DX on the happy path and rou
 
 Shift verification left: automate phase acceptance criteria with deterministic tests and durable CI evidence wherever practical. Keep human verification for genuinely irreducible judgment or manual actions. See [VERIFICATION-POLICY.md](VERIFICATION-POLICY.md).
 
-## Latest Closed Milestone: v1.50 CI-SPEED-AND-RELIABILITY
+## Current Milestone: v1.51 BRAND-IDENTITY-ADOPTION
+
+**Goal:** Adopt the signed-off brand book v2.0 ("Kiln", kept orange `#C2410C`; reference copy in `brand/`) across generated output, admin/auth UI, and public package surfaces, without breaking any public API.
+
+**Target features:**
+- Compatibility policy: public module names, config keys, and `--sg-*` / `--sigra-auth-*` tokens stay; only on-screen words and visuals change. Hash-pinned brand book, a copy-contract test, and a name-clearance record.
+- Deterministic, diffable generated output (templates, golden install fixtures, admin CSS bundle) plus a before-screen catalog on realistic fixtures. Prefer a component-catalog approach over growing the Playwright baseline matrix.
+- Tokens, fonts, logo, and favicon in light and dark with browser contrast checks.
+- Words and layout: one operator job end to end first, then every screen. Includes SEED-010 (auth pages daisyUI unbranding) and SEED-003 (auth copy and locale hardening).
+- README, HexDocs, and Hex package assets; announcement and any trademark claim last.
+
+**Out of scope:** the deferred v1.50 CI requirements (CISPEED-01/02, CIREL-01, CIDX-02); renaming modules, config keys, or tokens; any push, merge, release, or tag without explicit approval. The old `brandbook/` stays until replaced deliberately.
+
+**Constraints:** No personal names, emails, or home paths in committed or `.planning` files. Rolling roadmap and carried-over lessons: `.planning/MILESTONE-ARC.md` and `.planning/notes/2026-11-13-v1.50-closeout-lessons-and-cuts.md`.
+
+## Previous Closed Milestone: v1.50 CI-SPEED-AND-RELIABILITY
 
 **Closed:** 2026-11-10 as a partial internal closeout (`override_closeout`); no package release or Git tag.
 **Outcome:** Four requirements satisfied, one adjusted, and four deferred/open. Only Phase252 and Phase255 are currently verified complete (2/8); Phase253 is `gaps_found`, Phase254 verification is missing, and Phases255.1–258 remain incomplete. The audit stays `gaps_found`.
