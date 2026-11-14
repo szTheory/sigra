@@ -102,7 +102,7 @@ status: complete
 - ADR 005 (`.planning/decisions/005-brand-adoption-compatibility-policy.md`) records the owner-decision table (#1-#9, #11, #12, #14), the frozen list with counts re-measured on 2026-11-13, the add-only list, the lane table, a nine-row surface map with a Brand owner column, the seven recorded decisions each with a reversibility line, and the Hex install-pin facts verified on 2026-11-13.
 - `guides/reference/brand-compatibility.md` repeats the lists and lanes for adopters, adds the consumed-brand-subset table (manifest pins the whole tracked tree), the SemVer and changelog treatment, and a five-step upgrade-note skeleton with an empty "Visual and copy changes" table. It is not an ExDoc extra.
 - `guides/introduction/contract.md` gained a compact "Brand and visual compatibility" section between "SemVer And Deprecation Policy" and "Security Invariants"; the H1 and every other heading are unchanged, so `doc/llms.txt` and `mix.exs` stay byte-identical.
-- `test/sigra/brand/policy_docs_test.exs` (16 tests) asserts headings and key terms only, the decision-12 confirmed label versus eleven pending rows, the Sigra-or-host owner value on every surface row in both documents, the contract section's position, and three planted-content controls proving the helpers can go red.
+- `test/sigra/brand/policy_docs_test.exs` (15 tests) asserts headings and key terms only, the decision-12 confirmed label versus eleven pending rows, the Sigra-or-host owner value on every surface row in both documents, the contract section's position, and four helper controls (including a planted removal from the real ADR) proving the checks can go red.
 
 ## Task Commits
 

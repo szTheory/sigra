@@ -5,10 +5,11 @@ milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 259
 current_phase_name: Compatibility Policy, Pinned Source and Copy Contract
 status: planning
-last_updated: "2026-11-14T15:29:36.971Z"
+stopped_at: Completed 259-01-PLAN.md
+last_updated: "2026-11-14T15:39:24.887Z"
 last_activity: 2026-11-13
 last_activity_desc: v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
-state_head: 902872a2cd046e66d335042fd31ac071670af12a
+state_head: 93fbedd42aa5c2c1c337cfd753af9f010925d997
 progress:
   total_phases: 5
   completed_phases: 0
@@ -105,6 +106,20 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-13 — resumed via /gsd-resume-work; stopped at: session resumed, proceeding to `$gsd-new-milestone` scoping (no phase/plan active).
+Last session: 2026-11-14T15:39:24.857Z
+Stopped at: Completed 259-01-PLAN.md
+Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
+
+## Performance Metrics
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 259 P01 | 6 min | 3 tasks | 4 files |
+
+## Decisions
+
+- [Phase 259]: ADR 005 records every brand-adoption decision except #12 as a recommended default awaiting owner confirmation; #12 confirmed 2026-11-13 — Only the pointer-fix approval was given; the rest are research defaults the owner has not yet ratified
+- [Phase 259]: v1.51 ships as a minor release: feat/fix/docs only, no bang marker, no BREAKING footer, nothing hand-added under CHANGELOG Unreleased — Every frozen name stays, so no documented API is removed; release-please owns the Unreleased block
+- [Phase 259]: Pin the whole tracked brand/ tree and document the consumed subset as a table; install-pin shape enforced now, value bump in Phase 263 — Pruning leaves the book's own index and manifest dangling; a two-segment requirement still resolves to the retired stray 1.20.0
