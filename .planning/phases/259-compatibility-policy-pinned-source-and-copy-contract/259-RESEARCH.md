@@ -407,7 +407,7 @@ Today: README.md:76, `guides/introduction/{first-hour.md:24, getting-started.md:
 |------|--------|
 | `brand/` tracked | 72 files, 3.4 MB; added by `4cf5829ea` (PR #379), reachable from `origin/main` |
 | Manifest prototype | 72 files, 7,436 bytes; `shasum -a 256 -c` 72/72 `OK` |
-| Privacy scan of `brand/` | No `/Users`, `/home`, `C:\Users`, `/private/var`, `file://`; emails are only `*.tasklane.test`; no SVG metadata markers; PDF `/Creator` is a headless-browser UA, `/Producer` Skia, no `/Author`; PNG chunks none; JPG EXIF none; the only external URLs are font-project and `index.html:11` og:image |
+| Privacy scan of `brand/` | No `/Users`, `/home`, `C:\Users`, `/private/var`, `file:///` (absolute local file URL); one bare `file://` exists at `brand/sigra-brand-book.html:687` inside a benign JS comment (no path follows it), so the scanner rule is the `file:///` plus path shape, never bare `file://` (corrected on revision; the earlier claim that none exist was wrong); emails are only `*.tasklane.test`; no SVG metadata markers; PDF `/Creator` is a headless-browser UA, `/Producer` Skia, no `/Author`; PNG chunks none; JPG EXIF none; the only external URLs are font-project and `index.html:11` og:image |
 | Hex `sigra` | `latest_stable_version` 1.20.0; real latest 1.7.1; `retirements`: `1.20.0` `{reason: invalid, message: "Retired: use the supported ~> 1.5.0 requirement instead."}`; package version in repo 1.7.2 (unpublished) |
 | Live resolution | `~> 1.7` -> 1.20.0 RETIRED; `~> 1.7.0` -> 1.7.1 |
 | Hex `crosswake_sigra` | v0.1.3 stable (releases 0.1.1 on 2026-07-03, 0.1.3 on 2026-08-09), 463 downloads, Apache-2.0, description "Sigra auth companion adapter for the Crosswake route-policy system.", links `github.com/szTheory/crosswake`; ownership not stated by the API beyond that link |
@@ -518,24 +518,30 @@ Binary files in the diff (PNG/PDF/TTF) need the metadata checks implemented in `
 | Over-claiming security properties in docs | Repudiation / trust | BCOPY-07 claims pass; cite the timing todo |
 | Agent follows retired instructions (instruction-file drift) | Tampering (of process) | BPOL-06 pointer fix with a negative-grep test |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Prune `brand/` or pin all 72 files? (owner decision #8)**
    - Known: REQUIREMENTS BPOL-02 and the SUMMARY say "consumed subset"; PR #379 already landed the full tree; `brand/index.html` and `brand/brand.json` reference files a prune would remove; BPUB-04 later retargets an axe script at `brand/index.html`.
    - Unclear: whether the owner wants the repo-weight saving (about 2.2 MB of 3.4 MB would go) at the cost of dangling links.
    - Recommendation: pin all; document the consumed subset as a table. If pruning is chosen, do it first, in its own commit, with exactly: both PDFs, `preview/*.jpg`, `assets/fonts/static/*.ttf`.
+   - RESOLVED: pin the whole tracked tree (Plan 259-02 manifest and drift test) and document the consumed subset as a table (Plan 259-01, guide section 'Consumed brand subset'); owner confirmation pending (decision #8).
 2. **What does "existing-vs-unknown identity" mean for MFA, passkey and invitation?**
    - Known: MFA/passkey screens come after identification; invitation is a capability URL.
    - Recommendation: MFA = wrong TOTP vs wrong backup code (same message) and pending vs absent pending-session; passkey = unknown email vs existing email without passkeys vs existing with passkeys, plus the conditional (email-less) flow; invitation = anonymous visitor with a valid token for an email that has an account vs one that does not.
+   - RESOLVED: adopted as written in Plan 259-07 Task 2 (identity definitions per surface, recorded in each registry row note); owner confirmation pending.
 3. **Accept the `og:image` GitHub Pages URL in `brand/index.html:11`?**
-   - Recommendation: accept and allowlist it in the privacy scan as a public project URL; editing needs a re-lock and breaks "byte-exact".
+   - Recommendation (revised): the scanner has no URL rule, so nothing needs allowlisting; leave the line byte-exact (editing needs a re-lock) and never spell the URL in any test source, doc or plan; the final privacy gate derives its host from `brand/index.html` at run time instead.
+   - RESOLVED: Plan 259-02 drops the URL allowlist (no URL rule exists); Plan 259-11 gate derives the host at run time; owner confirmation pending.
 4. **Where do lib moduledoc over-claims go?** (`lib/sigra/lockout.ex:13` "Messages are enumeration-safe", `lib/sigra/error.ex:7,138-141`, `lib/sigra/auth.ex:16,132,613,1097`.)
    - Recommendation: file one todo per cluster (they need `lib/` edits, forbidden in this phase) and cite them from the claims register.
+   - RESOLVED: Plan 259-13 files the todos; Plan 259-10 bounds the doc claims; Plan 259-11 claims register cites them; lib edits stay deferred (owner confirmation pending on the deferral).
 5. **Is `crosswake_sigra` a first-party companion?**
    - Known: the Hex metadata links to `github.com/szTheory/crosswake`, the same GitHub owner as this repository's `source_url`.
    - Unclear: Hex ownership is not exposed by the API response used.
    - Recommendation: record as "appears to be the maintainer's own companion; maintainer to confirm", never as a third-party conflict or as clearance.
+   - RESOLVED: Plan 259-11 (ADR 006) records it exactly so; owner confirmation pending.
 6. **Instruction-file edit scope.** Approved scope is "pointers to the new `brand/` book". Recommended minimal set: `CLAUDE.md:230`, `AGENTS.md:8`, `guides/reference/admin-ui-principles.md:3,30,37`, `guides/reference/admin-design-contract.md:9,11,12`. Do not claim admin token values already align with `brand/tokens.json` (Phase 261 migrates values); say names stay and values move in the BTOK phase. Leave `admin-token-reference.md`, `admin-graphic-design-lens.md`, `admin-fractal-scorecard.md` (Phase 261 BTOK-07) and `scripts/panel/lenses.mjs` ("slated for cut") alone.
+   - RESOLVED: Plan 259-09 edits exactly that set (test/example/AGENTS.md is out of the approval wording, so a todo is filed instead); owner confirmation pending only for that extra file.
 
 ## Assumptions Log
 

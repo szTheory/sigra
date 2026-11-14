@@ -1,12 +1,38 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.51",
-  "phases": [],
+  "milestone": "v1.51 — BRAND-IDENTITY-ADOPTION",
+  "phases": [
+    {
+      "number": "259",
+      "name": "Compatibility Policy, Pinned Source and Copy Contract",
+      "status": "pending"
+    },
+    {
+      "number": "260",
+      "name": "Deterministic Output, Before Catalog and PNG Park",
+      "status": "pending"
+    },
+    {
+      "number": "261",
+      "name": "Tokens, Type, Logo, Favicon and Contrast",
+      "status": "pending"
+    },
+    {
+      "number": "262",
+      "name": "Words and Layout",
+      "status": "pending"
+    },
+    {
+      "number": "263",
+      "name": "Public Surfaces and Release Narrative",
+      "status": "pending"
+    }
+  ],
   "next": {
-    "command": "/gsd-discuss-phase",
-    "label": "Discuss the first phase",
-    "reason": "Project initialized — plan your first phase"
+    "command": "/gsd-progress --next",
+    "label": "Advance to the next step (plan phase 259)",
+    "reason": "Phase 1 of 5 — needs a plan"
   },
-  "updated_at": "2026-11-14T03:08:21.468Z"
+  "updated_at": "2026-11-14T15:29:36.998Z"
 }
