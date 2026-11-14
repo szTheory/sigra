@@ -1,0 +1,1155 @@
+{
+  "about": "sigra brand data, version 2.0. Every rule in the brand book as structured data; American English. This edition defines no logo animation and no sound.",
+  "name": "sigra",
+  "version": "2.0",
+  "date": "November 13, 2026",
+  "revisions": [
+    {
+      "version": "2.0",
+      "date": "November 13, 2026",
+      "changes": "This edition replaces the earlier brand book. The logo is now the word sigra with one square above the i, in Kiln on Paper, drawn from one unit; the symbol is that dotted i alone. It keeps the name, the orange accent and the honest-boundary voice, and adds a construction page, five user statuses drawn as squares, a sign-in page and an email in a host app’s own brand, an audit log, and the ExDoc code colors. It retires the L-shaped rail mark, the extended g, Space Grotesk as a suite face and the word rail."
+    }
+  ],
+  "idea": {
+    "line": "The letters are the library. The square is your code.",
+    "explanation": [
+      "Sigra is two things in two places. The library arrives on Hex and updates with `mix deps.update`. The code it generates, the schemas, routes, screens and emails, lands in your repository as ordinary code that you read and change.",
+      "The logo draws that line. The letters are the library. The square above the i is the generated code: its own piece, set apart from the word, exactly one stem wide, and the only straight-cornered shape among the round letters. It is the part that is yours to open and change.",
+      "The symbol is that i on its own: a stem and its square. The brand uses no padlocks, shields or keys: an auth library that shows them looks like every other one, and says nothing about what is different here."
+    ]
+  },
+  "tagline": "Phoenix auth you own and can still update.",
+  "descriptor": "Production-minded authentication for Phoenix 1.8+",
+  "positioning": "Authentication for Phoenix 1.8 and later: a library of hardened primitives plus generators that put ordinary Phoenix code in your repo. Security fixes arrive with mix deps.update; the screens, routes and emails are yours to edit.",
+  "job": "Help me add sign-in, sessions and two-factor codes to my Phoenix app in an afternoon, keep the security-sensitive parts updated, and still be able to read and change every screen.",
+  "audience": [
+    {
+      "who": "Phoenix developers",
+      "job": "Add authentication to a Phoenix app without rolling it by hand, and without hiding it from my repo.",
+      "need": "Add `{:sigra, \"~> 1.7\"}`, run `mix sigra.install Accounts User users`, read the generated code in your own repository, and update the core with `mix deps.update`."
+    },
+    {
+      "who": "Admins and support staff",
+      "job": "A user says they can’t sign in. Pull up their record and see what is going on.",
+      "need": "Look the user up by email address. Their status is written out in words, with recent sign-ins and open sessions beside it, so you can unlock them, unsuspend them, revoke a session or tell them to wait."
+    },
+    {
+      "who": "Maintainers and contributors",
+      "job": "Keep the README, docs, admin and demo looking like one project.",
+      "need": "See where Sigra’s brand stops and the host app’s begins, and get the logo files plus the rules for code colors and docs."
+    }
+  ],
+  "values": [
+    {
+      "value": "Honest",
+      "meaning": "Say what Sigra does and what it doesn’t. It is not hosted auth, not a compliance certificate, not an authorization engine."
+    },
+    {
+      "value": "Plain",
+      "meaning": "Name the exact thing: the user, the session, the sign-in. Say “sign in”, not “authenticate”; say “your app”, not “the host”."
+    },
+    {
+      "value": "Exact",
+      "meaning": "Show the real address, role and time, with its time zone. “Locked at 2:02 PM UTC”, not “recently”."
+    },
+    {
+      "value": "Calm",
+      "meaning": "People open the admin because something is wrong with a user. Say what happened, to whom, and what to do next. Never blame, never cheer."
+    },
+    {
+      "value": "Yours",
+      "meaning": "Sigra’s own name and logo appear on its own pages and in the admin. They never appear on the sign-in, registration or two-factor screens that a host app’s users see: those wear the host app’s brand."
+    }
+  ],
+  "rules": [
+    "The name is Sigra in a sentence and `sigra` in the logo, the package and commands. In Elixir module names it is `Sigra`.",
+    "The typemark is the logo: the word with its square. Put no shape behind it, and keep the tagline and the descriptor outside it.",
+    "A user’s status is always written as a word. The status mark and its color support the word; they do not replace it."
+  ],
+  "presence": {
+    "head": "Full brand on Sigra’s own pages, a small part of it in the admin, none of it on your users’ screens.",
+    "tiers": [
+      [
+        "Sigra’s own",
+        "README, Hex page, HexDocs, demo, social card",
+        "People deciding whether to use it.",
+        "The typemark, the colors, both themes, code colors, the tagline and descriptor."
+      ],
+      [
+        "In the generated admin",
+        "The admin, at a path the host app chooses",
+        "Admins and support staff of the host app.",
+        "The typemark in the top row, the status marks and words, the square on the current tab and the type. A host app may replace the typemark with its own."
+      ],
+      [
+        "In other people’s writing",
+        "Blog posts, talks, newsletters, other READMEs",
+        "People writing about Sigra.",
+        "The typemark, unchanged, under the rules in this book. Nothing added."
+      ]
+    ],
+    "note": "The sign-in, registration, two-factor and email screens that a host app’s users see carry the host app’s name, logo and colors, which the host sets with `Sigra.Branding`. Sigra may be named in a plain-text footer, if the host chooses."
+  },
+  "logo": {
+    "mark": "The word sigra in Instrument Sans Bold, outlined from the font, with its spacing redrawn and its i dotted by a square. The square is Kiln, one stem wide, a little above the stem, with all four corners square. Letters, spacing and square are the same everywhere the logo is drawn.",
+    "wordmark": "sigra, one word, all lowercase, in Instrument Sans Bold, outlined so no live text is needed. The typemark is the word with its square; there is no separate icon beside it. In a sentence, write Sigra.",
+    "together": "The typemark is the logo. Do not rearrange it, move or resize the square, redraw the letters or add a shape beside it.",
+    "mono": "One color is the same drawing in a single color: the square takes the color of the letters. Soot on light, Chalk on dark. Nothing else is redrawn.",
+    "small": "The favicon is drawn for exactly 16 and 32 px, so every edge lands on the pixel grid. Below 16 px, do not use the symbol.",
+    "smallDetail": "The 16 px favicon is a stem 4 px wide, a square of 4 by 4 px and a gap of 2 px; the 32 px one is 8, 8 by 8 and 3. Every edge is a whole pixel. At 16 px the mark is small: it can read as a speck, or as an exclamation mark turned upside down. No one has tested it with readers.",
+    "clear": "Keep clear space on every side equal to 2 T, twice the square’s side, measured from the outermost edge of the typemark. Nothing enters it: no text, edge or other logo.",
+    "minNote": "On screen, the typemark is never narrower than 96 px and the symbol never narrower than 16 px. In print, the typemark is never narrower than 25 mm.",
+    "theme": "The logo has a version for each theme. On light, the letters are Soot and the square is Kiln. On dark, the letters are Chalk and the square is Kiln Bright, which is lighter so that it reads on Char. Use the version made for the background; do not make one by inverting the colors of the other.",
+    "background": "No shape behind it: the typemark sits directly on the page background. The one exception is the avatar, a 512 px square with the symbol on Paper or Char, because social sites need an opaque square. A photograph or screenshot behind the logo needs a calm area at least as wide as the typemark plus its clear space.",
+    "color": "The square is never green, blue or red, and it is never recolored to match a host app. Square-dot wordmarks are common. This logo relies on its drawing, the Kiln color and the word beside it to be told apart; that is a design judgment, not a legal one. Do not use the square alone as a bullet, a badge or a pattern.",
+    "retired": "The earlier mark is retired: the word set in Space Grotesk with an extended g that ran under the i, and a standalone mark of an L and a square. The extended g read as an underline, and the L and square read as a letter J.",
+    "minimumSizes": [
+      {
+        "version": "Typemark",
+        "screen": "96 px wide",
+        "print": "25 mm wide"
+      },
+      {
+        "version": "The symbol, drawn for its size",
+        "screen": "16 px wide",
+        "print": "Not specified"
+      }
+    ],
+    "misuse": [
+      "Don’t stretch, squeeze or rotate the typemark.",
+      "Don’t recolor the square or the letters, or make the square green, blue or red.",
+      "Don’t put a tile, badge or any other shape behind the typemark.",
+      "Don’t add the tagline, the descriptor or any text to the typemark.",
+      "Don’t move the square, round it into a circle, or add a second one.",
+      "Don’t use the dark drawing on a light page, or the light drawing on a dark one."
+    ],
+    "onPhotography": {
+      "head": "On screenshots and photographs",
+      "rules": [
+        "Place the typemark on a calm area at least as wide as the typemark and its clear space.",
+        "Use the light drawing on a light area and the dark drawing on a dark one. If neither reads well, move the logo.",
+        "Do not put a shape or a shadow behind it to make it read."
+      ]
+    },
+    "useByOthers": [
+      "Hex packages, blogs, newsletters and conference sites may use the typemark unchanged to refer to Sigra.",
+      "Do not use it to suggest that Sigra endorses or certifies another product.",
+      "Do not alter the logo, or build a new logo from the square or the i."
+    ],
+    "clearSpace": "one quarter of the typemark height on every side, measured from the outermost ink"
+  },
+  "color": {
+    "defaultTheme": "light",
+    "light": [
+      {
+        "name": "Paper",
+        "hex": "#F7F3EE",
+        "role": "The default background, in the book, the docs and the admin.",
+        "sharePercent": 60
+      },
+      {
+        "name": "White",
+        "hex": "#FFFFFF",
+        "role": "The detail panel, form fields and the table surface.",
+        "sharePercent": 22
+      },
+      {
+        "name": "Soot",
+        "hex": "#1F1A17",
+        "role": "Text, and the letters in the logo on light.",
+        "sharePercent": 9
+      },
+      {
+        "name": "Kiln",
+        "hex": "#C2410C",
+        "role": "The square in the logo, the one main button per screen, the square on the current tab and the edge rule on the selected row.",
+        "sharePercent": 5
+      },
+      {
+        "name": "Paper Line",
+        "hex": "#DDD3C8",
+        "role": "Dividing lines. Never the only edge of a control.",
+        "sharePercent": 4
+      }
+    ],
+    "dark": [
+      {
+        "name": "Char",
+        "hex": "#17120F",
+        "role": "The dark background.",
+        "sharePercent": 60
+      },
+      {
+        "name": "Char Surface",
+        "hex": "#221B17",
+        "role": "The detail panel, form fields and the table surface on Char.",
+        "sharePercent": 22
+      },
+      {
+        "name": "Chalk",
+        "hex": "#F3EEE8",
+        "role": "Text, and the letters in the logo on dark.",
+        "sharePercent": 9
+      },
+      {
+        "name": "Kiln Bright",
+        "hex": "#F08A55",
+        "role": "The square in the logo on dark, links, the focus ring, the one main button per screen, the square on the current tab and the edge rule on the selected row.",
+        "sharePercent": 5
+      },
+      {
+        "name": "Char Line",
+        "hex": "#3A2F28",
+        "role": "Dividing lines on dark.",
+        "sharePercent": 4
+      }
+    ],
+    "logo": {
+      "name": "Kiln",
+      "hex": "#C2410C",
+      "onDark": "#F08A55",
+      "role": "The square in the logo, on light. On dark the square is Kiln Bright, #F08A55. Kiln is the orange the product already uses: it is the same value, so nothing generated needs to change."
+    },
+    "secondary": [
+      {
+        "name": "Muted Soot",
+        "hex": "#5F554D",
+        "role": "Secondary text on Paper and White."
+      },
+      {
+        "name": "Muted Chalk",
+        "hex": "#B8ABA0",
+        "role": "Secondary text on Char and Char Surface, dark."
+      },
+      {
+        "name": "Kiln Deep",
+        "hex": "#9A3412",
+        "role": "Links, the focus ring and the current tab on light. It is darker than Kiln so that small text passes on Paper and White."
+      },
+      {
+        "name": "Sunken Paper",
+        "hex": "#EFE9E1",
+        "role": "The ground of a table header, on light."
+      },
+      {
+        "name": "Selected Paper",
+        "hex": "#EADFD2",
+        "role": "The ground of the selected row, on light. Darker than Paper so the row is plainly picked out."
+      },
+      {
+        "name": "Control Edge",
+        "hex": "#857569",
+        "role": "The border of an input or a button on light (4.0:1 on Paper). Dark uses #8B7D72."
+      }
+    ],
+    "status": [
+      {
+        "word": "Active",
+        "mark": "active",
+        "textLight": "#1D6B3C",
+        "textDark": "#86C99B",
+        "meaning": "Nothing is stopping this user from signing in."
+      },
+      {
+        "word": "Unconfirmed",
+        "mark": "unconfirmed",
+        "textLight": "#7A5F00",
+        "textDark": "#D6B957",
+        "meaning": "The user registered and has not confirmed their email address yet. The list leads with it when it has been more than seven days; seven is this book’s proposal."
+      },
+      {
+        "word": "Locked",
+        "mark": "locked",
+        "textLight": "#7A5F00",
+        "textDark": "#D6B957",
+        "meaning": "Sigra locked the user after repeated failed sign-in attempts. It clears by itself, or an admin unlocks it. Not the same as suspended."
+      },
+      {
+        "word": "Suspended",
+        "mark": "suspended",
+        "textLight": "#5F554D",
+        "textDark": "#B8ABA0",
+        "meaning": "An admin blocked the user on purpose. An admin unsuspends to restore access. Not the same as locked."
+      },
+      {
+        "word": "Deleting",
+        "mark": "deleting",
+        "textLight": "#7A5F00",
+        "textDark": "#D6B957",
+        "meaning": "An admin scheduled the user for permanent deletion. Once the deletion runs, the user and their data are gone."
+      }
+    ],
+    "statusRule": "A user’s status is always written as a word. The status mark and its color support the word; they do not replace it.",
+    "contrastPairs": [
+      {
+        "id": "body",
+        "role": "Body text",
+        "use": "README, docs, the admin and this book.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#1F1A17",
+          "ground": "#F7F3EE",
+          "contrast": 15.6,
+          "use": "Any text size (AAA)"
+        },
+        "dark": {
+          "text": "#F3EEE8",
+          "ground": "#17120F",
+          "contrast": 16.11,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "descriptor",
+        "role": "Descriptor and secondary text",
+        "use": "The descriptor beside the logo, and metadata under a title.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#5F554D",
+          "ground": "#F7F3EE",
+          "contrast": 6.57,
+          "use": "Any text size (AA)"
+        },
+        "dark": {
+          "text": "#B8ABA0",
+          "ground": "#17120F",
+          "contrast": 8.29,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "caption",
+        "role": "Caption and table metadata",
+        "use": "Captions, times and column heads.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#5F554D",
+          "ground": "#FFFFFF",
+          "contrast": 7.26,
+          "use": "Any text size (AAA)"
+        },
+        "dark": {
+          "text": "#B8ABA0",
+          "ground": "#221B17",
+          "contrast": 7.57,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "application-copy",
+        "role": "Copy inside an application",
+        "use": "Text on a panel in the admin or README.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#1F1A17",
+          "ground": "#FFFFFF",
+          "contrast": 17.24,
+          "use": "Any text size (AAA)"
+        },
+        "dark": {
+          "text": "#F3EEE8",
+          "ground": "#221B17",
+          "contrast": 14.72,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "link",
+        "role": "Link, focus ring and current tab",
+        "use": "Links, the focus ring and the current tab.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#9A3412",
+          "ground": "#FFFFFF",
+          "contrast": 7.31,
+          "use": "Any text size (AAA)"
+        },
+        "dark": {
+          "text": "#F08A55",
+          "ground": "#221B17",
+          "contrast": 6.85,
+          "use": "Any text size (AA)"
+        }
+      },
+      {
+        "id": "focus",
+        "role": "Focus ring on the page",
+        "use": "The 2 px ring on a focused control, against the page.",
+        "minimum": 3,
+        "light": {
+          "text": "#9A3412",
+          "ground": "#F7F3EE",
+          "contrast": 6.61,
+          "use": "Any text size (AA)"
+        },
+        "dark": {
+          "text": "#F08A55",
+          "ground": "#17120F",
+          "contrast": 7.5,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "artwork",
+        "role": "Logo square",
+        "use": "The Kiln square against the page, as a shape.",
+        "minimum": 3,
+        "light": {
+          "text": "#C2410C",
+          "ground": "#F7F3EE",
+          "contrast": 4.69,
+          "use": "Any text size (AA)"
+        },
+        "dark": {
+          "text": "#F08A55",
+          "ground": "#17120F",
+          "contrast": 7.5,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "button",
+        "role": "Main button",
+        "use": "The label on the one Kiln button per screen.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#FFFFFF",
+          "ground": "#C2410C",
+          "contrast": 5.18,
+          "use": "Any text size (AA)"
+        },
+        "dark": {
+          "text": "#17120F",
+          "ground": "#F08A55",
+          "contrast": 7.5,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "selected-row",
+        "role": "Secondary text on a selected row",
+        "use": "Addresses and notes on the selected row of a list.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#5F554D",
+          "ground": "#EADFD2",
+          "contrast": 5.52,
+          "use": "Any text size (AA)"
+        },
+        "dark": {
+          "text": "#B8ABA0",
+          "ground": "#33281F",
+          "contrast": 6.4,
+          "use": "Any text size (AA)"
+        }
+      },
+      {
+        "id": "selected-status",
+        "role": "Status word on a selected row",
+        "use": "The status word of the selected row, in the ochre.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#7A5F00",
+          "ground": "#EADFD2",
+          "contrast": 4.61,
+          "use": "Any text size (AA)"
+        },
+        "dark": {
+          "text": "#D6B957",
+          "ground": "#33281F",
+          "contrast": 7.47,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "status-active",
+        "role": "Status word: Active",
+        "use": "The word “Active” in a table row.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#1D6B3C",
+          "ground": "#FFFFFF",
+          "contrast": 6.52,
+          "use": "Any text size (AA)"
+        },
+        "dark": {
+          "text": "#86C99B",
+          "ground": "#221B17",
+          "contrast": 8.76,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "status-unconfirmed",
+        "role": "Status word: Unconfirmed",
+        "use": "The word “Unconfirmed”.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#7A5F00",
+          "ground": "#FFFFFF",
+          "contrast": 6.06,
+          "use": "Any text size (AA)"
+        },
+        "dark": {
+          "text": "#D6B957",
+          "ground": "#221B17",
+          "contrast": 8.84,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "status-locked",
+        "role": "Status word: Locked",
+        "use": "The word “Locked”.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#7A5F00",
+          "ground": "#FFFFFF",
+          "contrast": 6.06,
+          "use": "Any text size (AA)"
+        },
+        "dark": {
+          "text": "#D6B957",
+          "ground": "#221B17",
+          "contrast": 8.84,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "status-suspended",
+        "role": "Status word: Suspended",
+        "use": "The word “Suspended”, in Muted Soot.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#5F554D",
+          "ground": "#FFFFFF",
+          "contrast": 7.26,
+          "use": "Any text size (AAA)"
+        },
+        "dark": {
+          "text": "#B8ABA0",
+          "ground": "#221B17",
+          "contrast": 7.57,
+          "use": "Any text size (AAA)"
+        }
+      },
+      {
+        "id": "status-deleting",
+        "role": "Status word: Deleting",
+        "use": "The word “Deleting”.",
+        "minimum": 4.5,
+        "light": {
+          "text": "#7A5F00",
+          "ground": "#FFFFFF",
+          "contrast": 6.06,
+          "use": "Any text size (AA)"
+        },
+        "dark": {
+          "text": "#D6B957",
+          "ground": "#221B17",
+          "contrast": 8.84,
+          "use": "Any text size (AAA)"
+        }
+      }
+    ],
+    "never": [
+      {
+        "color": "Kiln",
+        "notFor": "small text on Char (use Kiln Bright)"
+      },
+      {
+        "color": "Paper Line",
+        "notFor": "the only edge of a control (use Control Edge)"
+      },
+      {
+        "color": "a status color",
+        "notFor": "the only way to tell a status"
+      }
+    ],
+    "notes": "Ratios are WCAG 2.2 contrast, computed from the hex values. A pair that passes here says nothing about a whole product built with it. Kiln on Paper is 4.7:1: enough for the square and the button label. Links use Kiln Deep, which passes on every surface. Paper Line and Char Line only divide space.",
+    "print": "Not specified: proof against a physical swatch; no CMYK or Pantone values are given."
+  },
+  "type": {
+    "sans": {
+      "family": "Instrument Sans",
+      "weights": "Regular (400), SemiBold (600) and Bold (700).",
+      "css": "'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif",
+      "use": "The wordmark, headlines, body text, the admin, tables, buttons and labels. One family does all of it, so the logo and the page look like the same hand.",
+      "why": "The wordmark is Instrument Sans Bold with its spacing redrawn, so the name and the page share letterforms. Its single-story g and a, flat stems and square-cut terminals sit well beside a square. The arrow characters are in the subset; Red Hat Mono has none, so code never uses them."
+    },
+    "mono": {
+      "family": "Red Hat Mono",
+      "weights": "Regular (400) and Medium (500).",
+      "css": "'Red Hat Mono', ui-monospace, 'SF Mono', Consolas, monospace",
+      "use": "Anything copied or compared: email addresses in a detail view, commands, tokens, code.",
+      "why": "A slashed zero (turn on `font-feature-settings: \"zero\"`) and distinct l, I and 1 let a token or address be read aloud and copied correctly."
+    },
+    "license": "Both families are SIL Open Font License 1.1, from Google Fonts. The license texts are in the assets fonts folder. Red Hat Mono has no arrow characters (U+2190 and U+2192): write “to” or draw the arrow.",
+    "hierarchy": [
+      {
+        "role": "Display",
+        "face": "Instrument Sans",
+        "weight": 700,
+        "sizePx": 56,
+        "lineHeight": 1.05,
+        "tracking": "-0.02em",
+        "sample": "Phoenix auth you own and can still update.",
+        "use": "Covers, slides and social cards. One line, two at most."
+      },
+      {
+        "role": "Heading",
+        "face": "Instrument Sans",
+        "weight": 700,
+        "sizePx": 28,
+        "lineHeight": 1.2,
+        "tracking": "-0.015em",
+        "sample": "Who can sign in, and who can’t?",
+        "use": "Page titles and section heads in docs and the admin."
+      },
+      {
+        "role": "Body",
+        "face": "Instrument Sans",
+        "weight": 400,
+        "sizePx": 16,
+        "lineHeight": 1.55,
+        "tracking": "0",
+        "sample": "Fixes to the sensitive core arrive with mix deps.update. The screens are yours to edit.",
+        "use": "README, docs and paragraphs in the admin. 62 to 72 characters a line."
+      },
+      {
+        "role": "Dense text",
+        "face": "Instrument Sans",
+        "weight": 400,
+        "sizePx": 13,
+        "lineHeight": 1.4,
+        "tracking": "0",
+        "sample": "2:07 PM UTC",
+        "use": "Lists of users in the admin. Always with tabular numerals."
+      },
+      {
+        "role": "Label",
+        "face": "Instrument Sans",
+        "weight": 600,
+        "sizePx": 12,
+        "lineHeight": 1.2,
+        "tracking": "0.02em",
+        "sample": "Selected user",
+        "use": "Column heads and small labels. Sentence case, never capitals."
+      },
+      {
+        "role": "Code",
+        "face": "Red Hat Mono",
+        "weight": 400,
+        "sizePx": 13,
+        "lineHeight": 1.5,
+        "tracking": "0",
+        "sample": "mix sigra.install Accounts User users",
+        "use": "Addresses in a detail view, commands, tokens. Clicking one copies it."
+      }
+    ],
+    "rules": [
+      "Figures in a column use tabular numerals (`font-variant-numeric: tabular-nums`) so digits stack.",
+      "Every address, token and command is set in Red Hat Mono with the slashed zero on, so it can be compared by eye. Instrument Sans never sets one.",
+      "Clicking an address or a command copies it and shows a short “Copied to clipboard” message. The text itself never moves or changes.",
+      "Headlines are sentence case, and no type is lighter than 400 or smaller than 12 px.",
+      "Code ligatures are off (`font-variant-ligatures: none`), so `|>` and `->` stay as typed."
+    ]
+  },
+  "voice": {
+    "summary": "Plain and specific. It says what happened, to whom and what to do about it, and it says what Sigra does not do.",
+    "tone": [
+      {
+        "channel": "The admin: errors and empty states",
+        "plainToLively0to4": 0,
+        "example": "No users match the active filters. Clear all filters."
+      },
+      {
+        "channel": "Docs and README",
+        "plainToLively0to4": 1,
+        "example": "Run the installer, then read the code it wrote."
+      },
+      {
+        "channel": "Release notes",
+        "plainToLively0to4": 1,
+        "example": "Locked users now show when they unlock."
+      },
+      {
+        "channel": "Talks and social posts",
+        "plainToLively0to4": 2,
+        "example": "Auth you can read, in your own repo. Here is what the generators write."
+      }
+    ],
+    "toneNote": "The voice never changes; the tone shifts with where the words appear. Sigra stays plain everywhere and gets only a little looser in a talk or a post. It is never loose in the admin, because people open it when something is wrong with a user.",
+    "thisNotThat": [
+      {
+        "say": "Revoke this session for maya.chen@tasklane.test? This signs them out of that browser or device.",
+        "notThis": "Are you sure you want to proceed?"
+      },
+      {
+        "say": "These users are locked out after failed sign-in attempts. Review the user before unlocking.",
+        "notThis": "Accounts frozen due to suspicious activity."
+      },
+      {
+        "say": "Could not save auth branding. Check the values and try again.",
+        "notThis": "Oops! Something went wrong."
+      },
+      {
+        "say": "All active sessions revoked.",
+        "notThis": "Success! You’re all set!"
+      },
+      {
+        "say": "Sigra is not hosted auth. Your users stay in your database.",
+        "notThis": "Enterprise-grade identity, fully managed."
+      },
+      {
+        "say": "Fixes arrive with mix deps.update. The code in your repo is yours.",
+        "notThis": "Auth you can keep patching after install."
+      },
+      {
+        "say": "Sign in to Tasklane.",
+        "notThis": "Log in to your account."
+      }
+    ],
+    "inclusive": [
+      "Write for support staff who don’t read code. Name the person’s email address and the thing that happened before any module or error code.",
+      "Say what they can do next. Every empty and error state in the admin ends with something the person can do.",
+      "Spell out the time zone. Write “2:07 PM UTC”, never a bare time, with the zone on the same line as the time.",
+      "Keep sign-in errors vague on purpose. The sign-in and password-reset screens give the same answer whether or not the account exists, so a stranger cannot find out who has one. The admin, which only trusted staff see, is specific."
+    ],
+    "name": {
+      "rule": "Sigra in a sentence, `sigra` in the logo, the package, commands and file names, and `Sigra` where an Elixir module name needs it. Reword a sentence that starts with the lowercase form.",
+      "never": [
+        {
+          "form": "SIGRA, SiGra",
+          "why": "one word, one capital at most"
+        },
+        {
+          "form": "Sig-ra, Sigra.io",
+          "why": "one word, no suffix"
+        },
+        {
+          "form": "Sigra Auth, Sigra Cloud",
+          "why": "Sigra is a library, not a service"
+        },
+        {
+          "form": "the Sigra platform",
+          "why": "Sigra is a library"
+        }
+      ],
+      "descriptor": "Call it “authentication for Phoenix”, or “a library plus generators”. Say “your app” where this book’s source documents say “the host”. Call the people who use the admin “admins” and the people who sign in “users”."
+    },
+    "terms": [
+      {
+        "term": "User",
+        "meaning": "The identity record, on screens outside any organization. The admin glossary is the source for this and the next rows.",
+        "avoid": "account (as a person), customer, end user"
+      },
+      {
+        "term": "Member",
+        "meaning": "A user’s seat with a role inside one organization. The relationship is a membership.",
+        "avoid": "seat, teammate, collaborator"
+      },
+      {
+        "term": "Organization",
+        "meaning": "Spelled out in anything a person reads. “org” is for code and URLs only.",
+        "avoid": "org, workspace, tenant"
+      },
+      {
+        "term": "Sign in, sign out",
+        "meaning": "The verbs, two words. As a noun or modifier it is hyphenated: sign-in page, failed sign-in attempt.",
+        "avoid": "log in, login, log out, logout"
+      },
+      {
+        "term": "Session",
+        "meaning": "One signed-in browser or device. Sessions, never logins.",
+        "avoid": "logins"
+      },
+      {
+        "term": "Revoke",
+        "meaning": "End a live session, API key or sent invitation.",
+        "avoid": "delete, cancel"
+      },
+      {
+        "term": "Suspend",
+        "meaning": "An admin blocks a user on purpose. Reversible: the admin unsuspends.",
+        "avoid": "ban, disable, deactivate"
+      },
+      {
+        "term": "Lock",
+        "meaning": "Sigra blocks a user after repeated failed sign-in attempts. It clears by itself, or an admin unlocks it.",
+        "avoid": "freeze, suspend"
+      },
+      {
+        "term": "Delete",
+        "meaning": "Permanently destroy the user and their data. Taking a member out of an organization is “remove”.",
+        "avoid": "destroy, remove (for the user)"
+      },
+      {
+        "term": "Role and permission",
+        "meaning": "A role is a bundle of authority (owner, admin, member). A permission is one capability within it.",
+        "avoid": "access level, group, scope"
+      },
+      {
+        "term": "Effective user",
+        "meaning": "In an audit log, the user an admin was acting as while impersonating. The actor is the admin.",
+        "avoid": "target, victim, subject"
+      },
+      {
+        "term": "Confirm it’s you again",
+        "meaning": "What a screen says when it asks a signed-in user to prove who they are before a sensitive step. The code calls this sudo mode; screens do not. This wording is a recommendation, not found in the product today.",
+        "avoid": "sudo mode, re-authenticate, step-up"
+      },
+      {
+        "term": "Backup codes",
+        "meaning": "Single-use codes for when the authenticator app is not available. The product’s own word; providers vary, and this book did not check them.",
+        "avoid": "recovery codes (unchecked)"
+      },
+      {
+        "term": "Magic link",
+        "meaning": "A one-time sign-in link sent by email.",
+        "avoid": "passwordless link, login link"
+      },
+      {
+        "term": "Passkey",
+        "meaning": "A sign-in credential kept on the user’s device, not a password. Technically WebAuthn.",
+        "avoid": "WebAuthn (in screens), security key"
+      },
+      {
+        "term": "Generated code",
+        "meaning": "The schemas, routes, screens and emails `mix sigra.install` writes into your repo. They are yours.",
+        "avoid": "scaffold, boilerplate"
+      },
+      {
+        "term": "Your app",
+        "meaning": "The Phoenix app that uses Sigra. In the contract and technical docs it is “the host”, glossed once.",
+        "avoid": "host, parent app, consumer"
+      }
+    ],
+    "termsNote": "These are only the words the brand depends on. “Locked” and “Unconfirmed” appear in the generated admin today; “Suspended” is defined in its glossary; “Deleting” is this book’s word for a user scheduled for deletion, since the admin shows a line “Deletion: Active”. The phrase “sign in” is the admin glossary’s decision and is enforced by a test; Phoenix’s own `phx.gen.auth` documentation says “log in”. Mix, ExDoc, HexDocs, LiveView, Ecto, Oban and Swoosh are written as proper names, and `mix` appears only as a command."
+  },
+  "messaging": {
+    "pitch": "Sigra is authentication for Phoenix: sessions, passwords, email confirmation, magic links, two-factor codes, passkeys and an optional admin, as a library plus generators. The sensitive core updates with `mix deps.update`; the screens, routes and emails are ordinary code in your repo.",
+    "pillars": [
+      [
+        "Own the code.",
+        "The generators put normal Phoenix modules in your repository, ready to read, review and customize."
+      ],
+      [
+        "Keep it updated.",
+        "The sensitive core, hashing, sessions, tokens and checks, stays in the library, so a fix arrives with a dependency update, not a rewrite."
+      ],
+      [
+        "Know the boundaries.",
+        "Sigra is not hosted auth, not a compliance certificate and not an authorization engine. The docs say so up front."
+      ]
+    ],
+    "tagline": "Sentence case, with the period. It sits beside the logo, never in it. Under it, where the line stands alone, goes the descriptor “Production-minded authentication for Phoenix 1.8+”.",
+    "boilerplate": [
+      [
+        "One line: Hex, GitHub and package listings",
+        "A library of hardened primitives plus generators that put ordinary authentication code for Phoenix in your repo."
+      ],
+      [
+        "Short: README opening, talk bios",
+        "Sigra is an open-source authentication library for Phoenix 1.8 and later. A library holds the security-sensitive core, and generators write the screens, routes and emails into your own repository as normal code. Fixes arrive with `mix deps.update`; the rest is yours to edit."
+      ],
+      [
+        "Do not say",
+        "Hosted, managed, “bank-grade”, “military-grade”, unbreakable, “zero trust”, seamless, robust, compliant or certified. Sigra is a library you run inside your own app, and it does not certify anything for you."
+      ]
+    ]
+  },
+  "imagery": {
+    "guidance": "Sigra’s pictures show the product at work, with its real words: a sign-in page in a host app’s own brand, one user’s audit log, the Users list and a command. They need no stock photography and no symbols of security.",
+    "show": [
+      {
+        "subject": "A sign-in page",
+        "detail": "In the host app’s own brand at a real width, never Sigra’s."
+      },
+      {
+        "subject": "A status mark with its word",
+        "detail": "The square in its state and the word, always together."
+      },
+      {
+        "subject": "A command",
+        "detail": "A real command with its arguments, in Red Hat Mono on the code background."
+      }
+    ],
+    "never": [
+      "Padlocks, shields and keys",
+      "Fingerprints and faces",
+      "Hooded figures",
+      "Binary rain and glowing grids",
+      "The Phoenix flame or bird",
+      "Stock people at laptops",
+      "Blur and frosted panels",
+      "Neon “secured” badges"
+    ],
+    "why": "Sigra helps people add authentication they can read, and find what is going on with a user. Pictures of padlocks and shields suggest it is a vault you cannot open, which is the opposite of the product. The Phoenix flame and the Elixir drop belong to other projects.",
+    "note": "The product pictures in this book are drawings of the layout this book proposes, with invented data. They are not screenshots of the current product."
+  },
+  "code": {
+    "ground": {
+      "light": "#EFE8DE",
+      "dark": "#120E0C"
+    },
+    "roles": [
+      {
+        "role": "Text",
+        "light": "#1F1A17",
+        "dark": "#F3EEE8",
+        "colors": "Names, functions, modules and punctuation."
+      },
+      {
+        "role": "Comment",
+        "light": "#6B6057",
+        "dark": "#A99C91",
+        "colors": "Comments, in a neutral gray-brown."
+      },
+      {
+        "role": "Keyword",
+        "light": "#9A3412",
+        "dark": "#F4A27C",
+        "colors": "def, do, end, fn, SELECT, in the orange of the links."
+      },
+      {
+        "role": "String",
+        "light": "#2C5F9E",
+        "dark": "#7FB0E8",
+        "colors": "Strings, in blue."
+      },
+      {
+        "role": "Atom",
+        "light": "#1F6A8A",
+        "dark": "#6FC0E0",
+        "colors": "Atoms, keys and numbers, in a cyan blue."
+      }
+    ],
+    "rules": [
+      "Code uses three hues, orange, blue and a cyan blue, and two neutrals. It has no green or yellow. Checked in every build: no code color is the same as a status color, and none is within 30 CIELAB units of the Active green or the ochre. The two blues are about 20 units apart: close, and told apart by position in the code more than by color.",
+      "Syntax colors are for code blocks only. Inline code in a sentence is plain Red Hat Mono on a light chip, in every medium.",
+      "ExDoc and HexDocs color their own code. The stylesheet in the assets docs folder sets these colors on ExDoc’s token classes. It has not been run in a real ExDoc build.",
+      "GitHub highlights the code in a README itself, and Sigra does not control those colors.",
+      "Show code that matches the current release, not pseudo-code."
+    ]
+  },
+  "graphicElements": {
+    "head": "Two graphic elements: the status mark and the square.",
+    "intro": "Sigra has two graphic elements, both made from the logo’s square. They are not interface components: buttons, tabs and inputs are drawn by the product.",
+    "items": [
+      [
+        "The status mark",
+        "One square in the state a user is in, always with its word beside it. Active is filled with a check. Unconfirmed is a dashed frame with a small square inside. Locked is filled with a bar, a closed gate. Suspended is a frame with two bars. Deleting is a frame with a quarter filled, a countdown. Shape separates the five without color: frame, fill or dashes, then the glyph. In a list row it is 20 px tall and in a detail view 24 px. The smallest size drawn in this book is 14 px; it has not been tested smaller."
+      ],
+      [
+        "The square",
+        "The logo’s square, at 8 px, sits before the name of the current tab, one at a time. It is Kiln on light and Kiln Bright on dark. It appears nowhere else in a screen. The selected row is marked another way: a 2 px Kiln rule on its left edge and a sunken ground, so the square never sits beside a status mark."
+      ]
+    ],
+    "never": "A status is never shown by the mark alone: its word always comes with it. The mark never decorates a page. The square is never a bullet, a badge or a loading shape."
+  },
+  "legal": [
+    "Sigra is released under the MIT license. The logo and this brand book are covered by the same license unless the repository says otherwise.",
+    "No trademark registration is claimed in this book, and none was searched. Use ™, not ®, only if the maintainers decide to claim the name.",
+    "Fonts are SIL Open Font License 1.1; their license texts ship in the assets folder."
+  ],
+  "contact": [
+    "Questions about the brand and requests to use it: the Sigra maintainers, through the project’s issue tracker.",
+    "Approval: the maintainers approve any use that changes the logo or colors; unchanged use under these rules needs no approval."
+  ],
+  "notNeeded": [
+    {
+      "item": "Mascot",
+      "why": "Considered, not proposed. A library trusted for being exact and plain gains nothing from a character."
+    },
+    {
+      "item": "Patterns and textures",
+      "why": "The status mark and the square are the only graphic devices. A pattern would compete with a dense list, where the words are the picture."
+    },
+    {
+      "item": "Stock photography",
+      "why": "There is no honest photograph of “a session”. Real product pictures say it better."
+    },
+    {
+      "item": "A second typeface for the logo",
+      "why": "The wordmark and the headlines are both set in Instrument Sans, so no other display face is needed."
+    },
+    {
+      "item": "Brand-colored tables",
+      "why": "In a dense list the words should carry the color. Rows stay on White or Char Surface; the status mark carries the only hue."
+    },
+    {
+      "item": "Logo animation and sound",
+      "why": "Not defined in this edition. The brand has no motion or sound rules yet; see To review."
+    }
+  ],
+  "toReview": [
+    {
+      "choice": "The name is written Sigra in a sentence and sigra in the logo.",
+      "detail": "The product’s README, Hex page and docs already capitalize it; this book keeps that and writes `sigra` for the logo, the package and commands. Reword any sentence that would start with the lowercase form."
+    },
+    {
+      "choice": "The lead line is “Phoenix auth you own and can still update.”",
+      "detail": "It replaces “Auth you can keep patching after install.”, where “patching” can mean applying security fixes or hand-hacking the code, and “after install” is vague. The line has not been tested on a reader. It is written for Phoenix developers; the descriptor stays “Production-minded authentication for Phoenix 1.8+”."
+    },
+    {
+      "choice": "The accent is the product’s existing orange, under a new name.",
+      "detail": "Kiln is `#C2410C`, the value already in the generated admin and auth CSS, the tests and the example app, so no generated code has to change. It is Tailwind’s orange-700, and it is a darker neighbor of Phoenix’s own orange-red. The old color name is dropped because Ember is also a web framework."
+    },
+    {
+      "choice": "The logo is redrawn, not only recolored.",
+      "detail": "The old typemark was stock Space Grotesk with an extended g. The new one keeps the idea that was ownable, a square on the i, and draws it as a plain square, one stem wide and set 0.4 T above the stem. A square with one corner cut was drawn and dropped: it read as a dog-eared page, the standard file icon, especially at favicon size. A plain square is common, so what makes it this logo is the system under it: one stem wide, a measured gap, optical spacing, and Kiln. An honest read of the result: a stock grotesque with a square above the i. Whether that is distinct enough is a taste call for the owner, not something a check can settle."
+    },
+    {
+      "choice": "The symbol is the dotted i, and a lone i can read as an information icon.",
+      "detail": "The standalone mark is the stem and its square. On its own, at small sizes, the i with a dot is also the shape of the “info” icon, so the favicon and the avatar are drawn on the pixel grid and the typemark, not the symbol, is used wherever the name needs to show. An earlier idea, a pair of brackets around the square, is retired: it looked like the Adobe Brackets icon and every code-editor icon. A trademark and look-alike search has not been run for either."
+    },
+    {
+      "choice": "The statuses use one color for three of five.",
+      "detail": "Unconfirmed, Locked and Deleting are the states that need an admin, so they share one yellow ochre (#7A5F00 on light, #D6B957 on dark); the shape of the mark and the word separate them. Active is green. Suspended is a muted gray, drawn as a frame with two bars. None is red: red is kept for business harm and destructive actions, and none of the five is that. “Seven days” for Unconfirmed is this book’s proposal; “Deleting” is this book’s word."
+    },
+    {
+      "choice": "The accent and the statuses are kept apart on purpose.",
+      "detail": "Kiln is orange. The ochre is about 39 degrees of hue away from it on light and on dark, and every build fails if the gap is under 30: a first amber sat 25 degrees away and read as one muddy family beside Kiln. The ochre is a proposal: the generated admin has no status colors of its own to match. The selected row is marked with a Kiln rule on its left edge and a darker ground, not with the logo’s square, so the square never sits next to a status mark."
+    },
+    {
+      "choice": "The admin glossary is followed, and Phoenix says “log in”.",
+      "detail": "The glossary enforces “sign in” with a test. Phoenix’s `phx.gen.auth` documentation says “log in”. An app that mixes the two shows both; the book keeps the glossary and flags the mix. The admin still labels people “Admin (operator)” in places; the book says “Admin”."
+    },
+    {
+      "choice": "Adopting the new logo is a coordinated change in the product.",
+      "detail": "The old accent, the `--sg-*` token names and the old favicon are written into generated CSS, four tests, a Playwright check and the admin screenshots. This book does not change any of them. The brand files land in a `brand/` folder beside `brandbook/`, and the maintainers choose when to switch the favicon, the logo markup and the screenshots."
+    },
+    {
+      "choice": "One family sets the whole page.",
+      "detail": "Instrument Sans is the wordmark, the headings and the interface; Red Hat Mono is the code. Instrument Sans is a widely used face, so the logo’s distinctness comes from its drawing, not its letters. The generated admin lives in other people’s apps and may keep a system font stack: that is the maintainers’ call, since a web font is a dependency."
+    },
+    {
+      "choice": "A same-name service exists in an adjacent field.",
+      "detail": "sigra.app is a Swedish free e-signing service that uses BankID. sigra.io is a litigation-verification company, sigra.com is a Colombian supplier, and a German App Store app is called SIGRA. The name was kept. Nothing here is clearance, and it matters most if the product is marketed in Swedish or to identity buyers."
+    },
+    {
+      "choice": "The favicon is the dotted i on the pixel grid, and nobody has looked at it at 16 to 24 px.",
+      "detail": "A stem of 4 and 8 px and a square of 4 and 8 px land on whole pixels. At 24 px and below the mark can read as an information icon."
+    },
+    {
+      "choice": "The ExDoc stylesheet is not verified and the demo app has two names.",
+      "detail": "The stylesheet was written from ExDoc’s class names, not run in a build. The README and the launch announcement still name the demo app Vaultr; it is Tasklane in the code and in this book. Hex also lists a release 1.20.0 that the project does not recognize, and the README pins `~> 1.5.0`; the samples here use `~> 1.7`."
+    }
+  ],
+  "notChecked": "The name was kept and not cleared: lookups of Hex, npm, PyPI, crates.io, RubyGems, GitHub, the US, UK, German and Swedish App Stores and eight domain extensions found no conflict in Elixir, and no trademark register was searched. The logo was drawn and checked on size sheets from 16 to 110 px, in light, dark and one color. No person has looked at it at 16 to 24 px. No trademark or look-alike search was run for a square-dot wordmark or a dotted i. The lead line was not tested on readers. The industry word check came from one source, the Phoenix `phx.gen.auth` documentation, and the wording of backup codes was not compared with other providers. The generated sign-in, two-factor and email screens were not viewed running; only the demo screenshots of the admin were. Print colors are not specified. The book was checked offline in Chrome at 1440 and 390 px; Safari and Firefox were not.",
+  "retired": [
+    "The word rail: the old logo’s name (“Linked Rail”), the rail accent and the host-rail metaphor. Rails is the rival Ruby framework to Phoenix readers.",
+    "The L-shaped standalone mark, the extended g and the subtitle cut that ran into it. Also considered and not used: a pair of brackets around the square as the symbol (too close to the Adobe Brackets icon and to code-editor icons).",
+    "Space Grotesk as the wordmark face and the rule that seven libraries share it.",
+    "The rule that Sigra uses system font stacks only, for its own pages.",
+    "The color name Ember (it is also a web framework). The color stays, as Kiln.",
+    "The berry and pink direction, which was explored and not chosen.",
+    "A square with one corner cut at 45 degrees as the dot of the i. It was drawn and dropped: it reads as a dog-eared page, the usual file icon, most of all at favicon size, and a cut corner is not a shape anyone can own. The plain square stays.",
+    "The warm amber (#855300 on light, #E3B25C on dark) for the three statuses that need an admin. It sat too close to Kiln. The statuses now use a yellow ochre, #7A5F00 and #D6B957.",
+    "“Auth you can keep patching after install.” as the lead line."
+  ],
+  "fonts": {
+    "source": {
+      "repo": "https://github.com/google/fonts",
+      "commit": "b78877b777ed3a18a1b431b0df7d8ee3f84c2e5f"
+    },
+    "files": [
+      {
+        "path": "ofl/instrumentsans/InstrumentSans[wdth,wght].ttf",
+        "sha256": "b24f1812584816958afcf22e22d08e44318c5e51651e25d2438efdde389b33b1",
+        "file": "InstrumentSans[wdth,wght].ttf"
+      },
+      {
+        "path": "ofl/instrumentsans/OFL.txt",
+        "sha256": "9e27a72ed30eb49a08678f6a5d6ed98ec7ba5368f541637ee0683ec9134ef966",
+        "file": "OFL-InstrumentSans.txt"
+      },
+      {
+        "path": "ofl/redhatmono/RedHatMono[wght].ttf",
+        "sha256": "253377ac29ccce89cb1b5fb297c69812ffe993b0c436322b3656323ff30fd14f",
+        "file": "RedHatMono[wght].ttf"
+      },
+      {
+        "path": "ofl/redhatmono/OFL.txt",
+        "sha256": "435fbfb7e66988b2a06686a4cb966faec733f35d8fe100a1601573c27f3e0bb8",
+        "file": "OFL-RedHatMono.txt"
+      }
+    ]
+  },
+  "files": [
+    {
+      "need": "Logo on a light background",
+      "files": [
+        "assets/logo/sigra-lockup-light.svg",
+        "assets/logo/sigra-symbol-light.svg",
+        "assets/logo/sigra-lockup-light-2048.png"
+      ]
+    },
+    {
+      "need": "Logo on a dark background",
+      "files": [
+        "assets/logo/sigra-lockup-dark.svg",
+        "assets/logo/sigra-symbol-dark.svg",
+        "assets/logo/sigra-lockup-dark-2048.png"
+      ]
+    },
+    {
+      "need": "One color: print and single-color jobs",
+      "files": [
+        "assets/logo/sigra-lockup-mono-ink.svg",
+        "assets/logo/sigra-lockup-mono-bone.svg",
+        "assets/logo/sigra-symbol-mono-ink.svg",
+        "assets/logo/sigra-symbol-mono-bone.svg"
+      ]
+    },
+    {
+      "need": "Favicon (the symbol, drawn for 16 and 32 px)",
+      "files": [
+        "assets/icon/favicon.svg",
+        "assets/icon/favicon.ico",
+        "assets/icon/favicon-32-light.png",
+        "assets/icon/favicon-16-light.png"
+      ]
+    },
+    {
+      "need": "Avatar (a 512 px square, the one logo with a plate)",
+      "files": [
+        "assets/avatar/sigra-avatar-light.svg",
+        "assets/avatar/sigra-avatar-dark.svg",
+        "assets/avatar/sigra-avatar-512-light.png",
+        "assets/avatar/sigra-avatar-512-dark.png"
+      ]
+    },
+    {
+      "need": "README header",
+      "files": [
+        "assets/readme/sigra-header-light.svg",
+        "assets/readme/sigra-header-dark.svg",
+        "assets/readme/header-snippet.html"
+      ]
+    },
+    {
+      "need": "Link preview and social card",
+      "files": [
+        "assets/social/sigra-social-card-1280x640.png"
+      ]
+    },
+    {
+      "need": "Docs: code colors for ExDoc",
+      "files": [
+        "assets/docs/sigra-exdoc.css"
+      ]
+    },
+    {
+      "need": "Fonts",
+      "files": [
+        "assets/fonts/web/fonts.css",
+        "assets/fonts/variable/InstrumentSans[wdth,wght].ttf",
+        "assets/fonts/variable/RedHatMono[wght].ttf",
+        "assets/fonts/OFL-InstrumentSans.txt",
+        "assets/fonts/OFL-RedHatMono.txt"
+      ]
+    }
+  ]
+}
