@@ -198,7 +198,7 @@ jobs:
         if: >
           github.ref == 'refs/heads/main' &&
           steps.pages_site.outputs.ready == 'true'
-        uses: peaceiris/actions-gh-pages@e9c66a37f080288a11235e32cbe2dc5fb3a679cc  # v4 (2025-12+); v4.0.0 failed git remote rm origin on orphan checkout
+        uses: peaceiris/actions-gh-pages@8be1eb9fdb571724b79f0a9dc979fbafad9718ef  # v4 (2025-12+); v4.0.0 failed git remote rm origin on orphan checkout
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: _sigra_playwright_site
