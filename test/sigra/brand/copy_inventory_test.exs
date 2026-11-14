@@ -126,6 +126,122 @@ defmodule Sigra.Brand.CopyInventoryTest do
     end
   end
 
+  describe "library lane" do
+    test "the committed inventory equals the extraction" do
+      assert_inventory_current(:library)
+    end
+
+    test "extraction is not vacuous: admin LiveView copy and Sigra.Error safe messages are present" do
+      rows = CopyInventory.extract(:library)
+      files = rows |> Enum.map(fn {file, _kind, _string} -> file end) |> MapSet.new()
+
+      assert "lib/sigra/admin/live/user_show_live.ex" in files
+      assert "lib/sigra/admin/components.ex" in files
+      assert {"lib/sigra/error.ex", "literal", "Invalid email or password."} in rows
+    end
+
+    test "keeps the product-truth anchors the vocabulary table cites" do
+      rows = CopyInventory.extract(:library)
+
+      assert {"lib/sigra/admin/live/user_show_live.ex", "literal", "Deletion scheduled"} in rows
+      assert {"lib/sigra/admin/live/user_show_live.ex", "literal", "Locked"} in rows
+    end
+
+    test "Sigra.Error rows are the safe messages only, not the exception defaults" do
+      error_strings =
+        for {"lib/sigra/error.ex", _kind, string} <- CopyInventory.extract(:library), do: string
+
+      assert "This link has expired. Please request a new one." in error_strings
+      refute "token has expired" in error_strings
+      refute Enum.any?(error_strings, &String.starts_with?(&1, "OAuth error"))
+    end
+
+    test "doc attributes are not copy" do
+      docs =
+        for {_file, _kind, string} <- CopyInventory.extract(:library),
+            String.contains?(string, ["## Examples", "iex>"]),
+            do: string
+
+      assert docs == []
+    end
+  end
+
+  describe "library extraction rules, over planted sources" do
+    test "keeps prose literals, whole interpolated messages and capitalized single words" do
+      source = ~S'''
+      defmodule Planted do
+        def a, do: "Plain prose here"
+        def b(name), do: "Hello #{name}, welcome back"
+        def c, do: "Locked"
+        def d, do: "lowercase"
+      end
+      '''
+
+      rows = CopyInventory.library_rows_from_source(source, "planted.ex")
+
+      assert {"planted.ex", "literal", "Plain prose here"} in rows
+      assert {"planted.ex", "literal", "Hello \#{name}, welcome back"} in rows
+      assert {"planted.ex", "literal", "Locked"} in rows
+      refute Enum.any?(rows, fn {_f, _k, string} -> string == "lowercase" end)
+    end
+
+    test "skips docs, types, raise messages, component doc options and non-copy sigils" do
+      source = ~S'''
+      defmodule Planted do
+        @moduledoc "Module docs are not copy"
+        @doc "Function docs are not copy"
+        @spec f() :: String.t()
+        attr :x, :string, doc: "attribute docs are not copy"
+        def f, do: raise(ArgumentError, "developer facing message here")
+        def g, do: ~w(sg-chip sg-chip--ok more words)
+        def h, do: ~p"/users/log in"
+        def i, do: "Shown to the user"
+      end
+      '''
+
+      rows = CopyInventory.library_rows_from_source(source, "planted.ex")
+
+      assert rows == [{"planted.ex", "literal", "Shown to the user"}]
+    end
+
+    test "a single word passed straight to put_flash is copy" do
+      source = ~S'''
+      defmodule Planted do
+        def f(socket), do: put_flash(socket, :info, "Saved")
+        def g(socket), do: socket |> put_flash(:error, "oops") |> other()
+      end
+      '''
+
+      rows = CopyInventory.library_rows_from_source(source, "planted.ex")
+
+      assert {"planted.ex", "literal", "Saved"} in rows
+      assert {"planted.ex", "literal", "oops"} in rows
+    end
+
+    test "reads text nodes of ~H blocks and does not also count the sigil body as a literal" do
+      source = ~S'''
+      defmodule Planted do
+        def render(assigns) do
+          ~H"""
+          <p class="sg-note">
+            Heading text
+          </p>
+          """
+        end
+      end
+      '''
+
+      assert CopyInventory.library_rows_from_source(source, "planted.ex") ==
+               [{"planted.ex", "heex_text", "Heading text"}]
+    end
+
+    test "a source that does not parse raises with the file name instead of being skipped" do
+      assert_raise ArgumentError, ~r/planted_broken\.ex: could not parse/, fn ->
+        CopyInventory.library_rows_from_source("defmodule Broken do", "planted_broken.ex")
+      end
+    end
+  end
+
   describe "diff_rows/2 positive control" do
     test "reports exactly the planted extra row and the planted missing row" do
       fresh = CopyInventory.extract(:host)

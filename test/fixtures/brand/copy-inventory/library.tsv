@@ -1,0 +1,336 @@
+# test/fixtures/brand/copy-inventory/library.tsv - copy inventory, library lane
+#
+# WHY THIS FILE EXISTS
+# Every user-visible string Sigra ships in this ownership lane. A copy change shows up
+# as a reviewed diff of this file instead of passing silently. The inventory test
+# asserts this file equals a fresh extraction of the sources, exactly.
+#
+# FORMAT
+# file<TAB>kind<TAB>string. Sorted, unique, no line numbers. A tab, newline, carriage
+# return or backslash inside a string is written as \t, \n, \r or \\.
+# Lines starting with '#' are skipped on read.
+#
+# DO NOT HAND-EDIT. Regenerate with:
+#   SIGRA_BRAND_COPY=regen mix test test/sigra/brand/copy_inventory_test.exs
+lib/sigra/admin/audit/presenter.ex	literal	#{user_label(actor, event.actor_id)} acting as #{user_label(effective_user, event.effective_user_id)}
+lib/sigra/admin/audit/presenter.ex	literal	Impersonation
+lib/sigra/admin/audit/presenter.ex	literal	Impersonation denied
+lib/sigra/admin/audit/presenter.ex	literal	Impersonation ended
+lib/sigra/admin/audit/presenter.ex	literal	Impersonation started
+lib/sigra/admin/audit/presenter.ex	literal	Impersonation timed out
+lib/sigra/admin/audit/presenter.ex	literal	Unknown user
+lib/sigra/admin/components.ex	heex_text	Actor:
+lib/sigra/admin/components.ex	heex_text	Confirm email
+lib/sigra/admin/components.ex	heex_text	Confirm your email address by clicking the button below.
+lib/sigra/admin/components.ex	heex_text	Effective user:
+lib/sigra/admin/components.ex	heex_text	Email
+lib/sigra/admin/components.ex	heex_text	Email preview
+lib/sigra/admin/components.ex	heex_text	Event codes
+lib/sigra/admin/components.ex	heex_text	Log in
+lib/sigra/admin/components.ex	heex_text	Next page
+lib/sigra/admin/components.ex	heex_text	Page
+lib/sigra/admin/components.ex	heex_text	Previous page
+lib/sigra/admin/components.ex	heex_text	Send magic link
+lib/sigra/admin/components.ex	heex_text	Sign-in preview
+lib/sigra/admin/components.ex	heex_text	Use a magic link, passkey, password, or enterprise SSO.
+lib/sigra/admin/components.ex	heex_text	remove
+lib/sigra/admin/components.ex	literal	#{count} #{label}s
+lib/sigra/admin/components.ex	literal	#{div(diff, 3600)}h ago
+lib/sigra/admin/components.ex	literal	#{div(diff, 60)}m ago
+lib/sigra/admin/components.ex	literal	#{div(diff, 86400)}d ago
+lib/sigra/admin/components.ex	literal	1 #{label}
+lib/sigra/admin/components.ex	literal	Not available
+lib/sigra/admin/components.ex	literal	just now
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Action prefix
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Active filters
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Actor
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Any
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Apply filters
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Audit
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Audit events appear here as activity is recorded. Adjust the filters above to focus on a specific actor, outcome, or time range.
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Audit evidence
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Clear
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Clear all
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Clear all filters
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Effective user
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Event
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Export CSV
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Failure
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Failures
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Impersonation
+lib/sigra/admin/live/audit_index_live.ex	heex_text	No audit events match the active filters. Clear one or more to widen the timeline.
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Occurred
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Occurred from
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Occurred to
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Outcome
+lib/sigra/admin/live/audit_index_live.ex	heex_text	Success
+lib/sigra/admin/live/audit_index_live.ex	literal	#{name} Audit
+lib/sigra/admin/live/audit_index_live.ex	literal	Action: 
+lib/sigra/admin/live/audit_index_live.ex	literal	Actor: 
+lib/sigra/admin/live/audit_index_live.ex	literal	Audit
+lib/sigra/admin/live/audit_index_live.ex	literal	Effective user: 
+lib/sigra/admin/live/audit_index_live.ex	literal	Failure
+lib/sigra/admin/live/audit_index_live.ex	literal	From: 
+lib/sigra/admin/live/audit_index_live.ex	literal	Global audit explorer
+lib/sigra/admin/live/audit_index_live.ex	literal	Organization-scoped audit explorer for #{name}
+lib/sigra/admin/live/audit_index_live.ex	literal	Outcome: 
+lib/sigra/admin/live/audit_index_live.ex	literal	Success
+lib/sigra/admin/live/audit_index_live.ex	literal	To: 
+lib/sigra/admin/live/audit_index_live.ex	literal	We couldn't load this audit view. Refresh the page, then try again.
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Action prefix
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Active filters
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Actor
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Any
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Apply filters
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Clear
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Clear all
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Clear all filters
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Event
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Export CSV
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Failure
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Failures
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Filter this user's scoped event history, distinguish support actions from user actions, and export evidence.
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Impersonation
+lib/sigra/admin/live/audit_user_live.ex	heex_text	No scoped events are currently tied to this user.
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Occurred
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Occurred from
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Occurred to
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Outcome
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Success
+lib/sigra/admin/live/audit_user_live.ex	heex_text	User audit evidence
+lib/sigra/admin/live/audit_user_live.ex	literal	#{detail.display_name || detail.user.email} audit
+lib/sigra/admin/live/audit_user_live.ex	literal	Action: 
+lib/sigra/admin/live/audit_user_live.ex	literal	Actor: 
+lib/sigra/admin/live/audit_user_live.ex	literal	Audit
+lib/sigra/admin/live/audit_user_live.ex	literal	Failure
+lib/sigra/admin/live/audit_user_live.ex	literal	From: 
+lib/sigra/admin/live/audit_user_live.ex	literal	Global audit explorer
+lib/sigra/admin/live/audit_user_live.ex	literal	Organization-scoped audit explorer for #{name}
+lib/sigra/admin/live/audit_user_live.ex	literal	Outcome: 
+lib/sigra/admin/live/audit_user_live.ex	literal	Overview
+lib/sigra/admin/live/audit_user_live.ex	literal	Success
+lib/sigra/admin/live/audit_user_live.ex	literal	To: 
+lib/sigra/admin/live/audit_user_live.ex	literal	User audit
+lib/sigra/admin/live/audit_user_live.ex	literal	Users
+lib/sigra/admin/live/audit_user_live.ex	literal	We couldn't load this user's audit history. Refresh the page, then try again.
+lib/sigra/admin/live/branding_live.ex	heex_text	Auth forms and emails
+lib/sigra/admin/live/branding_live.ex	heex_text	Brand tokens
+lib/sigra/admin/live/branding_live.ex	heex_text	Branding
+lib/sigra/admin/live/branding_live.ex	heex_text	Cancel
+lib/sigra/admin/live/branding_live.ex	heex_text	Controls identity, links, email sender defaults, and the generated theme mode.
+lib/sigra/admin/live/branding_live.ex	heex_text	Dark
+lib/sigra/admin/live/branding_live.ex	heex_text	Dark palette
+lib/sigra/admin/live/branding_live.ex	heex_text	Details
+lib/sigra/admin/live/branding_live.ex	heex_text	Discard changes
+lib/sigra/admin/live/branding_live.ex	heex_text	Light
+lib/sigra/admin/live/branding_live.ex	heex_text	Light palette
+lib/sigra/admin/live/branding_live.ex	heex_text	Profile details
+lib/sigra/admin/live/branding_live.ex	heex_text	Restore config defaults
+lib/sigra/admin/live/branding_live.ex	heex_text	Restore defaults
+lib/sigra/admin/live/branding_live.ex	heex_text	Restore defaults?
+lib/sigra/admin/live/branding_live.ex	heex_text	Save profile
+lib/sigra/admin/live/branding_live.ex	heex_text	Shown on generated auth screens when Light is selected.
+lib/sigra/admin/live/branding_live.ex	heex_text	Shown when Dark is selected, or when System resolves dark.
+lib/sigra/admin/live/branding_live.ex	heex_text	Source:
+lib/sigra/admin/live/branding_live.ex	heex_text	This removes the saved admin branding changes and uses the app's configured defaults for generated auth screens and emails. Unsaved preview changes will also be discarded.
+lib/sigra/admin/live/branding_live.ex	heex_text	Tune the generated sign-in, account, invitation, and transactional email defaults without replacing the host-owned templates.
+lib/sigra/admin/live/branding_live.ex	heex_text	Unsaved preview
+lib/sigra/admin/live/branding_live.ex	literal	#{field}: #{Enum.join(errors, ", ")}
+lib/sigra/admin/live/branding_live.ex	literal	Accent
+lib/sigra/admin/live/branding_live.ex	literal	Accent is blank, so Sigra derived #{hex} from the light accent to meet contrast against this surface. Set an accent above to pin your own.
+lib/sigra/admin/live/branding_live.ex	literal	Accent is blank, so the light accent #{hex} is used unchanged - it already meets contrast against this surface.
+lib/sigra/admin/live/branding_live.ex	literal	Accent is pinned to #{hex}. An explicit dark accent is never adjusted.
+lib/sigra/admin/live/branding_live.ex	literal	Admin profile
+lib/sigra/admin/live/branding_live.ex	literal	Auth branding
+lib/sigra/admin/live/branding_live.ex	literal	Auth branding profile saved.
+lib/sigra/admin/live/branding_live.ex	literal	Auth branding restored to config defaults.
+lib/sigra/admin/live/branding_live.ex	literal	Background
+lib/sigra/admin/live/branding_live.ex	literal	Border
+lib/sigra/admin/live/branding_live.ex	literal	Config defaults
+lib/sigra/admin/live/branding_live.ex	literal	Could not save auth branding. Check the values and try again.
+lib/sigra/admin/live/branding_live.ex	literal	Global auth/email profile
+lib/sigra/admin/live/branding_live.ex	literal	Muted
+lib/sigra/admin/live/branding_live.ex	literal	On accent
+lib/sigra/admin/live/branding_live.ex	literal	Sigra auth branding
+lib/sigra/admin/live/branding_live.ex	literal	Surface
+lib/sigra/admin/live/branding_live.ex	literal	Text
+lib/sigra/admin/live/branding_live.ex	literal	Unsaved branding changes discarded.
+lib/sigra/admin/live/index_live.ex	heex_text	Admin overview
+lib/sigra/admin/live/index_live.ex	heex_text	No flagged accounts
+lib/sigra/admin/live/index_live.ex	heex_text	Review users
+lib/sigra/admin/live/index_live.ex	heex_text	Start from the job at hand — find a user, investigate an event, or review risky users.
+lib/sigra/admin/live/index_live.ex	heex_text	User snapshot
+lib/sigra/admin/live/index_live.ex	heex_text	What do you need to do?
+lib/sigra/admin/live/index_live.ex	heex_text	users need review —
+lib/sigra/admin/live/index_live.ex	literal	#{month_count} this month
+lib/sigra/admin/live/index_live.ex	literal	Global overview
+lib/sigra/admin/live/index_live.ex	literal	Sigra admin overview
+lib/sigra/admin/live/organization_live.ex	heex_text	Deletion scheduled
+lib/sigra/admin/live/organization_live.ex	heex_text	Expired
+lib/sigra/admin/live/organization_live.ex	heex_text	Expires
+lib/sigra/admin/live/organization_live.ex	heex_text	Invitations appear here when members are invited to this organization.
+lib/sigra/admin/live/organization_live.ex	heex_text	Locked
+lib/sigra/admin/live/organization_live.ex	heex_text	Members
+lib/sigra/admin/live/organization_live.ex	heex_text	Members appear here as people join this organization.
+lib/sigra/admin/live/organization_live.ex	heex_text	No flagged accounts
+lib/sigra/admin/live/organization_live.ex	heex_text	Organization overview
+lib/sigra/admin/live/organization_live.ex	heex_text	Pending invitations
+lib/sigra/admin/live/organization_live.ex	heex_text	Unconfirmed
+lib/sigra/admin/live/organization_live.ex	heex_text	Work inside this organization scope: support members, inspect security posture, and review audit evidence without losing tenant context.
+lib/sigra/admin/live/organization_live.ex	heex_text	review — Review members
+lib/sigra/admin/live/organization_live.ex	literal	#{organization_name} overview
+lib/sigra/admin/live/organization_live.ex	literal	Admin
+lib/sigra/admin/live/organization_live.ex	literal	Member
+lib/sigra/admin/live/organization_live.ex	literal	Organization
+lib/sigra/admin/live/organization_live.ex	literal	Owner
+lib/sigra/admin/live/organization_live.ex	literal	Sigra organization admin overview
+lib/sigra/admin/live/user_sessions_live.ex	heex_text	Action
+lib/sigra/admin/live/user_sessions_live.ex	heex_text	IP address
+lib/sigra/admin/live/user_sessions_live.ex	heex_text	Last activity
+lib/sigra/admin/live/user_sessions_live.ex	heex_text	Revoke all sessions
+lib/sigra/admin/live/user_sessions_live.ex	heex_text	Revoke session
+lib/sigra/admin/live/user_sessions_live.ex	heex_text	Sessions
+lib/sigra/admin/live/user_sessions_live.ex	heex_text	This user has no active sessions in the current scope.
+lib/sigra/admin/live/user_sessions_live.ex	heex_text	Type
+lib/sigra/admin/live/user_sessions_live.ex	literal	#{detail.display_name || detail.user.email} sessions
+lib/sigra/admin/live/user_sessions_live.ex	literal	All active sessions revoked.
+lib/sigra/admin/live/user_sessions_live.ex	literal	Cancel
+lib/sigra/admin/live/user_sessions_live.ex	literal	Global user operations
+lib/sigra/admin/live/user_sessions_live.ex	literal	Invalid session reference.
+lib/sigra/admin/live/user_sessions_live.ex	literal	Organization-scoped user operations for #{name}
+lib/sigra/admin/live/user_sessions_live.ex	literal	Overview
+lib/sigra/admin/live/user_sessions_live.ex	literal	Revoke
+lib/sigra/admin/live/user_sessions_live.ex	literal	Revoke all sessions?
+lib/sigra/admin/live/user_sessions_live.ex	literal	Revoke this session?
+lib/sigra/admin/live/user_sessions_live.ex	literal	Session revoked.
+lib/sigra/admin/live/user_sessions_live.ex	literal	Sessions
+lib/sigra/admin/live/user_sessions_live.ex	literal	The user will be signed out of all active sessions immediately. If any sessions were compromised, they must sign in again with verified credentials to re-establish access.
+lib/sigra/admin/live/user_sessions_live.ex	literal	The user will be signed out of this session immediately. If this session was compromised, they must sign in again with verified credentials to re-establish access.
+lib/sigra/admin/live/user_sessions_live.ex	literal	Users
+lib/sigra/admin/live/user_show_live.ex	heex_text	Danger zone
+lib/sigra/admin/live/user_show_live.ex	heex_text	End impersonation before starting another session.
+lib/sigra/admin/live/user_show_live.ex	heex_text	IP address
+lib/sigra/admin/live/user_show_live.ex	heex_text	Identities
+lib/sigra/admin/live/user_show_live.ex	heex_text	Last activity
+lib/sigra/admin/live/user_show_live.ex	heex_text	Last seen
+lib/sigra/admin/live/user_show_live.ex	heex_text	Linked identities are not available for this app.
+lib/sigra/admin/live/user_show_live.ex	heex_text	MFA
+lib/sigra/admin/live/user_show_live.ex	heex_text	Manage sessions
+lib/sigra/admin/live/user_show_live.ex	heex_text	No audit events are associated with this user in the current scope.
+lib/sigra/admin/live/user_show_live.ex	heex_text	No external identities are associated with this user.
+lib/sigra/admin/live/user_show_live.ex	heex_text	No organizations are associated with this user.
+lib/sigra/admin/live/user_show_live.ex	heex_text	No sessions are associated with this user in the current scope.
+lib/sigra/admin/live/user_show_live.ex	heex_text	Open organization-scoped view for
+lib/sigra/admin/live/user_show_live.ex	heex_text	Organization
+lib/sigra/admin/live/user_show_live.ex	heex_text	Organizations
+lib/sigra/admin/live/user_show_live.ex	heex_text	Passkeys
+lib/sigra/admin/live/user_show_live.ex	heex_text	Recent audit
+lib/sigra/admin/live/user_show_live.ex	heex_text	Security
+lib/sigra/admin/live/user_show_live.ex	heex_text	Sessions
+lib/sigra/admin/live/user_show_live.ex	heex_text	Shows the most recent events. Open the full audit to filter and export.
+lib/sigra/admin/live/user_show_live.ex	heex_text	Start impersonation
+lib/sigra/admin/live/user_show_live.ex	heex_text	Support actions affect in .
+lib/sigra/admin/live/user_show_live.ex	heex_text	Type
+lib/sigra/admin/live/user_show_live.ex	heex_text	User detail
+lib/sigra/admin/live/user_show_live.ex	heex_text	View all organizations
+lib/sigra/admin/live/user_show_live.ex	heex_text	View full audit
+lib/sigra/admin/live/user_show_live.ex	literal	Confirmed
+lib/sigra/admin/live/user_show_live.ex	literal	Deletion scheduled
+lib/sigra/admin/live/user_show_live.ex	literal	Email unconfirmed — the user cannot complete sign-in.
+lib/sigra/admin/live/user_show_live.ex	literal	Enabled
+lib/sigra/admin/live/user_show_live.ex	literal	Global user operations
+lib/sigra/admin/live/user_show_live.ex	literal	Locked
+lib/sigra/admin/live/user_show_live.ex	literal	Locked — revoke active sessions and unlock below.
+lib/sigra/admin/live/user_show_live.ex	literal	MFA + passkeys
+lib/sigra/admin/live/user_show_live.ex	literal	No MFA
+lib/sigra/admin/live/user_show_live.ex	literal	No MFA configured — ask the user to set up a second factor.
+lib/sigra/admin/live/user_show_live.ex	literal	Not configured
+lib/sigra/admin/live/user_show_live.ex	literal	Organization-scoped user operations for #{name}
+lib/sigra/admin/live/user_show_live.ex	literal	Overview
+lib/sigra/admin/live/user_show_live.ex	literal	Passkeys
+lib/sigra/admin/live/user_show_live.ex	literal	Unconfirmed
+lib/sigra/admin/live/user_show_live.ex	literal	User
+lib/sigra/admin/live/user_show_live.ex	literal	Users
+lib/sigra/admin/live/users_index_live.ex	heex_text	&middot; Page of
+lib/sigra/admin/live/users_index_live.ex	heex_text	Action
+lib/sigra/admin/live/users_index_live.ex	heex_text	Activity
+lib/sigra/admin/live/users_index_live.ex	heex_text	Any
+lib/sigra/admin/live/users_index_live.ex	heex_text	Clear
+lib/sigra/admin/live/users_index_live.ex	heex_text	Clear all
+lib/sigra/admin/live/users_index_live.ex	heex_text	Clear all filters
+lib/sigra/admin/live/users_index_live.ex	heex_text	Find users
+lib/sigra/admin/live/users_index_live.ex	heex_text	GitHub
+lib/sigra/admin/live/users_index_live.ex	heex_text	Google
+lib/sigra/admin/live/users_index_live.ex	heex_text	Local
+lib/sigra/admin/live/users_index_live.ex	heex_text	More filters
+lib/sigra/admin/live/users_index_live.ex	heex_text	Next page
+lib/sigra/admin/live/users_index_live.ex	heex_text	No users match the active filters. Clear them to widen the result set.
+lib/sigra/admin/live/users_index_live.ex	heex_text	Open user
+lib/sigra/admin/live/users_index_live.ex	heex_text	Organization
+lib/sigra/admin/live/users_index_live.ex	heex_text	Organizations
+lib/sigra/admin/live/users_index_live.ex	heex_text	Previous page
+lib/sigra/admin/live/users_index_live.ex	heex_text	Provider
+lib/sigra/admin/live/users_index_live.ex	heex_text	Registered
+lib/sigra/admin/live/users_index_live.ex	heex_text	Registered from
+lib/sigra/admin/live/users_index_live.ex	heex_text	Registered to
+lib/sigra/admin/live/users_index_live.ex	heex_text	Search
+lib/sigra/admin/live/users_index_live.ex	heex_text	Showing &ndash; of users
+lib/sigra/admin/live/users_index_live.ex	heex_text	Status
+lib/sigra/admin/live/users_index_live.ex	heex_text	User
+lib/sigra/admin/live/users_index_live.ex	heex_text	User health
+lib/sigra/admin/live/users_index_live.ex	heex_text	User operations
+lib/sigra/admin/live/users_index_live.ex	heex_text	Users appear here as people register and sign in. Once users exist, you can search, filter, and open any user.
+lib/sigra/admin/live/users_index_live.ex	literal	#{label}: #{Map.get(user, field)}
+lib/sigra/admin/live/users_index_live.ex	literal	#{label}: #{value}
+lib/sigra/admin/live/users_index_live.ex	literal	#{name} Users
+lib/sigra/admin/live/users_index_live.ex	literal	#{name} users
+lib/sigra/admin/live/users_index_live.ex	literal	#{percent_of(count, total)}% of total users
+lib/sigra/admin/live/users_index_live.ex	literal	Deletion scheduled
+lib/sigra/admin/live/users_index_live.ex	literal	Global user operations
+lib/sigra/admin/live/users_index_live.ex	literal	Last activity: 
+lib/sigra/admin/live/users_index_live.ex	literal	Last activity: None recorded
+lib/sigra/admin/live/users_index_live.ex	literal	Locked
+lib/sigra/admin/live/users_index_live.ex	literal	Needs review
+lib/sigra/admin/live/users_index_live.ex	literal	No MFA
+lib/sigra/admin/live/users_index_live.ex	literal	Organization-scoped user operations for #{name}
+lib/sigra/admin/live/users_index_live.ex	literal	Organization: 
+lib/sigra/admin/live/users_index_live.ex	literal	Passkeys
+lib/sigra/admin/live/users_index_live.ex	literal	Provider: 
+lib/sigra/admin/live/users_index_live.ex	literal	Registered from: 
+lib/sigra/admin/live/users_index_live.ex	literal	Registered to: 
+lib/sigra/admin/live/users_index_live.ex	literal	Registered: 
+lib/sigra/admin/live/users_index_live.ex	literal	Search: 
+lib/sigra/admin/live/users_index_live.ex	literal	Showing all #{total} #{if total == 1 do "user" else "users" end}
+lib/sigra/admin/live/users_index_live.ex	literal	Unconfirmed
+lib/sigra/admin/live/users_index_live.ex	literal	User operations
+lib/sigra/admin/live/users_index_live.ex	literal	Users
+lib/sigra/admin/live/users_index_live.ex	literal	We couldn't load this user data. Refresh the page, then try again.
+lib/sigra/admin/users/detail.ex	literal	Global scope
+lib/sigra/admin/users/query.ex	literal	No organizations
+lib/sigra/error.ex	literal	All backup codes have been used.
+lib/sigra/error.ex	literal	Authentication expired. Please try again.
+lib/sigra/error.ex	literal	Could not complete enterprise sign in. Please contact your administrator.
+lib/sigra/error.ex	literal	Could not complete sign in.
+lib/sigra/error.ex	literal	Could not sign in with the selected provider. Please try again or use another method.
+lib/sigra/error.ex	literal	Enterprise sign-in is currently unavailable. Please try again or contact support.
+lib/sigra/error.ex	literal	Invalid confirmation code. Please try again.
+lib/sigra/error.ex	literal	Invalid email or password.
+lib/sigra/error.ex	literal	Invalid email or password. Too many attempts. Try again in a few minutes.
+lib/sigra/error.ex	literal	Invalid verification code.
+lib/sigra/error.ex	literal	Multi-factor authentication is required.
+lib/sigra/error.ex	literal	Something went wrong. Please try again.
+lib/sigra/error.ex	literal	This confirmation link has expired or was already used.
+lib/sigra/error.ex	literal	This link has expired. Please request a new one.
+lib/sigra/error.ex	literal	This link is invalid. Please request a new one.
+lib/sigra/error.ex	literal	This password reset link has expired or was already used.
+lib/sigra/error.ex	literal	This token has been revoked.
+lib/sigra/error.ex	literal	Too many attempts. Try again in a few minutes.
+lib/sigra/error.ex	literal	Too many failed attempts. Try again later.
+lib/sigra/error.ex	literal	Too many requests. Please try again later.
+lib/sigra/error.ex	literal	Two-factor authentication enrollment is required.
+lib/sigra/error.ex	literal	Two-factor authentication is already enabled.
+lib/sigra/error.ex	literal	Two-factor authentication is not enabled.
+lib/sigra/error.ex	literal	We need your email to create an account. Please grant email permission and try again.
+lib/sigra/error.ex	literal	You do not have permission to perform this action.
+lib/sigra/error.ex	literal	You must confirm your email before continuing.
+lib/sigra/error.ex	literal	Your email is already confirmed.
