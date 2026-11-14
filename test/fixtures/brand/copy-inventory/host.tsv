@@ -1,0 +1,18 @@
+# test/fixtures/brand/copy-inventory/host.tsv - copy inventory, host lane
+#
+# WHY THIS FILE EXISTS
+# Every user-visible string Sigra ships in this ownership lane. A copy change shows up
+# as a reviewed diff of this file instead of passing silently. The inventory test
+# asserts this file equals a fresh extraction of the sources, exactly.
+#
+# FORMAT
+# file<TAB>kind<TAB>string. Sorted, unique, no line numbers. A tab, newline, carriage
+# return or backslash inside a string is written as \t, \n, \r or \\.
+# Lines starting with '#' are skipped on read.
+#
+# DO NOT HAND-EDIT. Regenerate with:
+#   SIGRA_BRAND_COPY=regen mix test test/sigra/brand/copy_inventory_test.exs
+(host-owned CSS and logos)	lane_note	no Sigra copy by design: host-owned CSS and logos carry no Sigra copy, and the Tasklane demo app is out of lane
+lib/sigra/branding/profile.ex	profile_default:email_from_name	Your app
+lib/sigra/branding/profile.ex	profile_default:logo_alt	Application logo
+lib/sigra/branding/profile.ex	profile_default:product_name	Your app
