@@ -10,7 +10,7 @@ requires:
 provides:
   - CLAUDE.md (Admin UI Direction) and AGENTS.md (brand bullet) point at the v1.51 brand book in brand/ (brand/BRAND.md, brand/tokens.json) instead of the retired brandbook/ source
   - guides/reference/admin-ui-principles.md and admin-design-contract.md retired pointer lines replaced, with explicit "token values move in a later phase" wording and no alignment claim
-  - test/sigra/brand/instruction_pointers_test.exs, Sigra.Brand.InstructionPointersTest - 12 tests over four files with planted-string positive controls
+  - test/sigra/brand/instruction_pointers_test.exs, Sigra.Brand.InstructionPointersTest - 11 tests over four files with planted-string positive controls
   - two pending todos for the pointers the approval does not cover
 affects: [260, 261, 262, 263]
 
@@ -150,7 +150,7 @@ None.
 ## Verification Results
 
 - `mix test test/sigra/brand test/sigra/architecture_guides_contract_test.exs`: 220 tests, 0 failures
-- `mix test test/sigra/brand/instruction_pointers_test.exs`: 12 tests, 0 failures (RED run before the edits showed 3 failures, then green)
+- `mix test test/sigra/brand/instruction_pointers_test.exs`: 11 tests, 0 failures (the RED run before the Task 1 edits, at 10 tests with the two-file scope, showed 3 failures, then green)
 - Zero shipped bytes (Verification item 2): `lib`, `priv`, `brandbook`, `brand`, `.github`, `scripts`, `mix.exs` and `doc/llms.txt` unchanged against `aeda7273d`, with a non-empty instruction-file diff as the positive control
 - Privacy gate (item 3): no `/Users/...` or `/home/...` path in the diff, planted-failure control matches
 - `mix format --check-formatted`: exit 0

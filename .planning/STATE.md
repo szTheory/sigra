@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 259
 current_phase_name: Compatibility Policy, Pinned Source and Copy Contract
-current_plan: 9
+current_plan: 10
 status: executing
-stopped_at: Completed 259-08-PLAN.md
-last_updated: "2026-11-14T16:50:18.959Z"
+stopped_at: Completed 259-09-PLAN.md
+last_updated: "2026-11-14T16:55:17.243Z"
 last_activity: 2026-11-13
 last_activity_desc: v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
-state_head: 89000f7b9fd73c53035acf667d76257ebe01e5de
+state_head: 41ed41991b92fa707f0913cdc083f56bf8f2b3cc
 progress:
   total_phases: 5
   completed_phases: 0
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 259 (Compatibility Policy, Pinned Source and Copy Contract) — EXECUTING
-Current Plan: 9
+Current Plan: 10
 Total Plans in Phase: 13
 Status: Ready to execute
 Last activity: 2026-11-13 — v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-14T16:50:18.929Z
-Stopped at: Completed 259-08-PLAN.md
+Last session: 2026-11-14T16:55:17.211Z
+Stopped at: Completed 259-09-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
@@ -126,6 +126,7 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 | Phase 259 P06 | 12 min | 3 tasks | 5 files |
 | Phase 259 P07 | 16min | 3 tasks | 2 files |
 | Phase 259 P08 | 14min | 2 tasks | 3 files |
+| Phase 259 P09 | 11 min | 2 tasks | 7 files |
 
 ## Decisions
 
@@ -147,3 +148,5 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 - [Phase 259]: 259-08: copy-baseline hits are a multiset (a repeated violating line needs a repeated entry) and carry the matched copy segment, not line numbers or whole source lines
 - [Phase 259]: 259-08: admin and generated scopes share one copy-segment scanner (strings, HEEx text, six copy attrs); identifiers, routes, atoms, comments and docs never match; admin keeps the auth-replica carve-out
 - [Phase 259]: 259-08: derived brand avoid-words exclude ordinary English (delete, cancel, disable, group, scope, target, subject, suspend, host, consumer) and parenthetical-qualified entries
+- [Phase 259]: [259-09] Instruction-file pointer fix landed under the 2026-11-13 owner approval (BPOL-06): CLAUDE.md changed by one line, AGENTS.md and both admin guides point at brand/, and wording says token names stay while values move in a later phase (no alignment claim).
+- [Phase 259]: [259-09] test/example/AGENTS.md (no brandbook path) and the orphaned lens guide, scorecard and panel lenses pointers were NOT edited; filed as two pending todos for the owner to assign or extend the approval.
