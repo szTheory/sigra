@@ -1,0 +1,345 @@
+defmodule ExampleWeb.EnumerationParityTest do
+  @moduledoc """
+  Enumeration-boundary parity harness for the pre-auth surfaces (BCOPY-03).
+
+  The registry `test/fixtures/brand/public-surfaces.json` names every pre-auth
+  surface and the state it is asserted in:
+
+    * `parity` - the SAME request for an existing identity and an unknown
+      identity must compare `:same` on the dimensions the row lists.
+    * `known_divergence` - the two responses are known to differ today. The test
+      asserts they STILL differ, so fixing the product forces the registry row
+      to be removed or changed (shrink discipline).
+    * `by_design` - the documented behaviour is asserted.
+    * `not_proven` - no assertion exists; the row cites the file:line that
+      prevents a deterministic probe.
+
+  One pure comparator (`compare/3`) returns `:same` or `{:diff, details}`. The
+  only normalization is CSRF tokens, request ids and the echoed email; it is
+  never loosened to hide a real difference.
+
+  A positive control (`run_all/2` with `leak: {surface_id, text}`) appends a
+  deliberately leaky string to the unknown-identity response of exactly one
+  surface and proves the harness goes red exactly once. The leak lives in this
+  test module only; there is no leak switch in app code.
+
+  ## What this does NOT prove
+
+  These tests run in the example host (`test/example`), a hand-maintained copy
+  of the generated host that already drifts from the generated templates. Only
+  `install_smoke` proves a generated host. A `parity` row is bounded to the
+  dimensions it lists, for one request, and is not a claim that a surface is
+  enumeration-safe in general (timing, repeat attempts and account states that
+  are not listed are not compared).
+  """
+  use ExampleWeb.ConnCase, async: false
+
+  import Example.AccountsFixtures
+
+  @moduletag :example_app
+
+  @registry_path Path.expand("../../../fixtures/brand/public-surfaces.json", __DIR__)
+  @schema_version "sigra.brand-public-surfaces/v1"
+  @states ~w(parity known_divergence by_design not_proven)
+  @kinds ~w(controller liveview json library)
+  @row_keys ~w(id route kind compare state note todo blocker)
+  @dimensions %{
+    "status" => :status,
+    "redirect" => :location,
+    "flash" => :flash,
+    "body" => :body,
+    "json_keys" => :json_keys
+  }
+  @leak_text "No account found for"
+  @blocker_shape ~r/[\w.\/-]+:\d+/
+
+  # ---------------------------------------------------------------------------
+  # Registry
+  # ---------------------------------------------------------------------------
+
+  describe "registry" do
+    test "decodes, carries the example-host limitation and every row is well formed" do
+      registry = registry()
+
+      assert registry["schema_version"] == @schema_version
+      assert is_binary(registry["note"])
+      assert registry["note"] =~ "hand-maintained copy of the generated host"
+      assert registry["note"] =~ "install_smoke"
+
+      rows = registry["surfaces"]
+      assert is_list(rows) and rows != []
+
+      for row <- rows do
+        id = inspect(row["id"])
+
+        for key <- @row_keys do
+          assert Map.has_key?(row, key), "row #{id} is missing key #{key}"
+        end
+
+        assert is_binary(row["id"]) and row["id"] != "", "row #{id} needs a string id"
+        assert is_binary(row["route"]) and row["route"] != "", "row #{id} needs a route"
+        assert row["kind"] in @kinds, "row #{id} has kind #{inspect(row["kind"])}"
+        assert row["state"] in @states, "row #{id} has state #{inspect(row["state"])}"
+        assert is_binary(row["note"]) and row["note"] != "", "row #{id} needs a note"
+        assert is_list(row["compare"]), "row #{id} compare must be a list"
+
+        for dimension <- row["compare"] do
+          assert Map.has_key?(@dimensions, dimension),
+                 "row #{id} compares unknown dimension #{inspect(dimension)}"
+        end
+
+        if row["state"] in ~w(parity known_divergence by_design) do
+          assert row["compare"] != [], "row #{id} asserts a state but lists no dimension"
+        end
+
+        assert is_nil(row["todo"]) or is_binary(row["todo"]),
+               "row #{id} todo must be null or a path string"
+
+        assert_blocker_rule(row)
+      end
+
+      ids = Enum.map(rows, & &1["id"])
+      assert ids == Enum.uniq(ids), "registry ids must be unique"
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Comparator and normalization (pure)
+  # ---------------------------------------------------------------------------
+
+  describe "comparator" do
+    test "returns :same for equal normalized responses" do
+      a = response(status: 302, location: "/users/log_in", flash: %{"error" => "x"}, body: "b")
+      b = response(status: 302, location: "/users/log_in", flash: %{"error" => "x"}, body: "b")
+
+      assert compare(a, b, all_dimensions()) == :same
+    end
+
+    test "returns {:diff, details} naming the dimension for a planted difference" do
+      a = response(flash: %{"error" => "Invalid email or password"})
+      b = response(flash: %{"error" => "No account found for that email"})
+
+      assert {:diff, [{:flash, left, right}]} = compare(a, b, all_dimensions())
+      assert left == %{"error" => "Invalid email or password"}
+      assert right == %{"error" => "No account found for that email"}
+    end
+
+    test "compares only the dimensions the registry row lists" do
+      a = response(status: 302, body: "same")
+      b = response(status: 200, body: "same")
+
+      assert compare(a, b, [:body]) == :same
+      assert {:diff, [{:status, 302, 200}]} = compare(a, b, [:status, :body])
+    end
+  end
+
+  describe "normalization" do
+    test "replaces only CSRF tokens, request ids and the echoed email" do
+      email = "person-1@example.com"
+
+      raw =
+        ~s(<meta name="csrf-token" content="abc123XYZ"> ) <>
+          ~s(<input name="_csrf_token" type="hidden" hidden value="zzz999QQQ"> ) <>
+          ~s(<input type="email" value="#{email}"> ) <>
+          ~s(request_id=F9xk2Lw0aBcDeF12 ) <>
+          "No account found for #{email}"
+
+      normalized = normalize(response(body: raw), email).body
+
+      assert normalized =~ ~s(content="{{CSRF}}")
+      assert normalized =~ ~s(value="{{CSRF}}")
+      assert normalized =~ ~s(value="{{EMAIL}}")
+      assert normalized =~ "request_id={{REQUEST_ID}}"
+      refute normalized =~ "abc123XYZ"
+      refute normalized =~ "zzz999QQQ"
+      refute normalized =~ email
+      # A real difference survives normalization: only the email inside the
+      # sentence is replaced, the leaky wording is not hidden.
+      assert normalized =~ "No account found for {{EMAIL}}"
+    end
+
+    test "does not hide a difference in unrelated content" do
+      email = "person-2@example.com"
+      a = normalize(response(body: "Invalid email or password"), email)
+      b = normalize(response(body: "Invalid email or password. Account locked."), email)
+
+      assert {:diff, [{:body, _, _}]} = compare(a, b, all_dimensions())
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Surfaces: parity, positive control
+  # ---------------------------------------------------------------------------
+
+  describe "parity surfaces" do
+    test "every parity row compares :same for an existing versus an unknown identity" do
+      results = run_all(registry())
+      parity_ids = for %{"state" => "parity", "id" => id} <- surfaces(), do: id
+
+      assert Enum.sort(Enum.map(results, &elem(&1, 0))) == Enum.sort(parity_ids)
+
+      failures = for {id, {:diff, details}} <- results, do: "#{id}: #{inspect_diff(details)}"
+      assert failures == [], "parity rows differ:\n" <> Enum.join(failures, "\n")
+    end
+  end
+
+  describe "positive control" do
+    test "a leak on exactly one parity surface yields exactly one diff" do
+      registry = registry()
+
+      clean = run_all(registry)
+      assert clean != []
+      assert Enum.all?(clean, fn {_id, result} -> result == :same end)
+
+      leaked = run_all(registry, leak: {"password-signin", @leak_text})
+      diffs = for {id, {:diff, details}} <- leaked, do: {id, details}
+
+      assert [{"password-signin", details}] = diffs, "expected one diff, got: #{inspect(diffs)}"
+      assert Enum.any?(details, &match?({:body, _, _}, &1))
+      assert Enum.any?(details, &match?({:flash, _, _}, &1))
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Harness
+  # ---------------------------------------------------------------------------
+
+  defp registry, do: @registry_path |> File.read!() |> JSON.decode!()
+  defp surfaces, do: registry()["surfaces"]
+  defp all_dimensions, do: Map.values(@dimensions)
+
+  defp dimensions(row), do: Enum.map(row["compare"], &Map.fetch!(@dimensions, &1))
+
+  defp assert_blocker_rule(%{"state" => "not_proven"} = row) do
+    id = inspect(row["id"])
+
+    assert is_binary(row["blocker"]) and row["blocker"] =~ @blocker_shape,
+           "not_proven row #{id} needs a path:line blocker citation, got #{inspect(row["blocker"])}"
+  end
+
+  defp assert_blocker_rule(row) do
+    assert is_nil(row["blocker"]), "only a not_proven row may carry a blocker (#{row["id"]})"
+  end
+
+  # Runs every parity row. `leak: {surface_id, text}` appends `text` to the
+  # unknown-identity response of that one surface only (test-only control).
+  defp run_all(registry, opts \\ []) do
+    leak = Keyword.get(opts, :leak)
+
+    for %{"state" => "parity"} = row <- registry["surfaces"] do
+      existing = probe(row["id"], :existing)
+      unknown = probe(row["id"], :unknown) |> maybe_leak(row["id"], leak)
+
+      {row["id"], compare(existing, unknown, dimensions(row))}
+    end
+  end
+
+  defp maybe_leak(response, id, {id, text}), do: leak(response, text)
+  defp maybe_leak(response, _id, _leak), do: response
+
+  defp leak(response, text) do
+    %{
+      response
+      | body: response.body <> "\n" <> text,
+        flash: Map.put(response.flash, "leak", text),
+        json_keys: response.json_keys && response.json_keys ++ [text]
+    }
+  end
+
+  # Pure comparator: :same | {:diff, [{dimension, left, right}]}.
+  defp compare(left, right, dimensions) do
+    diffs =
+      for dimension <- dimensions,
+          Map.fetch!(left, dimension) != Map.fetch!(right, dimension) do
+        {dimension, Map.fetch!(left, dimension), Map.fetch!(right, dimension)}
+      end
+
+    if diffs == [], do: :same, else: {:diff, diffs}
+  end
+
+  defp response(attrs) do
+    Map.merge(
+      %{status: 200, location: nil, flash: %{}, body: "", json_keys: nil},
+      Map.new(attrs)
+    )
+  end
+
+  defp inspect_diff(details), do: inspect(details, limit: 8, printable_limit: 240)
+
+  # --- identities -------------------------------------------------------------
+
+  # :existing is a real registered account; :unknown is an address never stored.
+  defp identity_email(:existing), do: user_fixture().email
+  defp identity_email(:unknown), do: unique_user_email()
+
+  # --- probes -----------------------------------------------------------------
+
+  defp probe("password-signin", identity) do
+    email = identity_email(identity)
+
+    build_conn()
+    |> post(~p"/users/log_in", %{"user" => %{"email" => email, "password" => "wrong-password"}})
+    |> capture_redirect(email)
+  end
+
+  defp probe(id, _identity), do: raise(ArgumentError, "no probe defined for surface #{id}")
+
+  # Captures a controller redirect response: the POST status, location and
+  # server-side flash map, plus the page the redirect lands on.
+  defp capture_redirect(conn, email) do
+    location = redirected_to(conn)
+    followed = conn |> recycle() |> get(location)
+
+    normalize(
+      response(
+        status: conn.status,
+        location: location,
+        flash: conn.assigns.flash,
+        body: html_response(followed, 200)
+      ),
+      email
+    )
+  end
+
+  # --- normalization ------------------------------------------------------------
+
+  # Normalizes ONLY CSRF tokens, request ids and the echoed email.
+  defp normalize(response, email) do
+    %{
+      response
+      | location: normalize_text(response.location, email),
+        flash:
+          Map.new(response.flash, fn {key, value} -> {key, normalize_text(value, email)} end),
+        body: normalize_text(response.body, email)
+    }
+  end
+
+  defp normalize_text(text, email) when is_binary(text) do
+    text
+    |> replace_email(email)
+    |> then(
+      &Regex.replace(
+        ~r/(name="_?csrf[-_]token"[^>]*?(?:value|content)=")[^"]*"/,
+        &1,
+        "\\1{{CSRF}}\""
+      )
+    )
+    |> then(&Regex.replace(~r/(data-csrf=")[^"]*"/, &1, "\\1{{CSRF}}\""))
+    |> then(
+      &Regex.replace(
+        ~r/(request[-_]id["']?\s*[:=]\s*["']?)[A-Za-z0-9_=-]{8,}/i,
+        &1,
+        "\\1{{REQUEST_ID}}"
+      )
+    )
+  end
+
+  defp normalize_text(other, _email), do: other
+
+  defp replace_email(text, email) do
+    text
+    |> String.replace(email, "{{EMAIL}}")
+    |> String.replace(Plug.HTML.html_escape(email), "{{EMAIL}}")
+    |> String.replace(URI.encode_www_form(email), "{{EMAIL}}")
+  end
+end

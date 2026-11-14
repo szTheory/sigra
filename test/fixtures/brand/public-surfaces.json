@@ -1,0 +1,21 @@
+{
+  "schema_version": "sigra.brand-public-surfaces/v1",
+  "note": "Registry of pre-auth surfaces for the enumeration-boundary parity harness (test/example/test/example_web/enumeration_parity_test.exs). A row with state parity proves ONLY the listed compare dimensions, for ONE request issued for an existing identity and for an unknown identity, and nothing else (not timing, not repeat attempts, not locked or unconfirmed accounts). The harness runs in the example host, a hand-maintained copy of the generated host that already drifts from the generated templates; only install_smoke proves a generated host. States: parity (must compare same), known_divergence (must still differ; fixing the product forces this row to be removed or changed), by_design (documented behaviour is asserted), not_proven (no assertion; blocker cites the file:line that prevents a deterministic probe).",
+  "surfaces": [
+    {
+      "id": "password-signin",
+      "route": "POST /users/log_in",
+      "kind": "controller",
+      "compare": [
+        "status",
+        "redirect",
+        "flash",
+        "body"
+      ],
+      "state": "parity",
+      "note": "Identity = whether the submitted email belongs to an account. One failed attempt (wrong password) for an existing email versus any password for an unknown email, fresh state: no earlier failures, account not locked. Compares the POST status, redirect location, server-side flash map and the followed login page body after normalizing only CSRF tokens, request ids and the echoed email. Repeat attempts (lockout), timing and the locked and unconfirmed states are NOT compared; see password-signin-repeat-attempts.",
+      "todo": null,
+      "blocker": null
+    }
+  ]
+}
