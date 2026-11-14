@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 259
 current_phase_name: Compatibility Policy, Pinned Source and Copy Contract
-current_plan: 11
+current_plan: 12
 status: executing
-stopped_at: Completed 259-13-PLAN.md
-last_updated: "2026-11-14T17:02:05.863Z"
+stopped_at: Completed 259-10-PLAN.md
+last_updated: "2026-11-14T17:13:04.281Z"
 last_activity: 2026-11-13
 last_activity_desc: v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
-state_head: 520952482d6776cccfc4e14b40662faba1797435
+state_head: 00939ee93157430b0d8069934a0f35c8903838ae
 progress:
   total_phases: 5
   completed_phases: 0
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 259 (Compatibility Policy, Pinned Source and Copy Contract) — EXECUTING
-Current Plan: 11
+Current Plan: 12
 Total Plans in Phase: 13
 Status: Ready to execute
 Last activity: 2026-11-13 — v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-14T17:02:05.833Z
-Stopped at: Completed 259-13-PLAN.md
+Last session: 2026-11-14T17:13:04.254Z
+Stopped at: Completed 259-10-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
@@ -128,6 +128,7 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 | Phase 259 P08 | 14min | 2 tasks | 3 files |
 | Phase 259 P09 | 11 min | 2 tasks | 7 files |
 | Phase 259 P13 | 5 min | 1 tasks | 4 files |
+| Phase 259 P10 | 9 min | 3 tasks | 10 files |
 
 ## Decisions
 
@@ -153,3 +154,6 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 - [Phase 259]: [259-09] test/example/AGENTS.md (no brandbook path) and the orphaned lens guide, scorecard and panel lenses pointers were NOT edited; filed as two pending todos for the owner to assign or extend the approval.
 - [Phase 259]: 259-13: missing_files/1 treats an absolute path or a directory as missing and de-duplicates; the three new todo paths are named in the parity test independently of @expected_todos so a dropped registry reference goes red
 - [Phase 259]: 259-13: todos record what the harness compared versus what was only read in source (passkey allowCredentials disclosure, generated reset callers skipping the limiter and dummy hash for unknown emails) and never claim a surface is safe; generated reset callers pass a user struct to a binary-only head, logged in deferred-items.md
+- [Phase 259]: 259-10: published enumeration claims are bounded to the three parity rows (password sign-in, magic-link request, MFA challenge); the reset request screen is not_proven so no doc says it is tested — Plan 07 registry is the only source for what may be claimed; the sweep test keeps it so
+- [Phase 259]: 259-10: where plan wording disagreed with source, the source won (reset primitive returns {:ok, :sent}; throttled reset returns {:error, :rate_limited}, not :ok) — A bare :ok would have been a second inaccuracy in the sentence being fixed
+- [Phase 259]: 259-10: the unbounded-claim sweep keeps indented code and uses an empty shrink-only allow-list; every hit is fixed by rewording — A reader still sees a claim in an indented example; allow-listing a hit would defeat BCOPY-07
