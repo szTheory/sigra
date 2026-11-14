@@ -6,7 +6,7 @@
     {
       "number": "259",
       "name": "Compatibility Policy, Pinned Source and Copy Contract",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "260",
@@ -31,8 +31,8 @@
   ],
   "next": {
     "command": "/gsd-progress --next",
-    "label": "Advance to the next step (plan phase 259)",
-    "reason": "Phase 1 of 5 — needs a plan"
+    "label": "Advance to the next step",
+    "reason": "Phase 1 of 5 · executing"
   },
-  "updated_at": "2026-11-14T15:29:36.998Z"
+  "updated_at": "2026-11-14T15:46:48.235Z"
 }
