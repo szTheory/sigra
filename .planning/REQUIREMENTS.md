@@ -12,7 +12,7 @@ Priority: **M** must, **S** should (cut first if capacity is short). Net-new dep
 ### Compatibility policy and source of truth (BPOL) — Phase 1
 - [x] **BPOL-01** (M): Compatibility policy (ADR + section in `guides/introduction/contract.md` + `guides/reference/brand-compatibility.md`): frozen list, add-only list, ownership-lane table (library-owned / generated / host-owned), SemVer treatment of copy and visual changes, surface map (brand owner per surface: Sigra or host).
 - [x] **BPOL-02** (M): Consumed subset of the brand book vendored in `brand/` with a root `brand.sha256` manifest, one ExUnit drift test, `.gitattributes` `brand/** -text`; `brandbook/` untouched; every imported file scanned for personal names, emails, home paths and SVG/PDF metadata.
-- [ ] **BPOL-03** (M): Add-only ratchet test: CSS custom-property names, `sg-*`/`sigra-auth-*` classes, `Profile` keys and defaults, config keys, routes/helpers, Gettext domain, `data-testid`s, logo filenames; legacy Branding profiles (explicit, partial, defaults) render byte-identically.
+- [x] **BPOL-03** (M): Add-only ratchet test: CSS custom-property names, `sg-*`/`sigra-auth-*` classes, `Profile` keys and defaults, config keys, routes/helpers, Gettext domain, `data-testid`s, logo filenames; legacy Branding profiles (explicit, partial, defaults) render byte-identically.
 - [ ] **BPOL-04** (M): Name-clearance record titled "search log, not clearance" (includes the same-name `crosswake_sigra` Hex package), claims register, decisions on logo-use statement and clear-space authority. No trademark claim.
 - [x] **BPOL-05** (M): Decision records: `Profile` defaults frozen; fonts via additive tokens only; SemVer level minor (`feat`/`fix`/`docs`, no `!`/BREAKING); msgid renames targeted with a rename table; Suspended/unlock/seven-day rule out of scope; status labels (keep "Deletion scheduled"); PNG-lane policy.
 - [ ] **BPOL-06** (M): Instruction-file pointer fix (`CLAUDE.md`, `AGENTS.md`, admin guides still direct executors to the retired `brandbook/` Rail assets). Minimal edit; **owner approval granted 2026-11-13** (pointers to the new `brand/` book).
@@ -106,7 +106,7 @@ Filled by the roadmapper 2026-11-13. Every v1 requirement maps to exactly one ph
 |-------------|-------|--------|
 | BPOL-01 | Phase 259 | Complete |
 | BPOL-02 | Phase 259 | Complete |
-| BPOL-03 | Phase 259 | Pending |
+| BPOL-03 | Phase 259 | Complete |
 | BPOL-04 | Phase 259 | Pending |
 | BPOL-05 | Phase 259 | Complete |
 | BPOL-06 | Phase 259 | Pending |
