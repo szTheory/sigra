@@ -1,0 +1,14 @@
+{
+  "entries": [
+    {"file": "README.md", "kind": "lexicon", "line": "- **When to leave:** You want a hosted identity product (Auth0-as-app) or a framework that hides all auth code from the repo entirely — different tradeoffs.", "scope": "lexicon"},
+    {"file": "README.md", "kind": "lexicon", "line": "- **[Sigra alternatives comparison](docs/launch/v1.0/alternatives.md)** — boundary-first comparison against `phx.gen.auth`, Pow/Guardian/Ueberauth-style composition, hosted auth, and Sigra's hybrid model.", "scope": "lexicon"},
+    {"file": "guides/flows/oauth.md", "kind": "lexicon", "line": "- hosted control plane behavior,", "scope": "lexicon"},
+    {"file": "guides/introduction/contract.md", "kind": "lexicon", "line": "- A hosted control plane or managed identity service.", "scope": "lexicon"},
+    {"file": "guides/introduction/installation.md", "kind": "lexicon", "line": "- `priv/repo/migrations/*_create_sigra_brand_profiles.exs` — optional global auth/email brand tokens managed from the generated admin UI.", "scope": "lexicon"},
+    {"file": "guides/introduction/migrating-from-pow-guardian-ueberauth.md", "kind": "lexicon", "line": "| Pow | Plug/Phoenix session and host-managed auth flow ownership | Sigra keeps core auth in library + generated-host integration responsibilities |", "scope": "lexicon"}
+  ],
+  "initialized_scopes": [
+    "lexicon"
+  ],
+  "schema_version": "sigra.brand-copy-baseline/v1"
+}
