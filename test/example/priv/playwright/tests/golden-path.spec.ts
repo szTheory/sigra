@@ -13,6 +13,7 @@
 import { test, expect } from '@playwright/test';
 import { generate } from 'otplib';
 import { extractConfirmationLink } from '../fixtures/mailbox';
+import { loginSubmit } from '../helpers/loginSubmit';
 
 test('full user lifecycle: register → confirm → login → sessions → sudo → MFA enroll → logout → MFA challenge', async ({
   page,
@@ -63,7 +64,7 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   if (page.url().includes('/users/log_in')) {
     await page.fill('#login_form input[name="user[email]"]', email);
     await page.fill('#login_form input[name="user[password]"]', password);
-    await page.click('#login_form button:has-text("Log in")');
+    await loginSubmit(page).click();
     await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
   }
 
@@ -154,7 +155,7 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   await page.goto('/users/log_in');
   await page.fill('#login_form input[name="user[email]"]', email);
   await page.fill('#login_form input[name="user[password]"]', password);
-  await page.click('#login_form button:has-text("Log in")');
+  await loginSubmit(page).click();
   await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
 
   // Confirm MFA is still enabled after the logout/login round-trip.

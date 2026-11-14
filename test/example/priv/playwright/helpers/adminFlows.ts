@@ -11,6 +11,7 @@
  */
 
 import { expect, type Page } from '@playwright/test';
+import { loginSubmit } from './loginSubmit';
 
 // ---------------------------------------------------------------------------
 // Demo persona credentials
@@ -74,7 +75,7 @@ export async function loginDemoUser(
   // Scope fills to #login_form to target the password form specifically.
   await page.fill('#login_form input[name="user[email]"]', email);
   await page.fill('#login_form input[name="user[password]"]', password);
-  await page.click('#login_form button:has-text("Log in")');
+  await loginSubmit(page).click();
   // No MFA challenge — example app creates a :standard session without check_fn.
   await expect(page).not.toHaveURL(/\/users\/log_in/);
 }
