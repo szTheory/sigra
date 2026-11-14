@@ -86,6 +86,15 @@ defmodule ExampleWeb.EnumerationParityTest do
       ".planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md"
   }
 
+  # The three fix-tracking todos filed for the known divergences and the deferred
+  # library over-claims. Named here independently of @expected_todos so that a
+  # registry edit which drops a reference to one of them goes red.
+  @new_todo_paths [
+    ".planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md",
+    ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
+    ".planning/todos/pending/2026-11-13-lib-moduledoc-enumeration-overclaims.md"
+  ]
+
   # Dimensions on which each known divergence differs today. Asserted exactly, so
   # a partial fix also forces the registry row to be updated.
   @expected_divergence_dims %{
@@ -196,6 +205,32 @@ defmodule ExampleWeb.EnumerationParityTest do
       for id <- Map.keys(@expected_todos) do
         assert id in ids, "row #{id} (which carries a todo) is missing from the registry"
       end
+    end
+
+    test "every non-null registry todo path is a real file, and the three new todos are referenced" do
+      todos = for %{"todo" => todo} when is_binary(todo) <- surfaces(), do: todo
+
+      assert todos != [], "no registry row carries a todo path"
+
+      assert missing_files(todos) == [],
+             "registry todo paths that are not files under the repo root: " <>
+               inspect(missing_files(todos))
+
+      for path <- @new_todo_paths do
+        assert path in todos, "no registry row references the todo #{path}"
+      end
+    end
+
+    test "the todo-path helper reports a planted fake path and a directory (control)" do
+      real = "test/fixtures/brand/public-surfaces.json"
+      fake = ".planning/todos/pending/2026-11-13-this-todo-was-never-filed.md"
+      directory = ".planning/todos/pending"
+
+      assert missing_files([real]) == []
+      assert missing_files([real, fake, real]) == [fake]
+      assert missing_files([fake, directory]) == [fake, directory]
+      # An absolute path is not a repo-relative todo path, even when it exists.
+      assert missing_files([Path.join(@repo_root, real)]) == [Path.join(@repo_root, real)]
     end
 
     test "the library-claims row is a not_proven library row with no probe dimensions" do
@@ -466,6 +501,16 @@ defmodule ExampleWeb.EnumerationParityTest do
   defp all_dimensions, do: Map.values(@dimensions)
 
   defp dimensions(row), do: Enum.map(row["compare"], &Map.fetch!(@dimensions, &1))
+
+  # Pure: the repo-relative paths that are not regular files under the repo root.
+  # An absolute path is never a valid todo path, so it is reported as missing.
+  defp missing_files(paths) do
+    paths
+    |> Enum.uniq()
+    |> Enum.reject(fn path ->
+      Path.type(path) == :relative and File.regular?(Path.join(@repo_root, path))
+    end)
+  end
 
   defp assert_blocker_rule(%{"state" => "not_proven"} = row) do
     id = inspect(row["id"])
