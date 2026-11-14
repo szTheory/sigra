@@ -14,6 +14,7 @@
 
 import { test, expect } from '@playwright/test';
 import { extractConfirmationLink } from '../fixtures/mailbox';
+import { loginSubmit } from '../helpers/loginSubmit';
 
 const EXAMPLE_BASE_URL = process.env.SIGRA_EXAMPLE_URL ?? 'http://localhost:4000';
 
@@ -70,7 +71,7 @@ async function logInIfNeeded(
   if (page.url().includes('/users/log_in')) {
     await page.fill('#login_form input[name="user[email]"]', email);
     await page.fill('#login_form input[name="user[password]"]', password);
-    await page.click('#login_form button:has-text("Log in")');
+    await loginSubmit(page).click();
     await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
   }
 }
@@ -204,7 +205,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   if (page.url().includes('/users/log_in')) {
     await page.fill('#login_form input[name="user[email]"]', email);
     await page.fill('#login_form input[name="user[password]"]', password);
-    await page.click('#login_form button:has-text("Log in")');
+    await loginSubmit(page).click();
     await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
   }
 
@@ -480,7 +481,7 @@ test('organization invitations: new user accepts through the mailbox signup path
     await expect(inviteePage).toHaveURL(/\/users\/log_in/);
     await inviteePage.fill('#login_form input[name="user[email]"]', inviteeEmail);
     await inviteePage.fill('#login_form input[name="user[password]"]', inviteePassword);
-    await inviteePage.click('#login_form button:has-text("Log in")');
+    await loginSubmit(inviteePage).click();
     await expect(inviteePage).not.toHaveURL(/\/users\/log_in(\?|$)/);
 
     await inviteePage.goto(`/organizations/${orgSlug}/members`);
