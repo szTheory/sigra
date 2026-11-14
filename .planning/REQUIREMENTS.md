@@ -19,7 +19,7 @@ Priority: **M** must, **S** should (cut first if capacity is short). Net-new dep
 - [x] **BPOL-07** (S): Upgrade-note skeleton (which lane auto-updates, what hosts re-copy).
 
 ### Copy contract (BCOPY) — Phase 1
-- [ ] **BCOPY-01** (M): Reconciled vocabulary table (book key terms x `admin-glossary.md`) with rulings tied to product truth (Active, Unconfirmed, Locked, "Deletion scheduled"; "Admin" not "Admin (operator)"; "Review users").
+- [x] **BCOPY-01** (M): Reconciled vocabulary table (book key terms x `admin-glossary.md`) with rulings tied to product truth (Active, Unconfirmed, Locked, "Deletion scheduled"; "Admin" not "Admin (operator)"; "Review users").
 - [x] **BCOPY-02** (M): Drift test extended: banned terms and the book's do-not-say lexicon over admin files, generated templates (own list) and lexicon-only over README/top guides; shrink-only baseline.
 - [x] **BCOPY-03** (M): Enumeration-boundary contract: public-surface registry and existing-vs-unknown identity parity tests (sign-in, reset, magic link, resend, registration, invitation, MFA, passkey) with a **positive control** (a deliberately leaky string turns the test red once).
 - [x] **BCOPY-04** (M): Committed copy inventory per ownership lane so every copy change is a reviewable diff.
@@ -111,7 +111,7 @@ Filled by the roadmapper 2026-11-13. Every v1 requirement maps to exactly one ph
 | BPOL-05 | Phase 259 | Complete |
 | BPOL-06 | Phase 259 | Complete |
 | BPOL-07 | Phase 259 | Complete |
-| BCOPY-01 | Phase 259 | Pending |
+| BCOPY-01 | Phase 259 | Complete |
 | BCOPY-02 | Phase 259 | Complete |
 | BCOPY-03 | Phase 259 | Complete |
 | BCOPY-04 | Phase 259 | Complete |

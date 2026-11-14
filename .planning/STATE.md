@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 259
 current_phase_name: Compatibility Policy, Pinned Source and Copy Contract
-current_plan: 12
+current_plan: 13
 status: executing
-stopped_at: Completed 259-10-PLAN.md
-last_updated: "2026-11-14T17:13:04.281Z"
+stopped_at: Completed 259-12-PLAN.md
+last_updated: "2026-11-14T17:27:38.269Z"
 last_activity: 2026-11-13
 last_activity_desc: v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
-state_head: 00939ee93157430b0d8069934a0f35c8903838ae
+state_head: 443e1c8585bf59e1f930304050ef1fe3042b85b8
 progress:
   total_phases: 5
   completed_phases: 0
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 259 (Compatibility Policy, Pinned Source and Copy Contract) — EXECUTING
-Current Plan: 12
+Current Plan: 13
 Total Plans in Phase: 13
 Status: Ready to execute
 Last activity: 2026-11-13 — v1.51 roadmap created (5 phases, strictly sequential 259 → 263)
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-14T17:13:04.254Z
-Stopped at: Completed 259-10-PLAN.md
+Last session: 2026-11-14T17:27:38.234Z
+Stopped at: Completed 259-12-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
@@ -129,6 +129,7 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 | Phase 259 P09 | 11 min | 2 tasks | 7 files |
 | Phase 259 P13 | 5 min | 1 tasks | 4 files |
 | Phase 259 P10 | 9 min | 3 tasks | 10 files |
+| Phase 259 P12 | 12 min | 3 tasks | 3 files |
 
 ## Decisions
 
@@ -157,3 +158,6 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 - [Phase 259]: 259-10: published enumeration claims are bounded to the three parity rows (password sign-in, magic-link request, MFA challenge); the reset request screen is not_proven so no doc says it is tested — Plan 07 registry is the only source for what may be claimed; the sweep test keeps it so
 - [Phase 259]: 259-10: where plan wording disagreed with source, the source won (reset primitive returns {:ok, :sent}; throttled reset returns {:error, :rate_limited}, not :ok) — A bare :ok would have been a second inaccuracy in the sentence being fixed
 - [Phase 259]: 259-10: the unbounded-claim sweep keeps indented code and uses an empty shrink-only allow-list; every hit is fixed by rewording — A reader still sees a claim in an indented example; allow-listing a hit would defeat BCOPY-07
+- [Phase 259]: [259-12] Glossary reconciliation rows say Differs wherever the book and glossary disagree or the glossary has no row; 12 of 23 rows differ — Defaulting to Agrees would hide real gaps; the Banned synonyms cell carries the book avoid text and glossary-only words are named in the rule.
+- [Phase 259]: [259-12] The status vocabulary (Active, Unconfirmed, Locked, Deletion scheduled) is recorded as a target, and the shipped Confirmed pill and the missing admin unlock control are stated, not claimed as aligned — Anchors user_show_live.ex:332 and :385 and index_live.ex:96 show the product has not moved; the copy phase owns the rewrite.
+- [Phase 259]: [259-12] The vocabulary doc test requires every anchor to sit on a line holding a term registered for its file — The per-pair at-least-one rule let a drifted anchor pass beside a sibling; mutation-checked red.

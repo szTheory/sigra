@@ -114,7 +114,7 @@ status: complete
 2. **Task 2: rulings 4-7 (revoke/delete/remove, status vocabulary, Admin, Review users) and anchor-content checks** - `711fe5860` (docs)
 3. **Task 3: Agrees/Differs rows for every voice.terms term and the coverage test** - `35a2fff59` (docs)
 
-**Plan metadata:** the docs(259-12) commit that adds this SUMMARY, the deferred-items entry, STATE, ROADMAP and REQUIREMENTS.
+**Plan metadata:** `443e1c858` (this SUMMARY and the deferred-items entry), then a docs(259-12) commit for STATE, ROADMAP and REQUIREMENTS.
 
 The tracer gate ran after Task 1: HUMAN_VERIFY_MODE is end-of-phase and the verify was automated-only, so the tracer verify was re-run (20 tests, 0 failures) and the plan expanded.
 
@@ -178,7 +178,7 @@ None. No file touched introduces network, auth, file-access or schema surface.
 
 ## Next Phase Readiness
 
-Plans 259-11 remains in the phase. The table gives the copy phases (262-263) a single agreed vocabulary and a verified list of shipped strings that still differ from it; the status pill, the unlock sentence and the "accounts" wording are the concrete rewrites. The ADR decisions behind rulings 2, 3 and 5 are still marked owner confirmation pending.
+Plan 259-11 remains in the phase. The table gives the copy phases (262-263) a single agreed vocabulary and a verified list of shipped strings that still differ from it; the status pill, the unlock sentence and the "accounts" wording are the concrete rewrites. The ADR decisions behind rulings 2, 3 and 5 are still marked owner confirmation pending.
 
 ## Self-Check: PASSED
 
