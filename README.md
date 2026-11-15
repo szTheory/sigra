@@ -174,7 +174,7 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 |-------|----------------|
 | **Passwords** | Argon2id via configured hasher; bcrypt verify-and-upgrade path when enabled. |
 | **Tokens** | HMAC-protected, time-bounded patterns for magic links, reset, confirmation — stored references, not “guessable IDs only”. |
-| **Enumeration** | Sign-in and magic-link requests are tested, in Sigra's example application, to show the same message for an existing and an unknown address at a single attempt. Not covered: timing, repeated attempts (lockout and rate limits), registration, password reset requests and passkey sign-in. Each flow guide on HexDocs states its own scope. |
+| **Enumeration** | Sign-in, magic-link and password-reset requests are tested, in Sigra's example application, to show the same message for an existing and an unknown address at a single attempt. Not covered: timing, repeated attempts (lockout and rate limits), registration, passkey sign-in, and the code generated into your own application (the example application is a hand-maintained copy, so check the same flows there). Each flow guide on HexDocs states its own scope. |
 | **Step-up** | Sudo / MFA challenge patterns integrate with Phoenix plugs and LiveView mounts as generated. |
 
 For threat-model detail and per-flow guarantees, use **HexDocs**, [SECURITY.md](SECURITY.md), and the [Sigra 1.0 contract](guides/introduction/contract.md) for the full invariants and non-goals — the README stays a map, not a spec.

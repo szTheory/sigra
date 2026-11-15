@@ -4,10 +4,11 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
   The published docs may claim only what the enumeration parity harness proves:
   an existing and an unknown address get the same status, redirect, flash and
-  page for ONE attempt on the sign-in and magic-link request screens. Timing,
-  repeated attempts (lockout and rate-limit state), registration success versus
-  a duplicate, password reset requests and passkey sign-in are not covered, and
-  the docs must say so instead of promising safety.
+  page for ONE attempt on the sign-in, magic-link and password reset request
+  screens, in Sigra's example application. Timing, repeated attempts (lockout
+  and rate-limit state), registration success versus a duplicate, passkey
+  sign-in and the code generated into an adopter's own application are not
+  covered, and the docs must say so instead of promising safety.
 
   This module holds five kinds of checks, each with a planted control so it can
   go red:
@@ -69,6 +70,13 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   # quietly cover a paragraph that no longer exists.
   @sweep_allow_list []
 
+  # The password reset guide's old statement that Sigra's tests run no comparison
+  # of the request screen. It became false once the parity harness compared that
+  # screen in the example application, so it is retired as a false statement. It
+  # is not an unbounded enumeration claim, so the sweep families do not describe
+  # it and the retired-phrase check alone owns it.
+  @retired_false_clause "which Sigra's own tests do not currently run"
+
   # The exact old strings captured from the docs before they were reworded. A
   # retired string coming back is a regression, so these are never allow-listed.
   @retired %{
@@ -83,7 +91,8 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       "Enumeration-safe: returns",
       "**Enumeration prevention** is the critical property",
       "returns `:ok` (enumeration-safe)",
-      "Enumeration-safe: same response whether or not the email exists"
+      "Enumeration-safe: same response whether or not the email exists",
+      @retired_false_clause
     ],
     @login_logout => ["enumeration-safe lookup"],
     @getting_started => ["prevents enumeration attacks"],
@@ -310,6 +319,17 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       end
     end
 
+    test "the retired false clause is registered for the password reset guide and reported when planted" do
+      assert @retired_false_clause in Map.fetch!(@retired, @password_reset)
+
+      planted = "Intro. An automated comparison, #{@retired_false_clause}, so check it. End."
+
+      assert retired_present(planted, Map.fetch!(@retired, @password_reset)) ==
+               [@retired_false_clause]
+
+      assert retired_present(read!(@password_reset), [@retired_false_clause]) == []
+    end
+
     test "the README keeps its Enumeration row, now with scope" do
       row =
         @readme
@@ -320,6 +340,34 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       assert row, "README.md lost its Enumeration row in the security posture table"
       assert row =~ "single attempt"
       assert row =~ "Not covered"
+    end
+
+    test "the README row names password-reset requests as tested, not under Not covered" do
+      row =
+        @readme
+        |> read!()
+        |> String.split("\n")
+        |> Enum.find(&String.starts_with?(&1, "| **Enumeration** |"))
+
+      [tested, not_covered] = String.split(row, "Not covered", parts: 2)
+
+      assert tested =~ "password-reset requests"
+      assert tested =~ "example application"
+      refute not_covered =~ ~r/password[\s-]reset/i
+
+      # The row still lists what is not compared.
+      assert not_covered =~ "timing"
+      assert not_covered =~ "passkey sign-in"
+      assert not_covered =~ "generated into your own application"
+    end
+
+    test "positive control: the Not covered split reports a reset request left in the list" do
+      stale =
+        "| **Enumeration** | Sign-in requests are tested. Not covered: timing, password reset requests. |"
+
+      [_tested, not_covered] = String.split(stale, "Not covered", parts: 2)
+
+      assert not_covered =~ ~r/password[\s-]reset/i
     end
   end
 
@@ -358,6 +406,23 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
       assert paragraph =~ "single attempt"
       assert paragraph =~ ~r/rate limit/i
+    end
+
+    test "the password reset scope bounds the comparison to the example application" do
+      [paragraph] = scope_paragraphs(read!(@password_reset))
+
+      assert paragraph =~ "example application"
+      assert paragraph =~ "single attempt"
+      assert paragraph =~ "generated into your app"
+      refute paragraph =~ @retired_false_clause
+    end
+
+    test "positive control: a scope paragraph that claims no comparison is not bounded to the example application" do
+      planted =
+        "#{@scope_opener} the form shows one message, which Sigra's own tests do not currently run."
+
+      refute planted =~ "example application"
+      assert retired_present(planted, [@retired_false_clause]) == [@retired_false_clause]
     end
 
     test "the sign-in scope bounds the claim to one attempt and names lockout" do
@@ -612,9 +677,11 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
       # Every retired phrase is either recognised as an unbounded claim by the
       # sweep or caught by the retired-phrase check; plant each in memory. The
-      # only retired phrase the sweep families do not describe is the README's
-      # vague "Safer defaults" row, which the retired-phrase check owns.
-      assert retired -- detectable == Map.fetch!(@retired, @readme)
+      # only retired phrases the sweep families do not describe are the README's
+      # vague "Safer defaults" row and the password reset guide's false "tests do
+      # not run a comparison" clause, which the retired-phrase check owns.
+      assert Enum.sort(retired -- detectable) ==
+               Enum.sort(Map.fetch!(@retired, @readme) ++ [@retired_false_clause])
 
       for phrase <- detectable do
         planted = "Intro.\n\nThe guide says #{phrase} here.\n"

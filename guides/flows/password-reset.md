@@ -32,11 +32,13 @@ The generated `ResetPasswordLive` renders a form with one field: email. Submitti
        |> redirect(to: ~p"/")}
     end
 
+The generated context's `deliver_user_reset_password_instructions/2` takes the email address as a string (its only function head requires a binary), so pass the submitted email rather than a looked-up user, and check this against the code generated into your app.
+
 `deliver_user_reset_password_instructions/2` generates a 32-byte random token, signs its hash with HMAC using your app's `secret_key_base`, stores the row in `auth.user_tokens` with `context: "reset_password"`, and renders the email template.
 
 **Recommendation:** render the same flash message whether the email exists or not, so the form does not tell a visitor which addresses have an account.
 
-**Scope of this claim:** the request form is written to show one message for any address, and the context returns the same `{:ok, :sent}` for an address with an account and one without, so the form is meant to show a visitor the same message for a single attempt. Not covered: response timing; repeated requests, because the optional rate limiter only counts addresses that have an account; and an automated comparison of the request screen for an existing and an unknown address, which Sigra's own tests do not currently run, so check it in your application.
+**Scope of this claim:** the request form is written to show one message for any address, and the context returns the same `{:ok, :sent}` for an address with an account and one without, so the form is meant to show a visitor the same message for a single attempt. Sigra's own tests compare the request screen for an existing and an unknown address (same response status, redirect, flash and page) for a single attempt in its example application only, which is a hand-maintained copy and not the code generated into your app, so check the request page in your application. Not covered: response timing; and repeated requests, because the optional rate limiter only counts addresses that have an account.
 
 ### Step 2: Click the email link
 
