@@ -33,6 +33,26 @@ defmodule ExampleWeb.EnumerationParityTest do
   would capture the same empty value and compare `:same`; this rule turns that
   into a failure.
 
+  ## The five named surfaces
+
+  BCOPY-03 names five surfaces and all five are `parity` rows. They are three
+  different kinds of probe and are counted apart (`named_surface_violations/1`
+  judges each id on its own, so no total can hide a failure):
+
+    * account-existence: `password-signin`, `magic-link-request` and
+      `password-reset-request` compare an address that has an account against one
+      that has none. These are the enumeration probes proper; each must be
+      `parity` with no blocker.
+    * payload-ignored: `confirmation-resend` proves that an email a visitor puts in
+      the resend event payload is ignored. No email-keyed resend form exists, so it
+      is not an account-existence probe.
+    * code-kind: `mfa-challenge` compares a wrong authenticator code with a wrong
+      backup code. Its identity is the code kind, not account existence.
+
+  The last two stay green and are real probes, but neither can satisfy or stand in
+  for an account-existence surface. Planted controls in the "registry" tests prove
+  each rule can fail.
+
   ## What this does NOT prove
 
   These tests run in the example host (`test/example`), a hand-maintained copy
@@ -68,9 +88,26 @@ defmodule ExampleWeb.EnumerationParityTest do
   @leak_text "No account found for"
   @blocker_shape ~r/[\w.\/-]+:\d+/
   @citation_shape ~r/([\w.\/-]+\.\w+):(\d+)/
-  # BCOPY-03 requires these five surfaces by name; each is parity or, only where
-  # the example host cannot drive it, not_proven with a path:line blocker.
-  @named_parity_ids ~w(password-signin magic-link-request password-reset-request confirmation-resend mfa-challenge)
+  # BCOPY-03 requires these five surfaces by name, and every one is a parity row.
+  # They are three different kinds of probe and are judged apart, never pooled:
+  #
+  #   * account-existence ids vary whether the submitted address has an account. Only
+  #     these three are enumeration probes in the strict sense.
+  #   * payload-ignored ids prove a value a visitor puts in an event payload is
+  #     ignored (the resend handler never reads its params).
+  #   * code-kind ids vary which authenticator was used (a wrong authenticator code
+  #     versus a wrong backup code), not whether an account exists.
+  #
+  # The last two are counted separately and can never stand in for an
+  # account-existence surface (see named_surface_violations/1).
+  @account_existence_ids ~w(password-signin magic-link-request password-reset-request)
+  @payload_ignored_ids ~w(confirmation-resend)
+  @code_kind_ids ~w(mfa-challenge)
+  @named_parity_ids @account_existence_ids ++ @payload_ignored_ids ++ @code_kind_ids
+  # Phrases the registry notes of the two separately counted classes must keep, so a
+  # note cannot drift into claiming what its probe does not prove.
+  @payload_note_phrases ["payload", "email-keyed resend form"]
+  @code_kind_note_phrases ["code kind", "not account existence"]
   # A LiveView event has no HTTP status; "re-rendered in place" is reported as 200.
   @live_render_status 200
   # ...and a server `redirect` outcome from a LiveView event is reported as 302.
@@ -172,27 +209,93 @@ defmodule ExampleWeb.EnumerationParityTest do
       assert ids == Enum.uniq(ids), "registry ids must be unique"
     end
 
-    test "the five named parity surfaces exist, downgrades carry a blocker, at least three are parity" do
+    test "every named surface is parity with no blocker, each judged in its own class" do
       by_id = Map.new(surfaces(), &{&1["id"], &1})
 
-      named =
-        for id <- @named_parity_ids do
-          assert Map.has_key?(by_id, id), "named surface #{id} is missing from the registry"
-          Map.fetch!(by_id, id)
-        end
+      assert named_surface_violations(by_id) == []
+    end
 
-      for row <- named do
-        assert row["state"] in ~w(parity not_proven),
-               "named surface #{row["id"]} may only be parity or not_proven, got #{row["state"]}"
+    test "a not_proven account-existence surface with a valid blocker is reported (control)" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+      planted = downgrade(by_id, "password-reset-request")
 
-        if row["state"] == "not_proven" do
-          assert is_binary(row["blocker"]) and row["blocker"] =~ @blocker_shape,
-                 "named surface #{row["id"]} is not_proven without a path:line blocker"
-        end
+      # The shape the previous rule accepted: not_proven plus a path:line blocker.
+      assert planted["password-reset-request"]["state"] == "not_proven"
+      assert planted["password-reset-request"]["blocker"] =~ @blocker_shape
+
+      violations = named_surface_violations(planted)
+
+      assert violated_ids(violations) == ["password-reset-request"]
+      assert Enum.any?(violations, &(&1 =~ "must be parity"))
+      assert Enum.any?(violations, &(&1 =~ "blocker"))
+    end
+
+    test "the payload-ignored and code-kind rows never satisfy an account-existence surface (control)" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+
+      # password-reset-request not_proven while confirmation-resend and mfa-challenge
+      # stay parity: the failure is reported at the account-existence id.
+      planted = downgrade(by_id, "password-reset-request")
+      assert planted["confirmation-resend"]["state"] == "parity"
+      assert planted["mfa-challenge"]["state"] == "parity"
+      assert violated_ids(named_surface_violations(planted)) == ["password-reset-request"]
+
+      # Only mfa-challenge parity among the five: every other named id is reported
+      # and mfa-challenge itself is not what rescues the registry.
+      only_mfa =
+        Enum.reduce(@named_parity_ids -- ["mfa-challenge"], by_id, &downgrade(&2, &1))
+
+      assert violated_ids(named_surface_violations(only_mfa)) ==
+               Enum.sort(@named_parity_ids -- ["mfa-challenge"])
+
+      # Only confirmation-resend parity among the five: same.
+      only_resend =
+        Enum.reduce(@named_parity_ids -- ["confirmation-resend"], by_id, &downgrade(&2, &1))
+
+      assert violated_ids(named_surface_violations(only_resend)) ==
+               Enum.sort(@named_parity_ids -- ["confirmation-resend"])
+    end
+
+    test "a confirmation-resend note that drops a guard phrase is reported (control)" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+
+      for phrase <- @payload_note_phrases do
+        planted =
+          update_note(by_id, "confirmation-resend", &String.replace(&1, phrase, "(removed)"))
+
+        refute planted["confirmation-resend"]["note"] =~ phrase,
+               "setup: #{phrase} was not removed"
+
+        violations = named_surface_violations(planted)
+
+        assert violated_ids(violations) == ["confirmation-resend"]
+        assert Enum.any?(violations, &(&1 =~ phrase))
       end
+    end
 
-      assert Enum.count(named, &(&1["state"] == "parity")) >= 3,
-             "at least three of the five named surfaces must be parity"
+    test "an mfa-challenge note that no longer says code kind is reported (control)" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+
+      for phrase <- @code_kind_note_phrases do
+        planted = update_note(by_id, "mfa-challenge", &String.replace(&1, phrase, "(removed)"))
+        refute planted["mfa-challenge"]["note"] =~ phrase, "setup: #{phrase} was not removed"
+
+        violations = named_surface_violations(planted)
+
+        assert violated_ids(violations) == ["mfa-challenge"]
+        assert Enum.any?(violations, &(&1 =~ phrase))
+      end
+    end
+
+    test "a registry missing a named id is reported as missing (control)" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+
+      for id <- @named_parity_ids do
+        violations = by_id |> Map.delete(id) |> named_surface_violations()
+
+        assert violated_ids(violations) == [id]
+        assert Enum.any?(violations, &(&1 =~ "missing"))
+      end
     end
 
     test "the leaks that exist today are never registered as parity" do
@@ -367,7 +470,10 @@ defmodule ExampleWeb.EnumerationParityTest do
 
     test "no parity row passes as empty-versus-empty: each probe captures the surface's real response" do
       rows = for %{"state" => "parity"} = row <- surfaces(), do: row
-      assert length(rows) >= 3
+
+      # Every named surface is checked here, not just "a few": a floor on the count
+      # is how the criterion shrank before.
+      assert @named_parity_ids -- Enum.map(rows, & &1["id"]) == []
 
       for row <- rows do
         id = row["id"]
@@ -587,17 +693,26 @@ defmodule ExampleWeb.EnumerationParityTest do
       assert Enum.any?(details, &match?({:body, _, _}, &1))
       assert Enum.any?(details, &match?({:flash, _, _}, &1))
 
-      # Non-vacuity: "the others stay same" must be about real rows, never an
-      # empty list. The named-surface rule guarantees at least three parity rows.
+      # Non-vacuity: "the others stay same" must be about real rows, never an empty
+      # or tiny list. Every named surface is a parity row, so leaking one leaves at
+      # least the other four named rows to be compared.
       others = for {id, result} <- leaked, id != "password-signin", do: {id, result}
-      assert length(others) >= 2, "vacuous control: fewer than two other parity rows"
+
+      assert length(others) >= length(@named_parity_ids) - 1,
+             "vacuous control: only #{length(others)} other parity rows were compared, " <>
+               "expected at least #{length(@named_parity_ids) - 1}"
+
       assert Enum.all?(others, fn {_id, result} -> result == :same end)
     end
 
     test "every parity surface can go red: leaking any one yields exactly that one diff" do
       registry = registry()
       parity_ids = for %{"state" => "parity", "id" => id} <- registry["surfaces"], do: id
-      assert length(parity_ids) >= 3
+
+      # Every named surface is a parity row (extra parity rows are allowed), so this
+      # loop covers all five and cannot shrink to a subset without a red test.
+      assert @named_parity_ids -- parity_ids == [],
+             "named surfaces that are not parity rows: #{inspect(@named_parity_ids -- parity_ids)}"
 
       for id <- parity_ids do
         leaked = run_all(registry, leak: {id, @leak_text})
@@ -605,6 +720,14 @@ defmodule ExampleWeb.EnumerationParityTest do
 
         assert [{^id, _}] = diffs,
                "leaking #{id} should produce exactly one diff at #{id}, got: #{inspect(diffs)}"
+
+        # ...and the rows that stay :same are real rows, never an empty list.
+        others = for {surface, result} <- leaked, surface != id, do: result
+
+        assert length(others) >= length(@named_parity_ids) - 1,
+               "vacuous control: leaking #{id} left only #{length(others)} other parity rows"
+
+        assert Enum.all?(others, &(&1 == :same))
       end
     end
   end
@@ -627,6 +750,67 @@ defmodule ExampleWeb.EnumerationParityTest do
     |> Enum.reject(fn path ->
       Path.type(path) == :relative and File.regular?(Path.join(@repo_root, path))
     end)
+  end
+
+  # Pure: the human-readable rule breaks among the named surfaces, each formatted
+  # "<id>: <what is wrong>". `by_id` maps a registry id to its row.
+  #
+  # Every named id must be a parity row with a null blocker, judged on its own: there
+  # is no total across ids, so a payload-ignored or code-kind row can never satisfy
+  # or stand in for an account-existence requirement, and a not_proven account-existence
+  # row is never excused by a blocker. The two separately counted classes also keep the
+  # note phrases that say what their probe does and does not prove.
+  defp named_surface_violations(by_id) do
+    Enum.flat_map(@account_existence_ids, &named_row_violations(by_id, &1, [])) ++
+      Enum.flat_map(@payload_ignored_ids, &named_row_violations(by_id, &1, @payload_note_phrases)) ++
+      Enum.flat_map(@code_kind_ids, &named_row_violations(by_id, &1, @code_kind_note_phrases))
+  end
+
+  defp named_row_violations(by_id, id, note_phrases) do
+    case Map.fetch(by_id, id) do
+      :error ->
+        ["#{id}: named surface is missing from the registry"]
+
+      {:ok, row} ->
+        state =
+          if row["state"] == "parity",
+            do: [],
+            else: ["#{id}: state is #{inspect(row["state"])} but a named surface must be parity"]
+
+        blocker =
+          if is_nil(row["blocker"]),
+            do: [],
+            else: ["#{id}: blocker is #{inspect(row["blocker"])} but a parity row must have none"]
+
+        note =
+          for phrase <- note_phrases, not String.contains?(row["note"] || "", phrase) do
+            "#{id}: note no longer contains #{inspect(phrase)}"
+          end
+
+        state ++ blocker ++ note
+    end
+  end
+
+  # Pure test helpers for the planted controls: they build a modified copy of the
+  # registry rows in memory and never touch the fixture file.
+  defp downgrade(by_id, id) do
+    Map.update!(
+      by_id,
+      id,
+      &Map.merge(&1, %{"state" => "not_proven", "blocker" => "lib/sigra/lockout.ex:13"})
+    )
+  end
+
+  defp update_note(by_id, id, fun) do
+    Map.update!(by_id, id, &Map.update!(&1, "note", fun))
+  end
+
+  # The sorted unique ids a list of "<id>: <message>" violations names.
+  defp violated_ids(violations) do
+    violations
+    |> Enum.map(&(&1 |> String.split(":", parts: 2) |> hd()))
+    |> Enum.uniq()
+    |> Enum.sort()
   end
 
   defp assert_blocker_rule(%{"state" => "not_proven"} = row) do
