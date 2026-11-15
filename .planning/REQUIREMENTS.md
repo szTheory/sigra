@@ -28,14 +28,14 @@ Priority: **M** must, **S** should (cut first if capacity is short). Net-new dep
 - [x] **BCOPY-07** (S): Honest-claims pass: docs and tests do not claim enumeration safety beyond what is proven (timing-oracle todo cited).
 
 ### Deterministic output, latent-defect repair, before catalog (BGEN) — Phase 2
-- [ ] **BGEN-01** (M): Template/example/golden parity: refresh example `sigra_auth.css` (903 diff lines of drift) and add a parity test for every copied asset.
-- [ ] **BGEN-02** (M): Determinism: double install byte-identical; `mix sigra.fixture.rebless_golden --check` clean under pinned `phx_new 1.8.8`.
-- [ ] **BGEN-03** (M): Before catalog, text: normalized rendered-HTML snapshots per in-scope screen x state x theme on seeded `.test` personas (three tiers: inventory, pure render, page render), captured at a pinned SHA while output is byte-identical to main. Auth pages rendered from the **template** CSS. No new PNG baselines.
-- [ ] **BGEN-04** (M): Latent defect L1: move `.sg-brand-mark*` and explicit Light/Dark rules into shipped `sigra_admin.css`, drop `app.css` duplicates, verify in a real generated host; add a CSS version stamp comment.
+- [x] **BGEN-01** (M): Template/example/golden parity: refresh example `sigra_auth.css` (903 diff lines of drift) and add a parity test for every copied asset.
+- [x] **BGEN-02** (M): Determinism: double install byte-identical; `mix sigra.fixture.rebless_golden --check` clean under pinned `phx_new 1.8.8`.
+- [x] **BGEN-03** (M): Before catalog, text: normalized rendered-HTML snapshots per in-scope screen x state x theme on seeded `.test` personas (three tiers: inventory, pure render, page render), captured at a pinned SHA while output is byte-identical to main. Auth pages rendered from the **template** CSS. No new PNG baselines.
+- [x] **BGEN-04** (M): Latent defect L1: move `.sg-brand-mark*` and explicit Light/Dark rules into shipped `sigra_admin.css`, drop `app.css` duplicates, verify in a real generated host; add a CSS version stamp comment.
 - [x] **BGEN-05** (M): Latent defect L2: wire `admin-css-conformance.sh` and `admin-token-completeness.sh` into `mix ci`/`fast_checks` (or retire explicitly).
-- [ ] **BGEN-06** (M): Park PR (separate, small, not a brand PR): demote PNG-compare lanes (`admin_checkpoints`, `demo_showcase`, design_gallery `@snapshot`) to dispatch; keep real-login and generated-host smoke, axe, golden install and behavior specs. Canary never allowlisted; no darwin recapture. Merges before Phase 3 starts.
-- [ ] **BGEN-07** (S): Before/after text-diff report script.
-- [ ] **BGEN-08** (S): Extend `DesignGalleryLive` with auth-page, email and status-mark states (dev-only; no new framework).
+- [x] **BGEN-06** (M): Park PR (separate, small, not a brand PR): demote PNG-compare lanes (`admin_checkpoints`, `demo_showcase`, design_gallery `@snapshot`) to dispatch; keep real-login and generated-host smoke, axe, golden install and behavior specs. Canary never allowlisted; no darwin recapture. Merges before Phase 3 starts.
+- [x] **BGEN-07** (S): Before/after text-diff report script.
+- [x] **BGEN-08** (S): Extend `DesignGalleryLive` with auth-page, email and status-mark states (dev-only; no new framework).
 
 ### Tokens, type, logo, favicon, contrast (BTOK) — Phase 3
 - [ ] **BTOK-01** (M): Token value migration table (old → new, light and dark) from `brand/tokens.json` applied by hand to admin CSS; names unchanged; Kiln Bright dark accent; explicit dark `--sg-color-on-brand` = Char (white on Kiln Bright is 2.48:1); `sigra_auth.css` host-default fallbacks untouched; one golden rebless.
@@ -118,14 +118,14 @@ Filled by the roadmapper 2026-11-13. Every v1 requirement maps to exactly one ph
 | BCOPY-05 | Phase 259 | Complete |
 | BCOPY-06 | Phase 259 | Complete |
 | BCOPY-07 | Phase 259 | Complete |
-| BGEN-01 | Phase 260 | Pending |
-| BGEN-02 | Phase 260 | Pending |
-| BGEN-03 | Phase 260 | Pending |
-| BGEN-04 | Phase 260 | Pending |
+| BGEN-01 | Phase 260 | Complete |
+| BGEN-02 | Phase 260 | Complete |
+| BGEN-03 | Phase 260 | Complete |
+| BGEN-04 | Phase 260 | Complete |
 | BGEN-05 | Phase 260 | Complete |
-| BGEN-06 | Phase 260 | Pending |
-| BGEN-07 | Phase 260 | Pending |
-| BGEN-08 | Phase 260 | Pending |
+| BGEN-06 | Phase 260 | Complete |
+| BGEN-07 | Phase 260 | Complete |
+| BGEN-08 | Phase 260 | Complete |
 | BTOK-01 | Phase 261 | Pending |
 | BTOK-02 | Phase 261 | Pending |
 | BTOK-03 | Phase 261 | Pending |
