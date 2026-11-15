@@ -274,6 +274,26 @@ defmodule Sigra.Brand.CatalogTest do
       assert text =~ "shipped default sender"
     end
 
+    test "the coverage text carries the tier-2 sender override, the reset-page marker and the one exact-value replacement" do
+      text = JSON.encode!(Catalog.coverage())
+
+      assert text =~ "tier-2 auth branding page"
+      assert text =~ "sender field is overridden"
+      assert text =~ "generated-host-pages/reset-password.html is a marker"
+      assert text =~ "HTTP 500"
+      assert text =~ "{{CAPTURE_SESSION_ACTIVITY}}"
+      assert text =~ "only exact-value replacement"
+    end
+
+    test "names the reset-request page fix as owed and says its before is a marker, not a page" do
+      decoded = JSON.decode!(Catalog.manifest(%{}, %{pinned: @pinned}))
+      text = JSON.encode!(decoded["deferred_shipped_byte_fixes"])
+
+      assert text =~ "reset-request page"
+      assert text =~ "HTTP 500"
+      assert text =~ "marker"
+    end
+
     test "the manifest text itself passes the privacy scan" do
       text = Catalog.manifest(%{}, %{pinned: @pinned})
 
@@ -412,6 +432,31 @@ defmodule Sigra.Brand.CatalogTest do
       page = File.read!(Path.join(out, "tier2-example-admin/admin-users-index.html"))
       refute page =~ "leaky-csrf-value"
       assert page =~ "{{CSRF}}"
+    end
+
+    test "personas are the tier-1 personas plus the seeded cohort found in tier 2, not bulk rows or the capture sender" do
+      %{out: out, opts: opts, raw: raw} = before_setup()
+
+      File.write!(
+        Path.join(raw, "tier2-example-admin/admin-users-index.html"),
+        "<td>alice@demo.tasklane.test</td><td>alice@demo.tasklane.test</td>" <>
+          "<td>loadtest-3-0123abcd@demo.tasklane.test</td><td>noreply@catalog.example.test</td>"
+      )
+
+      Catalog.write!(:before, opts)
+
+      personas =
+        out
+        |> Path.join("MANIFEST.json")
+        |> File.read!()
+        |> JSON.decode!()
+        |> Map.fetch!("personas")
+
+      assert "alice@demo.tasklane.test" in personas
+      assert "admin@demo.tasklane.test" in personas
+      assert personas == Enum.sort(Enum.uniq(personas))
+      refute Enum.any?(personas, &String.starts_with?(&1, "loadtest-"))
+      refute "noreply@catalog.example.test" in personas
     end
 
     test "lists the example sources changed against origin/main, sorted, render paths only" do

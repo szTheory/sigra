@@ -937,6 +937,7 @@ defmodule Sigra.Test.Brand.Catalog do
     files = build(opts)
 
     meta = %{
+      personas: Keyword.get_lazy(opts, :personas, fn -> catalog_personas(files) end),
       pinned: Map.put(identity, :css_sha256, css_hashes()),
       example_files_changed_vs_main:
         Keyword.get_lazy(opts, :example_files_changed_vs_main, fn ->
@@ -948,6 +949,19 @@ defmodule Sigra.Test.Brand.Catalog do
     File.write!(manifest_path, manifest(files, meta))
 
     %{dir: dir, files: Enum.sort([@manifest_file | Map.keys(files)])}
+  end
+
+  # The tier-1 literal personas plus the seeded cohort addresses found in tier 2.
+  # Bulk `loadtest-*` seed rows and the capture sender are not personas.
+  defp catalog_personas(files) do
+    tier2 =
+      for {path, text} <- files,
+          String.starts_with?(path, "tier2-example-admin/"),
+          [address] <- Regex.scan(~r/[A-Za-z0-9._+-]+@demo\.tasklane\.test/, text),
+          not String.starts_with?(address, "loadtest-"),
+          do: address
+
+    Enum.sort(Enum.uniq(persona_emails() ++ tier2))
   end
 
   defp write_files!(dir, files) do
@@ -1061,6 +1075,8 @@ defmodule Sigra.Test.Brand.Catalog do
         "tier 2: example-app admin pages rendered on seeded .test personas, labelled library-admin (example-mirror shell)",
         "generated lane: anonymous generated auth pages and generated emails from one freshly generated host",
         "generated emails are built in the capture host with the branding email_from_address overridden to a seeded .test sender; the shipped default sender is therefore not part of the captured bytes, and no shipped template or default changes",
+        "the tier-2 auth branding page is captured the same way: its sender field is overridden to a seeded .test sender for the capture, so the shipped default sender is not part of those bytes either",
+        "personas: the tier-1 literal personas and the seeded Tasklane cohort that appears in tier 2; the bulk loadtest-* seed rows are present in the pages but are not listed",
         "tier 0: copy inventories by reference (test/fixtures/brand/copy-inventory), not duplicated here"
       ],
       "not_covered" => [
@@ -1069,7 +1085,9 @@ defmodule Sigra.Test.Brand.Catalog do
         "explicit light and dark branding-profile variants of the generated anonymous auth pages: only the default-profile value is captured",
         "anything rendered from CSS, and any PNG: the catalog is text only",
         "event-driven states: confirm dialogs (revoke session, revoke all sessions, restore branding defaults), unsaved-draft and validation-error states of the branding screen, and loading skeletons are assigned in LiveView events or on socket connect, not by render assigns, so a pure render cannot reach them without faking copy",
-        "the sign-in preview placeholder address on the branding screen is masked to {{PREVIEW_EMAIL}}: the shipped literal is an example.com address that the privacy rule rejects and lib/ cannot change here, so a change to that literal surfaces as a privacy failure, not as a diff line"
+        "the sign-in preview placeholder address on the branding screen is masked to {{PREVIEW_EMAIL}}: the shipped literal is an example.com address that the privacy rule rejects and lib/ cannot change here, so a change to that literal surfaces as a privacy failure, not as a diff line",
+        "generated-host-pages/reset-password.html is a marker, not a rendered page: GET /users/reset-password answers HTTP 500 on a freshly generated host (a shipped defect), so the before baseline for that page is a one-line marker comment; once the shipped page is fixed its after is a real page against this marker",
+        "the capture session activity stamp is the only exact-value replacement ({{CAPTURE_SESSION_ACTIVITY}}) in the whole pipeline; every other absolute timestamp is pinned at the source, never normalized by pattern"
       ],
       "theme_note" =>
         "Admin theme is client-side (data-sg-admin-theme is set by an inline script from local storage), so admin HTML is identical across Light, Dark and System. " <>
@@ -1083,7 +1101,8 @@ defmodule Sigra.Test.Brand.Catalog do
       "fixes" => [
         "registration timing oracle",
         "passkey-options oracle",
-        "generated confirm and reset-request fixes"
+        "generated confirm and reset-request fixes",
+        "reset-request page: GET /users/reset-password answers HTTP 500 on a freshly generated host (CaseClauseError at ResetPasswordLive.mount/3, the generated route carries no live action); the before for that page is a marker, not a rendered page"
       ],
       "source" => "259-VERIFICATION.md, note 1 for the next phase planner",
       "rule" =>
