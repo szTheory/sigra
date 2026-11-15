@@ -275,6 +275,18 @@ defmodule Sigra.Brand.ClaimsDocsTest do
     Enum.reject(allowed, fn {file, substring} -> String.contains?(reader.(file), substring) end)
   end
 
+  # The first argument of every call to the generated reset-instructions function
+  # in `text`. The regex lives in the function, not a module attribute.
+  defp reset_call_args(text) do
+    ~r/deliver_user_reset_password_instructions\(\s*([^,\s)]+)\s*,/
+    |> Regex.scan(text, capture: :all_but_first)
+    |> List.flatten()
+  end
+
+  # True when a call argument is a user struct rather than an email address: the
+  # generated context's only function head requires a binary email.
+  defp user_struct_arg?(arg), do: Regex.match?(~r/\A@?(?:\w+\.)*(?:current_)?user\z/, arg)
+
   # --- the retired phrases are gone --------------------------------------
 
   describe "retired unbounded phrases" do
@@ -722,6 +734,62 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       entry = {"a.md", "The flow is enumeration-safe"}
 
       assert stale_sweep_entries([entry], reader) == [entry]
+    end
+  end
+
+  # --- the reset call shape in published code samples ---------------------
+
+  describe "reset instructions call shape" do
+    test "no published guide passes a user struct to deliver_user_reset_password_instructions" do
+      offenders =
+        for file <- sweep_files(),
+            arg <- reset_call_args(read!(file)),
+            user_struct_arg?(arg),
+            do: "#{file}: deliver_user_reset_password_instructions(#{arg}, ...)"
+
+      assert offenders == [],
+             """
+             The generated context takes the email address as a string; a sample that
+             passes a user struct raises a FunctionClauseError for an address that has an
+             account and returns normally for one that does not.
+
+             #{Enum.join(offenders, "\n")}
+             """
+    end
+
+    test "the check sees the samples: the password reset guide passes the email in both of its calls" do
+      args = reset_call_args(read!(@password_reset))
+
+      assert args == ["email", "user.email"]
+      refute Enum.any?(args, &user_struct_arg?/1)
+    end
+
+    test "positive control: a planted user struct argument is reported, an email is not" do
+      one_line = "    Accounts.deliver_user_reset_password_instructions(user, &url/1)\n"
+
+      wrapped =
+        "    Accounts.deliver_user_reset_password_instructions(\n      @user,\n      &url/1\n    )\n"
+
+      assigns = "deliver_user_reset_password_instructions(socket.assigns.user, &url/1)"
+      current = "deliver_user_reset_password_instructions(current_user, &url/1)"
+
+      for planted <- [one_line, wrapped, assigns, current] do
+        assert [arg] = reset_call_args(planted)
+        assert user_struct_arg?(arg), "planted #{inspect(planted)} went unreported"
+      end
+
+      for planted <- [
+            "deliver_user_reset_password_instructions(email, &url/1)",
+            "deliver_user_reset_password_instructions(user.email, &url/1)",
+            "deliver_user_reset_password_instructions(params[\"email\"], &url/1)"
+          ] do
+        assert [arg] = reset_call_args(planted)
+        refute user_struct_arg?(arg), "planted #{inspect(planted)} was wrongly reported"
+      end
+
+      # A mention of the function with no call is not a call.
+      assert reset_call_args("`deliver_user_reset_password_instructions/2` sends the email.") ==
+               []
     end
   end
 

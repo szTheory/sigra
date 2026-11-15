@@ -162,10 +162,10 @@ Confirm: open devtools → Cookies. The `_my_app_key` value should have changed 
 
 ## 7. Request a password reset
 
-Visit <http://localhost:4000/users/reset-password>. Enter `alice@example.com` and submit. The generated `ResetPasswordLive` calls:
+Visit <http://localhost:4000/users/reset-password>. Enter `alice@example.com` and submit. The reset request page hands the submitted address to the context, which looks the account up itself:
 
     Accounts.deliver_user_reset_password_instructions(
-      user,
+      email,
       &url(~p"/users/reset-password/#{&1}")
     )
 

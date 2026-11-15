@@ -144,7 +144,7 @@ For auth/account export tests, assert `omissions` when optional generated schema
     test "extract and confirm reset token" do
       user = user_fixture()
 
-      Accounts.deliver_user_reset_password_instructions(user, fn token -> "/reset/#{token}" end)
+      Accounts.deliver_user_reset_password_instructions(user.email, fn token -> "/reset/#{token}" end)
       Sigra.Testing.assert_email_sent(to: user.email, subject: "Reset")
 
       # Extract the token from the most recent mail body

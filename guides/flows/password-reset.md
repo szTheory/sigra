@@ -17,22 +17,23 @@ Sigra's password reset flow uses a one-time, HMAC-signed token with a 60-minute 
 
 The generated `ResetPasswordLive` renders a form with one field: email. Submitting it calls:
 
-    def handle_event("send_reset", %{"user" => %{"email" => email}}, socket) do
-      if user = Accounts.get_user_by_email(email) do
+    def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do
+      # The context looks the account up itself and returns {:ok, :sent} for an
+      # unknown address, so the view passes the submitted email and does not branch.
+      _ =
         Accounts.deliver_user_reset_password_instructions(
-          user,
+          email,
           &url(~p"/users/reset-password/#{&1}")
         )
-      end
 
       # Same flash message whether or not the email exists
       {:noreply,
        socket
        |> put_flash(:info, "If your email is in our system, you will receive reset instructions shortly.")
-       |> redirect(to: ~p"/")}
+       |> redirect(to: ~p"/users/log_in")}
     end
 
-The generated context's `deliver_user_reset_password_instructions/2` takes the email address as a string (its only function head requires a binary), so pass the submitted email rather than a looked-up user, and check this against the code generated into your app.
+The generated context's `deliver_user_reset_password_instructions/2` takes the email address as a string (its only function head requires a binary), so pass the submitted email rather than a looked-up user. A call that looks the account up first and passes the user fails with a `FunctionClauseError` for an address that has an account and returns normally for one that does not, which tells a visitor which addresses are registered. Check the call in the code generated into your app.
 
 `deliver_user_reset_password_instructions/2` generates a 32-byte random token, signs its hash with HMAC using your app's `secret_key_base`, stores the row in `auth.user_tokens` with `context: "reset_password"`, and renders the email template.
 
@@ -139,7 +140,7 @@ The `delete_all` on `auth.user_tokens` handles all of this in one query.
     test "delivers reset email" do
       user = Sigra.Testing.user_fixture()
 
-      Accounts.deliver_user_reset_password_instructions(user, &"/reset/#{&1}")
+      Accounts.deliver_user_reset_password_instructions(user.email, &"/reset/#{&1}")
 
       Sigra.Testing.assert_email_sent(to: user.email, subject: "Reset")
     end
