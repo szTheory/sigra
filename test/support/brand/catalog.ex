@@ -181,9 +181,10 @@ defmodule Sigra.Test.Brand.Catalog do
       own line; `:text` only trims trailing whitespace per line.
 
   Replaced: csrf token values (`{{CSRF}}`), `phx-` request ids, `data-phx-*` signed
-  values, the asset `vsn` query (`{{VSN}}`), per-render `mg-<n>-...-<n>` ids
-  (`{{N}}`), every UUID (`{{UUID}}`) and relative times such as `just now` or
-  `3h ago` (`{{RELATIVE}}`).
+  values, the asset `vsn` query (`{{VSN}}`), pagination `cursor=` values
+  (`{{CURSOR}}`: base64 of a timestamp and a row UUID, random per seeded run),
+  per-render `mg-<n>-...-<n>` ids (`{{N}}`), every UUID (`{{UUID}}`) and relative
+  times such as `just now` or `3h ago` (`{{RELATIVE}}`).
 
   One shipped literal is masked rather than normalized: the placeholder address in
   the branding sign-in preview (`Sigra.Admin.Components.preview_pair/1`) is an
@@ -228,6 +229,7 @@ defmodule Sigra.Test.Brand.Catalog do
     |> sub(~r/(data-phx-static=")[^"]*"/, "\\1{{PHX_STATIC}}\"")
     |> sub(~r/(request[-_]id["']?\s*[:=]\s*["']?)[A-Za-z0-9_=-]{8,}/i, "\\1{{REQUEST_ID}}")
     |> sub(~r/([?&]vsn=)[A-Za-z0-9]+/, "\\1{{VSN}}")
+    |> sub(~r/([?&;]cursor=)[A-Za-z0-9_%=-]+/, "\\1{{CURSOR}}")
     |> sub(~r/\b(mg-\d+-[a-z][a-z-]*-)\d+\b/, "\\1{{N}}")
     |> sub(@uuid, "{{UUID}}")
     |> sub(~r/\balex@example\.com\b/, "{{PREVIEW_EMAIL}}")

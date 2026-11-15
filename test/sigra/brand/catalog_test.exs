@@ -104,6 +104,25 @@ defmodule Sigra.Brand.CatalogTest do
       refute out =~ other
     end
 
+    test "a pagination cursor value is replaced, the rest of the query stays" do
+      # The audit cursor is base64url of "<timestamp>|<row uuid>"; the row uuid is a
+      # fresh random value on every seeded run, so two captures never agree on it.
+      first = "MTc2NzIyNTYyMDAwMDAwMHw1MjI3ODc0Yy0xMWFkLTQzZDAtOTU2OC01MDQ5ZjI0ZDNmYTA"
+      second = "MTc2NzIyNTYyMDAwMDAwMHwzOWUwZmQxNC1jZjhiLTRjYjAtODY3ZS1hNzBlY2QzNGZjNDQ"
+
+      page = fn cursor ->
+        ~s(<a href="/admin/audit?cursor=#{cursor}&amp;order_by=inserted_at">Next</a>) <>
+          ~s(<a href="/admin/audit?order_by=inserted_at&amp;cursor=#{cursor}">Next</a>)
+      end
+
+      out = Catalog.normalize(page.(first))
+
+      refute out =~ first
+      assert out =~ ~s(href="/admin/audit?cursor={{CURSOR}}&amp;order_by=inserted_at")
+      assert out =~ ~s(href="/admin/audit?order_by=inserted_at&amp;cursor={{CURSOR}}")
+      assert out == Catalog.normalize(page.(second))
+    end
+
     test "wall-clock relative text is replaced and absolute timestamps are kept" do
       html =
         "<p>just now</p><p>5m ago</p><p>3h ago</p><p>304d ago</p>" <>
