@@ -32,7 +32,7 @@ Priority: **M** must, **S** should (cut first if capacity is short). Net-new dep
 - [ ] **BGEN-02** (M): Determinism: double install byte-identical; `mix sigra.fixture.rebless_golden --check` clean under pinned `phx_new 1.8.8`.
 - [ ] **BGEN-03** (M): Before catalog, text: normalized rendered-HTML snapshots per in-scope screen x state x theme on seeded `.test` personas (three tiers: inventory, pure render, page render), captured at a pinned SHA while output is byte-identical to main. Auth pages rendered from the **template** CSS. No new PNG baselines.
 - [ ] **BGEN-04** (M): Latent defect L1: move `.sg-brand-mark*` and explicit Light/Dark rules into shipped `sigra_admin.css`, drop `app.css` duplicates, verify in a real generated host; add a CSS version stamp comment.
-- [ ] **BGEN-05** (M): Latent defect L2: wire `admin-css-conformance.sh` and `admin-token-completeness.sh` into `mix ci`/`fast_checks` (or retire explicitly).
+- [x] **BGEN-05** (M): Latent defect L2: wire `admin-css-conformance.sh` and `admin-token-completeness.sh` into `mix ci`/`fast_checks` (or retire explicitly).
 - [ ] **BGEN-06** (M): Park PR (separate, small, not a brand PR): demote PNG-compare lanes (`admin_checkpoints`, `demo_showcase`, design_gallery `@snapshot`) to dispatch; keep real-login and generated-host smoke, axe, golden install and behavior specs. Canary never allowlisted; no darwin recapture. Merges before Phase 3 starts.
 - [ ] **BGEN-07** (S): Before/after text-diff report script.
 - [ ] **BGEN-08** (S): Extend `DesignGalleryLive` with auth-page, email and status-mark states (dev-only; no new framework).
@@ -122,7 +122,7 @@ Filled by the roadmapper 2026-11-13. Every v1 requirement maps to exactly one ph
 | BGEN-02 | Phase 260 | Pending |
 | BGEN-03 | Phase 260 | Pending |
 | BGEN-04 | Phase 260 | Pending |
-| BGEN-05 | Phase 260 | Pending |
+| BGEN-05 | Phase 260 | Complete |
 | BGEN-06 | Phase 260 | Pending |
 | BGEN-07 | Phase 260 | Pending |
 | BGEN-08 | Phase 260 | Pending |
