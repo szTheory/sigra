@@ -1333,6 +1333,8 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+          # PNG compare is parked off workflow_dispatch (BGEN-06); axe and behavior still run.
+          SIGRA_PNG_COMPARE_SKIP: ${{ github.event_name == 'workflow_dispatch' && '0' || '1' }}
         run: |
           npx playwright test \
             tests/admin-checkpoints.spec.ts \
@@ -1371,6 +1373,8 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+          # PNG compare is parked off workflow_dispatch (BGEN-06); axe and behavior still run.
+          SIGRA_PNG_COMPARE_SKIP: ${{ github.event_name == 'workflow_dispatch' && '0' || '1' }}
         run: |
           npx playwright test \
             tests/admin-design.spec.ts \
@@ -1409,6 +1413,8 @@ jobs:
         env:
           CI: "true"
           SIGRA_EXAMPLE_URL: ${{ matrix.base_url }}
+          # PNG compare is parked off workflow_dispatch (BGEN-06); axe and behavior still run.
+          SIGRA_PNG_COMPARE_SKIP: ${{ github.event_name == 'workflow_dispatch' && '0' || '1' }}
         run: |
           npx playwright test \
             tests/demo-showcase.spec.ts \

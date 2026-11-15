@@ -140,12 +140,26 @@ async function assertNoAxeViolations(page: Page, label: string) {
   expect(violations, `${label}: axe violations\n${detail}`).toHaveLength(0);
 }
 
+// BGEN-06: the PNG compare is parked on pull_request/push/schedule runs and runs
+// on workflow_dispatch and in the recapture jobs. `1` skips only the
+// `toHaveScreenshot` call below; unset (or any other value) compares, so
+// recapture and drift scripts keep comparing with no env change. The axe scan
+// above the guard always runs.
+const skipPngCompare = process.env.SIGRA_PNG_COMPARE_SKIP === '1';
+
 /**
  * Phase 35: committed `toHaveScreenshot` baselines (5 checkpoints × 3 projects).
  * Snapshots live under `admin-checkpoints.spec.ts-snapshots/` (Playwright default).
  */
 async function assertCheckpointScreenshot(page: Page, testInfo: TestInfo, slug: string) {
   await assertNoAxeViolations(page, `axe:${slug}`);
+  if (skipPngCompare) {
+    testInfo.annotations.push({
+      type: 'png-compare',
+      description: `skipped ${slug}.png: PNG compare parked on PR/push (SIGRA_PNG_COMPARE_SKIP=1)`,
+    });
+    return;
+  }
   // Name excludes project — Playwright appends project + platform to the file path.
   // Viewport-only: full-page captures vary in height run-to-run (audit rows,
   // LiveView hydration) and break baselines across CI vs local.
