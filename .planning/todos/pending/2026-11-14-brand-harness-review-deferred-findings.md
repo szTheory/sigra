@@ -21,8 +21,6 @@ Phase 259's code review found 0 critical and 8 warnings. WR-01, WR-02, WR-06, WR
 - **WR-03 (scope part):** the copy inventory does not extract JS hook copy (`passkey_browser.js`, `admin_hooks.js`), HEEx attribute values (`label=`, `placeholder=`, `aria-label=`, `title=`, `phx-disable-with=`, `data-confirm=`), or raw Elixir literals outside dgettext / put_flash / HEEx / email builders (about 200 multi-word generated strings). The headers now say so. Decide whether a Phase 262-263 task adds `literal` and `heex_attr` kinds (one regeneration plus a reviewed diff) before copy edits begin; until then a copy edit to those forms passes the inventory unseen.
 - **WR-04:** the admin copy contract is pinned to nine files. `lib/sigra/error.ex` (27 `safe_message` strings), `lib/sigra/admin/audit/presenter.ex` (7) and a few other strings under `lib/sigra/admin/` sit outside every scope although the inventory lists them. Decide whether to widen the scope (this changes baselines in the growing direction, so it needs review).
 - **WR-05:** the add-only and shrink-only ratchets (frozen-surface, copy-baseline) can be loosened by editing the JSON in the same commit as the breaking change; there is no base-branch diff gate or CODEOWNERS file, and an unknown scope name in a baseline entry is ignored. Decide on a CI diff-against-base check and/or CODEOWNERS for `test/fixtures/brand/`.
-- **WR-08 (residual):** the `mfa-challenge` parity row varies by code kind, not account existence, yet counts toward the "at least three of five parity surfaces" rule. Excluding it would fail the BCOPY-03 count, so whether it counts is an owner call.
-
 ## Info findings (optional cleanup)
 
 - IN-01: the privacy scan models fewer metadata containers than its claim (UTF-16 font records, JPEG XMP/COM, PNG `iCCP`/`tIME`, PDF XMP). The real `brand/` tree is clean today.
@@ -30,6 +28,10 @@ Phase 259's code review found 0 critical and 8 warnings. WR-01, WR-02, WR-06, WR
 - IN-03: duplicated helpers across the brand tests (`pretty/2`, `section_slice`, `cells`, `read!`).
 - IN-04 (necessity): the `extend_only` refusal inside `extend_baseline!` is unreachable.
 - IN-05 (necessity): the sweep allow-list machinery supports a list the policy says must stay empty.
+
+## Resolved
+
+- **WR-08 (residual), resolved by Plan 259-16:** the `mfa-challenge` row varies by code kind, not account existence, so it is kept as a parity probe and counted separately. The named-surface rule in `enumeration_parity_test.exs` now requires the three account-existence surfaces (`password-signin`, `magic-link-request`, `password-reset-request`) to be parity on their own, with `confirmation-resend` (payload ignored) and `mfa-challenge` (code kind) in separate classes that can never satisfy or stand in for them; the "at least three of five" floor and the parity-or-not_proven tolerance are deleted. The classification is test-only and reversible with a one-line edit; the owner may revisit it.
 
 ## Housekeeping noticed by the fixer
 
