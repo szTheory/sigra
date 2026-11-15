@@ -1,6 +1,6 @@
 # ADR 005: Brand adoption compatibility policy
 
-**Status:** Accepted (policy shape). Every recorded decision except #12 is a recommended default that still awaits owner confirmation; decision #12 was confirmed on 2026-11-13.
+**Status:** Accepted (policy shape). Every recorded decision is confirmed: decision #12 on 2026-11-13, and decisions 1-9, 11 and 14 as recommended by the owner on 2026-11-15.
 **Date:** 2026-11-13
 **Context:** Phase 259 (v1.51 brand identity adoption). The visual source is brand book v2.0 (2026-11-13), vendored read-only in `brand/`. This record states what the rebrand may and may not change before any visible change is made.
 
@@ -16,18 +16,18 @@ Numbering follows the milestone owner-decision list. Decisions #10 and #13 belon
 
 | # | Decision | Recommended default | Status |
 |---|----------|---------------------|--------|
-| 1 | `Profile` defaults versus the book's neutrals | Freeze the defaults. The accent already equals the book's accent; the neutrals differ, and moving them is a deferred future requirement. | Recommended default - owner confirmation pending |
-| 2 | Admin typeface | Record additive `--sg-font-sans` and `--sg-font-mono` tokens only, host-inherited by default; Sigra-owned surfaces self-host two woff2 files in Phase 261. | Recommended default - owner confirmation pending |
-| 3 | SemVer level | Minor release; `feat`, `fix` and `docs` commit types only; no `!` marker; no BREAKING footer; a "Visual and copy changes" changelog section; nothing hand-added under CHANGELOG "Unreleased". | Recommended default - owner confirmation pending |
-| 4 | Changed msgids | Targeted renames per surface with an old-to-new rename table; tier-1 strings, route paths, helpers and the `sigra` domain untouched. | Recommended default - owner confirmation pending |
-| 5 | Suspended, unlock and seven-day rule | Out of scope; a seed is filed by the milestone owner, nothing is built here. | Recommended default - owner confirmation pending |
-| 6 | Status labels | Adopt Active, Unconfirmed and Locked; keep "Deletion scheduled" because it names a reversible grace period. | Recommended default - owner confirmation pending |
-| 7 | PNG-lane policy | Park: demote the two PNG-compare lanes from PR-blocking to dispatch at the end of Phase 260. | Recommended default - owner confirmation pending |
-| 8 | Vendoring scope and pin | Pin the whole tracked `brand/` tree (72 files) with one root manifest; document the consumed subset as a table. | Recommended default - owner confirmation pending |
-| 9 | Generate versus verify | Verify only: no builder, no new Mix task. | Recommended default - owner confirmation pending |
-| 11 | Install-pin shape | A test enforces the three-segment shape and equality now; the value bump happens in Phase 263. | Recommended default - owner confirmation pending |
+| 1 | `Profile` defaults versus the book's neutrals | Freeze the defaults. The accent already equals the book's accent; the neutrals differ, and moving them is a deferred future requirement. | Confirmed as recommended by owner, 2026-11-15 |
+| 2 | Admin typeface | Record additive `--sg-font-sans` and `--sg-font-mono` tokens only, host-inherited by default; Sigra-owned surfaces self-host two woff2 files in Phase 261. | Confirmed as recommended by owner, 2026-11-15 |
+| 3 | SemVer level | Minor release; `feat`, `fix` and `docs` commit types only; no `!` marker; no BREAKING footer; a "Visual and copy changes" changelog section; nothing hand-added under CHANGELOG "Unreleased". | Confirmed as recommended by owner, 2026-11-15 |
+| 4 | Changed msgids | Targeted renames per surface with an old-to-new rename table; tier-1 strings, route paths, helpers and the `sigra` domain untouched. | Confirmed as recommended by owner, 2026-11-15 |
+| 5 | Suspended, unlock and seven-day rule | Out of scope; a seed is filed by the milestone owner, nothing is built here. | Confirmed as recommended by owner, 2026-11-15 |
+| 6 | Status labels | Adopt Active, Unconfirmed and Locked; keep "Deletion scheduled" because it names a reversible grace period. | Confirmed as recommended by owner, 2026-11-15 |
+| 7 | PNG-lane policy | Park: demote the two PNG-compare lanes from PR-blocking to dispatch at the end of Phase 260. | Confirmed as recommended by owner, 2026-11-15 |
+| 8 | Vendoring scope and pin | Pin the whole tracked `brand/` tree (72 files) with one root manifest; document the consumed subset as a table. | Confirmed as recommended by owner, 2026-11-15 |
+| 9 | Generate versus verify | Verify only: no builder, no new Mix task. | Confirmed as recommended by owner, 2026-11-15 |
+| 11 | Install-pin shape | A test enforces the three-segment shape and equality now; the value bump happens in Phase 263. | Confirmed as recommended by owner, 2026-11-15 |
 | 12 | Instruction-file pointer fix | Minimal pointer edit to `CLAUDE.md`, `AGENTS.md` and the two admin guides, pointing at the new `brand/` book. | Owner-approved, confirmed 2026-11-13 |
-| 14 | Name and trademark posture; clear-space and logo-use authority | No trademark claim; record the same-name Hex package; clear-space authority recommended as the book's prose rule of 2 T; detailed in ADR 006. | Recommended default - owner confirmation pending |
+| 14 | Name and trademark posture; clear-space and logo-use authority | No trademark claim; record the same-name Hex package; clear-space authority recommended as the book's prose rule of 2 T; detailed in ADR 006. | Confirmed as recommended by owner, 2026-11-15 |
 
 ## Frozen list
 
@@ -89,7 +89,7 @@ The "Brand owner" column names who decides the visual identity once a surface sh
 
 ## Recorded decisions
 
-Each decision below is a recommended default awaiting owner confirmation, except where marked.
+Each decision below was proposed as a recommended default and confirmed as recommended by the owner on 2026-11-15 (decision 12 on 2026-11-13).
 
 ### Decision 1: Profile defaults frozen
 
@@ -140,7 +140,7 @@ Reversibility: cheap. A lane can return to PR-blocking by reverting the park pul
 - **#8 vendoring scope.** The manifest pins the whole tracked `brand/` tree. Pruning would leave the book's own index and manifest pointing at removed files, so "consumed subset" is documented as a table in the public guide, not enforced by deletion.
 - **#9 verify only.** Generated output is checked against its sources by tests; no builder, marker-region CSS generator or new Mix task is introduced.
 - **#11 install-pin shape.** Documented dependency snippets use a three-segment requirement. The shape and equality across README, guides, docs and templates are enforced now; the value is bumped in Phase 263 together with its contract test.
-- **#14 name and clear space.** No trademark claim is made. The clear-space authority is recommended to be the book's prose rule (2 T, twice the square's side). The book's JSON carries a second, shorter rule that disagrees with it; ADR 006, written by Plan 259-11, records the measurement and the choice.
+- **#14 name and clear space.** No trademark claim is made. The clear-space authority is the book's prose rule (2 T, twice the square's side), confirmed 2026-11-15. The book's JSON carries a second, shorter rule that disagrees with it; ADR 006, written by Plan 259-11, records the measurement and the choice.
 
 ## Hex install-pin note
 
@@ -157,8 +157,24 @@ Decision #11 follows from this: the shape (three segments, all equal) is enforce
 - Later phases cite this record instead of re-deciding: Phase 260 executes the park, Phase 261 applies tokens and type, Phase 262 appends rename-table rows, Phase 263 bumps the install pin and publishes the upgrade guide.
 - A maintainer can answer "may I rename this?" from the frozen and add-only lists, and "who updates this for an existing host?" from the lane table.
 - The ratchet (Plan 259-05), the lexicon and inventory tests (Plans 259-06 and 259-08) and the doc-contract test for this record make the policy executable rather than advisory.
-- Decisions other than #12 remain recommended defaults until the owner confirms them. If the owner changes one, the change is a dated in-place amendment to this record.
+- All recorded decisions are confirmed. A later change to any of them is a dated in-place amendment to this record.
 
 ## Revisit triggers
 
 Revisit this decision if the owner declines a recommended default, if a phase needs to rename a frozen name, if the release-please configuration changes how sections or footers are produced, or if the Hex retirement state of the stray 1.20.0 release changes. Amendments follow the dated, in-place retraction style established by ADR 003; this record is not silently rewritten.
+
+## Amendment 2026-11-15: owner confirmation and the SC-4 reading
+
+**A. Owner confirmation.** On 2026-11-15 the owner confirmed decisions 1-9, 11 and 14 as recommended ("follow your recs"), together with the two decisions in ADR 006 (clear-space and logo-use). No decision text changed; only the status of each row moved from a recommended default to confirmed.
+
+**B. The SC-4 reading.** SC-4 means "every pre-auth surface has an asserted, honest state". It does not mean every listed surface is identical. Registration and passkey sign-in options stay registered as known divergences: the registry asserts that they still differ, and the public docs list them as not covered.
+
+Both divergences are real account-existence leaks, and a phase that ships zero changed bytes cannot fix them. The owner's direction is that they are fixed as shipped-byte work before Phase 262. Two todos track them:
+
+- `.planning/todos/pending/2026-11-13-duplicate-registration-timing-oracle.md` covers registration. It handles the timing oracle and notes that the auto-sign-in versus flash difference is inherent to signing a new account in, so the fix does not promise that part becomes identical.
+- `.planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md` covers passkey sign-in options.
+
+Two further todos name generated-host fixes that go with the same shipped-byte work before Phase 262:
+
+- `.planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md` covers the generated confirmation routes.
+- `.planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md` covers the generated reset request page.
