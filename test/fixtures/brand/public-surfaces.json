@@ -43,8 +43,8 @@
         "body"
       ],
       "state": "parity",
-      "note": "Identity = whether the submitted email belongs to an account. One reset request submitted through the LiveView form for an existing email versus an unknown email, fresh state. Compares the reported redirect outcome (302), the redirect location, the flash read from the redirect and the followed login page body after normalizing only CSRF tokens, request ids and the echoed email. NOT compared: response timing (an unknown address costs one dummy hash, an existing one writes a token and delivers an email), email delivery, the rate limit (see password-reset-rate-limit), locked, unconfirmed and enterprise-policy accounts, and the generated host (the example host is a hand-maintained copy; the generated reset page is not compared).",
-      "todo": null,
+      "note": "Identity = whether the submitted email belongs to an account. One reset request submitted through the LiveView form for an existing email versus an unknown email, fresh state. Compares the reported redirect outcome (302), the redirect location, the flash read from the redirect and the followed login page body after normalizing only CSRF tokens, request ids and the echoed email. NOT compared: response timing (an unknown address costs one dummy hash, an existing one writes a token and delivers an email), email delivery, the rate limit (see password-reset-rate-limit), locked, unconfirmed and enterprise-policy accounts, and the generated host (the example host is a hand-maintained copy; the generated reset page is not compared). The generated host's reset request page is not compared and its defects are tracked by the linked todo.",
+      "todo": ".planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md",
       "blocker": null
     },
     {

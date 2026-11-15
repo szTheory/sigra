@@ -121,11 +121,14 @@ defmodule ExampleWeb.EnumerationParityTest do
   @named_leak_ids ~w(passkey-signin-options registration password-signin-repeat-attempts magic-link-rate-limit password-reset-rate-limit)
 
   # The exact todo path each row carries (single path per row, every other row
-  # null). Plan 259-13 asserts the three new files exist; this test only fixes
-  # the strings, so it stays green on its own.
+  # null). Plan 259-13 asserts the three new files exist, Plan 259-17 the fourth
+  # (the generated reset page); this test only fixes the strings, so it stays
+  # green on its own.
   @expected_todos %{
     "passkey-signin-options" =>
       ".planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md",
+    "password-reset-request" =>
+      ".planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md",
     "password-signin-repeat-attempts" =>
       ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
     "magic-link-rate-limit" =>
@@ -140,13 +143,16 @@ defmodule ExampleWeb.EnumerationParityTest do
       ".planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md"
   }
 
-  # The three fix-tracking todos filed for the known divergences and the deferred
-  # library over-claims. Named here independently of @expected_todos so that a
-  # registry edit which drops a reference to one of them goes red.
+  # The four fix-tracking todos filed for the known divergences, the deferred
+  # library over-claims and the generated host's reset request page (a parity row
+  # here covers the example host only). Named here independently of
+  # @expected_todos so that a registry edit which drops a reference to one of them
+  # goes red.
   @new_todo_paths [
     ".planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md",
     ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
-    ".planning/todos/pending/2026-11-13-lib-moduledoc-enumeration-overclaims.md"
+    ".planning/todos/pending/2026-11-13-lib-moduledoc-enumeration-overclaims.md",
+    ".planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md"
   ]
 
   # Dimensions on which each known divergence differs today. Asserted exactly, so
@@ -327,7 +333,7 @@ defmodule ExampleWeb.EnumerationParityTest do
       end
     end
 
-    test "every non-null registry todo path is a real file, and the three new todos are referenced" do
+    test "every non-null registry todo path is a real file, and the four new todos are referenced" do
       todos = for %{"todo" => todo} when is_binary(todo) <- surfaces(), do: todo
 
       assert todos != [], "no registry row carries a todo path"
