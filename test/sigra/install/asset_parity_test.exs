@@ -316,6 +316,55 @@ defmodule Sigra.Install.AssetParityTest do
     end
   end
 
+  # BGEN-04: the first line of sigra_admin.css is a version stamp, an integer CSS
+  # contract level (not the package version) that a host can read to know which
+  # shipped rules it has. The three copies must carry the same one. These are three
+  # separate tests so a stale copy names itself: a stale golden tree fails only the
+  # golden test until it is reblessed.
+  describe "sigra_admin.css version stamp" do
+    @stamp_template "#{@templates_dir}/admin/sigra_admin.css"
+    @stamp_example "#{@example_assets}/sigra_admin.css"
+    @stamp_golden "#{@golden_assets}/sigra_admin.css"
+
+    test "the template starts with a /* sigra-admin-css: N */ stamp line" do
+      assert {:ok, level} = stamp_level(read!(@stamp_template))
+      assert level >= 1
+    end
+
+    test "the example copy carries the same stamp as the template" do
+      assert stamp_level(read!(@stamp_example)) == stamp_level(read!(@stamp_template)),
+             "#{@stamp_example} first line differs from the template; resync with: " <>
+               "cp #{@stamp_template} #{@stamp_example}"
+    end
+
+    test "the golden install tree copy carries the same stamp as the template" do
+      assert stamp_level(read!(@stamp_golden)) == stamp_level(read!(@stamp_template)),
+             "#{@stamp_golden} first line differs from the template; resync with: " <>
+               "MIX_ENV=test mix sigra.fixture.rebless_golden " <>
+               "(only after confirming the template change is intended)"
+    end
+
+    test "the stamp reader accepts only an integer level on the very first line" do
+      assert stamp_level("/* sigra-admin-css: 1 */\n/* header */\n") == {:ok, 1}
+      assert stamp_level("/* sigra-admin-css: 12 */") == {:ok, 12}
+
+      # Planted bad stamps: absent, not on the first line, non-integer, malformed, and an
+      # unrendered template tag (the file is EEx-rendered and must stay tag-free).
+      assert stamp_level("/* Vaultr/Sigra demo design layer.\n */\n") == :error
+      assert stamp_level("/* header */\n/* sigra-admin-css: 1 */\n") == :error
+      assert stamp_level("/* sigra-admin-css: x */\n") == :error
+      assert stamp_level("/* sigra-admin-css: 1.2 */\n") == :error
+      assert stamp_level("/* sigra-admin-css: 1 */ trailing\n") == :error
+      assert stamp_level("/* sigra-admin-css: <%= level %> */\n") == :error
+      assert stamp_level("") == :error
+    end
+
+    test "two different stamp levels are reported as different" do
+      refute stamp_level("/* sigra-admin-css: 1 */\n") ==
+               stamp_level("/* sigra-admin-css: 2 */\n")
+    end
+  end
+
   describe "documented divergences" do
     for %{relation: {:documented_divergence, _reason}} = row <- @assets do
       @row row
@@ -446,6 +495,18 @@ defmodule Sigra.Install.AssetParityTest do
     do: first_diff_offset(rest_a, rest_b, offset + 1)
 
   defp first_diff_offset(_a, _b, offset), do: offset
+
+  # `{:ok, level}` when the first line is exactly `/* sigra-admin-css: N */` with an
+  # integer N, otherwise `:error`. Pure, so the planted controls call the same function
+  # the real assertions call.
+  defp stamp_level(css) when is_binary(css) do
+    first_line = css |> String.split("\n", parts: 2) |> hd()
+
+    case Regex.run(~r/\A\/\* sigra-admin-css: (\d+) \*\/\z/, first_line) do
+      [_whole, level] -> {:ok, String.to_integer(level)}
+      nil -> :error
+    end
+  end
 
   # Pure completeness check over two lists of repo-relative template paths.
   defp completeness(table_paths, found_paths) do

@@ -4,7 +4,7 @@
 # Library admin markup (lib/sigra/admin/**) and the generated admin shell
 # (priv/templates/sigra.install/admin/**) emit sg-* classes that the one stylesheet the
 # installer copies, priv/templates/sigra.install/admin/sigra_admin.css, does not define.
-# Today 53 of them are defined only in the example application's app.css (a hand mirror
+# Today 46 of them are defined only in the example application's app.css (a hand mirror
 # that a generated host does not have) and 3 are defined nowhere (sg-branding-editor,
 # sg-cluster--2 and sg-stack--4). A generated host renders those elements unstyled unless
 # its own Tailwind/DaisyUI utilities happen to cover them. Moving all of that styling into
@@ -22,11 +22,14 @@
 # One class per line, sorted, no duplicates. Lines starting with # are ignored.
 #
 # MEASURED
-# 56 classes at creation (Phase 260 plan 07): 153 sg-* classes emitted by class="..." and
-# class={...} attributes in the markup roots, 112 defined in the shipped sigra_admin.css.
-# Of the 56, 53 are defined in the example app.css and 3 nowhere. The brand-mark and
-# theme-switch entries (sg-brand-mark*, sg-theme-switch) are the ones the later brand-mark
-# and explicit-theme CSS plan removes when it adds those rules to the shipped stylesheet.
+# 49 classes after Phase 260 plan 09: 153 sg-* classes emitted by class="..." and
+# class={...} attributes in the markup roots, 119 defined in the shipped sigra_admin.css.
+# Of the 49, 46 are defined in the example app.css and 3 nowhere.
+# History: 56 at creation (Phase 260 plan 07; 53 in the example app.css, 3 nowhere). Plan 09
+# moved the brand-mark and theme-switch rules into the shipped stylesheet (BGEN-04, latent
+# defect L1) and removed exactly those seven entries: sg-brand-mark, sg-brand-mark__image,
+# sg-brand-mark__image--dark, sg-brand-mark__image--light, sg-brand-mark__lockup,
+# sg-brand-mark__section and sg-theme-switch. The rest of the gap is not moved in this phase.
 sg-admin-body
 sg-admin-content
 sg-admin-crumbs
@@ -34,12 +37,6 @@ sg-admin-main
 sg-admin-sidebar
 sg-bottom-nav
 sg-bottom-nav__item
-sg-brand-mark
-sg-brand-mark__image
-sg-brand-mark__image--dark
-sg-brand-mark__image--light
-sg-brand-mark__lockup
-sg-brand-mark__section
 sg-branding-details-grid
 sg-branding-draft
 sg-branding-editor
@@ -81,5 +78,4 @@ sg-select
 sg-self-start
 sg-stack--4
 sg-tabs
-sg-theme-switch
 sg-toolbar
