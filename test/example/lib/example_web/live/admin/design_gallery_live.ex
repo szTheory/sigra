@@ -7,6 +7,11 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
   the route is compile_env(:example, :dev_routes) gated.
 
   Data is all static literal assigns — no DB queries, no Query module imports.
+
+  The `catalog-*` section ("Catalog states") draws the auth-page, email and
+  status-word states of the before/after brand catalog as static markup in the
+  host-owned neutral default look; its ids are not `board-*` ids, so it has no
+  PNG baseline and is not in the Playwright board registries.
   """
   use ExampleWeb, :live_view
   import Sigra.Admin.Components
@@ -1430,6 +1435,228 @@ defmodule ExampleWeb.Admin.DesignGalleryLive do
             </div>
           </section>
 
+        </div>
+      </section>
+
+      <%!-- ================================================================
+           Catalog states — catalog-* (BGEN-08)
+           Auth-page, email and status-word states drawn as static markup in
+           the host-owned neutral default look, so the before/after catalog
+           review has one place to see them. Not a Components board: no id
+           here is in COMPONENT_BOARDS, GROUP_BOARDS or CONFIG_BOARDS, so no
+           PNG baseline or registry moves. "Suspended" is drawn here only
+           (ADR 005 decision 6: a catalog state, never a product state).
+           Every address is a fictional .test address; no live data.
+
+           The auth and email previews are pinned to the light palette
+           (data-theme="light") on purpose: the shipped default dark palette
+           draws accent text (#c2410c) on its dark surface at 3.17:1, below
+           WCAG AA, and the page-wide axe test runs in the dark project too.
+           Fixing that palette is Phase 261 token work (BTOK-03), not this
+           section's job; once it lands the pin can move back to "system".
+           ================================================================ --%>
+      <section id="catalog-states" class="sg-stack sg-stack--4">
+        <h2 class="sg-section-heading">Catalog states</h2>
+        <link rel="stylesheet" href={~p"/assets/sigra_auth.css"} />
+        <div class="sg-stack sg-stack--6">
+          <%!-- Auth pages: the generated sign-in page default, without and with an error --%>
+          <div id="catalog-auth-login" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">auth page: sign in</p>
+            <div class="sigra-auth sigra-auth--preview" data-theme="light">
+              <section class="sigra-auth__viewport" aria-label="Sign in page preview">
+                <div class="sigra-auth__panel">
+                  <div class="sigra-auth__brand">
+                    <div class="sigra-auth__mark" aria-hidden="true">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                    <p class="sigra-auth__product">Example</p>
+                  </div>
+
+                  <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
+                    <div class="sigra-auth-stack sigra-auth-stack--2">
+                      <h3>Sign in</h3>
+                      <p class="sigra-auth-copy">
+                        New here? <a href="#catalog-auth-login">Create an account</a>
+                      </p>
+                    </div>
+
+                    <div class="sigra-auth-stack sigra-auth-stack--4">
+                      <label for="catalog-auth-login-link-email">Email for sign-in link</label>
+                      <input
+                        id="catalog-auth-login-link-email"
+                        type="email"
+                        value="catalog-user@example.test"
+                        autocomplete="username"
+                        readonly
+                      />
+                      <button
+                        type="button"
+                        class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
+                      >
+                        Email me a sign-in link <span aria-hidden="true">&rarr;</span>
+                      </button>
+                    </div>
+
+                    <details class="sigra-auth-disclosure" open>
+                      <summary>Other ways to sign in</summary>
+                      <div class="sigra-auth-stack sigra-auth-stack--4">
+                        <label for="catalog-auth-login-email">Email</label>
+                        <input
+                          id="catalog-auth-login-email"
+                          type="email"
+                          value="catalog-user@example.test"
+                          autocomplete="username"
+                          readonly
+                        />
+                        <label for="catalog-auth-login-password">Password</label>
+                        <input
+                          id="catalog-auth-login-password"
+                          type="password"
+                          value="catalog-sample"
+                          autocomplete="current-password"
+                          readonly
+                        />
+                        <label class="sigra-auth-cluster" for="catalog-auth-login-remember">
+                          <input
+                            id="catalog-auth-login-remember"
+                            type="checkbox"
+                            class="sigra-auth-check"
+                            disabled
+                          /> Keep me signed in
+                        </label>
+                        <button
+                          type="button"
+                          class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--block"
+                        >
+                          Sign in with password
+                        </button>
+                      </div>
+                    </details>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <div id="catalog-auth-error" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">auth page: sign in, error</p>
+            <div class="sigra-auth sigra-auth--preview" data-theme="light">
+              <section class="sigra-auth__viewport" aria-label="Sign in error preview">
+                <div class="sigra-auth__panel">
+                  <div class="sigra-auth__brand">
+                    <div class="sigra-auth__mark" aria-hidden="true">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                    <p class="sigra-auth__product">Example</p>
+                  </div>
+
+                  <p
+                    class="sigra-auth-status sigra-auth-status--danger"
+                    role="alert"
+                    aria-live="assertive"
+                  >
+                    Invalid email or password
+                  </p>
+
+                  <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
+                    <div class="sigra-auth-stack sigra-auth-stack--2">
+                      <h3>Sign in</h3>
+                      <p class="sigra-auth-copy">
+                        New here? <a href="#catalog-auth-error">Create an account</a>
+                      </p>
+                    </div>
+
+                    <div class="sigra-auth-stack sigra-auth-stack--4">
+                      <label for="catalog-auth-error-email">Email</label>
+                      <input
+                        id="catalog-auth-error-email"
+                        type="email"
+                        value="catalog-user@example.test"
+                        autocomplete="username"
+                        readonly
+                      />
+                      <label for="catalog-auth-error-password">Password</label>
+                      <input
+                        id="catalog-auth-error-password"
+                        type="password"
+                        value=""
+                        autocomplete="current-password"
+                        readonly
+                      />
+                      <button
+                        type="button"
+                        class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--block"
+                      >
+                        Sign in with password
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <%!-- Emails: static preview frames; subject and copy follow the host-neutral email templates --%>
+          <div id="catalog-email-confirmation" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">email: confirmation</p>
+            <div class="sigra-auth-email-preview" data-theme="light">
+              <div class="sigra-auth-email-preview__message">
+                <p><strong>Subject:</strong> Confirm your email</p>
+                <p><strong>To:</strong> catalog-user@example.test</p>
+                <p>
+                  Hi, please confirm your email address by clicking the button below or entering the code.
+                </p>
+                <p>Your confirmation code: 4 8 2 9 1 7</p>
+                <p>This code expires in 48 hours.</p>
+                <span class="sigra-auth-email-preview__button">Confirm email address</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="catalog-email-reset" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">email: password reset</p>
+            <div class="sigra-auth-email-preview" data-theme="light">
+              <div class="sigra-auth-email-preview__message">
+                <p><strong>Subject:</strong> Reset your password</p>
+                <p><strong>To:</strong> catalog-user@example.test</p>
+                <p>
+                  Hi, we received a request to reset your password. If you didn't make this request, you can ignore this email.
+                </p>
+                <span class="sigra-auth-email-preview__button">Reset password</span>
+              </div>
+            </div>
+          </div>
+
+          <%!-- Status words: the existing sg-status-pill, tones the product already uses --%>
+          <div id="catalog-status-active" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">status: active</p>
+            <span class="sg-status-pill" data-tone="ok">Active</span>
+          </div>
+
+          <div id="catalog-status-unconfirmed" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">status: unconfirmed</p>
+            <span class="sg-status-pill" data-tone="warn">Unconfirmed</span>
+          </div>
+
+          <div id="catalog-status-locked" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">status: locked</p>
+            <span class="sg-status-pill" data-tone="risk">Locked</span>
+          </div>
+
+          <div id="catalog-status-deletion-scheduled" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">status: deletion scheduled</p>
+            <span class="sg-status-pill" data-tone="warn">Deletion scheduled</span>
+          </div>
+
+          <div id="catalog-status-suspended" class="sg-card sg-stack sg-stack--4">
+            <p class="sg-muted sg-text-sm">status: suspended</p>
+            <span class="sg-status-pill">Suspended</span>
+            <p class="sg-muted sg-text-xs">Catalog only, not a product state</p>
+          </div>
         </div>
       </section>
 
