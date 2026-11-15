@@ -249,3 +249,36 @@ the intended rebless (the writer removes and rewrites the whole tree, so a run w
 every one), `git status` was clean and `--check` stayed clean afterwards. A task that rewrites a committed
 fixture on an unknown switch is a footgun; rejecting unknown switches or adding a real `--help`
 would be a small follow-up (not done here; `lib/` is out of scope for this plan).
+
+## From plan 10 (the CSS guards wired into `mix ci`)
+
+### 1. `CONTRIBUTING.md` still says `mix ci` "chains exactly seven legs"
+
+With the two guard entries the alias has nine legs. `CONTRIBUTING.md` line 13 ("chains exactly seven
+legs in the same order as CI"), its numbered list 1 to 7 and line 74 ("the seven-leg library, scaffold,
+and golden gate") now understate the gate: the two guards run between leg 4 (`compile`) and leg 5
+(`test --exclude scaffold`) and are not listed. Not edited here because the file is pinned twice by the
+sealed v1.47 ratification artifacts, so a wording fix is a ratification decision, not a drive-by:
+
+- `phase_235_fast_01_source_complete_contract_test.exs` ("completed ownership proof and contributor
+  topology remain immutable") hashes the live `CONTRIBUTING.md` against
+  `33d045c1fe8940a050db76d087ab1e8b45020b404d2f122032c50c170d11760b` and fails with "immutable digest
+  drift" on any byte change.
+- `phase_235_terminal_ratification_contract_test.exs` requires the line-74 sentence verbatim
+  (`require_unique_statement!`), and the Phase 233 receipt carries the same digest as data.
+
+Plan 11 (or a follow-up) may re-baseline those pins together with the doc edit, or leave the doc and
+let the alias in `mix.exs` (and its contract test) stay the source of truth. Until then the numbering
+in `CONTRIBUTING.md` is stale by two legs. The two exact-leg pins that did not guard the doc
+(`phase_198_contributor_dx_contract_test.exs` 198-01 and `phase_233_library_economics_contract_test.exs`)
+were updated in the plan 10 commit because they assert the alias itself.
+
+### 2. The `.test.sh` twins are not on any gate
+
+By owner-approved design (plan 10 must-have, Test G fails on a dirty tracked tree) the self-test
+twins `admin-css-conformance.test.sh` and `admin-token-completeness.test.sh` stay outside `mix ci`.
+They were run in `ubuntu:24.04` (GNU grep 3.11, sed 4.9) and on darwin for this plan, so the guards
+are proven able to fail on the CI userland, but nothing re-runs the twins automatically: a later
+change to a guard script is checked on the real file by `mix ci`, not against its planted cases. If
+that gap matters, a CI-lane step (a `.github` change, so not this phase's budget) or a clean-tree
+wrapper would close it.
