@@ -1231,6 +1231,25 @@ defmodule Sigra.Test.Brand.Catalog do
     |> Enum.sort()
   end
 
+  @doc """
+  `privacy_violations/1` over every file under `dir`, `MANIFEST.json` included.
+
+  This is the scan that runs over a directory the writer just produced and over the
+  committed before catalog, so the manifest text (provenance, coverage, personas) is
+  held to the same rules as the lane files.
+  """
+  @spec privacy_violations_in(Path.t()) :: [{atom(), String.t()}]
+  def privacy_violations_in(dir) do
+    manifest_path = Path.join(dir, @manifest_file)
+
+    files =
+      if File.regular?(manifest_path),
+        do: dir |> read_dir!() |> Map.put(@manifest_file, File.read!(manifest_path)),
+        else: read_dir!(dir)
+
+    privacy_violations(files)
+  end
+
   # Built at call time, never stored in module attributes, so the home-directory
   # prefixes stay fragment-built.
   defp text_kinds(text) do

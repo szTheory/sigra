@@ -573,6 +573,55 @@ defmodule Sigra.Brand.CatalogTest do
     end
   end
 
+  describe "privacy_violations_in/1 over written catalog directories" do
+    test "finds a planted leak in a lane file and in the manifest, and reports a clean directory as []" do
+      leaky =
+        write_catalog_dir(%{
+          "tier2-example-admin/p.html" => "<p>reach out: someone@nowhere.invalid</p>\n",
+          "generated-host-pages/q.html" => "<p>fine</p>\n"
+        })
+
+      assert Catalog.privacy_violations_in(leaky) == [{:email, "tier2-example-admin/p.html"}]
+
+      File.write!(Path.join(leaky, "MANIFEST.json"), "{\"note\": \"someone@nowhere.invalid\"}\n")
+
+      assert {:email, "MANIFEST.json"} in Catalog.privacy_violations_in(leaky)
+
+      clean =
+        write_catalog_dir(%{"tier1-library-admin/a.html" => "<p>a@demo.tasklane.test</p>\n"})
+
+      assert Catalog.privacy_violations_in(clean) == []
+    end
+
+    test "whichever directory the writer just wrote is non-empty and clean" do
+      # Live only while a maintainer runs the writer (`SIGRA_BRAND_CATALOG=after|before`);
+      # the planted test above is the control that the scan itself can fail.
+      written =
+        for mode <- [:before, :after],
+            Sigra.Test.Brand.RegenGuard.requested?(Catalog.regen_env(), Atom.to_string(mode)) do
+          Catalog.out_dir(mode)
+        end
+
+      for dir <- written do
+        assert map_size(Catalog.read_dir!(dir)) > 0, "writer produced no files in #{dir}"
+        assert Catalog.privacy_violations_in(dir) == []
+      end
+    end
+
+    test "the committed before catalog, when it exists, passes the privacy scan with its manifest" do
+      case Catalog.committed_status() do
+        :absent ->
+          :ok
+
+        {:present, _diff} ->
+          dir = Catalog.out_dir(:before)
+
+          assert map_size(Catalog.read_dir!(dir)) > 0
+          assert Catalog.privacy_violations_in(dir) == []
+      end
+    end
+  end
+
   describe ".gitattributes" do
     test "keeps the before catalog byte-exact and still vendors brand/" do
       lines =
