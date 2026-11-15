@@ -9,6 +9,7 @@ files:
   - test/support/brand/copy_scan.ex
   - test/support/brand/copy_inventory.ex
   - test/sigra/brand/copy_contract_test.exs
+  - test/sigra/brand/claims_docs_test.exs
   - test/sigra/brand/frozen_surface_test.exs
   - test/example/test/example_web/enumeration_parity_test.exs
   - test/sigra/brand/source_pin_test.exs
@@ -36,3 +37,76 @@ Phase 259's code review found 0 critical and 8 warnings. WR-01, WR-02, WR-06, WR
 ## Housekeeping noticed by the fixer
 
 `mix format` run inside `test/example` reformats seven pre-existing unformatted files under `test/example/lib/`; the drift is already at HEAD and was left alone.
+
+## Re-review after gap closure (2026-11-15)
+
+The incremental re-review of the gap-closure plans 259-14..259-18 and the post-review fixes (`259-REVIEW.md`, reviewed range `124b84c14..HEAD`) found 0 critical, 6 warnings and 2 info findings. WR-01, WR-02, WR-03 and IN-01 were fixed (see `259-REVIEW-FIX.md`). The four below were deliberately not changed: two are scanner and recogniser design work, one is an owner decision about scope, and one is a small set of scanner gaps that need a reviewed baseline refresh. None hides a hit today; each is a regression gap for the Phase 262-263 copy rewrite. Probes were run against the real code, not read off the source.
+
+### WR-04: a banned phrase split across `<>`-joined string literals escapes the copy scanner
+
+**File:** `test/support/brand/copy_scan.ex:746-761` (`code/3` string clause and `literal/3`)
+
+The earlier review's WR-01 closed the line-break escape, but the same escape remains for string concatenation. Every string literal is judged on its own, so a long message built with `<>` is invisible. Probed against the real scanner with scope `:generated`:
+
+```
+put_flash(:info, "Please log " <> "in to continue")          -> []
+put_flash(:info,\n  "Please log " <>\n    "in to continue")   -> []
+put_flash(:info, "Please log in to continue")                 -> one hit
+```
+
+`mix format` never breaks inside a string, so long copy is routinely written exactly this way. No scanned file contains such a chain today (`git grep` for `"..." <> "..."` over `priv/templates` and `lib/sigra/admin` is empty), so no hit is masked now. It is the shape Phases 262-263 are most likely to introduce when they rewrite sentences, and the contract exists to stop those phases regressing.
+
+**Suggested fix:** in `code/3`, after reading a string literal, look ahead for `\s*<>\s*"` and fold the chained literals into one segment before `copy_literal?/1` and `line_hits/4`:
+
+```elixir
+defp code(<<"\"", rest::binary>>, ctx, acc) do
+  {raw, rest} = take_string(rest)
+  {raw, rest} = join_concatenated(raw, rest)   # consumes `<> "..."` chains
+  code(rest, ctx, literal(raw, ctx, acc))
+end
+```
+
+Add a planted control for both the same-line and the wrapped form, and an inventory-side equivalent so `CopyInventory` and `CopyScan` agree about a concatenated literal.
+
+### WR-05: the `sigra.gen.oauth` and `sigra.upgrade` template directories are outside every scope and inventory lane, and they ship banned phrases (owner decision)
+
+**File:** `test/support/brand/copy_scan.ex:83` (`@templates_dir "priv/templates/sigra.install"`) and `:225-227` (`files_for(:generated)`); `test/support/brand/copy_inventory.ex:52` (`@templates_dir`)
+
+The `:generated` copy scope and the `generated.tsv` lane read only `priv/templates/sigra.install/**`. `priv/templates/` also holds `sigra.gen.oauth/` (12 files) and `sigra.upgrade/` (3 files). Both ship in the Hex package (`mix.exs` `files:` includes `priv`) and `mix sigra.gen.oauth` writes the former into adopter applications. They contain exactly the phrases the contract bans in generated copy:
+
+- `sigra.gen.oauth/oauth_controller.ex:96` ("An account with this email exists. Log in to link your ... account.")
+- `sigra.gen.oauth/oauth_settings_live.ex:86` and `oauth_settings.html.heex:34` ("You'll still be able to log in with:")
+
+Because the baseline is the worklist Phases 262-263 use ("legacy wording such as 'Log in' in generated flashes that Phases 262-263 rewrite"), these instances are not on it, and the contract cannot go red if they are reintroduced or left behind. The scope name `generated` and requirement BCOPY-02 ("generated templates") read as covering all generated output; the exclusion is stated in code but was not tracked here.
+
+**Decision needed (owner):** either add the two directories to `files_for(:generated)` and the inventory glob (one baseline initialisation and one inventory regeneration, in a reviewed commit, which grows the baseline), or name the exclusion in the `:generated` moduledoc and keep it on this todo so Phase 262 includes the oauth templates in its manual sweep. Until decided, Phase 262 must sweep `priv/templates/sigra.gen.oauth/` and `priv/templates/sigra.upgrade/` by hand.
+
+### WR-06: the unbounded-claim recogniser misses ordinary wordings, so the sweep is narrower than its title
+
+**File:** `test/sigra/brand/claims_docs_test.exs:137-164` (families A, B and C) and `:527-545` (the sweep test)
+
+The sweep is titled "no claim unit makes an unqualified enumeration claim" and the moduledoc says it "flags any claim unit ... that makes an unbounded claim". It flags only what the three regex families match. Probed with the exact regexes from the test, each of these returns not-flagged:
+
+```
+"Sigra blocks enumeration of accounts."         "It prevents username enumeration."
+"Sigra stops user enumeration."                 "It prevents account-enumeration attacks."
+"Sigra mitigates enumeration attacks."          "It protects from enumeration."
+"The flow is enumeration-proof."                "It defends against enumeration."
+"The flow is enumeration-free."                 "The response does not reveal which emails are registered."
+```
+
+All current docs pass, so nothing is hidden today. The gate exists for the Phase 263 copy rewrite, which will produce new sentences, and "prevents username enumeration", "enumeration-proof" and "does not reveal which ..." are direct, likely phrasings. The paraphrase space cannot be closed by adding regexes one at a time.
+
+**Suggested fix:** invert the rule. Any claim unit that mentions `enumerat\w*` and carries none of the qualifier phrases is flagged, with an explicit allow pattern for threat descriptions that the existing "does not flag threat descriptions" test already names ("a common enumeration vector"). Keep families B and C for the wordings that do not contain "enumerat", and add the nine strings above as planted controls.
+
+### IN-02: the scanner is narrower than the inventory in three small ways
+
+**File:** `test/support/brand/copy_scan.ex:766-769` (`copy_literal?/1`), `:87` (`@copy_attrs`) and `:1082` (`attr_literal/3`); `test/support/brand/copy_inventory.ex:358-362`
+
+Probed; all fail open and none hides a hit today (no scanned source uses them):
+
+1. HTML entities are not decoded: `<p>Please log&nbsp;in</p>` yields no hit.
+2. A lone lowercase word is never copy: `put_flash(:info, "login")` yields no hit, while `CopyInventory.visit/2` documents "A literal passed straight to put_flash is copy even when it is one word", so the two extractors disagree about the same literal.
+3. `@copy_attrs` omits `data-confirm`, `phx-disable-with`, `aria-description` and `value`, all visible text. There are 26 real uses across `priv/templates` and `lib/sigra/admin`, for example `data-confirm="...You will be logged out."` (`sigra.install/core/session_live.ex:92`) and `phx-disable-with="Creating account..."`. The moduledoc lists the six covered attributes honestly and Plan 259-08 records the gap, but the earlier WR-03 entry above only tracks it for the inventory, not for the banned-term scan.
+
+**Suggested fix:** decode `&nbsp;` and `&#160;` before matching; treat a literal passed straight to `put_flash` or `dgettext` as copy in `CopyScan` too; add `data-confirm`, `phx-disable-with` and `aria-description` to `@copy_attrs` (one reviewed baseline refresh), or record the decision here.
