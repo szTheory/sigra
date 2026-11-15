@@ -154,9 +154,25 @@ defmodule ExampleWeb.ConfirmationLive do
     do_confirm(socket, code)
   end
 
+  # The resend target is the session user and nothing else: the event payload is
+  # ignored on purpose, so a visitor cannot choose which account is acted on.
   def handle_event("resend", _params, socket) do
-    user = socket.assigns.current_scope.user
+    case session_user(socket) do
+      nil ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :error,
+           dgettext("sigra", "Log in to request a new confirmation email.")
+         )
+         |> redirect(to: ~p"/users/log_in")}
 
+      user ->
+        resend_confirmation(socket, user)
+    end
+  end
+
+  defp resend_confirmation(socket, user) do
     case Auth.deliver_user_confirmation_instructions(user, &url(socket, ~p"/users/confirm/#{&1}")) do
       {:ok, _} ->
         {:noreply,
@@ -170,9 +186,30 @@ defmodule ExampleWeb.ConfirmationLive do
     end
   end
 
-  defp do_confirm(socket, code) do
-    user = socket.assigns.current_scope.user
+  # The user the session belongs to, or nil for an anonymous visitor. The confirm
+  # page is served to both session states, so `current_scope` may be nil here and
+  # must never be dereferenced with `.user`.
+  defp session_user(socket) do
+    case socket.assigns[:current_scope] do
+      %{user: user} -> user
+      _anonymous -> nil
+    end
+  end
 
+  defp do_confirm(socket, code) do
+    case session_user(socket) do
+      nil ->
+        {:noreply,
+         socket
+         |> put_flash(:error, dgettext("sigra", "Log in to confirm your email with a code."))
+         |> redirect(to: ~p"/users/log_in")}
+
+      user ->
+        confirm_with_code(socket, user, code)
+    end
+  end
+
+  defp confirm_with_code(socket, user, code) do
     case Auth.confirm_user_by_code(user, code) do
       {:ok, _user} ->
         {:noreply,
