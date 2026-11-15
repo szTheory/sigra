@@ -7,6 +7,7 @@ defmodule Sigra.CI.LibraryTestPartitions do
                     "test/upgrade_test.exs",
                     "test/sigra/install/generator_passkeys_opt_out_test.exs",
                     "test/sigra/install/features/passkeys_js_test.exs",
+                    "test/sigra/install/double_install_test.exs",
                     "test/sigra/install/golden_diff_test.exs",
                     "test/sigra/install/idempotency_test.exs",
                     "test/sigra/install/vault_promotion_test.exs"
