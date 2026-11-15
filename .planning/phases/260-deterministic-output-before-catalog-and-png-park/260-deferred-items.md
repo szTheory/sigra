@@ -203,3 +203,49 @@ fail on a migrated but unseeded dev database with "admin users first Open user l
 href" (6 failures across the three design projects). With `mix run priv/repo/seeds.exs` all 42
 non-`@snapshot` tests pass in the three projects. Not a defect of this plan; recorded for plan 11
 Task 3, which re-runs the whole non-`@snapshot` gallery spec and must seed first.
+
+## From plan 09 (the L1 move into the shipped `sigra_admin.css`)
+
+### 1. App.css rules keyed on `data-theme` that were not moved
+
+After the move, no rule keyed on `data-sg-admin-theme` or on the admin shell's `data-theme` is
+left in the example `app.css`. The remaining `data-theme` rules are demo-only (`vt-*` and
+`data-demo-*` surfaces), not admin shell rules, and stay in the example: lines for
+`[data-demo-brand-surface|auth-preview|email-preview][data-theme=dark|system]` (about 731 to 780)
+and `.vt-auth` / `.vt-brand-lab` `[data-theme=...]` (about 1200 to 1214).
+
+### 2. The explicit Dark theme in a generated host still has no shell surface rule
+
+In a real generated host (booted by `admin-acceptance-smoke.sh --test chrome`, screenshots written
+unasserted to the Playwright output directory as `admin-light.png`, `admin-dark.png` and
+`admin-system-dark.png`) the explicit Dark attribute now re-resolves the `--sg-*` values on
+`.sg-admin-shell`, swaps the lockups and keeps the theme switch colours, as the computed-style
+assertions prove. It does not look dark: the shipped stylesheet has no `.sg-admin-shell { background;
+color; min-height }` rule (the base shell surface lives only in the example `app.css`, one of the
+49 gap classes still in the baseline), so the page background and the body text keep the `:root`
+values (light ink on a light page) while panels and cards pick up the dark panel colour. The
+screenshot shows dark panels under dark text. The plan scope (OQ2) is the roadmap minimum, so this
+is recorded, not fixed. Candidate owner: Phase 261 (tokens and type) or the first phase that moves
+more of the 49 remaining classes; the shrink-only baseline will fail until each moved class is
+removed from it.
+
+### 3. Layering side effect on the example's mobile theme switch
+
+The moved `.sg-theme-switch__button` base rule used to be unlayered in the example `app.css`, so it
+beat the shipped small-screen override in `@layer sg-overrides` (`min-width: 2rem`,
+`padding-inline: var(--sg-space-2)` at 640 px and below), which therefore never applied in the example.
+Both rules are now in the shipped layers and, by cascade-layer order (not measured), the override
+wins as designed: at 640 px and below the example's theme switch segments should be narrower than before (min-height and the touch target stay above
+the 24 px floor). Visible only as a pixel change; no assertion covers it and PNG compare is parked.
+
+### 4. `mix sigra.fixture.rebless_golden --help` is a writer invocation
+
+The task parses its arguments with `OptionParser.parse(argv, strict: [check: :boolean])`, so an
+unknown switch such as `--help` is dropped and the task runs as the WRITER (it rewrites the tree).
+Plan 09 ran it once by mistake with no `MIX_ENV=test` and its output discarded. Inferred, not
+observed: it stopped at `ensure_test_support_loaded!` (the fixture module is not compiled in
+`:dev`) before any write. The evidence is that the golden files' modification times are those of
+the intended rebless (the writer removes and rewrites the whole tree, so a run would have moved
+every one), `git status` was clean and `--check` stayed clean afterwards. A task that rewrites a committed
+fixture on an unknown switch is a footgun; rejecting unknown switches or adding a real `--help`
+would be a small follow-up (not done here; `lib/` is out of scope for this plan).
