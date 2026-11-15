@@ -138,3 +138,39 @@ seeded `.test` address for the capture; the shipped default sender is not part o
 captured bytes. `unconfirmed` and `locked` tier-2 pages hold the same persona (plan 03
 item 4). The capture session activity stamp is the only exact-value replacement in the
 pipeline.
+
+## From plan 06 (asset parity and double install)
+
+### 1. `MAINTAINING.md` and a prohibition fixture still say the golden alias runs two files
+
+`MAINTAINING.md` (the "That alias runs `golden_diff_test.exs` and `idempotency_test.exs` only"
+sentence) and its quoted copy in `test/fixtures/prohibitions/p07-honest-skip-line-citation.md`
+were already stale before this plan: `ci.install_golden` listed six files, and with
+`double_install_test.exs` it lists seven. Not edited here (the fixture is byte-pinned by a
+prohibition test, and MAINTAINING.md belongs to plans 01 and 11). Plan 11 may restate the sentence
+together with the fixture, or leave both and let the alias in `mix.exs` stay the source of truth.
+
+### 2. The path-gated `install_golden_contract` CI job does not run the double-install proof
+
+`.github/workflows/ci.yml` (`install_golden_contract`, step "Run install golden + idempotency
+tests") runs `golden_diff_test.exs` and `idempotency_test.exs` by explicit path. The new
+`double_install_test.exs` runs in the `Library tests shard` through `mix ci` (which runs
+`ci.install_golden`), not in that job. Left alone: the process budget forbids a workflow edit in
+this plan, and the job's other step already runs `rebless_golden --check`.
+
+### 3. Template `.json` snippets are outside the BGEN-01 table
+
+The table covers the `.css`, `.svg` and `.js` files the requirement names (8). The two `.json`
+files under `priv/templates/sigra.install/passkeys/` (`package.json`,
+`package_json_injection.json`) are injected or merged into a host `package.json`, have no
+copied counterpart, and are not classified. If a future template adds a copied `.json` asset,
+extend `@asset_extensions` in `asset_parity_test.exs` and give it a row.
+
+### 4. The example `sigra_auth.css` refresh changes what the example home page can render
+
+`test/example/lib/example_web/controllers/page_html/home.html.heex` links `sigra_auth.css` and
+renders a `sigra-auth sigra-auth--preview` block, so the refreshed stylesheet (32,072 bytes, 66
+classes, was 13,867 bytes, 11 classes) can move pixels on that page. The example suite is green
+(419 tests, 0 failures) but it asserts no pixels. No PNG was recaptured locally; PNG comparison
+is parked on the PR path by plan 01 and plan 04's park PR, and the recapture jobs remain the way
+to refresh baselines.
