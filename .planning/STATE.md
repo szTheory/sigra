@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-14T17:39:41.585Z
-Stopped at: Completed 259-11-PLAN.md
+Last session: 2026-11-15T13:49:27Z
+Stopped at: Completed 259-14-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
@@ -131,6 +131,7 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 | Phase 259 P10 | 9 min | 3 tasks | 10 files |
 | Phase 259 P12 | 12 min | 3 tasks | 3 files |
 | Phase 259 P11 | 11 min | 2 tasks | 2 files |
+| Phase 259 P14 | 12 min | 3 tasks | 6 files |
 
 ## Decisions
 
@@ -166,3 +167,5 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 - [Phase 259]: Logo-use wording recommended as unchanged use to refer to Sigra, no implied endorsement, modification needs maintainer approval, worded as a request that leaves the MIT grant intact; a logo carve-out is a separate owner decision (ADR 006)
 - [Phase 259]: crosswake_sigra recorded as an apparent own companion (same GitHub owner as source_url), maintainer to confirm; never a third-party conflict, never support for a clearance or trademark claim; the record is a search log, not a clearance (ADR 006)
 - [Phase 259]: Claims register status is tested against the surface registry state: only a parity row may read bounded, every other row reads not proven or by design (name_clearance_test.exs)
+- [Phase 259]: 259-14: password-reset-request repaired and proven as parity instead of waived (router :new live action, binary email passed unconditionally to the enumeration-safe context function); example host only, the generated reset page is not compared and still carries the same two defects for 259-17 to file
+- [Phase 259]: 259-14: the registry flip and the claims-register restatement must land in one plan (commits 8bf865b66 and 7341af79e leave name_clearance_test red, 5c34cd083 turns it green); BCOPY-03 and BCOPY-07 stay open because plans 259-15 to 259-18 also declare them
