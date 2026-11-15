@@ -24,11 +24,11 @@ Source: `259-REVIEW.md` (re-review, standard depth, 21 files, 0 critical / 6 war
 
 | ID | Severity | Disposition | Reason |
 |----|----------|-------------|--------|
-| R2-WR-01 | warning | open | guide snippets still show the user-struct call; fix queued in this gate |
-| R2-WR-02 | warning | open | README "show the same message" overstates what the harness proves; fix queued in this gate |
-| R2-WR-03 | warning | open | non-vacuity rule accepts a row whose `compare` is only `body`; fix queued in this gate |
-| R2-WR-04 | warning | open | scanner misses `<>`-joined literals; no scanned file uses that shape today; to be deferred to the deferred-findings todo |
-| R2-WR-05 | warning | open | `sigra.gen.oauth` / `sigra.upgrade` templates outside copy scope; owner decision; to be deferred to the todo |
-| R2-WR-06 | warning | open | unbounded-claim recogniser misses wordings; no current doc affected; to be deferred to the todo |
-| R2-IN-01 | info | open | README says each flow guide states its scope but 3 of 8 do; fix queued in this gate |
-| R2-IN-02 | info | open | three small scanner gaps; to be deferred to the todo |
+| R2-WR-01 | warning | fixed | guide snippets pass the email; new claims test, commit 6a6629289 |
+| R2-WR-02 | warning | fixed | README row reworded to what the harness proves, commit c2dc9a5f4 |
+| R2-WR-03 | warning | fixed | per-row required compare dimensions pinned, commit 37aa60daa |
+| R2-WR-04 | warning | deferred | no scanned file uses the shape; tracked in the deferred-findings todo, commit dda479613 |
+| R2-WR-05 | warning | deferred | owner decision; tracked in the todo; Phase 262 sweeps those templates by hand until decided |
+| R2-WR-06 | warning | deferred | no current doc affected; tracked in the todo |
+| R2-IN-01 | info | fixed | README sentence reworded and pinned by a test, commit 320324c8d |
+| R2-IN-02 | info | deferred | optional; tracked in the todo |
