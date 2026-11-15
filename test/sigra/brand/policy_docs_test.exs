@@ -118,25 +118,44 @@ defmodule Sigra.Brand.PolicyDocsTest do
       assert missing_terms(adr, @decision_terms) == []
     end
 
-    test "labels decision 12 confirmed and every other recorded decision as pending" do
+    test "labels every recorded decision as confirmed with a date and none as pending" do
       assert File.regular?(path(@adr)), "missing #{@adr}"
 
-      slice = section_slice(read!(@adr), "## Owner decision table")
+      adr = read!(@adr)
+      slice = section_slice(adr, "## Owner decision table")
 
       rows =
         for row <- table_data_rows(slice), into: %{} do
           {hd(row), Enum.join(row, " | ")}
         end
 
+      others = for {num, text} <- rows, num != "12", do: {num, text}
+
       assert Map.keys(rows) |> Enum.sort() == Enum.sort(@decision_numbers)
       assert rows["12"] =~ "confirmed"
       assert rows["12"] =~ "2026-11-13"
-      refute rows["12"] =~ "owner confirmation pending"
+      assert length(others) == 11
 
-      pending = for {num, text} <- rows, num != "12", do: {num, text}
+      assert Enum.all?(others, fn {_num, text} ->
+               text =~ "Confirmed as recommended by owner" and text =~ "2026-11-15"
+             end)
 
-      assert Enum.all?(pending, fn {_num, text} -> text =~ "owner confirmation pending" end)
-      assert length(pending) == 11
+      assert Enum.all?(rows, fn {_num, text} -> not (text =~ ~r/pending/i) end)
+      refute adr =~ "owner confirmation pending"
+      refute adr =~ "awaiting owner confirmation"
+      refute adr =~ "awaits owner confirmation"
+    end
+
+    test "carries the 2026-11-15 amendment with the SC-4 reading and the tracking todos" do
+      assert File.regular?(path(@adr)), "missing #{@adr}"
+
+      adr = read!(@adr)
+
+      assert adr =~ "## Amendment 2026-11-15"
+      assert adr =~ "SC-4"
+      assert adr =~ "asserted, honest state"
+      assert adr =~ "2026-11-13-duplicate-registration-timing-oracle.md"
+      assert adr =~ "2026-11-13-passkey-options-email-existence-oracle.md"
     end
 
     test "surface map names a brand owner of Sigra or host for every surface" do

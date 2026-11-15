@@ -14,8 +14,8 @@ defmodule Sigra.Brand.NameClearanceTest do
     * every registry row id appears in backticks in the claims register, and the
       register's status agrees with the registry state (a row that is not
       `parity` may never read as proven or bounded);
-    * the example-host limitation, the two pending decisions and the
-      "owner confirmation pending" label are present;
+    * the example-host limitation, the two decisions and their
+      `confirmed as recommended` status are present;
     * every file path the record cites exists.
 
   Pure filesystem; no database is touched. The repo root is resolved from
@@ -371,18 +371,26 @@ defmodule Sigra.Brand.NameClearanceTest do
       assert String.contains?(limitations, "generated host")
     end
 
-    test "both decisions carry their labels and the owner-confirmation-pending status" do
+    test "both decisions carry their labels and the confirmed-as-recommended status with a date" do
       # Arrange
       content = record()
+      status = "confirmed as recommended by owner, 2026-11-15"
+      lines = String.split(content, "\n")
 
       # Act
       missing =
-        Enum.reject(["clear-space", "logo-use", "owner confirmation pending"], fn term ->
+        Enum.reject(["clear-space", "logo-use", status], fn term ->
           String.contains?(content, term)
         end)
 
+      clear_space_line = Enum.find(lines, &String.starts_with?(&1, "Label: clear-space."))
+      logo_use_line = Enum.find(lines, &String.starts_with?(&1, "Label: logo-use."))
+
       # Assert
       assert missing == []
+      refute String.contains?(content, "owner confirmation pending")
+      assert is_binary(clear_space_line) and String.contains?(clear_space_line, status)
+      assert is_binary(logo_use_line) and String.contains?(logo_use_line, status)
       assert String.contains?(content, "300 units")
       assert String.contains?(content, "233.75")
       assert String.contains?(content, "logo.clearSpace")

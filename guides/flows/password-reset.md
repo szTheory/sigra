@@ -33,7 +33,7 @@ The generated `ResetPasswordLive` renders a form with one field: email. Submitti
        |> redirect(to: ~p"/users/log_in")}
     end
 
-The generated context's `deliver_user_reset_password_instructions/2` takes the email address as a string (its only function head requires a binary), so pass the submitted email rather than a looked-up user. A call that looks the account up first and passes the user fails with a `FunctionClauseError` for an address that has an account and returns normally for one that does not, which tells a visitor which addresses are registered. Check the call in the code generated into your app.
+The snippet above is the corrected shape. The generated context's `deliver_user_reset_password_instructions/2` takes the email address as a string (its only function head requires a binary), so pass the submitted email rather than a looked-up user. A call that looks the account up first and passes the user fails with a `FunctionClauseError` for an address that has an account and returns normally for one that does not, which tells a visitor which addresses are registered. The request view and the request controller that Sigra currently generates into a new app still look the user up with `get_user_by_email` and pass the struct, so a freshly generated app has this defect until the generated code is fixed. Compare the call in the code generated into your app with the snippet above, and change it to pass the email.
 
 `deliver_user_reset_password_instructions/2` generates a 32-byte random token, signs its hash with HMAC using your app's `secret_key_base`, stores the row in `auth.user_tokens` with `context: "reset_password"`, and renders the email template.
 

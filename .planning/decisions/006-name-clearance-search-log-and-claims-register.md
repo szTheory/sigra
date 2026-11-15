@@ -1,6 +1,6 @@
 # ADR 006: Name and trademark posture: search log, not clearance
 
-**Status:** Accepted (record). This is a search log and not a clearance. No trademark search, no look-alike search and no register search was performed, and nothing here is legal advice. Both decisions in this record are recommended defaults, owner confirmation pending.
+**Status:** Accepted (record). This is a search log and not a clearance. No trademark search, no look-alike search and no register search was performed, and nothing here is legal advice. Both decisions in this record (clear-space and logo-use) were confirmed as recommended by the owner on 2026-11-15.
 **Date:** 2026-11-13 (lookups); the `crosswake_sigra` lookup was re-run on 2026-11-14 and is dated separately below.
 **Context:** Phase 259 (v1.51 brand identity adoption), requirements BPOL-04 and BCOPY-07. The visual source is brand book v2.0 (2026-11-13), vendored read-only in `brand/`. Phase 263 writes public copy; this record states what that copy may and may not say about the name and about enumeration before any of it is written.
 
@@ -58,13 +58,13 @@ What this record does NOT conclude:
 
 Sigra makes no trademark claim for its name or its logo. No trademark symbol of either kind, and no wording that presents the name or the logo as a registered mark, appears in the documentation Sigra publishes. If the maintainers later decide to claim the name, that is a separate decision that follows a register search and a look-alike search and gets its own record.
 
-Status: recommended default, owner confirmation pending.
+Status: confirmed as recommended by owner, 2026-11-15.
 
 Reversibility: cheap. Making a claim later is a new decision; declining to make one now closes nothing.
 
 ## Decision: clear-space authority
 
-Label: clear-space. Status: recommended default, owner confirmation pending.
+Label: clear-space. Status: confirmed as recommended by owner, 2026-11-15.
 
 The vendored book states the logo's clear space three times, in two different ways:
 
@@ -90,7 +90,7 @@ Reversibility: cheap. No shipped bytes read the value; the decision changes only
 
 ## Decision: logo-use statement wording
 
-Label: logo-use. Status: recommended default, owner confirmation pending.
+Label: logo-use. Status: confirmed as recommended by owner, 2026-11-15.
 
 The book's JSON carries a "use by others" list: Hex packages, blogs, newsletters and conference sites may use the typemark unchanged to refer to Sigra; it must not suggest that Sigra endorses another product; it must not be altered or rebuilt from its parts. The book's legal lines say the logo and the book are covered by the project's MIT license unless the repository says otherwise, and the repository's license file is the plain MIT text with no logo carve-out.
 
@@ -154,3 +154,5 @@ Evidence for every row below is `test/fixtures/brand/public-surfaces.json` and `
 ## Revisit triggers
 
 Revisit this record if a third party starts using the name in a conflicting way, if the maintainer confirms or denies ownership of `crosswake_sigra`, if a trademark search is commissioned or the maintainers decide to claim the name, if the vendored book is re-locked with changed clear-space or logo-use text, if Phase 263 publishes a logo-use statement that differs from the wording above, or if a registry row changes state (a fix lands and a divergence row is retired or becomes parity). Amendments are dated and made in place, in the style of ADR 003; this record is not silently rewritten.
+
+Amendment 2026-11-15: the owner confirmed the three decisions above as recommended; no decision text changed.
