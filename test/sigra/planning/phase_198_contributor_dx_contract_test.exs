@@ -22,7 +22,9 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
     end
   end
 
-  test "198-01: mix ci has the ordered seven-leg contributor gate exactly once" do
+  # Phase 260 (BGEN-05, owner decision #13) inserted the two shipped-CSS guard legs
+  # between compile and the test steps; the seven original legs keep their order.
+  test "198-01: mix ci has the ordered contributor gate (seven legs plus the two CSS guards) exactly once" do
     entry = ci_entry(read!("mix.exs"))
 
     expected = [
@@ -30,6 +32,8 @@ defmodule Sigra.Planning.Phase198ContributorDxContractTest do
       "deps.get --check-locked",
       "deps.unlock --check-unused",
       "compile --warnings-as-errors",
+      "cmd bash scripts/ci/admin-css-conformance.sh",
+      "cmd bash scripts/ci/admin-token-completeness.sh",
       "test --exclude scaffold",
       "ci.install_golden",
       "sigra.dep_off"
