@@ -33,6 +33,15 @@ defmodule ExampleWeb.EnumerationParityTest do
   would capture the same empty value and compare `:same`; this rule turns that
   into a failure.
 
+  A third rule pins what the published docs rely on. The README and the guides say
+  the account-existence screens return "the same status, redirect, flash message and
+  page", so each named row must keep those dimensions in its `compare` list
+  (`@required_dimensions`). Without the pin, a registry edit that trims a row to
+  `["body"]` would still satisfy the rule above (the body is a content dimension),
+  still go red under a planted leak (the leak is appended to the body too) and leave
+  every claim saying the flash is compared. A planted control drops each pinned
+  dimension in turn and proves the rule goes red.
+
   ## The five named surfaces
 
   BCOPY-03 names five surfaces and all five are `parity` rows. They are three
@@ -104,6 +113,19 @@ defmodule ExampleWeb.EnumerationParityTest do
   @payload_ignored_ids ~w(confirmation-resend)
   @code_kind_ids ~w(mfa-challenge)
   @named_parity_ids @account_existence_ids ++ @payload_ignored_ids ++ @code_kind_ids
+  # The compare dimensions each named row must keep, because the published docs claim
+  # them: the README and the guides state that the three account-existence screens
+  # return the same status, redirect, flash message and page. `confirmation-resend`
+  # also counts the confirmation tokens created (`result`), and `mfa-challenge`
+  # never compares the body (the authenticator and backup panels differ by design).
+  # A row may list more than this, never fewer; see `dropped_dimension_violations/1`.
+  @required_dimensions %{
+    "password-signin" => ~w(status redirect flash body),
+    "magic-link-request" => ~w(status redirect flash body),
+    "password-reset-request" => ~w(status redirect flash body),
+    "confirmation-resend" => ~w(status redirect flash body result),
+    "mfa-challenge" => ~w(status redirect flash)
+  }
   # Phrases the registry notes of the two separately counted classes must keep, so a
   # note cannot drift into claiming what its probe does not prove.
   @payload_note_phrases ["payload", "email-keyed resend form"]
@@ -302,6 +324,67 @@ defmodule ExampleWeb.EnumerationParityTest do
         assert violated_ids(violations) == [id]
         assert Enum.any?(violations, &(&1 =~ "missing"))
       end
+    end
+
+    test "every named row keeps the dimensions the published docs rely on" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+
+      assert dropped_dimension_violations(by_id) == []
+    end
+
+    test "the dimension pin names exactly the named rows, so a new named row must state its dimensions" do
+      assert Enum.sort(Map.keys(@required_dimensions)) == Enum.sort(@named_parity_ids)
+
+      for {id, required} <- @required_dimensions, dimension <- required do
+        assert Map.has_key?(@dimensions, dimension),
+               "#{id}: the pin lists unknown dimension #{inspect(dimension)}"
+      end
+
+      # The three account-existence screens are the ones the docs claim "the same
+      # status, redirect, flash message and page" for: the pin may not be weakened for them.
+      for id <- @account_existence_ids do
+        assert ~w(status redirect flash body) -- Map.fetch!(@required_dimensions, id) == [],
+               "#{id}: the pin no longer requires status, redirect, flash and body"
+      end
+    end
+
+    test "a named row that drops a claimed dimension is reported, whichever one it drops (control)" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+
+      for {id, required} <- @required_dimensions, dimension <- required do
+        planted = put_compare(by_id, id, by_id[id]["compare"] -- [dimension])
+        refute dimension in planted[id]["compare"], "setup: #{dimension} was not removed"
+
+        violations = dropped_dimension_violations(planted)
+
+        assert violated_ids(violations) == [id],
+               "dropping #{dimension} from #{id} reported #{inspect(violations)}"
+
+        assert Enum.any?(violations, &(&1 =~ ~s("#{dimension}")))
+      end
+    end
+
+    test "the old non-vacuity rule accepts a row trimmed to the body; the pin does not (control)" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+
+      for compare <- [["body"], ["status", "redirect", "body"]] do
+        planted = put_compare(by_id, "password-reset-request", compare)
+
+        # What the row-level rule checks: a content dimension is listed. It is satisfied.
+        listed = dimensions(planted["password-reset-request"])
+        assert Enum.any?(listed, &(&1 in @content_dimensions))
+
+        # The pin sees that the flash left the comparison.
+        violations = dropped_dimension_violations(planted)
+        assert violated_ids(violations) == ["password-reset-request"]
+        assert Enum.any?(violations, &(&1 =~ ~s("flash")))
+      end
+    end
+
+    test "a registry missing a named row leaves that row to the missing-id rule (control)" do
+      by_id = Map.new(surfaces(), &{&1["id"], &1})
+
+      assert by_id |> Map.delete("password-signin") |> dropped_dimension_violations() == []
     end
 
     test "the leaks that exist today are never registered as parity" do
@@ -809,6 +892,22 @@ defmodule ExampleWeb.EnumerationParityTest do
 
   defp update_note(by_id, id, fun) do
     Map.update!(by_id, id, &Map.update!(&1, "note", fun))
+  end
+
+  defp put_compare(by_id, id, compare) do
+    Map.update!(by_id, id, &Map.put(&1, "compare", compare))
+  end
+
+  # Pure: the named rows whose `compare` list no longer holds every dimension in
+  # `@required_dimensions`, each formatted "<id>: <what is wrong>". A row that is
+  # missing from the registry is reported by `named_surface_violations/1`, not here.
+  defp dropped_dimension_violations(by_id) do
+    for {id, required} <- @required_dimensions,
+        row = Map.get(by_id, id),
+        dropped = required -- row["compare"],
+        dropped != [] do
+      "#{id}: compare dropped #{inspect(dropped)}, which the published docs rely on"
+    end
   end
 
   # The sorted unique ids a list of "<id>: <message>" violations names.
