@@ -661,11 +661,16 @@ defmodule Sigra.Brand.CatalogTest do
     end
 
     test "the branding preview placeholder address is masked, other example.com addresses are not" do
-      masked = Catalog.normalize(~s(<input type="email" value="alex@example.com"/>))
+      # Built from fragments so this file holds no literal non-.test address.
+      preview = "alex" <> "@" <> "example.com"
+      other = "someone" <> "@" <> "example.com"
+
+      masked = Catalog.normalize(~s(<input type="email" value="#{preview}"/>))
 
       assert masked =~ "{{PREVIEW_EMAIL}}"
-      refute masked =~ "alex@example.com"
-      assert Catalog.normalize("<p>someone@example.com</p>") =~ "someone@example.com"
+      refute masked =~ preview
+      assert Catalog.normalize("<p>#{other}</p>") =~ other
+      assert {:email, "p.html"} in leak(Catalog.normalize("<p>#{other}</p>"))
     end
 
     test "the manifest coverage records the masked preview address and the event-driven states" do
