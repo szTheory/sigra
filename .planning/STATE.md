@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 260
 current_phase_name: Deterministic Output, Before Catalog and PNG Park
-current_plan: 3
+current_plan: 4
 status: executing
-stopped_at: Completed 260-02-PLAN.md
-last_updated: "2026-11-15T18:26:50.944Z"
+stopped_at: Completed 260-03-PLAN.md
+last_updated: "2026-11-15T19:04:25.385Z"
 last_activity: 2026-11-15
 last_activity_desc: Phase 260 execution started
-state_head: 13a64a60d0bb6a3e561fd2748e5be8ed236dd3c4
+state_head: bcc42edbf6494f7522836bba6b7de11d1d081cbd
 progress:
   total_phases: 5
   completed_phases: 1
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 260 (Deterministic Output, Before Catalog and PNG Park) — EXECUTING
-Current Plan: 3
+Current Plan: 4
 Total Plans in Phase: 11
 Status: Ready to execute
 Last activity: 2026-11-15 — Phase 260 execution started
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T18:26:50.832Z
-Stopped at: Completed 260-02-PLAN.md
+Last session: 2026-11-15T19:04:25.220Z
+Stopped at: Completed 260-03-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them.
@@ -138,6 +138,7 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 | Phase 259 P18 | 4 min | 2 tasks | 5 files |
 | Phase 260 P01 | 11 min | 3 tasks | 6 files |
 | Phase 260 P02 | 14 min | 3 tasks | 4 files |
+| Phase 260 P03 | 35 min | 3 tasks | 3 files |
 
 ## Decisions
 
@@ -187,3 +188,5 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 - [Phase 260]: [Phase 260-01]: playwright-github-pages.yml is left unedited; it keeps comparing and will report drift after Phase 261 until baselines are recaptured — Not a required context and not in ci-gate; leaving it untouched keeps the park PR a ci.yml-only change. Cost documented in MAINTAINING.md.
 - [Phase 260]: Masked the shipped branding preview placeholder address in the catalog normalizer instead of weakening the privacy rule; manifest coverage records it
 - [Phase 260]: Catalog MANIFEST.json field names fixed (schema, provenance, pinned, capture_command, lanes, personas, coverage, example_files_changed_vs_main, deferred_shipped_byte_fixes, files); write!(:before) refuses when MANIFEST.json exists, raw inputs are missing, or lib/priv differ from origin/main
+- [Phase 260]: Plan 03: tier-2 pin ranks ties by insertion command id (cmin), not ctid; the capture session stamp is the only exact-value replacement
+- [Phase 260]: Plan 03: generated reset-password request page is a documented 500 in the catalog (marker, flips loudly when fixed); run the smoke target without tmp/db.env
