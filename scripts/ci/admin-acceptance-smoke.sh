@@ -12,9 +12,16 @@
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test errors
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test audit-export
 #   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test impersonation-controller
+#   GITHUB_WORKSPACE=$(pwd) scripts/ci/admin-acceptance-smoke.sh --test catalog
 #
 # Every --test target (including slices above) runs the bash HTTP parity probes
 # first, then the filtered or full Playwright suite — probes are never skipped.
+#
+# --test catalog is the one exception. It is the generated-lane producer for the
+# before catalog (Phase 260): it boots the same generated host, writes RAW
+# anonymous auth pages and the generated email builders to
+# ${SIGRA_CATALOG_RAW_DIR:-<repo>/tmp/catalog-raw}/generated-host/{pages,emails},
+# then exits 0 before the parity probes and before any Playwright step.
 
 set -euo pipefail
 
@@ -281,6 +288,204 @@ for i in $(seq 1 60); do
 
   sleep 1
 done
+
+# --- Phase 260 before-catalog producer (generated lane) ---------------------
+# Early exit: only --test catalog enters this block, and it never returns to the
+# parity probes or the Playwright targets below. Raw text only; nothing is
+# compared or committed here (Sigra.Test.Brand.Catalog normalizes the dumps).
+if [[ "${TEST_TARGET}" == "catalog" ]]; then
+  CATALOG_RAW_DIR="${SIGRA_CATALOG_RAW_DIR:-${SIGRA_REPO}/tmp/catalog-raw}/generated-host"
+  echo "==> admin-acceptance: writing generated-host catalog raw to ${CATALOG_RAW_DIR}"
+  rm -rf "${CATALOG_RAW_DIR}/pages" "${CATALOG_RAW_DIR}/emails"
+  mkdir -p "${CATALOG_RAW_DIR}/pages" "${CATALOG_RAW_DIR}/emails"
+
+  # slug|path|expected status for the anonymous generated auth pages. Dead
+  # renders only, no redirects followed: a page must answer exactly its expected
+  # status, so a redirect or any other status fails loudly.
+  #
+  # One documented known defect is pinned as 500: the generated `--live` router
+  # emits `live "/reset-password", ResetPasswordLive` with no live action, so the
+  # request page raises CaseClauseError at mount for every adopter (todo
+  # 2026-11-14-generated-reset-request-page-mount-and-user-struct-call). A 500 is
+  # accepted ONLY when the dev error page carries that exact signature; the error
+  # page itself (local paths, stack) is never kept, a one-line marker is written
+  # instead. When the template is fixed this status turns 200 and the script fails
+  # until the entry below is changed to 200: the baseline never goes stale.
+  CATALOG_PAGES=(
+    "log-in|/users/log_in|200"
+    "register|/users/register|200"
+    "reset-password|/users/reset-password|500"
+    "reset-password-invalid-token|/users/reset-password/catalog-invalid-token|200"
+    "confirm|/users/confirm|200"
+  )
+  CATALOG_FAIL=0
+  for entry in "${CATALOG_PAGES[@]}"; do
+    slug="${entry%%|*}"
+    rest="${entry#*|}"
+    page_path="${rest%%|*}"
+    expected="${rest#*|}"
+    page_file="${CATALOG_RAW_DIR}/pages/${slug}.html"
+    code=$(curl -s -o "${page_file}" -w "%{http_code}" \
+      "http://localhost:${PORT}${page_path}" || true)
+    if [[ "${code}" != "${expected}" ]]; then
+      echo "FAIL: catalog page ${slug} (${page_path}) returned ${code}, expected ${expected}"
+      CATALOG_FAIL=1
+    elif [[ "${expected}" == "200" ]]; then
+      echo "OK:   catalog page ${slug} (${page_path}) -> ${code}"
+    elif grep -q "CaseClauseError at GET ${page_path}" "${page_file}" \
+      && grep -q "ResetPasswordLive.mount/3" "${page_file}"; then
+      printf '%s\n' "<!-- catalog: GET ${page_path} answered HTTP ${code} on the generated host (known defect: the request page raises CaseClauseError at mount because the generated route has no live action); the error page is not captured -->" > "${page_file}"
+      echo "KNOWN: catalog page ${slug} (${page_path}) -> ${code}, documented defect confirmed, marker written"
+    else
+      echo "FAIL: catalog page ${slug} (${page_path}) returned ${code} without the documented defect signature"
+      CATALOG_FAIL=1
+    fi
+  done
+  if [[ "${CATALOG_FAIL}" -eq 1 ]]; then
+    echo "==> admin-acceptance: catalog page capture failed"
+    tail -n 200 "${SERVER_LOG}" || true
+    exit 1
+  fi
+
+  # The generated email builders, called in the host with plain fixed inputs.
+  # The capture host's branding sender is overridden in the running VM to a
+  # seeded .test address (the installed default is a real-looking domain that
+  # the catalog privacy rule correctly rejects); no template, default or
+  # fixture changes. Every details map that is read for :time gets an explicit
+  # fixed time, so no email carries the wall clock.
+  CATALOG_EMAIL_FILE="${TMP_APP_DIR}/sigra_catalog_emails.exs"
+  cat > "${CATALOG_EMAIL_FILE}" <<'EOF'
+emails_dir = System.fetch_env!("SIGRA_CATALOG_EMAIL_DIR")
+emails = Module.concat([System.fetch_env!("SIGRA_CATALOG_EMAILS_MODULE")])
+user_module = Module.concat([System.fetch_env!("SIGRA_CATALOG_USER_MODULE")])
+otp_app = String.to_atom(System.fetch_env!("SIGRA_CATALOG_OTP_APP"))
+sender = "noreply@catalog.example.test"
+
+config = Application.get_env(otp_app, :sigra_config, [])
+branding = config |> Keyword.get(:branding, []) |> Keyword.put(:email_from_address, sender)
+Application.put_env(otp_app, :sigra_config, Keyword.put(config, :branding, branding))
+
+Code.ensure_loaded!(emails)
+
+base = "https://host.example.test"
+fixed_time = ~U[2026-01-01 00:00:00Z]
+user = struct(user_module, email: "catalog-user@example.test")
+
+details = %{
+  ip: "203.0.113.7",
+  geo_city: "Springfield",
+  geo_country_code: "US",
+  city: "Springfield",
+  device: "Example Browser on Example OS",
+  time: fixed_time
+}
+
+invitation = %{
+  email: "catalog-invited@example.test",
+  role: :member,
+  expires_at: ~U[2099-01-01 00:00:00Z]
+}
+
+inviter = %{email: "catalog-inviter@example.test"}
+
+# {slug, builder name, arity, required?, arguments}
+builders = [
+  {"confirmation", :confirmation_email, 3, true,
+   [user, base <> "/users/confirm/catalog-token", "123456"]},
+  {"reset-password", :reset_password_email, 2, true,
+   [user, base <> "/users/reset-password/catalog-token"]},
+  {"magic-link", :magic_link_email, 2, true, [user, base <> "/users/log_in/catalog-token"]},
+  {"suspicious-login", :suspicious_login_email, 2, true, [user, details]},
+  {"oauth-reset", :oauth_reset_email, 2, false, [user, "GitHub"]},
+  {"enterprise-sso-reset", :enterprise_sso_reset_email, 3, false,
+   [user, "Example Organization", base <> "/organizations/example/sso"]},
+  {"passkey-registration", :passkey_registration_email, 2, false, [user, details]},
+  {"lockout-notification", :lockout_notification_email, 2, false, [user, details]},
+  {"mfa-enabled", :mfa_enabled_email, 1, false, [user]},
+  {"mfa-disabled", :mfa_disabled_email, 1, false, [user]},
+  {"backup-code-used", :backup_code_used_email, 2, false, [user, [remaining: 3]]},
+  {"mfa-lockout", :mfa_lockout_email, 1, false, [user]},
+  # email_change_confirmation_email/3 and email_change_notification_email/3 are left
+  # out on purpose: both end a sentence with the new address and a period, which the
+  # raw-directory address scan reads as a domain ending `.test.` rather than `.test`.
+  {"email-changed", :email_changed_email, 1, false, [user]},
+  {"deletion-scheduled", :deletion_scheduled_email, 3, false,
+   [user, ~D[2026-02-01], base <> "/users/reactivation/catalog-token"]},
+  {"deletion-cancelled", :deletion_cancelled_email, 2, false, [user, base <> "/users/log_in"]},
+  {"deletion-finalized", :deletion_finalized_email, 1, false, ["catalog-user@example.test"]},
+  {"password-changed", :password_changed_email, 2, false, [user, details]},
+  {"organization-invitation", :organization_invitation, 4, false,
+   [invitation, %{name: "Example Organization"}, inviter, base <> "/invitations/catalog-token/accept"]}
+]
+
+format_recipient = fn
+  {name, address} when name in [nil, ""] -> address
+  {name, address} -> "#{name} <#{address}>"
+  address when is_binary(address) -> address
+end
+
+written =
+  Enum.flat_map(builders, fn {slug, function, arity, required?, args} ->
+    cond do
+      not function_exported?(emails, function, arity) and required? ->
+        IO.puts(:stderr, "FAIL: required builder #{function}/#{arity} is not exported by #{inspect(emails)}")
+        System.halt(1)
+
+      not function_exported?(emails, function, arity) ->
+        IO.puts("skip: #{slug} (#{function}/#{arity} is not generated in this host)")
+        []
+
+      true ->
+        try do
+          email = apply(emails, function, args)
+
+          content =
+            Enum.join(
+              [
+                "Subject: #{email.subject}",
+                "To: #{Enum.map_join(email.to, ", ", format_recipient)}",
+                "From: #{format_recipient.(email.from)}",
+                "=== HTML ===",
+                email.html_body || "",
+                "=== TEXT ===",
+                email.text_body || ""
+              ],
+              "\n"
+            ) <> "\n"
+
+          File.write!(Path.join(emails_dir, slug <> ".txt"), content)
+          IO.puts("wrote: #{slug}")
+          [slug]
+        rescue
+          error ->
+            if required? do
+              IO.puts(:stderr, "FAIL: required builder #{function}/#{arity} raised: #{Exception.message(error)}")
+              System.halt(1)
+            else
+              IO.puts("skip: #{slug} (#{function}/#{arity} raised: #{Exception.message(error)})")
+              []
+            end
+        end
+    end
+  end)
+
+IO.puts("catalog emails written: #{Enum.join(Enum.sort(written), " ")}")
+EOF
+
+  # PORT is pinned to the Phoenix default here: the generated builders embed
+  # Endpoint.url(), which reads PORT, so without the pin the dumped emails would
+  # carry whatever port the caller picked for the booted server. This process
+  # starts no server, so the pin binds nothing.
+  PORT=4000 \
+  SIGRA_CATALOG_EMAIL_DIR="${CATALOG_RAW_DIR}/emails" \
+  SIGRA_CATALOG_EMAILS_MODULE="${CONTEXT_MODULE}.Emails" \
+  SIGRA_CATALOG_USER_MODULE="${CONTEXT_MODULE}.User" \
+  SIGRA_CATALOG_OTP_APP="${APP_NAME}" \
+  mix run "${CATALOG_EMAIL_FILE}"
+
+  echo "==> admin-acceptance: catalog raw written to ${CATALOG_RAW_DIR}"
+  exit 0
+fi
 
 for path in /users/log_in /admin "/admin/organizations/${SIGRA_ALLOWED_ORG_SLUG}"; do
   curl -s -o /dev/null "http://localhost:${PORT}${path}" || true
