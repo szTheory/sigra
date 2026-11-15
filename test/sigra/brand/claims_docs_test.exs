@@ -17,10 +17,12 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       words "Scope of this claim:" and names the uncovered dimensions;
     * `unbounded?/1` recognises an unbounded enumeration claim in prose;
     * a sweep over `README.md`, every `guides/**/*.md` and `test/example/README.md`
-      flags any prose paragraph (fenced code and HTML comments stripped) that
-      makes an unbounded claim without a qualifier phrase. The sweep allow-list
-      is shrink-only and every hit is fixed by rewording the doc, never by
-      adding an entry;
+      flags any claim unit (fenced code and HTML comments stripped) that makes
+      an unbounded claim without a qualifier phrase in the SAME unit. A unit is
+      a prose paragraph, a table row or a list item with its continuation lines,
+      so a properly scoped row or item never excuses its siblings. The sweep
+      allow-list is shrink-only and every hit is fixed by rewording the doc,
+      never by adding an entry;
     * the edited docs cite no planning artifact, todo file or registry id (one
       explicit, shrink-only, pre-existing allow-list entry).
 
@@ -43,13 +45,15 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
   @scope_opener "**Scope of this claim:**"
 
-  # A paragraph that makes an unbounded claim is allowed when it also carries
-  # one of these phrases, because the phrase bounds the claim to what is tested.
+  # A claim unit (paragraph, table row or list item) that makes an unbounded
+  # claim is allowed when it also carries one of these phrases, because the
+  # phrase ties the claim to what the harness compares. Generic wording such as
+  # "not covered" is deliberately absent: it can bound anything, so it would let
+  # an unrelated sentence launder a claim.
   @qualifiers [
     "Scope of this claim",
     "single attempt",
     "compared case",
-    "not covered",
     "not part of that comparison"
   ]
 
@@ -130,7 +134,13 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
   # Family B: the non-existence promise ("does not reveal whether ...").
   defp family_b_regex do
-    ~r/\b(?:does\s+not|doesn['’]t|never|without)\s+(?:reveal|disclos|leak|expos)\w*\s+(?:whether|if)\b/iu
+    ~r/\b(?:does\s+not|doesn['’]t|never|without)\s+(?:reveal|disclos|leak|expos|indicat|confirm)\w*\s+(?:whether|if)\b/iu
+  end
+
+  # Family C: the same promise made without a verb ("indistinguishable",
+  # "regardless of whether the account exists").
+  defp family_c_regexes do
+    [~r/\bindistinguishable\b/i, ~r/\bregardless\s+of\s+whether\b/i]
   end
 
   # True when `text` makes an unbounded enumeration claim, whatever else the
@@ -140,7 +150,8 @@ defmodule Sigra.Brand.ClaimsDocsTest do
     flat = collapse(text)
 
     Enum.any?(family_a_regexes(), &Regex.match?(&1, flat)) or
-      Regex.match?(family_b_regex(), flat)
+      Regex.match?(family_b_regex(), flat) or
+      Enum.any?(family_c_regexes(), &Regex.match?(&1, flat))
   end
 
   # Retired phrases still present in `text`.
@@ -155,19 +166,46 @@ defmodule Sigra.Brand.ClaimsDocsTest do
     |> then(&Regex.replace(~r/<!--.*?-->/s, &1, ""))
   end
 
-  # True when the paragraph carries one of the qualifier phrases (case-blind).
-  defp qualified?(paragraph, qualifiers) do
-    flat = paragraph |> collapse() |> String.downcase()
+  # True when the unit carries one of the qualifier phrases (case-blind).
+  defp qualified?(unit, qualifiers) do
+    flat = unit |> collapse() |> String.downcase()
     Enum.any?(qualifiers, &String.contains?(flat, String.downcase(&1)))
   end
 
-  # The prose paragraphs of `text` that make an unbounded enumeration claim and
-  # carry none of the `qualifiers`, with whitespace collapsed.
-  defp unbounded_paragraphs(text, qualifiers) do
-    for paragraph <- text |> prose() |> paragraphs(),
-        unbounded?(paragraph),
-        not qualified?(paragraph, qualifiers),
-        do: collapse(paragraph)
+  # The claim units of a Markdown text: its prose paragraphs, with every table
+  # row and every list item (and its continuation lines) a unit of its own. A
+  # table or a list is one blank-line paragraph, so judging it whole would let one
+  # properly scoped row or item excuse every sibling.
+  defp claim_units(text), do: text |> prose() |> paragraphs() |> Enum.flat_map(&split_units/1)
+
+  defp split_units(paragraph) do
+    {units, current} =
+      paragraph
+      |> String.split("\n")
+      |> Enum.reduce({[], []}, fn line, {units, current} ->
+        cond do
+          table_row?(line) -> {[line | close_unit(units, current)], []}
+          list_item?(line) -> {close_unit(units, current), [line]}
+          true -> {units, [line | current]}
+        end
+      end)
+
+    units |> then(&close_unit(&1, current)) |> Enum.reverse()
+  end
+
+  defp close_unit(units, []), do: units
+  defp close_unit(units, lines), do: [lines |> Enum.reverse() |> Enum.join("\n") | units]
+
+  defp table_row?(line), do: line |> String.trim_leading() |> String.starts_with?("|")
+  defp list_item?(line), do: Regex.match?(~r/^\s*(?:[-*+]|\d{1,9}[.)])\s+\S/, line)
+
+  # The claim units of `text` that make an unbounded enumeration claim and carry
+  # none of the `qualifiers`, with whitespace collapsed.
+  defp unbounded_units(text, qualifiers) do
+    for unit <- claim_units(text),
+        unbounded?(unit),
+        not qualified?(unit, qualifiers),
+        do: collapse(unit)
   end
 
   # Drops the paragraphs a `{file, substring}` allow-list entry for `file`
@@ -373,7 +411,19 @@ defmodule Sigra.Brand.ClaimsDocsTest do
             "It works without revealing whether a user exists.",
             "It doesn't leak whether the account is locked.",
             "It does not expose if the account is locked.",
-            "The error does not\nreveal whether the account exists."
+            "The error does not\nreveal whether the account exists.",
+            "The page does not indicate whether the account is locked.",
+            "It never confirms if the address is registered."
+          ] do
+        assert unbounded?(text), "should have been flagged: #{inspect(text)}"
+      end
+    end
+
+    test "flags every family C wording, which makes the promise without a verb" do
+      for text <- [
+            "The two responses are indistinguishable.",
+            "It answers the same regardless of whether the account exists.",
+            "Regardless of\nwhether the address is registered, the page is the same."
           ] do
         assert unbounded?(text), "should have been flagged: #{inspect(text)}"
       end
@@ -409,20 +459,21 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       end
     end
 
-    test "no paragraph makes an unqualified enumeration claim" do
+    test "no claim unit (paragraph, table row or list item) makes an unqualified enumeration claim" do
       offenders =
         for file <- sweep_files(),
             paragraph <-
               file
               |> read!()
-              |> unbounded_paragraphs(@qualifiers)
+              |> unbounded_units(@qualifiers)
               |> then(&apply_sweep_allow_list(file, &1, @sweep_allow_list)),
             do: "#{file}: #{String.slice(paragraph, 0, 200)}"
 
       assert offenders == [],
              """
-             Unbounded enumeration claims found. Reword each paragraph so it names the
-             compared case and what is not covered; do not add an allow-list entry.
+             Unbounded enumeration claims found. Reword each paragraph, table row or list
+             item so that the same unit names the compared case it is bounded to; do not add
+             an allow-list entry.
 
              #{Enum.join(offenders, "\n")}
              """
@@ -446,7 +497,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       planted =
         "Intro.\n\nBy design the form shows one message; this prevents enumeration attacks.\n"
 
-      assert unbounded_paragraphs(planted, @qualifiers) ==
+      assert unbounded_units(planted, @qualifiers) ==
                ["By design the form shows one message; this prevents enumeration attacks."]
     end
 
@@ -454,29 +505,86 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       bare = "It does not reveal whether an unknown email was the cause."
       qualified = bare <> " This holds at a single attempt."
 
-      assert unbounded_paragraphs(bare, @qualifiers) == [bare]
-      assert unbounded_paragraphs(qualified, @qualifiers) == []
+      assert unbounded_units(bare, @qualifiers) == [bare]
+      assert unbounded_units(qualified, @qualifiers) == []
     end
 
     test "each qualifier phrase bounds a planted claim, whatever its case" do
       for qualifier <- @qualifiers do
         planted = "The flow is enumeration-safe. " <> String.upcase(qualifier) <> "."
 
-        assert unbounded_paragraphs(planted, @qualifiers) == [],
+        assert unbounded_units(planted, @qualifiers) == [],
                "qualifier #{inspect(qualifier)} did not bound the paragraph"
       end
+    end
+
+    test "a generic 'not covered' no longer bounds a claim, because it can bound anything" do
+      planted = "Sigra is enumeration-safe. Windows is not covered."
+
+      assert unbounded_units(planted, @qualifiers) == [collapse(planted)]
+      refute "not covered" in Enum.map(@qualifiers, &String.downcase/1)
+    end
+
+    test "a claim in a sibling table row of a scoped row is still flagged" do
+      planted = """
+      | Property | Status |
+      | --- | --- |
+      | **Enumeration** | Same message for the compared case, single attempt. |
+      | **Registration** | Registration is enumeration-safe. |
+      """
+
+      assert unbounded_units(planted, @qualifiers) ==
+               ["| **Registration** | Registration is enumeration-safe. |"]
+    end
+
+    test "the same sibling row inserted under the real README Enumeration row is flagged" do
+      readme = read!(@readme)
+      row = "| **Registration** | Registration is enumeration-safe. |"
+
+      mutated =
+        Regex.replace(~r/^(\| \*\*Enumeration\*\* \|[^\n]*\n)/m, readme, "\\1#{row}\n")
+
+      assert mutated != readme, "the README Enumeration row moved; update this control"
+      assert unbounded_units(readme, @qualifiers) == []
+      assert unbounded_units(mutated, @qualifiers) == [row]
+    end
+
+    test "a claim in a sibling list item of a scoped item is still flagged" do
+      planted = """
+      - Sign-in shows one message for the compared case.
+      - Registration is enumeration-safe.
+      """
+
+      assert unbounded_units(planted, @qualifiers) == ["- Registration is enumeration-safe."]
+    end
+
+    test "a list item keeps its own continuation lines, and a qualifier in them counts" do
+      planted = """
+      - Registration is enumeration-safe
+        for a single attempt.
+      - Another item.
+      """
+
+      assert unbounded_units(planted, @qualifiers) == []
+    end
+
+    test "a table row carrying its own qualifier is not flagged" do
+      planted =
+        "| **Enumeration** | Safe for a single attempt, not part of that comparison: timing. |\n"
+
+      assert unbounded_units(planted, @qualifiers) == []
     end
 
     test "a qualifier in a different paragraph does not bound the claim" do
       planted = "The flow is enumeration-safe.\n\nNot covered: timing.\n"
 
-      assert unbounded_paragraphs(planted, @qualifiers) == ["The flow is enumeration-safe."]
+      assert unbounded_units(planted, @qualifiers) == ["The flow is enumeration-safe."]
     end
 
     test "a claim wrapped across lines is flagged as one collapsed paragraph" do
       planted = "The error does not\nreveal whether the account exists."
 
-      assert unbounded_paragraphs(planted, @qualifiers) ==
+      assert unbounded_units(planted, @qualifiers) ==
                ["The error does not reveal whether the account exists."]
     end
 
@@ -486,16 +594,16 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       comment = "Prose. <!-- enumeration-resistant -->\n\n<!--\nenumeration-safe\n-->\n\nAfter.\n"
       indented = "Prose:\n\n    # Enumeration-safe: same response\n    redirect(to: \"/\")\n"
 
-      assert unbounded_paragraphs(fenced, @qualifiers) == []
-      assert unbounded_paragraphs(tilde, @qualifiers) == []
-      assert unbounded_paragraphs(comment, @qualifiers) == []
-      assert [_one] = unbounded_paragraphs(indented, @qualifiers)
+      assert unbounded_units(fenced, @qualifiers) == []
+      assert unbounded_units(tilde, @qualifiers) == []
+      assert unbounded_units(comment, @qualifiers) == []
+      assert [_one] = unbounded_units(indented, @qualifiers)
     end
 
     test "prose after a fenced block closes is still scanned" do
       planted = "```\ncode\n```\n\nThis is enumeration-safe.\n"
 
-      assert unbounded_paragraphs(planted, @qualifiers) == ["This is enumeration-safe."]
+      assert unbounded_units(planted, @qualifiers) == ["This is enumeration-safe."]
     end
 
     test "the retired strings are flagged when planted in memory" do
@@ -511,7 +619,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       for phrase <- detectable do
         planted = "Intro.\n\nThe guide says #{phrase} here.\n"
 
-        assert [_one] = unbounded_paragraphs(planted, @qualifiers),
+        assert [_one] = unbounded_units(planted, @qualifiers),
                "planted #{inspect(phrase)} was not flagged by the sweep"
       end
 
