@@ -1,0 +1,85 @@
+# test/fixtures/brand/css-undefined-classes.txt - shrink-only baseline of the shipped-CSS gap
+#
+# WHY THIS FILE EXISTS
+# Library admin markup (lib/sigra/admin/**) and the generated admin shell
+# (priv/templates/sigra.install/admin/**) emit sg-* classes that the one stylesheet the
+# installer copies, priv/templates/sigra.install/admin/sigra_admin.css, does not define.
+# Today 53 of them are defined only in the example application's app.css (a hand mirror
+# that a generated host does not have) and 3 are defined nowhere (sg-branding-editor,
+# sg-cluster--2 and sg-stack--4). A generated host renders those elements unstyled unless
+# its own Tailwind/DaisyUI utilities happen to cover them. Moving all of that styling into
+# the shipped file is a roughly 700-line shipped-byte change and a much larger golden diff,
+# so this phase records the gap instead of hiding it.
+#
+# SHRINK-ONLY
+# test/sigra/install/css_undefined_classes_test.exs computes the undefined set from the
+# sources and compares it with the list below in both directions:
+#   - a class that is undefined but not listed here FAILS: the gap may not grow. Define the
+#     class in priv/templates/sigra.install/admin/sigra_admin.css; never add an entry here
+#     to make the test pass.
+#   - a class listed here that the shipped CSS now defines FAILS: remove the entry. The
+#     baseline can only get shorter.
+# One class per line, sorted, no duplicates. Lines starting with # are ignored.
+#
+# MEASURED
+# 56 classes at creation (Phase 260 plan 07): 153 sg-* classes emitted by class="..." and
+# class={...} attributes in the markup roots, 112 defined in the shipped sigra_admin.css.
+# Of the 56, 53 are defined in the example app.css and 3 nowhere. The brand-mark and
+# theme-switch entries (sg-brand-mark*, sg-theme-switch) are the ones the later brand-mark
+# and explicit-theme CSS plan removes when it adds those rules to the shipped stylesheet.
+sg-admin-body
+sg-admin-content
+sg-admin-crumbs
+sg-admin-main
+sg-admin-sidebar
+sg-bottom-nav
+sg-bottom-nav__item
+sg-brand-mark
+sg-brand-mark__image
+sg-brand-mark__image--dark
+sg-brand-mark__image--light
+sg-brand-mark__lockup
+sg-brand-mark__section
+sg-branding-details-grid
+sg-branding-draft
+sg-branding-editor
+sg-branding-editor__status
+sg-branding-panel
+sg-branding-preview-rail
+sg-branding-workbench
+sg-branding-workbench__controls
+sg-breadcrumb
+sg-breadcrumb__item
+sg-breadcrumb__segment
+sg-breadcrumb__sep
+sg-cluster--2
+sg-cmdk__trigger-kbd
+sg-color-field
+sg-color-field__control
+sg-color-field__input
+sg-color-field__value
+sg-color-grid
+sg-field
+sg-field-label
+sg-field-label-row
+sg-fieldset
+sg-fieldset__legend
+sg-impersonation
+sg-impersonation__inner
+sg-impersonation__primary
+sg-input
+sg-nav-title
+sg-page-copy
+sg-page-header
+sg-page-kicker
+sg-scope-switch
+sg-scope-switch__item
+sg-scope-switch__menu
+sg-section-copy
+sg-section-heading
+sg-select
+sg-self-start
+sg-stack--4
+sg-tabs
+sg-theme-switch
+sg-toolbar
