@@ -11,7 +11,7 @@
     {
       "number": "260",
       "name": "Deterministic Output, Before Catalog and PNG Park",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "261",
@@ -34,5 +34,5 @@
     "label": "Advance to the next step",
     "reason": "Phase 2 of 5 · executing"
   },
-  "updated_at": "2026-11-15T16:54:15.692Z"
+  "updated_at": "2026-11-15T18:07:28.249Z"
 }

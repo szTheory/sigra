@@ -103,7 +103,18 @@ These are cross-cutting criteria. Each phase lists the ones that apply to it ins
   3. In a real generated host, the brand mark and explicit Light/Dark theme rules render from the shipped `sigra_admin.css` alone (the `app.css` duplicates are gone), the CSS carries a version-stamp comment, and `admin-css-conformance.sh` and `admin-token-completeness.sh` run in `mix ci`/`fast_checks` (or are explicitly retired).
   4. The park PR (separate, small, not a brand PR) has demoted the PNG-compare lanes (`admin_checkpoints`, `demo_showcase`, design_gallery `@snapshot`) to dispatch while real-login and generated-host smoke, axe, golden install and behavior specs stay on the PR path; the canary is not allowlisted; nothing was recaptured on darwin; and it is merged, with explicit owner approval, before Phase 261 starts.
   5. No token value, logo, copy, `Components` markup or `Profile` key changed in this phase; the frozen-surface ratchet, privacy grep and process budget (no new workflow/receipt/ledger beyond the park PR) hold; at most one golden rebless; the fresh-host run is green.
-**Plans**: TBD
+**Plans**: 1/11 plans executed
+- [x] 260-01-PLAN.md
+- [ ] 260-02-PLAN.md
+- [ ] 260-03-PLAN.md
+- [ ] 260-04-PLAN.md
+- [ ] 260-05-PLAN.md
+- [ ] 260-06-PLAN.md
+- [ ] 260-07-PLAN.md
+- [ ] 260-08-PLAN.md
+- [ ] 260-09-PLAN.md
+- [ ] 260-10-PLAN.md
+- [ ] 260-11-PLAN.md
 **UI hint**: yes
 **Research at planning**: Moderate (tier-2 normalization, LiveView `render/1` purity, live `ci.yml` PNG-lane behavior on PRs — read the live file before planning the park PR).
 **Owner decisions needed**: #7 PNG lanes (execute: park PR merge approval); #13 orphaned CSS guards (wire or retire).
@@ -159,7 +170,7 @@ These are cross-cutting criteria. Each phase lists the ones that apply to it ins
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 259. Compatibility Policy, Pinned Source and Copy Contract | 18/18 | Complete    | 2026-11-15 |
-| 260. Deterministic Output, Before Catalog and PNG Park | 0/TBD | Not started | - |
+| 260. Deterministic Output, Before Catalog and PNG Park | 1/11 | In Progress | - |
 | 261. Tokens, Type, Logo, Favicon and Contrast | 0/TBD | Not started | - |
 | 262. Words and Layout | 0/TBD | Not started | - |
 | 263. Public Surfaces and Release Narrative | 0/TBD | Not started | - |

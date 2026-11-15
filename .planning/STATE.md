@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 260
 current_phase_name: Deterministic Output, Before Catalog and PNG Park
-current_plan: Not started
+current_plan: 2
 status: executing
-stopped_at: Phase 259 complete, ready to plan Phase 260
-last_updated: "2026-11-15T16:54:15.679Z"
+stopped_at: Completed 260-01-PLAN.md
+last_updated: "2026-11-15T18:07:39.758Z"
 last_activity: 2026-11-15
-last_activity_desc: Phase 259 complete, transitioned to Phase 260
-state_head: 7751d3b5178f6206aee8d76d896fd2eb520613fd
+last_activity_desc: Phase 260 execution started
+state_head: d45098b0ab2593fd0fbdab9cb2012dc987b8ce82
 progress:
   total_phases: 5
   completed_phases: 1
@@ -25,15 +25,15 @@ progress:
 See: .planning/PROJECT.md
 
 **Core value:** Authentication that works out of the box with a clear path for Phoenix adopters.
-**Current focus:** v1.51 BRAND-IDENTITY-ADOPTION — roadmap created (Phases 259-263, 53/53 requirements mapped). Next: `/gsd-plan-phase 259`. No plan is active.
+**Current focus:** Phase 260 — Deterministic Output, Before Catalog and PNG Park
 
 ## Current Position
 
-Phase: 260 (Deterministic Output, Before Catalog and PNG Park) — READY TO EXECUTE
-Current Plan: Not started
+Phase: 260 (Deterministic Output, Before Catalog and PNG Park) — EXECUTING
+Current Plan: 2
 Total Plans in Phase: 11
 Status: Ready to execute
-Last activity: 2026-11-15 — Phase 259 complete, transitioned to Phase 260
+Last activity: 2026-11-15 — Phase 260 execution started
 
 Progress: [░░░░░░░░░░] 0% (0/5 phases)
 
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T14:20:00Z
-Stopped at: Phase 259 complete, ready to plan Phase 260
+Last session: 2026-11-15T18:07:39.716Z
+Stopped at: Completed 260-01-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them.
@@ -136,6 +136,7 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 | Phase 259 P16 | 3 min | 2 tasks | 3 files |
 | Phase 259 P17 | 8 min | 3 tasks | 4 files |
 | Phase 259 P18 | 4 min | 2 tasks | 5 files |
+| Phase 260 P01 | 11 min | 3 tasks | 6 files |
 
 ## Decisions
 
@@ -181,3 +182,5 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 - [Phase 259]: 259-17: the generated-confirm todo took the primary outcome (status update, stays pending): the LiveView flavor was repaired in Phase 246 and has an install-smoke probe, the non-live controller flavor still sits in the redirect-if-authenticated scope and reads current_scope.user directly (read in source, not executed); BCOPY-03 and BCOPY-07 stay open because plan 259-18 also declares them
 - [Phase 259]: 259-18: the README Enumeration row and the password-reset guide scope paragraph restate only what the parity rows prove (sign-in, magic-link and password-reset requests, single attempt, example application, generated code listed as not covered); the confirmation resend is deliberately not mentioned publicly; the false "tests do not currently run a comparison" clause is retired as a false statement in claims_docs_test, with no sweep allow-list entry
 - [Phase 259]: 259-18: phase gate ran green once (example suite 391 tests 0 failures, MIX_ENV=test mix ci exit 0 with 2985 tests and 65 install-golden tests, zero shipped bytes, all six privacy legs pass) and BCOPY-03 and BCOPY-07 were marked complete via requirements.ready-ids; no owner override written; the generated reset request page and non-live confirm flavor stay open, tracked by the two Plan 259-17 todos
+- [Phase 260]: [Phase 260-01]: PNG compare is parked at comparison level, not lane level. SIGRA_PNG_COMPARE_SKIP=1 skips only toHaveScreenshot on pull_request/push/schedule; unset compares, so recapture jobs, drift scripts and the Pages workflow need no edit (owner chose author-first-option-a; departs from literal ADR 005 decision 7 wording, plan 11 appends a dated ADR note) — Keeps axe, real-login and behavior specs on the PR path and leaves every if: predicate, the honest-skip manifest and the five required job names untouched; a forgotten setter fails loud (compares) rather than silently green.
+- [Phase 260]: [Phase 260-01]: playwright-github-pages.yml is left unedited; it keeps comparing and will report drift after Phase 261 until baselines are recaptured — Not a required context and not in ci-gate; leaving it untouched keeps the park PR a ci.yml-only change. Cost documented in MAINTAINING.md.
