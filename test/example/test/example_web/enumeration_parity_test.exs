@@ -21,7 +21,17 @@ defmodule ExampleWeb.EnumerationParityTest do
   A positive control (`run_all/2` with `leak: {surface_id, text}`) appends a
   deliberately leaky string to the unknown-identity response of exactly one
   surface and proves the harness goes red exactly once. The leak lives in this
-  test module only; there is no leak switch in app code.
+  test module only; there is no leak switch in app code. That control proves the
+  comparator detects a difference; it cannot prove a probe observes the real
+  response, because the leak is applied after the response was captured.
+
+  A second rule closes that gap: a `parity` row must not be empty-versus-empty.
+  Each parity probe must capture a non-empty value for every content dimension
+  (`flash`, `body`) its row lists, and the flash it captures is asserted against
+  the message the surface really shows. If a probe stopped observing its surface
+  (a LiveView assign moved, a redirect stopped carrying its flash), both sides
+  would capture the same empty value and compare `:same`; this rule turns that
+  into a failure.
 
   ## What this does NOT prove
 
@@ -62,6 +72,10 @@ defmodule ExampleWeb.EnumerationParityTest do
   @named_parity_ids ~w(password-signin magic-link-request password-reset-request confirmation-resend mfa-challenge)
   # A LiveView event has no HTTP status; "re-rendered in place" is reported as 200.
   @live_render_status 200
+  # The dimensions that carry what the user is shown. Status and redirect are constants
+  # for some surfaces (a LiveView re-render is always 200 with no redirect), so they
+  # cannot show that a probe observed anything.
+  @content_dimensions [:flash, :body]
 
   # The leaks that exist today. None of them may ever be registered as parity.
   @named_leak_ids ~w(passkey-signin-options registration password-signin-repeat-attempts magic-link-rate-limit password-reset-rate-limit)
@@ -347,6 +361,56 @@ defmodule ExampleWeb.EnumerationParityTest do
       failures = for {id, {:diff, details}} <- results, do: "#{id}: #{inspect_diff(details)}"
       assert failures == [], "parity rows differ:\n" <> Enum.join(failures, "\n")
     end
+
+    test "no parity row passes as empty-versus-empty: each probe captures the surface's real response" do
+      rows = for %{"state" => "parity"} = row <- surfaces(), do: row
+      assert length(rows) >= 3
+
+      for row <- rows do
+        id = row["id"]
+        listed = dimensions(row)
+
+        {key, expected} =
+          expected_parity_flash(id) ||
+            flunk("parity row #{id} has no expected flash in expected_parity_flash/1")
+
+        assert Enum.any?(listed, &(&1 in @content_dimensions)),
+               "parity row #{id} lists no content dimension (flash or body), so :same proves nothing"
+
+        {existing, unknown} = probe_pair(id)
+
+        for {identity, response} <- [existing: existing, unknown: unknown] do
+          assert empty_content_dimensions(response, listed) == [],
+                 "#{id}: the #{identity} probe captured an empty " <>
+                   inspect(empty_content_dimensions(response, listed)) <>
+                   ", so a :same result would be empty-versus-empty"
+
+          text = Map.get(response.flash, key)
+
+          assert is_binary(text) and text =~ expected,
+                 "#{id}: the #{identity} probe captured flash #{inspect(response.flash)}, " <>
+                   "expected #{key} matching #{inspect(expected)}"
+        end
+      end
+    end
+
+    test "the non-vacuity check reports a response that observed nothing (control)" do
+      nothing = response([])
+      observed = response(flash: %{"error" => "Invalid"}, body: "<p>page</p>")
+
+      assert empty_content_dimensions(nothing, [:status, :flash, :body]) == [:flash, :body]
+      assert empty_content_dimensions(nothing, [:flash]) == [:flash]
+      assert empty_content_dimensions(observed, [:status, :flash, :body]) == []
+      # Only the content dimensions count: a constant status or a nil redirect is not content.
+      assert empty_content_dimensions(nothing, [:status, :location]) == []
+    end
+
+    test "the expected-flash table names exactly the parity rows, so a new parity row must state its flash" do
+      parity_ids = for %{"state" => "parity", "id" => id} <- surfaces(), do: id
+
+      assert Enum.sort(parity_ids) ==
+               Enum.sort(Enum.filter(@named_parity_ids, &expected_parity_flash/1))
+    end
   end
 
   describe "known divergences (asserted: fixing the product must change the registry)" do
@@ -574,6 +638,29 @@ defmodule ExampleWeb.EnumerationParityTest do
   end
 
   defp inspect_diff(details), do: inspect(details, limit: 8, printable_limit: 240)
+
+  # Pure: the content dimensions (`flash`, `body`) among `dimensions` that `response`
+  # leaves empty. A parity row whose probe captured nothing compares empty against
+  # empty and reads :same without proving anything.
+  defp empty_content_dimensions(response, dimensions) do
+    for dimension <- dimensions,
+        dimension in @content_dimensions,
+        Map.fetch!(response, dimension) in [nil, %{}, ""],
+        do: dimension
+  end
+
+  # The flash each parity probe must capture on BOTH sides, as `{key, regex}`. These
+  # are the messages the surfaces really show; `nil` for any other surface.
+  defp expected_parity_flash("password-signin"),
+    do: {"error", ~r/\AInvalid email or password\z/}
+
+  defp expected_parity_flash("magic-link-request"),
+    do: {"info", ~r/\AIf your email is registered, you will receive a magic link shortly\.\z/}
+
+  defp expected_parity_flash("mfa-challenge"),
+    do: {"error", ~r/\AInvalid verification code\. \d+ attempts? remaining\.\z/}
+
+  defp expected_parity_flash(_id), do: nil
 
   # --- identities -------------------------------------------------------------
 
