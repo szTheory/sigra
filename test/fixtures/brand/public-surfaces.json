@@ -51,11 +51,17 @@
       "id": "confirmation-resend",
       "route": "GET /users/confirm (ExampleWeb.ConfirmationLive, resend)",
       "kind": "liveview",
-      "compare": [],
-      "state": "not_proven",
-      "note": "Identity = the session user (the resend event takes no email). Not proven: the example host cannot drive resend for either session state, so no response is compared. Anonymous visitors mount with current_scope nil and the handler raises BadMapError; signed-in visitors are redirected to /app before mount (both verified by running it). The generated confirm routes have the same defect, tracked by the linked todo.",
+      "compare": [
+        "status",
+        "redirect",
+        "flash",
+        "body",
+        "result"
+      ],
+      "state": "parity",
+      "note": "Identity = the email an anonymous visitor puts in the resend event payload: an existing, still-unconfirmed account versus an address never stored. The resend handler takes its target from the session user and ignores the payload, so this row proves a visitor-supplied identity is ignored, not that an email-keyed resend form exists: no email-keyed resend form exists in the example or in the generated page, and nothing here covers one. One anonymous resend event with the email in its payload, fresh state. Compares the reported redirect outcome (302), the redirect location, the flash read from the redirect (an error asking the visitor to log in), the followed login page body after normalizing only CSRF tokens, request ids and the echoed email, and the number of confirmation tokens created for that email (zero for both). NOT compared: a signed-in visitor's own resend (the session owner's account, not an enumeration channel), response timing, rate limits, the code-entry path, and the generated host (its LiveView confirm flow was repaired in Phase 246 and renders a sign-in-required state in place for an anonymous visitor, which differs from this example's flash-and-redirect; nothing about the generated host is claimed).",
       "todo": ".planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md",
-      "blocker": "test/example/lib/example_web/live/confirmation_live.ex:158 reads socket.assigns.current_scope.user in the resend handler, and test/example/lib/example_web/router.ex:106 redirects signed-in visitors before mount, so neither session state can complete a resend"
+      "blocker": null
     },
     {
       "id": "mfa-challenge",

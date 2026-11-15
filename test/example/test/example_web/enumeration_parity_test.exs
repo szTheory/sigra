@@ -542,6 +542,36 @@ defmodule ExampleWeb.EnumerationParityTest do
     end
   end
 
+  describe "confirmation-resend probe is real" do
+    test "an anonymous resend carrying an unconfirmed account's email creates no token, for either address" do
+      user = user_fixture()
+      unknown_email = unique_user_email()
+      assert user.confirmed_at == nil, "setup: the existing identity is an unconfirmed account"
+      assert confirmation_token_count(user.email) == 0, "setup: no token before the resend"
+      assert confirmation_token_count(unknown_email) == 0, "setup: nothing stored for the address"
+
+      existing = anonymous_resend(user.email)
+      unknown = anonymous_resend(unknown_email)
+
+      assert existing.result == %{confirmation_tokens: 0}
+      assert unknown.result == %{confirmation_tokens: 0}
+      assert Example.Repo.get!(Example.Accounts.User, user.id).confirmed_at == nil
+    end
+
+    test "the token count can see a delivery (control): a direct delivery takes it from 0 to at least 1" do
+      user = user_fixture()
+      assert user.confirmed_at == nil, "setup: the account is unconfirmed"
+      assert confirmation_token_count(user.email) == 0, "setup: no token before the delivery"
+
+      assert {:ok, :sent} =
+               Example.Accounts.deliver_user_confirmation_instructions(user, fn token ->
+                 "http://localhost/users/confirm/" <> token
+               end)
+
+      assert confirmation_token_count(user.email) >= 1
+    end
+  end
+
   describe "positive control" do
     test "a leak on exactly one parity surface yields exactly one diff, the others stay :same" do
       registry = registry()
@@ -685,6 +715,9 @@ defmodule ExampleWeb.EnumerationParityTest do
       {"info",
        ~r/\AIf your email is in our system, you will receive reset instructions shortly\.\z/}
 
+  defp expected_parity_flash("confirmation-resend"),
+    do: {"error", ~r/\ALog in to request a new confirmation email\.\z/}
+
   defp expected_parity_flash("mfa-challenge"),
     do: {"error", ~r/\AInvalid verification code\. \d+ attempts? remaining\.\z/}
 
@@ -721,6 +754,15 @@ defmodule ExampleWeb.EnumerationParityTest do
     {view, outcome} = submit_reset_request(email)
 
     capture_live_redirect(view, outcome, email)
+  end
+
+  # Identity here is the email an anonymous visitor puts in the resend event payload:
+  # an existing, still-unconfirmed account versus an address never stored. The resend
+  # handler takes its target from the session user and never reads its payload, so this
+  # proves a visitor-supplied identity is ignored. It does NOT probe an email-keyed
+  # resend form: none exists, in the example or in the generated page.
+  defp probe("confirmation-resend", identity, _ctx) do
+    anonymous_resend(identity_email(identity))
   end
 
   # Identity here is the code KIND: a wrong authenticator code (:existing)
@@ -879,6 +921,31 @@ defmodule ExampleWeb.EnumerationParityTest do
         where: ^filter
       )
     )
+  end
+
+  # The confirmation tokens (link and code) stored for one address (`sent_to`). Queried
+  # straight from the repo, so a delivery shows up whichever process performed it.
+  defp confirmation_token_count(email) do
+    Example.Repo.aggregate(
+      from(t in Example.Accounts.UserToken,
+        where: t.context in ["confirm", "confirm_code"],
+        where: t.sent_to == ^email
+      ),
+      :count
+    )
+  end
+
+  # One anonymous resend event carrying `email` in its payload. The captured response
+  # also carries the number of confirmation tokens stored for that address afterwards,
+  # under `result`, so a resend that acted on the payload would differ from one that
+  # ignored it even if the visible redirect were identical.
+  defp anonymous_resend(email) do
+    {:ok, view, _html} = live(build_conn(), ~p"/users/confirm")
+    outcome = render_click(view, "resend", %{"email" => email})
+
+    view
+    |> capture_live_redirect(outcome, email)
+    |> Map.put(:result, %{confirmation_tokens: confirmation_token_count(email)})
   end
 
   # One more than the configured lockout threshold.
