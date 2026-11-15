@@ -29,7 +29,17 @@ defmodule Sigra.Brand.CatalogTest do
 
   use ExUnit.Case, async: true
 
-  alias Sigra.Admin.Live.UserShowLive
+  alias Sigra.Admin.Live.{
+    AuditIndexLive,
+    AuditUserLive,
+    BrandingLive,
+    IndexLive,
+    OrganizationLive,
+    UserSessionsLive,
+    UserShowLive,
+    UsersIndexLive
+  }
+
   alias Sigra.Test.Brand.Catalog
 
   @root Path.expand("../../..", __DIR__)
@@ -529,6 +539,148 @@ defmodule Sigra.Brand.CatalogTest do
 
       assert "test/fixtures/brand/before/** -text" in lines
       assert "brand/** -text linguist-vendored" in lines
+    end
+  end
+
+  describe "tier 1 state matrix" do
+    # The state the pure render must actually show: a marker the shipped markup
+    # produces only for that state, so a state cannot silently render as another.
+    @state_markers [
+      {{UsersIndexLive, :populated}, "Open user"},
+      {{UsersIndexLive, :empty}, "No users match this view"},
+      {{UsersIndexLive, :filtered_empty}, "No users match the active filters"},
+      {{UserShowLive, :active}, "MFA + passkeys"},
+      {{UserShowLive, :unconfirmed}, "Email unconfirmed"},
+      {{UserShowLive, :locked}, "revoke active sessions and unlock below."},
+      {{UserShowLive, :scheduled_deletion}, "Deletion scheduled"},
+      {{UserSessionsLive, :populated}, "Revoke all sessions"},
+      {{UserSessionsLive, :empty}, "This user has no active sessions in the current scope."},
+      {{AuditIndexLive, :populated}, "Impersonation started"},
+      {{AuditIndexLive, :empty}, "No audit events match this view"},
+      {{AuditUserLive, :populated}, "Auth Login Success"},
+      {{AuditUserLive, :empty}, "No scoped events are currently tied to this user."},
+      {{OrganizationLive, :populated}, "members need review"},
+      {{OrganizationLive, :empty}, "No members yet"},
+      {{IndexLive, :overview}, "No flagged accounts"},
+      {{IndexLive, :needs_review}, "users need review"},
+      {{BrandingLive, :default_profile}, "Config defaults"},
+      {{BrandingLive, :explicit_profile}, "Admin profile"}
+    ]
+
+    test "tier1_states/0 is a sorted, unique list that covers the planned matrix" do
+      states = Catalog.tier1_states()
+      planned = Enum.map(@state_markers, &elem(&1, 0))
+
+      assert states == Enum.sort(states)
+      assert states == Enum.uniq(states)
+      assert MapSet.subset?(MapSet.new(planned), MapSet.new(states))
+    end
+
+    test "every one of the eight library admin LiveViews appears at least once" do
+      eight =
+        @root
+        |> Path.join("lib/sigra/admin/live/*_live.ex")
+        |> Path.wildcard()
+        |> Enum.map(
+          &(&1
+            |> Path.basename(".ex")
+            |> Macro.camelize()
+            |> then(fn name -> Module.concat(Sigra.Admin.Live, name) end))
+        )
+        |> Enum.sort()
+
+      covered = Catalog.tier1_states() |> Enum.map(&elem(&1, 0)) |> Enum.uniq() |> Enum.sort()
+
+      # Derived from the source tree, so a ninth LiveView added later fails here.
+      assert length(eight) == 8
+      assert covered == eight
+    end
+
+    test "tier1_entries/0 are unique, sorted, tier1-library-admin/<live>--<state>.html paths" do
+      entries = Catalog.tier1_entries()
+
+      assert entries != []
+      assert entries == Enum.sort(Enum.uniq(entries))
+      assert Enum.all?(entries, &(&1 =~ ~r{\Atier1-library-admin/[a-z0-9_]+--[a-z0-9_]+\.html\z}))
+      assert length(entries) == length(Catalog.tier1_states())
+    end
+
+    test "every state shows what its name says" do
+      for {entry, marker} <- @state_markers do
+        html = Catalog.tier1_html(entry)
+
+        assert html =~ marker, "#{inspect(entry)} does not contain #{inspect(marker)}"
+      end
+    end
+
+    test "two renders of every state normalize to identical, non-empty bytes" do
+      for entry <- Catalog.tier1_states() do
+        first = Catalog.tier1_html(entry)
+
+        assert first != "", "#{inspect(entry)} rendered nothing"
+        assert first == Catalog.tier1_html(entry), "#{inspect(entry)} is not deterministic"
+      end
+    end
+
+    test "no output holds a raw UUID, a csrf value or relative wall-clock text" do
+      uuid = ~r/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+
+      for entry <- Catalog.tier1_states() do
+        html = Catalog.tier1_html(entry)
+
+        refute html =~ uuid, "#{inspect(entry)} holds a raw UUID"
+        refute html =~ ~r/\d+[mhd] ago|just now/, "#{inspect(entry)} holds relative text"
+
+        refute html =~ ~r/name="_csrf_token" value="(?!\{\{CSRF\}\})/,
+               "#{inspect(entry)} holds a csrf value"
+      end
+    end
+
+    test "clock control: no output carries a date later than the pinned clock or on the run day" do
+      for entry <- Catalog.tier1_states() do
+        assert Catalog.clock_violations(Catalog.tier1_html(entry)) == [],
+               "#{inspect(entry)} shows a date that is not pinned at the source"
+      end
+    end
+
+    test "clock control, planted: a data timestamp that sneaked in as utc_now is flagged" do
+      today = Date.to_iso8601(Date.utc_today())
+
+      assert Catalog.clock_violations("<td>#{today} 10:00</td>") == [today]
+      assert Catalog.clock_violations("<td>2099-01-01 00:00</td>") == ["2099-01-01"]
+
+      assert Catalog.clock_violations("<td>2026-05-14 00:00</td>", ~D[2026-05-14]) == [
+               "2026-05-14"
+             ]
+
+      assert Catalog.clock_violations("<td>2026-05-15 00:00</td>") == []
+    end
+
+    test "the tier-1 output passes the privacy scan: personas are fictional .test addresses" do
+      assert Catalog.privacy_violations(Catalog.tier1_files()) == []
+    end
+
+    test "the branding preview placeholder address is masked, other example.com addresses are not" do
+      masked = Catalog.normalize(~s(<input type="email" value="alex@example.com"/>))
+
+      assert masked =~ "{{PREVIEW_EMAIL}}"
+      refute masked =~ "alex@example.com"
+      assert Catalog.normalize("<p>someone@example.com</p>") =~ "someone@example.com"
+    end
+
+    test "the manifest coverage records the masked preview address and the event-driven states" do
+      text = JSON.encode!(Catalog.coverage())
+
+      assert text =~ "PREVIEW_EMAIL"
+      assert text =~ "event-driven"
+    end
+
+    test "after mode writes a file for every tier-1 state" do
+      out = tmp_dir()
+      result = Catalog.write!(:after, env: %{"SIGRA_BRAND_CATALOG" => "after"}, out_dir: out)
+
+      assert Catalog.tier1_entries() -- result.files == []
+      assert Enum.all?(Catalog.tier1_entries(), &File.regular?(Path.join(out, &1)))
     end
   end
 
