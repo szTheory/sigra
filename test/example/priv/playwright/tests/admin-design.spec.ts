@@ -63,6 +63,12 @@ async function assertNoAxeViolations(page: Page, label: string) {
   expect(violations, `${label}: axe violations\n${detail}`).toHaveLength(0);
 }
 
+// BGEN-06: the 28 `@snapshot` board PNG compares are parked on pull_request/push/
+// schedule runs and run on workflow_dispatch and in the recapture jobs. `1` makes
+// each board test `test.skip(...)` so Playwright reports skipped, not silently
+// green; unset (or any other value) compares. The untagged axe test is unaffected.
+const skipPngCompare = process.env.SIGRA_PNG_COMPARE_SKIP === '1';
+
 /**
  * Element-scoped board screenshot helper.
  * Captures the board element (#boardId) rather than the full page so each
@@ -253,6 +259,7 @@ test.describe('Design gallery board snapshots', () => {
   // this file's new axe test) that must stay on PR.
   for (const boardId of [...COMPONENT_BOARDS, ...GROUP_BOARDS, ...CONFIG_BOARDS]) {
     test(`board: ${boardId}`, { tag: '@snapshot' }, async ({ page }, testInfo) => {
+      test.skip(skipPngCompare, 'PNG compare parked on PR and push; runs on dispatch and recapture (SIGRA_PNG_COMPARE_SKIP)');
       await assertBoardScreenshot(page, testInfo, boardId);
     });
   }

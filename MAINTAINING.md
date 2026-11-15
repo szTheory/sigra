@@ -271,6 +271,30 @@ event, including `pull_request`, gated by nothing.
   L1-state behaviour half of the same spec (`design_gallery`, filtered
   `--grep-invert '@snapshot'`) still run on every PR in the sibling step.
 
+**PNG compare switch (Phase 260, BGEN-06).** The three PNG-comparing steps of
+`example_playwright_shard` (`Run admin checkpoints`, `Run design gallery behavior and snapshots`,
+`Run demo showcase`) set the env switch `SIGRA_PNG_COMPARE_SKIP`: `1` skips only the
+`toHaveScreenshot` comparison, and unset (or any other value) compares. The workflow sets it to `1`
+on `pull_request`, `push` and `schedule` and to `0` on `workflow_dispatch`, so those events no
+longer compare PNGs while the axe scans and the behavior specs (the checkpoint axe scan, the demo
+real-login and evaluator tests, the design-gallery axe and L1-state tests) still run. A skipped
+compare is visible, not silently green: a `png-compare` annotation in the checkpoint and demo lanes
+and Playwright `skipped` for the 28 `@snapshot` board tests. No `if:` predicate changed, so
+`.github/ci-skip-manifest.tsv` and the honest-skip guards are untouched. Because the default is
+compare-on, `admin_design_recapture`, `admin_checkpoint_recapture`,
+`scripts/ci/run-playwright-drift.sh` and `scripts/ci/snapshot-recapture-gate.sh` compare with no
+change. "Compare on dispatch" is narrower than it reads: `release_ref_guard` lets a manual `ci.yml`
+dispatch through in four shapes only. (1) From a `v*` tag. (2) With `recapture_branch` set. (3) With
+`phase_244_final_main=true` from `refs/heads/main`, no recapture branch and both probes false; this
+is the dispatch that runs the required consumers against `main`, so PNGs are compared there. (4) The
+dedicated Phase 246 evidence branch (`phase_246_ci_evidence=true`, no recapture branch, both probes
+false). In practice PNG comparison happens in release-tag evidence runs, final-main evidence runs
+and recapture runs. `playwright-github-pages.yml` does not set the switch, keeps comparing
+`admin-checkpoints.spec.ts`, and will report drift after Phase 261 changes rendered output until the
+baselines are recaptured; it is not a required context and not part of `ci-gate`. The
+impersonation-banner canary guard (`scripts/ci/snapshot-canary-guard.sh`, run from `fast_checks`) is
+never allowlisted. `test/sigra/planning/phase_260_png_park_contract_test.exs` pins all of this.
+
 **Tier C — diff-gated (docs-only), added by Phase 230.** These skip on the *content of the diff*
 (a new `changes` job's `docs_only` output) rather than on the event, which is a different audit
 question from Tier A/B. Gated:
