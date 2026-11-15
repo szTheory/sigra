@@ -34,6 +34,12 @@ defmodule Sigra.Brand.CatalogTest do
 
   @root Path.expand("../../..", __DIR__)
 
+  # Written before any test reads the output. `setup_all` keeps the opt-in write
+  # ordered ahead of the async tests; without the variable it does nothing.
+  setup_all do
+    Catalog.write_if_requested!()
+  end
+
   describe "normalize/2" do
     test "csrf token inputs and meta tags lose their values" do
       html =

@@ -2,13 +2,15 @@ defmodule Sigra.Test.Brand.RegenGuard do
   @moduledoc """
   Test-only guard for the opt-in fixture writers of the brand suite.
 
-  Four environment variables make a brand test rewrite a committed fixture
-  instead of only reading it:
+  Five environment variables make a brand test rewrite a fixture (or, for the
+  `after` catalog, a gitignored output directory) instead of only reading it:
 
     * `SIGRA_BRAND_COPY=regen` rewrites the three copy inventories,
     * `SIGRA_BRAND_COPY_BASELINE=init` initializes copy-baseline scopes,
     * `SIGRA_BRAND_BASELINE=extend` extends the frozen-surface baseline,
-    * `SIGRA_BRAND_LEGACY=write` writes the legacy-profile fixture.
+    * `SIGRA_BRAND_LEGACY=write` writes the legacy-profile fixture,
+    * `SIGRA_BRAND_CATALOG=before|after` writes the text catalog of rendered
+      output: `before` once, as the committed baseline, `after` into `tmp/`.
 
   A writer that runs before its own equality or ratchet assertion makes that
   assertion compare a file with itself, so it passes whatever the sources say.
