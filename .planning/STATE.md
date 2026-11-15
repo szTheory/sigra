@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 260
 current_phase_name: Deterministic Output, Before Catalog and PNG Park
-current_plan: 5
+current_plan: 6
 status: executing
-stopped_at: Completed 260-05-PLAN.md
-last_updated: "2026-11-15T19:17:48.484Z"
+stopped_at: Completed 260-06-PLAN.md
+last_updated: "2026-11-15T19:58:07.854Z"
 last_activity: 2026-11-15
 last_activity_desc: Phase 260 execution started
-state_head: 5085b862593aa61d332ded60e0d999d8e4d9c706
+state_head: 53f03dbc20564e8aea4bae8a33b0d98bda12db23
 progress:
   total_phases: 5
   completed_phases: 1
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 260 (Deterministic Output, Before Catalog and PNG Park) — EXECUTING
-Current Plan: 5
+Current Plan: 6
 Total Plans in Phase: 11
 Status: Ready to execute
 Last activity: 2026-11-15 — Phase 260 execution started
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T19:17:48.371Z
-Stopped at: Completed 260-05-PLAN.md
+Last session: 2026-11-15T19:58:07.725Z
+Stopped at: Completed 260-06-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them.
@@ -140,6 +140,7 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 | Phase 260 P02 | 14 min | 3 tasks | 4 files |
 | Phase 260 P03 | 35 min | 3 tasks | 3 files |
 | Phase 260 P05 | 11 min | 3 tasks | 8 files |
+| Phase 260 P06 | 24 min | 3 tasks | 5 files |
 
 ## Decisions
 
@@ -194,3 +195,5 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 - [Phase 260]: Before catalog keeps the reset-password request page as a one-line marker (shipped HTTP 500); the fix is owed and recorded in the manifest, not made in 260 — Truthful before state; lib/ and priv/ must stay byte-identical to main until the capture, and the generated lane is re-captured first if any owed shipped-byte fix lands before Phase 262
 - [Phase 260]: Audit pagination cursor values are normalized to the CURSOR placeholder in the catalog normalizer (base64 of a timestamp and a random row UUID) — Two independent captures disagreed only on that value; the rule has a planted control seen red first
 - [Phase 260]: Two generated email builders (email change confirmation and notification) remain outside the immutable before catalog — Adding them needs a script change and a re-capture, and the before is write-once; Phase 262 must state the gap or open a documented new capture decision
+- [Phase 260]: Plan 06: the admin_hooks.js divergence guard is the installer_drift marker pairs plus a shrink-only ceiling of 5 template-only lines, because the literal line-subset guard does not hold (5 lines differ) — The plan allowed the subset guard only if it held on the real files; only-in-one-side markers keep each documented reason true so a stale reason fails
+- [Phase 260]: Plan 06: a new scaffold test file must be added to three places together: its own moduletag, the ci.install_golden list in lexical order, and the scaffold path allow-list in test/support/ci/library_test_partitions.exs — The phase 233 contract test requires the three sets to be equal and compares the alias list in sorted order; the double-install proof costs about 60 s of Library tests shard time
