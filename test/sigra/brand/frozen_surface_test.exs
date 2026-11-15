@@ -21,6 +21,7 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
   alias Sigra.Branding.Profile
   alias Sigra.Install.Features.Admin
   alias Sigra.Install.Features.Core
+  alias Sigra.Test.Brand.RegenGuard
 
   @root Path.expand("../../..", __DIR__)
   @baseline_path Path.join(@root, "test/fixtures/brand/frozen-surface.json")
@@ -60,7 +61,7 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
   # Running in `setup_all` (not in a test) keeps the write ordered ahead of the
   # async tests that read the file.
   setup_all do
-    if System.get_env(@extend_env) == "extend", do: extend_baseline!()
+    if RegenGuard.requested?(@extend_env, "extend"), do: extend_baseline!()
     :ok
   end
 

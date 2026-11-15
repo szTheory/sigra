@@ -28,10 +28,13 @@ defmodule Sigra.Test.Brand.CopyInventory do
   Nothing here evaluates repo content. Valid Elixir is read with
   `Code.string_to_quoted/2` and templates are read with regular expressions.
   Regeneration is opt-in: set `SIGRA_BRAND_COPY=regen` and run the inventory
-  test, then review the resulting TSV diff.
+  test, then review the resulting TSV diff. It is a local maintainer action and
+  is refused when `CI` is `true` (`Sigra.Test.Brand.RegenGuard`), because the
+  inventory test would otherwise compare the regenerated file with itself.
   """
 
   alias Sigra.Branding.Profile
+  alias Sigra.Test.Brand.RegenGuard
 
   @root Path.expand("../../..", __DIR__)
   @fixture_dir "test/fixtures/brand/copy-inventory"
@@ -91,9 +94,15 @@ defmodule Sigra.Test.Brand.CopyInventory do
   @spec lanes() :: [lane()]
   def lanes, do: @lanes
 
-  @doc "True only when the opt-in regeneration environment variable is `regen`."
-  @spec regenerate?() :: boolean()
-  def regenerate?, do: System.get_env(@regen_env) == "regen"
+  @doc """
+  True only when the opt-in regeneration environment variable is `regen`.
+
+  Raises when it is, and the run is a CI run: see `Sigra.Test.Brand.RegenGuard`.
+  `env` defaults to the process environment and exists so tests can plant one.
+  """
+  @spec regenerate?(RegenGuard.env()) :: boolean()
+  def regenerate?(env \\ RegenGuard.environment()),
+    do: RegenGuard.requested?(@regen_env, "regen", env)
 
   @doc "The exact command a maintainer runs to regenerate every inventory."
   @spec regen_command() :: String.t()

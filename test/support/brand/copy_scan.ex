@@ -54,6 +54,8 @@ defmodule Sigra.Test.Brand.CopyScan do
   expression) raises naming the file instead of being skipped.
   """
 
+  alias Sigra.Test.Brand.RegenGuard
+
   @root Path.expand("../../..", __DIR__)
   @brand_json "brand/brand.json"
   @baseline_path "test/fixtures/brand/copy-baseline.json"
@@ -362,9 +364,15 @@ defmodule Sigra.Test.Brand.CopyScan do
     }
   end
 
-  @doc "True only when the opt-in initialization environment variable is `init`."
-  @spec init_requested?() :: boolean()
-  def init_requested?, do: System.get_env(@init_env) == "init"
+  @doc """
+  True only when the opt-in initialization environment variable is `init`.
+
+  Raises when it is, and the run is a CI run: see `Sigra.Test.Brand.RegenGuard`.
+  `env` defaults to the process environment and exists so tests can plant one.
+  """
+  @spec init_requested?(RegenGuard.env()) :: boolean()
+  def init_requested?(env \\ RegenGuard.environment()),
+    do: RegenGuard.requested?(@init_env, "init", env)
 
   @doc "The exact command a maintainer runs to initialize scopes that are not initialized yet."
   @spec init_command() :: String.t()

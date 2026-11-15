@@ -24,6 +24,7 @@ defmodule Sigra.Brand.LegacyProfilesTest do
 
   alias Sigra.Branding
   alias Sigra.Branding.Profile
+  alias Sigra.Test.Brand.RegenGuard
 
   @root Path.expand("../../..", __DIR__)
   @fixture_path Path.join(@root, "test/fixtures/brand/legacy-profiles.json")
@@ -35,7 +36,7 @@ defmodule Sigra.Brand.LegacyProfilesTest do
   # Written once, before any test reads the fixture. `setup_all` keeps the write
   # ordered ahead of the async tests; an existing file is never overwritten.
   setup_all do
-    if System.get_env(@write_env) == "write" and not File.exists?(@fixture_path) do
+    if RegenGuard.requested?(@write_env, "write") and not File.exists?(@fixture_path) do
       File.mkdir_p!(Path.dirname(@fixture_path))
 
       File.write!(
