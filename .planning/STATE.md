@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 260
 current_phase_name: Deterministic Output, Before Catalog and PNG Park
-current_plan: 6
+current_plan: 7
 status: executing
-stopped_at: Completed 260-06-PLAN.md
-last_updated: "2026-11-15T19:58:07.854Z"
+stopped_at: Completed 260-07-PLAN.md
+last_updated: "2026-11-15T20:09:20.962Z"
 last_activity: 2026-11-15
 last_activity_desc: Phase 260 execution started
-state_head: 53f03dbc20564e8aea4bae8a33b0d98bda12db23
+state_head: fe087dc80a905162bd701eb86beb46bd9d462a5b
 progress:
   total_phases: 5
   completed_phases: 1
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 260 (Deterministic Output, Before Catalog and PNG Park) — EXECUTING
-Current Plan: 6
+Current Plan: 7
 Total Plans in Phase: 11
 Status: Ready to execute
 Last activity: 2026-11-15 — Phase 260 execution started
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T19:58:07.725Z
-Stopped at: Completed 260-06-PLAN.md
+Last session: 2026-11-15T20:09:20.844Z
+Stopped at: Completed 260-07-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them.
@@ -141,6 +141,7 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 | Phase 260 P03 | 35 min | 3 tasks | 3 files |
 | Phase 260 P05 | 11 min | 3 tasks | 8 files |
 | Phase 260 P06 | 24 min | 3 tasks | 5 files |
+| Phase 260 P07 | 7 min | 2 tasks | 5 files |
 
 ## Decisions
 
@@ -197,3 +198,6 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 - [Phase 260]: Two generated email builders (email change confirmation and notification) remain outside the immutable before catalog — Adding them needs a script change and a re-capture, and the before is write-once; Phase 262 must state the gap or open a documented new capture decision
 - [Phase 260]: Plan 06: the admin_hooks.js divergence guard is the installer_drift marker pairs plus a shrink-only ceiling of 5 template-only lines, because the literal line-subset guard does not hold (5 lines differ) — The plan allowed the subset guard only if it held on the real files; only-in-one-side markers keep each documented reason true so a stale reason fails
 - [Phase 260]: Plan 06: a new scaffold test file must be added to three places together: its own moduletag, the ci.install_golden list in lexical order, and the scaffold path allow-list in test/support/ci/library_test_partitions.exs — The phase 233 contract test requires the three sets to be equal and compares the alias list in sorted order; the double-install proof costs about 60 s of Library tests shard time
+- [Phase 260]: Plan 07: the CSS conformance guard treats explicit-theme token blocks as protected scopes by exact selector match (four strings, never a prefix) and exempts only single --sg-* or color-scheme declarations; CHECK 2 and CHECK 3 share one strip_protected_scopes awk function — Brand-mark and theme-switch rules also start with html[data-sg-admin-theme...], so a prefix match would let raw hex through; the theme-switch active rule must be tokenised by the CSS plan, the guard does not exempt it; one shared function keeps the two checks from drifting
+- [Phase 260]: Plan 07: CHECK 3 of the conformance guard was a no-op on GNU grep (a backslash-d shorthand GNU grep -E lacks); fixed to [0-9]+ and the guard self-test is now proven inside ubuntu:24.04 (mawk and gawk), not only on darwin — A planted 13px passed the unfixed guard under ubuntu:24.04 and failed on darwin; the guards were not yet wired into mix ci, so the blindness was latent. Any bash guard destined for the PR gate needs one observed run under the CI userland
+- [Phase 260]: Plan 07: the shipped-CSS gap baseline (test/fixtures/brand/css-undefined-classes.txt) holds 56 classes (53 defined only in example app.css, 3 nowhere), checked in both directions; RESEARCH's 59 is not reproducible by the prescribed class-attribute extraction — Growth fails (define the class in the shipped CSS, never add an entry) and a listed class that became defined fails (remove it), so the baseline can only shrink; plan 09 removes exactly the sg-brand-mark* and sg-theme-switch entries it defines
