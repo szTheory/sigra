@@ -80,7 +80,10 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   # The exact old strings captured from the docs before they were reworded. A
   # retired string coming back is a regression, so these are never allow-listed.
   @retired %{
-    @readme => ["Safer defaults on account discovery flows"],
+    @readme => [
+      "Safer defaults on account discovery flows",
+      "to show the same message for an existing and an unknown address"
+    ],
     @registration => [
       "enumeration-safe registration flow",
       "enumeration-safe `{:error, :email_taken}`",
@@ -365,6 +368,8 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
       assert tested =~ "password-reset requests"
       assert tested =~ "example application"
+      # What is claimed is what the harness compares, not that a message is visible.
+      assert tested =~ "the same status, redirect, flash message and page"
       refute not_covered =~ ~r/password[\s-]reset/i
 
       # The row still lists what is not compared.
