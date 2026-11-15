@@ -500,6 +500,108 @@ defmodule Sigra.Brand.CopyContractTest do
     end
   end
 
+  describe "hard-wrapped phrases (a phrase split across a line break is still a hit)" do
+    test "Markdown: a lexicon phrase wrapped across lines is flagged with the lines it spans" do
+      lines = ["Our approach is not zero", "trust and not bank-", "grade either."]
+
+      hits = CopyScan.scan_lines(:lexicon, "x.md", lines)
+
+      assert Enum.all?(hits, &(&1.scope == "lexicon" and &1.kind == "lexicon"))
+
+      assert hits |> Enum.map(& &1.line) |> Enum.sort() ==
+               [
+                 "Our approach is not zero trust and not bank-",
+                 "trust and not bank- grade either."
+               ]
+    end
+
+    test "Markdown: a list item and a block quote join their own continuation lines" do
+      assert [%{line: "A zero trust model"}] =
+               CopyScan.scan_lines(:lexicon, "x.md", ["- A zero", "  trust model"])
+
+      assert [%{line: "a bank- grade lock"}] =
+               CopyScan.scan_lines(:lexicon, "x.md", ["> a bank-", "> grade lock"])
+    end
+
+    test "Markdown: a wrapped phrase in a second list item, wrapped after a first item, is flagged" do
+      lines = ["- First item", "- A zero", "  trust model"]
+
+      assert [%{line: "A zero trust model"}] = CopyScan.scan_lines(:lexicon, "x.md", lines)
+    end
+
+    test "Markdown: lines that are separate blocks are never joined" do
+      for lines <- [
+            ["zero", "", "trust"],
+            ["# Zero", "trust model"],
+            ["zero", "# trust"],
+            ["| zero |", "| trust |"],
+            ["- zero", "- trust"],
+            ["zero", "---", "trust"],
+            ["<p>zero</p>", "trust"],
+            ["zero", "```", "code", "```", "trust"]
+          ] do
+        assert CopyScan.scan_lines(:lexicon, "x.md", lines) == [],
+               "#{inspect(lines)} must not be joined into one phrase"
+      end
+    end
+
+    test "Markdown: a phrase inside one line is still one hit, with or without a line after it" do
+      assert [%{line: "a zero trust network"}] =
+               CopyScan.scan_lines(:lexicon, "x.md", ["a zero trust network"])
+
+      assert [%{line: "a zero trust network"}] =
+               CopyScan.scan_lines(:lexicon, "x.md", ["a zero trust network", "and more text"])
+    end
+
+    test "HEEx: a banned phrase wrapped inside one element is flagged as one segment text" do
+      lines = [~s'~H"""', ~s'<p>', ~s'  Please log', ~s'  in to continue', ~s'</p>', ~s'"""']
+
+      assert [%{kind: "banned_term", line: "Please log in to continue"}] = generated(lines)
+      assert [%{kind: "banned_term", line: "Please log in to continue"}] = admin(lines)
+    end
+
+    test "HEEx: a lexicon phrase wrapped with a hyphen is flagged" do
+      lines = [~s'~H"""', ~s'<p>Not bank-', ~s'grade at all.</p>', ~s'"""']
+
+      assert [%{kind: "lexicon", line: "Not bank- grade at all."}] = generated(lines)
+    end
+
+    test "HEEx: the per-line segments are unchanged by wrapping" do
+      lines = [~s'~H"""', ~s'<p>', ~s'  Please log', ~s'  in to continue', ~s'</p>', ~s'"""']
+
+      assert CopyScan.copy_segments(:generated, @generated_file, lines) ==
+               ["Please log", "in to continue"]
+    end
+
+    test "HEEx: a following line that opens with a tag or an expression is a separate node" do
+      for body <- [
+            [~s'<h1>Please log</h1>', ~s'<p>in to continue</p>'],
+            [~s'<p>Please log', ~s'{@name} in</p>']
+          ] do
+        assert generated([~s'~H"""' | body] ++ [~s'"""']) == [],
+               "#{inspect(body)} must not be joined into one phrase"
+      end
+    end
+
+    test "HEEx: a phrase inside one line is one hit, however the next line reads" do
+      lines = [~s'~H"""', ~s'<p>Please log in', ~s'to continue</p>', ~s'"""']
+
+      assert [%{line: "Please log in"}] = generated(lines)
+    end
+
+    test "heredoc text: a phrase wrapped across the lines of an email body is flagged" do
+      lines = [~s'html = """', ~s'Please log', ~s'in to continue', ~s'"""']
+
+      assert [%{kind: "banned_term", line: "Please log in to continue"}] = generated(lines)
+    end
+
+    test "admin: a phrase-level avoid-word wrapped across lines is flagged" do
+      lines = [~s'~H"""', ~s'<p>the end', ~s'user sees this</p>', ~s'"""']
+
+      assert [%{kind: "banned_term", line: "the end user sees this"}] = admin(lines)
+    end
+  end
+
   describe "copy_segments/3 (extraction rules)" do
     test "returns the text nodes, expression literals and copy attributes of a ~H body in order" do
       lines = [

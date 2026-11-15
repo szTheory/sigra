@@ -140,6 +140,13 @@ defmodule Sigra.Test.Brand.CopyScan do
 
   @markdown_globs ["README.md", "guides/introduction/*.md", "guides/flows/*.md"]
 
+  # Markdown lines that stand alone and never join the text around them: ATX
+  # headings, table rows, thematic breaks and setext underlines, HTML lines and
+  # reference definitions.
+  @standalone_line ~r/\A(?:[#]{1,6}(?:\s|\z)|\||<|\[[^\]]+\]:|[-*_=](?:\s*[-*_=]){2,}\z)/
+  @list_item ~r/\A(?:[-*+]|\d{1,9}[.)])\s+(.*)\z/
+  @quote_marker ~r/\A(?:>\s?)+/
+
   @fenced_block ~r/^[ \t]*(`{3,}|~{3,})[^\n]*\n.*?^[ \t]*\1[ \t]*$/ms
   @html_comment ~r/<!--.*?-->/s
 
@@ -243,14 +250,26 @@ defmodule Sigra.Test.Brand.CopyScan do
   doc); a file under `priv/templates/` also has its installer EEx tags
   (`<%= ... %>`) removed. Matching is whole-word and case-insensitive. A copy
   segment or prose line yields at most one hit per kind.
+
+  A phrase that a hard-wrapped source line splits ("Please log" / "in to
+  continue") matches no single line, so consecutive lines of one text (a
+  Markdown paragraph or list item, a run of HEEx or heredoc text lines) are also
+  matched joined by a space. A match that crosses a line break is a hit whose
+  text is the lines it spans, so a phrase cannot escape by being wrapped.
+  Matches inside one line stay exactly as before. Markup lines are only joined
+  when the next line opens with plain text: a line that opens with a tag or an
+  expression starts a new node, so a phrase split around an inline tag at a line
+  start (`log` then `<b>in</b>`) is not seen.
   """
   @spec scan_lines(atom(), String.t(), [String.t()]) :: [hit()]
   def scan_lines(:lexicon, file, lines) do
     rules = [{"lexicon", lexicon_regexes()}]
+    prose = prose_lines(lines)
 
-    lines
-    |> prose_lines()
-    |> Enum.flat_map(&line_hits(:lexicon, file, &1, rules))
+    line_hits = Enum.flat_map(prose, &line_hits(:lexicon, file, &1, rules))
+    flow_hits = prose |> prose_flows() |> Enum.flat_map(&flow_hits(:lexicon, file, &1, rules))
+
+    line_hits ++ flow_hits
   end
 
   def scan_lines(scope, file, lines) when scope in @code_scopes do
@@ -259,9 +278,17 @@ defmodule Sigra.Test.Brand.CopyScan do
       {"lexicon", lexicon_regexes()}
     ]
 
-    scope
-    |> copy_segments(file, lines)
-    |> Enum.flat_map(&line_hits(scope, file, &1, rules))
+    items = segment_items(scope, file, lines)
+
+    segment_hits =
+      for segment when is_binary(segment) <- items,
+          hit <- line_hits(scope, file, segment, rules),
+          do: hit
+
+    flow_hits =
+      for {:flow, parts} <- items, hit <- flow_hits(scope, file, parts, rules), do: hit
+
+    segment_hits ++ flow_hits
   end
 
   @doc """
@@ -274,6 +301,12 @@ defmodule Sigra.Test.Brand.CopyScan do
   """
   @spec copy_segments(atom(), String.t(), [String.t()]) :: [String.t()]
   def copy_segments(scope, file, lines) when scope in @code_scopes do
+    for segment when is_binary(segment) <- segment_items(scope, file, lines), do: segment
+  end
+
+  # The segments of `copy_segments/3` in source order, each `{:flow, parts}` item
+  # following the segments it joins: consecutive lines of one hard-wrapped text.
+  defp segment_items(scope, file, lines) do
     ctx = %{
       carve_out: scope == :admin,
       installer_tags: String.starts_with?(file, "priv/templates/")
@@ -469,6 +502,48 @@ defmodule Sigra.Test.Brand.CopyScan do
     end
   end
 
+  # `parts` are consecutive lines of one text. Matches the rules against them
+  # joined by a space and keeps only the matches that cross a line break (a
+  # match inside one line is already a hit of that line). Returns one hit per
+  # kind and distinct spanned text, the text being the lines the match spans.
+  defp flow_hits(scope, file, parts, rules) do
+    spans = part_spans(parts)
+    joined = Enum.join(parts, " ")
+
+    for {kind, regexes} <- rules,
+        text <-
+          regexes
+          |> Enum.flat_map(&cross_line_texts(&1, joined, parts, spans))
+          |> Enum.uniq() do
+      %{scope: Atom.to_string(scope), kind: kind, file: file, line: text}
+    end
+  end
+
+  # The `{start, stop}` byte span of each part inside the parts joined by a space.
+  defp part_spans(parts) do
+    {spans, _next} =
+      Enum.map_reduce(parts, 0, fn part, start ->
+        stop = start + byte_size(part)
+        {{start, stop}, stop + 1}
+      end)
+
+    spans
+  end
+
+  defp cross_line_texts(regex, joined, parts, spans) do
+    for [{start, length} | _groups] <- Regex.scan(regex, joined, return: :index),
+        [first | _] = covered = covered_parts(spans, start, length),
+        length(covered) > 1 do
+      parts |> Enum.slice(first..List.last(covered)//1) |> Enum.join(" ")
+    end
+  end
+
+  defp covered_parts(spans, start, length) do
+    for {{from, to}, index} <- Enum.with_index(spans), from < start + length and start < to do
+      index
+    end
+  end
+
   # Whole-word, case-insensitive. A space or hyphen inside a phrase matches
   # either, so "zero trust" also catches "zero-trust".
   defp lexicon_regexes do
@@ -488,6 +563,45 @@ defmodule Sigra.Test.Brand.CopyScan do
     |> then(&Regex.replace(@fenced_block, &1, "\n"))
     |> then(&Regex.replace(@html_comment, &1, ""))
     |> String.split("\n")
+  end
+
+  # Runs of consecutive prose lines that read as one text: a paragraph or a list
+  # item with its continuation lines. A blank line, a heading, a table row, a
+  # rule, an HTML line or a reference definition ends a run and joins nothing; a
+  # list item starts a new one. Only runs of two or more lines are returned, as
+  # lists of trimmed text (list and block-quote markers removed).
+  defp prose_flows(lines) do
+    {flows, current} =
+      Enum.reduce(lines, {[], []}, fn line, {flows, current} ->
+        case markdown_line(line) do
+          :break -> {close_flow(current, flows), []}
+          {:item, text} -> {close_flow(current, flows), [normalize(text)]}
+          {:text, text} -> {flows, [normalize(text) | current]}
+        end
+      end)
+
+    flows |> then(&close_flow(current, &1)) |> Enum.reverse()
+  end
+
+  defp close_flow([_, _ | _] = current, flows), do: [Enum.reverse(current) | flows]
+  defp close_flow(_current, flows), do: flows
+
+  defp markdown_line(line) do
+    trimmed = String.trim(line)
+
+    cond do
+      trimmed == "" ->
+        :break
+
+      Regex.match?(@standalone_line, trimmed) ->
+        :break
+
+      item = Regex.run(@list_item, trimmed) ->
+        {:item, Enum.at(item, 1)}
+
+      true ->
+        {:text, Regex.replace(@quote_marker, trimmed, "")}
+    end
   end
 
   defp wildcard(pattern) do
@@ -738,7 +852,8 @@ defmodule Sigra.Test.Brand.CopyScan do
 
   # HEEx and heredoc bodies. `mode` says what opens an expression: `{` in a
   # `~H` body, `#{` in a plain heredoc such as an email body. Text nodes are
-  # collected per line; tags, comments, `<script>`/`<style>` and EEx control
+  # collected per line (a hard-wrapped sentence carries on to the next line, see
+  # `scan_markup/5`); tags, comments, `<script>`/`<style>` and EEx control
   # tags contribute nothing except the copy attributes of a tag.
   defp markup(body, mode, ctx, acc) do
     body |> remove_preview_block(ctx) |> scan_markup(mode, ctx, [], acc)
@@ -746,8 +861,15 @@ defmodule Sigra.Test.Brand.CopyScan do
 
   defp scan_markup(<<>>, _mode, _ctx, text, acc), do: flush(text, acc)
 
+  # A line break ends a text node, unless the sentence is hard-wrapped: this line
+  # has copy and the next one opens with plain text (not a tag or an expression).
+  # Then the text carries on, and `flush/2` still emits one segment per line.
   defp scan_markup(<<"\n", rest::binary>>, mode, ctx, text, acc) do
-    scan_markup(rest, mode, ctx, [], flush(text, acc))
+    if text_continues?(text, rest, mode) do
+      scan_markup(rest, mode, ctx, [text, "\n"], acc)
+    else
+      scan_markup(rest, mode, ctx, [], flush(text, acc))
+    end
   end
 
   defp scan_markup(<<"<!--", rest::binary>>, mode, ctx, text, acc) do
@@ -802,9 +924,32 @@ defmodule Sigra.Test.Brand.CopyScan do
     scan_markup(rest, mode, ctx, [text, char], acc)
   end
 
+  defp text_continues?(text, rest, mode) do
+    Regex.match?(~r/\p{L}/u, IO.iodata_to_binary(text)) and plain_text_ahead?(rest, mode)
+  end
+
+  # The next line opens with a plain character: not a tag, and not what opens an
+  # expression in this mode (`{` in a `~H` body, `#{` in a heredoc).
+  defp plain_text_ahead?(rest, :brace), do: Regex.match?(~r/\A[ \t]*[^\s<{]/u, rest)
+  defp plain_text_ahead?(rest, :interp), do: Regex.match?(~r/\A[ \t]*(?![#]\{)[^\s<]/u, rest)
+
+  # Emits one segment per line of `text` that has a letter. When two or more
+  # lines were carried together they are also emitted as a `{:flow, parts}` item
+  # after their segments, for the cross-line match in `scan_lines/3`.
   defp flush(text, acc) do
-    line = text |> IO.iodata_to_binary() |> normalize()
-    if Regex.match?(~r/\p{L}/u, line), do: [line | acc], else: acc
+    parts =
+      text
+      |> IO.iodata_to_binary()
+      |> String.split("\n")
+      |> Enum.map(&normalize/1)
+      |> Enum.filter(&Regex.match?(~r/\p{L}/u, &1))
+
+    acc = Enum.reduce(parts, acc, &[&1 | &2])
+
+    case parts do
+      [_, _ | _] -> [{:flow, parts} | acc]
+      _single_or_none -> acc
+    end
   end
 
   defp skip_past(binary, marker) do
