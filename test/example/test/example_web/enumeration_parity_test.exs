@@ -44,6 +44,7 @@ defmodule ExampleWeb.EnumerationParityTest do
   """
   use ExampleWeb.ConnCase, async: false
 
+  import Ecto.Query, only: [from: 2]
   import Example.AccountsFixtures
   import Phoenix.LiveViewTest
 
@@ -72,6 +73,8 @@ defmodule ExampleWeb.EnumerationParityTest do
   @named_parity_ids ~w(password-signin magic-link-request password-reset-request confirmation-resend mfa-challenge)
   # A LiveView event has no HTTP status; "re-rendered in place" is reported as 200.
   @live_render_status 200
+  # ...and a server `redirect` outcome from a LiveView event is reported as 302.
+  @live_redirect_status 302
   # The dimensions that carry what the user is shown. Status and redirect are constants
   # for some surfaces (a LiveView re-render is always 200 with no redirect), so they
   # cannot show that a probe observed anything.
@@ -519,6 +522,26 @@ defmodule ExampleWeb.EnumerationParityTest do
     end
   end
 
+  describe "password-reset-request reaches the library" do
+    test "an existing email writes one reset token for that account, an unknown email writes none" do
+      user = user_fixture()
+      unknown_email = unique_user_email()
+      assert reset_tokens(user_id: user.id) == [], "setup: the account starts with no reset token"
+
+      {_view, existing_outcome} = submit_reset_request(user.email)
+      {_view, unknown_outcome} = submit_reset_request(unknown_email)
+
+      # Both requests are accepted the same way (a redirect), so the difference
+      # below is the library path being reached, not a rejected request.
+      assert {:error, {:redirect, %{to: "/users/log_in"}}} = existing_outcome
+      assert {:error, {:redirect, %{to: "/users/log_in"}}} = unknown_outcome
+
+      assert [%{sent_to: sent_to}] = reset_tokens(user_id: user.id)
+      assert sent_to == user.email
+      assert reset_tokens(sent_to: unknown_email) == []
+    end
+  end
+
   describe "positive control" do
     test "a leak on exactly one parity surface yields exactly one diff, the others stay :same" do
       registry = registry()
@@ -657,6 +680,11 @@ defmodule ExampleWeb.EnumerationParityTest do
   defp expected_parity_flash("magic-link-request"),
     do: {"info", ~r/\AIf your email is registered, you will receive a magic link shortly\.\z/}
 
+  defp expected_parity_flash("password-reset-request"),
+    do:
+      {"info",
+       ~r/\AIf your email is in our system, you will receive reset instructions shortly\.\z/}
+
   defp expected_parity_flash("mfa-challenge"),
     do: {"error", ~r/\AInvalid verification code\. \d+ attempts? remaining\.\z/}
 
@@ -684,6 +712,15 @@ defmodule ExampleWeb.EnumerationParityTest do
     build_conn()
     |> post(~p"/users/log_in", %{"_action" => "magic_link", "user" => %{"email" => email}})
     |> capture_redirect(email)
+  end
+
+  # Identity here is whether the submitted email belongs to an account: one reset
+  # request through the LiveView form, which answers with a server redirect.
+  defp probe("password-reset-request", identity, _ctx) do
+    email = identity_email(identity)
+    {view, outcome} = submit_reset_request(email)
+
+    capture_live_redirect(view, outcome, email)
   end
 
   # Identity here is the code KIND: a wrong authenticator code (:existing)
@@ -832,6 +869,18 @@ defmodule ExampleWeb.EnumerationParityTest do
 
   defp unique, do: System.unique_integer([:positive])
 
+  # The reset_password tokens stored for one account (`user_id:`) or one address
+  # (`sent_to:`). Queried straight from the repo, so it does not depend on which
+  # process delivers the email.
+  defp reset_tokens(filter) do
+    Example.Repo.all(
+      from(t in Example.Accounts.UserToken,
+        where: t.context == "reset_password",
+        where: ^filter
+      )
+    )
+  end
+
   # One more than the configured lockout threshold.
   defp lockout_attempts do
     Keyword.fetch!(Example.Accounts.sigra_config().lockout, :threshold) + 1
@@ -892,6 +941,42 @@ defmodule ExampleWeb.EnumerationParityTest do
 
   defp capture_live(_view, other, _email) do
     flunk("expected an in-place LiveView re-render, got: #{inspect(other, limit: 5)}")
+  end
+
+  # Mounts the reset request page and submits the form once; returns the view and
+  # the outcome of the submit (a server redirect when the request is accepted).
+  defp submit_reset_request(email) do
+    {:ok, view, _html} = live(build_conn(), ~p"/users/reset-password")
+
+    outcome =
+      view
+      |> form("#reset_password_request_form", user: %{email: email})
+      |> render_submit()
+
+    {view, outcome}
+  end
+
+  # Captures a LiveView event that ends in a server `redirect`: the reported status
+  # (a LiveView event has none, so @live_redirect_status), the redirect location, the
+  # flash carried by the redirect and the page the redirect lands on. Anything other
+  # than that redirect fails loudly.
+  defp capture_live_redirect(view, {:error, {:redirect, %{to: to}}} = outcome, email) do
+    flash = assert_redirect(view, to)
+    {:ok, conn} = follow_redirect(outcome, build_conn())
+
+    normalize(
+      response(
+        status: @live_redirect_status,
+        location: to,
+        flash: flash,
+        body: html_response(conn, 200)
+      ),
+      email
+    )
+  end
+
+  defp capture_live_redirect(_view, other, _email) do
+    flunk("expected a LiveView redirect, got: #{inspect(other, limit: 5)}")
   end
 
   # --- normalization ------------------------------------------------------------

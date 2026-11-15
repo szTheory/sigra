@@ -36,11 +36,16 @@
       "id": "password-reset-request",
       "route": "GET /users/reset-password (ExampleWeb.ResetPasswordLive, send_instructions)",
       "kind": "liveview",
-      "compare": [],
-      "state": "not_proven",
-      "note": "Identity = whether the submitted email belongs to an account. Not proven: the example host cannot drive the request form, so no response is compared. The route has no :new live action and the view raises on mount (verified by running it). The same view passes a user struct to Example.Accounts.deliver_user_reset_password_instructions/2, whose head requires a binary email (read in source, not executed). Generated hosts are not covered by this row.",
+      "compare": [
+        "status",
+        "redirect",
+        "flash",
+        "body"
+      ],
+      "state": "parity",
+      "note": "Identity = whether the submitted email belongs to an account. One reset request submitted through the LiveView form for an existing email versus an unknown email, fresh state. Compares the reported redirect outcome (302), the redirect location, the flash read from the redirect and the followed login page body after normalizing only CSRF tokens, request ids and the echoed email. NOT compared: response timing (an unknown address costs one dummy hash, an existing one writes a token and delivers an email), email delivery, the rate limit (see password-reset-rate-limit), locked, unconfirmed and enterprise-policy accounts, and the generated host (the example host is a hand-maintained copy; the generated reset page is not compared).",
       "todo": null,
-      "blocker": "test/example/lib/example_web/router.ex:112 routes /users/reset-password without the :new live action, so ExampleWeb.ResetPasswordLive.mount/3 raises CaseClauseError at test/example/lib/example_web/live/reset_password_live.ex:146 before any request can be compared"
+      "blocker": null
     },
     {
       "id": "confirmation-resend",

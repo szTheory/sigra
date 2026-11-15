@@ -109,7 +109,7 @@ defmodule ExampleWeb.Router do
 
       live "/confirm", ConfirmationLive
 
-      live "/reset-password", ResetPasswordLive
+      live "/reset-password", ResetPasswordLive, :new
       live "/reset-password/:token", ResetPasswordLive, :edit
     end
 
