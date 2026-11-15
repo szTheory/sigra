@@ -49,6 +49,9 @@ defmodule Sigra.Test.Brand.CopyScan do
   every other attribute are never matched. The admin scope keeps the glossary
   guard's carve-out for the auth-replica preview block.
 
+  Not scanned: `.js` files (the passkey browser hook ships user-visible status
+  messages that no scope reads) and any file outside the scope lists above.
+
   Source is read with a small purpose-built scanner. Nothing here evaluates repo
   content, and a source it cannot read (an unterminated string, tag or
   expression) raises naming the file instead of being skipped.
@@ -195,8 +198,11 @@ defmodule Sigra.Test.Brand.CopyScan do
   `:lexicon` is `README.md`, `guides/introduction/*.md` and `guides/flows/*.md`.
   `:admin` is the nine admin chrome files plus the shipped admin templates under
   `priv/templates/sigra.install/admin/`. `:generated` is every `.ex`, `.eex` and
-  `.heex` file under `priv/templates/sigra.install/`; CSS, SVG, JS and JSON files
-  carry no scanned copy.
+  `.heex` file under `priv/templates/sigra.install/`.
+
+  CSS, SVG and JSON files carry no copy. JS files do (the passkey browser hook
+  ships user-visible status messages) but the scanner does not read them, so
+  copy in a `.js` file is outside every scope and is not checked.
   """
   @spec files_for(atom()) :: [String.t()]
   def files_for(:lexicon) do

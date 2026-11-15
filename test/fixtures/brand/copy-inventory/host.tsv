@@ -1,9 +1,15 @@
 # test/fixtures/brand/copy-inventory/host.tsv - copy inventory, host lane
 #
 # WHY THIS FILE EXISTS
-# Every user-visible string Sigra ships in this ownership lane. A copy change shows up
-# as a reviewed diff of this file instead of passing silently. The inventory test
-# asserts this file equals a fresh extraction of the sources, exactly.
+# The user-visible strings of this ownership lane that the extractor reads. A change to
+# one of them shows up as a reviewed diff of this file instead of passing silently. The
+# inventory test asserts this file equals a fresh extraction of the sources, exactly.
+#
+# COVERAGE
+# Covered: the string defaults of Sigra.Branding.Profile (design-token colors left out),
+#   plus one row stating that host-owned CSS and logos carry no Sigra copy.
+# Not covered: copy in any module other than the Profile defaults.
+# Copy in a form that is not covered can change without touching this file.
 #
 # FORMAT
 # file<TAB>kind<TAB>string. Sorted, unique, no line numbers. A tab, newline, carriage

@@ -275,6 +275,36 @@ defmodule Sigra.Brand.CopyInventoryTest do
       assert parsed == rows
     end
 
+    test "every lane header states what is covered and what is not, and claims no completeness" do
+      for lane <- CopyInventory.lanes() do
+        header = lane |> CopyInventory.header_lines() |> Enum.join("\n")
+
+        assert header =~ "# Covered:", "#{lane} header does not say what it covers"
+        assert header =~ "# Not covered:", "#{lane} header does not say what it leaves out"
+        refute header =~ "Every user-visible string", "#{lane} header overclaims completeness"
+      end
+
+      generated = :generated |> CopyInventory.header_lines() |> Enum.join("\n")
+
+      assert generated =~ ".js hooks"
+      assert generated =~ "HEEx attribute values"
+      assert generated =~ "literals outside dgettext"
+    end
+
+    test "each committed inventory carries the header render/2 writes" do
+      for lane <- CopyInventory.lanes() do
+        committed =
+          lane
+          |> CopyInventory.path_for()
+          |> File.read!()
+          |> String.split("\n")
+          |> Enum.take_while(&String.starts_with?(&1, "#"))
+
+        assert committed == CopyInventory.header_lines(lane),
+               "#{lane}.tsv carries a stale header. Regenerate it with:\n  #{CopyInventory.regen_command()}"
+      end
+    end
+
     test "header lines are comments that parse skips" do
       text = CopyInventory.render(:host, [{"a.ex", "literal", "Only row"}])
 

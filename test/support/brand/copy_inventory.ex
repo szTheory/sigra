@@ -12,9 +12,10 @@ defmodule Sigra.Test.Brand.CopyInventory do
       `priv/templates/sigra.install/`: `dgettext("sigra", ...)` msgids, literal
       `put_flash` messages, HEEx text nodes inside `~H` blocks, and literal
       multi-word text in the email builders. Browser-side copy in the `.js`
-      hooks, HEEx attribute values, and raw string literals returned from helper
-      functions are not extracted; the inventory documents what it covers, it
-      does not claim to be exhaustive beyond that.
+      hooks, HEEx attribute values, and raw string literals outside those forms
+      (error response bodies, keyword values) are not extracted. The header of
+      each TSV states this coverage, because a clean inventory diff proves
+      nothing about copy in a form that is not covered.
     * `:library` - copy in the library-owned admin LiveViews and components
       (`lib/sigra/admin/**`) and the `safe_message/1` strings in
       `lib/sigra/error.ex`: string literals read from the AST (doc and type
@@ -178,14 +179,31 @@ defmodule Sigra.Test.Brand.CopyInventory do
   """
   @spec render(lane(), [row()]) :: String.t()
   def render(lane, rows) do
-    header =
+    body = for {file, kind, string} <- rows, do: Enum.join([file, kind, escape(string)], "\t")
+
+    Enum.join(header_lines(lane) ++ body, "\n") <> "\n"
+  end
+
+  @doc """
+  The `#`-prefixed header lines `render/2` writes for a lane, without a trailing
+  newline. The header states what the extractor covers and what it does not, so
+  a clean diff of the inventory is not mistaken for proof that no copy changed.
+  """
+  @spec header_lines(lane()) :: [String.t()]
+  def header_lines(lane) when lane in @lanes do
+    [
+      "# #{@fixture_dir}/#{lane}.tsv - copy inventory, #{lane} lane",
+      "#",
+      "# WHY THIS FILE EXISTS",
+      "# The user-visible strings of this ownership lane that the extractor reads. A change to",
+      "# one of them shows up as a reviewed diff of this file instead of passing silently. The",
+      "# inventory test asserts this file equals a fresh extraction of the sources, exactly.",
+      "#",
+      "# COVERAGE"
+    ] ++
+      coverage_lines(lane) ++
       [
-        "# #{@fixture_dir}/#{lane}.tsv - copy inventory, #{lane} lane",
-        "#",
-        "# WHY THIS FILE EXISTS",
-        "# Every user-visible string Sigra ships in this ownership lane. A copy change shows up",
-        "# as a reviewed diff of this file instead of passing silently. The inventory test",
-        "# asserts this file equals a fresh extraction of the sources, exactly.",
+        "# Copy in a form that is not covered can change without touching this file.",
         "#",
         "# FORMAT",
         "# file<TAB>kind<TAB>string. Sorted, unique, no line numbers. A tab, newline, carriage",
@@ -195,10 +213,35 @@ defmodule Sigra.Test.Brand.CopyInventory do
         "# DO NOT HAND-EDIT. Regenerate with:",
         "#   #{@regen_command}"
       ]
+  end
 
-    body = for {file, kind, string} <- rows, do: Enum.join([file, kind, escape(string)], "\t")
+  defp coverage_lines(:host) do
+    [
+      "# Covered: the string defaults of Sigra.Branding.Profile (design-token colors left out),",
+      "#   plus one row stating that host-owned CSS and logos carry no Sigra copy.",
+      "# Not covered: copy in any module other than the Profile defaults."
+    ]
+  end
 
-    Enum.join(header ++ body, "\n") <> "\n"
+  defp coverage_lines(:generated) do
+    [
+      "# Covered: dgettext(\"sigra\", ...) msgids, literal put_flash messages, text nodes of ~H",
+      "#   blocks, and multi-word literals in the email builders.",
+      "# Not covered: browser-side copy in .js hooks (for example the passkey status messages),",
+      "#   HEEx attribute values (aria-label, title, placeholder and similar), and raw string",
+      "#   literals outside dgettext, put_flash, ~H text and the email builders (for example",
+      "#   error response bodies and keyword values)."
+    ]
+  end
+
+  defp coverage_lines(:library) do
+    [
+      "# Covered: string literals in lib/sigra/admin/**/*.ex (doc and type attributes and raise",
+      "#   messages excluded), text nodes of ~H blocks, and the safe_message/1 strings in",
+      "#   lib/sigra/error.ex.",
+      "# Not covered: HEEx attribute values (aria-label, title, placeholder and similar) and",
+      "#   library copy outside those files."
+    ]
   end
 
   @doc """

@@ -1,9 +1,17 @@
 # test/fixtures/brand/copy-inventory/library.tsv - copy inventory, library lane
 #
 # WHY THIS FILE EXISTS
-# Every user-visible string Sigra ships in this ownership lane. A copy change shows up
-# as a reviewed diff of this file instead of passing silently. The inventory test
-# asserts this file equals a fresh extraction of the sources, exactly.
+# The user-visible strings of this ownership lane that the extractor reads. A change to
+# one of them shows up as a reviewed diff of this file instead of passing silently. The
+# inventory test asserts this file equals a fresh extraction of the sources, exactly.
+#
+# COVERAGE
+# Covered: string literals in lib/sigra/admin/**/*.ex (doc and type attributes and raise
+#   messages excluded), text nodes of ~H blocks, and the safe_message/1 strings in
+#   lib/sigra/error.ex.
+# Not covered: HEEx attribute values (aria-label, title, placeholder and similar) and
+#   library copy outside those files.
+# Copy in a form that is not covered can change without touching this file.
 #
 # FORMAT
 # file<TAB>kind<TAB>string. Sorted, unique, no line numbers. A tab, newline, carriage

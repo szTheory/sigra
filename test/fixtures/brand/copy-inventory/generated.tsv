@@ -1,9 +1,18 @@
 # test/fixtures/brand/copy-inventory/generated.tsv - copy inventory, generated lane
 #
 # WHY THIS FILE EXISTS
-# Every user-visible string Sigra ships in this ownership lane. A copy change shows up
-# as a reviewed diff of this file instead of passing silently. The inventory test
-# asserts this file equals a fresh extraction of the sources, exactly.
+# The user-visible strings of this ownership lane that the extractor reads. A change to
+# one of them shows up as a reviewed diff of this file instead of passing silently. The
+# inventory test asserts this file equals a fresh extraction of the sources, exactly.
+#
+# COVERAGE
+# Covered: dgettext("sigra", ...) msgids, literal put_flash messages, text nodes of ~H
+#   blocks, and multi-word literals in the email builders.
+# Not covered: browser-side copy in .js hooks (for example the passkey status messages),
+#   HEEx attribute values (aria-label, title, placeholder and similar), and raw string
+#   literals outside dgettext, put_flash, ~H text and the email builders (for example
+#   error response bodies and keyword values).
+# Copy in a form that is not covered can change without touching this file.
 #
 # FORMAT
 # file<TAB>kind<TAB>string. Sorted, unique, no line numbers. A tab, newline, carriage
