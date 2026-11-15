@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T14:05:00Z
-Stopped at: Completed 259-16-PLAN.md
+Last session: 2026-11-15T14:12:00Z
+Stopped at: Completed 259-17-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
@@ -134,6 +134,7 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 | Phase 259 P14 | 12 min | 3 tasks | 6 files |
 | Phase 259 P15 | 6 min | 2 tasks | 7 files |
 | Phase 259 P16 | 3 min | 2 tasks | 3 files |
+| Phase 259 P17 | 8 min | 3 tasks | 4 files |
 
 ## Decisions
 
@@ -175,3 +176,5 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 - [Phase 259]: 259-15: registry flip, probe and register restatement shipped in one commit so name_clearance_test is green at every commit; pre-existing anonymous ?token= crash in the example handle_params is pinned by installer_drift_test fix #9 and logged in deferred-items.md
 - [Phase 259]: 259-16: the named-surface rule judges each of the five named ids on its own in three classes (account-existence: password-signin, magic-link-request, password-reset-request; payload-ignored: confirmation-resend; code-kind: mfa-challenge); the parity-or-not_proven tolerance and the at-least-three-of-five floor are deleted, and planted controls prove each branch can fail
 - [Phase 259]: 259-16: mfa-challenge is kept as a real parity probe and counted separately rather than removed or reclassified (test-only, reversible with a one-line edit, the owner may revisit); WR-08 residual closed in the brand-harness deferred-findings todo; BCOPY-03 stays open because plans 259-17 and 259-18 also declare it
+- [Phase 259]: 259-17: the generated host's reset request defects (live route emitted without :new; user struct passed to the binary-only deliver_user_reset_password_instructions head) are filed as one todo with every generated-host claim labelled read in source, not executed, and wired into the password-reset-request registry row so the parity test requires the reference; no lib/ or priv/ byte changed
+- [Phase 259]: 259-17: the generated-confirm todo took the primary outcome (status update, stays pending): the LiveView flavor was repaired in Phase 246 and has an install-smoke probe, the non-live controller flavor still sits in the redirect-if-authenticated scope and reads current_scope.user directly (read in source, not executed); BCOPY-03 and BCOPY-07 stay open because plan 259-18 also declares them
