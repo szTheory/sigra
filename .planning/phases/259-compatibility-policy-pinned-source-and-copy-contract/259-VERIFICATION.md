@@ -1,7 +1,7 @@
 ---
 phase: 259-compatibility-policy-pinned-source-and-copy-contract
-verified: 2026-11-15T14:48:56Z
-status: human_needed
+verified: 2026-11-15T15:13:59Z
+status: passed
 score: 9/9 must-haves verified
 covered_files:
   - .gitattributes
@@ -100,167 +100,158 @@ covered_files:
   - test/support/brand/copy_inventory.ex
   - test/support/brand/copy_scan.ex
   - test/support/brand/regen_guard.ex
-covered_digest: "v4:sha256:a9fb1259dd96b875971bc059b6a2cead3919a94ca17f580cff00c80af038b0a9"
+covered_digest: "v4:sha256:d34ff8a204127c48115db0bf3af9f8cb4ec8c7834851396707bf44da6e08962b"
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
-  previous_status: gaps_found
-  previous_score: 7/8
+  previous_status: human_needed
+  previous_score: 9/9
   gaps_closed:
-    - "The enumeration-parity tests pass for every pre-auth surface (BCOPY-03 names sign-in, reset, magic link, resend, registration, invitation, MFA, passkey) and go red exactly once when a deliberately leaky string is injected: password-reset-request is now a parity row (example host repaired, probe plus library-path test); confirmation-resend is now a parity row (payload-ignored class, example host repaired, token-count result dimension); mfa-challenge is counted separately and can no longer stand in for an account-existence surface; the old 'parity or not_proven, at least three of five' tolerance is gone."
+    - "Human item 1 (owner confirmation of ADR 005 decisions 1-9, 11, 14 and ADR 006's two decisions): recorded as confirmed with a date in both ADRs (commits 81c7d0161, b6ee4b7b1); policy_docs_test and name_clearance_test now pin the dated confirmed status and fail on any 'owner confirmation pending' text."
+    - "Human item 2 (reading of SC-4 for registration and passkey options): recorded in ADR 005 'Amendment 2026-11-15' as 'every pre-auth surface has an asserted, honest state'; the registry, tests and docs already implement exactly that reading."
+    - "Human item 3 (Playwright login submit): replaced by a static check plus the ExUnit selector-uniqueness test; the browser run is a CI lane on the PR, not a human step."
+    - "Human item 4 and warning W-1 (guide Step 1 over-described generated code): guides/flows/password-reset.md Step 1 now calls its snippet 'the corrected shape' and says the generated request view and controller still pass a user struct (commit 75af1ee45). I confirmed the claim against priv/templates/sigra.install/core/reset_password_live.ex:155 and reset_password_controller.ex:24."
   gaps_remaining: []
   regressions: []
-human_verification:
-  - test: "Read ADR 005 decisions 1-9, 11 and 14 and ADR 006's two decisions; confirm or amend each."
-    expected: "Each 'Recommended default - owner confirmation pending' row is confirmed, or amended in place with a dated note. Only decision 12 is confirmed today (ADR 005 line 3 says so)."
-    why_human: "A test can prove a decision is recorded and labelled, not that it is the right decision. Phase 260 (PNG park needs explicit approval) and Phase 263 (install-pin value, logo-use statement) inherit them."
-  - test: "Decide whether SC-4 / the milestone Enumeration-parity gate is read as 'every pre-auth surface has an asserted, honest state' (the reading the registry implements) or as 'every listed surface is identical'."
-    expected: "Registration and passkey sign-in options are real account-existence leaks that Phase 259 cannot fix (zero shipped bytes). They are registered known_divergence and the tests assert they STILL differ; the docs say 'Not covered: registration, passkey sign-in'. If the owner wants them parity before Phase 262, that is a shipped-byte fix tracked by the existing todos, not a test change."
-    why_human: "The roadmap wording 'are identical across ... registration ... passkey' cannot be true while the leaks exist; whether 'tests pass and the leak is recorded' satisfies it is an owner interpretation, not a program-checkable fact."
-  - test: "Let the PR's Playwright lanes run the five edited specs and adminFlows.ts."
-    expected: "Every login step still clicks the submit button through loginSubmit."
-    why_human: "Playwright is not installed locally. The selector is proven unique against the real example login page by an ExUnit test, so the residual risk is low; this is advisory and CI-automatic."
-  - test: "Read the password-reset guide Step 1 against the generated template (see Anti-Patterns, W-1) and the three re-review items deferred as owner/scope decisions (R2-WR-04, R2-WR-05, R2-WR-06, R2-IN-02 in the deferred-findings todo)."
-    expected: "Step 1 either says its snippet is the corrected shape rather than what the generated view does today, or waits for the generated-host fix; the owner decides whether sigra.gen.oauth and sigra.upgrade templates join the copy scan now or are swept by hand in Phase 262."
-    why_human: "Editorial and scope judgments."
 ---
 
 # Phase 259: Compatibility Policy, Pinned Source and Copy Contract Verification Report
 
 **Phase Goal:** A maintainer can state, and a test enforces, exactly what the rebrand may and may not change: the policy is written, the brand book is pinned in-repo, and the copy and enumeration-safety contracts are under test before any visible change is made.
-**Verified:** 2026-11-15T14:48:56Z
-**Status:** human_needed
-**Re-verification:** Yes, after gap-closure plans 259-14 to 259-18 and the two review-fix rounds
+**Verified:** 2026-11-15T15:13:59Z (HEAD `ea295b572`, working tree clean)
+**Status:** passed
+**Re-verification:** Yes. The previous report was `human_needed` with 9/9 verified and four human items; those four are now resolved (see `re_verification` above). No regression in any previously verified truth.
 
 ## Verdict in one paragraph
 
-The one gap from the previous report is genuinely closed, in code and with a positive control I ran myself. Every must-have now resolves to VERIFIED, and no regression appeared in the eight truths that already passed. What keeps the status at `human_needed` and not `passed` is a short list that a program cannot settle: eleven recorded decisions still carry "owner confirmation pending", the roadmap's "identical across registration and passkey" wording cannot be literally true while two real leaks exist that this zero-shipped-bytes phase may not fix, and a few editorial and scope warnings from the re-review. Nothing here blocks Phases 260 and 261. Two things the planner should carry forward are in "Notes for the next phase planner".
+The goal is achieved. Every roadmap success criterion resolves to VERIFIED, all fourteen requirement IDs are accounted for, and I re-derived the status from the tree rather than carrying the old items forward. The suite you asked me to re-run is green at 359 tests, the example-host parity suite is green at 60, the vendored book still hashes clean at 72 of 72, and `git diff --stat` over `lib priv brand brandbook .github scripts` against the phase base is empty. I then mutated the product code, the registry, the docs and the vendored book in a throwaway copy (never in the working tree) and watched the tests go red every time, so the contracts are not green by accident. What remains are recorded warnings with a named owner or follow-up, none of which is a must-have: they are listed under Anti-Patterns and "Notes for the next phase planner".
 
-## Re-verification of the prior gap, in code
+## Re-verification of the four former human items
 
-The previous report had one failed truth: parity was missing for password reset request and confirmation resend, and mfa-challenge was being counted toward the floor. I checked each claim against the tree, not against the SUMMARYs.
-
-| Prior gap item | What I checked | Result |
-|----------------|----------------|--------|
-| Reset request page cannot mount | `test/example/lib/example_web/router.ex:119` now reads `live "/reset-password", ResetPasswordLive, :new`. `reset_password_live.ex` `send_instructions` (lines 168-188) calls `Example.Accounts.deliver_user_reset_password_instructions(email, ...)` unconditionally with the binary email; `get_user_by_email` is gone from the view. | CLOSED |
-| Reset request has no probe | Registry row `password-reset-request` is `parity`, compare `status, redirect, flash, body`, blocker null. `probe("password-reset-request", ...)` submits the real LiveView form. A separate test proves the existing email writes exactly one `reset_password` token for that account and the unknown email writes none (so the existing probe reached the library, it is not a no-op). | CLOSED |
-| Confirmation resend uncompletable | `router.ex` serves `/confirm` from `live_session :confirmation` on `:mount_current_scope` inside a `[:browser]` scope, outside `redirect_if_user_is_authenticated`. `confirmation_live.ex` reads the user through a nil-safe `session_user/1` (lines 192-197). `confirmation_live_test.exs` asserts on `confirmed_at` and token rows in both session states. | CLOSED |
-| Confirmation resend has no probe | Registry row `confirmation-resend` is `parity` with a `result` dimension (confirmation tokens created for the payload email). Honest scope: the handler ignores its payload and no email-keyed resend form exists, so this proves a visitor-supplied email is ignored. The row note keeps the phrases `payload` and `email-keyed resend form`, pinned by a test. | CLOSED (bounded, see W-2) |
-| mfa-challenge counted toward the floor | `named_surface_violations/1` judges each of the five named ids on its own: three account-existence ids, one payload-ignored id, one code-kind id. Each must be `parity` with a null blocker; no total exists, so mfa-challenge cannot satisfy or substitute for an account-existence surface. The "parity or not_proven" tolerance and the "at least three of five" floor are removed. Decision recorded in the registry note and the deferred todo (WR-08 residual marked resolved). | CLOSED |
-
-### Positive controls I ran myself
-
-The in-suite "leak" control appends a string after the response is captured, so it proves the comparator, not that a probe observes the product. I therefore mutated product code in a scratch copy of the tracked tree (the working tree was never touched; `git status` is empty) and reverted each mutation:
-
-| Mutation (scratch copy only) | Expected | Observed |
-|------------------------------|----------|----------|
-| Reset view flashes "No account found for that email." when the address has no account | parity red at `password-reset-request`, on `flash` | 4 failures, including `password-reset-request: [{:flash, "If your email is in our system...", "No account found for that email."}]` and the non-vacuity test naming the unknown probe's captured flash |
-| Resend handler acts on the payload email (sends confirmation mail) but redirects identically | parity red on `result` only | 4 failures; `confirmation-resend: [{:result, %{confirmation_tokens: 2}, %{confirmation_tokens: 0}}]`. The visible redirect was identical, so only the token-count dimension saw it |
-| Drop `:new` from the reset route | reset page raises on mount | `CaseClauseError` in 9 places, 10 failures across parity plus the reset regression suite |
-| Registry: `password-reset-request` set to `not_proven` with a valid `path:line` blocker (the shape the old rule accepted) | named-surface rule red | `password-reset-request: state is "not_proven" but a named surface must be parity` reported on the real fixture |
-| README Enumeration row replaced with "enumeration-safe" | claims tests red | 4 failures |
-| README lists password-reset requests under "Not covered" again | row lock red | 1 failure |
-| Guide testing snippet passes a user struct again | call-shape test red | 2 failures |
-
-The baseline in the same scratch copy was 38 tests, 0 failures before any mutation, so the reds are caused by the mutations.
+| Former item | What changed | What I checked | Result |
+|-------------|--------------|----------------|--------|
+| 1. Owner confirmation of recommended defaults | ADR 005 rows 1-9, 11, 14 read "Confirmed as recommended by owner, 2026-11-15"; row 12 keeps "Owner-approved, confirmed 2026-11-13". ADR 006 clear-space, logo-use and no-claim read "confirmed as recommended by owner, 2026-11-15". | `git diff 03f8dca53~1 HEAD` on both ADRs: status words only, decision text unchanged. `policy_docs_test` asserts 11 non-12 rows each carry the status and the date, no row matches `pending`, and the ADR contains none of "owner confirmation pending", "awaiting owner confirmation", "awaits owner confirmation". `name_clearance_test` pins the dated status on the `Label: clear-space.` and `Label: logo-use.` lines and refutes the old phrase. `git grep` finds the old phrase only inside those two `refute` lines and in `.planning/STATE.md:170` (see I-1). | RESOLVED. SC-1 asks for the decisions to be recorded, which was already true; the confirmation is an addition. I could not witness the owner's reply myself: it is relayed by the orchestrator and recorded in the two commits and the ADR amendment. |
+| 2. SC-4 reading | ADR 005 "Amendment 2026-11-15, part B": SC-4 means "every pre-auth surface has an asserted, honest state"; registration and passkey stay registered known divergences, asserted to differ, listed as not covered; the owner's direction is that they are fixed as shipped-byte work before Phase 262, tracked by four named todos | `policy_docs_test` carries a test for the amendment, the SC-4 wording and both leak todo filenames. Registry rows confirm the reading: `registration` and `passkey-signin-options` are `known_divergence`. The four todo files exist. | RESOLVED |
+| 3. Playwright specs | none | `git grep` of `test/example/priv/playwright`: `loginSubmit` or `LOGIN_SUBMIT_SELECTOR` is used by `adminFlows.ts` and five specs (21 references including the helper itself). No `has-text("Log in")` or `name: "Log in"` button locator remains. `login_submit_selector_test.exs` renders the real example login page and proves the selector matches exactly one element, with planted two-button and `type="button"` controls. | RESOLVED as far as a local run can prove it. The in-browser run is the PR's Playwright shard lanes, which start themselves; it is not a human step |
+| 4. Guide Step 1 and deferred scope items | Step 1 now says "The snippet above is the corrected shape" and that "The request view and the request controller that Sigra currently generates into a new app still look the user up with `get_user_by_email` and pass the struct" | Read the diff, then read the generated templates: `reset_password_live.ex:155` and `reset_password_controller.ex:24` both still do `if user = ...get_user_by_email(email)`, and `core/auth.ex:428-429` still has the binary-only head. The wording is accurate. The scope items (R2-WR-04/05/06, R2-IN-02) stay deferred with diagnosis in the todo, by the owner's default | RESOLVED |
 
 ## Goal Achievement
 
 ### Observable Truths
 
-Roadmap success criteria are the contract; PLAN must-haves added detail but never reduced scope. SC-4 has several independent clauses, so it is split.
+The roadmap success criteria are the contract. PLAN must-haves added detail and never reduced scope. SC-4 has several independent clauses, so it is split.
 
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | SC-1: ADR, `contract.md` section and `guides/reference/brand-compatibility.md` carry the frozen list, add-only list, ownership-lane table, surface map with a brand owner, the recorded decisions and an upgrade-note skeleton | VERIFIED | Unchanged since the first verification; `policy_docs_test.exs` is in the green 366-test brand run. ADR 005 line 3 states plainly that all decisions except #12 are recommended defaults awaiting owner confirmation (Human Verification 1). |
-| 2 | SC-2: consumed brand subset pinned in `brand/` with `brand.sha256`; any edited byte turns the drift test red; privacy scan; `brandbook/` untouched; `git diff --stat -- lib priv` empty | VERIFIED | `shasum -a 256 -c brand.sha256`: 72 lines, every one `OK`. `git diff --stat aeda7273d HEAD -- lib priv brand brandbook .github scripts` is empty for the whole phase (control: the same range without the path filter is 113 files changed, 22075 insertions). Privacy grep over added lines outside `.planning` and `brand/` finds no home path (control: planted `/Users/someone/x` matched) and no email; the only hits for the owner's public GitHub handle are in plan text citing a Hex package link, and the handle is already in `README.md`. |
-| 3 | SC-3: frozen-surface ratchet green, can only grow; legacy Branding profiles render byte-identically | VERIFIED | `frozen_surface_test.exs` and `legacy_profiles_test.exs` pass in the brand run. Caveat unchanged: WR-05 (a human can loosen the fixture JSON in the same commit; no base-branch diff gate), deferred to an owner decision. |
-| 4a | SC-4 (copy): reconciled vocabulary table, per-lane inventory, banned-term/lexicon drift test with shrink-only baseline | VERIFIED (with warnings) | `vocabulary_docs_test`, `copy_inventory_test`, `copy_contract_test`, `regen_guard_test` pass. Coverage holes are documented in code headers and in the deferred-findings todo: HEEx attribute values and JS hooks (WR-03), admin scope pinned to nine files (WR-04), and, new in the re-review, `sigra.gen.oauth` and `sigra.upgrade` templates outside every scope (R2-WR-05). I confirmed R2-WR-05: `copy_scan.ex:83` reads only `priv/templates/sigra.install`, and `priv/templates/sigra.gen.oauth/oauth_controller.ex:96` ships "Log in to link your ... account". |
-| 4b | SC-4 (install snippet): three-segment `{:sigra, "~> x.y.z"}`, all equal | VERIFIED | `install_snippet_test.exs` green. My grep over README, `guides`, `docs`, `priv/templates`: 11 tuples, all `~> 1.5.0`. |
-| 4c | SC-4 (Playwright): "Log in" text locators replaced by the test-only `loginSubmit` helper | VERIFIED | No `has-text("Log in")` button locator remains under `test/example/priv/playwright`; `loginSubmit` is used by five specs and `adminFlows.ts`. `login_submit_selector_test.exs` passes (part of the 60-test example run). Browser run is CI-only (Human Verification 3, advisory). |
-| 4d | SC-4 (enumeration): parity tests pass for every pre-auth surface and go red exactly once on an injected leak | VERIFIED | Registry now holds 5 `parity` rows (the five named surfaces), 3 `known_divergence` (registration, passkey options, repeat-attempt lockout), 2 `by_design` (invitation, enterprise discovery), 3 `not_proven` (two rate limits and the library moduledoc claims, none of them a named request surface). `enumeration_parity_test.exs`: 38 tests, 0 failures. Positive control: `a leak on exactly one parity surface yields exactly one diff` and `every parity surface can go red` cover all five parity ids and assert at least four other rows stay `:same` (non-vacuity). My product-level mutations (above) show each probe observes the real response. Interpretation note in Human Verification 2: registration and passkey are asserted-to-differ, not parity. |
-| 4e | SC-4 (honesty): docs and tests claim no enumeration safety beyond what is proven | VERIFIED (with warnings) | README Enumeration row (line 177) now names sign-in, magic-link and password-reset requests as tested "in Sigra's example application ... at a single attempt", lists timing, repeat attempts, registration, passkey sign-in and the generated code as not covered, and says only three flow guides state a scope (the three that do). It does not mention resend or MFA. My broad grep over README, `guides`, `docs`, `CHANGELOG.md`, `SECURITY.md` finds no unbounded claim in prose (the remaining hits are a quoted code comment and a threat description). Mutation proofs above show the claims tests go red on regression. Warnings: W-1 below, the narrow claim recogniser (R2-WR-06) and library moduledocs that say "enumeration-safe" (tracked by todo, not editable under zero-lib-bytes). |
-| 5 | SC-5: name-clearance record "search log, not clearance" with `crosswake_sigra`, claims register, logo-use and clear-space decisions, no trademark claim; pointer fix only after owner approval; privacy and process budget hold | VERIFIED | `name_clearance_test.exs` green, including the cross-check that every register status agrees with its registry row; the register rows for reset (`bounded`) and resend (`bounded`, counted separately) read as the registry does. `git diff --stat .github scripts` empty. No `!` or BREAKING in any of the 111 commits since the phase base; types are chore, docs, feat (one, the known `4dad2ca17` noise), fix, test. |
+| 1 | SC-1: the ADR, the `contract.md` section and `guides/reference/brand-compatibility.md` carry the frozen list, add-only list, ownership-lane table, surface map with a brand owner, the recorded decisions and an upgrade-note skeleton | VERIFIED | ADR 005 has `## Frozen list`, `## Add-only list`, `## Ownership lanes`, `## Surface map`, `## Recorded decisions` (Decisions 1-7 plus related), and the owner decision table. The guide has the same four lists plus `## Consumed brand subset`, `## SemVer and changelog treatment` and `## Upgrade notes` with five numbered steps. `contract.md:43` is `## Brand and visual compatibility` with the lane table and the SemVer sentence. `policy_docs_test` is in the green 359. |
+| 2 | SC-2: consumed brand subset pinned in `brand/` with a root `brand.sha256`; editing any byte turns the one drift test red; privacy scan including SVG/PDF metadata; `brandbook/` untouched; `git diff --stat -- lib priv` empty for the phase | VERIFIED | `shasum -a 256 -c brand.sha256`: 72 lines, 72 `OK`. `.gitattributes` is `brand/** -text linguist-vendored`. `git diff --stat aeda7273d HEAD -- lib priv brand brandbook .github scripts` is empty (control: the unfiltered range is 117 files, 22580 insertions). Privacy grep over added lines outside `.planning` and `brand/` finds no home path (control: a planted `/Users/someone/x` matches the same regex) and no non-test email. `source_pin_test` has a real-tree privacy scan plus 13 planted-failure controls for the scanner. **My mutation:** appending one space to a vendored `brand/BRAND.md` turned `source_pin_test` red, naming that file (the only failure in the file, 30 tests). |
+| 3 | SC-3: frozen-surface ratchet green, can only grow; legacy Branding profiles render byte-identically | VERIFIED | `frozen-surface.json` holds 11 categories: `css_custom_properties_sg` (100), `css_custom_properties_sigra_auth` (35), `css_classes_sg` (168), `css_classes_sigra_auth` (66), `profile_defaults` (25), `config_option_paths` (170), `routes` (60), `verified_route_helpers` (54), `gettext_domains` (`sigra`), `data_testids` (25) and `installer_targets` (the four logo and stylesheet filenames, which is where the logo filenames are frozen). **My mutations:** removing a frozen custom property name everywhere turned `css_custom_properties_sg: baseline is a subset of the current surface` red; changing the `Profile` accent default `#c2410c` to `#c2410d` turned the ratchet's default-value test and four legacy-profile output tests red. |
+| 4a | SC-4 (copy): reconciled vocabulary table, per-lane inventory, banned-term and lexicon drift test with shrink-only baseline | VERIFIED (with warnings) | `admin-glossary.md` rows 57-69 carry the rulings (Active/Unconfirmed/Locked, "Deletion scheduled" kept, "Admin" not "Admin (operator)", "Review users"), each opening with Agrees or Differs and anchored to a file:line that `vocabulary_docs_test` resolves. Inventory TSVs: library 344 lines, generated 631, host 24. `copy_contract_test` compares scan hits to `copy-baseline.json` exactly (no new, no stale). **My mutation:** adding "please log in again" to a generated `sudo_controller.ex` flash string turned the generated-scope test red with "new banned term ... fix the copy, do not baseline new violations". Warnings: scan coverage holes are documented (see W-5, W-6). |
+| 4b | SC-4 (install snippet): three-segment `{:sigra, "~> x.y.z"}`, all equal | VERIFIED | My grep over README, `guides`, `docs`, `priv/templates`: 11 tuples, all `~> 1.5.0`. **My mutation:** a two-segment `~> 1.5` in README turned three `install_snippet_test` tests red (three-segment, all-equal, real docs report no findings). |
+| 4c | SC-4 (Playwright): "Log in" text locators replaced by the test-only `loginSubmit` helper | VERIFIED | `helpers/loginSubmit.ts` exports `LOGIN_SUBMIT_SELECTOR = '#login_form button:not([type="button"])'`; used by `adminFlows.ts` and five specs. The `Log in` strings that remain in `demo-showcase.spec.ts` are heading assertions and a code comment, not submit locators. The ExUnit selector test is in the green 60. `admin-generated.spec.ts` still locates "Sign in with password" by text; that is a generated-host button with a different label and is outside the "Log in" locators this requirement names (see I-2). |
+| 4d | SC-4 (enumeration): parity tests pass for every pre-auth surface and go red exactly once on an injected leak | VERIFIED | Registry `public-surfaces.json` has 13 rows: 5 `parity` (password-signin, magic-link-request, password-reset-request, confirmation-resend, mfa-challenge), 3 `known_divergence` (repeat-attempt lockout, registration, passkey-signin-options), 2 `by_design` (invitation-accept, enterprise-sso-discovery), 3 `not_proven` (two rate limits and lib moduledoc claims; none is a named request surface). Every BCOPY-03 surface has an asserted state. `enumeration_parity_test.exs`: 38 tests, 0 failures, including the control "a leak on exactly one parity surface yields exactly one diff, the others stay :same". **My product-level mutations (below)** show each probe observes the real response. Interpretation is now owner-recorded (ADR 005 amendment B). |
+| 4e | SC-4 (honesty): docs and tests claim no enumeration safety beyond what is proven | VERIFIED (with warnings) | README Enumeration row (line 177) bounds the claim to sign-in, magic-link and password-reset requests in the example application at a single attempt and lists what is not covered. **My mutation:** replacing the row with "Sigra is enumeration-safe by default across every flow" turned five `claims_docs_test` tests red (unbounded-claim sweep, retired phrases, row lock, scope paragraphs, sweep controls). Warnings W-5 and W-8. |
+| 5 | SC-5: name-clearance record titled "search log, not clearance" with `crosswake_sigra`, claims register, logo-use and clear-space decisions, no trademark claim; pointer fix only after owner approval; privacy and process budget hold | VERIFIED | ADR 006 title is "Name and trademark posture: search log, not clearance"; `## The same-name package: crosswake_sigra` (0.1.3, Apache-2.0, lookup re-run 2026-11-14); `## Decision: no trademark claim`; clear-space and logo-use decisions. No `®`, `™` or "registered trademark" anywhere in README, guides, docs, `CLAUDE.md` or `AGENTS.md`. BPOL-06 pointer fix is in `CLAUDE.md:230`, `AGENTS.md:8`, `admin-ui-principles.md` and `admin-design-contract.md`, under the owner approval recorded as ADR decision 12 on 2026-11-13. `git diff --stat .github scripts` is empty (process budget). No `!` marker or BREAKING footer in any commit since the phase base; types are docs 72, test 26, chore 12, fix 10, feat 1. `name_clearance_test` cross-checks every register status against its registry row: when I downgraded a registry row in the scratch copy and left the register alone, that test went red on its own. |
 
 **Score:** 9/9 truths verified (0 present-but-behavior-unverified).
 
-### Gap-closure plans 259-14 to 259-18: must-haves against the tree
+None of the nine truths asserts a runtime state transition or cancellation invariant in shipped code; the behaviour-bearing ones (parity, reset, resend) are exercised by named tests that I ran and mutated, so no truth is left at `PRESENT_BEHAVIOR_UNVERIFIED`. No truth holds by an undeclared precondition: the one structural assumption (the example host stands in for generated code) is stated in the README and the registry, not hidden, so no `coincidental_reliance_items` entry is raised.
+
+### Mutation controls I ran myself
+
+All in a throwaway copy made from `git ls-files` plus the build directories (the working tree was never touched; `git status --short` was empty after every run). The copy's baseline was green before any mutation. Each mutation was reverted and the copy re-checked.
+
+| # | Mutation (scratch only) | Expected | Observed |
+|---|-------------------------|----------|----------|
+| 1 | Reset view flashes "No account found for that email." when the address has no account | parity red on `password-reset-request` | 4 failures; `password-reset-request: [{:flash, "If your email is in our system...", "No account found for that email."}]`, plus the non-vacuity test naming the unknown probe's captured flash |
+| 2 | Resend handler acts on the payload email (sends confirmation mail) but redirects identically | red on the result dimension only | 4 failures; `confirmation-resend: [{:result, %{confirmation_tokens: 2}, %{confirmation_tokens: 0}}]` |
+| 3 | Registry: `password-reset-request` downgraded to `not_proven` with a blocker | named-surface rule red | 7 failures including `password-reset-request: state is "not_proven" but a named surface must be parity`; separately `name_clearance_test` caught the register-versus-registry disagreement |
+| 4 | One space appended to vendored `brand/BRAND.md` | pin red | `source_pin_test` 1 failure naming `brand/BRAND.md` |
+| 5 | Every occurrence of a frozen `--sg-space-1` name removed from the admin CSS template | ratchet red | `css_custom_properties_sg: baseline is a subset of the current surface` |
+| 6 | `Profile` accent default changed `#c2410c` to `#c2410d` | ratchet and legacy red | 6+ failures across `frozen_surface_test` and `legacy_profiles_test` |
+| 7 | README install tuple changed to two segments | install snippet red | 3 failures |
+| 8 | Banned phrase added to a generated flash string | generated-scope copy test red | 1 failure naming the file and the string |
+| 9 | README Enumeration row replaced with an unbounded claim | claims tests red | 5 failures |
+
+Two of my first attempts were invalid negatives, and I discarded them rather than count them: a rename of only a CSS declaration (the extractor also matches the name in `var(...)` uses, so the name survived) and a plant into a template with no `put_flash`. I redid both with a mutation that provably took effect.
+
+## Gap-closure plans 259-14 to 259-18 and review fixes: regression check
 
 | Plan | Must-have | Status | Evidence |
 |------|-----------|--------|----------|
-| 14 | Reset page mounts (`:new`), view passes binary email, row is `parity`, probe non-vacuous, library-path reach test, positive control across the larger set, register row `bounded`, zero shipped bytes | VERIFIED | Code read above; tests pass; mutations above; register row reads `bounded`; shipped diff empty |
-| 15 | Confirm page reachable in both session states, nil-safe resend/code entry, signed-in resend/confirm assert on `confirmed_at`, `confirmation-resend` parity with `result`, token-count control, register row `bounded` | VERIFIED | `confirmation_live_test.exs` (anonymous and signed-in describes) and `enumeration_parity_test.exs` "confirmation-resend probe is real" including the control that a direct delivery takes the count 0 to at least 1 |
-| 16 | Named-surface rule tightened, three classes judged apart, planted controls, positive control over the larger set, WR-08 residual closed | VERIFIED | `named_surface_violations/1`, 9 registry-describe controls, `@required_dimensions` pin; todo bullet reads "resolved by Plan 259-16" |
-| 17 | Generated-host defects filed, not fixed; confirm todo re-read against current sources; registry todo field wired and asserted | VERIFIED | New todo exists with "read in source, not executed" labels; I confirmed its core claims: `lib/sigra/install/features/core.ex:410-411` and the golden router lines 119-120 emit `live "/reset-password", ResetPasswordLive` with no action, the generated `reset_password_live.ex:155` still does `if user = ...get_user_by_email(email)`, and the context head at `priv/templates/sigra.install/core/auth.ex:428-429` requires a binary. The confirm todo's Phase 246 claim also holds: `core.ex:394-395` emits `live_session :sigra_confirmation` on `:mount_current_scope`, golden router lines 98-102 agree, both cited commits exist. |
-| 18 | README, guide, `claims_docs_test`, register cells and `deferred-items.md` aligned to the repaired registry; phase gate green | VERIFIED | Docs read above. Gate re-run by me at HEAD (below). |
-| review | R2-WR-01 guide snippets, R2-WR-02 README wording, R2-WR-03 dimension pin, R2-IN-01 README sentence fixed; R2-WR-04, R2-WR-05, R2-WR-06, R2-IN-02 deferred with diagnosis in the todo | VERIFIED | The four fixes are in the tree and covered by tests I mutated; the four deferrals are recorded in `259-REVIEW-DISPOSITION.md` and the todo. |
+| 14 | Reset page mounts (`:new`), view passes the binary email, row is `parity`, probe non-vacuous | VERIFIED | `router.ex:119` is `live "/reset-password", ResetPasswordLive, :new`; `reset_password_live.ex` `send_instructions` calls the context unconditionally with the binary email; mutation 1 |
+| 15 | Confirm page reachable in both session states, nil-safe, `confirmation-resend` parity with a `result` dimension | VERIFIED | `session_user/1` is nil-safe; mutation 2 |
+| 16 | Named-surface rule judged per class, no "at least three of five" tolerance | VERIFIED | mutation 3 |
+| 17 | Generated-host defects filed, not fixed | VERIFIED | todos exist; I re-confirmed the template lines above |
+| 18 | README, guide, claims tests, register and deferred-items aligned to the repaired registry | VERIFIED | mutation 9 |
+| quick 261115-dug | ADR confirmations, guide Step 1 fix, tests re-pinned | VERIFIED | diff read above; 359 tests green |
 
-### Deferred Items
+## Deferred Items
 
-Items not yet met but explicitly tracked. None is a gap against this phase's success criteria.
+Items not met but explicitly tracked. None is a gap against this phase's success criteria.
 
 | # | Item | Tracked in | Note |
 |---|------|-----------|------|
-| 1 | Generated reset request page defects (no `:new` action in the installer route, user struct passed to a binary-only head) | `.planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md`, severity major | Shipped-byte fix; out of scope under zero-lib-bytes. Not matched to a roadmap phase by name, so it stays a todo, not a `deferred` frontmatter entry. |
-| 2 | Generated non-live confirm controller flavor | `.planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md` | Narrowed by the Plan 259-17 status update; fast-follow disposition unchanged |
-| 3 | Registration timing oracle, passkey options oracle, lockout and rate-limit channels, lib moduledoc over-claims | four filed todos named in the registry | Real leaks, asserted to still differ |
+| 1 | Generated reset request page defects (no `:new` action in the installer route; user struct passed to a binary-only head) | `.planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md` | Shipped-byte fix; the owner's direction (ADR 005 amendment B) is before Phase 262. See planner note 1 |
+| 2 | Generated non-live confirm controller flavor | `.planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md` | Same direction |
+| 3 | Registration timing oracle and passkey options oracle | `.planning/todos/pending/2026-11-13-duplicate-registration-timing-oracle.md`, `.planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md` | Real leaks, asserted to still differ |
+| 4 | Residual `brandbook/` pointers in three further admin reference guides | `.planning/todos/pending/2026-11-13-residual-brandbook-pointers.md` | Outside the owner-approved four-file scope (ADR decision 12) |
 
 ### Advisory (New Scope, Unevidenced)
 
-None. Every finding below has deterministic evidence (a source line, a command output or a mutation result).
+None. Every finding below carries deterministic evidence (a source line, command output or a mutation result).
 
-### Required Artifacts
+## Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| ADR 005, ADR 006, `guides/reference/brand-compatibility.md`, `contract.md` section | policy and register | VERIFIED | asserted by `policy_docs_test`, `name_clearance_test`, `claims_docs_test` |
-| `brand.sha256`, `.gitattributes` | pin | VERIFIED | 72/72 OK |
-| `test/fixtures/brand/*.json`, `copy-inventory/*.tsv` | ratchets, baselines, inventory | VERIFIED | green; coverage limits stated in headers |
+| ADR 005, ADR 006, `guides/reference/brand-compatibility.md`, `contract.md` section | policy and register | VERIFIED | `policy_docs_test`, `name_clearance_test`, `claims_docs_test` |
+| `brand.sha256`, `.gitattributes` | pin | VERIFIED | 72/72 OK; `brand/** -text linguist-vendored` |
+| `test/fixtures/brand/*.json`, `copy-inventory/*.tsv` | ratchets, baselines, inventory | VERIFIED | present, non-empty, mutation-checked |
 | `test/fixtures/brand/public-surfaces.json` | parity registry | VERIFIED | 13 rows: 5 parity, 3 known_divergence, 2 by_design, 3 not_proven |
-| `test/sigra/brand/*.exs` (12), `test/support/brand/*.ex` (3) | contracts | VERIFIED | 366 tests with the installer-drift test, 0 failures |
-| `test/example/test/example_web/enumeration_parity_test.exs` | parity harness | VERIFIED | 38 tests, 0 failures |
-| `test/example/test/example_web/live/{reset_password,confirmation}_live_test.exs` | regression suites | VERIFIED | green, mutation-checked |
+| `test/sigra/brand/*.exs` (12), `test/support/brand/*.ex` (3) | contracts | VERIFIED | 359-test run green (with `guides_dx02_test.exs`) |
+| `test/example/test/example_web/enumeration_parity_test.exs` | parity harness | VERIFIED | 38 tests, 0 failures, mutation-checked |
+| `test/example/test/example_web/live/{reset_password,confirmation}_live_test.exs`, `login_submit_selector_test.exs` | regression and selector suites | VERIFIED | in the green 60 |
 | `test/example/lib/example_web/{router.ex,live/reset_password_live.ex,live/confirmation_live.ex}` | repaired example host | VERIFIED | code read; test code, not a shipped byte |
 | `test/example/priv/playwright/helpers/loginSubmit.ts` | login helper | VERIFIED | used by five specs and `adminFlows.ts` |
 
-### Key Link Verification
+## Key Link Verification
 
 | From | To | Via | Status | Details |
 |------|----|-----|--------|---------|
-| `router.ex:119` | `ResetPasswordLive.mount/3` | `:new` live action feeds the `case socket.assigns.live_action` | WIRED | dropping it raises `CaseClauseError` (mutation) |
-| `router.ex` `live_session :confirmation` | `ConfirmationLive` | `:mount_current_scope` assigns `current_scope`, nil when anonymous | WIRED | anonymous and signed-in tests both mount |
-| registry rows | parity test | probe clause, `expected_parity_flash/1` clause, `@required_dimensions`, `@expected_todos` | WIRED | a trimmed `compare` list, a `not_proven` downgrade or a dropped todo path each go red |
-| registry `password-reset-request` row | generated-host todo | `todo` field, asserted to be a real file | WIRED | file exists |
-| README / guide | registry | `claims_docs_test` row locks, retired phrases, scope bounds | WIRED | README regressions go red (mutations) |
-| `brand/brand.json` | lexicon scan | `CopyScan.lexicon_words/0` | WIRED | unchanged from the first verification |
+| `router.ex:119` | `ResetPasswordLive.mount/3` | `:new` live action | WIRED | dropping it raised `CaseClauseError` in the previous report's mutation |
+| `router.ex` `live_session :confirmation` | `ConfirmationLive` | `:mount_current_scope` | WIRED | anonymous and signed-in tests mount |
+| registry rows | parity test | probe clause, expected-flash table, `@required_dimensions`, `@expected_todos` | WIRED | mutation 3 and the in-file controls |
+| registry rows | claims register in ADR 006 | `name_clearance_test` status cross-check | WIRED | mutation 3 |
+| README and guides | registry | `claims_docs_test` row locks and sweep | WIRED | mutation 9 |
+| `brand/brand.json` | lexicon scan | `CopyScan.lexicon_words/0` | WIRED | `copy_contract_test` reads ten terms from the pinned book |
+| ADR 005 amendment | todos | `policy_docs_test` filename assertions | WIRED | both leak todos named and asserted |
 
-### Data-Flow Trace (Level 4)
+## Data-Flow Trace (Level 4)
 
-Not applicable to shipped code: no runtime-rendered dynamic data was added to anything that ships. For the example-host repairs the data flow is real: the reset probe's existing-email request writes a `reset_password` `UserToken` row (queried straight from `Example.Repo`), and the resend probe's `result` dimension reads confirmation token rows. Both are asserted in tests and both responded to my mutations.
+Not applicable to shipped code: nothing that ships was added. For the example-host repairs the flow is real: the reset probe's existing-email request writes a `reset_password` `UserToken` row and the resend probe's `result` dimension counts confirmation tokens; mutations 1 and 2 show both respond.
 
-### Behavioral Spot-Checks
+## Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 |----------|---------|--------|--------|
-| Brand contract suite plus installer drift | `source tmp/db.env && MIX_ENV=test mix test test/sigra/brand test/sigra/templates/installer_drift_test.exs` | 366 tests, 0 failures | PASS |
+| Brand contracts plus the guide DX test | `source tmp/db.env && MIX_ENV=test mix test test/sigra/brand test/sigra/guides_dx02_test.exs` | 359 tests, 0 failures | PASS |
 | Example-host parity, selector, reset and confirm suites | `cd test/example && MIX_ENV=test mix test --include example_app test/example_web/enumeration_parity_test.exs test/example_web/login_submit_selector_test.exs test/example_web/live/confirmation_live_test.exs test/example_web/live/reset_password_live_test.exs` | 60 tests, 0 failures | PASS |
-| Full example suite | `cd test/example && MIX_ENV=test mix test --include example_app` | 396 tests, 0 failures | PASS |
-| Local gate at HEAD | `MIX_ENV=test mix ci` | exit 0: 33 doctests, 3 properties, 2991 tests, 0 failures, 12 skipped; install golden 65 tests, 0 failures | PASS |
-| Pin independent of ExUnit | `shasum -a 256 -c brand.sha256` | 72 OK, 0 not OK | PASS |
+| Pin independent of ExUnit | `shasum -a 256 -c brand.sha256` | 72 OK | PASS |
+| Zero shipped bytes | `git diff --stat aeda7273d HEAD -- lib priv brand brandbook .github scripts` | empty (control: unfiltered diff is 117 files) | PASS |
 | Formatting | `MIX_ENV=test mix format --check-formatted` | exit 0 | PASS |
-| Zero shipped bytes | `git diff --stat aeda7273d HEAD -- lib priv brand brandbook .github scripts` | empty (control: unfiltered diff is 113 files) | PASS |
-| Debt markers | grep of added lines outside `.planning` and `brand/` for TBD, FIXME, XXX, TODO, HACK, PLACEHOLDER | none (control: planted `FIXME` matched) | PASS |
-| Working tree | `git status --short` after every run | empty | PASS |
+| Debt markers | grep of added lines outside `.planning` and `brand/` for TBD, FIXME, XXX, TODO, HACK, PLACEHOLDER | none | PASS |
+| Working tree | `git status --short` | empty before and after | PASS |
 
-The `error: undefined variable "web_module"` lines in the `mix ci` output are emitted by template-compile tests that pass; the run exits 0.
+I did not re-run the full `mix ci` (2991 tests): everything changed since the last full run is documentation plus two brand doc-contract tests, and all of those are in the 359 above. The previous report's full-gate result at an earlier HEAD (exit 0, 2991 tests, 0 failures) is not re-claimed here.
 
-### Probe Execution
+## Probe Execution
 
 SKIPPED: no PLAN declares a `probe-*.sh`, and this is not a migration or tooling phase.
 
-### Requirements Coverage
+## Requirements Coverage
 
-All fourteen IDs declared across the eighteen plans match the fourteen REQUIREMENTS.md maps to Phase 259; no orphans.
+All fourteen IDs declared across the eighteen plans match the fourteen `.planning/REQUIREMENTS.md` maps to Phase 259; no orphans, none missing.
 
 | Requirement | Source Plans | Status | Evidence |
 |-------------|--------------|--------|----------|
@@ -268,74 +259,53 @@ All fourteen IDs declared across the eighteen plans match the fourteen REQUIREME
 | BPOL-02 | 259-02 | SATISFIED | Truth 2 |
 | BPOL-03 | 259-05 | SATISFIED | Truth 3 |
 | BPOL-04 | 259-11 | SATISFIED | Truth 5 |
-| BPOL-05 | 259-01 | SATISFIED (recorded) | decisions recorded; 11 await owner confirmation (Human Verification 1) |
-| BPOL-06 | 259-09 | SATISFIED (narrow) | four files fixed after pre-phase approval; residual `brandbook/` pointers in three admin reference guides and `test/example/AGENTS.md` are filed todos |
+| BPOL-05 | 259-01 | SATISFIED | decisions recorded and now owner-confirmed with dates |
+| BPOL-06 | 259-09 | SATISFIED (narrow) | four files fixed under the 2026-11-13 approval; residual pointers are a filed todo (W-9) |
 | BPOL-07 | 259-01 | SATISFIED | guide "Upgrade notes" |
 | BCOPY-01 | 259-12 | SATISFIED | Truth 4a |
-| BCOPY-02 | 259-08 | SATISFIED (bounded) | Truth 4a; WR-04 and R2-WR-05 scope warnings |
-| BCOPY-03 | 259-07, 259-13, 259-14, 259-15, 259-16, 259-17, 259-18 | SATISFIED | Truth 4d, now with all five named surfaces `parity`, each probe observing the real response, and the rest honestly registered |
-| BCOPY-04 | 259-06 | SATISFIED (bounded) | exact-equality test over three lanes; coverage limits stated in each header |
+| BCOPY-02 | 259-08 | SATISFIED (bounded) | Truth 4a; W-5, W-6 |
+| BCOPY-03 | 259-07, 13-18 | SATISFIED | Truth 4d; five parity rows, the rest honestly registered |
+| BCOPY-04 | 259-06 | SATISFIED (bounded) | exact-equality test over three lanes |
 | BCOPY-05 | 259-04 | SATISFIED | Truth 4b |
 | BCOPY-06 | 259-03 | SATISFIED | Truth 4c |
-| BCOPY-07 | 259-10, 259-11, 259-13, 259-14, 259-15, 259-17, 259-18 | SATISFIED (bounded) | Truth 4e |
+| BCOPY-07 | 259-10, 11, 13-15, 17, 18 | SATISFIED (bounded) | Truth 4e |
 
-`.planning/REQUIREMENTS.md` currently shows BCOPY-03 and BCOPY-07 as Complete and the other twelve as "Gaps Found" (left over from the first, failed verification). The orchestrator should reconcile that table when the phase is completed.
+`.planning/REQUIREMENTS.md` still shows BCOPY-03 and BCOPY-07 as `[x]` Complete and the other twelve as `[ ]` with "Gaps Found" in the traceability table (left over from the first, failed verification). The orchestrator should reconcile that table when it completes the phase.
 
-### Anti-Patterns Found
+## Anti-Patterns Found
 
-No debt marker, stub implementation or hardcoded-empty data in any added line outside `.planning`. Nothing below blocks. Severities are warnings or info.
+No debt marker, stub implementation or hardcoded-empty data in any added line outside `.planning` and `brand/`. Nothing blocks. All items are warnings or info, each with a recorded home.
 
 | ID | File | Pattern | Severity | Impact |
 |----|------|---------|----------|--------|
-| W-1 | `guides/flows/password-reset.md:16-36` | Step 1 says "The generated `ResetPasswordLive` renders a form ... Submitting it calls:" and shows the corrected binary-email handler, but the generated template `priv/templates/sigra.install/core/reset_password_live.ex:155` still looks the user up and passes the struct. Line 36 half-discloses this ("Check the call in the code generated into your app") and the scope paragraph and README bound the claim to the example application | Warning | A reader can take the snippet as a description of generated code. It over-describes the generated view, though it makes no enumeration-safety claim beyond what is proven. Fix by wording ("the corrected shape") or by the generated-host fix in the filed todo |
-| W-2 | `test/fixtures/brand/public-surfaces.json` row `confirmation-resend` | The row is labelled `parity` but proves "a payload email is ignored", not that an existing and an unknown address answer alike; no email-keyed resend form exists, so there is no existing-versus-unknown channel to compare | Warning | Honestly stated in the row, the register and the test moduledoc, and counted as its own class, so nothing over-claims. Recorded so the word "parity" on that row is not read as enumeration evidence |
-| W-3 | `.planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md` ("Other places that still carry the struct call") and `deferred-items.md` (259-10 item 2) | Both still say the published guide snippets pass the user struct; the WR-01 fix (commit `6a6629289`) corrected them afterwards | Info | Stale planning prose only; the guide is right |
-| W-4 | `test/example/lib/example_web/live/confirmation_live.ex:104` | `handle_params(%{"token" => ...})` still dereferences `socket.assigns.current_scope.user`, which would raise for an anonymous visitor. The example routes no `:token` param to this LiveView (the token link is a controller), so it is unreachable; the line is kept because an installer-drift test requires that binding | Info | Already recorded in `deferred-items.md` (Plan 259-15 item 1) |
-| W-5 | `test/support/brand/copy_scan.ex` (R2-WR-04 and R2-IN-02), `test/sigra/brand/claims_docs_test.exs` (R2-WR-06) | Scanner misses a phrase split over `<>`-joined literals and HTML entities; the claim recogniser misses wordings such as "prevents username enumeration" and "enumeration-proof". The re-reviewer probed each. No scanned file or doc contains such a shape today | Warning | Regression guards narrower than their titles; deferred with diagnosis and no current hit masked |
-| W-6 | `priv/templates/sigra.gen.oauth/**`, `priv/templates/sigra.upgrade/**` | Outside every copy scope and inventory lane (R2-WR-05); they ship "Log in to link your ... account" and "You'll still be able to log in with" | Warning | Not on the Phase 262 worklist unless an owner decision adds them or Phase 262 sweeps them by hand |
-| W-7 | `test/sigra/brand/frozen_surface_test.exs`, `copy_contract_test.exs` + fixtures | WR-05 from the first review: both ratchets can be loosened by editing JSON in the same commit; no base-branch diff gate | Warning | "Can only grow" holds for the opt-in writer and accidental drift, not a deliberate fixture edit; relies on review |
-| W-8 | `lib/sigra/lockout.ex:13`, `error.ex`, `auth.ex`, installer template comments | Published moduledocs still say "enumeration-safe" | Warning | Zero-lib-bytes rule forbids editing here; bounded by the register, todo filed |
+| W-2 | `test/fixtures/brand/public-surfaces.json` row `confirmation-resend` | Labelled `parity` but proves "a payload email is ignored"; no email-keyed resend form exists, so there is no existing-versus-unknown channel to compare | Warning | Honestly stated in the row, the register and the test header, counted as its own class. Do not read "parity" on that row as enumeration evidence |
+| W-5 | `test/support/brand/copy_scan.ex`, `test/sigra/brand/claims_docs_test.exs` | Scanner misses a phrase split over `<>`-joined literals or HTML entities; claim recogniser misses wordings such as "prevents username enumeration" | Warning | Regression guards narrower than their titles; deferred with diagnosis; no current hit is masked |
+| W-6 | `priv/templates/sigra.gen.oauth/**`, `priv/templates/sigra.upgrade/**` | Outside every copy scope and inventory lane; they ship "Log in to link your ... account" | Warning | Owner default (UAT): sweep by hand in Phase 262. Not on the Phase 262 worklist yet |
+| W-7 | `frozen_surface_test.exs`, `copy_contract_test.exs` and fixtures | Both ratchets can be loosened by editing JSON in the same commit; no base-branch diff gate | Warning | "Can only grow" holds for the opt-in writer and accidental drift, not a deliberate fixture edit; relies on review |
+| W-8 | `lib/sigra/lockout.ex:13`, `error.ex`, `auth.ex`, installer template comments | Published moduledocs still say "enumeration-safe" | Warning | Zero-lib-bytes rule forbids editing here; bounded by the register |
+| W-9 | `guides/reference/admin-graphic-design-lens.md`, `admin-token-reference.md`, `admin-fractal-scorecard.md` | Still cite `brandbook/` paths | Warning | Outside the four-file scope the owner approved; `brandbook/` still exists so the paths resolve; todo filed |
+| I-1 | `.planning/STATE.md:170` | Still says the clear-space authority is "owner confirmation pending (ADR 006)" | Info | Stale planning prose; both ADRs and their tests are correct. Orchestrator-owned file |
+| I-2 | `test/example/priv/playwright/tests/admin-generated.spec.ts:74,101` | Locates the generated password button by its text "Sign in with password" | Info | Not a "Log in" locator, so outside BCOPY-06; Phase 262 may change that label, and this is the place that will break |
+| I-3 | `.planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md` line 56, `deferred-items.md` (259-10 item 2) | Still say the guide snippets pass the user struct; commit `6a6629289` corrected them | Info | Stale planning prose only |
+| I-4 | `test/example/lib/example_web/live/confirmation_live.ex:104` | `handle_params(%{"token" => ...})` dereferences `current_scope.user`, which would raise for an anonymous visitor | Info | Unreachable: the example routes no `:token` param to this LiveView; kept because an installer-drift test requires the binding; recorded in `deferred-items.md` |
 
 ### Human Verification Required
 
-These are the items a program cannot settle. They are listed in the frontmatter `human_verification` block as well.
+None. The four former items are resolved above, and none of what remains needs a person: the browser run of the Playwright specs is an automatic PR lane, and the remaining warnings are recorded deferrals with an owner default or a filed todo. The one thing I could not do myself is witness the owner's reply; the repo records it (two commits, an ADR amendment, the UAT file), and the phase goal does not depend on it because SC-1 requires the decisions to be recorded, not confirmed.
 
-#### 1. Owner confirmation of the recommended-default decisions
+## Gaps Summary
 
-**Test:** Read ADR 005 decisions 1-9, 11 and 14, and ADR 006's two decisions; confirm or amend each.
-**Expected:** Each "Recommended default - owner confirmation pending" row is confirmed, or amended in place with a dated note. Only decision 12 is confirmed today.
-**Why human:** A test proves a decision is recorded and labelled, not that it is the right one. Phase 260 (the PNG park needs explicit approval) and Phase 263 (install-pin value, logo-use statement) inherit them.
+No gaps. Every must-have is verified against the tree and, for the contracts, against mutations that make each one go red. Status is `passed`.
 
-#### 2. Reading of "every pre-auth surface" for registration and passkey
+## Notes for the next phase planner
 
-**Test:** Decide whether SC-4 and the milestone Enumeration-parity gate mean "every surface has an asserted, honest state" (what the registry implements) or "every listed surface is identical".
-**Expected:** Registration and passkey sign-in options are real account-existence leaks that a zero-shipped-bytes phase cannot fix. They are registered `known_divergence`, the tests assert they still differ, and the docs say "Not covered: registration, passkey sign-in". If parity is wanted before Phase 262, that is a shipped-byte fix tracked by existing todos, not a test change.
-**Why human:** The roadmap gate text ("identical across ... registration ... passkey") cannot be literally true while the leaks exist; whether "recorded and asserted" satisfies it is an owner interpretation.
-
-#### 3. Playwright specs in a real browser (advisory)
-
-**Test:** Let the PR's Playwright lanes run the five edited specs and `adminFlows.ts`.
-**Expected:** Every login step still clicks the submit button through `loginSubmit`.
-**Why human:** Playwright is not installed locally. The selector is proven unique against the real example login page by an ExUnit test, so the residual risk is low and CI does this on the PR.
-
-#### 4. Editorial and scope judgments
-
-**Test:** Read W-1 (guide Step 1 against the generated template) and decide the deferred scope items: R2-WR-04, R2-WR-05, R2-WR-06, R2-IN-02.
-**Expected:** Step 1 either says its snippet is the corrected shape or waits for the generated-host fix; the owner decides whether `sigra.gen.oauth` and `sigra.upgrade` join the copy scan now or are swept by hand in Phase 262.
-**Why human:** Editorial and scope judgments.
-
-### Gaps Summary
-
-No gaps. The single prior gap is closed with code, tests and independent positive controls. The status is `human_needed` because the human-verification section is not empty, per the decision tree; none of the four items blocks Phases 260 and 261.
-
-### Notes for the next phase planner
-
-- **Parity re-run in Phase 262 is example-host only.** ROADMAP Phase 262 criterion 1 and 5 say enumeration parity "re-runs green on touched pre-auth slices". The harness drives `test/example`, a hand-maintained copy, so a change to a generated template is only proven if the example is changed to match (the template, example and golden parity tests of Phase 260 are what keep them aligned). Also, the generated reset request page has two filed defects, so Phase 262 4c, which rewrites generated auth screens, should either fix them first or leave the generated reset view and the installer route alone.
-- **Reconcile the Phase 262 status words.** ROADMAP Phase 262 criterion 1 lists "(Deleting, Locked, Unconfirmed, Active)"; ADR 005 decision 6 and Phase 259's SC-1 keep "Deletion scheduled". Fix the roadmap text before Phase 262 plans.
-- **Treat the ratchet and baseline fixtures as security-relevant diffs** in later phases (W-7), since they are loosened by editing JSON.
-- **The generated confirm and reset todos are fast-follow candidates.** The reset one is marked major and, read in source, may crash a `--live` install's reset page on mount.
+1. **The owner's "fix the leaks before Phase 262" has no phase to carry it.** ADR 005 amendment B says the registration and passkey-options leaks, plus the generated confirm and reset-request fixes, are shipped-byte work before Phase 262. Phase 260's success criterion 5 forbids changing copy, markup or `Profile` keys, and Phase 261 is tokens and type, so neither is a natural home. Schedule it (a quick task or an inserted phase) or the todos will still be open when Phase 262 starts.
+2. **Parity re-run in Phase 262 is example-host only.** The harness drives `test/example`, a hand-maintained copy, so a generated-template change is proven only if the example is changed to match. The generated reset request page has two filed defects, so Phase 262's 4c, which rewrites generated auth screens, should either fix them first or leave that view and the installer route alone.
+3. **Reconcile the Phase 262 status words.** ROADMAP Phase 262 criterion 1 lists "(Deleting, Locked, Unconfirmed, Active)"; ADR 005 decision 6 (now confirmed) and Phase 259's SC-1 keep "Deletion scheduled". Fix the roadmap text before Phase 262 plans.
+4. **Treat the ratchet and baseline fixtures as security-relevant diffs** in later phases (W-7); they are loosened by editing JSON.
+5. **Add `sigra.gen.oauth`, `sigra.upgrade` and `admin-generated.spec.ts` to the Phase 262 worklist** (W-6, I-2) or decide explicitly that they are out of scope.
 
 ---
 
-_Verified: 2026-11-15T14:48:56Z_
+_Verified: 2026-11-15T15:13:59Z_
 _Verifier: Claude (gsd-verifier)_
