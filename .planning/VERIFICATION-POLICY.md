@@ -66,3 +66,28 @@ When a GSD command reports a stale or otherwise blocked verification:
 This policy applies to planning, execution, verification, and closeout. Prefer concrete committed
 tests and machine-readable evidence over conversational UAT, while keeping verification scope
 limited to the authorized phase and its recurring quality needs.
+
+## Automate first, hand off last (standing default, recorded 2026-11-15)
+
+This is settled. Do not re-open it per phase or re-ask the owner whether to automate.
+
+- When a verification step shows up (UAT, `human_needed`, advisory CI item), start automating it
+  immediately, before presenting anything to the owner. Take it as far as it gives useful
+  feedback, then stop; do not build automation that asserts trivia.
+- Throwaway verification is fine: a one-off script, a static grep, or a local run that is never
+  committed. Only recurring protection earns a CI job or a committed test.
+- Hand the owner only what is irreducibly theirs: decisions (confirm or amend a recorded default,
+  interpret roadmap wording), credentials, and subjective judgment. Batch these into one reply
+  with a recommendation, never one question per item.
+- Record the automated evidence (command, result, run id) in the UAT/VERIFICATION file so the
+  next session does not repeat it.
+
+## CI and release efficiency (check whenever a run is in progress or finished)
+
+- Each time a CI or release run happens, spend a minute looking for low-hanging fruit: slow or
+  duplicated jobs, missing caches, serial work that could be parallel, jobs on the critical path
+  that need not be. Never trade away coverage or quality for speed.
+- Put cheap consistency checks (format, lint, manifest/pin/hash checks, compile) ahead of the
+  long suites so a trivial failure stops the run early.
+- When a loop of failures forms, step back and look for the bottleneck instead of retrying.
+- Findings go to a todo or seed with the measured cost; fix the cheap ones in the same change.
