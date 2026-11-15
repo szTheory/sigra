@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 260
 current_phase_name: Deterministic Output, Before Catalog and PNG Park
-current_plan: 7
+current_plan: 8
 status: executing
-stopped_at: Completed 260-07-PLAN.md
-last_updated: "2026-11-15T20:09:20.962Z"
+stopped_at: Completed 260-08-PLAN.md
+last_updated: "2026-11-15T20:30:12.105Z"
 last_activity: 2026-11-15
 last_activity_desc: Phase 260 execution started
-state_head: fe087dc80a905162bd701eb86beb46bd9d462a5b
+state_head: ef5dc6f08bda3cafd69bcc819518c0f746a7163a
 progress:
   total_phases: 5
   completed_phases: 1
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 260 (Deterministic Output, Before Catalog and PNG Park) — EXECUTING
-Current Plan: 7
+Current Plan: 8
 Total Plans in Phase: 11
 Status: Ready to execute
 Last activity: 2026-11-15 — Phase 260 execution started
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T20:09:20.844Z
-Stopped at: Completed 260-07-PLAN.md
+Last session: 2026-11-15T20:30:11.997Z
+Stopped at: Completed 260-08-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them.
@@ -142,6 +142,7 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 | Phase 260 P05 | 11 min | 3 tasks | 8 files |
 | Phase 260 P06 | 24 min | 3 tasks | 5 files |
 | Phase 260 P07 | 7 min | 2 tasks | 5 files |
+| Phase 260 P08 | 13 min | 2 tasks | 5 files |
 
 ## Decisions
 
@@ -201,3 +202,5 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 - [Phase 260]: Plan 07: the CSS conformance guard treats explicit-theme token blocks as protected scopes by exact selector match (four strings, never a prefix) and exempts only single --sg-* or color-scheme declarations; CHECK 2 and CHECK 3 share one strip_protected_scopes awk function — Brand-mark and theme-switch rules also start with html[data-sg-admin-theme...], so a prefix match would let raw hex through; the theme-switch active rule must be tokenised by the CSS plan, the guard does not exempt it; one shared function keeps the two checks from drifting
 - [Phase 260]: Plan 07: CHECK 3 of the conformance guard was a no-op on GNU grep (a backslash-d shorthand GNU grep -E lacks); fixed to [0-9]+ and the guard self-test is now proven inside ubuntu:24.04 (mawk and gawk), not only on darwin — A planted 13px passed the unfixed guard under ubuntu:24.04 and failed on darwin; the guards were not yet wired into mix ci, so the blindness was latent. Any bash guard destined for the PR gate needs one observed run under the CI userland
 - [Phase 260]: Plan 07: the shipped-CSS gap baseline (test/fixtures/brand/css-undefined-classes.txt) holds 56 classes (53 defined only in example app.css, 3 nowhere), checked in both directions; RESEARCH's 59 is not reproducible by the prescribed class-attribute extraction — Growth fails (define the class in the shipped CSS, never add an entry) and a listed class that became defined fails (remove it), so the baseline can only shrink; plan 09 removes exactly the sg-brand-mark* and sg-theme-switch entries it defines
+- [Phase 260]: Plan 08: the catalog diff report diffs file by file with diff -u -L before/REL -L after/REL instead of one diff -ru call, and ignores MANIFEST.json and .DS_Store — diff -ru prints the absolute input paths in every header, which the plan's own no-absolute-path rule forbids for a report that gets pasted into a public PR; counts come from sorted find lists and comm, and the script was also run under ubuntu:24.04 (GNU diff, bash 5.2) because it runs under mix ci on CI
+- [Phase 260]: Plan 08: the gallery catalog auth and email previews are pinned to data-theme=light, not system, and "Suspended" is a toneless sg-status-pill with a visible catalog-only note — The shipped default dark palette draws accent text (#c2410c) on its dark surface at 3.17:1 and the page-wide axe test runs in the admin-design-dark project too, so the new markup stayed green only with the pin; the contrast fix is Phase 261 BTOK-03 (logged in 260-deferred-items.md) and the pin can move back to system once it lands
