@@ -135,6 +135,12 @@ The PNG-compare lanes are parked in a separate small pull request at the end of 
 
 Reversibility: cheap. A lane can return to PR-blocking by reverting the park pull request.
 
+**Note 2026-11-15: authoring order and mechanism.** The park change was authored first, in Phase 260 wave 1, as an independent branch (`ci/park-png-compare`), not at the end of the phase as the wording above reads. The owner approved opening the pull request and, in a separate reply, merging it. It merged as pull request #381 (squash commit `4154a913e6c31f54f357587553c0dc7846ebc915`, 2026-11-15), before Phase 261 starts, as the decision requires.
+
+The mechanism is comparison-level, not lane-level. An explicit `SIGRA_PNG_COMPARE_SKIP` environment switch is set to `1` (skip) on `pull_request`, `push` and `schedule`, set to `0` (compare) on `workflow_dispatch`, and left unset (compare) in both recapture jobs. The PNG assertions skip while the lane's other tests still run, so axe, the three demo behavior tests and the generated-host smoke stay on the PR path; moving whole lanes to dispatch would have dropped them with the pixels. Default-on compare means a run that does not set the switch still compares. The `playwright-github-pages.yml` workflow is deliberately unedited and keeps comparing; it is not a required context, and it will report drift after Phase 261 until baselines are recaptured in CI (documented in `MAINTAINING.md`, "PNG compare switch").
+
+Reversibility is unchanged and still cheap: reverting the squash commit restores PR-blocking compare. The impersonation-banner canary stays un-allowlisted and nothing was recaptured on darwin.
+
 ### Related decisions
 
 - **#8 vendoring scope.** The manifest pins the whole tracked `brand/` tree. Pruning would leave the book's own index and manifest pointing at removed files, so "consumed subset" is documented as a table in the public guide, not enforced by deletion.
