@@ -47,7 +47,8 @@ defmodule Sigra.Test.Brand.CopyScan do
   names, route paths (`/users/log_in`, `~p"..."`), atoms (telemetry names such as
   `[:sigra, :auth, :logout, :stop]`), comments, `@doc`/`@moduledoc` text and
   every other attribute are never matched. The admin scope keeps the glossary
-  guard's carve-out for the auth-replica preview block.
+  guard's carve-out for the auth-replica preview block, which must be a `<div>`:
+  the marker on any other element raises instead of exempting its parent.
 
   Not scanned: `.js` files (the passkey browser hook ships user-visible status
   messages that no scope reads) and any file outside the scope lists above.
@@ -672,6 +673,10 @@ defmodule Sigra.Test.Brand.CopyScan do
   # nothing; string literals and `~H` bodies are copy.
   defp code(<<>>, _ctx, acc), do: acc
 
+  # A character literal (`?#`, `?"`, `?\\n`) is neither a comment nor a string.
+  defp code(<<"?\\", _escaped, rest::binary>>, ctx, acc), do: code(rest, ctx, acc)
+  defp code(<<"?", _char::utf8, rest::binary>>, ctx, acc), do: code(rest, ctx, acc)
+
   defp code(<<"#", rest::binary>>, ctx, acc), do: code(skip_line(rest), ctx, acc)
 
   defp code(<<"@", rest::binary>>, ctx, acc) do
@@ -681,9 +686,20 @@ defmodule Sigra.Test.Brand.CopyScan do
     end
   end
 
-  # `attr :x, :string, doc: "..."` documents a component for developers.
-  defp code(<<"doc:", rest::binary>>, ctx, acc) do
-    code(skip_doc_value(String.trim_leading(rest, " ")), ctx, acc)
+  # An identifier is consumed whole, so a keyword that merely ends in `doc` (`my_doc:`)
+  # is never mistaken for `doc:`. `attr :x, :string, doc: "..."` documents a component
+  # for developers, whether its value follows on the same line or the next.
+  defp code(<<first, _rest::binary>> = input, ctx, acc)
+       when first in ?a..?z or first in ?A..?Z or first == ?_ do
+    [identifier] = Regex.run(~r/\A[A-Za-z_][A-Za-z0-9_]*[?!]?/, input)
+
+    case {identifier, drop(input, identifier)} do
+      {"doc", <<":", value::binary>>} ->
+        code(skip_doc_value(String.trim_leading(value)), ctx, acc)
+
+      {_identifier, rest} ->
+        code(rest, ctx, acc)
+    end
   end
 
   defp code(<<"~H\"\"\"", rest::binary>>, ctx, acc) do
@@ -694,6 +710,19 @@ defmodule Sigra.Test.Brand.CopyScan do
   defp code(<<"~H\"", rest::binary>>, ctx, acc) do
     {raw, rest} = take_string(rest)
     code(rest, ctx, markup(raw, :brace, ctx, acc))
+  end
+
+  defp code(<<"~H'''", rest::binary>>, ctx, acc) do
+    {body, rest} = take_heredoc(rest, "'''")
+    code(rest, ctx, markup(body, :brace, ctx, acc))
+  end
+
+  # `~H(...)`, `~H[...]`, `~H{...}` and the other delimiters: the body ends at the
+  # first unescaped closing delimiter, as in Elixir (delimiters do not nest).
+  defp code(<<"~H", delimiter, rest::binary>>, ctx, acc)
+       when delimiter in [?(, ?[, ?{, ?<, ?|, ?/, ?'] do
+    {body, rest} = take_sigil_body(rest, closing(delimiter))
+    code(rest, ctx, markup(body, :brace, ctx, acc))
   end
 
   # Every other sigil (~p paths, ~r regexes, ~w word lists, ~s) is not copy.
@@ -780,9 +809,10 @@ defmodule Sigra.Test.Brand.CopyScan do
   defp drop(binary, prefix),
     do: binary_part(binary, byte_size(prefix), byte_size(binary) - byte_size(prefix))
 
-  # The remainder after `rest`'s opening `"""` up to the closing delimiter line.
-  defp take_heredoc(rest) do
-    case Regex.run(~r/\n[ \t]*"""/, rest, return: :index) do
+  # The remainder after `rest`'s opening `"""` (or `'''`) up to the closing
+  # delimiter line.
+  defp take_heredoc(rest, quotes \\ "\"\"\"") do
+    case Regex.run(heredoc_end(quotes), rest, return: :index) do
       [{start, length}] ->
         {binary_part(rest, 0, start),
          binary_part(rest, start + length, byte_size(rest) - start - length)}
@@ -791,6 +821,27 @@ defmodule Sigra.Test.Brand.CopyScan do
         raise ArgumentError, "unterminated heredoc"
     end
   end
+
+  defp heredoc_end("\"\"\""), do: ~r/\n[ \t]*"""/
+  defp heredoc_end("'''"), do: ~r/\n[ \t]*'''/
+
+  # The body of a sigil opened with a one-character delimiter (after it), up to the
+  # first unescaped `close`, and what follows it. An escaped delimiter is kept as the
+  # bare character.
+  defp take_sigil_body(rest, close), do: take_sigil_body(rest, close, [])
+
+  defp take_sigil_body(<<"\\", close, rest::binary>>, close, acc),
+    do: take_sigil_body(rest, close, [acc, close])
+
+  defp take_sigil_body(<<"\\", char, rest::binary>>, close, acc),
+    do: take_sigil_body(rest, close, [acc, "\\", char])
+
+  defp take_sigil_body(<<close, rest::binary>>, close, acc), do: {IO.iodata_to_binary(acc), rest}
+
+  defp take_sigil_body(<<char, rest::binary>>, close, acc),
+    do: take_sigil_body(rest, close, [acc, char])
+
+  defp take_sigil_body(<<>>, _close, _acc), do: raise(ArgumentError, "unterminated sigil")
 
   # The raw body of a double-quoted string (after its opening quote), keeping
   # `#{...}` interpolations whole, and what follows the closing quote.
@@ -959,6 +1010,13 @@ defmodule Sigra.Test.Brand.CopyScan do
     end
   end
 
+  defp take_single_quoted(rest) do
+    case :binary.split(rest, "'") do
+      [raw, rest] -> {raw, rest}
+      [_unterminated] -> raise ArgumentError, "unterminated single-quoted attribute value"
+    end
+  end
+
   defp take_until(binary, marker) do
     case :binary.split(binary, marker) do
       [before, rest] -> {before, rest}
@@ -1004,7 +1062,11 @@ defmodule Sigra.Test.Brand.CopyScan do
     {if(copy?, do: code(expression, ctx, acc), else: acc), rest}
   end
 
-  defp attr_value(<<"'", rest::binary>>, _copy?, _ctx, acc), do: {acc, skip_past(rest, "'")}
+  # HEEx accepts single-quoted values; a copy attribute's is copy like a double-quoted one.
+  defp attr_value(<<"'", rest::binary>>, copy?, ctx, acc) do
+    {raw, rest} = take_single_quoted(rest)
+    {if(copy?, do: attr_literal(raw, ctx, acc), else: acc), rest}
+  end
 
   defp attr_value(rest, _copy?, _ctx, acc) do
     [value] = Regex.run(~r/\A[^\s>]*/, rest)
@@ -1027,10 +1089,13 @@ defmodule Sigra.Test.Brand.CopyScan do
   # carve-out as the glossary guard). Removes the whole balanced `<div>`.
   defp remove_preview_block(body, %{carve_out: true}) do
     with {marker, _length} <- :binary.match(body, @preview_marker),
-         [[{open, _}] | _] <-
-           Enum.reverse(Regex.scan(~r/<div\b/, binary_part(body, 0, marker), return: :index)),
+         [[{open, name_length}] | _] <-
+           Enum.reverse(
+             Regex.scan(~r/<[A-Za-z][\w.:-]*/, binary_part(body, 0, marker), return: :index)
+           ),
          {tag_close, _length} <-
            :binary.match(body, ">", scope: {marker, byte_size(body) - marker}) do
+      ensure_div!(binary_part(body, open, name_length))
       close = matching_div_end(body, tag_close + 1)
 
       body
@@ -1043,6 +1108,16 @@ defmodule Sigra.Test.Brand.CopyScan do
   end
 
   defp remove_preview_block(body, _ctx), do: body
+
+  # The carve-out balances `</div>` tags from the marker element. Any other element
+  # would make it exempt the whole enclosing `<div>` and the copy in it, so it raises.
+  defp ensure_div!("<div"), do: :ok
+
+  defp ensure_div!(tag) do
+    raise ArgumentError,
+          "the auth preview marker #{inspect(@preview_marker)} is on #{tag}>, not a <div>: " <>
+            "the carve-out would exempt the enclosing <div> and everything in it"
+  end
 
   # Offset just past the `</div>` that balances an already-open `<div>`.
   defp matching_div_end(body, from) do

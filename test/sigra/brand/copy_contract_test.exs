@@ -602,6 +602,123 @@ defmodule Sigra.Brand.CopyContractTest do
     end
   end
 
+  describe "scanner blind spots stay closed (planted sources)" do
+    test "a keyword that merely ends in doc is copy, a doc: option is not, on one line or the next" do
+      assert [%{line: "Please log in now"}] =
+               generated([~s'opts = [my_doc: "Please log in now"]'])
+
+      assert [%{line: "Please log in now"}] =
+               generated([~s'opts = [undoc: "Please log in now"]'])
+
+      for source <- [
+            [~s'  attr :x, :string, doc: "Please log in now"'],
+            [~s'  attr :x, :string,', ~s'    doc: "Please log in now"'],
+            [~s'  attr :x, :string,', ~s'    doc:', ~s'      "Please log in now"']
+          ] do
+        assert generated(source) == [], "#{inspect(source)} documents a component, it is not copy"
+      end
+    end
+
+    test "a single-quoted copy attribute value is copy, any other single-quoted value is not" do
+      for attr <- ["aria-label", "title", "placeholder", "label", "alt", "action"] do
+        assert [%{line: "Log in here"}] =
+                 generated([~s'~H"""', ~s'<a #{attr}=\'Log in here\'>x</a>', ~s'"""']),
+               "expected single-quoted #{attr} to be scanned"
+      end
+
+      markup = [
+        ~s'~H"""',
+        ~s'<a class=\'login log in\' id=\'log in\' data-x=\'log out\'>x</a>',
+        ~s'"""'
+      ]
+
+      assert generated(markup) == []
+    end
+
+    test "an unterminated single-quoted attribute value raises naming the file" do
+      assert_raise ArgumentError,
+                   ~r/example\.ex: unterminated single-quoted attribute value/,
+                   fn ->
+                     CopyScan.copy_segments(:generated, @generated_file, [
+                       ~s'~H"""',
+                       ~s'<a title=\'x>',
+                       ~s'"""'
+                     ])
+                   end
+    end
+
+    test "~H with any delimiter is markup, not a skipped sigil" do
+      # `/` and `<` are left out: Elixir ends the sigil at the first `/` or `>`, which
+      # markup always contains, so such a sigil cannot hold a tag.
+      for {open, close} <- [{"(", ")"}, {"[", "]"}, {"{", "}"}, {"|", "|"}] do
+        source = [~s'~H#{open}<p>Please log in now</p>#{close}']
+
+        assert [%{kind: "banned_term", line: "Please log in now"}] = generated(source),
+               "~H#{open}...#{close} was not scanned"
+      end
+
+      assert [%{line: "Please log in now"}] =
+               generated([~s'~H\'\'\'', ~s'<p>Please log in now</p>', ~s'\'\'\''])
+
+      assert [%{line: "Please log in now"}] =
+               generated([~s'~H(', ~s'  <p>Please log in now</p>', ~s')'])
+    end
+
+    test "a ~H body with another delimiter ends at the first closing delimiter, and later code is scanned" do
+      lines = [~s'x = ~H(<p>Fine</p>)', ~s'put_flash(:info, "Please log in now")']
+
+      assert [%{line: "Please log in now"}] = generated(lines)
+    end
+
+    test "an unterminated ~H with another delimiter raises naming the file" do
+      assert_raise ArgumentError, ~r/example\.ex: unterminated sigil/, fn ->
+        CopyScan.copy_segments(:generated, @generated_file, [~s'~H(<p>never closed</p>'])
+      end
+    end
+
+    test "a character literal is not a comment or a string" do
+      for char <- ["?#", ~s'?"', "?\\n", "?a"] do
+        assert [%{line: "Please log in"}] =
+                 generated([~s'x = #{char}; put_flash(:info, "Please log in")']),
+               "#{char} hid the copy after it"
+      end
+
+      assert generated([~s'x = 1 # put_flash(:info, "Please log in")']) == []
+    end
+
+    test "a ? at the end of an identifier is not a character literal" do
+      assert [%{line: "Please log in"}] =
+               generated([~s'if ready? do put_flash(:info, "Please log in") end'])
+    end
+
+    test "a preview marker on any element but a <div> raises instead of exempting its parent" do
+      lines = [
+        ~s'~H"""',
+        ~s'<div class="outer"><h2>Login preview</h2>',
+        ~s'<section class="sigra-auth sigra-auth--preview"><p>x</p></section>',
+        ~s'<p>Org settings</p></div>',
+        ~s'"""'
+      ]
+
+      error = assert_raise ArgumentError, fn -> admin(lines) end
+
+      assert error.message =~ "example_live.ex:"
+      assert error.message =~ "<section>, not a <div>"
+    end
+
+    test "a preview marker on a <div> is still exempt, and the text around it is still scanned" do
+      lines = [
+        ~s'~H"""',
+        ~s'<div class="outer"><h2>Login preview</h2>',
+        ~s'<div class="sigra-auth sigra-auth--preview"><p>Log in</p></div>',
+        ~s'<p>Org settings</p></div>',
+        ~s'"""'
+      ]
+
+      assert Enum.map(admin(lines), & &1.line) == ["Login preview", "Org settings"]
+    end
+  end
+
   describe "copy_segments/3 (extraction rules)" do
     test "returns the text nodes, expression literals and copy attributes of a ~H body in order" do
       lines = [
