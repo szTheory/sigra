@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 260
 current_phase_name: Deterministic Output, Before Catalog and PNG Park
-current_plan: 4
+current_plan: 5
 status: executing
-stopped_at: Completed 260-03-PLAN.md
-last_updated: "2026-11-15T19:04:25.385Z"
+stopped_at: Completed 260-05-PLAN.md
+last_updated: "2026-11-15T19:17:48.484Z"
 last_activity: 2026-11-15
 last_activity_desc: Phase 260 execution started
-state_head: bcc42edbf6494f7522836bba6b7de11d1d081cbd
+state_head: 5085b862593aa61d332ded60e0d999d8e4d9c706
 progress:
   total_phases: 5
   completed_phases: 1
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 260 (Deterministic Output, Before Catalog and PNG Park) — EXECUTING
-Current Plan: 4
+Current Plan: 5
 Total Plans in Phase: 11
 Status: Ready to execute
 Last activity: 2026-11-15 — Phase 260 execution started
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T19:04:25.220Z
-Stopped at: Completed 260-03-PLAN.md
+Last session: 2026-11-15T19:17:48.371Z
+Stopped at: Completed 260-05-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them.
@@ -139,6 +139,7 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 | Phase 260 P01 | 11 min | 3 tasks | 6 files |
 | Phase 260 P02 | 14 min | 3 tasks | 4 files |
 | Phase 260 P03 | 35 min | 3 tasks | 3 files |
+| Phase 260 P05 | 11 min | 3 tasks | 8 files |
 
 ## Decisions
 
@@ -190,3 +191,6 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 - [Phase 260]: Catalog MANIFEST.json field names fixed (schema, provenance, pinned, capture_command, lanes, personas, coverage, example_files_changed_vs_main, deferred_shipped_byte_fixes, files); write!(:before) refuses when MANIFEST.json exists, raw inputs are missing, or lib/priv differ from origin/main
 - [Phase 260]: Plan 03: tier-2 pin ranks ties by insertion command id (cmin), not ctid; the capture session stamp is the only exact-value replacement
 - [Phase 260]: Plan 03: generated reset-password request page is a documented 500 in the catalog (marker, flips loudly when fixed); run the smoke target without tmp/db.env
+- [Phase 260]: Before catalog keeps the reset-password request page as a one-line marker (shipped HTTP 500); the fix is owed and recorded in the manifest, not made in 260 — Truthful before state; lib/ and priv/ must stay byte-identical to main until the capture, and the generated lane is re-captured first if any owed shipped-byte fix lands before Phase 262
+- [Phase 260]: Audit pagination cursor values are normalized to the CURSOR placeholder in the catalog normalizer (base64 of a timestamp and a random row UUID) — Two independent captures disagreed only on that value; the rule has a planted control seen red first
+- [Phase 260]: Two generated email builders (email change confirmation and notification) remain outside the immutable before catalog — Adding them needs a script change and a re-capture, and the before is write-once; Phase 262 must state the gap or open a documented new capture decision
