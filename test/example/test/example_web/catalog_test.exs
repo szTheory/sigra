@@ -82,6 +82,43 @@ defmodule ExampleWeb.CatalogTest do
     {"organization_invitations", "expires_at"}
   ]
 
+  # The fixed tier-2 slug list. A page that stops rendering, or a new one that is not
+  # listed here, fails `dumps exactly the fixed slug list`: the catalog is never vacuous.
+  @expected_slugs ~w(
+    admin-audit-index
+    admin-auth-branding
+    admin-org-acme
+    admin-overview
+    admin-user-audit-active
+    admin-user-audit-locked
+    admin-user-audit-scheduled-deletion
+    admin-user-audit-unconfirmed
+    admin-user-audit-zero-state
+    admin-user-sessions-active
+    admin-user-sessions-locked
+    admin-user-sessions-scheduled-deletion
+    admin-user-sessions-unconfirmed
+    admin-user-sessions-zero-state
+    admin-user-show-active
+    admin-user-show-locked
+    admin-user-show-scheduled-deletion
+    admin-user-show-unconfirmed
+    admin-user-show-zero-state
+    admin-users-index
+  )
+  # Page groups, each identified by its slug prefix.
+  @groups [
+    overview: "admin-overview",
+    users: "admin-users-index",
+    user_show: "admin-user-show-",
+    user_sessions: "admin-user-sessions-",
+    user_audit: "admin-user-audit-",
+    audit: "admin-audit-index",
+    branding: "admin-auth-branding",
+    org: "admin-org-"
+  ]
+  @email_shape ~r/[A-Za-z0-9._+-]+@[A-Za-z0-9-]+\.[A-Za-z0-9.-]+/
+
   @clock_token ~r/\b\d{4}-\d{2}-\d{2}\b/
   # Long opaque attribute values (csrf, signed phx tokens) can contain digit runs that
   # look like a date; they are not rendered text, so the clock control skips them.
@@ -127,6 +164,46 @@ defmodule ExampleWeb.CatalogTest do
     end
   end
 
+  describe "tier-2 pages, one test per page group" do
+    test("overview", ctx, do: assert_group!(ctx, :overview))
+
+    test "users index", ctx do
+      html = ctx |> assert_group!(:users) |> Map.fetch!("admin-users-index")
+
+      assert html =~ "{{PERSONA:"
+      assert html =~ "{{CAPTURE_SESSION_ACTIVITY}}"
+    end
+
+    test("user detail, one page per account state", ctx, do: assert_group!(ctx, :user_show))
+    test("user sessions, one page per account state", ctx, do: assert_group!(ctx, :user_sessions))
+    test("user audit, one page per account state", ctx, do: assert_group!(ctx, :user_audit))
+    test("audit index", ctx, do: assert_group!(ctx, :audit))
+    test("auth branding", ctx, do: assert_group!(ctx, :branding))
+    test("organization", ctx, do: assert_group!(ctx, :org))
+  end
+
+  describe "the whole tier-2 set" do
+    test "dumps exactly the fixed slug list", ctx do
+      slugs = ctx |> capture_all() |> Map.keys() |> Enum.sort()
+
+      assert slugs == Enum.sort(@expected_slugs)
+      assert length(slugs) == length(Enum.uniq(slugs))
+    end
+
+    test "a second pass with the pin run between yields identical pages", ctx do
+      first = capture_all(ctx)
+      pin_wall_clock!()
+      second = capture_all(ctx)
+
+      assert Map.keys(first) |> Enum.sort() == Map.keys(second) |> Enum.sort()
+
+      moved =
+        for {slug, html} <- first, comparable(html) != comparable(second[slug]), do: slug
+
+      assert moved == [], "pages that changed between two passes: #{inspect(Enum.sort(moved))}"
+    end
+  end
+
   describe "planted controls (pure, in memory)" do
     test "capture-session stamp is replaced by exact value and a seeded stamp is left alone" do
       capture = ~U[2026-11-15 18:40:07Z]
@@ -169,6 +246,44 @@ defmodule ExampleWeb.CatalogTest do
       assert :ok = assert_clock_pinned!("admin-planted", html, ~D[2026-11-15])
     end
 
+    test "persona replacement turns a seeded user id into its label and removes the id" do
+      id = "11111111-2222-4333-8444-555555555555"
+      html = ~s(<a href="/admin/users/#{id}">Alice</a>)
+
+      out = replace_persona_ids(html, %{id => "alice"})
+
+      assert out == ~s(<a href="/admin/users/{{PERSONA:alice}}">Alice</a>)
+      refute out =~ id
+    end
+
+    test "the address scan flags a non-.test address and leaves .test addresses alone" do
+      assert foreign_emails("<p>x a@" <> "b.com y</p>") == ["a@" <> "b.com"]
+      assert foreign_emails("<p>alice@demo.tasklane.test</p>") == []
+    end
+
+    test "the shipped preview placeholder address is masked and then passes the address scan" do
+      html = ~s(<input type="email" value="alex@) <> ~s(example.com" />)
+
+      assert foreign_emails(html) != []
+      masked = mask_shipped_placeholder(html)
+      assert masked =~ "{{PREVIEW_EMAIL}}"
+      assert foreign_emails(masked) == []
+    end
+
+    test "the comparison scrub removes per-render ids and keeps absolute dates" do
+      a =
+        ~s(<div id="phx-F1abcDEF" data-phx-session="x"><i id="mg-11-confirm-title-12"></i>3h ago 2026-01-01</div>)
+
+      b =
+        ~s(<div id="phx-F2zzzXYZ" data-phx-session="y"><i id="mg-11-confirm-title-20"></i>5h ago 2026-01-01</div>)
+
+      c =
+        ~s(<div id="phx-F2zzzXYZ" data-phx-session="y"><i id="mg-11-confirm-title-20"></i>5h ago 2026-01-02</div>)
+
+      assert comparable(a) == comparable(b)
+      assert comparable(a) != comparable(c)
+    end
+
     test "writing with no raw directory writes nothing" do
       assert :skipped = write_raw("admin-planted", "<p>x</p>", nil)
       assert :skipped = write_raw("admin-planted", "<p>x</p>", "")
@@ -176,6 +291,71 @@ defmodule ExampleWeb.CatalogTest do
   end
 
   # -- helpers ---------------------------------------------------------------
+
+  # `{group, slug, path}` for every tier-2 page.
+  defp pages(_ctx) do
+    [{:users, "admin-users-index", "/admin/users"}]
+  end
+
+  defp expected_slugs(group) do
+    prefix = Keyword.fetch!(@groups, group)
+    Enum.filter(@expected_slugs, &String.starts_with?(&1, prefix))
+  end
+
+  defp capture_group(ctx, group) do
+    for {^group, slug, path} <- pages(ctx), into: %{} do
+      {slug, dump(slug, fetch(ctx, path), ctx)}
+    end
+  end
+
+  defp capture_all(ctx) do
+    for {group, _prefix} <- @groups, reduce: %{} do
+      acc -> Map.merge(acc, capture_group(ctx, group))
+    end
+  end
+
+  # Every group renders exactly its fixed slugs, and every dumped page is free of
+  # seeded persona ids and of any non-.test address.
+  defp assert_group!(ctx, group) do
+    captured = capture_group(ctx, group)
+
+    assert captured |> Map.keys() |> Enum.sort() == Enum.sort(expected_slugs(group))
+
+    for {slug, html} <- captured do
+      refute_persona_ids!(html, ctx)
+      assert foreign_emails(html) == [], "#{slug}: non-.test address in the dump"
+    end
+
+    captured
+  end
+
+  defp foreign_emails(html) do
+    @email_shape
+    |> Regex.scan(html)
+    |> List.flatten()
+    |> Enum.reject(&String.ends_with?(&1, ".test"))
+    |> Enum.uniq()
+  end
+
+  # `Sigra.Admin.Components.preview_pair/1` ships a placeholder sign-in address on
+  # a real-looking domain, and `lib/` does not change in this phase. It is masked to
+  # the same token the root normalizer uses, so no non-.test address reaches the raw
+  # directory and the root normalizer's own mask stays a no-op on these dumps.
+  defp mask_shipped_placeholder(html) do
+    String.replace(html, "alex@" <> "example.com", "{{PREVIEW_EMAIL}}")
+  end
+
+  # In-memory view used only to compare two passes of the same page. Raw dumps keep
+  # their per-render ids (the root normalizer owns those for the committed catalog);
+  # two renders can only be compared once the same volatiles are masked.
+  defp comparable(html) do
+    html
+    |> then(&Regex.replace(@opaque_value, &1, "=\"\""))
+    |> then(&Regex.replace(~r/(\bid="phx-)[A-Za-z0-9_-]+"/, &1, "\\1\""))
+    |> then(&Regex.replace(~r/(data-phx-[a-z-]+=")[^"]*"/, &1, "\\1\""))
+    |> then(&Regex.replace(~r/\b(mg-\d+-[a-z][a-z-]*-)\d+\b/, &1, "\\1N"))
+    |> then(&Regex.replace(~r/\bjust now\b|\b\d+[mhd] ago\b/, &1, "RELATIVE"))
+  end
 
   defp persona_key(%{email: email}), do: email |> String.split("@") |> hd()
 
@@ -310,7 +490,11 @@ defmodule ExampleWeb.CatalogTest do
   # replaced html. The env read is allowed here: the RegenGuardTest scan covers only
   # root brand tests.
   defp dump(slug, %{html: html, stamps: stamps}, ctx) do
-    out = html |> replace_persona_ids(ctx.persona_ids) |> replace_capture_stamps(stamps)
+    out =
+      html
+      |> replace_persona_ids(ctx.persona_ids)
+      |> replace_capture_stamps(stamps)
+      |> mask_shipped_placeholder()
 
     assert_clock_pinned!(slug, out, ctx.run_date)
     write_raw(slug, out, System.get_env(@raw_env))
