@@ -17,3 +17,18 @@ Source: `259-REVIEW.md` (standard depth, 22 files, 0 critical / 8 warning / 5 in
 | IN-03 | info | deferred | optional; tracked in the todo |
 | IN-04 | info | deferred | optional; tracked in the todo |
 | IN-05 | info | deferred | optional; tracked in the todo |
+
+## Re-review after gap closure (plans 259-14..259-18)
+
+Source: `259-REVIEW.md` (re-review, standard depth, 21 files, 0 critical / 6 warning / 2 info). It replaces the review above at the same path, so these rows are prefixed `R2-` to stay distinct from the `WR-`/`IN-` rows above.
+
+| ID | Severity | Disposition | Reason |
+|----|----------|-------------|--------|
+| R2-WR-01 | warning | open | guide snippets still show the user-struct call; fix queued in this gate |
+| R2-WR-02 | warning | open | README "show the same message" overstates what the harness proves; fix queued in this gate |
+| R2-WR-03 | warning | open | non-vacuity rule accepts a row whose `compare` is only `body`; fix queued in this gate |
+| R2-WR-04 | warning | open | scanner misses `<>`-joined literals; no scanned file uses that shape today; to be deferred to the deferred-findings todo |
+| R2-WR-05 | warning | open | `sigra.gen.oauth` / `sigra.upgrade` templates outside copy scope; owner decision; to be deferred to the todo |
+| R2-WR-06 | warning | open | unbounded-claim recogniser misses wordings; no current doc affected; to be deferred to the todo |
+| R2-IN-01 | info | open | README says each flow guide states its scope but 3 of 8 do; fix queued in this gate |
+| R2-IN-02 | info | open | three small scanner gaps; to be deferred to the todo |

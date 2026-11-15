@@ -1,354 +1,260 @@
 ---
 phase: 259-compatibility-policy-pinned-source-and-copy-contract
-reviewed: 2026-11-15T00:28:28Z
+reviewed: 2026-11-15T14:30:38Z
 depth: standard
-files_reviewed: 22
+files_reviewed: 21
 files_reviewed_list:
-  - test/example/priv/playwright/helpers/adminFlows.ts
-  - test/example/priv/playwright/helpers/loginSubmit.ts
-  - test/example/priv/playwright/tests/demo-showcase.spec.ts
-  - test/example/priv/playwright/tests/ga-uat-shift-left.spec.ts
-  - test/example/priv/playwright/tests/golden-path.spec.ts
-  - test/example/priv/playwright/tests/organizations.spec.ts
-  - test/example/priv/playwright/tests/passkey-options.spec.ts
+  - README.md
+  - guides/flows/password-reset.md
+  - test/example/lib/example_web/live/confirmation_live.ex
+  - test/example/lib/example_web/live/reset_password_live.ex
+  - test/example/lib/example_web/router.ex
   - test/example/test/example_web/enumeration_parity_test.exs
-  - test/example/test/example_web/login_submit_selector_test.exs
+  - test/example/test/example_web/live/confirmation_live_test.exs
+  - test/example/test/example_web/live/reset_password_live_test.exs
+  - test/fixtures/brand/copy-inventory/generated.tsv
+  - test/fixtures/brand/copy-inventory/host.tsv
+  - test/fixtures/brand/copy-inventory/library.tsv
+  - test/fixtures/brand/public-surfaces.json
   - test/sigra/brand/claims_docs_test.exs
   - test/sigra/brand/copy_contract_test.exs
   - test/sigra/brand/copy_inventory_test.exs
   - test/sigra/brand/frozen_surface_test.exs
-  - test/sigra/brand/install_snippet_test.exs
-  - test/sigra/brand/instruction_pointers_test.exs
   - test/sigra/brand/legacy_profiles_test.exs
-  - test/sigra/brand/name_clearance_test.exs
-  - test/sigra/brand/policy_docs_test.exs
-  - test/sigra/brand/source_pin_test.exs
-  - test/sigra/brand/vocabulary_docs_test.exs
+  - test/sigra/brand/regen_guard_test.exs
   - test/support/brand/copy_inventory.ex
   - test/support/brand/copy_scan.ex
+  - test/support/brand/regen_guard.ex
 findings:
   critical: 0
-  warning: 8
-  info: 5
-  total: 13
-  necessity: 2
+  warning: 6
+  info: 2
+  total: 8
+  necessity: 0
 status: issues_found
 ---
 
-# Phase 259: Code Review Report
+# Phase 259: Code Review Report (incremental re-review, plans 259-14..259-18)
 
-**Reviewed:** 2026-11-15T00:28:28Z
+**Reviewed:** 2026-11-15T14:30:38Z
 **Depth:** standard
-**Files Reviewed:** 22
+**Files Reviewed:** 21
 **Status:** issues_found
 
 ## Summary
 
-Phase 259 is a test and doc harness (pinned-source manifest, frozen-surface ratchet, copy
-scanner and inventory, enumeration-parity registry, doc-contract tests, and a
-copy-independent Playwright login selector). It ships no runtime code, so no finding is a
-runtime defect and none is a security vulnerability.
+This pass covers what changed since the last review commit `124b84c14`: the gap-closure plans
+259-14..259-18 (example-host repairs for the reset request page and the confirm page, the
+reset and confirmation-resend parity rows, the named-surface rule, the generated-host todo,
+README and password-reset guide alignment) and the post-review fixes (scanner blind spots,
+RegenGuard, coverage headers, per-unit claim sweep).
 
 Verification performed, not assumed:
 
-- `mix test test/sigra/brand` passes (290 tests, 0 failures, no compile warnings on OTP 28.5 / Elixir 1.19.5).
-- The two example-host tests (`enumeration_parity_test.exs`, `login_submit_selector_test.exs`) pass (29 tests).
-- All 11 `#login_form button:has-text("Log in")` call sites at the base commit are replaced
-  (`git grep` at HEAD returns none). The new selector `#login_form button:not([type="button"])`
-  matches exactly one element on the example host login page, and the passkey control sits in a
-  different form. The Playwright changes are sound.
-- No home path, personal email or personal name appears in any reviewed file or fixture. The only
-  literal in that family is `/private/var/folders/xx/logo.png` as a planted control
-  (`source_pin_test.exs:189`), which is not a home path. The vendored `brand/` binaries were
-  also checked for UTF-16 font name records, JPEG XMP/COM segments and PDF XMP: all clean.
-- No workflow under `.github/` or `scripts/` sets any `SIGRA_BRAND_*` variable.
+- `mix test test/sigra/brand test/sigra/templates/installer_drift_test.exs`: 360 tests, 0 failures.
+- `test/example`: `enumeration_parity_test.exs`, `confirmation_live_test.exs`,
+  `reset_password_live_test.exs` with `--include example_app`: 48 tests, 0 failures.
+- Forced recompile of the root project and the example app: no new warnings (the only warning is
+  the pre-existing `/dev/mailbox` route warning).
+- Privacy: no home path, personal email or personal name in any reviewed file or fixture, and none
+  in the added lines of the whole `124b84c14..HEAD` diff (the only `/Users/` strings are the
+  planted-control literal `/Users/someone/y` inside phase planning text).
+- The example-host code changes are correct: `session_user/1` is nil-safe, the resend target comes
+  from the session and never from the payload, `/users/confirm` and `/users/confirm/:token` do not
+  collide in the router, and the reset view now passes the binary email the context requires.
+- Working tree left clean (probes ran from the scratchpad directory only).
 
-No finding reaches BLOCKER: every scanner blind spot below was probed with a real input and
-confirmed, but I also grepped the scanned sources and confirmed that none of them currently
-hides real content, and the baselines are accurate today. The concern is that the harness,
-whose whole purpose is to stop later phases (262-263) from regressing, has fail-open paths
-and some overstated claims that those phases will hit.
+No finding reaches BLOCKER. The example-host runtime changes are sound. The defects are in what
+the harness and the docs claim relative to what they prove, and in scanner scope. Three were
+proven by running a probe against the real code (the example login page renders no flash; the
+scanner is blind to `<>`-joined literals; the claim recogniser misses common wordings).
 
 ## Warnings
 
-### WR-01: A banned multi-word phrase escapes when it is split across a line break
+### WR-01: The password-reset guide still teaches the call its own new sentence says is wrong
 
-**File:** `test/support/brand/copy_scan.ex:735-737` (HEEx text), `:240-246` and `:452-456` (Markdown)
-**Issue:** HEEx text is flushed per source line (`scan_markup(<<"\n", ...>>)` calls `flush/2`),
-and the Markdown scope matches line by line. Every phrase-level term, "log in", "log out",
-"sign off", "end user", "parent app", "sudo mode", "access level" and the lexicon entries
-"zero trust", "bank-grade", is therefore invisible once an author breaks the line inside it.
-Confirmed with a probe:
-
-```
-~H"""            ->  segments ["Please log", "in to continue"]  ->  hits []
-<p>
-  Please log
-  in to continue
-</p>
-"""
-```
-
-The same probe over `["Our approach is not zero", "trust and not bank-", "grade either."]`
-returns `[]`, while the one-line form returns one hit. `.formatter.exs` has no HEEx plugin, so
-line breaks inside text are hand-placed and nothing normalises them. A grep of the scanned
-sources finds zero occurrences today, so this is latent, but "log in" is the exact phrase
-Phases 262-263 are meant to keep out.
-**Fix:** Keep consecutive text lines of one element together, and flush only on tag or
-expression boundaries. In `scan_markup/5`, treat `"\n"` as a space:
+**File:** `guides/flows/password-reset.md:20-35` and `:142`
+**Issue:** Plan 259-18 added one sentence (line 35) saying the generated
+`deliver_user_reset_password_instructions/2` takes a binary email and "pass the submitted email
+rather than a looked-up user". The code block directly above it (lines 20-26) still shows
+`if user = Accounts.get_user_by_email(email) do ... deliver_user_reset_password_instructions(user, ...)`,
+and the Testing snippet at line 142 still calls `deliver_user_reset_password_instructions(user, ...)`.
+A reader who copies either snippet reproduces the defect that the phase's own todo records as
+`severity: major` (a `FunctionClauseError` for a registered address and a normal redirect for an
+unknown one, which is itself an account-existence signal). The sentence tells the reader to
+disregard the example it follows. No test looks at code samples (the claims sweep only judges
+enumeration wording), so nothing keeps the sample and the correction consistent. The example host
+was repaired in this phase (`reset_password_live.ex:168-176`), so the guide now contradicts the one
+implementation Sigra's own tests exercise.
+**Fix:** Correct both snippets to the shape the example host now uses and drop the `if user =`
+precheck:
 
 ```elixir
-defp scan_markup(<<"\n", rest::binary>>, mode, ctx, text, acc),
-  do: scan_markup(rest, mode, ctx, [text, " "], acc)
-```
-
-For Markdown, match paragraph by paragraph (split on blank lines, collapse whitespace) instead
-of per line. Joining changes segment text, so the committed `copy-baseline.json` must be
-re-initialised once, in a reviewed commit.
-
-### WR-02: Copy-segment extractor has several heuristics that fail open (and one that over-reads)
-
-**File:** `test/support/brand/copy_scan.ex:557-559`, `:848`, `:566-576`, `:547`, `:869-886`
-**Issue:** The scanner is documented as the single enforcement point for BCOPY-02, but each of
-these was probed and behaves contrary to the module doc:
-
-1. `code(<<"doc:", rest>>)` matches `doc:` at ANY byte offset, so a keyword ending in `doc`
-   swallows the next literal. `[my_doc: "Please log in now"]` yields `[]`; the same line with
-   `mydesc:` yields one hit.
-2. `attr_value(<<"'", ...>>)` skips every single-quoted attribute value even for the
-   documented copy attributes. `<a title='Log in here'>` yields `[]`; the double-quoted form
-   yields a hit. HEEx accepts single-quoted values.
-3. The generic sigil clause skips `~H(...)`, `~H[...]` and `~H{...}`: only `~H"` and `~H"""`
-   are treated as markup. `~H(<p>Please log in now</p>)` yields `[]`.
-4. `code(<<"#", ...>>)` treats any `#` as a comment, including the char literal `?#`:
-   `x = ?# ; put_flash(:info, "Please log in")` yields `[]`.
-5. `remove_preview_block/2` finds the last `<div` before the marker, then balances `</div>`
-   from the marker's closing `>`. If the marker element is not a `<div>` (say a `<section>`),
-   the enclosing `<div>` and everything in it, banned text included, is silently exempted. Probe:
-   `<div class="outer"><h2>Login preview</h2><section class="sigra-auth sigra-auth--preview">...</section><p>Org settings</p></div>`
-   yields `[]`. Today the marker element is a `<div` (`lib/sigra/admin/components.ex:1079`), so
-   it works.
-6. The opposite error: `doc:` followed by a newline is not skipped, so developer docs are
-   scanned as copy. `lib/sigra/admin/components.ex:692-693` (`doc:\n "renders the Actor and ..."`)
-   is currently emitted as a segment. A banned word there would force a baseline entry for text
-   that is not shipped copy.
-
-No scanned file currently exercises 1-4 (grepped), so no hit is masked today.
-**Fix:** Make the scanner fail closed. For 1, anchor to attribute-keyword shape: `defp code(<<"doc:", ...>>)`
-only when the previous byte is not an identifier character (track `prev` or pre-tokenize on
-`\bdoc:`). For 2, handle `'` values with `take_string`-style quote-aware scanning. For 3,
-accept `~H` with any delimiter via the existing `skip_sigil`/`closing/1` helpers and route
-the body through `markup/4`. For 4, special-case `?`-prefixed char literals before the `#`
-clause. For 5, assert the marker element name and `raise ArgumentError` when it is not a
-`div`. For 6, trim leading whitespace including newlines before `skip_doc_value/1`.
-
-### WR-03: Inventory and scanner claim completeness they do not have (JS copy, attribute values, helper literals)
-
-**File:** `test/support/brand/copy_inventory.ex:171-188` (written into every TSV), `:12-17`, `:68`; `test/support/brand/copy_scan.ex:190-198`
-**Issue:** `render/2` stamps every committed inventory with "Every user-visible string Sigra ships
-in this ownership lane. A copy change shows up as a reviewed diff of this file instead of
-passing silently." The module doc admits the extractor omits browser-side `.js` copy, HEEx
-attribute values and string literals returned from helpers, but the committed files carry the
-unqualified claim. It is false. Probing `CopyScan.copy_segments/3` over the generated templates
-and diffing against `generated.tsv` finds about 200 multi-word segments with no inventory row
-(a minority are CSS class lists). Real examples: `Open command palette`, `Admin navigation`,
-`Invalid audit export filters` (`admin/audit_export_controller.ex`), and
-`title: "Passkey sign-in was canceled."` (`core/mfa_settings_live.ex:671`).
-
-Separately, `CopyScan.files_for/1` documents "CSS, SVG, JS and JSON files carry no scanned
-copy" (`copy_scan.ex:196-197`). That is wrong for JS: `priv/templates/sigra.install/passkeys/passkey_browser.js:41-80`
-ships five user-visible status messages ("Enter your email to continue with a passkey.",
-"Passkeys aren't available in this browser.", "Passkey sign-in was canceled.", "That passkey
-request timed out.", "We couldn't finish passkey sign-in..."). Neither the copy contract nor the
-inventory sees them, and no test asserts the claim. BCOPY-04 is marked Complete with the text
-"so every copy change is a reviewable diff".
-**Fix:** Either narrow the stamped header and the `files_for` doc to what is extracted
-("covers dgettext msgids, put_flash literals, HEEx text nodes and email literals; excludes JS,
-attribute values and helper-returned literals"), or close the gap: add a `.js` extractor for
-quoted multi-word strings and include copy attributes (`aria-label`, `title`, `placeholder`,
-`alt`) in the HEEx rows. If the gap is accepted for now, add a test that pins the exclusion list
-so it cannot grow silently, and soften the BCOPY-04 wording.
-
-### WR-04: The `:admin` copy contract omits shipped library copy that the inventory proves exists
-
-**File:** `test/support/brand/copy_scan.ex:66-76`, `test/sigra/brand/copy_contract_test.exs:567-582`
-**Issue:** The `:admin` scope is pinned to nine files (`Enum.count(... "lib/sigra/admin/") == 9`)
-to mirror the older glossary guard. `library.tsv` inventories the whole of `lib/sigra/admin/**`
-plus `lib/sigra/error.ex`. The following contain shipped copy and sit outside every contract
-scope: `lib/sigra/error.ex` (27 `safe_message/1` strings, the text hosts render to end users,
-for example "Could not complete sign in."), `lib/sigra/admin/audit/presenter.ex` (7 strings),
-`lib/sigra/admin/users/detail.ex` and `users/query.ex` (1 each). A banned term or lexicon word added
-to any of them passes the copy contract. The test also hard-codes `== 9`, so adding a tenth
-chrome file fails the test instead of extending the scan.
-**Fix:** Derive the admin scope from the same glob the inventory uses
-(`lib/sigra/admin/**/*.ex`) and add `lib/sigra/error.ex` as its own scope, or document in the
-moduledoc that the contract intentionally excludes library-returned strings. If the narrow
-scope is intentional, assert it explicitly with a named exclusion list so that a new file under
-`lib/sigra/admin/` must be classified.
-
-### WR-05: Add-only and shrink-only ratchets can be loosened by editing the fixture, with nothing to catch it
-
-**File:** `test/sigra/brand/frozen_surface_test.exs:205-232`, `test/sigra/brand/copy_contract_test.exs:664-668`, fixtures `test/fixtures/brand/frozen-surface.json`, `test/fixtures/brand/copy-baseline.json`
-**Issue:** `baseline SUBSET-OF current` only protects a name while it is in the committed JSON.
-Deleting the name from `frozen-surface.json` in the same commit that removes the surface turns
-the failing test green: the non-empty check only asserts `!= []`, and `profile_defaults` is the
-only category with values pinned in test source. The inverse holds for `copy-baseline.json`:
-adding an entry by hand for a new violation makes `diff_baseline/2` report neither new nor
-stale, so "never baseline a new violation" is a convention. The extension helpers
-(`extend_only/2`, `init_baseline/3`) are only guards on the opt-in writer, not on a human edit.
-There is no CI step comparing the fixtures against the base branch and no CODEOWNERS file
-(searched `.github/`, `scripts/`, repo root, `docs/`).
-
-Related integrity gap: `assert_scope_matches_baseline/1` filters entries by `&1.scope == name`
-for the three known scopes, so an entry with a mistyped or unknown scope (or one for a scope
-missing from `initialized_scopes`) is never compared and never fails.
-**Fix:** Add a CI check that compares the committed fixture to the merge-base version
-(`git show origin/main:test/fixtures/brand/frozen-surface.json`) and fails on any removed name or
-on any added `copy-baseline.json` entry. In-repo, pin a floor/ceiling per category (for example
-`@min_names %{"routes" => 60, ...}` bumped upward only) and add:
-
-```elixir
-test "every baseline entry belongs to an initialized, implemented scope" do
-  %{initialized_scopes: init, entries: entries} = CopyScan.load_baseline()
-  known = Enum.map(CopyScan.scopes(), &Atom.to_string/1)
-  assert Enum.all?(entries, &(&1.scope in init and &1.scope in known))
+def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do
+  _ = Accounts.deliver_user_reset_password_instructions(email, &url(~p"/users/reset-password/#{&1}"))
+  {:noreply, socket |> put_flash(:info, "If your email is in our system, you will receive reset instructions shortly.") |> redirect(to: ~p"/users/log_in")}
 end
 ```
 
-### WR-06: The unbounded-claim sweep can be laundered by neighbouring text in the same paragraph
+and in the Testing block call `Accounts.deliver_user_reset_password_instructions(user.email, &"/reset/#{&1}")`.
+Add a small claims-test assertion that no guide passes a bare `user` to that function.
 
-**File:** `test/sigra/brand/claims_docs_test.exs:48-54`, `:112-117`, `:159-171`
-**Issue:** A paragraph is exempt if it contains any of five generic substrings ("single attempt",
-"not covered", ...), and a "paragraph" is whatever lies between blank lines. A Markdown table or
-bullet list is one paragraph, so one properly scoped row exempts every other row. Probed
-against the real README: inserting `| **Registration** | Registration is enumeration-safe. |`
-directly under the scoped `| **Enumeration** |` row (line 177) yields zero offenders. A single
-unrelated sentence also launders a claim: "Sigra is enumeration-safe. Windows is not covered."
-passes. The BCOPY-07 contract ("docs do not claim enumeration safety beyond what is proven") is
-therefore only enforced for claims in a paragraph of their own. Family B also only matches four
-verbs (`reveal|disclos|leak|expos`), so "regardless of whether" or "indistinguishable" phrasing is not seen.
-**Fix:** Evaluate claims per table row and per list item, not per blank-line paragraph, and
-require the qualifier to sit in the same row or item. Tighten the qualifiers to phrases that
-tie to the harness ("same message for the compared case", "Scope of this claim"), and drop the
-generic "not covered". Add a planted-control test that a claim in a sibling table row of a
-scoped row is still flagged.
+### WR-02: "Show the same message" overstates a harness that compares the flash map, not what a visitor sees
 
-### WR-07: `SIGRA_BRAND_COPY=regen` overwrites all three inventories with no CI guard and makes the equality test vacuous
+**File:** `README.md:177` (extends the existing wording to password-reset requests); same premise in `test/fixtures/brand/public-surfaces.json` notes
+**Issue:** The README says sign-in, magic-link and password-reset requests are tested "to show the
+same message for an existing and an unknown address". Probed in the example host: after the reset
+request redirect, and after a failed sign-in, the followed `/users/log_in` page body does NOT contain
+the flash text (`"If your email is in our system"` and `"Invalid email or password"` both absent;
+the Tasklane login template and root layout never render a flash group). So the example application
+shows no message at all to either visitor. What the tests prove is that the same flash is stored
+in the session for both requests and that the followed page is byte-identical after normalising CSRF
+tokens, request ids and the echoed email. Because the page carries no flash, the `body` dimension
+adds nothing about the message. The guide's scope paragraph ("same response status, redirect, flash
+and page") is accurate; the README and the claims register ("shows one message") are looser than
+that and are the text that Phase 263 is allowed to restate.
+**Fix:** Reword to what is compared, for example "...are tested, in Sigra's example application, to
+set the same flash message and redirect to the same page for an existing and an unknown address at a
+single attempt." Or make the claim true by rendering the flash on the example login page and asserting
+the rendered text in the parity probes.
 
-**File:** `test/support/brand/copy_inventory.ex:96`, `:254-258`, `test/sigra/brand/copy_inventory_test.exs:22-28`
-**Issue:** When the variable equals `regen`, `setup_all` writes every lane's TSV from a fresh
-extraction before any test reads it, so `assert_inventory_current/1` then compares the file with
-itself and passes whatever the sources say. Nothing refuses this under `CI=true`, and the project
-auto-loads env files via direnv (`tmp/db.env`), so a stray export is plausible. No workflow
-sets it today. The other two opt-in writers are safe: `SIGRA_BRAND_LEGACY=write` never overwrites an existing
-file and `SIGRA_BRAND_COPY_BASELINE=init` only fills uninitialised scopes.
-**Fix:** Refuse the write in CI and fail the run so it cannot go green:
+### WR-03: A parity row's compared dimensions are not pinned, so "same message" can lose its only evidence silently
+
+**File:** `test/example/test/example_web/enumeration_parity_test.exs:477-510` (non-vacuity rule), `:835-844` (`run_all/2` compares only `dimensions(row)`); `test/fixtures/brand/public-surfaces.json` (`compare` lists)
+**Issue:** The non-vacuity rule only requires that a parity row lists at least one of `flash` or `body`
+(`Enum.any?(listed, &(&1 in @content_dimensions))`). The flash text is asserted against
+`expected_parity_flash/1` for both probes, but that assertion runs whether or not the row's `compare`
+lists `"flash"`. `run_all/2` and the "leak" controls compare only the listed dimensions. Since WR-02 shows
+the `body` never contains the message, a registry edit that changes a row to `"compare": ["body"]` (or
+`["status", "redirect", "body"]`) keeps every test green: the non-vacuity rule is satisfied by `body`,
+the flash assertion still passes, and the leak control still goes red because the leak is appended to
+`body` too. Yet the README, the guide and the claims register keep saying the rows prove the same
+flash. Nothing ties the published dimension list ("status, redirect, flash and page") to the registry.
+This is the same class of gap as the earlier WR-05 (fixture editable without a tripwire), applied to
+the rows that back the public claims.
+**Fix:** Pin the required dimensions per named parity row in the test and assert them against the registry:
 
 ```elixir
-def regenerate? do
-  if System.get_env(@regen_env) == "regen" do
-    if System.get_env("CI") in ["true", "1"],
-      do: raise("#{@regen_env}=regen is a local maintainer action and must not run in CI")
-    true
-  else
-    false
+@required_dimensions %{
+  "password-signin" => ~w(status redirect flash body),
+  "magic-link-request" => ~w(status redirect flash body),
+  "password-reset-request" => ~w(status redirect flash body),
+  "confirmation-resend" => ~w(status redirect flash body result),
+  "mfa-challenge" => ~w(status redirect flash)
+}
+
+test "every named parity row compares at least the dimensions the docs claim" do
+  for row <- surfaces(), required = @required_dimensions[row["id"]] do
+    assert required -- row["compare"] == [], "#{row["id"]} dropped #{inspect(required -- row["compare"])}"
   end
 end
 ```
 
-### WR-08: Parity rows can be green on empty-versus-empty, and the positive control never exercises the probes
+### WR-04: A banned phrase split across `<>`-joined string literals escapes the copy scanner
 
-**File:** `test/example/test/example_web/enumeration_parity_test.exs:64`, `:458-493`, `:528-556`, `:605-628`, `:797-804`
-**Issue:** The "leak" control mutates the unknown-identity response after `probe_pair/1` has
-captured it, so it proves only that `compare/3` detects a string difference. It does not prove
-that a probe observes the real response. For `mfa-challenge` the compared dimensions are
-`status`, `redirect` and `flash`, but `capture_live/3` hard-codes `status: @live_render_status`
-(200) and `location: nil`; the only live signal is `:sys.get_state(view.pid).socket.assigns.flash`.
-If that assign moves (for example the view starts rendering the error inline), both sides
-capture `%{}`, the row compares `:same`, and the suite stays green while the DOM differs, since
-`body` is excluded by design. Nothing asserts the captured flash is non-empty. The row's identity
-axis is also "code kind, not account existence" (its own note), yet it supplies one of the three
-parity rows required by the "at least three of the five named surfaces must be parity" assertion
-(`:158-179`); the claims register labels it honestly as bounded, but it does not test enumeration.
-**Fix:** Add a per-row non-vacuity assertion in `run_all/2` or a dedicated test: for every parity row, at
-least one compared dimension must be non-constant and non-empty on the existing-identity
-response, for example
+**File:** `test/support/brand/copy_scan.ex:746-761` (`code/3` string clause and `literal/3`)
+**Issue:** The previous review's WR-01 closed the line-break escape, but the same escape remains for
+string concatenation. Every literal is judged on its own, so a long message built with `<>` is invisible.
+Probed against the real scanner (scope `:generated`):
+
+```
+put_flash(:info, "Please log " <> "in to continue")          -> []
+put_flash(:info,\n  "Please log " <>\n    "in to continue")   -> []
+put_flash(:info, "Please log in to continue")                 -> one hit
+```
+
+`mix format` never breaks inside a string, so long copy is routinely written exactly this way. No scanned
+file contains such a chain today (`git grep` for `"…" <> "…"` over `priv/templates` and `lib/sigra/admin`
+is empty), so no hit is masked now. It is the shape Phases 262-263 are most likely to introduce when they
+rewrite sentences, and the contract exists to stop those phases regressing.
+**Fix:** In `code/3`, after reading a string literal, look ahead for `\s*<>\s*"` and fold the chained
+literals into one segment before `copy_literal?/1` and `line_hits/4`:
 
 ```elixir
-for %{"state" => "parity"} = row <- surfaces(), {existing, _} = probe_pair(row["id"]) do
-  assert Enum.any?(dimensions(row), &(Map.fetch!(existing, &1) not in [nil, %{}, ""]))
-  assert existing.flash != %{} or existing.body != ""
+defp code(<<"\"", rest::binary>>, ctx, acc) do
+  {raw, rest} = take_string(rest)
+  {raw, rest} = join_concatenated(raw, rest)   # consumes `<> "..."` chains
+  code(rest, ctx, literal(raw, ctx, acc))
 end
 ```
 
-For the control, plant the leak inside the app-facing request (for example a flash-bearing
-param the controller echoes in a test-only plug) or assert each probe's captured flash text
-against the known expected string ("Invalid verification code. N attempts remaining.").
+Add a planted control for both the same-line and the wrapped form.
+
+### WR-05: Generator template directories `sigra.gen.oauth` and `sigra.upgrade` are outside every scope and inventory lane, and they ship banned phrases
+
+**File:** `test/support/brand/copy_scan.ex:83` (`@templates_dir "priv/templates/sigra.install"`), `:225-227` (`files_for(:generated)`); `test/support/brand/copy_inventory.ex:52` (`@templates_dir`)
+**Issue:** The `:generated` copy scope and the `generated.tsv` lane read only `priv/templates/sigra.install/**`.
+`priv/templates/` also holds `sigra.gen.oauth/` (12 files) and `sigra.upgrade/` (3 files). Both ship in the Hex
+package (`mix.exs` `files:` includes `priv`) and `mix sigra.gen.oauth` writes the former into adopter apps.
+They contain exactly the phrases the contract bans in generated copy:
+`sigra.gen.oauth/oauth_controller.ex:96` ("An account with this email exists. Log in to link your ... account."),
+`sigra.gen.oauth/oauth_settings_live.ex:86` and `oauth_settings.html.heex:34` ("You'll still be able to log in with:").
+Because the baseline is the worklist Phases 262-263 use ("legacy wording such as 'Log in' in generated flashes
+that Phases 262-263 rewrite"), these instances are not on it, and the contract cannot go red if they are
+reintroduced or left behind. The scope name `generated` and requirement BCOPY-02 ("generated templates")
+read as covering all generated output; the exclusion is stated in code but not tracked in the deferred
+findings todo, which lists only JS, attribute values and helper literals.
+**Fix:** Either add the two directories to `files_for(:generated)` and the inventory glob (one baseline
+initialisation and one inventory regeneration, in a reviewed commit), or name the exclusion in the `:generated`
+moduledoc and in `2026-11-14-brand-harness-review-deferred-findings.md` so Phase 262 includes the oauth templates
+in its manual sweep.
+
+### WR-06: The unbounded-claim recogniser misses ordinary wordings, so the sweep is narrower than its title
+
+**File:** `test/sigra/brand/claims_docs_test.exs:137-164` (families A, B, C), `:527-545` (the sweep test)
+**Issue:** The sweep is titled "no claim unit makes an unqualified enumeration claim" and the moduledoc says it
+"flags any claim unit ... that makes an unbounded claim". It flags only what the three regex families match.
+Probed with the exact regexes from the test, each of these returns not-flagged:
+
+```
+"Sigra blocks enumeration of accounts."         "It prevents username enumeration."
+"Sigra stops user enumeration."                 "It prevents account-enumeration attacks."
+"Sigra mitigates enumeration attacks."          "It protects from enumeration."
+"The flow is enumeration-proof."                "It defends against enumeration."
+"The flow is enumeration-free."                 "The response does not reveal which emails are registered."
+```
+
+All current docs pass, so nothing is hidden today. The gate exists for the Phase 263 copy rewrite, which will
+produce new sentences, and "prevents username enumeration", "enumeration-proof" and "does not reveal which ..."
+are direct, likely phrasings. Paraphrase space cannot be closed by adding regexes one at a time.
+**Fix:** Invert the rule: any claim unit that mentions `enumerat\w*` and carries none of the qualifier phrases is
+flagged, with an explicit allow pattern for threat descriptions that the existing "does not flag threat
+descriptions" test already names ("a common enumeration vector"). Keep families B and C for the non-"enumerat"
+wordings, and add the nine strings above as planted controls.
 
 ## Info
 
-### IN-01: Privacy scan claims "author metadata" but models a narrower set of containers
+### IN-01: README says "Each flow guide on HexDocs states its own scope"; only three of eight do
 
-**File:** `test/sigra/brand/source_pin_test.exs:412-416`, `:450-459`, `:490-518`, `:137`
-**Issue:** Binary files are scanned only through ASCII printable runs of length 6 or more, so
-UTF-16 name-table records in fonts are invisible. JPEG is checked only for `Exif\0\0` (not XMP APP1
-or COM segments), PNG only for four text chunk types (not `iCCP` or `tIME`), and PDF only for
-`/Author` plus Creator and Producer values (not XMP streams). I verified the real `brand/` tree
-is clean on all of these (UTF-16 strings in all fonts, JPEG segment list, PDF Info/XMP), so
-nothing leaks today.
-**Fix:** Either reword the test title and moduledoc to "the author-metadata forms listed here",
-or add UTF-16LE/BE run extraction for `.ttf/.otf` and APP1/COM parsing for JPEG.
+**File:** `README.md:177`
+**Issue:** `guides/flows/` has eight guides; only `registration.md`, `login-and-logout.md` and `password-reset.md`
+carry a `**Scope of this claim:**` paragraph (`grep -c` shows 0 in `mfa.md`, `oauth.md`, `api-authentication.md`,
+`account-lifecycle.md`, `audit-logging.md`). `claims_docs_test.exs` checks only those three, so the README sentence
+is untested and wrong as written. Passkey sign-in, which the same row lists as not covered, has no scope statement
+in any guide.
+**Fix:** Reword to "The registration, sign-in and password-reset guides each state their own scope", or add scope
+statements to the remaining guides and extend `@flow_guides`.
 
-### IN-02: `markup_classes` lazily truncates `class={...}` at the first `}`
+### IN-02: The scanner is narrower than the inventory in three small ways (entities, single lowercase words, visible attributes)
 
-**File:** `test/sigra/brand/frozen_surface_test.exs:411-420`
-**Issue:** The pattern `class=(?:"([^"]*)"|\{(.*?)\})` stops at the first `}`, which is the closing
-brace of an interpolation. `class={["sg-card", "sg-metric-#{kind}", "sg-card--hot"]}` captures
-`sg-card` and the dropped fragment `sg-metric-`, and loses `sg-card--hot`. A class listed after
-the first interpolation is therefore never frozen. I compared this extractor against a
-balanced-brace version over the real admin sources: both yield 153 `sg-` names, so nothing is lost
-today. The extractor is the sole definition of the frozen set, so the gap would be silent.
-**Fix:** Replace the lazy group with a balanced-brace scan (a small `take_balanced` like the one
-in `copy_scan.ex`), and add the planted input above to the "extractors" tests.
+**File:** `test/support/brand/copy_scan.ex:766-769` (`copy_literal?/1`), `:87` (`@copy_attrs`), `:1082` (`attr_literal/3`); `test/support/brand/copy_inventory.ex:358-362`
+**Issue:** Probed, all fail open and none hides a hit today (no scanned source uses them):
 
-### IN-03: Test-helper duplication across the brand suite
-
-**File:** `test/sigra/brand/frozen_surface_test.exs:626-652` and `legacy_profiles_test.exs:264-290` (identical `pretty/2`), `copy_scan.ex:397-418` (a third renderer); `policy_docs_test.exs:58-78`, `name_clearance_test.exs:91-111`, `vocabulary_docs_test.exs:108-121` (`section_slice`, `cells`, `table_rows`)
-**Issue:** `pretty/2` is copied verbatim in two tests, and the markdown helpers (`cells/1` three
-times, `section_slice/2` three times with slightly different terminators, `root/0` + `read!/1`
-in seven modules) have already diverged: `vocabulary_docs_test.exs` also stops a section at a
-`---` rule, the other two do not. A fix to one will not reach the others.
-**Fix:** Move them into `test/support/brand/` (for example `Sigra.Test.Brand.Doc` and
-`Sigra.Test.Brand.PrettyJSON`) and import them.
-
-### IN-04: Impossible-state guard: `extend_only/2` check inside `extend_baseline!/0`
-
-**File:** `test/sigra/brand/frozen_surface_test.exs:540-547`, `:588-602`
-**Category:** necessity
-**Issue:** `extend_baseline!/0` computes `proposed = union(committed, current)` and then calls
-`extend_only(committed, proposed)`. `union/2` (`:549-553`) merges with `old ++ new` and never
-drops a name, so the `{:error, removed}` branch and the `raise "refusing to shrink..."` are
-unreachable. The pure unit test at `:120-128` already asserts the exact property the runtime
-guard re-checks (`union` never shrinks). Defence in depth does not apply: this is a local,
-opt-in dev tool, not a trust boundary.
-**Fix:** Drop the runtime branch (keep `extend_only/2` and its unit tests if it is wanted as a
-documented invariant), or move the check to compare the file against the merge-base version,
-which is the check that could actually fail (see WR-05).
-
-### IN-05: Generality without instantiation: the sweep allow-list machinery for a list that must stay empty
-
-**File:** `test/sigra/brand/claims_docs_test.exs:66`, `:173-195`, `:523-551`
-**Category:** necessity
-**Issue:** `@sweep_allow_list` is `[]`, and both the moduledoc and the failure message forbid
-adding to it ("every hit is fixed by rewording the doc, never by adding an entry"). The
-`apply_sweep_allow_list/3` and `stale_sweep_entries/2` helpers, the stale-entry test, and
-three planted-control tests exist to support a list the policy says can never be populated, and
-the staleness test over `[]` is vacuous. This is judgment, not provable lapse, so it stays Info.
-**Fix:** Delete the allow-list plumbing and its tests, keeping the "fix the doc" failure message.
-If an escape hatch is wanted later, add it with its first real entry.
+1. HTML entities are not decoded: `<p>Please log&nbsp;in</p>` yields no hit.
+2. A lone lowercase word is never copy: `put_flash(:info, "login")` yields no hit, while
+   `CopyInventory.visit/2` documents "A literal passed straight to put_flash is copy even when it is one word",
+   so the two extractors disagree about the same literal.
+3. `@copy_attrs` omits `data-confirm`, `phx-disable-with`, `aria-description` and `value`, all visible text.
+   There are 26 real uses across `priv/templates` and `lib/sigra/admin`, for example `data-confirm="...You will be logged out."`
+   (`sigra.install/core/session_live.ex:92`) and `phx-disable-with="Creating account..."`.
+   The moduledoc lists the six covered attributes honestly and 259-08 records the gap, but the deferred
+   findings todo only tracks it for the inventory, not for the banned-term scan.
+**Fix:** Decode `&nbsp;`/`&#160;` before matching; treat a literal passed straight to `put_flash`/`dgettext` as
+copy in `CopyScan` too; add `data-confirm`, `phx-disable-with` and `aria-description` to `@copy_attrs`
+(one reviewed baseline refresh), or record the decision in the deferred todo.
 
 ---
 
-_Reviewed: 2026-11-15T00:28:28Z_
+_Reviewed: 2026-11-15T14:30:38Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
