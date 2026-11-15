@@ -132,6 +132,13 @@ async function waitForLiveViewReady(page: Page) {
   });
 }
 
+// BGEN-06: the PNG compare is parked on pull_request/push/schedule runs and runs
+// on workflow_dispatch and in the recapture jobs. `1` skips only the
+// `toHaveScreenshot` call in assertDemoScreenshot; unset (or any other value)
+// compares, so recapture and drift scripts keep comparing with no env change.
+// The real-login and evaluator behavior tests below are unaffected.
+const skipPngCompare = process.env.SIGRA_PNG_COMPARE_SKIP === "1";
+
 /**
  * CI-aware screenshot baseline comparison for the demo showcase lane.
  * No axe assertions — this lane is PW-02 evaluator screenshots, not a11y gate.
@@ -141,9 +148,16 @@ async function waitForLiveViewReady(page: Page) {
  */
 async function assertDemoScreenshot(
   page: Page,
-  _testInfo: TestInfo,
+  testInfo: TestInfo,
   slug: string,
 ) {
+  if (skipPngCompare) {
+    testInfo.annotations.push({
+      type: "png-compare",
+      description: `skipped ${slug}.png: PNG compare parked on PR/push (SIGRA_PNG_COMPARE_SKIP=1)`,
+    });
+    return;
+  }
   const ci = process.env.CI === "true";
   await expect(page).toHaveScreenshot(`${slug}.png`, {
     fullPage: false,
