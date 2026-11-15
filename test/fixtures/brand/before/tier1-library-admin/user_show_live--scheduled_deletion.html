@@ -1,0 +1,213 @@
+<section class="sg-stack sg-stack--6">
+<span class="sg-scope-ribbon sg-muted sg-text-sm ">
+Global user operations
+</span>
+<header class="sg-page-header">
+<p class="sg-page-kicker">
+User detail
+</p>
+<h1 class="sg-page-title">
+deletion.user@demo.tasklane.test
+</h1>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-muted sg-text-sm">
+deletion.user@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:scheduled_deletion}}
+</code>
+</div>
+<dl class="sg-summary-facts">
+<div>
+<dt class="sg-kv__term">
+MFA
+</dt>
+<dd class="sg-kv__value">
+Not configured
+</dd>
+</div>
+<div>
+<dt class="sg-kv__term">
+Last seen
+</dt>
+<dd class="sg-kv__value">
+2026-05-12 16:40
+</dd>
+</div>
+</dl>
+<div class="sg-notice " data-tone="warn">
+<div class="sg-text-sm">
+No MFA configured — ask the user to set up a second factor.
+</div>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="ok">
+Confirmed
+</span>
+<span class="sg-status-pill">
+No MFA
+</span>
+<span class="sg-status-pill" data-tone="warn">
+Deletion scheduled
+</span>
+</div>
+</header>
+<section class="sg-card sg-stack sg-stack--3">
+<div class="sg-cluster sg-cluster--between">
+<div class="sg-stack sg-stack--1">
+<h2 class="sg-section-heading">
+Sessions
+</h2>
+<p class="sg-section-copy">
+1 active session
+</p>
+</div>
+<a class="sg-btn sg-btn--primary" href="/admin/users/{{PERSONA:scheduled_deletion}}/sessions?return_to=%2Fadmin%2Fusers">
+Manage sessions
+</a>
+</div>
+<div class="sg-table-panel">
+<table class="sg-table">
+<thead>
+<tr>
+<th>
+Type
+</th>
+<th>
+IP address
+</th>
+<th>
+Last activity
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<span class="sg-strong">
+standard
+</span>
+</td>
+<td>
+<code class="sg-code">
+203.0.113.31
+</code>
+</td>
+<td class="sg-muted">
+<span class="sg-summary-facts__num">
+2026-05-12 16:40
+</span>
+<span class="sg-muted sg-text-xs">
+{{RELATIVE}}
+</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<div class="sg-detail-grid">
+<section class="sg-detail-panel sg-stack sg-stack--3">
+<h2 class="sg-section-heading">
+Security
+</h2>
+<dl class="sg-kv">
+<div>
+<dt class="sg-kv__term">
+MFA
+</dt>
+<dd class="sg-kv__value">
+Not configured
+</dd>
+</div>
+<div>
+<dt class="sg-kv__term">
+Passkeys
+</dt>
+<dd class="sg-kv__value">
+0 passkeys
+</dd>
+</div>
+</dl>
+</section>
+<section class="sg-detail-panel sg-stack sg-stack--3">
+<h2 class="sg-section-heading">
+Identities
+</h2>
+<div class="sg-empty-state sg-stack sg-stack--3 ">
+<p class="sg-empty-state__title">
+No linked identities
+</p>
+<p class="sg-muted sg-text-sm">
+No external identities are associated with this user.
+</p>
+</div>
+</section>
+</div>
+<section class="sg-card sg-stack sg-stack--3">
+<div class="sg-cluster sg-cluster--between">
+<div class="sg-stack sg-stack--1">
+<h2 class="sg-section-heading">
+Organizations
+</h2>
+<p class="sg-section-copy">
+0 organizations
+</p>
+</div>
+</div>
+<div class="sg-list">
+<div class="sg-empty-state sg-stack sg-stack--3 ">
+<p class="sg-empty-state__title">
+No organizations
+</p>
+<p class="sg-muted sg-text-sm">
+No organizations are associated with this user.
+</p>
+</div>
+</div>
+</section>
+<section class="sg-card sg-stack sg-stack--3">
+<div class="sg-cluster sg-cluster--between">
+<div class="sg-stack sg-stack--1">
+<h2 class="sg-section-heading">
+Recent audit
+</h2>
+<p class="sg-section-copy">
+Shows the most recent events. Open the full audit to filter and export.
+</p>
+</div>
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:scheduled_deletion}}/audit?return_to=%2Fadmin%2Fusers">
+View full audit
+</a>
+</div>
+<div class="sg-list">
+<div class="sg-empty-state sg-stack sg-stack--3 ">
+<p class="sg-empty-state__title">
+No recent audit activity
+</p>
+<p class="sg-muted sg-text-sm">
+No audit events are associated with this user in the current scope.
+</p>
+</div>
+</div>
+</section>
+<section class="sg-danger-panel sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<h2 class="sg-section-heading">
+Danger zone
+</h2>
+<p class="sg-muted sg-text-sm">
+Support actions affect deletion.user@demo.tasklane.test in Global scope.
+</p>
+</div>
+<div class="sg-cluster">
+<form method="post" action="/admin/users/{{PERSONA:scheduled_deletion}}/impersonation">
+<input type="hidden" name="_csrf_token" value="{{CSRF}}">
+<input type="hidden" name="return_to" value="/admin/users">
+<button type="submit" class="sg-btn sg-btn--primary sg-btn--sm">
+Start impersonation
+</button>
+</form>
+</div>
+</section>
+</section>

@@ -1,0 +1,3031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="csrf-token" content="{{CSRF}}">
+<title data-default="Tasklane" data-suffix=" · Tasklane">
+Users · Tasklane
+</title>
+<link phx-track-static rel="stylesheet" href="/assets/default.css">
+<link phx-track-static rel="stylesheet" href="/assets/sigra_admin.css">
+<link phx-track-static rel="stylesheet" href="/assets/css/app.css">
+<script defer phx-track-static type="text/javascript" src="/assets/js/app.js">
+</script>
+</head>
+<body>
+<div id="phx-{{REQUEST_ID}}" data-phx-main data-phx-session="{{PHX_SESSION}}" data-phx-static="{{PHX_STATIC}}">
+<script>
+(function () { try { var value = window.localStorage && window.localStorage.getItem("sigra.admin.theme"); var preference = value === "light" || value === "dark" ? value : "system"; document.documentElement.setAttribute("data-sg-admin-js", "true"); document.documentElement.setAttribute("data-sg-admin-theme-preference", preference); if (preference === "system") { document.documentElement.removeAttribute("data-sg-admin-theme"); } else { document.documentElement.setAttribute("data-sg-admin-theme", preference); } } catch (err) { document.documentElement.setAttribute("data-sg-admin-js", "true"); document.documentElement.setAttribute("data-sg-admin-theme-preference", "system"); document.documentElement.removeAttribute("data-sg-admin-theme"); } })();
+</script>
+<section class="sg-admin-shell" data-scope="global">
+<header class="sg-admin-topbar">
+<div class="sg-admin-topbar-inner sg-container sg-cluster sg-cluster--between sg-cluster--3">
+<div class="sg-cluster sg-cluster--3">
+<a href="/admin" data-phx-link="redirect" data-phx-link-state="push" class="sg-brand-mark" aria-label="Sigra admin overview">
+<span class="sg-brand-mark__lockup" aria-hidden="true">
+<img class="sg-brand-mark__image sg-brand-mark__image--light" src="/images/sigra-logo-primary.svg" alt="" width="188" height="54" decoding="async">
+<img class="sg-brand-mark__image sg-brand-mark__image--dark" src="/images/sigra-logo-primary-dark.svg" alt="" width="188" height="54" decoding="async">
+</span>
+<span class="sg-brand-mark__section">
+Admin
+</span>
+</a>
+<span class="sg-scope-pill">
+Global
+</span>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<div id="admin-theme-switch" class="sg-theme-switch" phx-hook="ThemeSwitch" role="radiogroup" aria-label="Theme">
+<button type="button" class="sg-theme-switch__button" role="radio" data-theme-value="light" aria-checked="false" tabindex="-1">
+Light
+</button>
+<button type="button" class="sg-theme-switch__button" role="radio" data-theme-value="dark" aria-checked="false" tabindex="-1">
+Dark
+</button>
+<button type="button" class="sg-theme-switch__button" role="radio" data-theme-value="system" aria-checked="true" tabindex="0">
+System
+</button>
+</div>
+<button id="admin-cmdk" type="button" phx-hook="CmdK" class="sg-cmdk__trigger" aria-label="Open command palette" data-users-href="/admin/users" data-audit-href="/admin/audit" data-overview-href="/admin" data-overview-label="Global">
+<span>
+Jump to…
+</span>
+<span class="sg-cmdk__trigger-kbd" aria-hidden="true">
+⌘K
+</span>
+</button>
+</div>
+</div>
+<span class="sg-admin-loading-bar" data-sg-admin-loading-bar aria-hidden="true">
+</span>
+</header>
+<div class="sg-container sg-admin-content">
+<nav class="sg-admin-crumbs" aria-label="Breadcrumb">
+<ol class="sg-breadcrumb">
+<li>
+<span class="sg-breadcrumb__segment">
+<a href="/admin" data-phx-link="redirect" data-phx-link-state="push" class="sg-breadcrumb__item">
+Overview
+</a>
+<span class="sg-breadcrumb__sep" aria-hidden="true">
+/
+</span>
+</span>
+</li>
+<li>
+<span class="sg-breadcrumb__segment">
+<span class="sg-breadcrumb__item" aria-current="page">
+Users
+</span>
+</span>
+</li>
+</ol>
+</nav>
+<div class="sg-admin-body">
+<aside class="sg-admin-sidebar">
+<nav aria-label="Admin navigation" class="sg-stack">
+<div class="sg-nav-card">
+<p class="sg-nav-title">
+Overviews
+</p>
+<ul class="sg-stack sg-stack--2">
+<li>
+<a href="/admin" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link">
+Global overview
+</a>
+</li>
+</ul>
+</div>
+<div class="sg-nav-card">
+<p class="sg-nav-title">
+Workspace
+</p>
+<ul class="sg-stack sg-stack--2">
+<li>
+<a href="/admin/users" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link active">
+Users
+</a>
+</li>
+<li>
+<a href="/admin/audit" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link">
+Audit
+</a>
+</li>
+<li>
+<a href="/admin/auth-branding" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link">
+Branding
+</a>
+</li>
+</ul>
+</div>
+</nav>
+</aside>
+<main class="sg-admin-main sg-stack sg-stack--5">
+<section class="sg-stack sg-stack--6">
+<header class="sg-page-header">
+<p class="sg-page-kicker">
+User operations
+</p>
+<h1 class="sg-page-title">
+Users
+</h1>
+</header>
+<span class="sg-scope-ribbon sg-muted sg-text-sm ">
+Global user operations
+</span>
+<section class="sg-stack sg-stack--3" aria-labelledby="users-health-heading">
+<h2 id="users-health-heading" class="sg-section-heading">
+User health
+</h2>
+<dl class="sg-metric-grid" aria-label="User health summary">
+<div id="users-metric-total" class="sg-metric " data-sg-metric-enhanced="true">
+<dt class="sg-metric__label">
+<span class="sg-metric__icon" data-icon="users" aria-hidden="true">
+<svg class="sg-metric__icon-svg" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M7.5 11.25a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M2.75 21a4.75 4.75 0 0 1 9.5 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M16.5 10.75a3.25 3.25 0 1 0 0-6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M14.75 15.5A4.5 4.5 0 0 1 21.25 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</span>
+<span class="sg-metric__label-text">
+Total users
+</span>
+</dt>
+<dd class="sg-metric__value">
+<span class="sg-metric__number">
+47
+</span>
+</dd>
+<dd class="sg-metric__caption">
+total users
+</dd>
+</div>
+<div id="users-metric-locked" class="sg-metric " data-tone="risk" data-sg-metric-enhanced="true" data-sg-metric-has-subvalue="true" data-sg-metric-help-root="true" tabindex="0" aria-describedby="users-metric-locked-help">
+<dt class="sg-metric__label">
+<span class="sg-metric__icon" data-icon="lock" aria-hidden="true">
+<svg class="sg-metric__icon-svg" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M7 10.5V8a5 5 0 0 1 10 0v2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M5.75 10.5h12.5v9.75H5.75z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 15v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</span>
+<span class="sg-metric__label-text">
+Locked users
+</span>
+</dt>
+<dd class="sg-metric__value">
+<span class="sg-metric__number">
+1
+</span>
+</dd>
+<dd class="sg-metric__caption">
+locked out
+</dd>
+<dd class="sg-metric__subvalue">
+2% of total users
+</dd>
+<dd id="users-metric-locked-help" class="sg-metric__help" hidden>
+<span role="tooltip">
+These users are locked out after failed sign-in attempts. Review the user before unlocking.
+</span>
+</dd>
+</div>
+<div id="users-metric-deletion" class="sg-metric " data-tone="warn" data-sg-metric-enhanced="true" data-sg-metric-has-subvalue="true" data-sg-metric-help-root="true" tabindex="0" aria-describedby="users-metric-deletion-help">
+<dt class="sg-metric__label">
+<span class="sg-metric__icon" data-icon="clock" aria-hidden="true">
+<svg class="sg-metric__icon-svg" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.5v5l3.25 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</span>
+<span class="sg-metric__label-text">
+Deletion scheduled
+</span>
+</dt>
+<dd class="sg-metric__value">
+<span class="sg-metric__number">
+2
+</span>
+</dd>
+<dd class="sg-metric__caption">
+pending deletion
+</dd>
+<dd class="sg-metric__subvalue">
+4% of total users
+</dd>
+<dd id="users-metric-deletion-help" class="sg-metric__help" hidden>
+<span role="tooltip">
+These users are scheduled for deletion. Access is disabled and active sessions are revoked.
+</span>
+</dd>
+</div>
+</dl>
+</section>
+<section class="sg-stack sg-stack--4" aria-labelledby="find-users-heading">
+<div class="sg-stack sg-stack--1">
+<h2 id="find-users-heading" class="sg-section-heading">
+Find users
+</h2>
+</div>
+<form method="get" action="/admin/users" class="sg-filter-panel sg-stack">
+<div class="sg-search-row">
+<label class="sg-field">
+<span class="sg-field-label">
+Search
+</span>
+<input type="text" name="q" value="" placeholder="Email, user id, or name" class="sg-input">
+</label>
+<button type="submit" class="sg-btn sg-btn--primary">
+Search
+</button>
+<a href="/admin/users" class="sg-btn sg-btn--ghost">
+Clear
+</a>
+</div>
+<div class="sg-cluster">
+<label class="sg-filter-chip">
+<input type="checkbox" name="confirmed" value="true" class="checkbox checkbox-sm">
+<span>
+confirmed
+</span>
+</label>
+<label class="sg-filter-chip">
+<input type="checkbox" name="mfa" value="true" class="checkbox checkbox-sm">
+<span>
+mfa
+</span>
+</label>
+<label class="sg-filter-chip">
+<input type="checkbox" name="passkeys" value="true" class="checkbox checkbox-sm">
+<span>
+passkeys
+</span>
+</label>
+<label class="sg-filter-chip">
+<input type="checkbox" name="locked" value="true" class="checkbox checkbox-sm">
+<span>
+locked
+</span>
+</label>
+<label class="sg-filter-chip">
+<input type="checkbox" name="deleted" value="true" class="checkbox checkbox-sm">
+<span>
+deleted
+</span>
+</label>
+<label class="sg-filter-chip">
+<input type="checkbox" name="needs_review" value="true" class="checkbox checkbox-sm">
+<span>
+needs review
+</span>
+</label>
+</div>
+<div class="sg-stack sg-stack--3">
+<button type="button" phx-click="toggle_filters" class="sg-btn sg-btn--ghost sg-btn--sm sg-self-start" aria-expanded="false">
+More filters
+</button>
+</div>
+<input type="hidden" name="page_size" value="25">
+<input type="hidden" name="order_by" value="inserted_at">
+<input type="hidden" name="order_direction" value="desc">
+</form>
+</section>
+<div id="admin-users-desktop-results" data-testid="admin-users-desktop-results" class="sg-table-panel sg-show-desktop">
+<table class="sg-table">
+<thead>
+<tr>
+<th>
+<a href="/admin/users?order_by=inserted_at&amp;order_direction=asc&amp;page=1">
+User
+</a>
+</th>
+<th>
+Status
+</th>
+<th>
+Organizations
+</th>
+<th>
+Activity
+</th>
+<th class="sg-cell-right">
+Action
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Zoe
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="zoe@demo.tasklane.test">
+zoe@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:zoe}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:zoe}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Grace
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="grace@demo.tasklane.test">
+grace@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:grace}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+<span class="sg-status-pill" data-tone="warn">
+Deletion scheduled
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="Acme Corp">
+Acme Corp
+</span>
+<span class="sg-muted">
+1 organization
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:grace}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Pat
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="pat@demo.tasklane.test">
+pat@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:pat}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:pat}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Morgan (org admin)
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="morgan@demo.tasklane.test">
+morgan@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:morgan}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="Acme Corp">
+Acme Corp
+</span>
+<span class="sg-muted">
+1 organization
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:morgan}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Frank
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="frank@demo.tasklane.test">
+frank@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:frank}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+<span class="sg-status-pill" data-tone="warn">
+Deletion scheduled
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:frank}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Dave
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="dave@demo.tasklane.test">
+dave@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:dave}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+<span class="sg-status-pill" data-tone="risk">
+Locked
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="Acme Corp">
+Acme Corp
+</span>
+<span class="sg-muted">
+1 organization
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:dave}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Carol
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="carol@demo.tasklane.test">
+carol@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:carol}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="Acme Corp">
+Acme Corp
+</span>
+<span class="sg-muted">
+1 organization
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:carol}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Bob
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="bob@demo.tasklane.test">
+bob@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:bob}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="Beta Labs">
+Beta Labs
+</span>
+<span class="sg-muted">
+1 organization
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:bob}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Alice
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="alice@demo.tasklane.test">
+alice@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:alice}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="Acme Corp">
+Acme Corp
+</span>
+<span class="sg-muted">
+1 organization
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:alice}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="admin@demo.tasklane.test">
+admin@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:admin}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="Acme Corp, Beta Labs">
+Acme Corp, Beta Labs
+</span>
+<span class="sg-muted">
+2 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: {{CAPTURE_SESSION_ACTIVITY}}
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:admin}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+张三李四 مستخدم café résumé 🌏 Test
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-i18n-rtl@demo.tasklane.test">
+loadtest-i18n-rtl@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 36 Very Long Display Name bulk-36-b48e4850
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-36-d766edaeb218564a7217313e4a7fc3a0@demo.tasklane.test">
+loadtest-36-d766edaeb218564a7217313e4a7fc3a0@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 35 Very Long Display Name bulk-35-81349439
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-35-8cfd40b4a6ec4c202f342baf502c723a@demo.tasklane.test">
+loadtest-35-8cfd40b4a6ec4c202f342baf502c723a@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 34 Very Long Display Name bulk-34-e2121a97
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-34-f0573ebac67a1c404130d326706baaec@demo.tasklane.test">
+loadtest-34-f0573ebac67a1c404130d326706baaec@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 33 Very Long Display Name bulk-33-e76098e4
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-33-ec53dc99b3505c27066510a0b31aacbe@demo.tasklane.test">
+loadtest-33-ec53dc99b3505c27066510a0b31aacbe@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 32 Very Long Display Name bulk-32-3ac79ca8
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-32-a72681954389c865c6e505f7c1419b01@demo.tasklane.test">
+loadtest-32-a72681954389c865c6e505f7c1419b01@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 31 Very Long Display Name bulk-31-e04536c3
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-31-381e3883288547540a0163f49ae0fbad@demo.tasklane.test">
+loadtest-31-381e3883288547540a0163f49ae0fbad@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 30 Very Long Display Name bulk-30-153780a5
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-30-f53993728c22c0c00426eee4a15adbc7@demo.tasklane.test">
+loadtest-30-f53993728c22c0c00426eee4a15adbc7@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 29 Very Long Display Name bulk-29-96ce3877
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-29-38d8ddd10bd50a0ca1076223615cd81e@demo.tasklane.test">
+loadtest-29-38d8ddd10bd50a0ca1076223615cd81e@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 28 Very Long Display Name bulk-28-ccece0a3
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-28-6d2ac485600c7f772a8c43fad85bd0e1@demo.tasklane.test">
+loadtest-28-6d2ac485600c7f772a8c43fad85bd0e1@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 27 Very Long Display Name bulk-27-38d80188
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-27-403ab9be8b629e330ac96a7376a09198@demo.tasklane.test">
+loadtest-27-403ab9be8b629e330ac96a7376a09198@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 26 Very Long Display Name bulk-26-00b8de14
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-26-126fb1ace2b10b5b5d06a7eed3b6f08a@demo.tasklane.test">
+loadtest-26-126fb1ace2b10b5b5d06a7eed3b6f08a@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 25 Very Long Display Name bulk-25-6203a666
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-25-b2c34648dc6b936f4ae7b418bd13dfc4@demo.tasklane.test">
+loadtest-25-b2c34648dc6b936f4ae7b418bd13dfc4@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 24 Very Long Display Name bulk-24-c039ae17
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-24-2dcb272906019e2a99599c95a742c65a@demo.tasklane.test">
+loadtest-24-2dcb272906019e2a99599c95a742c65a@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+<tr>
+<td>
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 23 Very Long Display Name bulk-23-423b762b
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-23-c6017f9662cac029d0139f440fed85f9@demo.tasklane.test">
+loadtest-23-c6017f9662cac029d0139f440fed85f9@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+</td>
+<td>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span class="sg-truncate" title="No organizations">
+No organizations
+</span>
+<span class="sg-muted">
+0 organizations
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Last activity: None recorded
+</span>
+<span class="sg-muted">
+Registered: 2026-01-01
+</span>
+</div>
+</td>
+<td class="sg-cell-right">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="admin-users-mobile-results" data-testid="admin-users-mobile-results" class="sg-stack sg-stack--3 sg-show-mobile">
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Zoe
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="zoe@demo.tasklane.test">
+zoe@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:zoe}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{PERSONA:zoe}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Grace
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="grace@demo.tasklane.test">
+grace@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:grace}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+<span class="sg-status-pill" data-tone="warn">
+Deletion scheduled
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="Acme Corp">
+Acme Corp
+</dd>
+<dd class="sg-muted sg-text-sm">
+1 organization
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{PERSONA:grace}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Pat
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="pat@demo.tasklane.test">
+pat@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:pat}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{PERSONA:pat}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Morgan (org admin)
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="morgan@demo.tasklane.test">
+morgan@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:morgan}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="Acme Corp">
+Acme Corp
+</dd>
+<dd class="sg-muted sg-text-sm">
+1 organization
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{PERSONA:morgan}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Frank
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="frank@demo.tasklane.test">
+frank@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:frank}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+<span class="sg-status-pill" data-tone="warn">
+Deletion scheduled
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{PERSONA:frank}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Dave
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="dave@demo.tasklane.test">
+dave@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:dave}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+<span class="sg-status-pill" data-tone="risk">
+Locked
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="Acme Corp">
+Acme Corp
+</dd>
+<dd class="sg-muted sg-text-sm">
+1 organization
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{PERSONA:dave}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Carol
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="carol@demo.tasklane.test">
+carol@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:carol}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="Acme Corp">
+Acme Corp
+</dd>
+<dd class="sg-muted sg-text-sm">
+1 organization
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{PERSONA:carol}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Bob
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="bob@demo.tasklane.test">
+bob@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:bob}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="Beta Labs">
+Beta Labs
+</dd>
+<dd class="sg-muted sg-text-sm">
+1 organization
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{PERSONA:bob}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Alice
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="alice@demo.tasklane.test">
+alice@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:alice}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="Acme Corp">
+Acme Corp
+</dd>
+<dd class="sg-muted sg-text-sm">
+1 organization
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{PERSONA:alice}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="admin@demo.tasklane.test">
+admin@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:admin}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="Acme Corp, Beta Labs">
+Acme Corp, Beta Labs
+</dd>
+<dd class="sg-muted sg-text-sm">
+2 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: {{CAPTURE_SESSION_ACTIVITY}}
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{PERSONA:admin}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+张三李四 مستخدم café résumé 🌏 Test
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-i18n-rtl@demo.tasklane.test">
+loadtest-i18n-rtl@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 36 Very Long Display Name bulk-36-b48e4850
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-36-d766edaeb218564a7217313e4a7fc3a0@demo.tasklane.test">
+loadtest-36-d766edaeb218564a7217313e4a7fc3a0@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 35 Very Long Display Name bulk-35-81349439
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-35-8cfd40b4a6ec4c202f342baf502c723a@demo.tasklane.test">
+loadtest-35-8cfd40b4a6ec4c202f342baf502c723a@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 34 Very Long Display Name bulk-34-e2121a97
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-34-f0573ebac67a1c404130d326706baaec@demo.tasklane.test">
+loadtest-34-f0573ebac67a1c404130d326706baaec@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 33 Very Long Display Name bulk-33-e76098e4
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-33-ec53dc99b3505c27066510a0b31aacbe@demo.tasklane.test">
+loadtest-33-ec53dc99b3505c27066510a0b31aacbe@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 32 Very Long Display Name bulk-32-3ac79ca8
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-32-a72681954389c865c6e505f7c1419b01@demo.tasklane.test">
+loadtest-32-a72681954389c865c6e505f7c1419b01@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 31 Very Long Display Name bulk-31-e04536c3
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-31-381e3883288547540a0163f49ae0fbad@demo.tasklane.test">
+loadtest-31-381e3883288547540a0163f49ae0fbad@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 30 Very Long Display Name bulk-30-153780a5
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-30-f53993728c22c0c00426eee4a15adbc7@demo.tasklane.test">
+loadtest-30-f53993728c22c0c00426eee4a15adbc7@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 29 Very Long Display Name bulk-29-96ce3877
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-29-38d8ddd10bd50a0ca1076223615cd81e@demo.tasklane.test">
+loadtest-29-38d8ddd10bd50a0ca1076223615cd81e@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 28 Very Long Display Name bulk-28-ccece0a3
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-28-6d2ac485600c7f772a8c43fad85bd0e1@demo.tasklane.test">
+loadtest-28-6d2ac485600c7f772a8c43fad85bd0e1@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 27 Very Long Display Name bulk-27-38d80188
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-27-403ab9be8b629e330ac96a7376a09198@demo.tasklane.test">
+loadtest-27-403ab9be8b629e330ac96a7376a09198@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 26 Very Long Display Name bulk-26-00b8de14
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-26-126fb1ace2b10b5b5d06a7eed3b6f08a@demo.tasklane.test">
+loadtest-26-126fb1ace2b10b5b5d06a7eed3b6f08a@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 25 Very Long Display Name bulk-25-6203a666
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-25-b2c34648dc6b936f4ae7b418bd13dfc4@demo.tasklane.test">
+loadtest-25-b2c34648dc6b936f4ae7b418bd13dfc4@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 24 Very Long Display Name bulk-24-c039ae17
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-24-2dcb272906019e2a99599c95a742c65a@demo.tasklane.test">
+loadtest-24-2dcb272906019e2a99599c95a742c65a@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+<article class="sg-card sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<span class="sg-strong">
+Load Test User 23 Very Long Display Name bulk-23-423b762b
+</span>
+<span class="sg-muted sg-text-sm sg-truncate" title="loadtest-23-c6017f9662cac029d0139f440fed85f9@demo.tasklane.test">
+loadtest-23-c6017f9662cac029d0139f440fed85f9@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="warn">
+Unconfirmed
+</span>
+<span class="sg-status-pill" data-tone="warn">
+No MFA
+</span>
+</div>
+<dl class="sg-kv">
+<div>
+<dt class="sg-meta-label">
+Organizations
+</dt>
+<dd class="sg-meta-value sg-truncate" title="No organizations">
+No organizations
+</dd>
+<dd class="sg-muted sg-text-sm">
+0 organizations
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Activity
+</dt>
+<dd class="sg-meta-value">
+Last activity: None recorded
+</dd>
+</div>
+<div>
+<dt class="sg-meta-label">
+Registered
+</dt>
+<dd class="sg-meta-value">
+Registered: 2026-01-01
+</dd>
+</div>
+</dl>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--block" href="/admin/users/{{UUID}}?return_to=%2Fadmin%2Fusers%3Forder_by%3Dinserted_at%26order_direction%3Ddesc">
+Open user
+</a>
+</div>
+</article>
+</div>
+<nav class="sg-cluster sg-cluster--between">
+<a class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" href="#" aria-disabled="true" aria-label="Previous page">
+<span aria-hidden="true">
+&larr;
+</span>
+<span class="sr-only">
+Previous page
+</span>
+</a>
+<span class="sg-muted sg-text-sm sg-tabular">
+Showing 1&ndash;25 of 47 users
+<span class="sg-muted">
+&middot; Page 1 of 2
+</span>
+</span>
+<a class="sg-btn sg-btn--secondary sg-btn--icon " href="/admin/users?order_by=inserted_at&amp;order_direction=desc&amp;page=2" aria-disabled="false" aria-label="Next page">
+<span aria-hidden="true">
+&rarr;
+</span>
+<span class="sr-only">
+Next page
+</span>
+</a>
+</nav>
+</section>
+</main>
+</div>
+</div>
+<nav aria-label="Admin bottom nav" class="sg-bottom-nav sg-show-mobile">
+<a href="/admin" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item ">
+<span>
+Global
+</span>
+</a>
+<a href="/admin/users" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item active">
+<span>
+Users
+</span>
+</a>
+<a href="/admin/audit" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item ">
+<span>
+Audit
+</span>
+</a>
+<a href="/admin/auth-branding" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item ">
+<span>
+Brand
+</span>
+</a>
+</nav>
+</section>
+<div id="flash-group" aria-live="polite">
+</div>
+</div>
+</body>
+</html>

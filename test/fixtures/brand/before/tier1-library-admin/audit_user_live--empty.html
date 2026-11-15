@@ -1,0 +1,99 @@
+<section class="sg-stack sg-stack--6">
+<span class="sg-scope-ribbon sg-muted sg-text-sm ">
+Global audit explorer
+</span>
+<header class="sg-page-header">
+<p class="sg-page-kicker">
+User audit evidence
+</p>
+<h1 class="sg-page-title">
+unconfirmed.user@demo.tasklane.test
+</h1>
+<p class="sg-page-copy">
+Filter this user's scoped event history, distinguish support actions from user actions, and export evidence.
+</p>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+unconfirmed.user@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:unconfirmed}}
+</code>
+</div>
+</header>
+<nav class="sg-cluster" aria-label="User audit filter presets">
+<a href="/admin/users/{{PERSONA:unconfirmed}}/audit?outcome=failure&amp;return_to=%2Fadmin%2Fusers%2F{{PERSONA:unconfirmed}}" class="sg-btn sg-btn--secondary sg-btn--sm">
+Failures
+</a>
+<a href="/admin/users/{{PERSONA:unconfirmed}}/audit?action_prefix=admin.impersonation&amp;return_to=%2Fadmin%2Fusers%2F{{PERSONA:unconfirmed}}" class="sg-btn sg-btn--secondary sg-btn--sm">
+Impersonation
+</a>
+</nav>
+<form method="get" action="/admin/users/{{PERSONA:unconfirmed}}/audit" class="sg-filter-panel sg-stack">
+<div class="sg-form-grid sg-form-grid--cols">
+<label class="sg-field">
+<span class="sg-field-label">
+Action prefix
+</span>
+<input type="text" name="action_prefix" value="" class="sg-input" placeholder="e.g. session or admin.impersonation">
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Outcome
+</span>
+<select name="outcome" class="sg-select">
+<option value="" selected>
+Any
+</option>
+<option value="success">
+Success
+</option>
+<option value="failure">
+Failure
+</option>
+</select>
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Actor
+</span>
+<input type="text" name="actor" value="" class="sg-input">
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Occurred from
+</span>
+<input type="date" name="from" value="" class="sg-input">
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Occurred to
+</span>
+<input type="date" name="to" value="" class="sg-input">
+</label>
+</div>
+<div class="sg-cluster">
+<button type="submit" class="sg-btn sg-btn--primary">
+Apply filters
+</button>
+<a href="/admin/users/{{PERSONA:unconfirmed}}/audit?return_to=%2Fadmin%2Fusers%2F{{PERSONA:unconfirmed}}" class="sg-btn sg-btn--ghost">
+Clear
+</a>
+<a href="/admin/users/{{PERSONA:unconfirmed}}/audit/export.csv?return_to=%2Fadmin%2Fusers%2F{{PERSONA:unconfirmed}}" class="sg-btn sg-btn--secondary">
+Export CSV
+</a>
+</div>
+<input type="hidden" name="return_to" value="/admin/users/{{PERSONA:unconfirmed}}">
+<input type="hidden" name="page_size" value="25">
+<input type="hidden" name="order_by" value="inserted_at">
+<input type="hidden" name="order_direction" value="desc">
+</form>
+<div class="sg-empty-state sg-stack sg-stack--3 ">
+<p class="sg-empty-state__title">
+No audit events for this user
+</p>
+<p class="sg-muted sg-text-sm">
+No scoped events are currently tied to this user.
+</p>
+</div>
+</section>

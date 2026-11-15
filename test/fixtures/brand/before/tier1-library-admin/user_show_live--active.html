@@ -1,0 +1,257 @@
+<section class="sg-stack sg-stack--6">
+<span class="sg-scope-ribbon sg-muted sg-text-sm ">
+Global user operations
+</span>
+<header class="sg-page-header">
+<p class="sg-page-kicker">
+User detail
+</p>
+<h1 class="sg-page-title">
+active.user@demo.tasklane.test
+</h1>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-muted sg-text-sm">
+active.user@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:active}}
+</code>
+</div>
+<dl class="sg-summary-facts">
+<div>
+<dt class="sg-kv__term">
+MFA
+</dt>
+<dd class="sg-kv__value">
+Enabled
+</dd>
+</div>
+<div>
+<dt class="sg-kv__term">
+Last seen
+</dt>
+<dd class="sg-kv__value">
+2026-05-14 08:12
+</dd>
+</div>
+</dl>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="ok">
+Confirmed
+</span>
+<span class="sg-status-pill" data-tone="ok">
+MFA + passkeys
+</span>
+</div>
+</header>
+<section class="sg-card sg-stack sg-stack--3">
+<div class="sg-cluster sg-cluster--between">
+<div class="sg-stack sg-stack--1">
+<h2 class="sg-section-heading">
+Sessions
+</h2>
+<p class="sg-section-copy">
+2 active sessions
+</p>
+</div>
+<a class="sg-btn sg-btn--primary" href="/admin/users/{{PERSONA:active}}/sessions?return_to=%2Fadmin%2Fusers">
+Manage sessions
+</a>
+</div>
+<div class="sg-table-panel">
+<table class="sg-table">
+<thead>
+<tr>
+<th>
+Type
+</th>
+<th>
+IP address
+</th>
+<th>
+Last activity
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<span class="sg-strong">
+standard
+</span>
+</td>
+<td>
+<code class="sg-code">
+203.0.113.10
+</code>
+</td>
+<td class="sg-muted">
+<span class="sg-summary-facts__num">
+2026-05-14 08:12
+</span>
+<span class="sg-muted sg-text-xs">
+{{RELATIVE}}
+</span>
+</td>
+</tr>
+<tr>
+<td>
+<span class="sg-strong">
+remember_me
+</span>
+</td>
+<td>
+<code class="sg-code">
+203.0.113.11
+</code>
+</td>
+<td class="sg-muted">
+<span class="sg-summary-facts__num">
+2026-05-12 16:40
+</span>
+<span class="sg-muted sg-text-xs">
+{{RELATIVE}}
+</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<div class="sg-detail-grid">
+<section class="sg-detail-panel sg-stack sg-stack--3">
+<h2 class="sg-section-heading">
+Security
+</h2>
+<dl class="sg-kv">
+<div>
+<dt class="sg-kv__term">
+MFA
+</dt>
+<dd class="sg-kv__value">
+Enabled
+</dd>
+</div>
+<div>
+<dt class="sg-kv__term">
+Passkeys
+</dt>
+<dd class="sg-kv__value">
+1 passkey
+</dd>
+</div>
+</dl>
+</section>
+<section class="sg-detail-panel sg-stack sg-stack--3">
+<h2 class="sg-section-heading">
+Identities
+</h2>
+<dl class="sg-kv">
+<div>
+<dt class="sg-kv__term">
+github
+</dt>
+<dd class="sg-kv__value">
+active.user@demo.tasklane.test
+</dd>
+</div>
+</dl>
+</section>
+</div>
+<section class="sg-card sg-stack sg-stack--3">
+<div class="sg-cluster sg-cluster--between">
+<div class="sg-stack sg-stack--1">
+<h2 class="sg-section-heading">
+Organizations
+</h2>
+<p class="sg-section-copy">
+1 organization
+</p>
+</div>
+</div>
+<div class="sg-list">
+<article class="sg-list-row sg-stack sg-stack--3">
+<div class="sg-cluster sg-cluster--between">
+<div class="sg-stack sg-stack--1">
+<span class="sg-meta-label">
+Organization
+</span>
+<span class="sg-meta-value">
+Tasklane Demo Org
+</span>
+</div>
+<span class="sg-status-pill">
+owner
+</span>
+</div>
+<div class="sg-cluster">
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/organizations/tasklane-demo/users/{{PERSONA:active}}?return_to=%2Fadmin%2Fusers">
+Open organization-scoped view for Tasklane Demo Org
+</a>
+</div>
+</article>
+</div>
+</section>
+<section class="sg-card sg-stack sg-stack--3">
+<div class="sg-cluster sg-cluster--between">
+<div class="sg-stack sg-stack--1">
+<h2 class="sg-section-heading">
+Recent audit
+</h2>
+<p class="sg-section-copy">
+Shows the most recent events. Open the full audit to filter and export.
+</p>
+</div>
+<a class="sg-btn sg-btn--secondary sg-btn--sm" href="/admin/users/{{PERSONA:active}}/audit?return_to=%2Fadmin%2Fusers">
+View full audit
+</a>
+</div>
+<div class="sg-list">
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Login Success
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+active.user@demo.tasklane.test
+</span>
+<span class="sg-muted sg-text-xs">
+2026-05-14 08:12
+</span>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="risk">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Login Failure
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+active.user@demo.tasklane.test
+</span>
+<span class="sg-muted sg-text-xs">
+2026-05-14 08:10
+</span>
+</article>
+</div>
+</section>
+<section class="sg-danger-panel sg-stack sg-stack--3">
+<div class="sg-stack sg-stack--1">
+<h2 class="sg-section-heading">
+Danger zone
+</h2>
+<p class="sg-muted sg-text-sm">
+Support actions affect active.user@demo.tasklane.test in Global scope.
+</p>
+</div>
+<div class="sg-cluster">
+<form method="post" action="/admin/users/{{PERSONA:active}}/impersonation">
+<input type="hidden" name="_csrf_token" value="{{CSRF}}">
+<input type="hidden" name="return_to" value="/admin/users">
+<button type="submit" class="sg-btn sg-btn--primary sg-btn--sm">
+Start impersonation
+</button>
+</form>
+</div>
+</section>
+</section>
