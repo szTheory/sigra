@@ -82,7 +82,8 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @retired %{
     @readme => [
       "Safer defaults on account discovery flows",
-      "to show the same message for an existing and an unknown address"
+      "to show the same message for an existing and an unknown address",
+      "Each flow guide on HexDocs states its own scope"
     ],
     @registration => [
       "enumeration-safe registration flow",
@@ -290,6 +291,33 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   # generated context's only function head requires a binary email.
   defp user_struct_arg?(arg), do: Regex.match?(~r/\A@?(?:\w+\.)*(?:current_)?user\z/, arg)
 
+  # The files of `files` whose text carries a scope paragraph (`reader` maps a
+  # relative path to its text), sorted.
+  defp scope_carrying(files, reader) do
+    files |> Enum.filter(&(scope_paragraphs(reader.(&1)) != [])) |> Enum.sort()
+  end
+
+  defp flow_guide_files do
+    @root
+    |> Path.join("guides/flows/*.md")
+    |> Path.wildcard()
+    |> Enum.map(&Path.relative_to(&1, @root))
+    |> Enum.sort()
+  end
+
+  # The text after "Not covered" up to the end of that sentence: the list itself,
+  # not a later sentence in the same table cell.
+  defp not_covered_list(after_marker) do
+    after_marker |> String.split(~r/\.\s+(?=[A-Z])/, parts: 2) |> hd()
+  end
+
+  defp readme_enumeration_row do
+    @readme
+    |> read!()
+    |> String.split("\n")
+    |> Enum.find(&String.starts_with?(&1, "| **Enumeration** |"))
+  end
+
   # --- the retired phrases are gone --------------------------------------
 
   describe "retired unbounded phrases" do
@@ -364,7 +392,8 @@ defmodule Sigra.Brand.ClaimsDocsTest do
         |> String.split("\n")
         |> Enum.find(&String.starts_with?(&1, "| **Enumeration** |"))
 
-      [tested, not_covered] = String.split(row, "Not covered", parts: 2)
+      [tested, after_marker] = String.split(row, "Not covered", parts: 2)
+      not_covered = not_covered_list(after_marker)
 
       assert tested =~ "password-reset requests"
       assert tested =~ "example application"
@@ -382,9 +411,19 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       stale =
         "| **Enumeration** | Sign-in requests are tested. Not covered: timing, password reset requests. |"
 
-      [_tested, not_covered] = String.split(stale, "Not covered", parts: 2)
+      [_tested, after_marker] = String.split(stale, "Not covered", parts: 2)
 
-      assert not_covered =~ ~r/password[\s-]reset/i
+      assert not_covered_list(after_marker) =~ ~r/password[\s-]reset/i
+    end
+
+    test "positive control: the Not covered list ends at its own sentence, a later sentence is not part of it" do
+      later =
+        "| **Enumeration** | Tested. Not covered: timing. The password-reset guide has a scope. |"
+
+      [_tested, after_marker] = String.split(later, "Not covered", parts: 2)
+
+      refute not_covered_list(after_marker) =~ ~r/password[\s-]reset/i
+      assert not_covered_list(after_marker) =~ "timing"
     end
   end
 
@@ -452,6 +491,33 @@ defmodule Sigra.Brand.ClaimsDocsTest do
     test "positive control: a planted file without the opener has no scope paragraph" do
       assert scope_paragraphs("# Guide\n\nScope of this claim: not bold.\n") == []
       assert scope_paragraphs("# Guide\n\n#{@scope_opener} bounded.\n\nOther.\n") != []
+    end
+
+    test "the README names exactly the flow guides that carry a scope paragraph" do
+      flow_files = flow_guide_files()
+
+      assert scope_carrying(flow_files, &read!/1) == Enum.sort(@flow_guides)
+
+      assert readme_enumeration_row() =~
+               "The registration, sign-in and password-reset guides on HexDocs each state their own scope"
+    end
+
+    test "positive control: a scope paragraph in a fourth flow guide changes the carrying set" do
+      reader = fn
+        "guides/flows/mfa.md" -> "# MFA\n\n#{@scope_opener} bounded.\n"
+        file -> read!(file)
+      end
+
+      assert "guides/flows/mfa.md" in flow_guide_files()
+      assert scope_carrying(flow_guide_files(), reader) != Enum.sort(@flow_guides)
+
+      texts = %{
+        "a.md" => "# A\n\n#{@scope_opener} bounded.\n",
+        "b.md" => "# B\n\nNo scope here.\n",
+        "c.md" => "# C\n\nScope of this claim: not bold.\n"
+      }
+
+      assert scope_carrying(Map.keys(texts), &Map.fetch!(texts, &1)) == ["a.md"]
     end
   end
 
