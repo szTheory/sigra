@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 260
 current_phase_name: Deterministic Output, Before Catalog and PNG Park
-current_plan: 2
+current_plan: 3
 status: executing
-stopped_at: Completed 260-01-PLAN.md
-last_updated: "2026-11-15T18:07:39.758Z"
+stopped_at: Completed 260-02-PLAN.md
+last_updated: "2026-11-15T18:26:50.944Z"
 last_activity: 2026-11-15
 last_activity_desc: Phase 260 execution started
-state_head: d45098b0ab2593fd0fbdab9cb2012dc987b8ce82
+state_head: 13a64a60d0bb6a3e561fd2748e5be8ed236dd3c4
 progress:
   total_phases: 5
   completed_phases: 1
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 260 (Deterministic Output, Before Catalog and PNG Park) — EXECUTING
-Current Plan: 2
+Current Plan: 3
 Total Plans in Phase: 11
 Status: Ready to execute
 Last activity: 2026-11-15 — Phase 260 execution started
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T18:07:39.716Z
-Stopped at: Completed 260-01-PLAN.md
+Last session: 2026-11-15T18:26:50.832Z
+Stopped at: Completed 260-02-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them.
@@ -137,6 +137,7 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 | Phase 259 P17 | 8 min | 3 tasks | 4 files |
 | Phase 259 P18 | 4 min | 2 tasks | 5 files |
 | Phase 260 P01 | 11 min | 3 tasks | 6 files |
+| Phase 260 P02 | 14 min | 3 tasks | 4 files |
 
 ## Decisions
 
@@ -184,3 +185,5 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 - [Phase 259]: 259-18: phase gate ran green once (example suite 391 tests 0 failures, MIX_ENV=test mix ci exit 0 with 2985 tests and 65 install-golden tests, zero shipped bytes, all six privacy legs pass) and BCOPY-03 and BCOPY-07 were marked complete via requirements.ready-ids; no owner override written; the generated reset request page and non-live confirm flavor stay open, tracked by the two Plan 259-17 todos
 - [Phase 260]: [Phase 260-01]: PNG compare is parked at comparison level, not lane level. SIGRA_PNG_COMPARE_SKIP=1 skips only toHaveScreenshot on pull_request/push/schedule; unset compares, so recapture jobs, drift scripts and the Pages workflow need no edit (owner chose author-first-option-a; departs from literal ADR 005 decision 7 wording, plan 11 appends a dated ADR note) — Keeps axe, real-login and behavior specs on the PR path and leaves every if: predicate, the honest-skip manifest and the five required job names untouched; a forgotten setter fails loud (compares) rather than silently green.
 - [Phase 260]: [Phase 260-01]: playwright-github-pages.yml is left unedited; it keeps comparing and will report drift after Phase 261 until baselines are recaptured — Not a required context and not in ci-gate; leaving it untouched keeps the park PR a ci.yml-only change. Cost documented in MAINTAINING.md.
+- [Phase 260]: Masked the shipped branding preview placeholder address in the catalog normalizer instead of weakening the privacy rule; manifest coverage records it
+- [Phase 260]: Catalog MANIFEST.json field names fixed (schema, provenance, pinned, capture_command, lanes, personas, coverage, example_files_changed_vs_main, deferred_shipped_byte_fixes, files); write!(:before) refuses when MANIFEST.json exists, raw inputs are missing, or lib/priv differ from origin/main
