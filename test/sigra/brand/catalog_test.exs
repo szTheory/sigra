@@ -395,6 +395,32 @@ defmodule Sigra.Brand.CatalogTest do
       assert page =~ "{{CSRF}}"
     end
 
+    test "lists the example sources changed against origin/main, sorted, render paths only" do
+      %{out: out, opts: opts} = before_setup()
+      test_pid = self()
+
+      git = fn
+        ["diff", "--name-only" | _] = args ->
+          send(test_pid, {:name_only_args, args})
+          {"test/example/lib/b.ex\ntest/example/lib/a.ex\n", 0}
+
+        args ->
+          clean_git(args)
+      end
+
+      Catalog.write!(:before, Keyword.put(opts, :git, git))
+
+      manifest = out |> Path.join("MANIFEST.json") |> File.read!() |> JSON.decode!()
+
+      assert manifest["example_files_changed_vs_main"] ==
+               ["test/example/lib/a.ex", "test/example/lib/b.ex"]
+
+      assert_received {:name_only_args, args}
+      assert "test/example/lib" in args
+      refute Enum.any?(args, &String.contains?(&1, "playwright"))
+      refute "test/example" in args
+    end
+
     test "refuses to overwrite once MANIFEST.json exists, and changes nothing" do
       %{out: out, opts: opts} = before_setup()
       Catalog.write!(:before, opts)

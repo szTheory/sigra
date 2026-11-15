@@ -1022,8 +1022,19 @@ defmodule Sigra.Test.Brand.Catalog do
     end
   end
 
+  # Example-app sources that can change what the example renders. Playwright specs,
+  # helpers and the README do not, so they are not part of the list.
+  @example_render_paths [
+    "test/example/lib",
+    "test/example/config",
+    "test/example/assets",
+    "test/example/priv/static",
+    "test/example/priv/repo",
+    "test/example/priv/gettext"
+  ]
+
   defp example_files_changed(git) do
-    case git.(["diff", "--name-only", "origin/main", "--", "test/example", ":!test/example/test"]) do
+    case git.(["diff", "--name-only", "origin/main", "--" | @example_render_paths]) do
       {output, 0} -> output |> String.split("\n", trim: true) |> Enum.sort()
       {output, status} -> raise "git diff --name-only failed (exit #{status}): #{output}"
     end
