@@ -174,3 +174,32 @@ classes, was 13,867 bytes, 11 classes) can move pixels on that page. The example
 (419 tests, 0 failures) but it asserts no pixels. No PNG was recaptured locally; PNG comparison
 is parked on the PR path by plan 01 and plan 04's park PR, and the recapture jobs remain the way
 to refresh baselines.
+
+## From plan 08 (catalog diff report and gallery catalog section)
+
+### 1. The shipped default dark palette draws accent text below WCAG AA
+
+`priv/templates/sigra.install/core/sigra_auth.css` sets the dark-theme accent default to
+`#c2410c` in both the `[data-theme="dark"]` block and the `prefers-color-scheme: dark` block for
+`[data-theme="system"]`, while the dark surface is `#211f1c`. Measured by axe: 3.17:1 for the
+link text ("Create an account") and for the bold disclosure summary ("Other ways to sign in"),
+against the 4.5:1 AA minimum. It surfaced because the page-wide axe test in `admin-design-dark`
+failed (3 nodes, all `color-contrast`) when the new gallery section first drew the auth preview at
+`data-theme="system"`; the chromium and mobile projects passed. The example copy of the stylesheet
+is byte-identical to the template (`cmp`), so a generated host on the default profile in a
+dark-colour-scheme browser draws the same colour pair (measured on the example, read in the
+template for generated hosts).
+
+Not fixed here: this plan may not change `priv/` or any token value, and the contrast fix is
+Phase 261 token work (BTOK-03). How the catalog treats it: the four `catalog-*` auth and email
+previews are pinned to `data-theme="light"` with a comment in `design_gallery_live.ex` naming the
+reason; once the dark palette passes AA the pin can move back to `system`.
+
+### 2. A local run of the gallery PR-path specs needs a seeded dev database
+
+Two gallery behavior tests (`MG-5 and MG-6 desktop and mobile representations are
+content-equivalent`, `filter form submits via real GET submission and returns filtered results`)
+fail on a migrated but unseeded dev database with "admin users first Open user link is missing
+href" (6 failures across the three design projects). With `mix run priv/repo/seeds.exs` all 42
+non-`@snapshot` tests pass in the three projects. Not a defect of this plan; recorded for plan 11
+Task 3, which re-runs the whole non-`@snapshot` gallery spec and must seed first.
