@@ -10,21 +10,21 @@ Priority: **M** must, **S** should (cut first if capacity is short). Net-new dep
 ## v1 Requirements
 
 ### Compatibility policy and source of truth (BPOL) — Phase 1
-- [ ] **BPOL-01** (M): Compatibility policy (ADR + section in `guides/introduction/contract.md` + `guides/reference/brand-compatibility.md`): frozen list, add-only list, ownership-lane table (library-owned / generated / host-owned), SemVer treatment of copy and visual changes, surface map (brand owner per surface: Sigra or host).
-- [ ] **BPOL-02** (M): Consumed subset of the brand book vendored in `brand/` with a root `brand.sha256` manifest, one ExUnit drift test, `.gitattributes` `brand/** -text`; `brandbook/` untouched; every imported file scanned for personal names, emails, home paths and SVG/PDF metadata.
-- [ ] **BPOL-03** (M): Add-only ratchet test: CSS custom-property names, `sg-*`/`sigra-auth-*` classes, `Profile` keys and defaults, config keys, routes/helpers, Gettext domain, `data-testid`s, logo filenames; legacy Branding profiles (explicit, partial, defaults) render byte-identically.
-- [ ] **BPOL-04** (M): Name-clearance record titled "search log, not clearance" (includes the same-name `crosswake_sigra` Hex package), claims register, decisions on logo-use statement and clear-space authority. No trademark claim.
-- [ ] **BPOL-05** (M): Decision records: `Profile` defaults frozen; fonts via additive tokens only; SemVer level minor (`feat`/`fix`/`docs`, no `!`/BREAKING); msgid renames targeted with a rename table; Suspended/unlock/seven-day rule out of scope; status labels (keep "Deletion scheduled"); PNG-lane policy.
-- [ ] **BPOL-06** (M): Instruction-file pointer fix (`CLAUDE.md`, `AGENTS.md`, admin guides still direct executors to the retired `brandbook/` Rail assets). Minimal edit; **owner approval granted 2026-11-13** (pointers to the new `brand/` book).
-- [ ] **BPOL-07** (S): Upgrade-note skeleton (which lane auto-updates, what hosts re-copy).
+- [x] **BPOL-01** (M): Compatibility policy (ADR + section in `guides/introduction/contract.md` + `guides/reference/brand-compatibility.md`): frozen list, add-only list, ownership-lane table (library-owned / generated / host-owned), SemVer treatment of copy and visual changes, surface map (brand owner per surface: Sigra or host).
+- [x] **BPOL-02** (M): Consumed subset of the brand book vendored in `brand/` with a root `brand.sha256` manifest, one ExUnit drift test, `.gitattributes` `brand/** -text`; `brandbook/` untouched; every imported file scanned for personal names, emails, home paths and SVG/PDF metadata.
+- [x] **BPOL-03** (M): Add-only ratchet test: CSS custom-property names, `sg-*`/`sigra-auth-*` classes, `Profile` keys and defaults, config keys, routes/helpers, Gettext domain, `data-testid`s, logo filenames; legacy Branding profiles (explicit, partial, defaults) render byte-identically.
+- [x] **BPOL-04** (M): Name-clearance record titled "search log, not clearance" (includes the same-name `crosswake_sigra` Hex package), claims register, decisions on logo-use statement and clear-space authority. No trademark claim.
+- [x] **BPOL-05** (M): Decision records: `Profile` defaults frozen; fonts via additive tokens only; SemVer level minor (`feat`/`fix`/`docs`, no `!`/BREAKING); msgid renames targeted with a rename table; Suspended/unlock/seven-day rule out of scope; status labels (keep "Deletion scheduled"); PNG-lane policy.
+- [x] **BPOL-06** (M): Instruction-file pointer fix (`CLAUDE.md`, `AGENTS.md`, admin guides still direct executors to the retired `brandbook/` Rail assets). Minimal edit; **owner approval granted 2026-11-13** (pointers to the new `brand/` book).
+- [x] **BPOL-07** (S): Upgrade-note skeleton (which lane auto-updates, what hosts re-copy).
 
 ### Copy contract (BCOPY) — Phase 1
-- [ ] **BCOPY-01** (M): Reconciled vocabulary table (book key terms x `admin-glossary.md`) with rulings tied to product truth (Active, Unconfirmed, Locked, "Deletion scheduled"; "Admin" not "Admin (operator)"; "Review users").
-- [ ] **BCOPY-02** (M): Drift test extended: banned terms and the book's do-not-say lexicon over admin files, generated templates (own list) and lexicon-only over README/top guides; shrink-only baseline.
+- [x] **BCOPY-01** (M): Reconciled vocabulary table (book key terms x `admin-glossary.md`) with rulings tied to product truth (Active, Unconfirmed, Locked, "Deletion scheduled"; "Admin" not "Admin (operator)"; "Review users").
+- [x] **BCOPY-02** (M): Drift test extended: banned terms and the book's do-not-say lexicon over admin files, generated templates (own list) and lexicon-only over README/top guides; shrink-only baseline.
 - [x] **BCOPY-03** (M): Enumeration-boundary contract: public-surface registry and existing-vs-unknown identity parity tests (sign-in, reset, magic link, resend, registration, invitation, MFA, passkey) with a **positive control** (a deliberately leaky string turns the test red once).
-- [ ] **BCOPY-04** (M): Committed copy inventory per ownership lane so every copy change is a reviewable diff.
-- [ ] **BCOPY-05** (M): Three-segment install-snippet test: `{:sigra, "~> x.y.z"}` with all segments equal across README, guides, docs and templates (the book's `~> 1.7` resolves to the retired stray 1.20.0).
-- [ ] **BCOPY-06** (M): Test-only `loginSubmit` Playwright helper replacing the "Log in" text locators in eight specs.
+- [x] **BCOPY-04** (M): Committed copy inventory per ownership lane so every copy change is a reviewable diff.
+- [x] **BCOPY-05** (M): Three-segment install-snippet test: `{:sigra, "~> x.y.z"}` with all segments equal across README, guides, docs and templates (the book's `~> 1.7` resolves to the retired stray 1.20.0).
+- [x] **BCOPY-06** (M): Test-only `loginSubmit` Playwright helper replacing the "Log in" text locators in eight specs.
 - [x] **BCOPY-07** (S): Honest-claims pass: docs and tests do not claim enumeration safety beyond what is proven (timing-oracle todo cited).
 
 ### Deterministic output, latent-defect repair, before catalog (BGEN) — Phase 2
@@ -104,19 +104,19 @@ Filled by the roadmapper 2026-11-13. Every v1 requirement maps to exactly one ph
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BPOL-01 | Phase 259 | Gaps Found |
-| BPOL-02 | Phase 259 | Gaps Found |
-| BPOL-03 | Phase 259 | Gaps Found |
-| BPOL-04 | Phase 259 | Gaps Found |
-| BPOL-05 | Phase 259 | Gaps Found |
-| BPOL-06 | Phase 259 | Gaps Found |
-| BPOL-07 | Phase 259 | Gaps Found |
-| BCOPY-01 | Phase 259 | Gaps Found |
-| BCOPY-02 | Phase 259 | Gaps Found |
+| BPOL-01 | Phase 259 | Complete |
+| BPOL-02 | Phase 259 | Complete |
+| BPOL-03 | Phase 259 | Complete |
+| BPOL-04 | Phase 259 | Complete |
+| BPOL-05 | Phase 259 | Complete |
+| BPOL-06 | Phase 259 | Complete |
+| BPOL-07 | Phase 259 | Complete |
+| BCOPY-01 | Phase 259 | Complete |
+| BCOPY-02 | Phase 259 | Complete |
 | BCOPY-03 | Phase 259 | Complete |
-| BCOPY-04 | Phase 259 | Gaps Found |
-| BCOPY-05 | Phase 259 | Gaps Found |
-| BCOPY-06 | Phase 259 | Gaps Found |
+| BCOPY-04 | Phase 259 | Complete |
+| BCOPY-05 | Phase 259 | Complete |
+| BCOPY-06 | Phase 259 | Complete |
 | BCOPY-07 | Phase 259 | Complete |
 | BGEN-01 | Phase 260 | Pending |
 | BGEN-02 | Phase 260 | Pending |
