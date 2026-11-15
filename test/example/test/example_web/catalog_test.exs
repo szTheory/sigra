@@ -30,10 +30,15 @@ defmodule ExampleWeb.CatalogTest do
     * `organization_invitations.expires_at` - the "Expires" label on the
       organization page
 
-  Ranking is by (current value, ctid), so list ordering (the explorers sort by
-  `inserted_at`) is preserved, and a value that is in the future at pin time stays in
-  the future (2099 base) so `expired?` flags keep their meaning. The pin is idempotent
-  and runs before every request.
+  Ranking is by (current value, insertion command id, ctid), so list ordering (the
+  explorers sort by `inserted_at`) is preserved, and a value that is in the future at
+  pin time stays in the future (2099 base) so `expired?` flags keep their meaning. The
+  command id (`cmin`) is what makes ties deterministic: `users.inserted_at` has
+  one-second precision, so the seeded users tie, and ctid alone orders ties by heap
+  position, which drifts once earlier tests have left dead tuples for the table to
+  reuse. That drift moved the persona rows off page one of the users index after a few
+  suite runs, so the dumps would not have been a function of the seeds. The pin is
+  idempotent and runs before every request.
 
   Session rows are deliberately NOT pinned: seeds already pin their activity from the
   reference timestamp, and `Sigra.Plug.FetchSession` enforces an idle timeout on
@@ -57,6 +62,9 @@ defmodule ExampleWeb.CatalogTest do
   import Ecto.Query, only: [from: 2]
 
   alias Example.Accounts
+  alias Example.Accounts.Organization
+  alias Example.Accounts.OrganizationMembership
+  alias Example.Accounts.User
   alias Example.Accounts.UserSession
   alias Example.Demo.Personas
   alias Example.Demo.Seeds
@@ -81,6 +89,12 @@ defmodule ExampleWeb.CatalogTest do
     {"audit_events", "inserted_at"},
     {"organization_invitations", "expires_at"}
   ]
+
+  # Seeded `.test` sender used in place of the host's default sender while capturing.
+  @capture_sender "noreply@catalog.example.test"
+
+  # Account states of the per-user pages, in slug order of appearance.
+  @states ~w(active locked unconfirmed scheduled-deletion zero-state)
 
   # The fixed tier-2 slug list. A page that stops rendering, or a new one that is not
   # listed here, fails `dumps exactly the fixed slug list`: the catalog is never vacuous.
@@ -125,6 +139,7 @@ defmodule ExampleWeb.CatalogTest do
   @opaque_value ~r/="[A-Za-z0-9_\-.=+\/]{40,}"/
 
   setup do
+    use_capture_sender!()
     ExUnit.CaptureIO.capture_io(fn -> Seeds.run() end)
 
     personas =
@@ -201,6 +216,28 @@ defmodule ExampleWeb.CatalogTest do
         for {slug, html} <- first, comparable(html) != comparable(second[slug]), do: slug
 
       assert moved == [], "pages that changed between two passes: #{inspect(Enum.sort(moved))}"
+    end
+  end
+
+  describe "the wall-clock pin" do
+    test "ranks users in creation order, whatever the heap layout", _ctx do
+      pin_wall_clock!()
+
+      emails = Repo.all(from(u in User, order_by: [asc: u.inserted_at], select: u.email))
+      loadtest = Enum.filter(emails, &String.starts_with?(&1, "loadtest-"))
+
+      # Bulk users in numeric order and the i18n user after them, then the personas in
+      # their seeded order. A heap-order tie-break scrambles this on a reused heap.
+      assert emails == Enum.sort(loadtest) ++ Enum.map(Personas.all(), & &1.email)
+    end
+
+    test "is idempotent: a second pin changes no value", _ctx do
+      pin_wall_clock!()
+      first = pinned_values()
+      pin_wall_clock!()
+
+      assert pinned_values() == first
+      assert Enum.all?(first, fn {_table, rows} -> rows != [] end), "a pinned table has no rows"
     end
   end
 
@@ -292,9 +329,74 @@ defmodule ExampleWeb.CatalogTest do
 
   # -- helpers ---------------------------------------------------------------
 
-  # `{group, slug, path}` for every tier-2 page.
-  defp pages(_ctx) do
-    [{:users, "admin-users-index", "/admin/users"}]
+  # `{group, slug, path}` for every tier-2 page. The per-user pages exist once per
+  # account state, each state resolved to a seeded persona by its documented flags.
+  defp pages(ctx) do
+    per_state = fn group, prefix, suffix ->
+      for {state, persona} <- state_personas(ctx) do
+        {group, prefix <> state, "/admin/users/#{persona.user.id}#{suffix}"}
+      end
+    end
+
+    org = owner_org(ctx)
+
+    [
+      {:overview, "admin-overview", "/admin"},
+      {:users, "admin-users-index", "/admin/users"}
+    ] ++
+      per_state.(:user_show, "admin-user-show-", "") ++
+      per_state.(:user_sessions, "admin-user-sessions-", "/sessions") ++
+      per_state.(:user_audit, "admin-user-audit-", "/audit") ++
+      [
+        {:audit, "admin-audit-index", "/admin/audit"},
+        {:branding, "admin-auth-branding", "/admin/auth-branding"},
+        {:org, "admin-org-#{org.handle}", "/admin/organizations/#{org.slug}"}
+      ]
+  end
+
+  defp state_personas(ctx), do: Enum.map(@states, &{&1, resolve_state(ctx.personas, &1)})
+
+  # The seeds carry one unconfirmed persona and it is also the locked one, so the
+  # unconfirmed state falls back to it when no unlocked unconfirmed persona exists.
+  defp resolve_state(personas, state) do
+    Enum.find(personas, &state_match?(state, :strict, &1.flags)) ||
+      Enum.find(personas, &state_match?(state, :loose, &1.flags)) ||
+      flunk("no seeded persona is in the #{state} state")
+  end
+
+  defp state_match?("active", _precision, flags) do
+    confirmed_plain?(flags) and not is_nil(flags.org_member)
+  end
+
+  defp state_match?("locked", _precision, flags), do: flags.locked
+  defp state_match?("unconfirmed", :strict, flags), do: not flags.confirmed and not flags.locked
+  defp state_match?("unconfirmed", :loose, flags), do: not flags.confirmed
+  defp state_match?("scheduled-deletion", _precision, flags), do: flags.scheduled_deletion
+
+  defp state_match?("zero-state", _precision, flags) do
+    confirmed_plain?(flags) and is_nil(flags.org_owner) and is_nil(flags.org_admin) and
+      is_nil(flags.org_member)
+  end
+
+  defp state_match?(_state, _precision, _flags), do: false
+
+  defp confirmed_plain?(flags) do
+    flags.confirmed and not flags.locked and not flags.scheduled_deletion and not flags.totp and
+      not flags.passkey and not flags.identity_github
+  end
+
+  # The one seeded organization, resolved through the admin persona's owner
+  # membership (the persona carries a handle, the route needs the slug).
+  defp owner_org(ctx) do
+    org_id =
+      Repo.one(
+        from(m in OrganizationMembership,
+          where: m.user_id == ^ctx.admin.user.id and m.role == :owner,
+          select: m.organization_id
+        )
+      )
+
+    %{handle: ctx.admin.flags.org_owner, slug: Repo.get!(Organization, org_id).slug}
   end
 
   defp expected_slugs(group) do
@@ -357,10 +459,38 @@ defmodule ExampleWeb.CatalogTest do
     |> then(&Regex.replace(~r/\bjust now\b|\b\d+[mhd] ago\b/, &1, "RELATIVE"))
   end
 
+  # The example host's branding default sender is a real-looking address
+  # (`config :example, :sigra_config`), and the auth branding page shows it in a
+  # form field. For the capture only, the running test VM's config carries a seeded
+  # `.test` sender instead, restored afterwards. No shipped config, template or
+  # default changes, and the manifest coverage text says the sender is overridden.
+  defp use_capture_sender! do
+    original = Application.fetch_env!(:example, :sigra_config)
+
+    branding =
+      Keyword.put(Keyword.fetch!(original, :branding), :email_from_address, @capture_sender)
+
+    Application.put_env(:example, :sigra_config, Keyword.put(original, :branding, branding))
+    on_exit(fn -> Application.put_env(:example, :sigra_config, original) end)
+  end
+
   defp persona_key(%{email: email}), do: email |> String.split("@") |> hd()
 
   defp persona!(personas, key),
     do: Enum.find(personas, &(&1.key == key)) || flunk("no persona #{key}")
+
+  defp pinned_values do
+    for {table, column} <- @pin_columns do
+      %{rows: rows} =
+        Ecto.Adapters.SQL.query!(
+          Repo,
+          "SELECT id::text, #{column}::text FROM auth.#{table} ORDER BY id",
+          []
+        )
+
+      {table, rows}
+    end
+  end
 
   defp session_ids(user_id) do
     Repo.all(from(s in UserSession, where: s.user_id == ^user_id, select: s.id))
@@ -389,7 +519,7 @@ defmodule ExampleWeb.CatalogTest do
 
   # Idempotent, rank-preserving pin of every displayed wall-clock column. Each value
   # maps to a fixed base plus one second per row rank, ranking by (current value,
-  # ctid). Values in the past at pin time use the 2026 base and values in the future
+  # insertion command id, ctid). Values in the past at pin time use the 2026 base and values in the future
   # use the 2099 base, so each row keeps its relation to "now". Rows already inside
   # their base band rank first, so re-running the pin never reshuffles them. "Now" is
   # the Elixir clock, the same clock that wrote the timestamps.
@@ -406,7 +536,7 @@ defmodule ExampleWeb.CatalogTest do
   defp pin_sql(table, column) do
     """
     WITH keyed AS (
-      SELECT id, ctid AS cid, #{column} AS v,
+      SELECT id, cmin::text::bigint AS cm, ctid AS cid, #{column} AS v,
              (#{column} > $1::timestamp) AS future,
              CASE WHEN #{column} > $1::timestamp
                   THEN timestamp '#{@future_base}'
@@ -417,7 +547,7 @@ defmodule ExampleWeb.CatalogTest do
       SELECT id, base,
              row_number() OVER (
                PARTITION BY future
-               ORDER BY (v >= base AND v < base + interval '1 day') DESC, v, cid
+               ORDER BY (v >= base AND v < base + interval '1 day') DESC, v, cm, cid
              ) AS rn
       FROM keyed
     )
