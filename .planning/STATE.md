@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 260
 current_phase_name: Deterministic Output, Before Catalog and PNG Park
-current_plan: 8
+current_plan: 9
 status: executing
-stopped_at: Completed 260-08-PLAN.md
-last_updated: "2026-11-15T20:30:12.105Z"
+stopped_at: Completed 260-09-PLAN.md
+last_updated: "2026-11-15T20:55:10.926Z"
 last_activity: 2026-11-15
 last_activity_desc: Phase 260 execution started
-state_head: ef5dc6f08bda3cafd69bcc819518c0f746a7163a
+state_head: 8214d0d98e7bee25d4a9d008c7ff509bbd87a604
 progress:
   total_phases: 5
   completed_phases: 1
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 260 (Deterministic Output, Before Catalog and PNG Park) — EXECUTING
-Current Plan: 8
+Current Plan: 9
 Total Plans in Phase: 11
 Status: Ready to execute
 Last activity: 2026-11-15 — Phase 260 execution started
@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T20:30:11.997Z
-Stopped at: Completed 260-08-PLAN.md
+Last session: 2026-11-15T20:55:10.807Z
+Stopped at: Completed 260-09-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them.
@@ -143,6 +143,7 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 | Phase 260 P06 | 24 min | 3 tasks | 5 files |
 | Phase 260 P07 | 7 min | 2 tasks | 5 files |
 | Phase 260 P08 | 13 min | 2 tasks | 5 files |
+| Phase 260 P09 | 23 min | 3 tasks | 9 files |
 
 ## Decisions
 
@@ -204,3 +205,5 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 - [Phase 260]: Plan 07: the shipped-CSS gap baseline (test/fixtures/brand/css-undefined-classes.txt) holds 56 classes (53 defined only in example app.css, 3 nowhere), checked in both directions; RESEARCH's 59 is not reproducible by the prescribed class-attribute extraction — Growth fails (define the class in the shipped CSS, never add an entry) and a listed class that became defined fails (remove it), so the baseline can only shrink; plan 09 removes exactly the sg-brand-mark* and sg-theme-switch entries it defines
 - [Phase 260]: Plan 08: the catalog diff report diffs file by file with diff -u -L before/REL -L after/REL instead of one diff -ru call, and ignores MANIFEST.json and .DS_Store — diff -ru prints the absolute input paths in every header, which the plan's own no-absolute-path rule forbids for a report that gets pasted into a public PR; counts come from sorted find lists and comm, and the script was also run under ubuntu:24.04 (GNU diff, bash 5.2) because it runs under mix ci on CI
 - [Phase 260]: Plan 08: the gallery catalog auth and email previews are pinned to data-theme=light, not system, and "Suspended" is a toneless sg-status-pill with a visible catalog-only note — The shipped default dark palette draws accent text (#c2410c) on its dark surface at 3.17:1 and the page-wide axe test runs in the admin-design-dark project too, so the new markup stayed green only with the pin; the contrast fix is Phase 261 BTOK-03 (logged in 260-deferred-items.md) and the pin can move back to system once it lands
+- [Phase 260]: Plan 09: theme-switch active fill and ring use --sg-logo-rail-accent (not --sg-color-brand-solid, which is #9a3412 in Light) and the text uses ink per resolved theme, so the computed colours stay rgb(253, 186, 116) on rgb(21, 21, 21) with no raw hex — A colour that must be one value in every theme but has no single token is emitted per resolved theme (explicit html attribute, explicit shell attribute, prefers-color-scheme pair) at higher specificity than the light default; the explicit token blocks go at the end of the sg-base layer so the D-11 first-match extraction lands on the dark token block
+- [Phase 260]: Plan 09: the golden rebless ran exactly once (one modified file, additive diff, committed alone); mix sigra.fixture.rebless_golden treats an unknown switch such as --help as the writer, so never pass it — OptionParser is strict: [check: :boolean], so unknown switches are dropped and the task rewrites the committed fixture; logged as a follow-up in 260-deferred-items.md
