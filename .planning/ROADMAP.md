@@ -71,9 +71,9 @@ These are cross-cutting criteria. Each phase lists the ones that apply to it ins
   3. The frozen-surface ratchet test (CSS custom properties, `sg-*`/`sigra-auth-*` classes, `Profile` keys and defaults, config keys, routes/helpers, Gettext domain, `data-testid`s, logo filenames) is green, can only grow, and legacy Branding profiles render byte-identically.
   4. The reconciled vocabulary table, per-lane copy inventory, banned-term/lexicon drift test with shrink-only baseline, and three-segment install-snippet test (all segments equal across README, guides, docs, templates) all pass; the enumeration-parity tests pass for every pre-auth surface and go red exactly once when a deliberately leaky string is injected; the eight "Log in" Playwright locators are replaced by the test-only `loginSubmit` helper; docs and tests claim no enumeration safety beyond what is proven.
   5. The name-clearance record exists, titled "search log, not clearance", listing the same-name `crosswake_sigra` Hex package, with a claims register and decisions on logo-use statement and clear-space authority and no trademark claim; the instruction-file pointer fix (`CLAUDE.md`, `AGENTS.md`, admin guides) lands only after explicit owner approval; the privacy grep and process budget hold.
-**Plans**: 14/18 plans executed
+**Plans**: 15/18 plans executed
 - [x] 259-14-PLAN.md
-- [ ] 259-15-PLAN.md
+- [x] 259-15-PLAN.md
 - [ ] 259-16-PLAN.md
 - [ ] 259-17-PLAN.md
 - [ ] 259-18-PLAN.md
@@ -158,7 +158,7 @@ These are cross-cutting criteria. Each phase lists the ones that apply to it ins
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 259. Compatibility Policy, Pinned Source and Copy Contract | 14/18 | In Progress | - |
+| 259. Compatibility Policy, Pinned Source and Copy Contract | 15/18 | In Progress | - |
 | 260. Deterministic Output, Before Catalog and PNG Park | 0/TBD | Not started | - |
 | 261. Tokens, Type, Logo, Favicon and Contrast | 0/TBD | Not started | - |
 | 262. Words and Layout | 0/TBD | Not started | - |

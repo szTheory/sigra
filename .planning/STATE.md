@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T13:49:27Z
-Stopped at: Completed 259-14-PLAN.md
+Last session: 2026-11-15T13:59:02Z
+Stopped at: Completed 259-15-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
@@ -132,6 +132,7 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 | Phase 259 P12 | 12 min | 3 tasks | 3 files |
 | Phase 259 P11 | 11 min | 2 tasks | 2 files |
 | Phase 259 P14 | 12 min | 3 tasks | 6 files |
+| Phase 259 P15 | 6 min | 2 tasks | 7 files |
 
 ## Decisions
 
@@ -169,3 +170,5 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 - [Phase 259]: Claims register status is tested against the surface registry state: only a parity row may read bounded, every other row reads not proven or by design (name_clearance_test.exs)
 - [Phase 259]: 259-14: password-reset-request repaired and proven as parity instead of waived (router :new live action, binary email passed unconditionally to the enumeration-safe context function); example host only, the generated reset page is not compared and still carries the same two defects for 259-17 to file
 - [Phase 259]: 259-14: the registry flip and the claims-register restatement must land in one plan (commits 8bf865b66 and 7341af79e leave name_clearance_test red, 5c34cd083 turns it green); BCOPY-03 and BCOPY-07 stay open because plans 259-15 to 259-18 also declare them
+- [Phase 259]: 259-15: confirmation-resend repaired and proven as parity instead of waived (live_session :confirmation on :mount_current_scope outside the redirect-if-authenticated scope, nil-safe session_user/1); the row proves a visitor-supplied payload email is ignored, not an email-keyed resend form (none exists); example host only, the generated host is not claimed
+- [Phase 259]: 259-15: registry flip, probe and register restatement shipped in one commit so name_clearance_test is green at every commit; pre-existing anonymous ?token= crash in the example handle_params is pinned by installer_drift_test fix #9 and logged in deferred-items.md
