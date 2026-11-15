@@ -21,11 +21,11 @@ Priority: **M** must, **S** should (cut first if capacity is short). Net-new dep
 ### Copy contract (BCOPY) — Phase 1
 - [ ] **BCOPY-01** (M): Reconciled vocabulary table (book key terms x `admin-glossary.md`) with rulings tied to product truth (Active, Unconfirmed, Locked, "Deletion scheduled"; "Admin" not "Admin (operator)"; "Review users").
 - [ ] **BCOPY-02** (M): Drift test extended: banned terms and the book's do-not-say lexicon over admin files, generated templates (own list) and lexicon-only over README/top guides; shrink-only baseline.
-- [ ] **BCOPY-03** (M): Enumeration-boundary contract: public-surface registry and existing-vs-unknown identity parity tests (sign-in, reset, magic link, resend, registration, invitation, MFA, passkey) with a **positive control** (a deliberately leaky string turns the test red once).
+- [x] **BCOPY-03** (M): Enumeration-boundary contract: public-surface registry and existing-vs-unknown identity parity tests (sign-in, reset, magic link, resend, registration, invitation, MFA, passkey) with a **positive control** (a deliberately leaky string turns the test red once).
 - [ ] **BCOPY-04** (M): Committed copy inventory per ownership lane so every copy change is a reviewable diff.
 - [ ] **BCOPY-05** (M): Three-segment install-snippet test: `{:sigra, "~> x.y.z"}` with all segments equal across README, guides, docs and templates (the book's `~> 1.7` resolves to the retired stray 1.20.0).
 - [ ] **BCOPY-06** (M): Test-only `loginSubmit` Playwright helper replacing the "Log in" text locators in eight specs.
-- [ ] **BCOPY-07** (S): Honest-claims pass: docs and tests do not claim enumeration safety beyond what is proven (timing-oracle todo cited).
+- [x] **BCOPY-07** (S): Honest-claims pass: docs and tests do not claim enumeration safety beyond what is proven (timing-oracle todo cited).
 
 ### Deterministic output, latent-defect repair, before catalog (BGEN) — Phase 2
 - [ ] **BGEN-01** (M): Template/example/golden parity: refresh example `sigra_auth.css` (903 diff lines of drift) and add a parity test for every copied asset.
@@ -113,11 +113,11 @@ Filled by the roadmapper 2026-11-13. Every v1 requirement maps to exactly one ph
 | BPOL-07 | Phase 259 | Gaps Found |
 | BCOPY-01 | Phase 259 | Gaps Found |
 | BCOPY-02 | Phase 259 | Gaps Found |
-| BCOPY-03 | Phase 259 | Gaps Found |
+| BCOPY-03 | Phase 259 | Complete |
 | BCOPY-04 | Phase 259 | Gaps Found |
 | BCOPY-05 | Phase 259 | Gaps Found |
 | BCOPY-06 | Phase 259 | Gaps Found |
-| BCOPY-07 | Phase 259 | Gaps Found |
+| BCOPY-07 | Phase 259 | Complete |
 | BGEN-01 | Phase 260 | Pending |
 | BGEN-02 | Phase 260 | Pending |
 | BGEN-03 | Phase 260 | Pending |

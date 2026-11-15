@@ -108,8 +108,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T14:12:00Z
-Stopped at: Completed 259-17-PLAN.md
+Last session: 2026-11-15T14:20:00Z
+Stopped at: Completed 259-18-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
@@ -135,6 +135,7 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 | Phase 259 P15 | 6 min | 2 tasks | 7 files |
 | Phase 259 P16 | 3 min | 2 tasks | 3 files |
 | Phase 259 P17 | 8 min | 3 tasks | 4 files |
+| Phase 259 P18 | 4 min | 2 tasks | 5 files |
 
 ## Decisions
 
@@ -178,3 +179,5 @@ No phase command is active. Plan the first phase with `/gsd-plan-phase 259` (v1.
 - [Phase 259]: 259-16: mfa-challenge is kept as a real parity probe and counted separately rather than removed or reclassified (test-only, reversible with a one-line edit, the owner may revisit); WR-08 residual closed in the brand-harness deferred-findings todo; BCOPY-03 stays open because plans 259-17 and 259-18 also declare it
 - [Phase 259]: 259-17: the generated host's reset request defects (live route emitted without :new; user struct passed to the binary-only deliver_user_reset_password_instructions head) are filed as one todo with every generated-host claim labelled read in source, not executed, and wired into the password-reset-request registry row so the parity test requires the reference; no lib/ or priv/ byte changed
 - [Phase 259]: 259-17: the generated-confirm todo took the primary outcome (status update, stays pending): the LiveView flavor was repaired in Phase 246 and has an install-smoke probe, the non-live controller flavor still sits in the redirect-if-authenticated scope and reads current_scope.user directly (read in source, not executed); BCOPY-03 and BCOPY-07 stay open because plan 259-18 also declares them
+- [Phase 259]: 259-18: the README Enumeration row and the password-reset guide scope paragraph restate only what the parity rows prove (sign-in, magic-link and password-reset requests, single attempt, example application, generated code listed as not covered); the confirmation resend is deliberately not mentioned publicly; the false "tests do not currently run a comparison" clause is retired as a false statement in claims_docs_test, with no sweep allow-list entry
+- [Phase 259]: 259-18: phase gate ran green once (example suite 391 tests 0 failures, MIX_ENV=test mix ci exit 0 with 2985 tests and 65 install-golden tests, zero shipped bytes, all six privacy legs pass) and BCOPY-03 and BCOPY-07 were marked complete via requirements.ready-ids; no owner override written; the generated reset request page and non-live confirm flavor stay open, tracked by the two Plan 259-17 todos
