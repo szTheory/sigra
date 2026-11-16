@@ -36,9 +36,9 @@ Shift verification left: automate phase acceptance criteria with deterministic t
 **CI:** Main CI run `42756400672` passed on `970055abcf1ee4e8b5d8ebcf79de0eeecf4f223d`. It does not cover the current dirty diagnostics edits. The working tree remains dirty; `.git` was read-only during this closeout.
 **Next:** Define a new scope with `$gsd-new-milestone`. Deferred requirements need fresh scope and authorization before any new external attempt.
 
-## Current State — 2026-11-10
+## Current State — 2026-11-16
 
-The project is between milestones. The prior v1.50 phase plans, receipts, and summaries are archived under `.planning/milestones/v1.50-phases/`; the full roadmap, requirements, and final audit are in `.planning/milestones/`. The closeout and artifact acknowledgment receipts remain under `.planning/recovery/opengsd-health-20261106/`. No plan is active. No merge, release, tag, or new GitHub request was made.
+Phase 261 is complete and verified locally. Its implementation is in PR [#382](https://github.com/szTheory/sigra/pull/382), whose corrected head passed the required CI gate; the PR is not merged and still needs owner approval. Phase 262, Words and Layout, is next and depends on Phase 261 landing on `main`. Carry forward the two remaining example controls (`.sg-color-field__input` and `.sg-cmdk__trigger`) that still use divider-grade edges; Phase 262 owns their review. The prior v1.50 phase plans, receipts, and summaries remain archived under `.planning/milestones/v1.50-phases/`.
 
 ## Historical project records
 
@@ -783,6 +783,10 @@ Sigra is a Phoenix 1.8+ authentication platform spanning the v1.0 auth stack, v1
 
 ## Requirements
 
+### Validated — v1.51 Phase 261
+
+- ✓ **BTOK-01..BTOK-08:** Kiln token values, contrast, type, lockups, favicon, font hosting and supporting documentation verified in Phase 261. See `.planning/phases/261-tokens-type-logo-favicon-and-contrast/261-VERIFICATION.md` and `.planning/REQUIREMENTS.md`.
+
 ### Validated — v1.50 partial closeout
 
 - ✓ **CIMEAS-02:** Ranked runtime-cost evidence from Phase252; verification passed.
@@ -1212,6 +1216,9 @@ _SEED-001 and SEED-002 were promoted and **closed in v1.4** (see `.planning/mile
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
+| Preserve `--sg-*` names while adopting the Kiln values (Phase 261) | Existing adopter stylesheets depend on the public token names | ✓ BTOK-01..08 verified; one migration table governs the four stylesheet blocks |
+| Default Sigra admin typography to the host and keep installer assets binary-free (Phase 261) | The installer cannot vend font binaries, and adopters own their typeface | ✓ Licensed Kiln fonts are an opt-in on Sigra-owned example surfaces; host type remains the default |
+| Keep the approved light/dark lockups and admin-scoped favicon under frozen filenames (Phase 261) | Preserve generated-host compatibility and avoid Sigra identity on host-owned pages | ✓ Owner approved the contact sheet; geometry and 16/32px favicon checks pass |
 | Keep the saved comparison terminal insufficient_data (Phase 255) | Failed baseline and zero successful comparable pairs cannot establish a speed improvement | Replayed independently from 191 unchanged inputs; CISPEED-01/02 stay open |
 | Retain original failures and separately verified sanitized diagnostics (Phase 255) | Contributors need exact commands, signals and seeds without publishing auth storage | Native Mix/browser and real hosted terminal outcomes verified; missing cancellation files stay missing |
 | Close hosted and distribution allowances after their bounded proof (Phase 255) | Ordinary local repairs must not silently renew external or acceptance budgets | Later repairs tested locally; original hosted/distribution source identities retained |
@@ -1413,3 +1420,4 @@ This document evolves at phase transitions and milestone boundaries.
 *Route update 2026-11-10T04:57:39Z: Phase258 budget review found no preparation headroom under current limits after reserving the unchanged comparison. See `.planning/recovery/opengsd-health-20261106/phase258-budget-review-01/CAPACITY-REVIEW.json` and `.planning/recovery/opengsd-health-20261106/phase258-budget-review-01/ROUTE-REFRESH-04.json`.*
 
 *Last updated: 2026-11-10 after the approved v1.50 partial internal closeout; see the archived audit for deferred outcomes.*
+*Last updated: 2026-11-16 after Phase 261 — verified on the corrected PR #382 head; awaiting owner approval to merge before Phase 262 execution.*

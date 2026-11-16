@@ -1,9 +1,10 @@
 ---
 phase: 261-tokens-type-logo-favicon-and-contrast
-verified: 2026-11-16T19:16:00Z
-status: human_needed
-score: 4/5 must-haves verified
+verified: 2026-11-16T20:35:05Z
+status: passed
+score: 5/5 must-haves verified
 covered_files:
+  - .impeccable/config.json
   - .planning/phases/261-tokens-type-logo-favicon-and-contrast/261-01-PLAN.md
   - .planning/phases/261-tokens-type-logo-favicon-and-contrast/261-01-SUMMARY.md
   - .planning/phases/261-tokens-type-logo-favicon-and-contrast/261-02-PLAN.md
@@ -79,25 +80,29 @@ covered_files:
   - test/sigra/install/features/admin_test.exs
   - test/support/brand/css_contrast.ex
   - test/support/brand/css_gap.ex
-covered_digest: "v4:sha256:e8df2b20444bd4d471d9e5c54ae9bafe891f9d044b1f4a6bc8fc89f2b256f00b"
+covered_digest: "v4:sha256:808110ae128cedbdd580b1a1117ec33dd79f736ae4bb38f827382cb5f05b2dd1"
 behavior_unverified: 0
 overrides_applied: 0
+re_verification:
+  previous_status: human_needed
+  previous_score: 4/5
+  gaps_closed:
+    - The first token-only PR now passes the required ci-gate.
+    - The owner approved the Phase 261 logo and favicon contact sheet.
+    - Review finding WR-01 was fixed, covered by a blue-vector assertion, and re-reviewed clean.
+  gaps_remaining: []
 decision_coverage:
   honored: 0
   total: 0
   not_honored: []
-human_verification:
-  - test: "After the owner authorizes the token changes to be pushed for review, verify `ci-gate` on the first token-only PR."
-    expected: "The PR containing the Phase 261 token changes receives a green `ci-gate`; current local `mix ci` is not a substitute for this PR-path check."
-    why_human: "The current open PR #380 is still at commit aeda7273 and covers the planning start; it does not contain the local Phase 261 commits. Project instructions require explicit owner approval before pushing."
 ---
 
 # Phase 261: Tokens, Type, Logo, Favicon and Contrast — Verification Report
 
 **Phase Goal:** Sigra's own surfaces carry the Kiln visual identity (values, type, logo, favicon) in Light and Dark, with every token name unchanged and contrast proven over the implemented CSS and the real DOM.
-**Verified:** 2026-11-16T19:16:00Z
-**Status:** human_needed
-**Re-verification:** No — first verification report
+**Verified:** 2026-11-16T20:35:05Z
+**Status:** passed
+**Re-verification:** Yes — the review finding was fixed, the owner-approved contact sheet is recorded below, and PR #382 passed the required `ci-gate` on the corrected commit.
 
 ## Goal Achievement
 
@@ -105,13 +110,13 @@ human_verification:
 
 | # | Truth | Status | Evidence |
 |---|---|---|---|
-| 1 | New token values come from the reviewed old→new table, token names stay frozen, auth fallbacks are unchanged, one rebless is used, and the first token-only PR has a green `ci-gate`. | ⚠️ UNCERTAIN — implementation verified; PR gate pending | `261-TOKEN-MIGRATION.md` is parsed by `token_migration_test.exs`; that test checks one row per stylesheet token, four theme blocks, book provenance and planted mismatch controls. `sigra_auth.css` and `mix.exs` do not appear in the Phase 261 diff from its plan base. The single fixture rebless is commit `f0b0b93e8`, and final `MIX_ENV=test mix ci` passed (3 doctests, 3 properties, 3,445 tests, 0 failures, 12 skipped). The open PR lookup found only #380 at earlier commit `aeda7273`; its CI run does not cover the Phase 261 commits, so the PR-path requirement is not yet proven. |
-| 2 | Thirty contrast pairs and derived states pass against the implementation, a planted bad color fails, axe remains green, incomplete results are recorded, and non-text 3:1 checks cover the real DOM. | ✓ VERIFIED | `contrast_pairs_test.exs` binds the book's 30 light/dark rows to computed CSS and includes bad-color and missing-declaration controls. `admin-design.spec.ts` leaves axe and non-text checks untagged; the axe helper records incomplete rule IDs as an annotation from that same analysis result. The final local CI passed; the recorded browser run reports the touched admin specs green and incomplete counts separately. |
+| 1 | New token values come from the reviewed old→new table, token names stay frozen, auth fallbacks are unchanged, one rebless is used, and the first token-only PR has a green `ci-gate`. | ✓ VERIFIED | `261-TOKEN-MIGRATION.md` is parsed by `token_migration_test.exs`; it checks one row per stylesheet token, four theme blocks, book provenance and planted mismatch controls. `sigra_auth.css` and `mix.exs` remain outside the Phase 261 implementation. The single fixture rebless is commit `f0b0b93e8`; local CI passed (3 doctests, 3 properties, 3,445 tests, 0 failures, 12 skipped). The corrected Phase 261 PR #382 head `cafead0833aebc4c43080189dd03d9841fdff857` passed required `ci-gate` in retry attempt of run [43947148014](https://github.com/szTheory/sigra/actions/runs/43947148014); the first attempt was cancelled while checkout fetched history, then the single retry completed successfully. |
+| 2 | Thirty contrast pairs and derived states pass against the implementation, a planted bad color fails, axe remains green, incomplete results are recorded, and non-text 3:1 checks cover the real DOM. | ✓ VERIFIED | `contrast_pairs_test.exs` binds the book's 30 light/dark rows to computed CSS and includes bad-color and missing-declaration controls. `brandContrast.ts` now uses the correct negative blue-axis coefficient and `admin-theme.spec.ts` pins the blue OKLab reference vector. `admin-design.spec.ts` leaves axe and non-text checks untagged; the axe helper records incomplete rule IDs as an annotation from that same analysis result. The corrected helper test and PR browser jobs pass; incomplete axe results remain separately recorded. |
 | 3 | The v2 lockup and favicon assets keep the frozen filenames, render at required sizes, and receive owner approval for distinctness and 16–24px legibility. | ✓ VERIFIED | `logo_contract_test.exs`, `admin_shell_test.exs`, and `admin-theme.spec.ts` verify SVG titles, empty image alts in the labelled link, lockup geometry, favicon ownership, bytes and 16/32px pixels. The example rail files were removed and the demo preset was repointed. The owner reviewed `261-CONTACT-SHEET.html` and explicitly approved the new lockup and favicon. |
 | 4 | Additive font tokens inherit the host by default; Sigra-owned example surfaces self-host the book fonts with licenses; installer templates contain no font binaries; source-driven pins and token docs are current. | ✓ VERIFIED | `sigra_admin.css` declares inherited/system defaults and no `@font-face`; `sigra_admin_brand.css` scopes two self-hosted faces to `.sg-admin-shell`; the example contains matching WOFF2 files and OFL texts. `vendored_assets_test.exs` checks byte parity, file kinds and absence of installer binaries; `admin-theme.spec.ts` probes host inheritance and opt-in computed fonts. |
 | 5 | Frozen surfaces, privacy and process limits hold; generated-host Light/Dark/System works; no Phase 261 change alters ExDoc wiring, Profile/Config defaults or `sigra_auth.css`. | ✓ VERIFIED | The current generated admin stylesheet is byte-identical to the example copy; a Light and System Dark generated-host screenshot was inspected and shows the full shell with the expected palette. `MIX_ENV=test mix ci` passed. The committed final privacy/budget evidence reports all planted controls detected and clean scans, 62 phase commits/81 paths, four `priv/` paths and one four-path golden rebless commit, with no `.github`, script, library or frozen-surface changes. The Phase 261 diff from its plan base excludes `mix.exs`, `sigra_auth.css`, `lib/`, and the `Profile`/`Config` defaults. |
 
-**Score:** 4/5 roadmap truths verified; the first token-only PR's CI gate remains external-gate dependent.
+**Score:** 5/5 roadmap truths verified.
 
 ### Deferred Items
 
@@ -124,8 +129,8 @@ None. The two outstanding checks are requirements of this phase, not work explic
 | `261-TOKEN-MIGRATION.md` | Reviewed token mapping | VERIFIED | 44 rows; the parser test checks table coverage and agreement with CSS blocks. |
 | `priv/templates/sigra.install/admin/sigra_admin.css` | Shipped theme tokens and admin rules | VERIFIED | Matches the example copy byte-for-byte; no font binaries or `@font-face`. |
 | `test/example/priv/static/assets/css/sigra_admin_brand.css` | Example-only font opt-in | VERIFIED | Two licensed local faces scoped to `.sg-admin-shell`. |
-| `test/example/priv/playwright/tests/admin-theme.spec.ts` | Real DOM theme, lockup, favicon, font and responsive proofs | VERIFIED | Current test declarations cover six theme combinations, geometry, favicon byte/pixel checks, font inheritance and 375/390px overflow. |
-| `261-CONTACT-SHEET.html` | Owner review artifact | PRESENT — review pending | Contact sheet exists and the ledger leaves the owner answer pending. |
+| `test/example/priv/playwright/tests/admin-theme.spec.ts` | Real DOM theme, lockup, favicon, font and responsive proofs | VERIFIED | Current test declarations cover six theme combinations, geometry, favicon byte/pixel checks, font inheritance, 375/390px overflow, and the OKLab blue reference vector. |
+| `261-CONTACT-SHEET.html` | Owner review artifact | VERIFIED — owner approved | The owner reviewed and approved the new logo and favicon on 2026-11-16. |
 
 ### Key Link Verification
 
@@ -147,46 +152,43 @@ Not applicable to dynamic database data. The verified values are static brand to
 |---|---|---|---|
 | Library and example regression gate | Final `MIX_ENV=test mix ci` log | 3,445 tests, 0 failures; 12 skipped | PASS |
 | Generated host theme rendering | Existing fresh-host screenshots and Playwright results; Light and System Dark screenshots inspected | Shell and palette render coherently | PASS |
-| Token PR CI gate | Read-only PR lookup (`gh pr view 380`) | PR #380 is at `aeda7273`; it does not contain local Phase 261 changes | NEEDS OWNER-AUTHORIZED PR CHECK |
+| Token PR CI gate | `gh run view 43947148014 --repo szTheory/sigra` | Phase 261 PR #382 at `cafead0` passed after one retry for a transient checkout cancellation; required `ci-gate` and all implementation jobs passed | PASS |
 | Direct golden check attempt | `MIX_ENV=test mix sigra.fixture.rebless_golden --check` | Could not reach the check: Hex failed to persist `/Users/jon/.hex/cache.ets` with `:eaccess` before scaffolding; no rebless ran and no tracked files changed. The final CI evidence remains green. | ENVIRONMENT BLOCKED; NO CODE FAILURE |
 
 ### Requirements Coverage
 
 | Requirement | Status | Evidence |
 |---|---|---|
-| BTOK-01 | Satisfied locally; PR gate pending | Migration table/parser, four-block parity, single rebless; token-only PR `ci-gate` still needs proof. |
+| BTOK-01 | Satisfied | Migration table/parser, four-block parity, single rebless, and Phase 261 PR #382 `ci-gate` passed. |
 | BTOK-02 | Satisfied | 30 book pairs and derived state tests over implemented CSS. |
-| BTOK-03 | Satisfied by automation | Real-DOM axe annotation and non-text contrast checks; human contact-sheet review remains under BTOK-05. |
+| BTOK-03 | Satisfied by automation | Real-DOM axe annotation and non-text contrast checks pass; the owner-approved contact-sheet review satisfies BTOK-05. |
 | BTOK-04 | Satisfied by automation | Frozen filename, title/alt, shell parity and geometry assertions. |
-| BTOK-05 | Needs owner review | Asset byte, ownership and render checks pass; distinctness and small-size judgment is pending. |
+| BTOK-05 | Satisfied by owner review | The owner approved the contact sheet after reviewing the lockup and favicon at the documented sizes. |
 | BTOK-06 | Satisfied | Font parity, licensing, inheritance, scoped opt-in and installer-binary guards. |
 | BTOK-07 | Satisfied | Pinned CSS expectations read from source; token reference points to `brand/tokens.json`. |
 | BTOK-08 | Satisfied | Additive status, selected-row and current-tab tokens are in the table and checked against CSS. |
 
 ### Test Quality Audit
 
-The migration and contrast tests use the pinned brand book as their independent source and contain planted negative controls. Logo and font tests compare shipped/example copies to `brand/` assets. No requirement-linked check was found to have only a skipped test. The conditional `@snapshot` pixel tests are intentionally parked on PR/push; the axe and non-text tests are untagged and remain on the PR path. The `admin-generated.spec.ts` conditional skip is for the separate revoked-admin smoke and does not cover a Phase 261 requirement. No circular expected-output generation was found in the scoped requirement tests.
+The migration and contrast tests use the pinned brand book as their independent source and contain planted negative controls. The browser helper also has a known blue OKLab reference vector, and the targeted Playwright helper check passed. Logo and font tests compare shipped/example copies to `brand/` assets. No requirement-linked check was found to have only a skipped test. The conditional `@snapshot` pixel tests are intentionally parked on PR/push; the axe and non-text tests are untagged and remain on the PR path. The `admin-generated.spec.ts` conditional skip is for the separate revoked-admin smoke and does not cover a Phase 261 requirement. No circular expected-output generation was found in the scoped requirement tests.
+
+### Code Review
+
+The review found one warning: WR-01 reversed the OKLab blue-axis coefficient in `brandContrast.ts`, which could skew computed-colour contrast checks. Commit `6ce7e090b` corrected the sign and added a blue reference-vector assertion. The focused Playwright check passed, and automatic re-review returned clean. See `261-REVIEW.md` and `261-REVIEW-FIX.md`.
 
 ### Anti-Patterns Found
 
-None blocking. No source change in the phase modifies `mix.exs`, `sigra_auth.css`, or library `Profile` defaults. The intentional, narrowly scoped overused-font ignores already exist for `Space Grotesk`, `Fraunces`, and `Inter` with references to the host/demo decisions; this verification made no ignore or CSS change.
+None blocking. No source change in the phase modifies `mix.exs`, `sigra_auth.css`, or library `Profile` defaults. The scoped font exceptions cover intentional Tasklane and Vaultr host/demo typography. A file-scoped `side-tab=*` exception covers the canonical tone accents in `priv/templates/sigra.install/admin/sigra_admin.css`; the design contract documents `sg-notice` as a byte-clone of `sg-list-row`, and the no-side-band rule applies to metric cards. Those existing CSS rules were left unchanged.
 
 ### Decision Coverage
 
 The GSD decision coverage query returned `skipped: true`, `reason: no trackable decisions`, `total: 0`. The Phase 261 context contains implementation decisions but no trackable `<decisions>` entries.
 
-### Human Verification Required
-
-1. **First token-only PR CI gate**
-   - **Test:** After explicitly authorizing the push, run the token-only PR through CI and confirm `ci-gate` is green.
-   - **Expected:** The PR containing Phase 261 token changes passes `ci-gate`.
-   - **Why human:** The current open PR is still at an older planning-only commit, and project instructions require owner approval before pushing.
-
 ### Gaps Summary
 
-The implementation, local CI, generated-host rendering, automated visual/contrast contracts, and owner review are verified. The phase remains `human_needed` because no PR containing Phase 261 changes has run the required `ci-gate`. No code defect was identified. The direct golden-check retry was blocked by Hex cache permissions before the check ran; no mutation occurred.
+All five roadmap truths are verified, including the green PR-path `ci-gate` and owner-approved logo/favicon review. Code review found and resolved one test-helper conversion defect; its regression vector, focused test, and clean re-review are recorded. The direct golden-check retry was blocked by Hex cache permissions before the check ran; no mutation occurred, and the final local CI plus corrected-commit PR CI both pass.
 
 ---
 
-_Verified: 2026-11-16T19:16:00Z_  
+_Verified: 2026-11-16T20:35:05Z_
 _Verifier: gsd-verifier_

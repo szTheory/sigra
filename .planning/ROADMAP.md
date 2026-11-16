@@ -55,7 +55,7 @@ These are cross-cutting criteria. Each phase lists the ones that apply to it ins
 
 - [x] **Phase 259: Compatibility Policy, Pinned Source and Copy Contract** - Decide what may not change, pin the brand book, and put the copy and enumeration contracts under test; zero shipped bytes change (completed 2026-11-15)
 - [x] **Phase 260: Deterministic Output, Before Catalog and PNG Park** - Make generated output byte-stable, repair latent CSS defects, capture the "before" catalog, and park the PNG-compare lanes (completed 2026-11-15)
-- [ ] **Phase 261: Tokens, Type, Logo, Favicon and Contrast** - Change visual values once, from one reviewed table, with names frozen and contrast proven in the real DOM
+- [x] **Phase 261: Tokens, Type, Logo, Favicon and Contrast** - Change visual values once, from one reviewed table, with names frozen and contrast proven in the real DOM (completed 2026-11-16)
 - [ ] **Phase 262: Words and Layout** - Operator job first, then every admin screen, then generated auth pages and email, delivered as three merged PRs (4a, 4b, 4c)
 - [ ] **Phase 263: Public Surfaces and Release Narrative** - README, HexDocs, Hex package assets, upgrade guide, and an announcement draft written last
 
@@ -129,7 +129,7 @@ These are cross-cutting criteria. Each phase lists the ones that apply to it ins
   3. The v2 lockup (light/dark) renders under the same filenames (`admin/sigra-logo-primary{,-dark}.svg`) with alt/title, stray rail files are gone from the example, favicon assets render at 16/32 px, and the owner has signed off on logo distinctness and 16–24 px legibility (the single human gate).
   4. Additive `--sg-font-sans`/`--sg-font-mono` tokens default to the host's typeface (book stack documented as opt-in); Sigra-owned surfaces self-host the two woff2 files with OFL texts; the installer ships no font binaries; the ~10 pinned assertions read from source and `admin-token-reference.md` points at `brand/tokens.json` names.
   5. Frozen-surface ratchet, privacy grep and process budget hold; the fresh-host run (install, boot, real login, admin Light/Dark/System) is green and was looked at; no `mix.exs`/ExDoc favicon wiring and no `Profile`/`Config` default or `--sigra-auth-*` change was made (those belong to Phase 263 or are frozen).
-**Plans**: 9/12 plans executed
+**Plans**: 12/12 plans complete
 - [x] 261-01-PLAN.md — Contrast helper tracer: parse, cascade, composite, ratio, planted bad colour, four-place invariants
 - [x] 261-02-PLAN.md — Vendored fonts and favicons by copy, example wiring, admin-scoped favicon links, sha parity
 - [x] 261-03-PLAN.md — Reviewed token migration table applied in four places, additive tokens, focus ring, docs, pin rewrites
@@ -138,9 +138,9 @@ These are cross-cutting criteria. Each phase lists the ones that apply to it ins
 - [x] 261-06-PLAN.md — 30 book pairs, state pairs, tones on new grounds, non-text, fail-closed unresolved scan
 - [x] 261-07-PLAN.md — Playwright pins read from source, non-vacuous font guard in three files
 - [x] 261-08-PLAN.md — Real-DOM axe incomplete annotation, non-text 3:1, theme matrix, font probe, topbar overflow, whole touched specs run
-- [ ] 261-09-PLAN.md — Lockup 2T geometry, favicon scope and 16/32 pixel render check
-- [ ] 261-10-PLAN.md — Pre-rebless gate: root gate minus golden readers, example suite, fresh-host acceptance, privacy legs with controls, budgets, ratchet
-- [ ] 261-11-PLAN.md — Single golden rebless, golden readers, final gate, contact sheet and non-blocking human gate
+- [x] 261-09-PLAN.md — Lockup 2T geometry, favicon scope and 16/32 pixel render check
+- [x] 261-10-PLAN.md — Pre-rebless gate: root gate minus golden readers, example suite, fresh-host acceptance, privacy legs with controls, budgets, ratchet
+- [x] 261-11-PLAN.md — Single golden rebless, golden readers, final gate, contact sheet and non-blocking human gate
 - [x] 261-12-PLAN.md — Stray rail and Phoenix-glyph files removed after reference grep, Rail Accent demo preset repointed (wave 1)
 **UI hint**: yes
 **Research at planning**: Yes (token migration table, `color-mix()` surfaces and axe `incomplete` volume, glyph coverage, favicon rendering).
@@ -183,7 +183,7 @@ These are cross-cutting criteria. Each phase lists the ones that apply to it ins
 |-------|----------------|--------|-----------|
 | 259. Compatibility Policy, Pinned Source and Copy Contract | 18/18 | Complete    | 2026-11-15 |
 | 260. Deterministic Output, Before Catalog and PNG Park | 11/11 | Complete    | 2026-11-15 |
-| 261. Tokens, Type, Logo, Favicon and Contrast | 9/12 | In Progress | - |
+| 261. Tokens, Type, Logo, Favicon and Contrast | 12/12 | Complete    | 2026-11-16 |
 | 262. Words and Layout | 0/TBD | Not started | - |
 | 263. Public Surfaces and Release Narrative | 0/TBD | Not started | - |
 

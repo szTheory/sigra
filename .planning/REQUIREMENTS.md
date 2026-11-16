@@ -38,14 +38,14 @@ Priority: **M** must, **S** should (cut first if capacity is short). Net-new dep
 - [x] **BGEN-08** (S): Extend `DesignGalleryLive` with auth-page, email and status-mark states (dev-only; no new framework).
 
 ### Tokens, type, logo, favicon, contrast (BTOK) — Phase 3
-- [ ] **BTOK-01** (M): Token value migration table (old → new, light and dark) from `brand/tokens.json` applied by hand to admin CSS; names unchanged; Kiln Bright dark accent; explicit dark `--sg-color-on-brand` = Char (white on Kiln Bright is 2.48:1); `sigra_auth.css` host-default fallbacks untouched; one golden rebless.
-- [ ] **BTOK-02** (M): Contrast pair test: 30 pairs from `brand.json` over the implemented CSS using `Sigra.Branding.Contrast`, light and dark plus hover/focus/disabled; a deliberately bad color fails.
-- [ ] **BTOK-03** (M): Real-DOM contrast and a11y: existing axe gate over the catalog in both themes, plus a ~20-line non-text helper (focus ring, control edge, logo square); axe `incomplete` count recorded, never counted as pass.
-- [ ] **BTOK-04** (M): Logo: v2 lockup light/dark replaces rail SVGs under the **same filenames** (`admin/sigra-logo-primary{,-dark}.svg`) with alt/title; `admin_shell.ex` markup; stray rail files removed from the example.
-- [ ] **BTOK-05** (M): Favicon assets from the book for Sigra-owned surfaces; 16/32 px render check; **human gate** for logo distinctness and 16-24 px legibility.
-- [ ] **BTOK-06** (M): Fonts: additive `--sg-font-sans`/`--sg-font-mono` tokens (host-inherited by default; book stack documented opt-in); Sigra-owned surfaces self-host the two woff2 + OFL texts; no installer binary kind.
-- [ ] **BTOK-07** (M): Pinned assertions (~10) rewritten to read from source; `admin-token-reference.md` re-pointed at `brand/tokens.json` names.
-- [ ] **BTOK-08** (S): Additive status, selected-row and current-tab tokens.
+- [x] **BTOK-01** (M): Token value migration table (old → new, light and dark) from `brand/tokens.json` applied by hand to admin CSS; names unchanged; Kiln Bright dark accent; explicit dark `--sg-color-on-brand` = Char (white on Kiln Bright is 2.48:1); `sigra_auth.css` host-default fallbacks untouched; one golden rebless.
+- [x] **BTOK-02** (M): Contrast pair test: 30 pairs from `brand.json` over the implemented CSS using `Sigra.Branding.Contrast`, light and dark plus hover/focus/disabled; a deliberately bad color fails.
+- [x] **BTOK-03** (M): Real-DOM contrast and a11y: existing axe gate over the catalog in both themes, plus a ~20-line non-text helper (focus ring, control edge, logo square); axe `incomplete` count recorded, never counted as pass.
+- [x] **BTOK-04** (M): Logo: v2 lockup light/dark replaces rail SVGs under the **same filenames** (`admin/sigra-logo-primary{,-dark}.svg`) with alt/title; `admin_shell.ex` markup; stray rail files removed from the example.
+- [x] **BTOK-05** (M): Favicon assets from the book for Sigra-owned surfaces; 16/32 px render check; **human gate** for logo distinctness and 16-24 px legibility.
+- [x] **BTOK-06** (M): Fonts: additive `--sg-font-sans`/`--sg-font-mono` tokens (host-inherited by default; book stack documented opt-in); Sigra-owned surfaces self-host the two woff2 + OFL texts; no installer binary kind.
+- [x] **BTOK-07** (M): Pinned assertions (~10) rewritten to read from source; `admin-token-reference.md` re-pointed at `brand/tokens.json` names.
+- [x] **BTOK-08** (S): Additive status, selected-row and current-tab tokens.
 
 ### Operator UI (BOPS) — Phase 4 (4a, 4b)
 - [ ] **BOPS-01** (M): Operator slice 4a "find a user who can't sign in and see why": Users list, user detail, user sessions, end to end, with a hard gate (before/after normalized-HTML diff in both themes, contrast + axe green, enumeration + lexicon tests green, old-CSS render test green, copy baseline shrinks). 4b/4c do not start until it passes.
@@ -126,14 +126,14 @@ Filled by the roadmapper 2026-11-13. Every v1 requirement maps to exactly one ph
 | BGEN-06 | Phase 260 | Complete |
 | BGEN-07 | Phase 260 | Complete |
 | BGEN-08 | Phase 260 | Complete |
-| BTOK-01 | Phase 261 | Pending |
-| BTOK-02 | Phase 261 | Pending |
-| BTOK-03 | Phase 261 | Pending |
-| BTOK-04 | Phase 261 | Pending |
-| BTOK-05 | Phase 261 | Pending |
-| BTOK-06 | Phase 261 | Pending |
-| BTOK-07 | Phase 261 | Pending |
-| BTOK-08 | Phase 261 | Pending |
+| BTOK-01 | Phase 261 | Complete |
+| BTOK-02 | Phase 261 | Complete |
+| BTOK-03 | Phase 261 | Complete |
+| BTOK-04 | Phase 261 | Complete |
+| BTOK-05 | Phase 261 | Complete |
+| BTOK-06 | Phase 261 | Complete |
+| BTOK-07 | Phase 261 | Complete |
+| BTOK-08 | Phase 261 | Complete |
 | BOPS-01 | Phase 262 | Pending |
 | BOPS-02 | Phase 262 | Pending |
 | BOPS-03 | Phase 262 | Pending |
