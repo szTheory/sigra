@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="csrf-token" content="{{CSRF}}">
+<title data-default="Tasklane" data-suffix=" · Tasklane">
+Acme Corp overview · Tasklane
+</title>
+<link phx-track-static rel="stylesheet" href="/assets/default.css">
+<link phx-track-static rel="stylesheet" href="/assets/sigra_admin.css">
+<link phx-track-static rel="stylesheet" href="/assets/css/app.css">
+<script defer phx-track-static type="text/javascript" src="/assets/js/app.js">
+</script>
+</head>
+<body>
+<div id="phx-{{REQUEST_ID}}" data-phx-main data-phx-session="{{PHX_SESSION}}" data-phx-static="{{PHX_STATIC}}">
+<script>
+(function () { try { var value = window.localStorage && window.localStorage.getItem("sigra.admin.theme"); var preference = value === "light" || value === "dark" ? value : "system"; document.documentElement.setAttribute("data-sg-admin-js", "true"); document.documentElement.setAttribute("data-sg-admin-theme-preference", preference); if (preference === "system") { document.documentElement.removeAttribute("data-sg-admin-theme"); } else { document.documentElement.setAttribute("data-sg-admin-theme", preference); } } catch (err) { document.documentElement.setAttribute("data-sg-admin-js", "true"); document.documentElement.setAttribute("data-sg-admin-theme-preference", "system"); document.documentElement.removeAttribute("data-sg-admin-theme"); } })();
+</script>
+<section class="sg-admin-shell" data-scope="organization">
+<header class="sg-admin-topbar">
+<div class="sg-admin-topbar-inner sg-container sg-cluster sg-cluster--between sg-cluster--3">
+<div class="sg-cluster sg-cluster--3">
+<a href="/admin/organizations/acme-corp" data-phx-link="redirect" data-phx-link-state="push" class="sg-brand-mark" aria-label="Sigra admin overview">
+<span class="sg-brand-mark__lockup" aria-hidden="true">
+<img class="sg-brand-mark__image sg-brand-mark__image--light" src="/images/sigra-logo-primary.svg" alt="" width="188" height="54" decoding="async">
+<img class="sg-brand-mark__image sg-brand-mark__image--dark" src="/images/sigra-logo-primary-dark.svg" alt="" width="188" height="54" decoding="async">
+</span>
+<span class="sg-brand-mark__section">
+Admin
+</span>
+</a>
+<details class="sg-scope-switch">
+<summary class="sg-scope-pill">
+<span class="sg-scope-pill__tenant" aria-hidden="true">
+⌂
+</span>
+Org · Acme Corp
+</summary>
+<div class="sg-scope-switch__menu">
+<a href="/admin" class="sg-scope-switch__item" aria-current="false">
+Global overview
+</a>
+<a href="/admin/organizations/acme-corp" data-phx-link="redirect" data-phx-link-state="push" class="sg-scope-switch__item" aria-current="true">
+Acme Corp overview
+</a>
+</div>
+</details>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<div id="admin-theme-switch" class="sg-theme-switch" phx-hook="ThemeSwitch" role="radiogroup" aria-label="Theme">
+<button type="button" class="sg-theme-switch__button" role="radio" data-theme-value="light" aria-checked="false" tabindex="-1">
+Light
+</button>
+<button type="button" class="sg-theme-switch__button" role="radio" data-theme-value="dark" aria-checked="false" tabindex="-1">
+Dark
+</button>
+<button type="button" class="sg-theme-switch__button" role="radio" data-theme-value="system" aria-checked="true" tabindex="0">
+System
+</button>
+</div>
+<button id="admin-cmdk" type="button" phx-hook="CmdK" class="sg-cmdk__trigger" aria-label="Open command palette" data-users-href="/admin/organizations/acme-corp/users" data-audit-href="/admin/organizations/acme-corp/audit" data-overview-href="/admin/organizations/acme-corp" data-overview-label="Acme Corp">
+<span>
+Jump to…
+</span>
+<span class="sg-cmdk__trigger-kbd" aria-hidden="true">
+⌘K
+</span>
+</button>
+<a href="/admin" class="sg-btn sg-btn--ghost sg-btn--sm">
+Exit to global
+</a>
+</div>
+</div>
+<span class="sg-admin-loading-bar" data-sg-admin-loading-bar aria-hidden="true">
+</span>
+</header>
+<div class="sg-container sg-admin-content">
+<nav class="sg-admin-crumbs" aria-label="Breadcrumb">
+<ol class="sg-breadcrumb">
+<li>
+<span class="sg-breadcrumb__segment">
+<span class="sg-breadcrumb__item" aria-current="page">
+Overview
+</span>
+</span>
+</li>
+</ol>
+</nav>
+<div class="sg-admin-body">
+<aside class="sg-admin-sidebar">
+<nav aria-label="Admin navigation" class="sg-stack">
+<div class="sg-nav-card">
+<p class="sg-nav-title">
+Overviews
+</p>
+<ul class="sg-stack sg-stack--2">
+<li>
+<a href="/admin" class="sg-nav-link">
+Global overview
+</a>
+</li>
+<li>
+<a href="/admin/organizations/acme-corp" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link active">
+Organization overview
+</a>
+</li>
+</ul>
+</div>
+<div class="sg-nav-card">
+<p class="sg-nav-title">
+Workspace
+</p>
+<ul class="sg-stack sg-stack--2">
+<li>
+<a href="/admin/organizations/acme-corp/users" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link">
+Users
+</a>
+</li>
+<li>
+<a href="/admin/organizations/acme-corp/audit" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link">
+Audit
+</a>
+</li>
+<li>
+<a href="/admin/auth-branding" class="sg-nav-link">
+Branding
+</a>
+</li>
+</ul>
+</div>
+</nav>
+</aside>
+<main class="sg-admin-main sg-stack sg-stack--5">
+<section class="sg-stack sg-stack--6">
+<header class="sg-page-header">
+<p class="sg-page-kicker">
+Organization overview
+</p>
+<h1 class="sg-page-title">
+Acme Corp
+</h1>
+<p class="sg-page-copy">
+Work inside this organization scope: support members, inspect security posture, and review audit evidence without losing tenant context.
+</p>
+</header>
+<div class="sg-grid sg-grid--2">
+<article class="sg-card sg-card-hover sg-stack sg-stack--3 ">
+<div class="sg-stack sg-stack--2">
+<h2 class="sg-section-heading">
+Support members
+</h2>
+<p class="sg-section-copy">
+Search organization members, open member detail, and pivot through session, security, and membership state.
+</p>
+</div>
+<div class="sg-cluster">
+<a href="/admin/organizations/acme-corp/users" class="sg-btn sg-btn--primary">
+Open members
+</a>
+</div>
+</article>
+<article class="sg-card sg-card-hover sg-stack sg-stack--3 ">
+<div class="sg-stack sg-stack--2">
+<h2 class="sg-section-heading">
+Investigate organization events
+</h2>
+<p class="sg-section-copy">
+Filter audit evidence scoped to this organization and export only its events.
+</p>
+</div>
+<div class="sg-cluster">
+<a href="/admin/organizations/acme-corp/audit" class="sg-btn sg-btn--primary">
+Open audit
+</a>
+</div>
+</article>
+</div>
+<section class="sg-card sg-stack sg-stack--3">
+<h2 class="sg-section-heading">
+Members
+</h2>
+<div class="sg-skeleton sg-list-row">
+</div>
+<div class="sg-skeleton sg-list-row">
+</div>
+<div class="sg-skeleton sg-list-row">
+</div>
+</section>
+<section class="sg-card sg-stack sg-stack--3">
+<h2 class="sg-section-heading">
+Pending invitations
+</h2>
+<div class="sg-skeleton sg-list-row">
+</div>
+<div class="sg-skeleton sg-list-row">
+</div>
+</section>
+</section>
+</main>
+</div>
+</div>
+<nav aria-label="Admin bottom nav" class="sg-bottom-nav sg-show-mobile">
+<a href="/admin/organizations/acme-corp" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item active">
+<span>
+Acme Corp
+</span>
+</a>
+<a href="/admin/organizations/acme-corp/users" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item ">
+<span>
+Users
+</span>
+</a>
+<a href="/admin/organizations/acme-corp/audit" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item ">
+<span>
+Audit
+</span>
+</a>
+<a href="/admin/auth-branding" class="sg-bottom-nav__item ">
+<span>
+Brand
+</span>
+</a>
+</nav>
+</section>
+<div id="flash-group" aria-live="polite">
+</div>
+</div>
+</body>
+</html>

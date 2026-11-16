@@ -1,0 +1,217 @@
+<section class="sg-stack sg-stack--6">
+<header class="sg-page-header">
+<p class="sg-page-kicker">
+User operations
+</p>
+<h1 class="sg-page-title">
+Users
+</h1>
+</header>
+<span class="sg-scope-ribbon sg-muted sg-text-sm ">
+Global user operations
+</span>
+<section class="sg-stack sg-stack--3" aria-labelledby="users-health-heading">
+<h2 id="users-health-heading" class="sg-section-heading">
+User health
+</h2>
+<dl class="sg-metric-grid" aria-label="User health summary">
+<div id="users-metric-total" class="sg-metric " data-sg-metric-enhanced="true">
+<dt class="sg-metric__label">
+<span class="sg-metric__icon" data-icon="users" aria-hidden="true">
+<svg class="sg-metric__icon-svg" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M7.5 11.25a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M2.75 21a4.75 4.75 0 0 1 9.5 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M16.5 10.75a3.25 3.25 0 1 0 0-6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M14.75 15.5A4.5 4.5 0 0 1 21.25 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</span>
+<span class="sg-metric__label-text">
+Total users
+</span>
+</dt>
+<dd class="sg-metric__value">
+<span class="sg-metric__number">
+0
+</span>
+</dd>
+<dd class="sg-metric__caption">
+total users
+</dd>
+</div>
+<div id="users-metric-locked" class="sg-metric " data-sg-metric-enhanced="true" data-sg-metric-has-subvalue="true" data-sg-metric-help-root="true" tabindex="0" aria-describedby="users-metric-locked-help">
+<dt class="sg-metric__label">
+<span class="sg-metric__icon" data-icon="lock" aria-hidden="true">
+<svg class="sg-metric__icon-svg" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M7 10.5V8a5 5 0 0 1 10 0v2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M5.75 10.5h12.5v9.75H5.75z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 15v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</span>
+<span class="sg-metric__label-text">
+Locked users
+</span>
+</dt>
+<dd class="sg-metric__value">
+<span class="sg-metric__number">
+0
+</span>
+</dd>
+<dd class="sg-metric__caption">
+locked out
+</dd>
+<dd class="sg-metric__subvalue">
+0% of total users
+</dd>
+<dd id="users-metric-locked-help" class="sg-metric__help" hidden>
+<span role="tooltip">
+These users are locked out after failed sign-in attempts. Review the user before unlocking.
+</span>
+</dd>
+</div>
+<div id="users-metric-deletion" class="sg-metric " data-sg-metric-enhanced="true" data-sg-metric-has-subvalue="true" data-sg-metric-help-root="true" tabindex="0" aria-describedby="users-metric-deletion-help">
+<dt class="sg-metric__label">
+<span class="sg-metric__icon" data-icon="clock" aria-hidden="true">
+<svg class="sg-metric__icon-svg" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.5v5l3.25 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+</svg>
+</span>
+<span class="sg-metric__label-text">
+Deletion scheduled
+</span>
+</dt>
+<dd class="sg-metric__value">
+<span class="sg-metric__number">
+0
+</span>
+</dd>
+<dd class="sg-metric__caption">
+pending deletion
+</dd>
+<dd class="sg-metric__subvalue">
+0% of total users
+</dd>
+<dd id="users-metric-deletion-help" class="sg-metric__help" hidden>
+<span role="tooltip">
+These users are scheduled for deletion. Access is disabled and active sessions are revoked.
+</span>
+</dd>
+</div>
+</dl>
+</section>
+<section class="sg-stack sg-stack--4" aria-labelledby="find-users-heading">
+<div class="sg-stack sg-stack--1">
+<h2 id="find-users-heading" class="sg-section-heading">
+Find users
+</h2>
+</div>
+<form method="get" action="/admin/users" class="sg-filter-panel sg-stack">
+<div class="sg-search-row">
+<label class="sg-field">
+<span class="sg-field-label">
+Search
+</span>
+<input type="text" name="q" value="" placeholder="Email, user id, or name" class="sg-input">
+</label>
+<button type="submit" class="sg-btn sg-btn--primary">
+Search
+</button>
+<a href="/admin/users" class="sg-btn sg-btn--ghost">
+Clear
+</a>
+</div>
+<div class="sg-cluster">
+<label class="sg-filter-chip">
+<input type="checkbox" name="confirmed" value="true" class="checkbox checkbox-sm">
+<span>
+confirmed
+</span>
+</label>
+<label class="sg-filter-chip">
+<input type="checkbox" name="mfa" value="true" class="checkbox checkbox-sm">
+<span>
+mfa
+</span>
+</label>
+<label class="sg-filter-chip">
+<input type="checkbox" name="passkeys" value="true" class="checkbox checkbox-sm">
+<span>
+passkeys
+</span>
+</label>
+<label class="sg-filter-chip">
+<input type="checkbox" name="locked" value="true" class="checkbox checkbox-sm">
+<span>
+locked
+</span>
+</label>
+<label class="sg-filter-chip">
+<input type="checkbox" name="deleted" value="true" class="checkbox checkbox-sm">
+<span>
+deleted
+</span>
+</label>
+<label class="sg-filter-chip">
+<input type="checkbox" name="needs_review" value="true" class="checkbox checkbox-sm">
+<span>
+needs review
+</span>
+</label>
+</div>
+<div class="sg-stack sg-stack--3">
+<button type="button" phx-click="toggle_filters" class="sg-btn sg-btn--ghost sg-btn--sm sg-self-start" aria-expanded="false">
+More filters
+</button>
+</div>
+<input type="hidden" name="page_size" value="25">
+<input type="hidden" name="order_by" value="inserted_at">
+<input type="hidden" name="order_direction" value="desc">
+</form>
+</section>
+<div id="admin-users-desktop-results" data-testid="admin-users-desktop-results" class="sg-table-panel sg-show-desktop">
+<table class="sg-table">
+<thead>
+<tr>
+<th>
+<a href="/admin/users?order_by=inserted_at&amp;order_direction=asc&amp;page=1">
+User
+</a>
+</th>
+<th>
+Status
+</th>
+<th>
+Organizations
+</th>
+<th>
+Activity
+</th>
+<th class="sg-cell-right">
+Action
+</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+<div id="admin-users-mobile-results" data-testid="admin-users-mobile-results" class="sg-stack sg-stack--3 sg-show-mobile">
+</div>
+<div class="sg-empty-state sg-stack sg-stack--3 ">
+<p class="sg-empty-state__title">
+No users match this view
+</p>
+<p class="sg-muted sg-text-sm">
+Users appear here as people register and sign in. Once users exist, you can search, filter, and open any user.
+</p>
+</div>
+</section>

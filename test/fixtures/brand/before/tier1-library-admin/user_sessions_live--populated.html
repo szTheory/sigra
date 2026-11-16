@@ -1,0 +1,98 @@
+<section class="sg-stack sg-stack--6">
+<span class="sg-scope-ribbon sg-muted sg-text-sm ">
+Global user operations
+</span>
+<header class="sg-page-header">
+<p class="sg-page-kicker">
+Sessions
+</p>
+<h1 class="sg-page-title">
+active.user@demo.tasklane.test
+</h1>
+<p class="sg-page-copy">
+2 active sessions
+</p>
+</header>
+<section class="sg-card sg-stack sg-stack--3">
+<div class="sg-cluster sg-cluster--between">
+<h2 class="sg-section-heading">
+Sessions
+</h2>
+<button type="button" phx-click="open_revoke_all_sessions" class="sg-btn sg-btn--danger sg-btn--sm">
+Revoke all sessions
+</button>
+</div>
+<div class="sg-table-panel">
+<table class="sg-table">
+<thead>
+<tr>
+<th>
+Type
+</th>
+<th>
+IP address
+</th>
+<th>
+Last activity
+</th>
+<th class="sg-cell-right">
+Action
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<span class="sg-strong">
+standard
+</span>
+</td>
+<td>
+<code class="sg-code">
+203.0.113.10
+</code>
+</td>
+<td class="sg-muted">
+<span class="sg-summary-facts__num">
+2026-05-14 08:12
+</span>
+<span class="sg-muted sg-text-xs">
+{{RELATIVE}}
+</span>
+</td>
+<td class="sg-cell-right">
+<button type="button" phx-click="open_revoke_session" phx-value-token="AQIDBA" class="sg-btn sg-btn--danger sg-btn--sm">
+Revoke session
+</button>
+</td>
+</tr>
+<tr>
+<td>
+<span class="sg-strong">
+remember_me
+</span>
+</td>
+<td>
+<code class="sg-code">
+203.0.113.11
+</code>
+</td>
+<td class="sg-muted">
+<span class="sg-summary-facts__num">
+2026-05-12 16:40
+</span>
+<span class="sg-muted sg-text-xs">
+{{RELATIVE}}
+</span>
+</td>
+<td class="sg-cell-right">
+<button type="button" phx-click="open_revoke_session" phx-value-token="BQYHCA" class="sg-btn sg-btn--danger sg-btn--sm">
+Revoke session
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>

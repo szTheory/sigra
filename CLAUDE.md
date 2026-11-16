@@ -227,7 +227,29 @@ No project skills found. Add skills to any of: `.claude/skills/`, `.agents/skill
 
 ## Admin UI Direction
 
-When changing Sigra admin UI, follow `guides/reference/admin-ui-principles.md` and `guides/reference/admin-design-contract.md`. Preserve the `sg-*` cascade-layer/BEM design system, use the Rail Accent brand assets from `brandbook/`, support Light/Dark/System theme behavior, and keep browser tests deterministic.
+When changing Sigra admin UI, follow `guides/reference/admin-ui-principles.md` and `guides/reference/admin-design-contract.md`. Preserve the `sg-*` cascade-layer/BEM design system, use the brand book in `brand/` (identity rules in `brand/BRAND.md`, tokens in `brand/tokens.json`), support Light/Dark/System theme behavior, and keep browser tests deterministic. The `--sg-*` token names stay; token values move to the book in a later phase.
+
+## GSD Workflow Preferences
+
+Standing owner preferences for GSD runs, including `/gsd-autonomous`. Subagents: apply these by default.
+
+### Discuss phases
+
+- **Fan out, then synthesize.** For each decision point, fan out subagents (context-window efficient) and keep fanning out to the point of diminishing returns, enumerating every relevant angle before synthesizing one coherent set of recommendations.
+- **Breadth and depth through stakeholder-role lenses:** security, product, technical, design, devops, plus whatever domain specialties apply (Elixir/Phoenix, CSS and rendering, distributed systems, and so on). For each: pros, cons, tradeoffs, examples, patterns, anti-patterns, best practices, footguns, lessons learned.
+- **Research, prefer primary sources.** Consult official docs, specs and reputable references first; look at how other products and ecosystems solved the same problem; think for yourself rather than only repeating sources.
+- **Adversarial pass.** Challenge the draft recommendations before finalizing.
+- **One-shot, auto-follow.** Synthesize one recommended answer per decision and follow it; do not ask the owner to pick A/B/C unless the decision is very impactful, hard to reverse or outward-facing.
+- **UI/UX decisions:** weigh existing patterns, conventions, principle of least surprise and elegant, consistent design.
+- **Dependencies:** another copy-paste is better than another dep. Add a dependency only when truly needed; prefer smaller, flatter dependency trees (more secure, fewer odd abstractions).
+- **Cheap checks first.** Where applicable, add or run cheap consistency checks before the long test, process or suite. Find the bottleneck and the low-hanging fruit early; step back instead of banging on the same wall.
+
+### Verify phases
+
+- **Shift verification left and automate it.** Integration, e2e, smoke and seam tests; an automate-the-world DevOps mindset. The goal is zero human verification or UAT: hand the owner only what is absolutely necessary, and take automation as far as it gives useful feedback, no further.
+- **Throwaway verification is fine.** Not everything belongs in CI; add to CI only when there is recurring value.
+- **Record it so we never loop.** Once a verification is automated, record where, so it is not revisited; reduce toil.
+- **CI efficiency sweep.** Whenever a CI run is in progress or has just finished, evaluate low-hanging fruit to make it faster and cheaper (iteration time, GitHub Actions minutes) without lowering quality; no pointless bottlenecks. This guidance is also referenced from the CI and release sections of `MAINTAINING.md`.
 
 <!-- GSD:workflow-start source:GSD defaults -->
 ## GSD Workflow Enforcement

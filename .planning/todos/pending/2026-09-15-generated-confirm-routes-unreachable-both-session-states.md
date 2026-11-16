@@ -92,3 +92,29 @@ Assert the confirm route confirms **from both session states**, and assert on
 `confirmed_at` — **not** on the response status. A status-only assertion passes while
 confirming nothing, which is precisely the failure mode above. This test belongs with the
 W-3 generated-auth coverage gap.
+
+## Status update (Phase 259 gap closure) — 2026-11-15
+
+Fresh read of the generated sources at HEAD `958a03834`, not of this file's own text. Labels: **read in source, not executed** means the claim comes from reading the file at the cited line and nothing was run against a generated host. The Problem, Solution and Required test sections above are written for the state at `160de093` and are historical for the LiveView flavor.
+
+### The LiveView flavor was repaired in Phase 246
+
+Commits `6be7eff6b` (Phase 246: scoped generated confirmation source, #287) and `590eb4ed3` (harden generated confirmation retries, #288). What the current sources show (read in source, not executed):
+
+- `lib/sigra/install/features/core.ex:387-402` (`optional_scope_confirmation_routes`) emits a `scope "/users"` with `pipe_through [:browser]` and `live_session :sigra_confirmation, on_mount: [{Web.UserAuth, :mount_current_scope}]` (`:394-395`) around the confirm routes. For a live install `redirect_scope_confirmation_routes` is empty (`:404`), so the confirm routes are no longer injected into the `redirect_if_user_is_authenticated` scope (`:522`). The bare `live` route text quoted under "The two halves" is still the definition at `:370-376`, but it is now interpolated into that `live_session` (`:396`) instead of the redirect scope.
+- The committed golden router shows it: `test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp_web/router.ex:98-102`. `test/sigra/install/generator_wiring_test.exs:185` asserts `live_session :sigra_confirmation` is emitted.
+- The template no longer does the three `socket.assigns.current_scope.user` reads listed in `files`. `priv/templates/sigra.install/core/confirmation_live.ex:270-277` (`with_confirmation_user/2`) reads `socket.assigns[:current_scope]` without raising and, for an anonymous visitor, sets `live_action: :sign_in_required`, rendered in place at `:103-110`. The resend and code-entry handlers go through it (`:181`, `:216`).
+- The "Required test" above now exists for the LiveView flavor: `scripts/ci/generated-confirmation-probe.exs` asserts on `confirmed_at` for an anonymous link confirmation (`:11-60`), for a signed-in visitor confirming another owner's link while staying signed in (`:64-107`), and for anonymous code and resend events that show sign-in guidance and change no account (`:110`). It is rendered and run by `scripts/ci/install-smoke.sh:240-247`. Not executed in this plan.
+
+### What remains: the non-live controller flavor (`--no-live`), read in source, not executed
+
+- `lib/sigra/install/features/core.ex:404` sets `redirect_scope_confirmation_routes = confirmation_routes` for a non-live install, so the four controller routes (`lib/sigra/install/features/core.ex:380-383`: `get /confirm`, `post /confirm`, `get /confirm/:token`, `post /confirm/resend`) are still emitted inside `scope "/users"` with `pipe_through [:browser, :redirect_if_user_is_authenticated]` (`lib/sigra/install/features/core.ex:522`, `:529`).
+- Signed-in visitor: `redirect_if_user_is_authenticated` (`priv/templates/sigra.install/core/user_auth.ex:385-392`) redirects and halts before any confirmation action runs, so a signed-in visitor's token link, code entry and resend never reach the controller and `confirmed_at` stays `nil` with no error. This is the same silent no-op described under "Both paths fail".
+- Anonymous visitor: `create/2` (`priv/templates/sigra.install/core/confirmation_controller.ex:25-26`) and `resend/2` (`:94-95`) read `conn.assigns.current_scope.user`, and `fetch_current_scope` assigns `nil` for an anonymous visitor (`priv/templates/sigra.install/core/user_auth.ex:164-170`, `:191`), so these two actions appear to raise. The token link action `confirm/2` (`:52`, `:74`) reads no `current_scope` and so appears to work for an anonymous visitor only. The code path needs a session user (`confirm_user_by_code/2` scopes by `user_id`, as the Problem section explains), so for this flavor it appears unreachable in both session states.
+- No generated-host probe covers this flavor: the install-smoke probe and the Playwright spec drive the LiveView pages (`live(conn, "/users/confirm")`).
+
+A fix for the residual is the same shape as the Solution above, applied to the controller flavor, plus a generated-host check for it. It is not done here: Phase 259 ships zero bytes under `lib/` and `priv/`. This file stays pending, and the fast-follow disposition is unchanged.
+
+### The example host was repaired separately, and its row is example-host evidence only
+
+Plan 259-15 repaired `test/example` only: `live "/confirm"` now sits in `live_session :confirmation` on `:mount_current_scope` outside `redirect_if_user_is_authenticated`, `ConfirmationLive` reads the session user through a nil-safe lookup, an anonymous resend or code entry flashes and redirects to log in, and regression tests assert on `confirmed_at`. That anonymous behaviour (flash and redirect) differs from the generated page's in-place `:sign_in_required` render. The registry row `confirmation-resend` in `test/fixtures/brand/public-surfaces.json` is therefore example-host evidence only: it claims nothing about a generated host, neither the LiveView flavor (covered by the Phase 246 probe above) nor the non-live controller flavor (covered by nothing). The row keeps this path in its `todo` field because the residual above is still open.

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { loginSubmit } from "../helpers/loginSubmit";
 
 async function waitForLiveViewReady(page: Parameters<typeof test>[0]["page"]) {
   await page.waitForSelector("[data-phx-session].phx-connected", {
@@ -23,7 +24,7 @@ async function registerAndAuthenticateUser(
   if (page.url().includes("/users/log_in")) {
     await page.fill('#login_form input[name="user[email]"]', email);
     await page.fill('#login_form input[name="user[password]"]', password);
-    await page.click('#login_form button:has-text("Log in")');
+    await loginSubmit(page).click();
     await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
   }
 }

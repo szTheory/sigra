@@ -2,18 +2,41 @@
   .sigra-auth,
   .sigra-auth-email-preview {
     --sigra-auth-accent: var(--sigra-auth-light-accent, #c2410c);
-    --sigra-auth-accent-hover: color-mix(in oklab, var(--sigra-auth-accent) 94%, white);
+    --sigra-auth-accent-hover: color-mix(
+      in oklab,
+      var(--sigra-auth-accent) 94%,
+      white
+    );
     --sigra-auth-on-accent: var(--sigra-auth-light-on-accent, #ffffff);
     --sigra-auth-bg: var(--sigra-auth-light-bg, #f7f4ee);
     --sigra-auth-surface: var(--sigra-auth-light-surface, #ffffff);
     --sigra-auth-text: var(--sigra-auth-light-text, #171717);
     --sigra-auth-muted: var(--sigra-auth-light-muted, #6b6258);
     --sigra-auth-border: var(--sigra-auth-light-border, #ded8cf);
+    --sigra-auth-risk: #b42318;
+    --sigra-auth-risk-soft: #fff1f0;
+    --sigra-auth-warn: #a15c00;
+    --sigra-auth-warn-soft: #fff7e6;
+    --sigra-auth-ok: #176b43;
+    --sigra-auth-ok-soft: #ecfdf3;
     --sigra-auth-radius: 0.5rem;
-    --sigra-auth-shadow: 0 0 0 1px color-mix(in oklab, var(--sigra-auth-border) 72%, transparent), 0 24px 70px -44px rgba(23, 23, 23, 0.55);
+    --sigra-auth-space-1: 0.25rem;
+    --sigra-auth-space-2: 0.5rem;
+    --sigra-auth-space-3: 0.75rem;
+    --sigra-auth-space-4: 1rem;
+    --sigra-auth-space-6: 1.5rem;
+    --sigra-auth-shadow:
+      0 0 0 1px color-mix(in oklab, var(--sigra-auth-border) 72%, transparent),
+      0 24px 70px -44px rgba(23, 23, 23, 0.55);
     color: var(--sigra-auth-text);
     color-scheme: light;
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
     transition:
       background 220ms cubic-bezier(0.2, 0, 0, 1),
       color 180ms cubic-bezier(0.2, 0, 0, 1),
@@ -23,8 +46,16 @@
   .sigra-auth {
     min-height: 100vh;
     background:
-      radial-gradient(circle at top left, color-mix(in oklab, var(--sigra-auth-accent) 18%, transparent), transparent 24rem),
-      linear-gradient(180deg, color-mix(in oklab, var(--sigra-auth-bg) 94%, #fff), var(--sigra-auth-bg));
+      radial-gradient(
+        circle at top left,
+        color-mix(in oklab, var(--sigra-auth-accent) 18%, transparent),
+        transparent 24rem
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--sigra-auth-bg) 94%, #fff),
+        var(--sigra-auth-bg)
+      );
   }
 
   .sigra-auth[data-theme="dark"],
@@ -35,8 +66,18 @@
     --sigra-auth-surface: var(--sigra-auth-dark-surface, #211f1c);
     --sigra-auth-text: var(--sigra-auth-dark-text, #f4f1eb);
     --sigra-auth-muted: var(--sigra-auth-dark-muted, #bdb5aa);
-    --sigra-auth-border: var(--sigra-auth-dark-border, rgba(255, 255, 255, 0.14));
-    --sigra-auth-shadow: 0 0 0 1px rgba(255, 255, 255, 0.09), 0 24px 70px -44px rgba(0, 0, 0, 0.9);
+    --sigra-auth-border: var(
+      --sigra-auth-dark-border,
+      rgba(255, 255, 255, 0.14)
+    );
+    --sigra-auth-risk: #f8a39c;
+    --sigra-auth-risk-soft: rgba(248, 113, 113, 0.16);
+    --sigra-auth-warn: #f5c451;
+    --sigra-auth-warn-soft: rgba(245, 196, 81, 0.16);
+    --sigra-auth-ok: #5dd1a0;
+    --sigra-auth-ok-soft: rgba(52, 211, 153, 0.16);
+    --sigra-auth-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.09), 0 24px 70px -44px rgba(0, 0, 0, 0.9);
     color-scheme: dark;
   }
 
@@ -49,8 +90,19 @@
       --sigra-auth-surface: var(--sigra-auth-dark-surface, #211f1c);
       --sigra-auth-text: var(--sigra-auth-dark-text, #f4f1eb);
       --sigra-auth-muted: var(--sigra-auth-dark-muted, #bdb5aa);
-      --sigra-auth-border: var(--sigra-auth-dark-border, rgba(255, 255, 255, 0.14));
-      --sigra-auth-shadow: 0 0 0 1px rgba(255, 255, 255, 0.09), 0 24px 70px -44px rgba(0, 0, 0, 0.9);
+      --sigra-auth-border: var(
+        --sigra-auth-dark-border,
+        rgba(255, 255, 255, 0.14)
+      );
+      --sigra-auth-risk: #f8a39c;
+      --sigra-auth-risk-soft: rgba(248, 113, 113, 0.16);
+      --sigra-auth-warn: #f5c451;
+      --sigra-auth-warn-soft: rgba(245, 196, 81, 0.16);
+      --sigra-auth-ok: #5dd1a0;
+      --sigra-auth-ok-soft: rgba(52, 211, 153, 0.16);
+      --sigra-auth-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.09),
+        0 24px 70px -44px rgba(0, 0, 0, 0.9);
       color-scheme: dark;
     }
   }
@@ -80,8 +132,13 @@
     padding: 0;
   }
 
+  .sigra-auth--preview .sigra-auth__panel {
+    width: 100%;
+  }
+
   .sigra-auth__panel {
     width: min(100%, 34rem);
+    min-width: 0;
     display: grid;
     gap: 1.5rem;
     padding: clamp(1.25rem, 3vw, 2rem);
@@ -93,9 +150,244 @@
       box-shadow 220ms cubic-bezier(0.2, 0, 0, 1);
   }
 
-  .sigra-auth--preview .sigra-auth__panel {
-    width: 100%;
+  /*
+   * Public generated-auth vocabulary. These classes are the stable,
+   * host-owned contract. The utility/Daisy-shaped selectors later in this
+   * file are a compatibility bridge for templates generated before v1.46.
+   */
+  .sigra-auth-flow,
+  .sigra-auth-stack {
+    min-width: 0;
+    display: grid;
+    gap: var(--sigra-auth-space-4);
   }
+
+  .sigra-auth-stack--2 { gap: var(--sigra-auth-space-2); }
+  .sigra-auth-stack--3 { gap: var(--sigra-auth-space-3); }
+  .sigra-auth-stack--4 { gap: var(--sigra-auth-space-4); }
+  .sigra-auth-stack--6 { gap: var(--sigra-auth-space-6); }
+
+  .sigra-auth-flow {
+    width: min(100%, 28rem);
+    margin-inline: auto;
+  }
+
+  .sigra-auth-flow--wide { width: min(100%, 42rem); }
+
+  .sigra-auth-copy { margin: 0; }
+  .sigra-auth-copy--muted { color: var(--sigra-auth-muted); }
+  .sigra-auth-copy--center { text-align: center; }
+  .sigra-auth-copy--danger { color: var(--sigra-auth-risk); }
+  .sigra-auth-copy--warning { color: var(--sigra-auth-warn); }
+
+  .sigra-auth-heading { margin: 0; }
+  .sigra-auth-heading--center { text-align: center; }
+
+  .sigra-auth-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sigra-auth-space-3);
+  }
+
+  .sigra-auth-cluster--between { justify-content: space-between; }
+  .sigra-auth-cluster--center { justify-content: center; }
+
+  .sigra-auth-split {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--sigra-auth-space-4);
+  }
+
+  .sigra-auth-grow { min-width: 0; flex: 1 1 auto; }
+
+  .sigra-auth-section {
+    display: grid;
+    gap: var(--sigra-auth-space-4);
+    border: 1px solid var(--sigra-auth-border);
+    border-radius: var(--sigra-auth-radius);
+    padding: var(--sigra-auth-space-4);
+    background: color-mix(
+      in oklab,
+      var(--sigra-auth-surface) 92%,
+      var(--sigra-auth-bg)
+    );
+  }
+
+  .sigra-auth-divider {
+    display: flex;
+    align-items: center;
+    gap: var(--sigra-auth-space-3);
+    color: var(--sigra-auth-muted);
+    font-size: 0.875rem;
+  }
+
+  .sigra-auth-divider::before,
+  .sigra-auth-divider::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: var(--sigra-auth-border);
+  }
+
+  .sigra-auth-disclosure {
+    border-top: 1px solid var(--sigra-auth-border);
+    padding-top: var(--sigra-auth-space-4);
+  }
+
+  .sigra-auth-disclosure > summary {
+    min-height: 2.75rem;
+    cursor: pointer;
+    color: var(--sigra-auth-accent);
+    font-weight: 700;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+
+  .sigra-auth-disclosure[open] > summary {
+    margin-bottom: var(--sigra-auth-space-4);
+  }
+
+  .sigra-auth-notice {
+    border: 1px solid var(--sigra-auth-border);
+    border-radius: var(--sigra-auth-radius);
+    padding: 0.9rem 1rem;
+    background: var(--sigra-auth-surface);
+    color: var(--sigra-auth-text);
+  }
+
+  .sigra-auth-notice--success {
+    border-color: color-mix(in oklab, var(--sigra-auth-ok) 40%, var(--sigra-auth-border));
+    background: var(--sigra-auth-ok-soft);
+    color: var(--sigra-auth-ok);
+  }
+
+  .sigra-auth-notice--warning {
+    border-color: color-mix(in oklab, var(--sigra-auth-warn) 40%, var(--sigra-auth-border));
+    background: var(--sigra-auth-warn-soft);
+    color: var(--sigra-auth-warn);
+  }
+
+  .sigra-auth-notice--danger {
+    border-color: color-mix(in oklab, var(--sigra-auth-risk) 40%, var(--sigra-auth-border));
+    background: var(--sigra-auth-risk-soft);
+    color: var(--sigra-auth-risk);
+  }
+
+  .sigra-auth-status {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    min-height: 1.75rem;
+    border: 1px solid var(--sigra-auth-border);
+    border-radius: 999px;
+    padding-inline: 0.65rem;
+    color: var(--sigra-auth-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .sigra-auth-empty {
+    padding-block: var(--sigra-auth-space-6);
+    color: var(--sigra-auth-muted);
+    text-align: center;
+  }
+
+  .sigra-auth-code,
+  .sigra-auth-code-list code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+
+  .sigra-auth-code-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sigra-auth-space-3);
+    margin: 0;
+    padding: var(--sigra-auth-space-4);
+    border: 1px solid var(--sigra-auth-border);
+    border-radius: var(--sigra-auth-radius);
+    background: var(--sigra-auth-bg);
+    list-style-position: inside;
+  }
+
+  .sigra-auth-list {
+    display: grid;
+    gap: var(--sigra-auth-space-2);
+    margin: 0;
+    padding-inline-start: 1.25rem;
+    color: var(--sigra-auth-muted);
+  }
+
+  .sigra-auth-check-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--sigra-auth-space-3);
+    min-height: 2.75rem;
+  }
+
+  .sigra-auth-check {
+    flex: 0 0 auto;
+  }
+
+  .sigra-auth-code-input {
+    text-align: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 1.05rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.12em;
+  }
+
+  .sigra-auth-meter {
+    height: 0.5rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--sigra-auth-border);
+  }
+
+  .sigra-auth-meter__value {
+    height: 100%;
+    border-radius: inherit;
+    background: var(--sigra-auth-accent);
+  }
+
+  .sigra-auth-meter__value--weak { background: var(--sigra-auth-risk); }
+  .sigra-auth-meter__value--fair { background: var(--sigra-auth-warn); }
+  .sigra-auth-meter__value--strong { background: var(--sigra-auth-ok); }
+
+  .sigra-auth-status--danger { color: var(--sigra-auth-risk); }
+  .sigra-auth-status--warning { color: var(--sigra-auth-warn); }
+  .sigra-auth-status--success { color: var(--sigra-auth-ok); }
+
+  .sigra-auth-tabs {
+    display: flex;
+    gap: var(--sigra-auth-space-1);
+    border-bottom: 1px solid var(--sigra-auth-border);
+  }
+
+  .sigra-auth-tab {
+    min-height: 2.75rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--sigra-auth-muted);
+  }
+
+  .sigra-auth-tab[aria-selected="true"] {
+    border-bottom-color: var(--sigra-auth-accent);
+    color: var(--sigra-auth-accent);
+  }
+
+  .sigra-auth-action--block { width: 100%; }
+  .sigra-auth-action--small { min-height: 2.25rem; padding-inline: 0.75rem; font-size: 0.875rem; }
+
+  .sigra-auth-icon { width: 1.25rem; height: 1.25rem; flex: 0 0 auto; }
+  .sigra-auth-icon--lg { width: 3rem; height: 3rem; }
+
+  .sigra-auth-hidden { display: none; }
 
   .sigra-auth__brand {
     display: flex;
@@ -121,8 +413,13 @@
     align-items: center;
     gap: 0.2rem;
     padding: 0.45rem;
-    background: color-mix(in oklab, var(--sigra-auth-accent) 12%, var(--sigra-auth-surface));
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sigra-auth-accent) 22%, transparent);
+    background: color-mix(
+      in oklab,
+      var(--sigra-auth-accent) 12%,
+      var(--sigra-auth-surface)
+    );
+    box-shadow: inset 0 0 0 1px
+      color-mix(in oklab, var(--sigra-auth-accent) 22%, transparent);
     transition:
       background 220ms cubic-bezier(0.2, 0, 0, 1),
       box-shadow 220ms cubic-bezier(0.2, 0, 0, 1);
@@ -137,13 +434,26 @@
     transition: background-color 180ms cubic-bezier(0.2, 0, 0, 1);
   }
 
-  .sigra-auth__mark span:nth-child(2) { height: 1.7rem; opacity: 0.72; }
-  .sigra-auth__mark span:nth-child(3) { height: 1rem; opacity: 0.88; }
+  .sigra-auth__mark span:nth-child(2) {
+    height: 1.7rem;
+    opacity: 0.72;
+  }
+  .sigra-auth__mark span:nth-child(3) {
+    height: 1rem;
+    opacity: 0.88;
+  }
 
-  /* Theme-specific logo slots. Mirrors the installer template.
-     Must sit AFTER .sigra-auth__mark and qualify the attribute with the element
-     class: a bare [data-sigra-logo-slot] selector ties with .sigra-auth__mark on
-     specificity, so the later display:grid would win and the dark placeholder would
+  /* Theme-specific logo slots.
+     Only emitted when theme is "system" AND the light and dark themes resolve
+     different assets; a pinned theme renders one slot with no data attribute, so
+     these rules never apply to it. Each slot is independently an <img> or the
+     placeholder mark, which is why this is CSS toggling rather than <picture> --
+     <picture> cannot express "placeholder in light, logo in dark".
+
+     Both the placement and the doubled selectors are load-bearing. These rules must
+     sit AFTER .sigra-auth__mark, and must qualify the attribute with the element
+     class, because a bare [data-sigra-logo-slot] selector ties with .sigra-auth__mark
+     on specificity -- the later display:grid would win and the dark placeholder would
      stay visible in light mode. */
   .sigra-auth__logo[data-sigra-logo-slot="dark"],
   .sigra-auth__mark[data-sigra-logo-slot="dark"] {
@@ -166,18 +476,65 @@
   }
 
   .sigra-auth__product {
+    min-width: 0;
     margin: 0;
     color: var(--sigra-auth-text);
     font-size: 0.95rem;
     font-weight: 750;
     letter-spacing: 0;
+    overflow-wrap: anywhere;
     transition: color 180ms cubic-bezier(0.2, 0, 0, 1);
   }
 
+  .sigra-auth__footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    border-top: 1px solid var(--sigra-auth-border);
+    padding-top: 1rem;
+    color: var(--sigra-auth-muted);
+    font-size: 0.85rem;
+    transition:
+      border-color 180ms cubic-bezier(0.2, 0, 0, 1),
+      color 180ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .sigra-auth__footer a,
   .sigra-auth a {
     color: var(--sigra-auth-accent);
     text-decoration: none;
     transition: color 180ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .sigra-auth a:hover {
+    text-decoration: underline;
+  }
+
+  /* H2 and P shared one identical right edge with the surrounding stack.
+     Neither had min-width: 0, so as grid items of a single-implicit-column
+     .sigra-auth-stack both stretch to the shared column track's width, which is
+     itself floored by whichever sibling's own min-content is largest (here, the
+     <p> copy's longest unbreakable word). min-width: 0 lets each item shrink.
+
+     Use `overflow-wrap: anywhere` here, NOT `break-word`: this rule's selector,
+     `.sigra-auth p`, has higher specificity (0,1,1) than the pre-existing
+     `.sigra-auth__product` rule (0,1,0) below and appears later in the file, so
+     `break-word` here would silently override that rule's `overflow-wrap:
+     anywhere` for the wordmark <p>. Per the CSS Text spec, `anywhere` (not
+     `break-word`) is what participates in a flex/grid item's
+     automatic-minimum-size calculation -- `break-word` only affects actual
+     render-time wrapping, not intrinsic sizing -- so that override would
+     reintroduce an un-contained min-content floor on the wordmark. Using
+     `anywhere` here matches .sigra-auth__product's value, so the cascade agrees
+     everywhere instead of silently overriding it. */
+  .sigra-auth h1,
+  .sigra-auth h2,
+  .sigra-auth h3,
+  .sigra-auth p {
+    margin-top: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .sigra-auth h1 {
@@ -185,20 +542,25 @@
     font-size: clamp(1.55rem, 3vw, 2rem);
     line-height: 1.12;
     letter-spacing: 0;
+  }
+
+  .sigra-auth h2,
+  .sigra-auth h3,
+  .sigra-auth .font-semibold {
+    color: var(--sigra-auth-text);
     transition: color 180ms cubic-bezier(0.2, 0, 0, 1);
   }
 
-  .sigra-auth p {
+  .sigra-auth p,
+  .sigra-auth .text-gray-500,
+  .sigra-auth .text-gray-600,
+  .sigra-auth .text-base-content\/70 {
     color: var(--sigra-auth-muted);
     transition: color 180ms cubic-bezier(0.2, 0, 0, 1);
   }
 
-  .sigra-auth h1,
-  .sigra-auth h2,
-  .sigra-auth h3,
-  .sigra-auth p {
-    min-width: 0; /* Mirrors the template's h1-h3/p containment fix, corrected to overflow-wrap: anywhere so it does not override .sigra-auth__product's own overflow-wrap with a value the CSS spec treats as weaker for intrinsic sizing. */
-    overflow-wrap: anywhere;
+  .sigra-auth h1 {
+    transition: color 180ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   .sigra-auth [data-passkey-login-status]:empty,
@@ -206,22 +568,162 @@
     display: none;
   }
 
-  .sigra-auth .mx-auto { margin-inline: auto; }
-  .sigra-auth .max-w-sm { max-width: 24rem; }
-  .sigra-auth .w-full { width: 100%; }
-  .sigra-auth form { display: grid; gap: 1rem; }
-  .sigra-auth form :where(.fieldset, label) {
-    min-width: 0; /* Mirrors the template's grid-item containment fix. */
+  .sigra-auth .mx-auto {
+    margin-inline: auto;
   }
+  .sigra-auth .max-w-sm {
+    max-width: 24rem;
+  }
+  .sigra-auth .max-w-md {
+    max-width: 28rem;
+  }
+  .sigra-auth .max-w-2xl {
+    max-width: 42rem;
+  }
+  .sigra-auth .w-full {
+    width: 100%;
+  }
+  .sigra-auth .block {
+    display: block;
+  }
+  .sigra-auth .hidden {
+    display: none;
+  }
+  .sigra-auth .text-center {
+    text-align: center;
+  }
+  .sigra-auth .flex {
+    display: flex;
+  }
+  .sigra-auth .inline-flex {
+    display: inline-flex;
+  }
+  .sigra-auth .items-center {
+    align-items: center;
+  }
+  .sigra-auth .items-start {
+    align-items: flex-start;
+  }
+  .sigra-auth .justify-between {
+    justify-content: space-between;
+  }
+  .sigra-auth .justify-center {
+    justify-content: center;
+  }
+  .sigra-auth .flex-1 {
+    flex: 1 1 0%;
+  }
+  .sigra-auth .gap-2 {
+    gap: 0.5rem;
+  }
+  .sigra-auth .gap-3 {
+    gap: 0.75rem;
+  }
+  .sigra-auth .space-y-3 > * + * {
+    margin-top: 0.75rem;
+  }
+  .sigra-auth .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+  .sigra-auth .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+  .sigra-auth .mt-1 {
+    margin-top: 0.25rem;
+  }
+  .sigra-auth .mt-2 {
+    margin-top: 0.5rem;
+  }
+  .sigra-auth .mt-3 {
+    margin-top: 0.75rem;
+  }
+  .sigra-auth .mt-4 {
+    margin-top: 1rem;
+  }
+  .sigra-auth .mt-6 {
+    margin-top: 1.5rem;
+  }
+  .sigra-auth .mt-8 {
+    margin-top: 2rem;
+  }
+  .sigra-auth .mb-4 {
+    margin-bottom: 1rem;
+  }
+  .sigra-auth .my-6 {
+    margin-block: 1.5rem;
+  }
+  .sigra-auth .py-8 {
+    padding-block: 2rem;
+  }
+  .sigra-auth .py-16 {
+    padding-block: 4rem;
+  }
+  .sigra-auth .px-2 {
+    padding-inline: 0.5rem;
+  }
+  .sigra-auth .px-3 {
+    padding-inline: 0.75rem;
+  }
+  .sigra-auth .px-4 {
+    padding-inline: 1rem;
+  }
+  .sigra-auth .p-3 {
+    padding: 0.75rem;
+  }
+  .sigra-auth .p-4 {
+    padding: 1rem;
+  }
+  .sigra-auth .p-5 {
+    padding: 1.25rem;
+  }
+  .sigra-auth .pt-6 {
+    padding-top: 1.5rem;
+  }
+
+  .sigra-auth form {
+    min-width: 0;
+    display: grid;
+    gap: 1rem;
+  }
+
+  /* .sigra-auth form is display:grid, so Phoenix 1.8's default
+     <.input> core component's <div class="fieldset mb-2"> wrapper (and the <label>
+     inside it) is itself a grid item of the form. DaisyUI's compiled .fieldset is
+     ALSO display:grid, so this un-contained grid-item ancestor still carries its
+     automatic minimum width (min-content); the earlier leaf-level min-width: 0
+     reached only the input/button, which is why that leaf-only fix was
+     insufficient on its own. */
+  .sigra-auth form :where(.fieldset, label) {
+    min-width: 0;
+  }
+
+  /* A residual, distinct overflow survives the grid-item containment fix above --
+     SPAN.label (the field-label wrapper Phoenix's default <.input> core component
+     renders) inherits DaisyUI's compiled .label utility class, which sets
+     white-space: nowrap. At 320px / 32px root font (WCAG 1.4.4 2x zoom simulation), a
+     nowrap span cannot shrink below its full unbroken text width, so it pokes past the
+     viewport regardless of any ancestor's min-width -- min-width only lifts an
+     automatic MINIMUM floor, it does not stop nowrap text from rendering at its full
+     intrinsic width. Allow it to wrap, mirroring the white-space: normal override
+     already applied to .sigra-auth-action button text below (this file, ~line 821). */
   .sigra-auth .label {
-    white-space: normal; /* Mirrors the template's nowrap-label fix. */
+    white-space: normal;
+  }
+
+  .sigra-auth label {
+    color: var(--sigra-auth-text);
+    font-weight: 650;
   }
 
   .sigra-auth input[type="email"],
   .sigra-auth input[type="password"],
-  .sigra-auth input[type="text"] {
+  .sigra-auth input[type="text"],
+  .sigra-auth input[type="number"],
+  .sigra-auth textarea,
+  .sigra-auth select,
+  .sigra-auth .input {
     width: 100%;
-    min-width: 0; /* Mirrors the template's reflow containment fix. */
+    min-width: 0; /* A grid/flex item's automatic min size is min-content (~20ch for an <input>), which width: 100% does not override. */
     min-height: 2.75rem;
     border: 1px solid var(--sigra-auth-border);
     border-radius: var(--sigra-auth-radius);
@@ -237,7 +739,8 @@
   }
 
   .sigra-auth input[type="checkbox"],
-  .sigra-auth .checkbox {
+  .sigra-auth .checkbox,
+  .sigra-auth .sigra-auth-check {
     -webkit-appearance: none;
     appearance: none;
     width: 1.25rem;
@@ -264,13 +767,15 @@
   }
 
   .sigra-auth input[type="checkbox"]::before,
-  .sigra-auth .checkbox::before {
+  .sigra-auth .checkbox::before,
+  .sigra-auth .sigra-auth-check::before {
     content: none;
     display: none;
   }
 
   .sigra-auth input[type="checkbox"]::after,
-  .sigra-auth .checkbox::after {
+  .sigra-auth .checkbox::after,
+  .sigra-auth .sigra-auth-check::after {
     content: "";
     width: 0.82rem;
     height: 0.82rem;
@@ -278,33 +783,41 @@
     opacity: 0;
     transform: scale(0.76);
     transform-origin: center;
-    transition: opacity 100ms ease, transform 140ms ease;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M6.25 11.55 2.55 7.85l1.4-1.4 2.3 2.3 5.8-5.8 1.4 1.4z'/%3E%3C/svg%3E") center / contain no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M6.25 11.55 2.55 7.85l1.4-1.4 2.3 2.3 5.8-5.8 1.4 1.4z'/%3E%3C/svg%3E") center / contain no-repeat;
+    transition:
+      opacity 100ms ease,
+      transform 140ms ease;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M6.25 11.55 2.55 7.85l1.4-1.4 2.3 2.3 5.8-5.8 1.4 1.4z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='black' d='M6.25 11.55 2.55 7.85l1.4-1.4 2.3 2.3 5.8-5.8 1.4 1.4z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
   }
 
   .sigra-auth input[type="checkbox"]:checked,
-  .sigra-auth .checkbox:checked {
+  .sigra-auth .checkbox:checked,
+  .sigra-auth .sigra-auth-check:checked {
     border-color: var(--sigra-auth-accent);
     background: var(--sigra-auth-accent);
   }
 
   .sigra-auth input[type="checkbox"]:checked::after,
-  .sigra-auth .checkbox:checked::after {
+  .sigra-auth .checkbox:checked::after,
+  .sigra-auth .sigra-auth-check:checked::after {
     opacity: 1;
     transform: scale(1);
   }
 
   @media (forced-colors: active) {
     .sigra-auth input[type="checkbox"],
-    .sigra-auth .checkbox {
+    .sigra-auth .checkbox,
+    .sigra-auth .sigra-auth-check {
       border-color: CanvasText;
       background: Canvas;
       color: CanvasText;
     }
 
     .sigra-auth input[type="checkbox"]:checked,
-    .sigra-auth .checkbox:checked {
+    .sigra-auth .checkbox:checked,
+    .sigra-auth .sigra-auth-check:checked {
       border-color: Highlight;
       background: Highlight;
       color: HighlightText;
@@ -316,19 +829,44 @@
     cursor: pointer;
   }
 
-  .sigra-auth .btn,
-  .sigra-auth button {
+  .sigra-auth input[type="radio"] {
+    accent-color: var(--sigra-auth-accent);
+  }
+
+  .sigra-auth input:focus-visible,
+  .sigra-auth textarea:focus-visible,
+  .sigra-auth select:focus-visible,
+  .sigra-auth button:focus-visible,
+  .sigra-auth a:focus-visible,
+  .sigra-auth summary:focus-visible {
+    outline: none;
+    border-color: var(--sigra-auth-accent);
+    box-shadow: 0 0 0 3px
+      color-mix(in oklab, var(--sigra-auth-accent) 28%, transparent);
+  }
+
+  .sigra-auth-action,
+  .sigra-auth :where(.btn, button) {
     display: inline-flex;
+    max-width: 100%;
+    min-width: 0;
     min-height: 2.75rem;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
     border: 1px solid transparent;
     border-radius: var(--sigra-auth-radius);
     padding-inline: 1rem;
     background: var(--sigra-auth-surface);
     color: var(--sigra-auth-text);
     font: inherit;
+    font-size: 0.95rem;
     font-weight: 750;
+    line-height: 1.25;
+    overflow-wrap: break-word;
+    word-break: normal;
+    text-align: center;
+    white-space: normal;
     text-decoration: none;
     cursor: pointer;
     transition:
@@ -339,33 +877,192 @@
       color 160ms cubic-bezier(0.2, 0, 0, 1);
   }
 
+  .sigra-auth-action:active,
   .sigra-auth .btn:active,
   .sigra-auth button:active {
     transform: scale(0.96);
   }
 
+  .sigra-auth-action--primary,
   .sigra-auth .btn-primary,
   .sigra-auth .bg-brand,
-  .sigra-auth button[type="submit"] {
+  .sigra-auth [data-sigra-auth-action="primary"] {
     background: var(--sigra-auth-accent);
     color: var(--sigra-auth-on-accent);
     box-shadow: 0 12px 24px -18px var(--sigra-auth-accent);
   }
 
   @media (hover: hover) and (pointer: fine) {
+    .sigra-auth-action:hover,
     .sigra-auth .btn:hover,
     .sigra-auth button:hover {
       text-decoration: none;
       transform: translateY(-1px);
     }
 
+    .sigra-auth-action--primary:hover,
     .sigra-auth .btn-primary:hover,
     .sigra-auth .bg-brand:hover,
-    .sigra-auth button[type="submit"]:hover {
+    .sigra-auth [data-sigra-auth-action="primary"]:hover {
       background: var(--sigra-auth-accent-hover);
       color: var(--sigra-auth-on-accent);
       box-shadow: 0 18px 32px -22px var(--sigra-auth-accent);
     }
+
+    .sigra-auth-action--secondary:hover,
+    .sigra-auth .btn-secondary:hover,
+    .sigra-auth .btn-outline:hover {
+      border-color: color-mix(
+        in oklab,
+        var(--sigra-auth-accent) 28%,
+        var(--sigra-auth-border)
+      );
+      background: color-mix(
+        in oklab,
+        var(--sigra-auth-surface) 86%,
+        var(--sigra-auth-bg)
+      );
+      box-shadow: 0 0 0 1px
+        color-mix(in oklab, var(--sigra-auth-accent) 12%, transparent);
+    }
+  }
+
+  .sigra-auth-action--secondary,
+  .sigra-auth .btn-secondary,
+  .sigra-auth .btn-outline {
+    border-color: var(--sigra-auth-border);
+    background: color-mix(
+      in oklab,
+      var(--sigra-auth-surface) 92%,
+      var(--sigra-auth-bg)
+    );
+    color: var(--sigra-auth-text);
+  }
+
+  .sigra-auth-action--ghost {
+    border-color: transparent;
+    background: transparent;
+    color: var(--sigra-auth-accent);
+  }
+
+  .sigra-auth-action--danger {
+    border-color: color-mix(in oklab, var(--sigra-auth-risk) 44%, var(--sigra-auth-border));
+    background: var(--sigra-auth-risk-soft);
+    color: var(--sigra-auth-risk);
+  }
+
+  .sigra-auth-action:disabled,
+  .sigra-auth button:disabled {
+    cursor: not-allowed;
+    opacity: 0.52;
+    transform: none;
+  }
+
+  @media (forced-colors: active) {
+    .sigra-auth-action,
+    .sigra-auth-tab,
+    .sigra-auth-notice,
+    .sigra-auth-section {
+      border-color: CanvasText;
+      forced-color-adjust: auto;
+    }
+
+    .sigra-auth-action--primary {
+      border-color: Highlight;
+      background: Highlight;
+      color: HighlightText;
+    }
+
+    .sigra-auth-tab[aria-selected="true"] {
+      border-bottom-color: Highlight;
+      color: Highlight;
+    }
+  }
+
+  .sigra-auth .btn-block {
+    width: 100%;
+  }
+
+  .sigra-auth .bg-gray-50,
+  .sigra-auth .bg-base-100,
+  .sigra-auth .alert {
+    border-color: var(--sigra-auth-border);
+    background: color-mix(
+      in oklab,
+      var(--sigra-auth-surface) 92%,
+      var(--sigra-auth-bg)
+    );
+    transition:
+      background 220ms cubic-bezier(0.2, 0, 0, 1),
+      border-color 180ms cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  .sigra-auth .rounded,
+  .sigra-auth .rounded-md,
+  .sigra-auth .rounded-lg,
+  .sigra-auth .rounded-2xl {
+    border-radius: var(--sigra-auth-radius);
+  }
+
+  .sigra-auth .border,
+  .sigra-auth .border-gray-200,
+  .sigra-auth .border-base-300 {
+    border: 1px solid var(--sigra-auth-border);
+  }
+
+  .sigra-auth .shadow-sm {
+    box-shadow: var(--sigra-auth-shadow);
+  }
+
+  .sigra-auth hr,
+  .sigra-auth .border-t {
+    border: 0;
+    border-top: 1px solid var(--sigra-auth-border);
+  }
+
+  .sigra-auth .bg-white {
+    background: var(--sigra-auth-surface);
+  }
+
+  .sigra-auth .text-brand {
+    color: var(--sigra-auth-accent);
+  }
+
+  .sigra-auth .text-red-600,
+  .sigra-auth .text-red-700 {
+    color: var(--sigra-auth-risk);
+  }
+
+  .sigra-auth .bg-red-50,
+  .sigra-auth .alert-danger {
+    background: var(--sigra-auth-risk-soft);
+    color: var(--sigra-auth-risk);
+  }
+
+  .sigra-auth .text-yellow-700,
+  .sigra-auth .alert-warning {
+    color: var(--sigra-auth-warn);
+  }
+
+  .sigra-auth .bg-yellow-50 {
+    background: var(--sigra-auth-warn-soft);
+  }
+
+  .sigra-auth .alert {
+    padding: 0.9rem 1rem;
+    border-radius: var(--sigra-auth-radius);
+  }
+
+  .sigra-auth .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .sigra-auth-email-preview {
@@ -375,7 +1072,8 @@
     border-radius: var(--sigra-auth-radius);
     background: var(--sigra-auth-bg);
     color: var(--sigra-auth-text);
-    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sigra-auth-border) 78%, transparent);
+    box-shadow: inset 0 0 0 1px
+      color-mix(in oklab, var(--sigra-auth-border) 78%, transparent);
   }
 
   .sigra-auth-email-preview__message {
@@ -420,7 +1118,31 @@
       box-shadow 180ms cubic-bezier(0.2, 0, 0, 1);
   }
 
+  @media (max-width: 640px) {
+    .sigra-auth__viewport {
+      align-items: start;
+      padding: 1rem;
+    }
+
+    .sigra-auth__panel {
+      padding: 1rem;
+    }
+
+    .sigra-auth-action,
+    .sigra-auth .btn,
+    .sigra-auth button {
+      padding-inline: 0.5rem;
+    }
+
+    .sigra-auth-code-list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
+    .sigra-auth,
+    .sigra-auth::before,
+    .sigra-auth::after,
     .sigra-auth *,
     .sigra-auth *::before,
     .sigra-auth *::after,

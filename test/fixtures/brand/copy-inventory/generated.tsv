@@ -1,0 +1,631 @@
+# test/fixtures/brand/copy-inventory/generated.tsv - copy inventory, generated lane
+#
+# WHY THIS FILE EXISTS
+# The user-visible strings of this ownership lane that the extractor reads. A change to
+# one of them shows up as a reviewed diff of this file instead of passing silently. The
+# inventory test asserts this file equals a fresh extraction of the sources, exactly.
+#
+# COVERAGE
+# Covered: dgettext("sigra", ...) msgids, literal put_flash messages, text nodes of ~H
+#   blocks, and multi-word literals in the email builders.
+# Not covered: browser-side copy in .js hooks (for example the passkey status messages),
+#   HEEx attribute values (aria-label, title, placeholder and similar), and raw string
+#   literals outside dgettext, put_flash, ~H text and the email builders (for example
+#   error response bodies and keyword values).
+# Copy in a form that is not covered can change without touching this file.
+#
+# FORMAT
+# file<TAB>kind<TAB>string. Sorted, unique, no line numbers. A tab, newline, carriage
+# return or backslash inside a string is written as \t, \n, \r or \\.
+# Lines starting with '#' are skipped on read.
+#
+# DO NOT HAND-EDIT. Regenerate with:
+#   SIGRA_BRAND_COPY=regen mix test test/sigra/brand/copy_inventory_test.exs
+admin/components/admin_shell.ex	heex_text	Admin
+admin/components/admin_shell.ex	heex_text	Audit
+admin/components/admin_shell.ex	heex_text	Brand
+admin/components/admin_shell.ex	heex_text	Branding
+admin/components/admin_shell.ex	heex_text	Dark
+admin/components/admin_shell.ex	heex_text	End impersonation
+admin/components/admin_shell.ex	heex_text	Exit to global
+admin/components/admin_shell.ex	heex_text	Global overview
+admin/components/admin_shell.ex	heex_text	Impersonating
+admin/components/admin_shell.ex	heex_text	Jump to…
+admin/components/admin_shell.ex	heex_text	Light
+admin/components/admin_shell.ex	heex_text	Organization overview
+admin/components/admin_shell.ex	heex_text	Overviews
+admin/components/admin_shell.ex	heex_text	Signed in as
+admin/components/admin_shell.ex	heex_text	System
+admin/components/admin_shell.ex	heex_text	Users
+admin/components/admin_shell.ex	heex_text	Workspace
+admin/components/admin_shell.ex	heex_text	⌘K
+admin/impersonation_controller.ex	flash	End the current impersonation session before starting another one.
+admin/impersonation_controller.ex	flash	Impersonation ended.
+admin/impersonation_controller.ex	flash	Impersonation started.
+admin/impersonation_controller.ex	flash	No impersonation session is active.
+admin/impersonation_controller.ex	flash	Please re-enter your password to continue.
+admin/impersonation_controller.ex	flash	We couldn't start impersonation.
+core/api_token_created_email.ex	msgid	A new API token was created for your account.
+core/api_token_created_email.ex	msgid	Created:
+core/api_token_created_email.ex	msgid	If you did not create this token, you should revoke it immediately from your account settings.
+core/api_token_created_email.ex	msgid	If you did not create this token, you should revoke it immediately:
+core/api_token_created_email.ex	msgid	Manage API tokens
+core/api_token_created_email.ex	msgid	New API token created
+core/api_token_created_email.ex	msgid	Scopes:
+core/api_token_created_email.ex	msgid	Token name:
+core/confirmation_controller.ex	msgid	A new confirmation email has been sent.
+core/confirmation_controller.ex	msgid	Invalid confirmation code. Please try again.
+core/confirmation_controller.ex	msgid	This confirmation link is invalid or has expired.
+core/confirmation_controller.ex	msgid	Too many attempts. Please wait a few minutes before trying again.
+core/confirmation_controller.ex	msgid	Your email has been confirmed.
+core/confirmation_controller.ex	msgid	Your email is already confirmed.
+core/confirmation_html.ex	msgid	Confirm email
+core/confirmation_html.ex	msgid	Confirm your email
+core/confirmation_html.ex	msgid	Confirmation code
+core/confirmation_html.ex	msgid	Confirmation link expired
+core/confirmation_html.ex	msgid	Didn't receive a code?
+core/confirmation_html.ex	msgid	Email already confirmed
+core/confirmation_html.ex	msgid	Enter the 6-digit code we sent to your email, or check your inbox for a confirmation link.
+core/confirmation_html.ex	msgid	Log in
+core/confirmation_html.ex	msgid	Send new confirmation email
+core/confirmation_html.ex	msgid	This confirmation link has expired or was already used.
+core/confirmation_html.ex	msgid	Your email was already confirmed. You can log in below.
+core/confirmation_live.ex	msgid	A new confirmation email has been sent.
+core/confirmation_live.ex	msgid	Confirm email
+core/confirmation_live.ex	msgid	Confirm that you own this email address.
+core/confirmation_live.ex	msgid	Confirm your email
+core/confirmation_live.ex	msgid	Confirmation code
+core/confirmation_live.ex	msgid	Confirmation link expired
+core/confirmation_live.ex	msgid	Confirming...
+core/confirmation_live.ex	msgid	Didn't receive a code?
+core/confirmation_live.ex	msgid	Email already confirmed
+core/confirmation_live.ex	msgid	Email confirmed
+core/confirmation_live.ex	msgid	Enter the 6-digit code we sent to your email, or check your inbox for a confirmation link.
+core/confirmation_live.ex	msgid	Invalid confirmation code. Please try again.
+core/confirmation_live.ex	msgid	Log in
+core/confirmation_live.ex	msgid	Please sign in to confirm your email.
+core/confirmation_live.ex	msgid	Send new confirmation email
+core/confirmation_live.ex	msgid	Sending...
+core/confirmation_live.ex	msgid	Sign in required
+core/confirmation_live.ex	msgid	This confirmation link has expired or was already used.
+core/confirmation_live.ex	msgid	This confirmation link is invalid or has expired.
+core/confirmation_live.ex	msgid	Too many attempts. Please wait a few minutes before trying again.
+core/confirmation_live.ex	msgid	Your email has been confirmed.
+core/confirmation_live.ex	msgid	Your email is already confirmed.
+core/confirmation_live.ex	msgid	Your email was already confirmed. You can log in below.
+core/emails.ex	email_text	Unknown device
+core/emails.ex	msgid	%{inviter} invited you to join %{org}
+core/emails.ex	msgid	%{inviter} invited you to join %{org} as %{role} on %{product}.
+core/emails.ex	msgid	A backup code was used to sign in to your %{app_name} account. You have %{remaining} of 8 backup codes remaining.
+core/emails.ex	msgid	A new passkey was added to your account.
+core/emails.ex	msgid	Accept invitation
+core/emails.ex	msgid	Accept the invitation:
+core/emails.ex	msgid	Account Deleted
+core/emails.ex	msgid	Account Deletion Scheduled
+core/emails.ex	msgid	Account Locked
+core/emails.ex	msgid	Account deletion cancelled
+core/emails.ex	msgid	Backup Code Used
+core/emails.ex	msgid	Backup code used to sign in
+core/emails.ex	msgid	Cancel account deletion
+core/emails.ex	msgid	Cancel email change
+core/emails.ex	msgid	Cancel via this link:
+core/emails.ex	msgid	Change your password
+core/emails.ex	msgid	Change your password:
+core/emails.ex	msgid	Changed your mind? You can cancel the deletion before the scheduled date.
+core/emails.ex	msgid	Click the link below to log in to your account. This link expires in 10 minutes.
+core/emails.ex	msgid	Confirm Email Change
+core/emails.ex	msgid	Confirm email address
+core/emails.ex	msgid	Confirm new email address
+core/emails.ex	msgid	Confirm via this link:
+core/emails.ex	msgid	Confirm your email
+core/emails.ex	msgid	Confirm your new email address
+core/emails.ex	msgid	Continue with enterprise sign-in
+core/emails.ex	msgid	Deletion Cancelled
+core/emails.ex	msgid	Device:
+core/emails.ex	msgid	Email Change Requested
+core/emails.ex	msgid	Email Updated
+core/emails.ex	msgid	Email change requested for your account
+core/emails.ex	msgid	Enterprise sign-in link:
+core/emails.ex	msgid	Expires:
+core/emails.ex	msgid	Generate new backup codes
+core/emails.ex	msgid	Generate new backup codes:
+core/emails.ex	msgid	Hi,
+core/emails.ex	msgid	Hi, click the button below to log in to your account. This link expires in 10 minutes.
+core/emails.ex	msgid	Hi, it looks like you signed up using %{provider}. You can log in with %{provider} instead, or set a password from your account settings.
+core/emails.ex	msgid	Hi, please confirm your email address by clicking the button below or entering the code.
+core/emails.ex	msgid	Hi, we received a request to reset your password. If you didn't make this request, you can ignore this email.
+core/emails.ex	msgid	Hi, your organization %{organization} requires enterprise sign-in. Use your organization sign-in before requesting local account recovery.
+core/emails.ex	msgid	IP address:
+core/emails.ex	msgid	If this was you, wait for the lockout to expire and try again. If this wasn't you, change your password immediately.
+core/emails.ex	msgid	If this was you, you can safely ignore this email.
+core/emails.ex	msgid	If this was you, you can try again after the lockout period.
+core/emails.ex	msgid	If this wasn't you, reset your password immediately.
+core/emails.ex	msgid	If you did not attempt to log in, we recommend changing your password immediately.
+core/emails.ex	msgid	If you did not enable this, change your password immediately.
+core/emails.ex	msgid	If you did not request this change, click below to cancel it immediately.
+core/emails.ex	msgid	If you weren't expecting this invitation, you can safely ignore this email.
+core/emails.ex	msgid	If you weren't expecting this invitation, you can safely ignore this email. It will expire on %{date}.
+core/emails.ex	msgid	It looks like you signed up using %{provider}. You can log in with %{provider} instead, or set a password from your account settings.
+core/emails.ex	msgid	It will expire on
+core/emails.ex	msgid	Location:
+core/emails.ex	msgid	Log in to %{app_name}
+core/emails.ex	msgid	Log in to your account
+core/emails.ex	msgid	Log in to your account:
+core/emails.ex	msgid	Log in with %{provider}
+core/emails.ex	msgid	Log in:
+core/emails.ex	msgid	New Passkey Added
+core/emails.ex	msgid	New Sign-In Detected
+core/emails.ex	msgid	New passkey added to your account
+core/emails.ex	msgid	New sign-in to your account
+core/emails.ex	msgid	Not you? Secure your account
+core/emails.ex	msgid	Not you? Secure your account:
+core/emails.ex	msgid	Or cancel via this link:
+core/emails.ex	msgid	Or confirm via this link:
+core/emails.ex	msgid	Or copy and paste this link into your browser:
+core/emails.ex	msgid	Or use this link:
+core/emails.ex	msgid	Organization:
+core/emails.ex	msgid	Password Changed
+core/emails.ex	msgid	Please confirm your email address.
+core/emails.ex	msgid	Reset password
+core/emails.ex	msgid	Reset your password
+core/emails.ex	msgid	Reset your password:
+core/emails.ex	msgid	Role:
+core/emails.ex	msgid	Secure your account
+core/emails.ex	msgid	Secure your account:
+core/emails.ex	msgid	Someone requested to change your %{app_name} account email from this address to %{new_email}. If this was you, no action is needed -- confirm the change from your new email.
+core/emails.ex	msgid	This code expires in 48 hours.
+core/emails.ex	msgid	This link expires in 24 hours.
+core/emails.ex	msgid	This link expires in 48 hours.
+core/emails.ex	msgid	Time:
+core/emails.ex	msgid	Too many failed verification attempts
+core/emails.ex	msgid	Two-Factor Authentication Disabled
+core/emails.ex	msgid	Two-Factor Authentication Enabled
+core/emails.ex	msgid	Two-factor authentication disabled
+core/emails.ex	msgid	Two-factor authentication enabled
+core/emails.ex	msgid	Two-factor authentication has been enabled on your %{app_name} account. Your account is now more secure.
+core/emails.ex	msgid	Two-factor authentication was disabled on your %{app_name} account. If this wasn't you, re-enable MFA and change your password.
+core/emails.ex	msgid	Use enterprise sign-in
+core/emails.ex	msgid	Verification Temporarily Locked
+core/emails.ex	msgid	We detected multiple failed login attempts on your account. For your security, your account has been temporarily locked for 15 minutes.
+core/emails.ex	msgid	We detected multiple failed two-factor authentication attempts on your %{app_name} account. Verification has been temporarily locked for 15 minutes.
+core/emails.ex	msgid	We noticed a new sign-in to your account from an unrecognized device or location.
+core/emails.ex	msgid	We received a request to reset your password. If you didn't make this request, you can ignore this email.
+core/emails.ex	msgid	You received this email because your %{app_name} account experienced a security event.
+core/emails.ex	msgid	You requested to change your %{app_name} account email to this address. Click the button below to confirm the change.
+core/emails.ex	msgid	You're invited to join %{org}
+core/emails.ex	msgid	You're receiving this email because you have an account with %{app_name}. If you didn't request this, you can safely ignore this email.
+core/emails.ex	msgid	You're running low on backup codes. Generate new ones to ensure you can always access your account.
+core/emails.ex	msgid	Your %{app_name} account deletion has been cancelled. Your account is active again. You can log in as usual.
+core/emails.ex	msgid	Your %{app_name} account deletion has been finalized according to the configured deletion strategy. If you'd like to use %{app_name} again in the future, you're welcome to create a new account.
+core/emails.ex	msgid	Your %{app_name} account email has been changed to this address. If you did not make this change, secure your account immediately.
+core/emails.ex	msgid	Your %{app_name} account has been deactivated and is scheduled for permanent deletion on %{date}. All sessions have been signed out.
+core/emails.ex	msgid	Your %{app_name} account password was changed.
+core/emails.ex	msgid	Your account has been deleted
+core/emails.ex	msgid	Your account has been temporarily locked
+core/emails.ex	msgid	Your account is scheduled for deletion
+core/emails.ex	msgid	Your confirmation code:
+core/emails.ex	msgid	Your email has been updated
+core/emails.ex	msgid	Your organization %{organization} requires enterprise sign-in. Use your organization sign-in before requesting local account recovery.
+core/emails.ex	msgid	Your password was changed
+core/emails.ex	msgid	as
+core/emails.ex	msgid	invited you to join
+core/emails.ex	msgid	on
+core/error_handler.ex	flash	Pick or create an organization to continue.
+core/error_handler.ex	flash	Please re-enter your password to continue.
+core/error_handler.ex	flash	You don't have permission to access this page in the current organization.
+core/error_handler.ex	flash	You must log in to access this page.
+core/login_html.ex	msgid	Continue with a passkey
+core/login_html.ex	msgid	Continue with work sign-in
+core/login_html.ex	msgid	Create an account
+core/login_html.ex	msgid	Email
+core/login_html.ex	msgid	Email for sign-in link
+core/login_html.ex	msgid	Email me a sign-in link
+core/login_html.ex	msgid	Enter your work email. We'll continue to your organization's sign-in page when there is an exact active match.
+core/login_html.ex	msgid	Keep me signed in
+core/login_html.ex	msgid	New here?
+core/login_html.ex	msgid	Other ways to sign in
+core/login_html.ex	msgid	Password
+core/login_html.ex	msgid	Sign in
+core/login_html.ex	msgid	Sign in with password
+core/login_html.ex	msgid	Work email
+core/login_html.ex	msgid	Work sign-in
+core/login_html.ex	msgid	or use a password
+core/login_html.ex	msgid	or use work sign-in
+core/mfa_challenge_controller.ex	flash	Invalid verification code. #{remaining} attempts remaining.
+core/mfa_challenge_controller.ex	flash	MFA is not enabled on your account.
+core/mfa_challenge_controller.ex	flash	Too many failed attempts. Try again in #{minutes} minutes.
+core/mfa_challenge_controller.ex	flash	Two-factor authentication verified.
+core/mfa_challenge_html.ex	heex_text	Authenticator code
+core/mfa_challenge_html.ex	heex_text	Backup code
+core/mfa_challenge_html.ex	heex_text	Cancel and sign out
+core/mfa_challenge_html.ex	heex_text	Enter the code for
+core/mfa_challenge_html.ex	heex_text	Enter the code from your authenticator app to continue.
+core/mfa_challenge_html.ex	heex_text	Trust this browser for 30 days
+core/mfa_challenge_html.ex	heex_text	Two-factor authentication
+core/mfa_challenge_html.ex	heex_text	Verify
+core/mfa_challenge_live.ex	flash	Invalid verification code. #{remaining} attempts remaining.
+core/mfa_challenge_live.ex	flash	MFA is not enabled on your account.
+core/mfa_challenge_live.ex	flash	No MFA challenge pending.
+core/mfa_challenge_live.ex	flash	Too many failed attempts. Try again in #{minutes} minutes.
+core/mfa_challenge_live.ex	flash	Two-factor authentication verified.
+core/mfa_challenge_live.ex	heex_text	Authenticator code
+core/mfa_challenge_live.ex	heex_text	Backup code
+core/mfa_challenge_live.ex	heex_text	Cancel and sign out
+core/mfa_challenge_live.ex	heex_text	Continue with passkey
+core/mfa_challenge_live.ex	heex_text	Enter the code for
+core/mfa_challenge_live.ex	heex_text	Enter the code from your authenticator app to continue.
+core/mfa_challenge_live.ex	heex_text	Trust this browser for 30 days
+core/mfa_challenge_live.ex	heex_text	Try again
+core/mfa_challenge_live.ex	heex_text	Two-factor authentication
+core/mfa_challenge_live.ex	heex_text	Use a backup code
+core/mfa_challenge_live.ex	heex_text	Use another way
+core/mfa_challenge_live.ex	heex_text	Use authenticator code instead
+core/mfa_challenge_live.ex	heex_text	Use your saved passkey to finish signing in.
+core/mfa_challenge_live.ex	heex_text	Verify
+core/mfa_challenge_live.ex	heex_text	Waiting for passkey...
+core/mfa_settings_html.ex	heex_text	Add an extra layer of security to your account.
+core/mfa_settings_html.ex	heex_text	All backup codes used. Generate new ones now.
+core/mfa_settings_html.ex	heex_text	Can't scan? Enter this key manually:
+core/mfa_settings_html.ex	heex_text	Cancel
+core/mfa_settings_html.ex	heex_text	Copy all
+core/mfa_settings_html.ex	heex_text	Disable
+core/mfa_settings_html.ex	heex_text	Disable two-factor authentication
+core/mfa_settings_html.ex	heex_text	Download .txt
+core/mfa_settings_html.ex	heex_text	Enable two-factor authentication
+core/mfa_settings_html.ex	heex_text	Enabled
+core/mfa_settings_html.ex	heex_text	Enter the 6-digit code from your app to verify setup:
+core/mfa_settings_html.ex	heex_text	Enter your current 6-digit code or a backup code to confirm:
+core/mfa_settings_html.ex	heex_text	I have saved these backup codes in a safe place
+core/mfa_settings_html.ex	heex_text	I saved these codes
+core/mfa_settings_html.ex	heex_text	Regenerate codes
+core/mfa_settings_html.ex	heex_text	Revoke all trusted browsers
+core/mfa_settings_html.ex	heex_text	Save your backup codes
+core/mfa_settings_html.ex	heex_text	Scan this QR code with your authenticator app
+core/mfa_settings_html.ex	heex_text	Set up two-factor authentication
+core/mfa_settings_html.ex	heex_text	Store these one-time codes somewhere safe. You will not be able to see them again after leaving this step.
+core/mfa_settings_html.ex	heex_text	This will remove the extra security on your account.
+core/mfa_settings_html.ex	heex_text	Two-Factor Authentication
+core/mfa_settings_html.ex	heex_text	Two-factor authentication
+core/mfa_settings_html.ex	heex_text	You'll need to set it up again to re-enable.
+core/mfa_settings_html.ex	heex_text	of 8 backup codes remaining
+core/mfa_settings_live.ex	flash	All trusted browsers have been revoked.
+core/mfa_settings_live.ex	flash	Consider changing your password for additional security.
+core/mfa_settings_live.ex	flash	Could not disable two-factor authentication. Please try again.
+core/mfa_settings_live.ex	flash	Could not regenerate backup codes. Please try again.
+core/mfa_settings_live.ex	flash	Could not save passkey name. Please try again.
+core/mfa_settings_live.ex	flash	Could not verify your code. Please try again.
+core/mfa_settings_live.ex	flash	Invalid verification code. Please try again.
+core/mfa_settings_live.ex	flash	Passkey name saved.
+core/mfa_settings_live.ex	flash	Too many failed attempts. Try again in #{minutes} minutes.
+core/mfa_settings_live.ex	flash	Two-factor authentication has been disabled.
+core/mfa_settings_live.ex	flash	Two-factor authentication has been enabled.
+core/mfa_settings_live.ex	flash	Two-factor authentication is not enabled for this account.
+core/mfa_settings_live.ex	flash	You can't change account security settings while impersonating.
+core/mfa_settings_live.ex	flash	Your backup codes were regenerated. Save your new backup codes.
+core/mfa_settings_live.ex	heex_text	Add a passkey to sign in faster on this device and keep a backup sign-in method available.
+core/mfa_settings_live.ex	heex_text	Add an extra layer of security to your account.
+core/mfa_settings_live.ex	heex_text	Add passkey
+core/mfa_settings_live.ex	heex_text	Added
+core/mfa_settings_live.ex	heex_text	All backup codes used. Generate new ones now.
+core/mfa_settings_live.ex	heex_text	Can't scan? Enter this key manually:
+core/mfa_settings_live.ex	heex_text	Cancel
+core/mfa_settings_live.ex	heex_text	Copy all
+core/mfa_settings_live.ex	heex_text	Current authenticator code:
+core/mfa_settings_live.ex	heex_text	Delete
+core/mfa_settings_live.ex	heex_text	Delete this passkey?
+core/mfa_settings_live.ex	heex_text	Disable
+core/mfa_settings_live.ex	heex_text	Disable two-factor authentication
+core/mfa_settings_live.ex	heex_text	Download .txt
+core/mfa_settings_live.ex	heex_text	Enable two-factor authentication
+core/mfa_settings_live.ex	heex_text	Enabled
+core/mfa_settings_live.ex	heex_text	Enter the 6-digit code from your app to verify setup:
+core/mfa_settings_live.ex	heex_text	Enter your current 6-digit code or a backup code to confirm:
+core/mfa_settings_live.ex	heex_text	I have saved these backup codes in a safe place
+core/mfa_settings_live.ex	heex_text	I saved these codes
+core/mfa_settings_live.ex	heex_text	Last used
+core/mfa_settings_live.ex	heex_text	Never used
+core/mfa_settings_live.ex	heex_text	No passkeys added yet
+core/mfa_settings_live.ex	heex_text	Passkey name
+core/mfa_settings_live.ex	heex_text	Passkeys
+core/mfa_settings_live.ex	heex_text	Regenerate backup codes
+core/mfa_settings_live.ex	heex_text	Regenerate codes
+core/mfa_settings_live.ex	heex_text	Rename
+core/mfa_settings_live.ex	heex_text	Revoke all trusted browsers
+core/mfa_settings_live.ex	heex_text	Save name
+core/mfa_settings_live.ex	heex_text	Save your backup codes
+core/mfa_settings_live.ex	heex_text	Scan this QR code with your authenticator app
+core/mfa_settings_live.ex	heex_text	Set up two-factor authentication
+core/mfa_settings_live.ex	heex_text	Store these one-time codes somewhere safe. You will not be able to see them again after leaving this step.
+core/mfa_settings_live.ex	heex_text	This will remove the extra security on your account.
+core/mfa_settings_live.ex	heex_text	This will replace all existing backup codes. Enter your current TOTP code to confirm.
+core/mfa_settings_live.ex	heex_text	Two-Factor Authentication
+core/mfa_settings_live.ex	heex_text	Two-factor authentication
+core/mfa_settings_live.ex	heex_text	Two-factor authentication enabled
+core/mfa_settings_live.ex	heex_text	Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.
+core/mfa_settings_live.ex	heex_text	You'll need to set it up again to re-enable.
+core/mfa_settings_live.ex	heex_text	You'll still need another sign-in method before removing your last recovery option.
+core/mfa_settings_live.ex	heex_text	You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
+core/mfa_settings_live.ex	heex_text	Your account is now protected with an extra layer of security.
+core/mfa_settings_live.ex	heex_text	of 8 backup codes remaining
+core/reactivation_live.ex	flash	Account deletion cancelled. Your account is active again.
+core/reactivation_live.ex	flash	Something went wrong while processing your request. Please try again.
+core/reactivation_live.ex	flash	You can't change account security settings while impersonating.
+core/reactivation_live.ex	heex_text	Cancel deletion and keep my account
+core/reactivation_live.ex	heex_text	Finalization will follow the configured deletion strategy.
+core/reactivation_live.ex	heex_text	I understand, sign me out
+core/reactivation_live.ex	heex_text	If you'd like to keep your account, you can cancel the deletion now.
+core/reactivation_live.ex	heex_text	Your account is scheduled for deletion
+core/reactivation_live.ex	heex_text	Your account is scheduled for deletion on .
+core/registration_html.ex	heex_text	Add a passkey after creating your account
+core/registration_html.ex	heex_text	After confirming your email, you will continue to passkey setup.
+core/registration_html.ex	heex_text	Already registered?
+core/registration_html.ex	heex_text	Create an account &rarr;
+core/registration_html.ex	heex_text	Log in
+core/registration_html.ex	heex_text	Register
+core/registration_html.ex	heex_text	to your account now.
+core/registration_live.ex	flash	If this email is available, your account has been created. Please check your email.
+core/registration_live.ex	heex_text	Add a passkey after creating your account
+core/registration_live.ex	heex_text	After confirming your email, you will continue to passkey setup.
+core/registration_live.ex	heex_text	Already registered?
+core/registration_live.ex	heex_text	Create an account &rarr;
+core/registration_live.ex	heex_text	Log in
+core/registration_live.ex	heex_text	Register
+core/registration_live.ex	heex_text	We couldn't create your account. Check the highlighted fields and try again.
+core/registration_live.ex	heex_text	to your account now.
+core/reset_password_controller.ex	msgid	If your email is in our system, you will receive reset instructions shortly.
+core/reset_password_controller.ex	msgid	Your password has been reset.
+core/reset_password_html.ex	msgid	Back to log in
+core/reset_password_html.ex	msgid	Confirm new password
+core/reset_password_html.ex	msgid	Email
+core/reset_password_html.ex	msgid	Enter your email and we'll send you a reset link.
+core/reset_password_html.ex	msgid	Enter your new password below.
+core/reset_password_html.ex	msgid	Forgot your password?
+core/reset_password_html.ex	msgid	New password
+core/reset_password_html.ex	msgid	Request new reset email
+core/reset_password_html.ex	msgid	Reset link expired
+core/reset_password_html.ex	msgid	Reset password
+core/reset_password_html.ex	msgid	Reset your password
+core/reset_password_html.ex	msgid	Send reset instructions
+core/reset_password_html.ex	msgid	This password reset link has expired or was already used.
+core/reset_password_live.ex	msgid	Back to log in
+core/reset_password_live.ex	msgid	Confirm new password
+core/reset_password_live.ex	msgid	Email
+core/reset_password_live.ex	msgid	Enter your email and we'll send you a reset link.
+core/reset_password_live.ex	msgid	Enter your new password below.
+core/reset_password_live.ex	msgid	Fair
+core/reset_password_live.ex	msgid	Forgot your password?
+core/reset_password_live.ex	msgid	If your email is in our system, you will receive reset instructions shortly.
+core/reset_password_live.ex	msgid	New password
+core/reset_password_live.ex	msgid	Request new reset email
+core/reset_password_live.ex	msgid	Reset link expired
+core/reset_password_live.ex	msgid	Reset password
+core/reset_password_live.ex	msgid	Reset your password
+core/reset_password_live.ex	msgid	Resetting...
+core/reset_password_live.ex	msgid	Send reset instructions
+core/reset_password_live.ex	msgid	Sending...
+core/reset_password_live.ex	msgid	Strong
+core/reset_password_live.ex	msgid	This password reset link has expired or was already used.
+core/reset_password_live.ex	msgid	We couldn't reset your password. Check the highlighted fields and try again.
+core/reset_password_live.ex	msgid	Weak
+core/reset_password_live.ex	msgid	Your password has been reset.
+core/session_controller.ex	flash	If your email is registered, you will receive a magic link shortly.
+core/session_controller.ex	flash	Invalid email or password
+core/session_controller.ex	flash	Logged out successfully.
+core/session_controller.ex	flash	Magic link is invalid or has expired.
+core/session_controller.ex	flash	Passkey added.
+core/session_controller.ex	flash	This passkey is already registered.
+core/session_controller.ex	flash	Two-factor authentication verified.
+core/session_controller.ex	flash	We couldn't delete that passkey. Re-authenticate and try again.
+core/session_controller.ex	flash	We couldn't finish adding this passkey. Try again or use another way to continue.
+core/session_controller.ex	flash	We couldn't finish passkey sign-in. Try again or use another way to continue.
+core/session_controller.ex	flash	Welcome back!
+core/session_controller.ex	flash	Welcome!
+core/session_controller.ex	flash	You can't change account security settings while impersonating.
+core/session_controller.ex	flash	Your organization requires enterprise sign-in.
+core/session_live.ex	flash	Session revoked.
+core/session_live.ex	heex_text	Active Sessions
+core/session_live.ex	heex_text	Log out of all devices
+core/session_live.ex	heex_text	Revoke session
+core/session_live.ex	heex_text	These devices are currently signed in to your account.
+core/session_live.ex	heex_text	This device
+core/settings_live.ex	flash	Account deletion cancelled. Your account is active again.
+core/settings_live.ex	flash	Email change cancelled. Your email remains #{user.email}.
+core/settings_live.ex	flash	Password set successfully. You can now sign in with email and password.
+core/settings_live.ex	flash	Something went wrong while processing your request. Please try again.
+core/settings_live.ex	flash	This confirmation link is invalid or has expired. Request a new email change from your settings.
+core/settings_live.ex	flash	We sent a confirmation link to #{new_email}. Your current email stays active until you confirm.
+core/settings_live.ex	flash	You can't change account deletion while impersonating.
+core/settings_live.ex	flash	You can't change account security settings while impersonating.
+core/settings_live.ex	flash	Your account is scheduled for deletion on #{scheduled_date}. You can cancel this from your settings.
+core/settings_live.ex	flash	Your email has been updated.
+core/settings_live.ex	flash	Your password has been changed. All other sessions have been signed out.
+core/settings_live.ex	heex_text	Account Settings
+core/settings_live.ex	heex_text	After the grace period expires, Sigra finalizes the account lifecycle according to that strategy.
+core/settings_live.ex	heex_text	Cancel deletion
+core/settings_live.ex	heex_text	Cancel email change
+core/settings_live.ex	heex_text	Change password
+core/settings_live.ex	heex_text	Changing to: (awaiting confirmation)
+core/settings_live.ex	heex_text	Current email:
+core/settings_live.ex	heex_text	Delete account
+core/settings_live.ex	heex_text	Delete my account
+core/settings_live.ex	heex_text	Email address
+core/settings_live.ex	heex_text	Manage your email, password, and account.
+core/settings_live.ex	heex_text	Password
+core/settings_live.ex	heex_text	Schedule account deletion according to your configured deletion strategy.
+core/settings_live.ex	heex_text	Set a password
+core/settings_live.ex	heex_text	Update email
+core/settings_live.ex	heex_text	We sent a confirmation link to . Check your inbox.
+core/settings_live.ex	heex_text	You must change your password before you can continue using your account.
+core/settings_live.ex	heex_text	You signed in with a social provider. Set a password to enable email login.
+core/settings_live.ex	heex_text	Your account is scheduled for deletion on .
+core/sigra_auth_components.ex	heex_text	Privacy
+core/sigra_auth_components.ex	heex_text	Support
+core/sigra_auth_components.ex	heex_text	Terms
+core/sudo_controller.ex	flash	Incorrect password. Please try again.
+core/sudo_controller.ex	flash	Password confirmed.
+core/sudo_html.ex	heex_text	Confirm password
+core/sudo_html.ex	heex_text	For your security, please re-enter your password to continue.
+core/sudo_html.ex	heex_text	Go back
+core/sudo_html.ex	heex_text	Re-enter your password
+core/user_auth.ex	flash	You must change your password before you can continue using your account.
+core/user_auth.ex	flash	You must log in to access this page.
+core/user_auth.ex	msgid	Please confirm your email. Check your inbox or request a new confirmation email.
+core/user_auth.ex	msgid	You must confirm your email before logging in. We've sent a new confirmation email.
+organizations/components/org_switcher.ex	heex_text	Active
+organizations/components/org_switcher.ex	heex_text	Create organization
+organizations/components/org_switcher.ex	heex_text	Manage organizations
+organizations/components/org_switcher.ex	heex_text	Organization settings
+organizations/components/org_switcher.ex	heex_text	Switch to
+organizations/controllers/enterprise_sso_controller.ex	flash	Enterprise sign-in is not available for this organization right now.
+organizations/controllers/enterprise_sso_controller.ex	flash	Finish sign-in with your existing account before linking enterprise access.
+organizations/controllers/enterprise_sso_controller.ex	flash	We couldn't finish enterprise sign-in. Please try again.
+organizations/controllers/enterprise_sso_controller.ex	flash	Welcome!
+organizations/controllers/organization_switch_controller.ex	flash	Switched to #{org.name}.
+organizations/live/invitation_accept_live.ex	flash	Welcome to #{org.name}.
+organizations/live/invitation_accept_live.ex	flash	You joined #{org.name}.
+organizations/live/invitation_accept_live.ex	flash	You're already a member of #{org.name}.
+organizations/live/invitation_accept_live.ex	heex_text	, or ask the person who
+organizations/live/invitation_accept_live.ex	heex_text	Accept & join
+organizations/live/invitation_accept_live.ex	heex_text	Create account & join
+organizations/live/invitation_accept_live.ex	heex_text	Create your account to accept.
+organizations/live/invitation_accept_live.ex	heex_text	Invalid invitation
+organizations/live/invitation_accept_live.ex	heex_text	Invitation already accepted
+organizations/live/invitation_accept_live.ex	heex_text	Invitation expired
+organizations/live/invitation_accept_live.ex	heex_text	Invitation no longer valid
+organizations/live/invitation_accept_live.ex	heex_text	Join
+organizations/live/invitation_accept_live.ex	heex_text	Not you?
+organizations/live/invitation_accept_live.ex	heex_text	Return home
+organizations/live/invitation_accept_live.ex	heex_text	Sign out
+organizations/live/invitation_accept_live.ex	heex_text	Sign out and switch account
+organizations/live/invitation_accept_live.ex	heex_text	This invitation belongs to another account
+organizations/live/invitation_accept_live.ex	heex_text	This invitation has already been accepted.
+organizations/live/invitation_accept_live.ex	heex_text	This invitation has expired. Ask the person who invited you to send a new one.
+organizations/live/invitation_accept_live.ex	heex_text	This invitation is locked to .
+organizations/live/invitation_accept_live.ex	heex_text	This invitation is no longer valid.
+organizations/live/invitation_accept_live.ex	heex_text	This invitation link is not valid.
+organizations/live/invitation_accept_live.ex	heex_text	This invitation was sent to .
+organizations/live/invitation_accept_live.ex	heex_text	To accept this invitation, sign out and sign in as
+organizations/live/invitation_accept_live.ex	heex_text	You are signed in as .
+organizations/live/invitation_accept_live.ex	heex_text	as .
+organizations/live/invitation_accept_live.ex	heex_text	invited
+organizations/live/invitation_accept_live.ex	heex_text	invited you to join
+organizations/live/invitation_accept_live.ex	heex_text	invited you to resend it.
+organizations/live/invitation_accept_live.ex	heex_text	to join
+organizations/live/organization_members_live.ex	flash	Invitation for #{invitation.email} revoked.
+organizations/live/organization_members_live.ex	flash	Invitation not found.
+organizations/live/organization_members_live.ex	flash	Invitation sent to #{invitation.email}.
+organizations/live/organization_members_live.ex	flash	Removed #{email} from #{org_name}.
+organizations/live/organization_members_live.ex	flash	Role updated.
+organizations/live/organization_members_live.ex	flash	That member could not be found. Refresh and try again.
+organizations/live/organization_members_live.ex	flash	This invitation has already been accepted and cannot be revoked.
+organizations/live/organization_members_live.ex	flash	This organization has reached its daily invitation limit. Try again tomorrow.
+organizations/live/organization_members_live.ex	flash	You do not have permission to invite members.
+organizations/live/organization_members_live.ex	flash	You do not have permission to revoke invitations.
+organizations/live/organization_members_live.ex	flash	You have invited too many people today. Try again tomorrow.
+organizations/live/organization_members_live.ex	heex_text	? They will no longer be able to join
+organizations/live/organization_members_live.ex	heex_text	Active
+organizations/live/organization_members_live.ex	heex_text	Admin
+organizations/live/organization_members_live.ex	heex_text	Admin — can invite and manage members
+organizations/live/organization_members_live.ex	heex_text	Cancel
+organizations/live/organization_members_live.ex	heex_text	Change 's role?
+organizations/live/organization_members_live.ex	heex_text	Change role
+organizations/live/organization_members_live.ex	heex_text	Email address
+organizations/live/organization_members_live.ex	heex_text	Invite a member
+organizations/live/organization_members_live.ex	heex_text	Invite member
+organizations/live/organization_members_live.ex	heex_text	Load more
+organizations/live/organization_members_live.ex	heex_text	Member
+organizations/live/organization_members_live.ex	heex_text	Member actions
+organizations/live/organization_members_live.ex	heex_text	Member — can access the organization
+organizations/live/organization_members_live.ex	heex_text	Members ()
+organizations/live/organization_members_live.ex	heex_text	New role
+organizations/live/organization_members_live.ex	heex_text	No pending invitations. Click Invite member
+organizations/live/organization_members_live.ex	heex_text	Owner
+organizations/live/organization_members_live.ex	heex_text	Owner — full control, including deletion
+organizations/live/organization_members_live.ex	heex_text	Pending invitations ()
+organizations/live/organization_members_live.ex	heex_text	Remove
+organizations/live/organization_members_live.ex	heex_text	Remove from ?
+organizations/live/organization_members_live.ex	heex_text	Remove member
+organizations/live/organization_members_live.ex	heex_text	Revoke
+organizations/live/organization_members_live.ex	heex_text	Revoke invitation
+organizations/live/organization_members_live.ex	heex_text	Revoke invitation?
+organizations/live/organization_members_live.ex	heex_text	Revoke the invitation for
+organizations/live/organization_members_live.ex	heex_text	Role
+organizations/live/organization_members_live.ex	heex_text	Send an invitation to join .
+organizations/live/organization_members_live.ex	heex_text	Send invitation
+organizations/live/organization_members_live.ex	heex_text	They will receive an email with a secure accept link.
+organizations/live/organization_members_live.ex	heex_text	above to invite someone.
+organizations/live/organization_members_live.ex	heex_text	close
+organizations/live/organization_members_live.ex	heex_text	will be signed out of this organization immediately. You can re-invite them later.
+organizations/live/organization_members_live.ex	heex_text	with this link. You can re-invite them later.
+organizations/live/organization_settings_live.ex	flash	Enterprise connection disabled.
+organizations/live/organization_settings_live.ex	flash	Enterprise connection stayed non-active because validation failed.
+organizations/live/organization_settings_live.ex	flash	Name updated.
+organizations/live/organization_settings_live.ex	flash	No enterprise connection is configured yet.
+organizations/live/organization_settings_live.ex	flash	Organization deleted.
+organizations/live/organization_settings_live.ex	flash	Slug updated. The old slug redirects for 7 days.
+organizations/live/organization_settings_live.ex	heex_text	Activate
+organizations/live/organization_settings_live.ex	heex_text	Callback recovery stays on the same organization enterprise route when
+organizations/live/organization_settings_live.ex	heex_text	Cancel
+organizations/live/organization_settings_live.ex	heex_text	Change slug
+organizations/live/organization_settings_live.ex	heex_text	Configure an organization-bound enterprise connection. Saving keeps a draft;
+organizations/live/organization_settings_live.ex	heex_text	Current:
+organizations/live/organization_settings_live.ex	heex_text	Danger zone
+organizations/live/organization_settings_live.ex	heex_text	Delete organization
+organizations/live/organization_settings_live.ex	heex_text	Delete organization permanently
+organizations/live/organization_settings_live.ex	heex_text	Disable
+organizations/live/organization_settings_live.ex	heex_text	Enforcement
+organizations/live/organization_settings_live.ex	heex_text	Enterprise SSO
+organizations/live/organization_settings_live.ex	heex_text	Enterprise sign-in should start from the canonical organization route or
+organizations/live/organization_settings_live.ex	heex_text	General
+organizations/live/organization_settings_live.ex	heex_text	Organization settings
+organizations/live/organization_settings_live.ex	heex_text	Reconciliation
+organizations/live/organization_settings_live.ex	heex_text	Routing
+organizations/live/organization_settings_live.ex	heex_text	SSO-only denial is separate from setup and routing. Use explicit break-glass
+organizations/live/organization_settings_live.ex	heex_text	Save a draft, validate discovery, then activate. If the connection stays
+organizations/live/organization_settings_live.ex	heex_text	Save draft
+organizations/live/organization_settings_live.ex	heex_text	Save name
+organizations/live/organization_settings_live.ex	heex_text	Setup
+organizations/live/organization_settings_live.ex	heex_text	Slug
+organizations/live/organization_settings_live.ex	heex_text	Soft-delete this organization. Members lose access immediately.
+organizations/live/organization_settings_live.ex	heex_text	Update slug
+organizations/live/organization_settings_live.ex	heex_text	Validate
+organizations/live/organization_settings_live.ex	heex_text	Your current slug
+organizations/live/organization_settings_live.ex	heex_text	`validation_failed`, use the last validation error as the setup-stage truth.
+organizations/live/organization_settings_live.ex	heex_text	available to other organizations. Links and bookmarks using
+organizations/live/organization_settings_live.ex	heex_text	bounded domain discovery, not a generic fallback path.
+organizations/live/organization_settings_live.ex	heex_text	members for the password-only recovery path.
+organizations/live/organization_settings_live.ex	heex_text	reconciliation fails safely.
+organizations/live/organization_settings_live.ex	heex_text	validate checks OIDC discovery; activate only succeeds when validation passes.
+organizations/live/organization_settings_live.ex	heex_text	will continue to work during that window.
+organizations/live/organization_settings_live.ex	heex_text	will redirect to the new slug for 7 days, after which it becomes
+organizations/live/organizations_live/index.ex	flash	Organization created.
+organizations/live/organizations_live/index.ex	heex_text	+ New organization
+organizations/live/organizations_live/index.ex	heex_text	Accept
+organizations/live/organizations_live/index.ex	heex_text	Create organization
+organizations/live/organizations_live/index.ex	heex_text	Create your first organization
+organizations/live/organizations_live/index.ex	heex_text	No pending invitations.
+organizations/live/organizations_live/index.ex	heex_text	Open
+organizations/live/organizations_live/index.ex	heex_text	Or create your own organization →
+organizations/live/organizations_live/index.ex	heex_text	Pending invitations
+organizations/live/organizations_live/index.ex	heex_text	Skip for now
+organizations/live/organizations_live/index.ex	heex_text	You don't belong to any organizations yet. Create one to get started.
+organizations/live/organizations_live/index.ex	heex_text	You have pending invitation(s)
+organizations/live/organizations_live/index.ex	heex_text	Your organizations
+organizations/live/organizations_live/new.ex	flash	Organization created.
+organizations/live/organizations_live/new.ex	heex_text	Cancel
+organizations/live/organizations_live/new.ex	heex_text	Create organization
+organizations/organization_invitation_email.ex	msgid	%{inviter} invited you to join %{org}
+organizations/organization_invitation_email.ex	msgid	%{inviter} invited you to join %{org} as %{role} on %{product}.
+organizations/organization_invitation_email.ex	msgid	Accept invitation
+organizations/organization_invitation_email.ex	msgid	Accept the invitation:
+organizations/organization_invitation_email.ex	msgid	Expires:
+organizations/organization_invitation_email.ex	msgid	If you weren't expecting this invitation, you can safely ignore this email.
+organizations/organization_invitation_email.ex	msgid	If you weren't expecting this invitation, you can safely ignore this email. It will expire on %{date}.
+organizations/organization_invitation_email.ex	msgid	It will expire on
+organizations/organization_invitation_email.ex	msgid	Or copy and paste this link into your browser:
+organizations/organization_invitation_email.ex	msgid	Organization:
+organizations/organization_invitation_email.ex	msgid	Role:
+organizations/organization_invitation_email.ex	msgid	You're invited to join %{org}
+organizations/organization_invitation_email.ex	msgid	as
+organizations/organization_invitation_email.ex	msgid	invited you to join
+organizations/organization_invitation_email.ex	msgid	on

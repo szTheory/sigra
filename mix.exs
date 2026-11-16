@@ -146,11 +146,22 @@ defmodule Sigra.MixProject do
       # DX-01: local mirror of the PR-fast required gate.
       # Prerequisites: live Postgres (see scripts/db/up.sh + source tmp/db.env) and phx_new 1.8.8
       # archive installed locally (mix archive.install --force hex phx_new 1.8.8).
+      #
+      # Phase 260 (BGEN-05, owner decision #13): the two shipped-CSS guards run here,
+      # right after compile and before any test step, so a raw hex, raw px or
+      # `transition: all` in the shipped admin CSS (or a token drifting from its doc)
+      # fails fast, on every PR, through the required Library tests shard
+      # (`MIX_ENV=test mix ci`) with no .github change. The two `.test.sh` self-test
+      # twins are deliberately NOT here: Test G in admin-css-conformance.test.sh fails
+      # on a dirty tracked tree, so they stay separately run self-tests.
+      # Pinned by test/sigra/planning/phase_260_ci_alias_contract_test.exs.
       ci: [
         "format --check-formatted",
         "deps.get --check-locked",
         "deps.unlock --check-unused",
         "compile --warnings-as-errors",
+        "cmd bash scripts/ci/admin-css-conformance.sh",
+        "cmd bash scripts/ci/admin-token-completeness.sh",
         "test --exclude scaffold",
         "ci.install_golden",
         "sigra.dep_off"
@@ -159,7 +170,7 @@ defmodule Sigra.MixProject do
         "test test/sigra/oauth/ test/sigra/workers/account_deletion_test.exs test/sigra/account/deletion_test.exs test/sigra/account_audit_atomicity_test.exs test/sigra/auth/login_and_lockout_audit_atomicity_test.exs test/sigra/impersonation_test.exs test/sigra/suspicious_login_test.exs test/sigra/lockout_test.exs test/sigra/mfa_audit_atomicity_test.exs test/sigra/api_token_audit_atomic_test.exs"
       ],
       "ci.install_golden": [
-        "test test/sigra/install/features/passkeys_js_test.exs test/sigra/install/generator_passkeys_opt_out_test.exs test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs test/sigra/install/vault_promotion_test.exs test/upgrade_test.exs"
+        "test test/sigra/install/double_install_test.exs test/sigra/install/features/passkeys_js_test.exs test/sigra/install/generator_passkeys_opt_out_test.exs test/sigra/install/golden_diff_test.exs test/sigra/install/idempotency_test.exs test/sigra/install/vault_promotion_test.exs test/upgrade_test.exs"
       ],
       # Local repro of the CI dep-off lane. The harness owns the destructive
       # unlock/clean sequence and restores the locked dependency state afterward.

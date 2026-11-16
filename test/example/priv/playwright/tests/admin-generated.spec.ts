@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { captureAdminCheckpoint } from "../helpers/adminArtifacts";
 import { adminUsersEmailLocator } from "../helpers/adminUsersIndex";
@@ -74,6 +74,126 @@ async function logIn(
     .getByRole("button", { name: "Sign in with password" })
     .click();
   await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
+}
+
+type ThemeAttribute = "light" | "dark" | null;
+
+// Set (or remove) the attribute the shell's inline script maintains on <html>.
+// Leaves data-sg-admin-theme-preference alone, so the active theme-switch
+// segment stays the one the page loaded with.
+async function setThemeAttribute(page: Page, value: ThemeAttribute) {
+  await page.evaluate((next) => {
+    if (next === null) {
+      document.documentElement.removeAttribute("data-sg-admin-theme");
+    } else {
+      document.documentElement.setAttribute("data-sg-admin-theme", next);
+    }
+  }, value);
+}
+
+async function shellToken(page: Page, name: string) {
+  return page.evaluate((token) => {
+    const shell = document.querySelector(".sg-admin-shell");
+    return shell
+      ? getComputedStyle(shell).getPropertyValue(token).trim()
+      : "";
+  }, name);
+}
+
+// The active segment is the button whose data-theme-value equals the
+// preference the shell loaded with. Its colours were #fdba74 on #151515 text in
+// every theme when they lived as raw hex in the example app.css.
+const ACTIVE_SWITCH_BACKGROUND = "rgb(253, 186, 116)";
+const ACTIVE_SWITCH_TEXT = "rgb(21, 21, 21)";
+
+// The lockup fade and the switch tone change are 140ms transitions, so three
+// seconds is generous for a pass and keeps a red run (every soft assertion
+// timing out) inside the test timeout.
+const THEME_RULE_TIMEOUT = { timeout: 3_000 };
+
+async function expectLockups(
+  page: Page,
+  light: "0" | "1",
+  dark: "0" | "1",
+  state: string,
+) {
+  await expect
+    .soft(
+      page.locator(".sg-brand-mark__image--light"),
+      `${state}: light lockup opacity`,
+    )
+    .toHaveCSS("opacity", light, THEME_RULE_TIMEOUT);
+  await expect
+    .soft(
+      page.locator(".sg-brand-mark__image--dark"),
+      `${state}: dark lockup opacity`,
+    )
+    .toHaveCSS("opacity", dark, THEME_RULE_TIMEOUT);
+}
+
+async function expectActiveSwitchColours(page: Page, state: string) {
+  const preference = await page.evaluate(() =>
+    document.documentElement.getAttribute("data-sg-admin-theme-preference"),
+  );
+  expect(preference, "shell inline script set a theme preference").toBeTruthy();
+  const active = page.locator(
+    `.sg-theme-switch__button[data-theme-value="${preference}"]`,
+  );
+  await expect
+    .soft(active, `${state}: active theme-switch background`)
+    .toHaveCSS(
+      "background-color",
+      ACTIVE_SWITCH_BACKGROUND,
+      THEME_RULE_TIMEOUT,
+    );
+  await expect
+    .soft(active, `${state}: active theme-switch text`)
+    .toHaveCSS("color", ACTIVE_SWITCH_TEXT, THEME_RULE_TIMEOUT);
+}
+
+async function assertShippedThemeRules(page: Page, testInfo: TestInfo) {
+  // System scheme: light, no explicit attribute (the first-visit default).
+  await page.emulateMedia({ colorScheme: "light" });
+  await setThemeAttribute(page, null);
+  await expectLockups(page, "1", "0", "system light");
+  await expectActiveSwitchColours(page, "system light");
+
+  // Explicit Light attribute.
+  await setThemeAttribute(page, "light");
+  await expectLockups(page, "1", "0", "explicit light");
+  await expectActiveSwitchColours(page, "explicit light");
+  const lightPanel = await shellToken(page, "--sg-color-panel");
+  await page.screenshot({ path: testInfo.outputPath("admin-light.png") });
+
+  // Explicit Dark attribute flips the lockups and resolves different tokens.
+  await setThemeAttribute(page, "dark");
+  await expectLockups(page, "0", "1", "explicit dark");
+  await expectActiveSwitchColours(page, "explicit dark");
+  const darkPanel = await shellToken(page, "--sg-color-panel");
+  expect
+    .soft(lightPanel, "explicit light resolves --sg-color-panel")
+    .not.toBe("");
+  expect
+    .soft(darkPanel, "explicit dark resolves --sg-color-panel")
+    .not.toBe("");
+  expect
+    .soft(
+      darkPanel,
+      "explicit dark and explicit light resolve different --sg-color-panel",
+    )
+    .not.toBe(lightPanel);
+  await page.screenshot({ path: testInfo.outputPath("admin-dark.png") });
+
+  // No attribute under a dark system scheme: the prefers-color-scheme pair.
+  await setThemeAttribute(page, null);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expectLockups(page, "0", "1", "system dark");
+  await expectActiveSwitchColours(page, "system dark");
+  await page.screenshot({ path: testInfo.outputPath("admin-system-dark.png") });
+
+  // Leave the page as it was loaded for the checks that follow.
+  await page.emulateMedia({ colorScheme: null });
+  await setThemeAttribute(page, null);
 }
 
 test("generated auth shell communicates hierarchy and survives theme and reflow states", async ({
@@ -271,6 +391,15 @@ test("generated host admin shell renders on desktop and mobile", async ({
         .trim(),
   );
   expect(brandColor).toBe("#c2410c");
+
+  // BGEN-04 (L1): the brand mark lockup swap, the explicit Light/Dark theme
+  // attribute and the theme-switch active colours must come from the shipped
+  // sigra_admin.css alone (the example-only app.css is not loaded here).
+  // Computed-style assertions only. toHaveCSS retries, which matters: the
+  // lockup swap is an opacity transition, so an immediate getComputedStyle
+  // read can land mid-fade. expect.soft reports every drifted rule at once.
+  await assertShippedThemeRules(page, testInfo);
+
   await captureAdminCheckpoint(page, testInfo, {
     name: "shell-global-desktop",
   });

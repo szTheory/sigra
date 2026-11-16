@@ -89,6 +89,15 @@ defmodule ExampleWeb.Router do
     live_session :mfa_challenge, on_mount: [{ExampleWeb.UserAuth, :mount_current_scope}] do
       live "/mfa", MFAChallengeLive
     end
+
+    # The confirm page serves BOTH session states, so it must stay out of the
+    # `redirect_if_user_is_authenticated` scope below: that plug redirects a signed-in
+    # visitor before mount, and a signed-in unconfirmed visitor is exactly who needs it.
+    # `:mount_current_scope` assigns `current_scope` (nil when anonymous) without
+    # redirecting, and the LiveView reads it through a nil-safe helper.
+    live_session :confirmation, on_mount: [{ExampleWeb.UserAuth, :mount_current_scope}] do
+      live "/confirm", ConfirmationLive
+    end
   end
 
   scope "/users", ExampleWeb do
@@ -107,9 +116,7 @@ defmodule ExampleWeb.Router do
       on_mount: [{ExampleWeb.UserAuth, :redirect_if_user_is_authenticated}] do
       live "/register", RegistrationLive
 
-      live "/confirm", ConfirmationLive
-
-      live "/reset-password", ResetPasswordLive
+      live "/reset-password", ResetPasswordLive, :new
       live "/reset-password/:token", ResetPasswordLive, :edit
     end
 

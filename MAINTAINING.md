@@ -229,6 +229,11 @@ The `main` CI file (`.github/workflows/ci.yml`) follows a **two-tier cadence** i
 
 The nightly schedule runs at `cron: '30 4 * * *'` (04:30 UTC daily).
 
+**CI efficiency sweep.** On every CI run, in progress or just finished, look for cheap speed and
+cost wins (iteration time, GitHub Actions minutes) that do not reduce coverage, and do not leave
+pointless bottlenecks in place. The standing preference is recorded in the
+`GSD Workflow Preferences` section of the repository-root `CLAUDE.md`.
+
 ### Honest-skip set after Phase 230 (v1.47 FAST-02/FAST-03/FAST-05)
 
 `ci-gate` counts a `skipped` conclusion as a pass (the `ci-gate` job's result loop treats

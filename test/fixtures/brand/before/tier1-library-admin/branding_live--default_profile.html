@@ -1,0 +1,691 @@
+<section class="sg-stack sg-stack--6">
+<link phx-track-static rel="stylesheet" href="/assets/sigra_auth.css">
+<header class="sg-page-header">
+<p class="sg-page-kicker">
+Branding
+</p>
+<h1 class="sg-page-title">
+Auth forms and emails
+</h1>
+<p class="sg-page-copy">
+Tune the generated sign-in, account, invitation, and transactional email defaults without replacing the host-owned templates.
+</p>
+</header>
+<span class="sg-scope-ribbon sg-muted sg-text-sm ">
+Global auth/email profile
+</span>
+<section class="sg-branding-editor sg-stack sg-stack--4" data-testid="admin-auth-branding-workbench">
+<div class="sg-toolbar">
+<div class="sg-branding-editor__status">
+<div class="sg-stack sg-stack--1">
+<h2 class="sg-section-heading">
+Brand tokens
+</h2>
+<p class="sg-section-copy">
+Source: Config defaults
+</p>
+</div>
+</div>
+</div>
+<nav class="sg-tabs" aria-label="Branding sections">
+<a href="/admin/auth-branding?panel=light" data-phx-link="patch" data-phx-link-state="push" id="branding-tab-light" aria-current="page" class="sg-tabs__tab sg-tabs__tab--active">
+Light
+</a>
+<a href="/admin/auth-branding?panel=dark" data-phx-link="patch" data-phx-link-state="push" id="branding-tab-dark" class="sg-tabs__tab">
+Dark
+</a>
+<a href="/admin/auth-branding?panel=details" data-phx-link="patch" data-phx-link-state="push" id="branding-tab-details" class="sg-tabs__tab">
+Details
+</a>
+</nav>
+<section class="sg-stack sg-stack--4">
+<form id="auth-branding-form" class="sg-stack sg-stack--4" phx-change="validate" phx-submit="save" phx-hook="AuthBrandingPreview" data-sg-auth-branding-preview-form="true" data-testid="admin-auth-branding-form">
+<section id="branding-panel-light" class="sg-branding-panel" aria-labelledby="branding-tab-light" data-testid="admin-auth-branding-light-panel">
+<div class="sg-branding-workbench">
+<section class="sg-card sg-stack sg-stack--4 sg-branding-workbench__controls">
+<fieldset class="sg-fieldset">
+<legend class="sg-fieldset__legend sg-section-heading">
+Light palette
+</legend>
+<p class="sg-section-copy">
+Shown on generated auth screens when Light is selected.
+</p>
+<div class="sg-form-grid sg-color-grid">
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Accent
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[accent_color]" value="#c2410c" aria-label="Accent" phx-throttle="120" data-sg-auth-branding-color="accent_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="accent_color">
+#c2410c
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+On accent
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[accent_foreground]" value="#ffffff" aria-label="On accent" phx-throttle="120" data-sg-auth-branding-color="accent_foreground">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="accent_foreground">
+#ffffff
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Background
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[background_color]" value="#f7f4ee" aria-label="Background" phx-throttle="120" data-sg-auth-branding-color="background_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="background_color">
+#f7f4ee
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Surface
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[surface_color]" value="#ffffff" aria-label="Surface" phx-throttle="120" data-sg-auth-branding-color="surface_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="surface_color">
+#ffffff
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Text
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[text_color]" value="#171717" aria-label="Text" phx-throttle="120" data-sg-auth-branding-color="text_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="text_color">
+#171717
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Muted
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[muted_color]" value="#6b6258" aria-label="Muted" phx-throttle="120" data-sg-auth-branding-color="muted_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="muted_color">
+#6b6258
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Border
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[border_color]" value="#ded8cf" aria-label="Border" phx-throttle="120" data-sg-auth-branding-color="border_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="border_color">
+#ded8cf
+</span>
+</span>
+</label>
+</div>
+</fieldset>
+</section>
+<section class="sg-branding-preview-rail sg-stack sg-stack--4" data-testid="admin-auth-preview">
+<div class="sg-card sg-stack sg-stack--3" data-testid="admin-auth-branding-light-login-preview">
+<h2 class="sg-section-heading">
+Sign-in preview
+</h2>
+<div class="sigra-auth sigra-auth--preview" data-theme="light" data-sg-auth-branding-preview="login" data-sg-auth-branding-preview-theme="light" style="--sigra-auth-light-accent: #c2410c; --sigra-auth-light-on-accent: #ffffff; --sigra-auth-light-bg: #f7f4ee; --sigra-auth-light-surface: #ffffff; --sigra-auth-light-text: #171717; --sigra-auth-light-muted: #6b6258; --sigra-auth-light-border: #ded8cf; --sigra-auth-dark-accent: #f05211; --sigra-auth-dark-on-accent: #000000; --sigra-auth-dark-bg: #171614; --sigra-auth-dark-surface: #211f1c; --sigra-auth-dark-text: #f4f1eb; --sigra-auth-dark-muted: #bdb5aa; --sigra-auth-dark-border: #4a4035;">
+<section class="sigra-auth__viewport">
+<div class="sigra-auth__panel">
+<div class="sigra-auth__brand">
+<div class="sigra-auth__mark" aria-hidden="true">
+<span>
+</span>
+<span>
+</span>
+<span>
+</span>
+</div>
+<p class="sigra-auth__product">
+Your app
+</p>
+</div>
+<div class="mx-auto max-w-sm">
+<h1>
+Log in
+</h1>
+<p>
+Use a magic link, passkey, password, or enterprise SSO.
+</p>
+<div class="sigra-auth-preview-form">
+<label>
+Email
+<input type="email" value="{{PREVIEW_EMAIL}}">
+</label>
+<button type="button" class="btn btn-primary w-full">
+Send magic link
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<div class="sg-card sg-stack sg-stack--3" data-testid="admin-email-preview">
+<h2 class="sg-section-heading">
+Email preview
+</h2>
+<div class="sigra-auth-email-preview" data-theme="light" data-sg-auth-branding-preview="email" data-sg-auth-branding-preview-theme="light" data-testid="admin-email-preview-surface" style="--sigra-auth-light-accent: #c2410c; --sigra-auth-light-on-accent: #ffffff; --sigra-auth-light-bg: #f7f4ee; --sigra-auth-light-surface: #ffffff; --sigra-auth-light-text: #171717; --sigra-auth-light-muted: #6b6258; --sigra-auth-light-border: #ded8cf; --sigra-auth-dark-accent: #f05211; --sigra-auth-dark-on-accent: #000000; --sigra-auth-dark-bg: #171614; --sigra-auth-dark-surface: #211f1c; --sigra-auth-dark-text: #f4f1eb; --sigra-auth-dark-muted: #bdb5aa; --sigra-auth-dark-border: #4a4035;">
+<div class="sigra-auth-email-preview__message">
+<strong>
+Your app
+</strong>
+<p>
+Confirm your email address by clicking the button below.
+</p>
+<span class="sigra-auth-email-preview__button">
+Confirm email
+</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</section>
+<section id="branding-panel-dark" class="sg-branding-panel" aria-labelledby="branding-tab-dark" hidden data-testid="admin-auth-branding-dark-panel">
+<div class="sg-branding-workbench">
+<section class="sg-card sg-stack sg-stack--4 sg-branding-workbench__controls">
+<fieldset class="sg-fieldset">
+<legend class="sg-fieldset__legend sg-section-heading">
+Dark palette
+</legend>
+<p class="sg-section-copy">
+Shown when Dark is selected, or when System resolves dark.
+</p>
+<div class="sg-form-grid sg-color-grid">
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Accent
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[dark_accent_color]" value="#f05211" aria-label="Accent" phx-throttle="120" data-sg-auth-branding-color="dark_accent_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="dark_accent_color">
+#f05211
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+On accent
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[dark_accent_foreground]" value="#000000" aria-label="On accent" phx-throttle="120" data-sg-auth-branding-color="dark_accent_foreground">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="dark_accent_foreground">
+#000000
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Background
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[dark_background_color]" value="#171614" aria-label="Background" phx-throttle="120" data-sg-auth-branding-color="dark_background_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="dark_background_color">
+#171614
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Surface
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[dark_surface_color]" value="#211f1c" aria-label="Surface" phx-throttle="120" data-sg-auth-branding-color="dark_surface_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="dark_surface_color">
+#211f1c
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Text
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[dark_text_color]" value="#f4f1eb" aria-label="Text" phx-throttle="120" data-sg-auth-branding-color="dark_text_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="dark_text_color">
+#f4f1eb
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Muted
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[dark_muted_color]" value="#bdb5aa" aria-label="Muted" phx-throttle="120" data-sg-auth-branding-color="dark_muted_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="dark_muted_color">
+#bdb5aa
+</span>
+</span>
+</label>
+<label class="sg-field sg-color-field">
+<span class="sg-field-label">
+Border
+</span>
+<span class="sg-color-field__control">
+<input class="sg-color-field__input" type="color" name="branding[dark_border_color]" value="#4a4035" aria-label="Border" phx-throttle="120" data-sg-auth-branding-color="dark_border_color">
+<span class="sg-color-field__value sg-muted sg-text-sm sg-tabular" data-sg-auth-branding-color-value="dark_border_color">
+#4a4035
+</span>
+</span>
+</label>
+</div>
+<p class="sg-section-copy" data-testid="admin-auth-branding-dark-accent-resolution">
+Accent is blank, so Sigra derived #f05211 from the light accent to meet contrast against this surface. Set an accent above to pin your own.
+</p>
+</fieldset>
+</section>
+<section class="sg-branding-preview-rail sg-stack sg-stack--4">
+<div class="sg-card sg-stack sg-stack--3" data-testid="admin-auth-branding-dark-login-preview">
+<h2 class="sg-section-heading">
+Sign-in preview
+</h2>
+<div class="sigra-auth sigra-auth--preview" data-theme="dark" data-sg-auth-branding-preview="login" data-sg-auth-branding-preview-theme="dark" style="--sigra-auth-light-accent: #c2410c; --sigra-auth-light-on-accent: #ffffff; --sigra-auth-light-bg: #f7f4ee; --sigra-auth-light-surface: #ffffff; --sigra-auth-light-text: #171717; --sigra-auth-light-muted: #6b6258; --sigra-auth-light-border: #ded8cf; --sigra-auth-dark-accent: #f05211; --sigra-auth-dark-on-accent: #000000; --sigra-auth-dark-bg: #171614; --sigra-auth-dark-surface: #211f1c; --sigra-auth-dark-text: #f4f1eb; --sigra-auth-dark-muted: #bdb5aa; --sigra-auth-dark-border: #4a4035;">
+<section class="sigra-auth__viewport">
+<div class="sigra-auth__panel">
+<div class="sigra-auth__brand">
+<div class="sigra-auth__mark" aria-hidden="true">
+<span>
+</span>
+<span>
+</span>
+<span>
+</span>
+</div>
+<p class="sigra-auth__product">
+Your app
+</p>
+</div>
+<div class="mx-auto max-w-sm">
+<h1>
+Log in
+</h1>
+<p>
+Use a magic link, passkey, password, or enterprise SSO.
+</p>
+<div class="sigra-auth-preview-form">
+<label>
+Email
+<input type="email" value="{{PREVIEW_EMAIL}}">
+</label>
+<button type="button" class="btn btn-primary w-full">
+Send magic link
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<div class="sg-card sg-stack sg-stack--3" data-testid="admin-auth-branding-dark-email-preview">
+<h2 class="sg-section-heading">
+Email preview
+</h2>
+<div class="sigra-auth-email-preview" data-theme="dark" data-sg-auth-branding-preview="email" data-sg-auth-branding-preview-theme="dark" data-testid="admin-auth-branding-dark-email-preview-surface" style="--sigra-auth-light-accent: #c2410c; --sigra-auth-light-on-accent: #ffffff; --sigra-auth-light-bg: #f7f4ee; --sigra-auth-light-surface: #ffffff; --sigra-auth-light-text: #171717; --sigra-auth-light-muted: #6b6258; --sigra-auth-light-border: #ded8cf; --sigra-auth-dark-accent: #f05211; --sigra-auth-dark-on-accent: #000000; --sigra-auth-dark-bg: #171614; --sigra-auth-dark-surface: #211f1c; --sigra-auth-dark-text: #f4f1eb; --sigra-auth-dark-muted: #bdb5aa; --sigra-auth-dark-border: #4a4035;">
+<div class="sigra-auth-email-preview__message">
+<strong>
+Your app
+</strong>
+<p>
+Confirm your email address by clicking the button below.
+</p>
+<span class="sigra-auth-email-preview__button">
+Confirm email
+</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</section>
+<section id="branding-panel-details" class="sg-branding-panel" aria-labelledby="branding-tab-details" hidden data-testid="admin-auth-branding-details-panel">
+<div class="sg-branding-workbench">
+<section class="sg-card sg-stack sg-stack--4 sg-branding-workbench__controls">
+<div class="sg-stack sg-stack--1">
+<h2 class="sg-section-heading">
+Profile details
+</h2>
+<p class="sg-section-copy">
+Controls identity, links, email sender defaults, and the generated theme mode.
+</p>
+</div>
+<div class="sg-form-grid sg-branding-details-grid">
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-product-name">
+Product name
+</label>
+</span>
+<input id="branding-product-name" class="sg-input" name="branding[product_name]" value="Your app" required>
+</div>
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-logo-url">
+Logo URL
+</label>
+<span class="sg-field-help " data-sg-field-help-root="true">
+<button type="button" class="sg-field-help__trigger" aria-label="Help: Logo URL" aria-controls="branding-logo-url-help" aria-describedby="branding-logo-url-help" aria-expanded="false" data-sg-field-help-trigger="true">
+<svg class="sg-field-help__icon" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 11.25v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.75h.01" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+</path>
+</svg>
+</button>
+<span id="branding-logo-url-help" class="sg-field-help__panel" role="tooltip" hidden>
+Shown on generated auth screens and email headers when set. Use an absolute URL that email clients can load.
+</span>
+</span>
+</span>
+<input id="branding-logo-url" class="sg-input" name="branding[logo_url]" value="">
+</div>
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-logo-alt">
+Logo alt text
+</label>
+<span class="sg-field-help " data-sg-field-help-root="true">
+<button type="button" class="sg-field-help__trigger" aria-label="Help: Logo alt text" aria-controls="branding-logo-alt-help" aria-describedby="branding-logo-alt-help" aria-expanded="false" data-sg-field-help-trigger="true">
+<svg class="sg-field-help__icon" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 11.25v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.75h.01" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+</path>
+</svg>
+</button>
+<span id="branding-logo-alt-help" class="sg-field-help__panel" role="tooltip" hidden>
+Used when a logo is shown. Keep it short, like &quot;Acme logo&quot;.
+</span>
+</span>
+</span>
+<input id="branding-logo-alt" class="sg-input" name="branding[logo_alt]" value="Application logo" required>
+</div>
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-dark-logo-url">
+Dark theme logo URL
+</label>
+<span class="sg-field-help " data-sg-field-help-root="true">
+<button type="button" class="sg-field-help__trigger" aria-label="Help: Dark theme logo URL" aria-controls="branding-dark-logo-url-help" aria-describedby="branding-dark-logo-url-help" aria-expanded="false" data-sg-field-help-trigger="true">
+<svg class="sg-field-help__icon" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 11.25v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.75h.01" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+</path>
+</svg>
+</button>
+<span id="branding-dark-logo-url-help" class="sg-field-help__panel" role="tooltip" hidden>
+Optional reversed logo for the dark theme. Falls back to Logo URL when empty. Email always uses Logo URL, never this one.
+</span>
+</span>
+</span>
+<input id="branding-dark-logo-url" class="sg-input" name="branding[dark_logo_url]" value="">
+</div>
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-theme">
+Theme mode
+</label>
+<span class="sg-field-help " data-sg-field-help-root="true">
+<button type="button" class="sg-field-help__trigger" aria-label="Help: Theme mode" aria-controls="branding-theme-help" aria-describedby="branding-theme-help" aria-expanded="false" data-sg-field-help-trigger="true">
+<svg class="sg-field-help__icon" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 11.25v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.75h.01" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+</path>
+</svg>
+</button>
+<span id="branding-theme-help" class="sg-field-help__panel" role="tooltip" hidden>
+System follows the user&#39;s device setting. Light or Dark forces generated auth screens into that theme.
+</span>
+</span>
+</span>
+<select id="branding-theme" class="sg-select" name="branding[theme]">
+<option value="system" selected>
+System
+</option>
+<option value="light">
+Light
+</option>
+<option value="dark">
+Dark
+</option>
+</select>
+</div>
+</div>
+<div class="sg-form-grid sg-branding-details-grid">
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-support-url">
+Support URL
+</label>
+<span class="sg-field-help " data-sg-field-help-root="true">
+<button type="button" class="sg-field-help__trigger" aria-label="Help: Support URL" aria-controls="branding-support-url-help" aria-describedby="branding-support-url-help" aria-expanded="false" data-sg-field-help-trigger="true">
+<svg class="sg-field-help__icon" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 11.25v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.75h.01" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+</path>
+</svg>
+</button>
+<span id="branding-support-url-help" class="sg-field-help__panel" role="tooltip" hidden>
+Adds a Support link to generated auth screen footers. Leave blank to hide it.
+</span>
+</span>
+</span>
+<input id="branding-support-url" class="sg-input" name="branding[support_url]" value="">
+</div>
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-privacy-url">
+Privacy URL
+</label>
+<span class="sg-field-help " data-sg-field-help-root="true">
+<button type="button" class="sg-field-help__trigger" aria-label="Help: Privacy URL" aria-controls="branding-privacy-url-help" aria-describedby="branding-privacy-url-help" aria-expanded="false" data-sg-field-help-trigger="true">
+<svg class="sg-field-help__icon" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 11.25v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.75h.01" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+</path>
+</svg>
+</button>
+<span id="branding-privacy-url-help" class="sg-field-help__panel" role="tooltip" hidden>
+Adds a Privacy link to generated auth screen footers. Leave blank to hide it.
+</span>
+</span>
+</span>
+<input id="branding-privacy-url" class="sg-input" name="branding[privacy_url]" value="">
+</div>
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-terms-url">
+Terms URL
+</label>
+<span class="sg-field-help " data-sg-field-help-root="true">
+<button type="button" class="sg-field-help__trigger" aria-label="Help: Terms URL" aria-controls="branding-terms-url-help" aria-describedby="branding-terms-url-help" aria-expanded="false" data-sg-field-help-trigger="true">
+<svg class="sg-field-help__icon" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 11.25v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.75h.01" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+</path>
+</svg>
+</button>
+<span id="branding-terms-url-help" class="sg-field-help__panel" role="tooltip" hidden>
+Adds a Terms link to generated auth screen footers. Leave blank to hide it.
+</span>
+</span>
+</span>
+<input id="branding-terms-url" class="sg-input" name="branding[terms_url]" value="">
+</div>
+</div>
+<div class="sg-form-grid sg-branding-details-grid">
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-email-from-name">
+Email from name
+</label>
+<span class="sg-field-help " data-sg-field-help-root="true">
+<button type="button" class="sg-field-help__trigger" aria-label="Help: Email from name" aria-controls="branding-email-from-name-help" aria-describedby="branding-email-from-name-help" aria-expanded="false" data-sg-field-help-trigger="true">
+<svg class="sg-field-help__icon" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 11.25v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.75h.01" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+</path>
+</svg>
+</button>
+<span id="branding-email-from-name-help" class="sg-field-help__panel" role="tooltip" hidden>
+Display name recipients see on generated auth emails.
+</span>
+</span>
+</span>
+<input id="branding-email-from-name" class="sg-input" name="branding[email_from_name]" value="Your app" required>
+</div>
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-email-from-address">
+Email from address
+</label>
+<span class="sg-field-help " data-sg-field-help-root="true">
+<button type="button" class="sg-field-help__trigger" aria-label="Help: Email from address" aria-controls="branding-email-from-address-help" aria-describedby="branding-email-from-address-help" aria-expanded="false" data-sg-field-help-trigger="true">
+<svg class="sg-field-help__icon" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 11.25v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.75h.01" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+</path>
+</svg>
+</button>
+<span id="branding-email-from-address-help" class="sg-field-help__panel" role="tooltip" hidden>
+Sender address for generated auth emails. Use an address your mailer is allowed to send from.
+</span>
+</span>
+</span>
+<input id="branding-email-from-address" class="sg-input" name="branding[email_from_address]" value="">
+</div>
+<div class="sg-field">
+<span class="sg-field-label-row">
+<label class="sg-field-label" for="branding-email-reply-to">
+Reply-to
+</label>
+<span class="sg-field-help " data-sg-field-help-root="true">
+<button type="button" class="sg-field-help__trigger" aria-label="Help: Reply-to" aria-controls="branding-email-reply-to-help" aria-describedby="branding-email-reply-to-help" aria-expanded="false" data-sg-field-help-trigger="true">
+<svg class="sg-field-help__icon" viewBox="0 0 24 24" fill="none" focusable="false" aria-hidden="true">
+<path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 11.25v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+</path>
+<path d="M12 7.75h.01" stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
+</path>
+</svg>
+</button>
+<span id="branding-email-reply-to-help" class="sg-field-help__panel" role="tooltip" hidden>
+Replies go to this address when set. Leave blank to use the sender address.
+</span>
+</span>
+</span>
+<input id="branding-email-reply-to" class="sg-input" name="branding[email_reply_to]" value="">
+</div>
+</div>
+</section>
+<section class="sg-branding-preview-rail sg-stack sg-stack--4">
+<div class="sg-card sg-stack sg-stack--3" data-testid="admin-auth-branding-details-login-preview">
+<h2 class="sg-section-heading">
+Sign-in preview
+</h2>
+<div class="sigra-auth sigra-auth--preview" data-theme="system" data-sg-auth-branding-preview="login" data-sg-auth-branding-preview-theme="system" style="--sigra-auth-light-accent: #c2410c; --sigra-auth-light-on-accent: #ffffff; --sigra-auth-light-bg: #f7f4ee; --sigra-auth-light-surface: #ffffff; --sigra-auth-light-text: #171717; --sigra-auth-light-muted: #6b6258; --sigra-auth-light-border: #ded8cf; --sigra-auth-dark-accent: #f05211; --sigra-auth-dark-on-accent: #000000; --sigra-auth-dark-bg: #171614; --sigra-auth-dark-surface: #211f1c; --sigra-auth-dark-text: #f4f1eb; --sigra-auth-dark-muted: #bdb5aa; --sigra-auth-dark-border: #4a4035;">
+<section class="sigra-auth__viewport">
+<div class="sigra-auth__panel">
+<div class="sigra-auth__brand">
+<div class="sigra-auth__mark" aria-hidden="true">
+<span>
+</span>
+<span>
+</span>
+<span>
+</span>
+</div>
+<p class="sigra-auth__product">
+Your app
+</p>
+</div>
+<div class="mx-auto max-w-sm">
+<h1>
+Log in
+</h1>
+<p>
+Use a magic link, passkey, password, or enterprise SSO.
+</p>
+<div class="sigra-auth-preview-form">
+<label>
+Email
+<input type="email" value="{{PREVIEW_EMAIL}}">
+</label>
+<button type="button" class="btn btn-primary w-full">
+Send magic link
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<div class="sg-card sg-stack sg-stack--3" data-testid="admin-auth-branding-details-email-preview">
+<h2 class="sg-section-heading">
+Email preview
+</h2>
+<div class="sigra-auth-email-preview" data-theme="system" data-sg-auth-branding-preview="email" data-sg-auth-branding-preview-theme="system" data-testid="admin-auth-branding-details-email-preview-surface" style="--sigra-auth-light-accent: #c2410c; --sigra-auth-light-on-accent: #ffffff; --sigra-auth-light-bg: #f7f4ee; --sigra-auth-light-surface: #ffffff; --sigra-auth-light-text: #171717; --sigra-auth-light-muted: #6b6258; --sigra-auth-light-border: #ded8cf; --sigra-auth-dark-accent: #f05211; --sigra-auth-dark-on-accent: #000000; --sigra-auth-dark-bg: #171614; --sigra-auth-dark-surface: #211f1c; --sigra-auth-dark-text: #f4f1eb; --sigra-auth-dark-muted: #bdb5aa; --sigra-auth-dark-border: #4a4035;">
+<div class="sigra-auth-email-preview__message">
+<strong>
+Your app
+</strong>
+<p>
+Confirm your email address by clicking the button below.
+</p>
+<span class="sigra-auth-email-preview__button">
+Confirm email
+</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</section>
+<div class="sg-action-row">
+<button type="submit" class="sg-btn sg-btn--primary">
+Save profile
+</button>
+</div>
+</form>
+</section>
+</section>
+</section>

@@ -3,6 +3,7 @@ created: 2026-09-15T00:00:00.000Z
 status: pending
 title: Dark token fallback is asymmetric, so the default dark theme is a palette nobody chose
 area: auth-ui
+resolves_phase: 261
 severity: minor
 files:
 

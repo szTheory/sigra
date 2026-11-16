@@ -155,7 +155,9 @@ the value passed here with the defaults documented by `Sigra.Config`.
 ## 5. HTTP stays in the generated controller
 
 The generated controller owns parameter shape, flash messages, redirects, and the
-enumeration-safe public failure. It delegates credential policy to the host context.
+public failure message, which is the same for the compared cases (an existing and an
+unknown address, at a single attempt). It delegates credential policy to the host
+context.
 
 ```elixir
 defp create(conn, %{"user" => user_params}, info) do
@@ -253,7 +255,7 @@ end
 ```
 
 The full branch turns verification results into enterprise-policy decisions and typed
-failures; it does not reveal whether an unknown email was the cause.
+failures.
 
 ## 8. Successful login work and audit insertion share a Multi
 

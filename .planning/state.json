@@ -1,63 +1,38 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v1.48 — CLEAN-BASELINE",
+  "milestone": "v1.51 — BRAND-IDENTITY-ADOPTION",
   "phases": [
     {
-      "number": "236",
-      "name": "Flake Root Cause",
+      "number": "259",
+      "name": "Compatibility Policy, Pinned Source and Copy Contract",
       "status": "complete"
     },
     {
-      "number": "237",
-      "name": "Clean Working Tree + Pages + `lib/` Docs",
-      "status": "complete"
+      "number": "260",
+      "name": "Deterministic Output, Before Catalog and PNG Park",
+      "status": "in_progress"
     },
     {
-      "number": "238",
-      "name": "Tag Guard, Then Tag Deletion",
-      "status": "complete"
-    },
-    {
-      "number": "239",
-      "name": "`priv/templates/` Sweep + Re-bless",
+      "number": "261",
+      "name": "Tokens, Type, Logo, Favicon and Contrast",
       "status": "pending"
     },
     {
-      "number": "240",
-      "name": "Green-Main Evidence + Honest Pages Script",
+      "number": "262",
+      "name": "Words and Layout",
       "status": "pending"
     },
     {
-      "number": "241",
-      "name": "Debt Retirement + Leakage Guard",
-      "status": "pending"
-    },
-    {
-      "number": "242",
-      "name": "Hex Retire + Docs Revert + Cut 1.5.1",
-      "status": "pending"
-    },
-    {
-      "number": "243",
-      "name": "Queue Drain + Todo Triage",
-      "status": "pending"
-    },
-    {
-      "number": "244",
-      "name": "`@playwright/test` Bump, Alone",
-      "status": "pending"
-    },
-    {
-      "number": "245",
-      "name": "Branch Prune",
+      "number": "263",
+      "name": "Public Surfaces and Release Narrative",
       "status": "pending"
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 239 of 10 · 30% · executing"
+    "command": "/gsd-progress --next",
+    "label": "Advance to the next step (verify)",
+    "reason": "Phase 2 of 5 · ready to verify"
   },
-  "updated_at": "2026-09-17T20:27:06.884Z"
+  "updated_at": "2026-11-15T21:24:36.165Z"
 }

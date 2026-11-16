@@ -1,0 +1,2 @@
+brand/** -text linguist-vendored
+test/fixtures/brand/before/** -text

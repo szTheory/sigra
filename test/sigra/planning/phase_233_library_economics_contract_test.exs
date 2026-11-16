@@ -63,6 +63,9 @@ defmodule Sigra.Planning.Phase233LibraryEconomicsContractTest do
              "deps.get --check-locked",
              "deps.unlock --check-unused",
              "compile --warnings-as-errors",
+             # Phase 260 (BGEN-05): the two shipped-CSS guards run before any test step.
+             "cmd bash scripts/ci/admin-css-conformance.sh",
+             "cmd bash scripts/ci/admin-token-completeness.sh",
              "test --exclude scaffold",
              "ci.install_golden",
              "sigra.dep_off"

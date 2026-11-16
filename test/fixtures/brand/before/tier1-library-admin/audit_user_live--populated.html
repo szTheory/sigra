@@ -1,0 +1,327 @@
+<section class="sg-stack sg-stack--6">
+<span class="sg-scope-ribbon sg-muted sg-text-sm ">
+Global audit explorer
+</span>
+<header class="sg-page-header">
+<p class="sg-page-kicker">
+User audit evidence
+</p>
+<h1 class="sg-page-title">
+active.user@demo.tasklane.test
+</h1>
+<p class="sg-page-copy">
+Filter this user's scoped event history, distinguish support actions from user actions, and export evidence.
+</p>
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+active.user@demo.tasklane.test
+</span>
+<code class="sg-code">
+{{PERSONA:active}}
+</code>
+</div>
+</header>
+<nav class="sg-cluster" aria-label="User audit filter presets">
+<a href="/admin/users/{{PERSONA:active}}/audit?outcome=failure&amp;return_to=%2Fadmin%2Fusers%2F{{PERSONA:active}}" class="sg-btn sg-btn--secondary sg-btn--sm">
+Failures
+</a>
+<a href="/admin/users/{{PERSONA:active}}/audit?action_prefix=admin.impersonation&amp;return_to=%2Fadmin%2Fusers%2F{{PERSONA:active}}" class="sg-btn sg-btn--secondary sg-btn--sm">
+Impersonation
+</a>
+</nav>
+<form method="get" action="/admin/users/{{PERSONA:active}}/audit" class="sg-filter-panel sg-stack">
+<div class="sg-form-grid sg-form-grid--cols">
+<label class="sg-field">
+<span class="sg-field-label">
+Action prefix
+</span>
+<input type="text" name="action_prefix" value="" class="sg-input" placeholder="e.g. session or admin.impersonation">
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Outcome
+</span>
+<select name="outcome" class="sg-select">
+<option value="" selected>
+Any
+</option>
+<option value="success">
+Success
+</option>
+<option value="failure">
+Failure
+</option>
+</select>
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Actor
+</span>
+<input type="text" name="actor" value="" class="sg-input">
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Occurred from
+</span>
+<input type="date" name="from" value="" class="sg-input">
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Occurred to
+</span>
+<input type="date" name="to" value="" class="sg-input">
+</label>
+</div>
+<div class="sg-cluster">
+<button type="submit" class="sg-btn sg-btn--primary">
+Apply filters
+</button>
+<a href="/admin/users/{{PERSONA:active}}/audit?return_to=%2Fadmin%2Fusers%2F{{PERSONA:active}}" class="sg-btn sg-btn--ghost">
+Clear
+</a>
+<a href="/admin/users/{{PERSONA:active}}/audit/export.csv?return_to=%2Fadmin%2Fusers%2F{{PERSONA:active}}" class="sg-btn sg-btn--secondary">
+Export CSV
+</a>
+</div>
+<input type="hidden" name="return_to" value="/admin/users/{{PERSONA:active}}">
+<input type="hidden" name="page_size" value="25">
+<input type="hidden" name="order_by" value="inserted_at">
+<input type="hidden" name="order_direction" value="desc">
+</form>
+<div id="admin-audit-user-desktop-results" data-testid="admin-audit-user-desktop-results" class="sg-table-panel sg-show-desktop">
+<table class="sg-table">
+<thead>
+<tr>
+<th>
+<a href="/admin/users/{{PERSONA:active}}/audit?order_by=inserted_at&amp;order_direction=desc">
+Occurred
+</a>
+</th>
+<th>
+Event
+</th>
+<th>
+Actor
+</th>
+<th class="sg-show-desktop">
+Outcome
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-05-14 08:12:30
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Login Success
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.success
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+active.user@demo.tasklane.test
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr data-tone="risk">
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-05-14 08:10:05
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Login Failure
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.failure
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+active.user@demo.tasklane.test
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-status-pill" data-tone="risk">
+failure
+</span>
+</td>
+</tr>
+<tr data-tone="info">
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-05-14 08:05:00
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="info">
+Impersonation started
+</span>
+<span class="sg-status-pill" data-tone="info">
+Impersonation
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+admin.impersonation.start
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+admin@demo.tasklane.test acting as active.user@demo.tasklane.test
+</span>
+<span class="sg-muted">
+Actor: admin@demo.tasklane.test
+</span>
+<span class="sg-muted">
+Effective user: active.user@demo.tasklane.test
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="admin-audit-user-mobile-results" data-testid="admin-audit-user-mobile-results" class="sg-stack sg-stack--3 sg-show-mobile">
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Login Success
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+active.user@demo.tasklane.test
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: active.user@demo.tasklane.test
+</span>
+<span class="sg-muted sg-text-xs">
+2026-05-14 08:12
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.success
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="risk">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Login Failure
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+active.user@demo.tasklane.test
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: active.user@demo.tasklane.test
+</span>
+<span class="sg-muted sg-text-xs">
+2026-05-14 08:10
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.failure
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="info">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="info">
+Impersonation started
+</span>
+<span class="sg-status-pill" data-tone="info">
+Impersonation
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+admin@demo.tasklane.test acting as active.user@demo.tasklane.test
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: admin@demo.tasklane.test
+</span>
+<span class="sg-muted sg-text-sm">
+Effective user: active.user@demo.tasklane.test
+</span>
+<span class="sg-muted sg-text-xs">
+2026-05-14 08:05
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+admin.impersonation.start
+</code>
+</article>
+</div>
+</section>

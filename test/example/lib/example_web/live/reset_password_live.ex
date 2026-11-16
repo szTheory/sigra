@@ -166,12 +166,14 @@ defmodule ExampleWeb.ResetPasswordLive do
   end
 
   def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do
-    if user = Example.Accounts.get_user_by_email(email) do
+    # The context function is the enumeration-safe entry point: it looks the account up
+    # itself and answers {:ok, :sent} for an unknown address, so the view must not branch
+    # on existence. A rate-limited result shows the same flash.
+    _ =
       Example.Accounts.deliver_user_reset_password_instructions(
-        user,
+        email,
         &url(socket, ~p"/users/reset-password/#{&1}")
       )
-    end
 
     {:noreply,
      socket

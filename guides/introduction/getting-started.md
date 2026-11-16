@@ -162,14 +162,14 @@ Confirm: open devtools → Cookies. The `_my_app_key` value should have changed 
 
 ## 7. Request a password reset
 
-Visit <http://localhost:4000/users/reset-password>. Enter `alice@example.com` and submit. The generated `ResetPasswordLive` calls:
+Visit <http://localhost:4000/users/reset-password>. Enter `alice@example.com` and submit. The reset request page hands the submitted address to the context, which looks the account up itself:
 
     Accounts.deliver_user_reset_password_instructions(
-      user,
+      email,
       &url(~p"/users/reset-password/#{&1}")
     )
 
-This generates an HMAC-signed reset token, stores its hash in `auth.user_tokens` with a 60-minute TTL, and sends the email via the configured mailer. **By design, the form shows the same success message whether or not the email exists in your database** — this prevents enumeration attacks.
+This generates an HMAC-signed reset token, stores its hash in `auth.user_tokens` with a 60-minute TTL, and sends the email via the configured mailer. **By design, the form shows the same success message whether or not the email exists in your database**, so the message itself does not tell a visitor which addresses have an account. That covers the message for a single attempt; timing and repeated-request behaviour are described in the [Password Reset](../flows/password-reset.html) guide.
 
 Check <http://localhost:4000/dev/mailbox> again. You'll see a new message: **"Reset password instructions"**. The body contains a link like:
 

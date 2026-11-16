@@ -1,0 +1,308 @@
+<!--
+<SigraAdminSmokeWeb.Layouts.root>
+lib/sigra_admin_smoke_web/components/layouts/root.html.heex:1 (sigra_admin_smoke) -->
+<!DOCTYPE html>
+<html data-phx-loc="2" phx-r lang="en">
+<head data-phx-loc="3">
+<meta data-phx-loc="4" charset="utf-8">
+<meta data-phx-loc="5" name="viewport" content="width=device-width, initial-scale=1">
+<meta data-phx-loc="6" name="csrf-token" content="{{CSRF}}">
+<!-- @caller lib/sigra_admin_smoke_web/components/layouts/root.html.heex:7 (sigra_admin_smoke) -->
+<!--
+<Phoenix.Component.live_title>
+lib/phoenix_component.ex:2264 (phoenix_live_view) -->
+<title data-phx-loc="2265" phx-r data-default="SigraAdminSmoke" data-suffix=" · Phoenix Framework">
+SigraAdminSmoke · Phoenix Framework
+</title>
+<!--
+</Phoenix.Component.live_title>
+-->
+<link data-phx-loc="8" phx-track-static rel="stylesheet" href="/assets/css/app.css">
+<script data-phx-loc="9" defer phx-track-static type="text/javascript" src="/assets/js/app.js">
+</script>
+<script data-phx-loc="11">
+(() =>
+{ const systemTheme = () =>
+matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; const setTheme = (theme) =>
+{ if (theme === "system") { localStorage.removeItem("phx:theme"); document.documentElement.setAttribute("data-theme", systemTheme()); document.documentElement.setAttribute("data-theme-source", "system"); } else { localStorage.setItem("phx:theme", theme); document.documentElement.setAttribute("data-theme", theme); document.documentElement.setAttribute("data-theme-source", "user"); } }; if (!document.documentElement.hasAttribute("data-theme")) { setTheme(localStorage.getItem("phx:theme") || "system"); } window.addEventListener("storage", (e) =>
+e.key === "phx:theme" && setTheme(e.newValue || "system")); window.addEventListener("phx:set-theme", (e) =>
+setTheme(e.target.dataset.phxTheme)); matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) =>
+{ if (document.documentElement.getAttribute("data-theme-source") === "system") { document.documentElement.setAttribute("data-theme", systemTheme()); } }); })();
+</script>
+</head>
+<body data-phx-loc="41">
+<!--
+<SigraAdminSmokeWeb.SessionHTML.new>
+lib/sigra_admin_smoke_web/controllers/session_html.ex:20 (sigra_admin_smoke) -->
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:21 (sigra_admin_smoke) -->
+<!--
+<SigraAdminSmokeWeb.SigraAuthComponents.sigra_auth_page>
+lib/sigra_admin_smoke_web/components/sigra_auth_components.ex:30 (sigra_admin_smoke) -->
+<link data-phx-loc="31" phx-r phx-track-static rel="stylesheet" href="/assets/sigra_auth.css">
+<main data-phx-loc="32" phx-r class="sigra-auth " data-theme="system" style="--sigra-auth-light-accent: #c2410c; --sigra-auth-light-on-accent: #ffffff; --sigra-auth-light-bg: #f7f4ee; --sigra-auth-light-surface: #ffffff; --sigra-auth-light-text: #171717; --sigra-auth-light-muted: #6b6258; --sigra-auth-light-border: #ded8cf; --sigra-auth-dark-accent: #f05211; --sigra-auth-dark-on-accent: #000000; --sigra-auth-dark-bg: #171614; --sigra-auth-dark-surface: #211f1c; --sigra-auth-dark-text: #f4f1eb; --sigra-auth-dark-muted: #bdb5aa; --sigra-auth-dark-border: #4a4035;">
+<section data-phx-loc="33" class="sigra-auth__viewport">
+<div data-phx-loc="34" class="sigra-auth__panel">
+<div data-phx-loc="35" class="sigra-auth__brand">
+<!-- @caller lib/sigra_admin_smoke_web/components/sigra_auth_components.ex:36 (sigra_admin_smoke) -->
+<!--
+<SigraAdminSmokeWeb.SigraAuthComponents.logo_slot>
+lib/sigra_admin_smoke_web/components/sigra_auth_components.ex:112 (sigra_admin_smoke) -->
+<div data-phx-loc="120" phx-r class="sigra-auth__mark" aria-hidden="true">
+<span data-phx-loc="126">
+</span>
+<span data-phx-loc="127">
+</span>
+<span data-phx-loc="128">
+</span>
+</div>
+<!--
+</SigraAdminSmokeWeb.SigraAuthComponents.logo_slot>
+-->
+<p data-phx-loc="49" class="sigra-auth__product">
+SigraAdminSmoke
+</p>
+</div>
+<!--
+<:inner_block>
+lib/sigra_admin_smoke_web/controllers/session_html.ex:21 (sigra_admin_smoke) -->
+<div data-phx-loc="22" phx-r class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:23 (sigra_admin_smoke) -->
+<!--
+<SigraAdminSmokeWeb.CoreComponents.header>
+lib/sigra_admin_smoke_web/components/core_components.ex:323 (sigra_admin_smoke) -->
+<header data-phx-loc="324" phx-r class="pb-4">
+<div data-phx-loc="325">
+<h1 data-phx-loc="326" class="text-lg font-semibold leading-8">
+Sign in
+</h1>
+<p data-phx-loc="329" class="text-sm text-base-content/70">
+<!--
+<:subtitle>
+lib/sigra_admin_smoke_web/controllers/session_html.ex:25 (sigra_admin_smoke) -->
+New here?
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:27 (sigra_admin_smoke) -->
+<!--
+<Phoenix.Component.link>
+lib/phoenix_component.ex:3114 (phoenix_live_view) -->
+<a data-phx-loc="3115" phx-r href="/users/register" data-phx-link="redirect" data-phx-link-state="push">
+Create an account
+</a>
+<!--
+</Phoenix.Component.link>
+-->
+<!--
+</:subtitle>
+-->
+</p>
+</div>
+<div data-phx-loc="333" class="flex-none">
+</div>
+</header>
+<!--
+</SigraAdminSmokeWeb.CoreComponents.header>
+-->
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:34 (sigra_admin_smoke) -->
+<!--
+<Phoenix.Component.form>
+lib/phoenix_component.ex:2550 (phoenix_live_view) -->
+<form data-phx-loc="2551" phx-r action="/users/log_in" method="post" class="sigra-auth-stack sigra-auth-stack--4" id="magic_link_form">
+<input data-phx-loc="2559" name="_csrf_token" type="hidden" hidden value="{{CSRF}}">
+<!--
+<:inner_block>
+lib/sigra_admin_smoke_web/controllers/session_html.ex:34 (sigra_admin_smoke) -->
+<input data-phx-loc="35" phx-r type="hidden" name="_action" value="magic_link">
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:36 (sigra_admin_smoke) -->
+<!--
+<SigraAdminSmokeWeb.CoreComponents.input>
+lib/sigra_admin_smoke_web/components/core_components.ex:284 (sigra_admin_smoke) -->
+<div data-phx-loc="285" phx-r class="fieldset mb-2">
+<label data-phx-loc="286" for="magic_link_form_email">
+<span data-phx-loc="287" class="label mb-1">
+Email for sign-in link
+</span>
+<input data-phx-loc="288" type="email" name="user[email]" id="magic_link_form_email" value="" class="w-full input" required autocomplete="username">
+</label>
+</div>
+<!--
+</SigraAdminSmokeWeb.CoreComponents.input>
+-->
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:38 (sigra_admin_smoke) -->
+<!--
+<SigraAdminSmokeWeb.SigraAuthComponents.sigra_auth_button>
+lib/sigra_admin_smoke_web/components/sigra_auth_components.ex:83 (sigra_admin_smoke) -->
+<button data-phx-loc="84" phx-r type="submit" class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
+<!--
+<:inner_block>
+lib/sigra_admin_smoke_web/controllers/session_html.ex:38 (sigra_admin_smoke) -->
+Email me a sign-in link
+<span data-phx-loc="39" phx-r aria-hidden="true">
+&rarr;
+</span>
+<!--
+</:inner_block>
+-->
+</button>
+<!--
+</SigraAdminSmokeWeb.SigraAuthComponents.sigra_auth_button>
+-->
+<!--
+</:inner_block>
+-->
+</form>
+<!--
+</Phoenix.Component.form>
+-->
+<details data-phx-loc="43" class="sigra-auth-disclosure">
+<summary data-phx-loc="44">
+Other ways to sign in
+</summary>
+<div data-phx-loc="45" class="sigra-auth-stack sigra-auth-stack--6">
+<!--
+<SigraAdminSmokeWeb.SessionHTML.password_form>
+lib/sigra_admin_smoke_web/controllers/session_html.ex:58 (sigra_admin_smoke) -->
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:59 (sigra_admin_smoke) -->
+<!--
+<Phoenix.Component.form>
+lib/phoenix_component.ex:2550 (phoenix_live_view) -->
+<form data-phx-loc="2551" phx-r action="/users/log_in" method="post" class="sigra-auth-stack sigra-auth-stack--4" id="login_form">
+<input data-phx-loc="2559" name="_csrf_token" type="hidden" hidden value="{{CSRF}}">
+<!--
+<:inner_block>
+lib/sigra_admin_smoke_web/controllers/session_html.ex:59 (sigra_admin_smoke) -->
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:60 (sigra_admin_smoke) -->
+<!--
+<SigraAdminSmokeWeb.CoreComponents.input>
+lib/sigra_admin_smoke_web/components/core_components.ex:284 (sigra_admin_smoke) -->
+<div data-phx-loc="285" phx-r class="fieldset mb-2">
+<label data-phx-loc="286" for="login_form_email">
+<span data-phx-loc="287" class="label mb-1">
+Email
+</span>
+<input data-phx-loc="288" type="email" name="user[email]" id="login_form_email" value="" class="w-full input" required autocomplete="username">
+</label>
+</div>
+<!--
+</SigraAdminSmokeWeb.CoreComponents.input>
+-->
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:61 (sigra_admin_smoke) -->
+<!--
+<SigraAdminSmokeWeb.CoreComponents.input>
+lib/sigra_admin_smoke_web/components/core_components.ex:284 (sigra_admin_smoke) -->
+<div data-phx-loc="285" phx-r class="fieldset mb-2">
+<label data-phx-loc="286" for="login_form_password">
+<span data-phx-loc="287" class="label mb-1">
+Password
+</span>
+<input data-phx-loc="288" type="password" name="user[password]" id="login_form_password" class="w-full input" required autocomplete="current-password">
+</label>
+</div>
+<!--
+</SigraAdminSmokeWeb.CoreComponents.input>
+-->
+<label data-phx-loc="63" phx-r class="sigra-auth-cluster">
+<input data-phx-loc="64" type="checkbox" name="user[remember_me]" value="true" class="sigra-auth-check">
+Keep me signed in
+</label>
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:68 (sigra_admin_smoke) -->
+<!--
+<SigraAdminSmokeWeb.SigraAuthComponents.sigra_auth_button>
+lib/sigra_admin_smoke_web/components/sigra_auth_components.ex:83 (sigra_admin_smoke) -->
+<button data-phx-loc="84" phx-r type="submit" class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--block">
+Sign in with password
+</button>
+<!--
+</SigraAdminSmokeWeb.SigraAuthComponents.sigra_auth_button>
+-->
+<!--
+</:inner_block>
+-->
+</form>
+<!--
+</Phoenix.Component.form>
+-->
+<!--
+</SigraAdminSmokeWeb.SessionHTML.password_form>
+-->
+<div data-phx-loc="47" class="sigra-auth-divider">
+or use work sign-in
+</div>
+<!--
+<SigraAdminSmokeWeb.SessionHTML.enterprise_form>
+lib/sigra_admin_smoke_web/controllers/session_html.ex:76 (sigra_admin_smoke) -->
+<section data-phx-loc="77" phx-r class="sigra-auth-section" aria-labelledby="enterprise-sign-in-title">
+<div data-phx-loc="78" class="sigra-auth-stack sigra-auth-stack--2">
+<h2 data-phx-loc="79" id="enterprise-sign-in-title">
+Work sign-in
+</h2>
+<p data-phx-loc="80">
+Enter your work email. We&#39;ll continue to your organization&#39;s sign-in page when there is an exact active match.
+</p>
+</div>
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:83 (sigra_admin_smoke) -->
+<!--
+<Phoenix.Component.form>
+lib/phoenix_component.ex:2550 (phoenix_live_view) -->
+<form data-phx-loc="2551" phx-r action="/users/log_in" method="post" class="sigra-auth-stack sigra-auth-stack--4" id="enterprise_login_form">
+<input data-phx-loc="2559" name="_csrf_token" type="hidden" hidden value="{{CSRF}}">
+<!--
+<:inner_block>
+lib/sigra_admin_smoke_web/controllers/session_html.ex:83 (sigra_admin_smoke) -->
+<input data-phx-loc="84" phx-r type="hidden" name="_action" value="enterprise">
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:85 (sigra_admin_smoke) -->
+<!--
+<SigraAdminSmokeWeb.CoreComponents.input>
+lib/sigra_admin_smoke_web/components/core_components.ex:284 (sigra_admin_smoke) -->
+<div data-phx-loc="285" phx-r class="fieldset mb-2">
+<label data-phx-loc="286" for="enterprise_login_form_email">
+<span data-phx-loc="287" class="label mb-1">
+Work email
+</span>
+<input data-phx-loc="288" type="email" name="user[email]" id="enterprise_login_form_email" value="" class="w-full input" required autocomplete="username">
+</label>
+</div>
+<!--
+</SigraAdminSmokeWeb.CoreComponents.input>
+-->
+<!-- @caller lib/sigra_admin_smoke_web/controllers/session_html.ex:86 (sigra_admin_smoke) -->
+<!--
+<SigraAdminSmokeWeb.SigraAuthComponents.sigra_auth_button>
+lib/sigra_admin_smoke_web/components/sigra_auth_components.ex:83 (sigra_admin_smoke) -->
+<button data-phx-loc="84" phx-r type="submit" class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--block">
+Continue with work sign-in
+</button>
+<!--
+</SigraAdminSmokeWeb.SigraAuthComponents.sigra_auth_button>
+-->
+<!--
+</:inner_block>
+-->
+</form>
+<!--
+</Phoenix.Component.form>
+-->
+</section>
+<!--
+</SigraAdminSmokeWeb.SessionHTML.enterprise_form>
+-->
+</div>
+</details>
+</div>
+<!--
+</:inner_block>
+-->
+</div>
+</section>
+</main>
+<!--
+</SigraAdminSmokeWeb.SigraAuthComponents.sigra_auth_page>
+-->
+<!--
+</SigraAdminSmokeWeb.SessionHTML.new>
+-->
+<iframe hidden height="0" width="0" src="/phoenix/live_reload/frame">
+</iframe>
+</body>
+</html>
+<!--
+</SigraAdminSmokeWeb.Layouts.root>
+-->

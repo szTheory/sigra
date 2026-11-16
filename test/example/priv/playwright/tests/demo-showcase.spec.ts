@@ -1,6 +1,7 @@
 import { test, expect, type Page, type TestInfo } from "@playwright/test";
 // The example app uses MFA as step-up auth, so the TOTP helper is not needed here.
 import { adminUsersEmailLocator } from "../helpers/adminUsersIndex";
+import { LOGIN_SUBMIT_SELECTOR, loginSubmit } from "../helpers/loginSubmit";
 
 // Phase 143 Plan 2: evaluator-facing demo showcase spec.
 //
@@ -198,7 +199,7 @@ async function loginDemoUser(page: Page, email: string, password: string) {
   // Scope fills to #login_form to target the password form specifically.
   await page.fill('#login_form input[name="user[email]"]', email);
   await page.fill('#login_form input[name="user[password]"]', password);
-  await page.click('#login_form button:has-text("Log in")');
+  await loginSubmit(page).click();
   // No MFA challenge — example app creates a :standard session without check_fn.
   await expect(page).not.toHaveURL(/\/users\/log_in/);
 }
@@ -298,7 +299,7 @@ test.describe("demo-showcase", () => {
             };
           });
 
-        const button = await probe('#login_form button:has-text("Log in")');
+        const button = await probe(LOGIN_SUBMIT_SELECTOR);
         expect(button.backgroundColor).toBe(button.expectedPrimary);
         expect(button.color).toBe(button.expectedOnPrimary);
         // Follows the OS color-scheme (dark here) without an explicit data-theme.
@@ -614,7 +615,7 @@ test.describe("demo-showcase", () => {
     await expect(login.getByText("Use your email and password")).toHaveCount(0);
     await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/users/log_in");
-    const loginButton = page.locator('#login_form button:has-text("Log in")');
+    const loginButton = loginSubmit(page);
     const loginButtonBaseStyles = await loginButton.evaluate((element) => {
       const styles = getComputedStyle(element);
 

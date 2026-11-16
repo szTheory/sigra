@@ -1,20 +1,22 @@
 ---
 gsd_state_version: "1.0"
-milestone: v1.50
-milestone_name: CI-SPEED-AND-RELIABILITY
-current_phase: null
-current_phase_name: null
-current_plan: null
-status: closed_with_deferred_scope
-last_updated: "2026-11-10"
-state_head: b11bcca1db7c0186b4610ab4f10aeb7f84567540
+milestone: v1.51
+milestone_name: BRAND-IDENTITY-ADOPTION
+current_phase: 261
+current_phase_name: Tokens, Type, Logo, Favicon and Contrast
+current_plan: Not started
+status: planning
+stopped_at: Phase 260 complete, ready to plan Phase 261
+last_updated: "2026-11-15T22:03:46.674Z"
+last_activity: 2026-11-15
+last_activity_desc: Phase 260 complete, transitioned to Phase 261
+state_head: 4dd223ffc97ccfe12b1816bfcfbfa10e378ad98b
 progress:
-  total_phases: 8
+  total_phases: 5
   completed_phases: 2
-  total_plan_records: 164
-  plans_with_terminal_summaries: 157
-last_activity: 2026-11-10
-last_activity_desc: v1.50 archived as a partial internal closeout; four requirements remain deferred and the next route is new-milestone planning.
+  total_plans: 11
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -24,17 +26,17 @@ last_activity_desc: v1.50 archived as a partial internal closeout; four requirem
 See: .planning/PROJECT.md
 
 **Core value:** Authentication that works out of the box with a clear path for Phoenix adopters.
-**Current focus:** Define the next milestone. No phase or plan is active.
+**Current focus:** Phase 260 — Deterministic Output, Before Catalog and PNG Park
 
 ## Current Position
 
-v1.50 is closed as an internal planning milestone with deferred scope. Phase252 and Phase255 have passed current verification (2/8). Phase253 remains `gaps_found`; Phase254 lacks a verification report; Phases255.1–258 remain incomplete. The audit remains `gaps_found`.
+Phase: 261 — Tokens, Type, Logo, Favicon and Contrast
+Current Plan: Not started
+Total Plans in Phase: 11
+Status: Ready to plan
+Last activity: 2026-11-15 — Phase 260 complete, transitioned to Phase 261
 
-Main CI run `42756400672` passed on `970055abcf1ee4e8b5d8ebcf79de0eeecf4f223d`. That does not prove the current dirty diagnostics edits. The Git worktree remains dirty; `.git` is read-only in this session, so no broad staging or commit was attempted.
-
-**Next command:** `$gsd-new-milestone`
-**Next actor:** User
-**External authority:** None for new GitHub requests, merges, releases, tags, or retries/renewals of consumed source-bound attempts.
+Progress: [░░░░░░░░░░] 0% (0/5 phases)
 
 ## Deferred Requirements
 
@@ -107,6 +109,116 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-13 — resumed via /gsd-resume-work; stopped at: session resumed, proceeding to `$gsd-new-milestone` scoping (no phase/plan active).
+Last session: 2026-11-15T21:24:46.193Z
+Stopped at: Phase 260 complete, ready to plan Phase 261
+Resume file: None
 
-No phase command is active. Define the next scope with `$gsd-new-milestone`. Preserve all halted one-use attempts; do not retry or renew them. The current worktree is not clean, and no files were discarded or committed.
+No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 261115-nnd | Add GSD Workflow Preferences (standing discuss/verify boilerplates) to CLAUDE.md, with a CI efficiency sweep pointer in MAINTAINING.md | 2026-11-15 | 4dd223ffc | [261115-nnd-add-gsd-workflow-preferences-section-to-](./quick/261115-nnd-add-gsd-workflow-preferences-section-to-/) |
+
+## Performance Metrics
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 259 P01 | 6 min | 3 tasks | 4 files |
+| Phase 259 P02 | 5 min | 2 tasks | 3 files |
+| Phase 259 P03 | 4 min | 2 tasks | 8 files |
+| Phase 259 P04 | 3 min | 1 tasks | 1 files |
+| Phase 259 P05 | 5 min | 3 tasks | 4 files |
+| Phase 259 P06 | 12 min | 3 tasks | 5 files |
+| Phase 259 P07 | 16min | 3 tasks | 2 files |
+| Phase 259 P08 | 14min | 2 tasks | 3 files |
+| Phase 259 P09 | 11 min | 2 tasks | 7 files |
+| Phase 259 P13 | 5 min | 1 tasks | 4 files |
+| Phase 259 P10 | 9 min | 3 tasks | 10 files |
+| Phase 259 P12 | 12 min | 3 tasks | 3 files |
+| Phase 259 P11 | 11 min | 2 tasks | 2 files |
+| Phase 259 P14 | 12 min | 3 tasks | 6 files |
+| Phase 259 P15 | 6 min | 2 tasks | 7 files |
+| Phase 259 P16 | 3 min | 2 tasks | 3 files |
+| Phase 259 P17 | 8 min | 3 tasks | 4 files |
+| Phase 259 P18 | 4 min | 2 tasks | 5 files |
+| Phase 260 P01 | 11 min | 3 tasks | 6 files |
+| Phase 260 P02 | 14 min | 3 tasks | 4 files |
+| Phase 260 P03 | 35 min | 3 tasks | 3 files |
+| Phase 260 P05 | 11 min | 3 tasks | 8 files |
+| Phase 260 P06 | 24 min | 3 tasks | 5 files |
+| Phase 260 P07 | 7 min | 2 tasks | 5 files |
+| Phase 260 P08 | 13 min | 2 tasks | 5 files |
+| Phase 260 P09 | 23 min | 3 tasks | 9 files |
+| Phase 260 P04 | 23 min | 3 tasks | 3 files |
+| Phase 260 P10 | 20 min | 2 tasks | 5 files |
+| Phase 260 P11 | 12 min | 3 tasks | 1 files |
+
+## Decisions
+
+- [Phase 259]: ADR 005 records every brand-adoption decision except #12 as a recommended default awaiting owner confirmation; #12 confirmed 2026-11-13 — Only the pointer-fix approval was given; the rest are research defaults the owner has not yet ratified
+- [Phase 259]: v1.51 ships as a minor release: feat/fix/docs only, no bang marker, no BREAKING footer, nothing hand-added under CHANGELOG Unreleased — Every frozen name stays, so no documented API is removed; release-please owns the Unreleased block
+- [Phase 259]: Pin the whole tracked brand/ tree and document the consumed subset as a table; install-pin shape enforced now, value bump in Phase 263 — Pruning leaves the book's own index and manifest dangling; a two-segment requirement still resolves to the retired stray 1.20.0
+- [Phase 259]: Pin the whole tracked brand/ tree with brand.sha256 and one drift module; privacy scan has no URL rule or allowlist, names are covered by the 259-11 run-time gate — Home paths, emails and SVG/PDF/PNG/JPG metadata are scanned here with planted controls; personal names cannot be written into test source, so Plan 259-11 derives the name at run time
+- [Phase 259]: 259-03: login submit selector is '#login_form button:not([type="button"])' (excludes type=button, not [type=submit], because the example host button has no type attribute); exported as a string constant for the one probe call site
+- [Phase 259]: 259-03: Playwright behavioral proof of the loginSubmit edits is the PR example_playwright_shard lanes only; local proof is the exactly-one-match ConnTest plus the node import (Playwright not installed locally)
+- [Phase 259]: 259-04: install-snippet test asserts shape (anchored three-segment) and set size 1, never a version value, so the later pin bump needs no test edit
+- [Phase 259]: 259-04: install-snippet scan has no allow-list or per-file skip; real-tree redness proven only by planted inputs and a tmp_dir tree (no doc edits)
+- [Phase 259]: 259-05: Frozen-surface baseline must carry exactly the module's known categories and each needs an extractor, so a renamed source path or dropped extractor fails by name; Profile defaults are frozen as key=inspect(value) strings so a changed default is a removal
+- [Phase 259]: 259-05: Msgids, preview HTML and admin copy are not frozen (only the Gettext domain); legacy Branding fixture is generated once behind SIGRA_BRAND_LEGACY=write and never overwritten; frozen baseline extends only through the guarded SIGRA_BRAND_BASELINE=extend union
+- [Phase 259]: 259-06: Copy inventory rows are prose-only per lane: host excludes hex design tokens, library keeps capitalized single words and scopes error.ex to safe_message/1, and generated/library never evaluate repo content (regex or Code.string_to_quoted only)
+- [Phase 259]: 259-06: Inventory lanes as specified leave raw template literals, HEEx attribute copy and browser JS copy uncovered (listed in SUMMARY Deferred Issues); extending them is a regeneration-flow follow-up, not recorded in the ship ledger
+- [Phase 259]: 259-07: password-reset-request and confirmation-resend registered not_proven (example host cannot drive either); 3 of 5 named surfaces are parity
+- [Phase 259]: 259-07: added a result compare dimension for library-level rows; LiveView per-mount ids normalized as request ids; known-divergence rows assert exact differing dimensions
+- [Phase 259]: 259-07: passkey conditional flow is a sub-case test, not a parity registry row (no identity involved)
+- [Phase 259]: 259-08: copy-baseline hits are a multiset (a repeated violating line needs a repeated entry) and carry the matched copy segment, not line numbers or whole source lines
+- [Phase 259]: 259-08: admin and generated scopes share one copy-segment scanner (strings, HEEx text, six copy attrs); identifiers, routes, atoms, comments and docs never match; admin keeps the auth-replica carve-out
+- [Phase 259]: 259-08: derived brand avoid-words exclude ordinary English (delete, cancel, disable, group, scope, target, subject, suspend, host, consumer) and parenthetical-qualified entries
+- [Phase 259]: [259-09] Instruction-file pointer fix landed under the 2026-11-13 owner approval (BPOL-06): CLAUDE.md changed by one line, AGENTS.md and both admin guides point at brand/, and wording says token names stay while values move in a later phase (no alignment claim).
+- [Phase 259]: [259-09] test/example/AGENTS.md (no brandbook path) and the orphaned lens guide, scorecard and panel lenses pointers were NOT edited; filed as two pending todos for the owner to assign or extend the approval.
+- [Phase 259]: 259-13: missing_files/1 treats an absolute path or a directory as missing and de-duplicates; the three new todo paths are named in the parity test independently of @expected_todos so a dropped registry reference goes red
+- [Phase 259]: 259-13: todos record what the harness compared versus what was only read in source (passkey allowCredentials disclosure, generated reset callers skipping the limiter and dummy hash for unknown emails) and never claim a surface is safe; generated reset callers pass a user struct to a binary-only head, logged in deferred-items.md
+- [Phase 259]: 259-10: published enumeration claims are bounded to the three parity rows (password sign-in, magic-link request, MFA challenge); the reset request screen is not_proven so no doc says it is tested — Plan 07 registry is the only source for what may be claimed; the sweep test keeps it so
+- [Phase 259]: 259-10: where plan wording disagreed with source, the source won (reset primitive returns {:ok, :sent}; throttled reset returns {:error, :rate_limited}, not :ok) — A bare :ok would have been a second inaccuracy in the sentence being fixed
+- [Phase 259]: 259-10: the unbounded-claim sweep keeps indented code and uses an empty shrink-only allow-list; every hit is fixed by rewording — A reader still sees a claim in an indented example; allow-listing a hit would defeat BCOPY-07
+- [Phase 259]: [259-12] Glossary reconciliation rows say Differs wherever the book and glossary disagree or the glossary has no row; 12 of 23 rows differ — Defaulting to Agrees would hide real gaps; the Banned synonyms cell carries the book avoid text and glossary-only words are named in the rule.
+- [Phase 259]: [259-12] The status vocabulary (Active, Unconfirmed, Locked, Deletion scheduled) is recorded as a target, and the shipped Confirmed pill and the missing admin unlock control are stated, not claimed as aligned — Anchors user_show_live.ex:332 and :385 and index_live.ex:96 show the product has not moved; the copy phase owns the rewrite.
+- [Phase 259]: [259-12] The vocabulary doc test requires every anchor to sit on a line holding a term registered for its file — The per-pair at-least-one rule let a drifted anchor pass beside a sibling; mutation-checked red.
+- [Phase 259]: Clear-space authority recommended as the book's prose rule of 2 T (300 units) over brand.json logo.clearSpace (233.75 units); brand.json disagrees with itself; confirmed by owner 2026-11-15 (ADR 006)
+- [Phase 259]: Logo-use wording recommended as unchanged use to refer to Sigra, no implied endorsement, modification needs maintainer approval, worded as a request that leaves the MIT grant intact; a logo carve-out is a separate owner decision (ADR 006)
+- [Phase 259]: crosswake_sigra recorded as an apparent own companion (same GitHub owner as source_url), maintainer to confirm; never a third-party conflict, never support for a clearance or trademark claim; the record is a search log, not a clearance (ADR 006)
+- [Phase 259]: Claims register status is tested against the surface registry state: only a parity row may read bounded, every other row reads not proven or by design (name_clearance_test.exs)
+- [Phase 259]: 259-14: password-reset-request repaired and proven as parity instead of waived (router :new live action, binary email passed unconditionally to the enumeration-safe context function); example host only, the generated reset page is not compared and still carries the same two defects for 259-17 to file
+- [Phase 259]: 259-14: the registry flip and the claims-register restatement must land in one plan (commits 8bf865b66 and 7341af79e leave name_clearance_test red, 5c34cd083 turns it green); BCOPY-03 and BCOPY-07 stay open because plans 259-15 to 259-18 also declare them
+- [Phase 259]: 259-15: confirmation-resend repaired and proven as parity instead of waived (live_session :confirmation on :mount_current_scope outside the redirect-if-authenticated scope, nil-safe session_user/1); the row proves a visitor-supplied payload email is ignored, not an email-keyed resend form (none exists); example host only, the generated host is not claimed
+- [Phase 259]: 259-15: registry flip, probe and register restatement shipped in one commit so name_clearance_test is green at every commit; pre-existing anonymous ?token= crash in the example handle_params is pinned by installer_drift_test fix #9 and logged in deferred-items.md
+- [Phase 259]: 259-16: the named-surface rule judges each of the five named ids on its own in three classes (account-existence: password-signin, magic-link-request, password-reset-request; payload-ignored: confirmation-resend; code-kind: mfa-challenge); the parity-or-not_proven tolerance and the at-least-three-of-five floor are deleted, and planted controls prove each branch can fail
+- [Phase 259]: 259-16: mfa-challenge is kept as a real parity probe and counted separately rather than removed or reclassified (test-only, reversible with a one-line edit, the owner may revisit); WR-08 residual closed in the brand-harness deferred-findings todo; BCOPY-03 stays open because plans 259-17 and 259-18 also declare it
+- [Phase 259]: 259-17: the generated host's reset request defects (live route emitted without :new; user struct passed to the binary-only deliver_user_reset_password_instructions head) are filed as one todo with every generated-host claim labelled read in source, not executed, and wired into the password-reset-request registry row so the parity test requires the reference; no lib/ or priv/ byte changed
+- [Phase 259]: 259-17: the generated-confirm todo took the primary outcome (status update, stays pending): the LiveView flavor was repaired in Phase 246 and has an install-smoke probe, the non-live controller flavor still sits in the redirect-if-authenticated scope and reads current_scope.user directly (read in source, not executed); BCOPY-03 and BCOPY-07 stay open because plan 259-18 also declares them
+- [Phase 259]: 259-18: the README Enumeration row and the password-reset guide scope paragraph restate only what the parity rows prove (sign-in, magic-link and password-reset requests, single attempt, example application, generated code listed as not covered); the confirmation resend is deliberately not mentioned publicly; the false "tests do not currently run a comparison" clause is retired as a false statement in claims_docs_test, with no sweep allow-list entry
+- [Phase 259]: 259-18: phase gate ran green once (example suite 391 tests 0 failures, MIX_ENV=test mix ci exit 0 with 2985 tests and 65 install-golden tests, zero shipped bytes, all six privacy legs pass) and BCOPY-03 and BCOPY-07 were marked complete via requirements.ready-ids; no owner override written; the generated reset request page and non-live confirm flavor stay open, tracked by the two Plan 259-17 todos
+- [Phase 260]: [Phase 260-01]: PNG compare is parked at comparison level, not lane level. SIGRA_PNG_COMPARE_SKIP=1 skips only toHaveScreenshot on pull_request/push/schedule; unset compares, so recapture jobs, drift scripts and the Pages workflow need no edit (owner chose author-first-option-a; departs from literal ADR 005 decision 7 wording, plan 11 appends a dated ADR note) — Keeps axe, real-login and behavior specs on the PR path and leaves every if: predicate, the honest-skip manifest and the five required job names untouched; a forgotten setter fails loud (compares) rather than silently green.
+- [Phase 260]: [Phase 260-01]: playwright-github-pages.yml is left unedited; it keeps comparing and will report drift after Phase 261 until baselines are recaptured — Not a required context and not in ci-gate; leaving it untouched keeps the park PR a ci.yml-only change. Cost documented in MAINTAINING.md.
+- [Phase 260]: Masked the shipped branding preview placeholder address in the catalog normalizer instead of weakening the privacy rule; manifest coverage records it
+- [Phase 260]: Catalog MANIFEST.json field names fixed (schema, provenance, pinned, capture_command, lanes, personas, coverage, example_files_changed_vs_main, deferred_shipped_byte_fixes, files); write!(:before) refuses when MANIFEST.json exists, raw inputs are missing, or lib/priv differ from origin/main
+- [Phase 260]: Plan 03: tier-2 pin ranks ties by insertion command id (cmin), not ctid; the capture session stamp is the only exact-value replacement
+- [Phase 260]: Plan 03: generated reset-password request page is a documented 500 in the catalog (marker, flips loudly when fixed); run the smoke target without tmp/db.env
+- [Phase 260]: Before catalog keeps the reset-password request page as a one-line marker (shipped HTTP 500); the fix is owed and recorded in the manifest, not made in 260 — Truthful before state; lib/ and priv/ must stay byte-identical to main until the capture, and the generated lane is re-captured first if any owed shipped-byte fix lands before Phase 262
+- [Phase 260]: Audit pagination cursor values are normalized to the CURSOR placeholder in the catalog normalizer (base64 of a timestamp and a random row UUID) — Two independent captures disagreed only on that value; the rule has a planted control seen red first
+- [Phase 260]: Two generated email builders (email change confirmation and notification) remain outside the immutable before catalog — Adding them needs a script change and a re-capture, and the before is write-once; Phase 262 must state the gap or open a documented new capture decision
+- [Phase 260]: Plan 06: the admin_hooks.js divergence guard is the installer_drift marker pairs plus a shrink-only ceiling of 5 template-only lines, because the literal line-subset guard does not hold (5 lines differ) — The plan allowed the subset guard only if it held on the real files; only-in-one-side markers keep each documented reason true so a stale reason fails
+- [Phase 260]: Plan 06: a new scaffold test file must be added to three places together: its own moduletag, the ci.install_golden list in lexical order, and the scaffold path allow-list in test/support/ci/library_test_partitions.exs — The phase 233 contract test requires the three sets to be equal and compares the alias list in sorted order; the double-install proof costs about 60 s of Library tests shard time
+- [Phase 260]: Plan 07: the CSS conformance guard treats explicit-theme token blocks as protected scopes by exact selector match (four strings, never a prefix) and exempts only single --sg-* or color-scheme declarations; CHECK 2 and CHECK 3 share one strip_protected_scopes awk function — Brand-mark and theme-switch rules also start with html[data-sg-admin-theme...], so a prefix match would let raw hex through; the theme-switch active rule must be tokenised by the CSS plan, the guard does not exempt it; one shared function keeps the two checks from drifting
+- [Phase 260]: Plan 07: CHECK 3 of the conformance guard was a no-op on GNU grep (a backslash-d shorthand GNU grep -E lacks); fixed to [0-9]+ and the guard self-test is now proven inside ubuntu:24.04 (mawk and gawk), not only on darwin — A planted 13px passed the unfixed guard under ubuntu:24.04 and failed on darwin; the guards were not yet wired into mix ci, so the blindness was latent. Any bash guard destined for the PR gate needs one observed run under the CI userland
+- [Phase 260]: Plan 07: the shipped-CSS gap baseline (test/fixtures/brand/css-undefined-classes.txt) holds 56 classes (53 defined only in example app.css, 3 nowhere), checked in both directions; RESEARCH's 59 is not reproducible by the prescribed class-attribute extraction — Growth fails (define the class in the shipped CSS, never add an entry) and a listed class that became defined fails (remove it), so the baseline can only shrink; plan 09 removes exactly the sg-brand-mark* and sg-theme-switch entries it defines
+- [Phase 260]: Plan 08: the catalog diff report diffs file by file with diff -u -L before/REL -L after/REL instead of one diff -ru call, and ignores MANIFEST.json and .DS_Store — diff -ru prints the absolute input paths in every header, which the plan's own no-absolute-path rule forbids for a report that gets pasted into a public PR; counts come from sorted find lists and comm, and the script was also run under ubuntu:24.04 (GNU diff, bash 5.2) because it runs under mix ci on CI
+- [Phase 260]: Plan 08: the gallery catalog auth and email previews are pinned to data-theme=light, not system, and "Suspended" is a toneless sg-status-pill with a visible catalog-only note — The shipped default dark palette draws accent text (#c2410c) on its dark surface at 3.17:1 and the page-wide axe test runs in the admin-design-dark project too, so the new markup stayed green only with the pin; the contrast fix is Phase 261 BTOK-03 (logged in 260-deferred-items.md) and the pin can move back to system once it lands
+- [Phase 260]: Plan 09: theme-switch active fill and ring use --sg-logo-rail-accent (not --sg-color-brand-solid, which is #9a3412 in Light) and the text uses ink per resolved theme, so the computed colours stay rgb(253, 186, 116) on rgb(21, 21, 21) with no raw hex — A colour that must be one value in every theme but has no single token is emitted per resolved theme (explicit html attribute, explicit shell attribute, prefers-color-scheme pair) at higher specificity than the light default; the explicit token blocks go at the end of the sg-base layer so the D-11 first-match extraction lands on the dark token block
+- [Phase 260]: Plan 09: the golden rebless ran exactly once (one modified file, additive diff, committed alone); mix sigra.fixture.rebless_golden treats an unknown switch such as --help as the writer, so never pass it — OptionParser is strict: [check: :boolean], so unknown switches are dropped and the task rewrites the committed fixture; logged as a follow-up in 260-deferred-items.md
+- [Phase 260]: Plan 04: park PR #381 squash-merged to main as 4154a913e6c31f54f357587553c0dc7846ebc915 (single parent 4cf5829ea, six files, no PNG) through the ruleset with no admin, force or branch deletion; plan 11 syncs the milestone branch to that commit and Phase 261 is unblocked — Both owner gates were plain-chat replies recorded verbatim in 260-04-GATE-LEDGER.md; the merge reply delegated to the recommended option, so the ledger records how it was read. The live control needed a scratch narrower viewport for the board lane because the stock board test stayed inside tolerance on darwin; the checkpoint and demo lanes failed naturally with the switch unset. The park branch and worktree were left in place. The measured commit range for this plan is contaminated by plans 06 to 09 committing while it was paused (24 measured, 3 authored by plan 04).
+- [Phase 260]: Plan 10: owner decision #13 is wire — admin-css-conformance.sh and admin-token-completeness.sh run in the mix ci alias between compile and test --exclude scaffold, so the PR-required Library tests shard enforces them with zero .github diff; the .test.sh twins stay outside the alias because Test G fails on a dirty tracked tree — Proven by a contract test over mix.exs, one observed failure of the real alias on a planted raw hex before any test step (restored byte-for-byte), and the guards plus self-tests (24 and 8 cases) passing in ubuntu:24.04 (GNU grep 3.11)
+- [Phase 260]: Plan 10: CONTRIBUTING.md still says mix ci chains exactly seven legs (now nine) and was left unedited — The file is pinned by a live sha256 in the sealed Phase 235 source-complete test and verbatim in the Phase 235 terminal test, so a wording fix is a ratification re-baseline; logged in 260-deferred-items.md for plan 11 or a follow-up
+- [Phase 260]: [260-11] Park PR #381 (squash 4154a913e) merged into the milestone branch locally; ADR 005 decision 7 carries a dated note recording the park-first authoring order and the comparison-level SIGRA_PNG_COMPARE_SKIP mechanism
+- [Phase 260]: [260-11] Phase 261 should take the .sg-admin-shell surface rule (background, colour, min-height) as its first task: explicit Dark in a generated host currently renders dark text on dark panels

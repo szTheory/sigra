@@ -407,24 +407,46 @@ defmodule Sigra.Install.Features.AdminTest do
   end
 
   describe "D-11 System↔explicit-toggle dark-block parity" do
-    test "admin dark @media block and app.css explicit-toggle dark block declare identical --sg-* values" do
+    test "admin dark @media block and the shipped explicit-toggle dark block declare identical --sg-* values" do
+      # Both blocks are read from the SHIPPED stylesheet: a generated host has no
+      # example app.css, so the explicit blocks must live (and stay in step) here.
       admin_css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
-      app_css = File.read!("test/example/priv/static/assets/css/app.css")
 
       admin_dark_props = extract_dark_media_props(admin_css)
-      app_dark_props = extract_explicit_dark_props(app_css)
+      explicit_dark_props = extract_explicit_dark_props(admin_css)
 
-      assert admin_dark_props == app_dark_props,
+      refute admin_dark_props == [],
+             "the dark @media block declares no --sg-* values; the extraction is broken"
+
+      assert admin_dark_props == explicit_dark_props,
              "Dark --sg-* token values diverged between System path (@media prefers-color-scheme: dark in sigra_admin.css) " <>
-               "and explicit-toggle path (html[data-sg-admin-theme=dark] .sg-admin-shell in app.css) — " <>
+               "and explicit-toggle path (html[data-sg-admin-theme=dark] .sg-admin-shell in sigra_admin.css) — " <>
                "update BOTH dark blocks together when changing any dark token"
 
       # Dark brand-strong must be #fdba74 (WCAG AA lightened value from v1.34; supersedes
       # the scoped .sg-filter-chip fix). If changed, update all four parity surfaces and
       # both snapshot allowlists (snapshot-allowlist + snapshot-allowlist-design).
-      assert "--sg-color-brand-strong: #fdba74;" in admin_dark_props,
+      assert "--sg-color-brand-strong: #fdba74;" in explicit_dark_props,
              "dark brand-strong must be #fdba74 (WCAG AA lightened value from v1.34); " <>
                "if changed, update all four parity surfaces and both snapshot allowlists"
+    end
+
+    test "root light tokens and the shipped explicit-toggle light block agree on every --sg-* value the block declares" do
+      admin_css = File.read!("priv/templates/sigra.install/admin/sigra_admin.css")
+
+      root_light_props = extract_root_props(admin_css)
+      explicit_light_props = extract_explicit_light_props(admin_css)
+
+      refute explicit_light_props == [],
+             "the explicit light block declares no --sg-* values; the extraction is broken"
+
+      # The explicit light block re-states a subset of the root tokens (so a light choice
+      # wins over a dark system scheme); every value it states must equal the root value.
+      diverged = explicit_light_props -- root_light_props
+
+      assert diverged == [],
+             "explicit-toggle light block (html[data-sg-admin-theme=light] .sg-admin-shell) declares values the " <>
+               "light :root block does not: #{inspect(diverged)} — update BOTH light blocks together when changing any light token"
     end
 
     test "auth ember-family values match admin equivalents in light and dark" do
@@ -501,6 +523,18 @@ defmodule Sigra.Install.Features.AdminTest do
   defp extract_explicit_dark_props(css) do
     css
     |> extract_css_block(~s(html[data-sg-admin-theme="dark"] .sg-admin-shell))
+    |> extract_sg_declarations()
+  end
+
+  defp extract_explicit_light_props(css) do
+    css
+    |> extract_css_block(~s(html[data-sg-admin-theme="light"] .sg-admin-shell))
+    |> extract_sg_declarations()
+  end
+
+  defp extract_root_props(css) do
+    css
+    |> extract_css_block(":root")
     |> extract_sg_declarations()
   end
 

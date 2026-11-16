@@ -1,6 +1,7 @@
 ---
 created: 2026-09-17T00:00:00.000Z
 status: pending
+resolves_phase: 260
 title: "FUT-01: no guard keeps priv/templates and test/example from silently drifting apart"
 area: testing
 files:

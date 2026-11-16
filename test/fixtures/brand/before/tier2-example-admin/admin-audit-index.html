@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="csrf-token" content="{{CSRF}}">
+<title data-default="Tasklane" data-suffix=" · Tasklane">
+Audit · Tasklane
+</title>
+<link phx-track-static rel="stylesheet" href="/assets/default.css">
+<link phx-track-static rel="stylesheet" href="/assets/sigra_admin.css">
+<link phx-track-static rel="stylesheet" href="/assets/css/app.css">
+<script defer phx-track-static type="text/javascript" src="/assets/js/app.js">
+</script>
+</head>
+<body>
+<div id="phx-{{REQUEST_ID}}" data-phx-main data-phx-session="{{PHX_SESSION}}" data-phx-static="{{PHX_STATIC}}">
+<script>
+(function () { try { var value = window.localStorage && window.localStorage.getItem("sigra.admin.theme"); var preference = value === "light" || value === "dark" ? value : "system"; document.documentElement.setAttribute("data-sg-admin-js", "true"); document.documentElement.setAttribute("data-sg-admin-theme-preference", preference); if (preference === "system") { document.documentElement.removeAttribute("data-sg-admin-theme"); } else { document.documentElement.setAttribute("data-sg-admin-theme", preference); } } catch (err) { document.documentElement.setAttribute("data-sg-admin-js", "true"); document.documentElement.setAttribute("data-sg-admin-theme-preference", "system"); document.documentElement.removeAttribute("data-sg-admin-theme"); } })();
+</script>
+<section class="sg-admin-shell" data-scope="global">
+<header class="sg-admin-topbar">
+<div class="sg-admin-topbar-inner sg-container sg-cluster sg-cluster--between sg-cluster--3">
+<div class="sg-cluster sg-cluster--3">
+<a href="/admin" data-phx-link="redirect" data-phx-link-state="push" class="sg-brand-mark" aria-label="Sigra admin overview">
+<span class="sg-brand-mark__lockup" aria-hidden="true">
+<img class="sg-brand-mark__image sg-brand-mark__image--light" src="/images/sigra-logo-primary.svg" alt="" width="188" height="54" decoding="async">
+<img class="sg-brand-mark__image sg-brand-mark__image--dark" src="/images/sigra-logo-primary-dark.svg" alt="" width="188" height="54" decoding="async">
+</span>
+<span class="sg-brand-mark__section">
+Admin
+</span>
+</a>
+<span class="sg-scope-pill">
+Global
+</span>
+</div>
+<div class="sg-cluster sg-cluster--2">
+<div id="admin-theme-switch" class="sg-theme-switch" phx-hook="ThemeSwitch" role="radiogroup" aria-label="Theme">
+<button type="button" class="sg-theme-switch__button" role="radio" data-theme-value="light" aria-checked="false" tabindex="-1">
+Light
+</button>
+<button type="button" class="sg-theme-switch__button" role="radio" data-theme-value="dark" aria-checked="false" tabindex="-1">
+Dark
+</button>
+<button type="button" class="sg-theme-switch__button" role="radio" data-theme-value="system" aria-checked="true" tabindex="0">
+System
+</button>
+</div>
+<button id="admin-cmdk" type="button" phx-hook="CmdK" class="sg-cmdk__trigger" aria-label="Open command palette" data-users-href="/admin/users" data-audit-href="/admin/audit" data-overview-href="/admin" data-overview-label="Global">
+<span>
+Jump to…
+</span>
+<span class="sg-cmdk__trigger-kbd" aria-hidden="true">
+⌘K
+</span>
+</button>
+</div>
+</div>
+<span class="sg-admin-loading-bar" data-sg-admin-loading-bar aria-hidden="true">
+</span>
+</header>
+<div class="sg-container sg-admin-content">
+<nav class="sg-admin-crumbs" aria-label="Breadcrumb">
+<ol class="sg-breadcrumb">
+<li>
+<span class="sg-breadcrumb__segment">
+<a href="/admin" data-phx-link="redirect" data-phx-link-state="push" class="sg-breadcrumb__item">
+Overview
+</a>
+<span class="sg-breadcrumb__sep" aria-hidden="true">
+/
+</span>
+</span>
+</li>
+<li>
+<span class="sg-breadcrumb__segment">
+<span class="sg-breadcrumb__item" aria-current="page">
+Audit
+</span>
+</span>
+</li>
+</ol>
+</nav>
+<div class="sg-admin-body">
+<aside class="sg-admin-sidebar">
+<nav aria-label="Admin navigation" class="sg-stack">
+<div class="sg-nav-card">
+<p class="sg-nav-title">
+Overviews
+</p>
+<ul class="sg-stack sg-stack--2">
+<li>
+<a href="/admin" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link">
+Global overview
+</a>
+</li>
+</ul>
+</div>
+<div class="sg-nav-card">
+<p class="sg-nav-title">
+Workspace
+</p>
+<ul class="sg-stack sg-stack--2">
+<li>
+<a href="/admin/users" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link">
+Users
+</a>
+</li>
+<li>
+<a href="/admin/audit" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link active">
+Audit
+</a>
+</li>
+<li>
+<a href="/admin/auth-branding" data-phx-link="redirect" data-phx-link-state="push" class="sg-nav-link">
+Branding
+</a>
+</li>
+</ul>
+</div>
+</nav>
+</aside>
+<main class="sg-admin-main sg-stack sg-stack--5">
+<section class="sg-stack sg-stack--6">
+<span class="sg-scope-ribbon sg-muted sg-text-sm ">
+Global audit explorer
+</span>
+<header class="sg-page-header">
+<p class="sg-page-kicker">
+Audit evidence
+</p>
+<h1 class="sg-page-title">
+Audit
+</h1>
+</header>
+<nav class="sg-cluster" aria-label="Audit filter presets">
+<a href="/admin/audit?order_by=inserted_at&amp;order_direction=desc&amp;outcome=failure" data-phx-link="patch" data-phx-link-state="push" class="sg-btn sg-btn--secondary sg-btn--sm">
+Failures
+</a>
+<a href="/admin/audit?action_prefix=admin.impersonation&amp;order_by=inserted_at&amp;order_direction=desc" data-phx-link="patch" data-phx-link-state="push" class="sg-btn sg-btn--secondary sg-btn--sm">
+Impersonation
+</a>
+</nav>
+<form method="get" action="/admin/audit" phx-submit="apply_filters" class="sg-filter-panel sg-stack">
+<div class="sg-form-grid sg-form-grid--cols">
+<label class="sg-field">
+<span class="sg-field-label">
+Actor
+</span>
+<input type="text" name="actor" value="" class="sg-input">
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Effective user
+</span>
+<input type="text" name="effective_user" value="" class="sg-input">
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Action prefix
+</span>
+<input type="text" name="action_prefix" value="" class="sg-input" placeholder="e.g. auth or admin.impersonation">
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Outcome
+</span>
+<select name="outcome" class="sg-select">
+<option value="" selected>
+Any
+</option>
+<option value="success">
+Success
+</option>
+<option value="failure">
+Failure
+</option>
+</select>
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Occurred from
+</span>
+<input type="date" name="from" value="" class="sg-input">
+</label>
+<label class="sg-field">
+<span class="sg-field-label">
+Occurred to
+</span>
+<input type="date" name="to" value="" class="sg-input">
+</label>
+</div>
+<div class="sg-cluster">
+<button type="submit" class="sg-btn sg-btn--primary">
+Apply filters
+</button>
+<a href="/admin/audit" data-phx-link="patch" data-phx-link-state="push" class="sg-btn sg-btn--ghost">
+Clear
+</a>
+<a href="/admin/audit/export.csv?order_by=inserted_at&amp;order_direction=desc" class="sg-btn sg-btn--secondary">
+Export CSV
+</a>
+</div>
+<input type="hidden" name="page_size" value="25">
+<input type="hidden" name="order_by" value="inserted_at">
+<input type="hidden" name="order_direction" value="desc">
+</form>
+<div id="admin-audit-desktop-results" data-testid="admin-audit-desktop-results" class="sg-table-panel sg-show-desktop">
+<table class="sg-table">
+<thead>
+<tr>
+<th>
+<a href="/admin/audit?order_by=inserted_at&amp;order_direction=asc" data-phx-link="patch" data-phx-link-state="push">
+Occurred
+</a>
+</th>
+<th>
+Event
+</th>
+<th>
+Actor
+</th>
+<th class="sg-show-desktop">
+Outcome
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:44
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Session Create
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+session.create
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:43
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Oauth Link
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.oauth.link
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Carol
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:42
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Api Token Create
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+api.token.create
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Grace
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:41
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Magic_link Sent
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.magic_link.sent
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Pat
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:40
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Password Change
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.password.change
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Pat
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:39
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Session Create
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+session.create
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:38
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Session Create
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+session.create
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:37
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Account Deletion Schedule
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+account.deletion.schedule
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Frank
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr data-tone="risk">
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:36
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Lockout Start
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.lockout.start
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Dave
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-status-pill" data-tone="risk">
+failure
+</span>
+</td>
+</tr>
+<tr data-tone="risk">
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:35
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Login Failure
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.failure
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Dave
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-status-pill" data-tone="risk">
+failure
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:34
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Login Success
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.success
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Carol
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:33
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Oauth Link
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.oauth.link
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Carol
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:32
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Login Success
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.success
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Bob
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:31
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Mfa Enroll Success
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+mfa.enroll.success
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Bob
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr data-tone="info">
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:30
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="info">
+Impersonation ended
+</span>
+<span class="sg-status-pill" data-tone="info">
+Impersonation
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+admin.impersonation.stop
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator) acting as Alice
+</span>
+<span class="sg-muted">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted">
+Effective user: Alice
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr data-tone="info">
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:29
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="info">
+Impersonation started
+</span>
+<span class="sg-status-pill" data-tone="info">
+Impersonation
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+admin.impersonation.start
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator) acting as Alice
+</span>
+<span class="sg-muted">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted">
+Effective user: Alice
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:28
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Login Success
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.success
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Alice
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr data-tone="info">
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:27
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="info">
+Impersonation ended
+</span>
+<span class="sg-status-pill" data-tone="info">
+Impersonation
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+admin.impersonation.stop
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator) acting as Admin (operator)
+</span>
+<span class="sg-muted">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted">
+Effective user: Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:26
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Mfa Disable
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+mfa.disable
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr data-tone="risk">
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:25
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Login Failure
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.failure
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-status-pill" data-tone="risk">
+error
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:24
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Session Revoke_all
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+session.revoke_all
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr data-tone="risk">
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:23
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Login Failure
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.failure
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-status-pill" data-tone="risk">
+failure
+</span>
+</td>
+</tr>
+<tr data-tone="info">
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:22
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="info">
+Impersonation started
+</span>
+<span class="sg-status-pill" data-tone="info">
+Impersonation
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+admin.impersonation.start
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator) acting as Admin (operator)
+</span>
+<span class="sg-muted">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted">
+Effective user: Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:21
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Mfa Regenerate_backup_codes
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+mfa.regenerate_backup_codes
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+<tr>
+<td class="sg-nowrap">
+<div class="sg-stack sg-stack--1">
+<span class="sg-text-sm">
+2026-01-01 00:00:20
+</span>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Session Create
+</span>
+</div>
+<details>
+<summary class="sg-text-sm sg-muted">
+Event codes
+</summary>
+<div class="sg-stack sg-stack--1">
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+session.create
+</code>
+</div>
+</details>
+</div>
+</td>
+<td>
+<div class="sg-stack sg-stack--1 sg-text-sm">
+<span>
+Admin (operator)
+</span>
+</div>
+</td>
+<td class="sg-show-desktop sg-text-sm">
+<span class="sg-muted">
+success
+</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="admin-audit-mobile-results" data-testid="admin-audit-mobile-results" class="sg-stack sg-stack--3 sg-show-mobile">
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Session Create
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+session.create
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Oauth Link
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Carol
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Carol
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.oauth.link
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Api Token Create
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Grace
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Grace
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+api.token.create
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Magic_link Sent
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Pat
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Pat
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.magic_link.sent
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Password Change
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Pat
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Pat
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.password.change
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Session Create
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+session.create
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Session Create
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+session.create
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Account Deletion Schedule
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Frank
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Frank
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+account.deletion.schedule
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="risk">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Lockout Start
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Dave
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Dave
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.lockout.start
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="risk">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Login Failure
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Dave
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Dave
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.failure
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Login Success
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Carol
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Carol
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.success
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Oauth Link
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Carol
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Carol
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.oauth.link
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Login Success
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Bob
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Bob
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.success
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Mfa Enroll Success
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Bob
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Bob
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+mfa.enroll.success
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="info">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="info">
+Impersonation ended
+</span>
+<span class="sg-status-pill" data-tone="info">
+Impersonation
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator) acting as Alice
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Effective user: Alice
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+admin.impersonation.stop
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="info">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="info">
+Impersonation started
+</span>
+<span class="sg-status-pill" data-tone="info">
+Impersonation
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator) acting as Alice
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Effective user: Alice
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+admin.impersonation.start
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Auth Login Success
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Alice
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Alice
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.success
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="info">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="info">
+Impersonation ended
+</span>
+<span class="sg-status-pill" data-tone="info">
+Impersonation
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator) acting as Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Effective user: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+admin.impersonation.stop
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Mfa Disable
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+mfa.disable
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="risk">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Login Failure
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.failure
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Session Revoke_all
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+session.revoke_all
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="risk">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="risk">
+Auth Login Failure
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+auth.login.failure
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 " data-tone="info">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill" data-tone="info">
+Impersonation started
+</span>
+<span class="sg-status-pill" data-tone="info">
+Impersonation
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator) acting as Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Effective user: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+admin.impersonation.start
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Mfa Regenerate_backup_codes
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+mfa.regenerate_backup_codes
+</code>
+</article>
+<article class="sg-list-row sg-stack sg-stack--2 ">
+<div class="sg-cluster sg-cluster--2">
+<span class="sg-status-pill">
+Session Create
+</span>
+</div>
+<span class="sg-muted sg-text-sm">
+Admin (operator)
+</span>
+<span class="sg-muted sg-text-sm">
+Actor: Admin (operator)
+</span>
+<span class="sg-muted sg-text-xs">
+2026-01-01 00:00
+</span>
+<code class="sg-code">
+{{UUID}}
+</code>
+<code class="sg-code">
+session.create
+</code>
+</article>
+</div>
+<nav class="sg-cluster sg-cluster--between">
+<span class="sg-btn sg-btn--secondary sg-btn--icon is-disabled" aria-disabled="true">
+<span aria-hidden="true">
+&larr;
+</span>
+<span class="sr-only">
+Previous page
+</span>
+</span>
+<span class="sg-muted sg-text-sm">
+Page 1
+</span>
+<a class="sg-btn sg-btn--secondary sg-btn--icon" href="/admin/audit?cursor={{CURSOR}}&amp;order_by=inserted_at&amp;order_direction=desc" aria-label="Next page">
+<span aria-hidden="true">
+&rarr;
+</span>
+<span class="sr-only">
+Next page
+</span>
+</a>
+</nav>
+</section>
+</main>
+</div>
+</div>
+<nav aria-label="Admin bottom nav" class="sg-bottom-nav sg-show-mobile">
+<a href="/admin" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item ">
+<span>
+Global
+</span>
+</a>
+<a href="/admin/users" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item ">
+<span>
+Users
+</span>
+</a>
+<a href="/admin/audit" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item active">
+<span>
+Audit
+</span>
+</a>
+<a href="/admin/auth-branding" data-phx-link="redirect" data-phx-link-state="push" class="sg-bottom-nav__item ">
+<span>
+Brand
+</span>
+</a>
+</nav>
+</section>
+<div id="flash-group" aria-live="polite">
+</div>
+</div>
+</body>
+</html>

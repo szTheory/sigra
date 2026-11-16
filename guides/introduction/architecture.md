@@ -212,7 +212,8 @@ flowchart LR
 The main invariants are concrete:
 
 - Lockout is checked before expensive password work. Unknown users still take the
-  password verification path, and public failures remain enumeration-safe.
+  password verification path, and public sign-in failures use one message for the
+  compared cases (an existing and an unknown address, at a single attempt).
 - Raw session tokens stay at the transport boundary. The database stores only their
   hashes, and Plug session renewal clears the old session before writing a new token.
 - A session type can be `:mfa_pending`; completing MFA replaces it with a session
@@ -331,7 +332,8 @@ Before editing, locate the owner and protect its boundary:
   evidence. Existing generated files are host-owned, so test upgrade behavior
   separately from fresh installation.
 - A host customization should continue delegating security-critical work to the
-  runtime and preserve token, session-renewal, scope, and enumeration invariants.
+  runtime and preserve token, session-renewal, scope, and same-message public
+  failure invariants.
 - An optional integration change needs tests for loaded-and-supervised, loaded-only,
   and absent states. Compilation availability alone is not runtime readiness.
 - An audit change must state whether insertion co-fates with business state and must

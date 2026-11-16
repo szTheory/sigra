@@ -6,10 +6,10 @@ All entries document **current reality** and **already-locked winners** only. No
 
 ## v1.36 Brand And Theme Addendum
 
-The v1.36 admin brand pass promotes the ratified Rail Accent system from `brandbook/` into admin chrome while preserving the v1.34 component contract.
+The v1.36 admin brand pass preserved the v1.34 component contract while bringing brand treatment into admin chrome. The system the admin chrome is being aligned to is the v1.51 brand book in `brand/`.
 
-- The `sg-*` token layer remains the admin UI source of truth. Token values should stay aligned with `brandbook/tokens.*`; class names should not churn unless there is a deliberate migration.
-- The admin shell owns Sigra identity. Use Rail Accent mark/lockup assets, never a placeholder tile or black wordmark on dark surfaces.
+- The `sg-*` token layer remains the admin UI source of truth. Token names stay, and class names should not churn unless there is a deliberate migration. Token values move to `brand/tokens.json` in a later phase of the brand adoption milestone.
+- The admin shell owns Sigra identity. The target is the book's logo assets in `brand/assets/logo/`, which shipped assets move to in a later phase; never use a placeholder tile or a black wordmark on dark surfaces.
 - Admin supports Light, Dark, and System. Explicit Light/Dark choices set `data-sg-admin-theme` on the document root and `data-theme` on `.sg-admin-shell`; System removes the override and follows `prefers-color-scheme`.
 - Theme controls are shell-level utilities, not page content. They must be reachable by keyboard, expose selected state, and persist without server state.
 - New visual polish must be routed through reusable `sg-*` primitives or `Sigra.Admin.Components`; one-off padding, radius, hover, and color fixes are contract drift.
