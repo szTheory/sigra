@@ -55,16 +55,16 @@ defmodule ExampleWeb.Components.AdminShell do
                   class="sg-brand-mark__image sg-brand-mark__image--light"
                   src={~p"/images/sigra-logo-primary.svg"}
                   alt=""
-                  width="188"
-                  height="54"
+                  width="96"
+                  height="39"
                   decoding="async"
                 />
                 <img
                   class="sg-brand-mark__image sg-brand-mark__image--dark"
                   src={~p"/images/sigra-logo-primary-dark.svg"}
                   alt=""
-                  width="188"
-                  height="54"
+                  width="96"
+                  height="39"
                   decoding="async"
                 />
               </span>

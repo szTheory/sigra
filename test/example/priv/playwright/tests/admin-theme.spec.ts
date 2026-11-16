@@ -1,9 +1,211 @@
 import AxeBuilder from "@axe-core/playwright";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { test, expect, type Locator, type Page } from "@playwright/test";
+import { contrastRatio, rgbChannels } from "../helpers/brandContrast";
+import { assertBrandFontsLoaded } from "../helpers/brandFonts";
+import { brandTokensJson, repoRoot, tokenValue } from "../helpers/brandSource";
 import { TEST_PASSWORD } from "../helpers/fixtures";
 
 const DESKTOP_VIEWPORT = { width: 1280, height: 900 };
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
+
+test("converts the OKLab blue reference vector correctly", () => {
+  const [red, green, blue] = rgbChannels("oklab(45.2% -0.0325 -0.3115)");
+
+  expect(red).toBeLessThan(1);
+  expect(green).toBeLessThan(1);
+  expect(blue).toBeGreaterThan(254);
+});
+
+interface IcoEntry {
+  size: number;
+  png: Buffer;
+}
+
+interface InkRegion {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+interface InkBox {
+  box: InkRegion | null;
+  inkCount: number;
+  columns: number[];
+  colorsByRegion: Record<"square" | "stem" | "other", string[]>;
+  otherInkRows: number[];
+  antialiasedRows: number[];
+  fullAlphaColors: string[];
+}
+
+function parseIco(bytes: Buffer): IcoEntry[] {
+  if (bytes.length < 6 || bytes.readUInt16LE(0) !== 0 || bytes.readUInt16LE(2) !== 1) {
+    throw new Error("Expected a valid ICO header");
+  }
+
+  const entryCount = bytes.readUInt16LE(4);
+  if (entryCount === 0 || bytes.length < 6 + entryCount * 16) {
+    throw new Error("ICO directory is empty or truncated");
+  }
+
+  return Array.from({ length: entryCount }, (_, index) => {
+    const entryOffset = 6 + index * 16;
+    const width = bytes.readUInt8(entryOffset) || 256;
+    const height = bytes.readUInt8(entryOffset + 1) || 256;
+    const imageByteLength = bytes.readUInt32LE(entryOffset + 8);
+    const imageOffset = bytes.readUInt32LE(entryOffset + 12);
+    const imageEnd = imageOffset + imageByteLength;
+    if (imageOffset < 6 + entryCount * 16 || imageEnd > bytes.length) {
+      throw new Error(`ICO ${width}x${height} entry points outside the file`);
+    }
+    if (width !== height) throw new Error(`Expected a square ICO entry, got ${width}x${height}`);
+
+    return { size: width, png: bytes.subarray(imageOffset, imageEnd) };
+  });
+}
+
+function sha256(bytes: Buffer): string {
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
+function readBrandIcon(name: string): Buffer {
+  return readFileSync(join(repoRoot(), "brand", "assets", "icon", name));
+}
+
+function pngDataUrl(bytes: Buffer): string {
+  return `data:image/png;base64,${bytes.toString("base64")}`;
+}
+
+function svgDataUrl(bytes: Buffer): string {
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(bytes.toString("utf8"))}`;
+}
+
+function declaredSvgSize(bytes: Buffer): { width: number; height: number } {
+  const openingTag = /^<svg\b[^>]*>/s.exec(bytes.toString("utf8"))?.[0];
+  const width = openingTag && /\bwidth="(\d+)"/.exec(openingTag)?.[1];
+  const height = openingTag && /\bheight="(\d+)"/.exec(openingTag)?.[1];
+  if (!width || !height) throw new Error("Favicon SVG must declare its size");
+  return { width: Number(width), height: Number(height) };
+}
+
+async function drawToPixels(
+  page: Page,
+  source: string,
+  width: number,
+  height: number,
+): Promise<number[]> {
+  return page.evaluate(
+    ({ dataUrl, drawWidth, drawHeight }) =>
+      new Promise<number[]>((resolve, reject) => {
+        const image = new Image();
+        image.onerror = () => reject(new Error("Could not decode favicon image"));
+        image.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = drawWidth;
+          canvas.height = drawHeight;
+          const context = canvas.getContext("2d", { willReadFrequently: true });
+          if (!context) {
+            reject(new Error("Canvas 2D context is unavailable"));
+            return;
+          }
+          context.drawImage(image, 0, 0, drawWidth, drawHeight);
+          resolve(Array.from(context.getImageData(0, 0, drawWidth, drawHeight).data));
+        };
+        image.src = dataUrl;
+      }),
+    { dataUrl: source, drawWidth: width, drawHeight: height },
+  );
+}
+
+function inkBox(pixels: number[], width: number, height: number): InkBox {
+  if (pixels.length !== width * height * 4) {
+    throw new Error(`Expected ${width}x${height} RGBA pixels`);
+  }
+
+  const regions: Record<"square" | "stem", InkRegion> =
+    width === 16 && height === 16
+      ? {
+          square: { left: 6, top: 1, right: 10, bottom: 5 },
+          stem: { left: 6, top: 7, right: 10, bottom: 15 },
+        }
+      : width === 32 && height === 32
+        ? {
+            square: { left: 12, top: 2, right: 20, bottom: 10 },
+            stem: { left: 12, top: 13, right: 20, bottom: 30 },
+          }
+        : (() => {
+            throw new Error(`No expected favicon grid for ${width}x${height}`);
+          })();
+  const box: InkRegion = {
+    left: width,
+    top: height,
+    right: 0,
+    bottom: 0,
+  };
+  let inkCount = 0;
+  let hasInk = false;
+  const columns = new Set<number>();
+  const otherInkRows = new Set<number>();
+  const antialiasedRows = new Set<number>();
+  const fullAlphaColors = new Set<string>();
+  const colorsByRegion = {
+    square: new Set<string>(),
+    stem: new Set<string>(),
+    other: new Set<string>(),
+  };
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const offset = (y * width + x) * 4;
+      const [red, green, blue, alpha] = pixels.slice(offset, offset + 4);
+      if (alpha === 0) continue;
+
+      hasInk = true;
+      inkCount += 1;
+      columns.add(x);
+      box.left = Math.min(box.left, x);
+      box.top = Math.min(box.top, y);
+      box.right = Math.max(box.right, x + 1);
+      box.bottom = Math.max(box.bottom, y + 1);
+      const color = `#${[red, green, blue]
+        .map((channel) => channel.toString(16).padStart(2, "0"))
+        .join("")
+        .toUpperCase()}`;
+      const region = (Object.entries(regions) as ["square" | "stem", InkRegion][]).find(
+        ([, bounds]) =>
+          x >= bounds.left &&
+          x < bounds.right &&
+          y >= bounds.top &&
+          y < bounds.bottom,
+      )?.[0];
+      if (region) {
+        colorsByRegion[region].add(color);
+      } else {
+        colorsByRegion.other.add(color);
+        otherInkRows.add(y);
+      }
+      if (alpha < 255) antialiasedRows.add(y);
+      if (alpha === 255) fullAlphaColors.add(color);
+    }
+  }
+
+  return {
+    box: hasInk ? box : null,
+    inkCount,
+    columns: [...columns].sort((left, right) => left - right),
+    colorsByRegion: {
+      square: [...colorsByRegion.square].sort(),
+      stem: [...colorsByRegion.stem].sort(),
+      other: [...colorsByRegion.other].sort(),
+    },
+    otherInkRows: [...otherInkRows].sort((left, right) => left - right),
+    antialiasedRows: [...antialiasedRows].sort((left, right) => left - right),
+    fullAlphaColors: [...fullAlphaColors].sort(),
+  };
+}
 
 async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector("[data-phx-session].phx-connected", {
@@ -114,85 +316,6 @@ async function expectShellLockupTheme(page: Page, theme: "light" | "dark") {
   await expect
     .poll(async () => (await shellLockupOpacity(page)).darkOpacity)
     .toBe(expected.darkOpacity);
-}
-
-function rgbChannels(value: string): [number, number, number] {
-  if (value.startsWith("oklab(")) {
-    return oklabChannels(value);
-  }
-
-  const channels = value
-    .match(/[\d.]+/g)
-    ?.slice(0, 3)
-    .map(Number);
-  if (!channels || channels.length < 3) {
-    throw new Error(`Expected a CSS rgb color, got ${value}`);
-  }
-
-  const rgb = channels.some((channel) => channel > 1)
-    ? channels
-    : channels.map((channel) => channel * 255);
-
-  return [rgb[0], rgb[1], rgb[2]];
-}
-
-function oklabChannels(value: string): [number, number, number] {
-  const raw = value.match(/[-\d.]+%?/g)?.slice(0, 3);
-
-  if (!raw || raw.length < 3) {
-    throw new Error(`Expected a CSS oklab color, got ${value}`);
-  }
-
-  // Lightness may serialize as a percentage (e.g. "62.8%"); normalize to 0..1.
-  const [lightness, a, b] = raw.map((token) =>
-    token.endsWith("%") ? Number(token.slice(0, -1)) / 100 : Number(token),
-  );
-
-  const longL = lightness + 0.3963377774 * a + 0.2158037573 * b;
-  const longM = lightness - 0.1055613458 * a - 0.0638541728 * b;
-  const longS = lightness - 0.0894841775 * a + 1.291485548 * b;
-  const l = longL ** 3;
-  const m = longM ** 3;
-  const s = longS ** 3;
-
-  // Ottosson reference LMS→linear-sRGB matrix (each row sums to 1.0, so a
-  // neutral OKLab color maps to neutral RGB). The previous constants summed to
-  // 0.50/1.00/1.03 and turned white into cyan.
-  return [
-    linearSrgbToChannel(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
-    linearSrgbToChannel(
-      -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-    ),
-    linearSrgbToChannel(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s),
-  ];
-}
-
-function linearSrgbToChannel(value: number) {
-  const bounded = Math.min(Math.max(value, 0), 1);
-  const srgb =
-    bounded <= 0.0031308
-      ? 12.92 * bounded
-      : 1.055 * bounded ** (1 / 2.4) - 0.055;
-
-  return srgb * 255;
-}
-
-function relativeLuminance([r, g, b]: [number, number, number]) {
-  const [sr, sg, sb] = [r, g, b].map((channel) => {
-    const value = channel / 255;
-    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-  });
-
-  return 0.2126 * sr + 0.7152 * sg + 0.0722 * sb;
-}
-
-function contrastRatio(foreground: string, background: string) {
-  const foregroundLuminance = relativeLuminance(rgbChannels(foreground));
-  const backgroundLuminance = relativeLuminance(rgbChannels(background));
-  const lighter = Math.max(foregroundLuminance, backgroundLuminance);
-  const darker = Math.min(foregroundLuminance, backgroundLuminance);
-
-  return (lighter + 0.05) / (darker + 0.05);
 }
 
 async function readNoticeStyles(notice: Locator) {
@@ -940,6 +1063,16 @@ test.describe("admin theme switch", () => {
     const search = page.getByRole("button", { name: "Search" });
     await search.hover();
 
+    // Switching theme and hovering both start the 140ms colour transition
+    // (`--sg-transition-tone`). With the Kiln tokens the label changes from white
+    // to near-black across that switch, so a computed read taken mid-transition
+    // lands between the two and measures a frame nobody sees (observed 1.2 to 3.5
+    // against the 4.5 bar). The contract is the settled hover state: wait for the
+    // element's transitions to finish, then read it. The 4.5 threshold is unchanged.
+    await search.evaluate((el) =>
+      Promise.all(el.getAnimations().map((animation) => animation.finished.catch(() => null))),
+    );
+
     const styles = await search.evaluate((el) => {
       const computed = window.getComputedStyle(el);
       return {
@@ -951,6 +1084,451 @@ test.describe("admin theme switch", () => {
     expect(
       contrastRatio(styles.color, styles.background),
     ).toBeGreaterThanOrEqual(4.5);
+  });
+
+  // BTOK-03 (Phase 261): the SHOWN theme (the admin choice, or the OS scheme when
+  // the choice is System) decides the brand tokens, the focus ring and the lockup.
+  // Two of the six combinations are the ones a token restated in only some of its
+  // four declaration places breaks: OS dark with Light chosen, and OS light with
+  // Dark chosen. There the prefers-color-scheme block and the explicit block
+  // disagree, so a token missing from the explicit block shows the OS theme.
+  test("theme matrix: shown theme drives brand tokens, focus ring and lockup", async ({
+    page,
+  }) => {
+    await logInAsPlatformAdmin(page);
+    await page.goto("/admin");
+    await waitForLiveViewReady(page);
+
+    const lower = (value: string) => value.trim().toLowerCase();
+    // The ring assertion can only tell the themes apart if their grounds differ.
+    for (const name of ["--sg-color-subtle", "--sg-color-brand-strong"]) {
+      expect(lower(tokenValue("light", name)), `${name} differs per theme`).not.toBe(
+        lower(tokenValue("dark", name)),
+      );
+    }
+
+    let combinations = 0;
+    for (const os of ["light", "dark"] as const) {
+      for (const choice of ["light", "dark", "system"] as const) {
+        combinations += 1;
+        const label = `OS ${os}, admin choice ${choice}`;
+        const shown = choice === "system" ? os : choice;
+        const hidden = shown === "light" ? "dark" : "light";
+
+        await page.emulateMedia({ colorScheme: os });
+        await page.evaluate((next) => {
+          const shell = document.querySelector(".sg-admin-shell")!;
+          if (next === "system") {
+            document.documentElement.removeAttribute("data-sg-admin-theme");
+            shell.removeAttribute("data-theme");
+          } else {
+            document.documentElement.setAttribute("data-sg-admin-theme", next);
+            shell.setAttribute("data-theme", next);
+          }
+        }, choice);
+
+        const computed = await page.locator(".sg-admin-shell").evaluate((el) => {
+          const style = getComputedStyle(el);
+          return {
+            brand: style.getPropertyValue("--sg-color-brand"),
+            onBrand: style.getPropertyValue("--sg-color-on-brand"),
+            ring: style.getPropertyValue("--sg-focus-ring"),
+          };
+        });
+        expect(lower(computed.brand), `${label}: --sg-color-brand`).toBe(
+          lower(tokenValue(shown, "--sg-color-brand")),
+        );
+        expect(lower(computed.onBrand), `${label}: --sg-color-on-brand`).toBe(
+          lower(tokenValue(shown, "--sg-color-on-brand")),
+        );
+        expect(lower(computed.ring), `${label}: --sg-focus-ring gap layer`).toContain(
+          lower(tokenValue(shown, "--sg-color-subtle")),
+        );
+        expect(lower(computed.ring), `${label}: --sg-focus-ring ring layer`).toContain(
+          lower(tokenValue(shown, "--sg-color-brand-strong")),
+        );
+
+        // The lockup swap is a 140ms opacity transition: poll, never read at once.
+        await expect(
+          page.locator(`.sg-brand-mark__image--${shown}`),
+          `${label}: the ${shown} lockup is shown`,
+        ).toHaveCSS("opacity", "1");
+        await expect(
+          page.locator(`.sg-brand-mark__image--${hidden}`),
+          `${label}: the ${hidden} lockup is hidden`,
+        ).toHaveCSS("opacity", "0");
+      }
+    }
+
+    expect(combinations, "OS scheme (2) x admin choice (3)").toBe(6);
+  });
+
+  test("lockup keeps 2T clear space at 96px minimum in Light and Dark", async ({
+    page,
+  }) => {
+    await page.setViewportSize(DESKTOP_VIEWPORT);
+    await logInAsPlatformAdmin(page);
+    await page.goto("/admin");
+    await waitForLiveViewReady(page);
+
+    for (const theme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme: theme });
+      await page.evaluate((next) => {
+        const shell = document.querySelector(".sg-admin-shell");
+        if (!shell) throw new Error("Expected .sg-admin-shell");
+        document.documentElement.setAttribute("data-sg-admin-theme", next);
+        shell.setAttribute("data-theme", next);
+      }, theme);
+
+      const image = page.locator(`.sg-brand-mark__image--${theme}`);
+      await expect(image).toHaveCSS("opacity", "1");
+
+      const geometry = await page.evaluate((shownTheme) => {
+        const image = document.querySelector(
+          `.sg-brand-mark__image--${shownTheme}`,
+        );
+        const lockup = document.querySelector(".sg-brand-mark__lockup");
+        const section = document.querySelector(".sg-brand-mark__section");
+        const topbar = document.querySelector(".sg-admin-topbar");
+        if (!image || !lockup || !section || !topbar) {
+          throw new Error("Expected the admin lockup, label, and topbar");
+        }
+
+        const imageRect = image.getBoundingClientRect();
+        const sectionRect = section.getBoundingClientRect();
+        const topbarRect = topbar.getBoundingClientRect();
+        const paintedWidth = Math.min(
+          imageRect.width,
+          imageRect.height * (2305.3 / 935),
+        );
+        const paintedHeight = paintedWidth / (2305.3 / 935);
+        const paintedTop = imageRect.top + (imageRect.height - paintedHeight) / 2;
+
+        return {
+          paintedWidth,
+          T: (paintedWidth * 150) / 2305.3,
+          gapAdmin: sectionRect.left - (imageRect.left + paintedWidth),
+          gapTop: paintedTop - topbarRect.top,
+          gapBottom: topbarRect.bottom - (paintedTop + paintedHeight),
+          gapLeft: imageRect.left,
+          transform: getComputedStyle(lockup).transform,
+          topbarHeight: topbarRect.height,
+        };
+      }, theme);
+      expect(geometry.paintedWidth, `${theme}: painted width`).toBeGreaterThanOrEqual(
+        95.99,
+      );
+      // 0.25px covers 12.53px contract clearance vs 12.49px minimum after 1/64px snapping.
+      const minimumGap = 2 * geometry.T - 0.25;
+      for (const [name, gap] of [
+        ["Admin label", geometry.gapAdmin],
+        ["topbar top", geometry.gapTop],
+        ["topbar bottom", geometry.gapBottom],
+        ["viewport left", geometry.gapLeft],
+      ] as const) {
+        expect(gap, `${theme}: ${name} clearance`).toBeGreaterThanOrEqual(
+          minimumGap,
+        );
+      }
+      expect(geometry.transform, `${theme}: lockup transform`).toBe("none");
+      expect(geometry.topbarHeight, `${theme}: topbar height`).toBeGreaterThanOrEqual(
+        63,
+      );
+      expect(geometry.topbarHeight, `${theme}: topbar height`).toBeLessThanOrEqual(
+        65,
+      );
+    }
+  });
+
+  test("favicon links render on Sigra-owned pages only", async ({ page }) => {
+    await logInAsPlatformAdmin(page);
+    await page.goto("/admin");
+    await waitForLiveViewReady(page);
+
+    const links = await page.locator("link[rel=icon]").evaluateAll((elements) =>
+      elements.map((element) => ({
+        href: element.getAttribute("href"),
+        sizes: element.getAttribute("sizes"),
+        type: element.getAttribute("type"),
+      })),
+    );
+    expect(links).toEqual([
+      {
+        href: "/images/sigra-favicon.ico",
+        sizes: "16x16 32x32",
+        type: null,
+      },
+      { href: "/favicon.svg", sizes: null, type: "image/svg+xml" },
+    ]);
+
+    await page.context().clearCookies();
+    await page.goto("/users/log_in");
+    await expect(page.locator("link[rel=icon]")).toHaveCount(0);
+  });
+
+  test("favicon assets are the book bytes and root favicon stays unchanged", async ({
+    page,
+  }) => {
+    const bookSvg = readBrandIcon("favicon.svg");
+    const bookIco = readBrandIcon("favicon.ico");
+    const rootFavicon = readFileSync(
+      join(repoRoot(), "test", "example", "priv", "static", "favicon.ico"),
+    );
+
+    const svgResponse = await page.request.get("/favicon.svg");
+    expect(svgResponse.status()).toBe(200);
+    const servedSvg = await svgResponse.body();
+    expect(sha256(servedSvg)).toBe(sha256(bookSvg));
+    expect(servedSvg).toEqual(bookSvg);
+
+    const icoResponse = await page.request.get("/images/sigra-favicon.ico");
+    expect(icoResponse.status()).toBe(200);
+    const servedIco = await icoResponse.body();
+    expect(sha256(servedIco)).toBe(sha256(bookIco));
+    expect(servedIco).toEqual(bookIco);
+
+    const rootResponse = await page.request.get("/favicon.ico");
+    expect(rootResponse.status()).toBe(200);
+    const servedRootFavicon = await rootResponse.body();
+    expect(servedRootFavicon).toEqual(rootFavicon);
+  });
+
+  test("favicon renders pixel-exact at 16px and 32px and is distinct from the retired mark", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: "light" });
+
+    const expectedRegions = {
+      16: {
+        box: { left: 6, top: 1, right: 10, bottom: 15 },
+        square: "#C2410C",
+        stem: "#1F1A17",
+        inkCount: 48,
+      },
+      32: {
+        box: { left: 12, top: 2, right: 20, bottom: 30 },
+        square: "#C2410C",
+        stem: "#1F1A17",
+        inkCount: 200,
+      },
+    } as const;
+    const expectExactGrid = (pixels: number[], size: 16 | 32, label: string) => {
+      const result = inkBox(pixels, size, size);
+      const expected = expectedRegions[size];
+      expect(result.box, `${label}: ${size}px drawn grid`).toEqual(expected.box);
+      expect(result.inkCount, `${label}: ${size}px grid ink count`).toBe(
+        expected.inkCount,
+      );
+      expect(result.colorsByRegion.square, `${label}: square pixels`).toEqual([
+        expected.square,
+      ]);
+      expect(result.colorsByRegion.stem, `${label}: stem pixels`).toEqual([
+        expected.stem,
+      ]);
+      expect(result.colorsByRegion.other, `${label}: pixels outside grid`).toEqual(
+        [],
+      );
+      expect(result.antialiasedRows, `${label}: fully opaque grid`).toEqual([]);
+      expect(result.fullAlphaColors, `${label}: brand colors`).toEqual([
+        "#1F1A17",
+        "#C2410C",
+      ]);
+    };
+
+    const icoBytes = readBrandIcon("favicon.ico");
+    const icoEntries = parseIco(icoBytes);
+    expect(icoEntries.map(({ size }) => size).sort((a, b) => a - b)).toEqual([
+      16, 32,
+    ]);
+    const ico16 = icoEntries.find(({ size }) => size === 16);
+    const ico32 = icoEntries.find(({ size }) => size === 32);
+    if (!ico16 || !ico32) throw new Error("Expected 16px and 32px ICO entries");
+
+    const ico16Pixels = await drawToPixels(page, pngDataUrl(ico16.png), 16, 16);
+    const ico32Pixels = await drawToPixels(page, pngDataUrl(ico32.png), 32, 32);
+    expectExactGrid(ico16Pixels, 16, "ICO");
+    expectExactGrid(ico32Pixels, 32, "ICO");
+
+    for (const size of [16, 32] as const) {
+      const assetBytes = readBrandIcon(`favicon-${size}-light.svg`);
+      expect(declaredSvgSize(assetBytes)).toEqual({ width: size, height: size });
+      const pixels = await drawToPixels(page, svgDataUrl(assetBytes), size, size);
+      expectExactGrid(pixels, size, `light SVG`);
+    }
+
+    const responsiveSvg = readBrandIcon("favicon.svg");
+    const responsive32 = await drawToPixels(
+      page,
+      svgDataUrl(responsiveSvg),
+      32,
+      32,
+    );
+    expectExactGrid(responsive32, 32, "responsive SVG");
+
+    const responsive16 = await drawToPixels(
+      page,
+      svgDataUrl(responsiveSvg),
+      16,
+      16,
+    );
+    const responsive16Result = inkBox(responsive16, 16, 16);
+    expect(responsive16Result.inkCount, "responsive SVG is non-blank").toBeGreaterThan(
+      0,
+    );
+    expect(responsive16Result.columns, "responsive SVG 16px ink columns").toEqual([
+      6, 7, 8, 9,
+    ]);
+    expect(
+      responsive16Result.antialiasedRows.length,
+      "responsive SVG has at most one antialiased row",
+    ).toBeLessThanOrEqual(1);
+    expect(
+      responsive16Result.fullAlphaColors,
+      "responsive SVG opaque colors stay on brand",
+    ).toEqual(["#1F1A17", "#C2410C"]);
+    expect(
+      responsive16Result.otherInkRows.every((row) =>
+        responsive16Result.antialiasedRows.includes(row),
+      ),
+      "responsive SVG ink outside the drawn grid is antialiased only",
+    ).toBe(true);
+
+    const rootResponse = await page.request.get("/favicon.ico");
+    expect(rootResponse.status()).toBe(200);
+    const rootBytes = await rootResponse.body();
+    const pngSignature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+    expect(rootBytes.subarray(0, 8), "retired root favicon is a PNG payload").toEqual(
+      pngSignature,
+    );
+    expect(sha256(rootBytes), "new ICO differs from the retired root favicon").not.toBe(
+      sha256(icoBytes),
+    );
+
+    const rootPixels = await drawToPixels(page, pngDataUrl(rootBytes), 16, 16);
+    const differentPixelCount = Array.from({ length: 16 * 16 }, (_, index) => {
+      const offset = index * 4;
+      return rootPixels.slice(offset, offset + 4).some((channel, channelIndex) =>
+        channel !== ico16Pixels[offset + channelIndex],
+      );
+    }).filter(Boolean).length;
+    expect(differentPixelCount, "new and retired 16px pixels differ").toBeGreaterThan(
+      0,
+    );
+    expect(inkBox(ico16Pixels, 16, 16).inkCount, "new 16px render is non-blank").toBe(
+      48,
+    );
+  });
+
+  // BTOK-06 (Phase 261): with default tokens the admin shell takes the host's own
+  // face. `--sg-font-sans: inherit` is a CSS-wide keyword on a custom property, so
+  // the token is effectively unset and the usage-site fallback supplies the
+  // inheritance; that is subtle enough that the oracle is this computed-style
+  // probe, not the reasoning. The example's opt-in stylesheet is the only thing
+  // that makes the shell Instrument Sans.
+  test("font tokens: defaults inherit the host face and the example opts in", async ({
+    page,
+  }) => {
+    await logInAsPlatformAdmin(page);
+    await page.goto("/admin");
+    await waitForLiveViewReady(page);
+    await assertBrandFontsLoaded(page);
+
+    const families = () =>
+      page.evaluate(() => {
+        const family = (selector: string) =>
+          getComputedStyle(document.querySelector(selector)!).fontFamily;
+        const shell = document.querySelector(".sg-admin-shell")!;
+        return {
+          shell: family(".sg-admin-shell"),
+          parent: getComputedStyle(shell.parentElement!).fontFamily,
+          button: family("#font-probe-button"),
+          input: family("#font-probe-input"),
+          code: family("#font-probe-code"),
+        };
+      });
+
+    await page.evaluate(() => {
+      const probe = document.createElement("div");
+      probe.id = "font-probe";
+      probe.innerHTML =
+        '<code class="sg-code" id="font-probe-code">0O</code>' +
+        '<button class="sg-btn" id="font-probe-button" type="button">Probe</button>' +
+        '<input id="font-probe-input" aria-label="probe" />';
+      document.querySelector(".sg-admin-shell")!.appendChild(probe);
+    });
+
+    try {
+      // With the opt-in stylesheet present the shell is Instrument Sans and
+      // differs from its parent, so the comparison below can tell the two apart.
+      const optedIn = await families();
+      expect(optedIn.shell.replace(/["']/g, "")).toMatch(/^Instrument Sans/);
+      expect(optedIn.shell, "opted in: the shell differs from its parent").not.toBe(
+        optedIn.parent,
+      );
+      expect(optedIn.code.replace(/["']/g, "")).toMatch(/^Red Hat Mono/);
+
+      // Default tokens: take the opt-in stylesheet off the page.
+      await page.evaluate(() => {
+        const link = document.querySelector(
+          'link[rel="stylesheet"][href*="sigra_admin_brand"]',
+        );
+        if (!link) throw new Error("the example opt-in stylesheet link is missing");
+        (window as unknown as { __brandLink: Element }).__brandLink = link;
+        link.remove();
+      });
+      const defaults = await families();
+      expect(defaults.shell, "default: the shell inherits the host face").toBe(
+        defaults.parent,
+      );
+      expect(defaults.button, "default: .sg-btn takes the shell face").toBe(defaults.shell);
+      expect(defaults.input, "default: an input takes the shell face").toBe(defaults.shell);
+      expect(defaults.code, "default: code.sg-code takes the system mono stack").toContain(
+        "ui-monospace",
+      );
+
+      // Restore the stylesheet and confirm the opt-in applies again.
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) => {
+            const link = (window as unknown as { __brandLink: HTMLLinkElement })
+              .__brandLink;
+            link.addEventListener("load", () => resolve(), { once: true });
+            document.head.appendChild(link);
+          }),
+      );
+      const restored = await families();
+      expect(restored.shell.replace(/["']/g, "")).toMatch(/^Instrument Sans/);
+      await assertBrandFontsLoaded(page);
+    } finally {
+      await page.evaluate(() => document.getElementById("font-probe")?.remove());
+    }
+  });
+
+  // UI Considerations: the topbar (96px lockup, Admin label, scope switcher,
+  // theme switch) must fit the smallest supported phone widths.
+  test("topbar does not overflow at 375 and 390 wide", async ({ page }) => {
+    await logInAsPlatformAdmin(page);
+
+    for (const width of [375, 390]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.goto("/admin");
+      await waitForLiveViewReady(page);
+
+      const fit = await page.evaluate(() => {
+        const lockup = document.querySelector(".sg-brand-mark__image--light")!;
+        return {
+          scrollWidth: document.documentElement.scrollWidth,
+          innerWidth: window.innerWidth,
+          lockupWidth: lockup.getBoundingClientRect().width,
+        };
+      });
+      expect(fit.scrollWidth, `${width}px: no horizontal page overflow`).toBeLessThanOrEqual(
+        fit.innerWidth,
+      );
+      expect(fit.lockupWidth, `${width}px: the lockup keeps its 96px minimum`).toBeGreaterThanOrEqual(
+        96,
+      );
+    }
   });
 
   test("auth branding theme picker updates login and email previews", async ({
@@ -1416,15 +1994,15 @@ test.describe("admin theme switch", () => {
 
     // --- Dark mode: brand-strong text on brand-soft background (metric icon) ---
     // The .sg-metric__icon element uses background: --sg-color-brand-soft and
-    // color: --sg-color-brand-strong. In dark mode this is #fdba74 on rgba(243,90,16,0.16)
-    // composited against the dark panel background (#1f1d1a).
-    // We assert the CSS variable token values directly (reading :root values in dark context)
-    // rather than relying on computed element styles, which Chromium reports in oklab format
-    // with alpha that our contrastRatio() helper cannot composite reliably.
-    // The composited background is: alpha * brand-soft-rgb + (1-alpha) * panel-rgb
-    //   = 0.16 * rgb(243,90,16) + 0.84 * rgb(31,29,26) = rgb(65,39,24) ≈ L=0.040
-    // Brand-strong in dark (#fdba74 = rgb(253,186,116)) ≈ L=0.587
-    // Contrast ratio: (0.587+0.05)/(0.040+0.05) = 7.1:1 — passes AA (>= 4.5:1).
+    // color: --sg-color-brand-strong. Dark brand-strong text on the brand-soft
+    // tint, composited over the panel this page reports, must clear 4.5:1.
+    // We read the custom-property values on the shell in dark context directly
+    // rather than relying on computed element styles, which Chromium reports in
+    // oklab format with alpha that our contrastRatio() helper cannot composite
+    // reliably. The composited ground is
+    //   alpha * brand-soft-rgb + (1 - alpha) * panel-rgb
+    // and the ratio is computed from the values the page itself reports, so no
+    // colour literal is pinned here.
     const darkTokenPair = await page.evaluate(() => {
       const shell = document.querySelector(".sg-admin-shell");
       if (!shell) throw new Error("No .sg-admin-shell found");
@@ -1436,14 +2014,18 @@ test.describe("admin theme switch", () => {
       };
     });
 
-    // Assert the dark brand-strong token is the AA-compliant lightened value (#fdba74)
-    // This is the direct verification that the WCAG AA remediation from v1.34 is in place.
-    expect(darkTokenPair.brandStrong).toBe("#fdba74");
+    // The dark brand-strong token is the book's dark accent (kiln-bright in
+    // brand/tokens.json, color.dark). The expected hex is read from the book
+    // when the check runs; custom properties keep the case they were written
+    // in, so the comparison ignores case. Reading nothing fails the test.
+    const bookDarkBrandStrong =
+      brandTokensJson().color.dark["kiln-bright"].$value.hex;
+    expect(darkTokenPair.brandStrong.toLowerCase()).toBe(
+      bookDarkBrandStrong.toLowerCase(),
+    );
 
-    // Compute and assert the composited contrast ratio:
-    // brand-soft = rgba(243,90,16,0.16) — parse alpha and composite against panel (#1f1d1a)
-    // brand-strong = #fdba74
-    // Panel in dark = #1f1d1a = rgb(31,29,26)
+    // Composite the brand-soft tint (parse its alpha) over the panel the page
+    // reports, then assert the brand-strong text clears 4.5:1 on that ground.
     const brandSoftRgbaMatch = darkTokenPair.brandSoft.match(
       /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/,
     );

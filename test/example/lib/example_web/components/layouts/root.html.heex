@@ -10,6 +10,14 @@
     <link phx-track-static rel="stylesheet" href={~p"/assets/default.css"} />
     <link phx-track-static rel="stylesheet" href={~p"/assets/sigra_admin.css"} />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <link phx-track-static rel="stylesheet" href={~p"/assets/css/sigra_admin_brand.css"} />
+    <link
+      :if={sigra_owned_page?(@conn)}
+      rel="icon"
+      href={~p"/images/sigra-favicon.ico"}
+      sizes="16x16 32x32"
+    />
+    <link :if={sigra_owned_page?(@conn)} rel="icon" href={~p"/favicon.svg"} type="image/svg+xml" />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
   </head>

@@ -1,6 +1,11 @@
 defmodule Sigra.Install.Features.AdminTest do
   use ExUnit.Case, async: true
 
+  # One CSS block parser for the whole suite: the extractors live in the shared
+  # contrast instrument, not as private copies here.
+  import Sigra.Test.Brand.CssContrast,
+    only: [extract_css_block: 2, extract_css_blocks: 2, extract_sg_declarations: 1]
+
   alias Sigra.Install.Features.Admin
 
   describe "enabled?/1" do
@@ -299,8 +304,8 @@ defmodule Sigra.Install.Features.AdminTest do
       assert source =~ "sg-brand-mark__lockup"
       assert source =~ ~s|~p"/images/sigra-logo-primary.svg"|
       assert source =~ ~s|~p"/images/sigra-logo-primary-dark.svg"|
-      assert source =~ ~s|width="188"|
-      assert source =~ ~s|height="54"|
+      assert source =~ ~s|width="96"|
+      assert source =~ ~s|height="39"|
       refute source =~ "sg-brand-mark__word"
       refute source =~ "sg-brand-mark__core"
       assert source =~ "branding_link(@admin_scope)"
@@ -329,18 +334,20 @@ defmodule Sigra.Install.Features.AdminTest do
       assert source_order?(bottom_nav, "overview_link(@admin_scope)", "users_link(@admin_scope)")
     end
 
-    test "admin logo templates are cropped path-only lockups" do
-      for path <- [
-            "priv/templates/sigra.install/admin/sigra-logo-primary.svg",
-            "priv/templates/sigra.install/admin/sigra-logo-primary-dark.svg"
+    test "admin logo templates are the book's path-only lockups with one title" do
+      for {path, book_path} <- [
+            {"priv/templates/sigra.install/admin/sigra-logo-primary.svg",
+             "brand/assets/logo/sigra-lockup-light.svg"},
+            {"priv/templates/sigra.install/admin/sigra-logo-primary-dark.svg",
+             "brand/assets/logo/sigra-lockup-dark.svg"}
           ] do
         source = File.read!(path)
 
-        assert source =~ ~s(viewBox="20 220 2361 1000")
-        assert source =~ "Space Grotesk v2.0"
+        assert source =~ ~s(viewBox="#{brand_view_box(book_path)}")
         assert source =~ "<path"
         refute source =~ "<text"
         refute source =~ "font-family"
+        assert length(String.split(source, "<title>sigra</title>")) == 2
       end
     end
 
@@ -423,11 +430,17 @@ defmodule Sigra.Install.Features.AdminTest do
                "and explicit-toggle path (html[data-sg-admin-theme=dark] .sg-admin-shell in sigra_admin.css) — " <>
                "update BOTH dark blocks together when changing any dark token"
 
-      # Dark brand-strong must be #fdba74 (WCAG AA lightened value from v1.34; supersedes
-      # the scoped .sg-filter-chip fix). If changed, update all four parity surfaces and
-      # both snapshot allowlists (snapshot-allowlist + snapshot-allowlist-design).
-      assert "--sg-color-brand-strong: #fdba74;" in explicit_dark_props,
-             "dark brand-strong must be #fdba74 (WCAG AA lightened value from v1.34); " <>
+      # Dark brand-strong is Kiln Bright, the text-grade accent on dark grounds. The
+      # expectation is read from the pinned brand book (brand/tokens.json), not pinned
+      # as a literal here, so it follows the book. If it changes, update all four
+      # parity surfaces and both snapshot allowlists (snapshot-allowlist +
+      # snapshot-allowlist-design).
+      kiln_bright = brand_hex("color.dark.kiln-bright")
+
+      expected = String.downcase("--sg-color-brand-strong: #{kiln_bright};")
+
+      assert expected in Enum.map(explicit_dark_props, &String.downcase/1),
+             "dark brand-strong must be Kiln Bright #{kiln_bright} (brand/tokens.json color.dark.kiln-bright); " <>
                "if changed, update all four parity surfaces and both snapshot allowlists"
     end
 
@@ -468,27 +481,31 @@ defmodule Sigra.Install.Features.AdminTest do
                  "update sigra_auth.css to restore ember parity"
       end
 
-      # Dark ember parity — extract dark-block lines from each file
-      admin_dark_lines =
-        admin_css |> extract_dark_media_props() |> Enum.join("\n")
+      # Dark ember parity: the admin dark value (dark @media block of sigra_admin.css)
+      # equals the sigra_auth.css dark value (its dark theme block). Neither is pinned
+      # as a literal here; sigra_auth.css is the source the admin tones follow.
+      admin_dark_block = extract_css_block(admin_css, "@media (prefers-color-scheme: dark)")
+      auth_dark_block = extract_css_block(auth_css, ~s(.sigra-auth[data-theme="dark"]))
 
-      auth_dark_block =
-        auth_css
-        |> extract_css_block(~s(.sigra-auth[data-theme="dark"]))
-
-      # Note: --sg-color-panel vs --sigra-auth-surface intentionally differ
-      # (#1f1d1a vs #211f1c); not asserted here.
-      for {admin_token, auth_token, dark_val} <- [
-            {"--sg-color-risk", "--sigra-auth-risk", "#f8a39c"},
-            {"--sg-color-warn", "--sigra-auth-warn", "#f5c451"},
-            {"--sg-color-ok", "--sigra-auth-ok", "#5dd1a0"}
+      # Note: --sg-color-panel vs --sigra-auth-surface intentionally differ; not
+      # asserted here.
+      for {admin_token, auth_token} <- [
+            {"--sg-color-risk", "--sigra-auth-risk"},
+            {"--sg-color-warn", "--sigra-auth-warn"},
+            {"--sg-color-ok", "--sigra-auth-ok"}
           ] do
-        assert String.contains?(admin_dark_lines, "#{admin_token}: #{dark_val};"),
-               "Admin dark #{admin_token} should be #{dark_val} — " <>
-                 "if changed, update sigra_auth.css to restore ember parity"
+        admin_dark = declared_value(admin_dark_block, admin_token)
+        auth_dark = declared_value(auth_dark_block, auth_token)
 
-        assert String.contains?(auth_dark_block, "#{auth_token}: #{dark_val};"),
-               "Auth dark #{auth_token} should be #{dark_val} — " <>
+        assert admin_dark,
+               "the admin dark @media block declares no #{admin_token}; the extraction is broken"
+
+        assert auth_dark,
+               "the sigra_auth.css dark block declares no #{auth_token}; the extraction is broken"
+
+        assert admin_dark == auth_dark,
+               "Dark ember parity mismatch for #{admin_token} (admin) vs #{auth_token} (auth): " <>
+                 "#{inspect(admin_dark)} != #{inspect(auth_dark)} — " <>
                  "update sigra_auth.css to restore ember parity with admin dark tokens"
       end
     end
@@ -538,52 +555,6 @@ defmodule Sigra.Install.Features.AdminTest do
     |> extract_sg_declarations()
   end
 
-  defp extract_css_block(css, selector) do
-    with {selector_offset, _} <- :binary.match(css, selector),
-         block_source <- binary_part(css, selector_offset, byte_size(css) - selector_offset),
-         {brace_offset, 1} <- :binary.match(block_source, "{") do
-      block_source
-      |> binary_part(brace_offset, byte_size(block_source) - brace_offset)
-      |> take_balanced_block()
-    else
-      :nomatch -> flunk("Could not find CSS block for #{selector}")
-    end
-  end
-
-  defp take_balanced_block(source) do
-    source
-    |> String.graphemes()
-    |> Enum.reduce_while({0, []}, fn
-      "{", {depth, chars} ->
-        {:cont, {depth + 1, ["{" | chars]}}
-
-      "}", {1, chars} ->
-        {:halt, Enum.reverse(["}" | chars])}
-
-      "}", {depth, chars} ->
-        {:cont, {depth - 1, ["}" | chars]}}
-
-      char, {depth, chars} ->
-        {:cont, {depth, [char | chars]}}
-    end)
-    |> case do
-      chars when is_list(chars) -> Enum.join(chars)
-      {_depth, _chars} -> flunk("Could not find balanced CSS block")
-    end
-  end
-
-  defp extract_sg_declarations(block) do
-    ~r/--sg-[\w-]+\s*:\s*[^;]+;/s
-    |> Regex.scan(block)
-    |> List.flatten()
-    |> Enum.map(fn declaration ->
-      declaration
-      |> String.replace(~r/\s+/, " ")
-      |> String.trim()
-    end)
-    |> Enum.sort()
-  end
-
   defp extract_root_sg_token_names(css) do
     css
     |> extract_css_blocks(":root")
@@ -594,34 +565,6 @@ defmodule Sigra.Install.Features.AdminTest do
     end)
     |> Enum.uniq()
     |> Enum.sort()
-  end
-
-  defp extract_css_blocks(css, selector) do
-    do_extract_css_blocks(css, selector, [])
-  end
-
-  defp do_extract_css_blocks(css, selector, blocks) do
-    case :binary.match(css, selector) do
-      {selector_offset, _} ->
-        block_source = binary_part(css, selector_offset, byte_size(css) - selector_offset)
-
-        case :binary.match(block_source, "{") do
-          {brace_offset, 1} ->
-            block_with_prefix =
-              binary_part(block_source, brace_offset, byte_size(block_source) - brace_offset)
-
-            block = take_balanced_block(block_with_prefix)
-            consumed_bytes = selector_offset + brace_offset + byte_size(block)
-            rest = binary_part(css, consumed_bytes, byte_size(css) - consumed_bytes)
-            do_extract_css_blocks(rest, selector, [block | blocks])
-
-          :nomatch ->
-            Enum.reverse(blocks)
-        end
-
-      :nomatch ->
-        Enum.reverse(blocks)
-    end
   end
 
   defp extract_token_value(css, token_name, context_selector \\ ":root") do
@@ -642,6 +585,36 @@ defmodule Sigra.Install.Features.AdminTest do
         |> String.trim_trailing(";")
       end
     end)
+  end
+
+  # The `hex` of a color token in the pinned brand book, by its dotted path.
+  defp brand_hex(path) do
+    hex =
+      "brand/tokens.json"
+      |> File.read!()
+      |> JSON.decode!()
+      |> get_in(String.split(path, ".") ++ ["$value", "hex"])
+
+    assert is_binary(hex), "brand/tokens.json has no color at #{path}"
+    hex
+  end
+
+  # The `viewBox` of a pinned brand book SVG, read at run time so a shipped copy is
+  # compared with the book rather than with a literal.
+  defp brand_view_box(path) do
+    case Regex.run(~r/viewBox="([^"]+)"/, File.read!(path), capture: :all_but_first) do
+      [view_box] -> view_box
+      nil -> flunk("#{path} has no viewBox")
+    end
+  end
+
+  # The value of one custom property inside a block, whitespace-collapsed and
+  # lower-cased, or nil when the block does not declare it.
+  defp declared_value(block, token) do
+    case Regex.run(~r/#{Regex.escape(token)}\s*:\s*([^;]+);/, block, capture: :all_but_first) do
+      [value] -> value |> String.replace(~r/\s+/, " ") |> String.trim() |> String.downcase()
+      nil -> nil
+    end
   end
 
   defp source_order?(source, first, second) do

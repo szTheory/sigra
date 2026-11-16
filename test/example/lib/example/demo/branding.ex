@@ -70,7 +70,7 @@ defmodule Example.Demo.Branding do
 
   @rail_accent_light Profile.new!(
                        product_name: "Rail Accent",
-                       logo_url: "/images/rail-accent-mark.svg",
+                       logo_url: "/images/tasklane-mark.svg",
                        logo_alt: "Rail Accent logo",
                        accent_color: "#c2410c",
                        accent_foreground: "#ffffff",
@@ -85,7 +85,7 @@ defmodule Example.Demo.Branding do
                      )
   @rail_accent_dark Profile.new!(
                       product_name: "Rail Accent",
-                      logo_url: "/images/rail-accent-mark-dark.svg",
+                      logo_url: "/images/tasklane-mark.svg",
                       logo_alt: "Rail Accent logo",
                       accent_color: "#fdba74",
                       accent_foreground: "#151515",

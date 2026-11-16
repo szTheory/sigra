@@ -1,5 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Locator, type Page, type TestInfo } from '@playwright/test';
+import { contrastRatio } from '../helpers/brandContrast';
+import { assertBrandFontsLoaded } from '../helpers/brandFonts';
+import { hexToRgbString } from '../helpers/brandSource';
 
 // Phase 185 (AUDIT-INFRA): admin-design board-snapshot spec.
 //
@@ -27,13 +30,13 @@ async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', {
     state: 'attached',
   });
-  // D-08: wait for the brand webfont so element heights are font-stable before
-  // capture. fonts.ready alone resolves instantly if the face is never requested
-  // (Pitfall 7), so we follow with a hard guard that fails loudly if the woff2
-  // 404'd or --font-sans didn't apply (T-197-06).
-  await page.evaluate(async () => { await (document as any).fonts.ready; });
-  const ok = await page.evaluate(() => (document as any).fonts.check('16px "Space Grotesk"'));
-  expect(ok, 'Space Grotesk must be loaded before snapshot').toBe(true);
+  // D-08: wait for the brand web fonts so element heights are font-stable before
+  // capture. fonts.ready alone resolves instantly if a face is never requested
+  // (Pitfall 7), and fonts.check() is vacuously true for a face that was never
+  // declared. So this guard forces the load of the two self-hosted book faces
+  // (Instrument Sans and Red Hat Mono) and fails loudly, naming the face, unless
+  // each has a FontFace entry with status "loaded" (T-197-06).
+  await assertBrandFontsLoaded(page);
 }
 
 /**
@@ -55,9 +58,19 @@ async function assertNoAxeViolations(page: Page, label: string) {
   // `region` (full-page landmark wrapping) would fail on the admin shell's
   // `<header>` layout, which is intentional Phoenix/LiveView structure rather
   // than a shipped WCAG regression signal for this lane.
-  const { violations } = await new AxeBuilder({ page })
+  const { violations, incomplete } = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
     .analyze();
+  // `incomplete` is axe saying "could not decide" (for example a translucent or
+  // backdrop-filtered ground). It is recorded from this same analyze() result so
+  // the unknowns are visible per project, and it is never asserted, subtracted
+  // from the violations or read as a pass.
+  // test.info() is the running test's TestInfo, so the call site and the declaration line
+  // of the axe test (which contract tests pin verbatim) stay unchanged.
+  test.info().annotations.push({
+    type: 'axe-incomplete',
+    description: `${incomplete.length}: ${[...new Set(incomplete.map((rule) => rule.id))].sort().join(', ')}`,
+  });
   const detail =
     violations.length === 0 ? '' : JSON.stringify(violations).slice(0, 2000);
   expect(violations, `${label}: axe violations\n${detail}`).toHaveLength(0);
@@ -274,6 +287,106 @@ test.describe('Design gallery board snapshots', () => {
   // offending DOM selector, so the board is identifiable from axe's output.
   test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }) => {
     await assertNoAxeViolations(page, 'design-gallery');
+  });
+
+  // BTOK-03 (Phase 261): the non-text 3:1 contrast checks axe cannot make. axe
+  // reads text contrast; a focus ring, a control edge and a logo square are
+  // non-text (WCAG 1.4.11), so they are measured here from the real computed
+  // styles in each theme project. Untagged (no `@snapshot`): it runs on every lane.
+  test('non-text 3:1: focus ring, control edge and logo square', async ({ page }, testInfo) => {
+    const NON_TEXT_MIN = 3;
+    // Positive control: identical colours must not reach 3:1, or the ratio helper is a no-op.
+    expect(contrastRatio('rgb(255, 255, 255)', 'rgb(255, 255, 255)')).toBeLessThan(NON_TEXT_MIN);
+
+    const colours = (boxShadow: string) => boxShadow.match(/(?:rgba?|oklab)\([^)]*\)/g) ?? [];
+    const settle = (el: Locator) =>
+      el.evaluate((node) => Promise.all(node.getAnimations().map((a) => a.finished.catch(() => null))));
+    // Tab until the target is the active element (keyboard focus, so :focus-visible matches),
+    // falling back to a programmatic focus after one Tab has set the keyboard modality.
+    const focusByKeyboard = async (target: Locator) => {
+      const handle = await target.elementHandle();
+      for (let i = 0; i < 120; i += 1) {
+        await page.keyboard.press('Tab');
+        if (await handle!.evaluate((node) => node === document.activeElement)) return;
+      }
+      await target.focus();
+    };
+
+    // The two grounds: the page ground and the panel ground, as this project's theme shows them.
+    const grounds = await page.evaluate(() => {
+      const shell = document.querySelector('.sg-admin-shell')!;
+      const read = (token: string) => {
+        const probe = document.createElement('div');
+        probe.style.background = `var(${token})`;
+        shell.appendChild(probe);
+        const colour = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        return colour;
+      };
+      return { page: read('--sg-color-subtle'), panel: read('--sg-color-panel') };
+    });
+
+    // `.first()` of the enabled, visible controls. The gallery's first secondary button is an
+    // aria-disabled link (dimmed, tabindex -1), which would not be a real control to measure.
+    const secondary = page
+      .locator('.sg-btn--secondary:not([aria-disabled="true"]):not(.is-disabled):not([disabled]):visible')
+      .first();
+    const input = page.locator('.sg-input:visible').first();
+    const select = page.locator('.sg-select:visible').first();
+    expect(await secondary.count(), 'an enabled .sg-btn--secondary must be on the gallery').toBe(1);
+    expect(await input.count(), 'a .sg-input must be on the gallery').toBe(1);
+    const hasSelect = (await select.count()) === 1;
+
+    // Resting control edges first (before any focus changes the border and shadow).
+    const secondaryShadow = await secondary.evaluate((el) => getComputedStyle(el).boxShadow);
+    expect(secondaryShadow, 'the resting secondary edge is an inset box-shadow layer').toContain('inset');
+    const inputEdge = await input.evaluate((el) => getComputedStyle(el).borderTopColor);
+    const selectEdge = hasSelect ? await select.evaluate((el) => getComputedStyle(el).borderTopColor) : null;
+
+    // Focus rings: the LAST box-shadow layer of the focused control is the ring.
+    const rings: string[] = [];
+    for (const target of [secondary, input]) {
+      await focusByKeyboard(target);
+      await settle(target);
+      expect(await target.evaluate((el) => el.matches(':focus-visible')), 'the ring is measured in :focus-visible').toBe(true);
+      const layers = colours(await target.evaluate((el) => getComputedStyle(el).boxShadow));
+      expect(layers.length, 'a focused control shows the two-layer ring').toBeGreaterThanOrEqual(2);
+      rings.push(layers[layers.length - 1]);
+    }
+
+    // Logo square: the second distinct fill of the shown scheme's SVG (an <img> exposes no computed fill).
+    const squareOf = async (path: string) => {
+      const res = await page.request.get(path);
+      expect(res.ok(), `${path} must be served`).toBe(true);
+      const fills = [...new Set([...(await res.text()).matchAll(/fill="(#[0-9a-fA-F]{6})"/g)].map((m) => m[1]))];
+      expect(fills.length, `${path} carries a letter fill and a square fill`).toBeGreaterThanOrEqual(2);
+      return fills[1];
+    };
+    const squares = [await squareOf('/images/sigra-logo-primary.svg'), await squareOf('/images/sigra-logo-primary-dark.svg')];
+    const dark = await page.evaluate(() => window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const logoSquare = hexToRgbString(squares[dark ? 1 : 0]);
+
+    const measured: [string, string, string][] = [
+      ['focus ring of .sg-btn--secondary vs page', rings[0], grounds.page],
+      ['focus ring of .sg-btn--secondary vs panel', rings[0], grounds.panel],
+      ['focus ring of .sg-input vs page', rings[1], grounds.page],
+      ['focus ring of .sg-input vs panel', rings[1], grounds.panel],
+      ['control edge of .sg-input vs panel', inputEdge, grounds.panel],
+      ['control edge of .sg-btn--secondary vs panel', colours(secondaryShadow)[0], grounds.panel],
+      [`logo square (${dark ? 'dark' : 'light'}) vs page`, logoSquare, grounds.page],
+    ];
+    if (selectEdge) measured.push(['control edge of .sg-select vs panel', selectEdge, grounds.panel]);
+    // Seven measurements, eight when a .sg-select is on the gallery: a missing element or colour cannot pass.
+    expect(measured).toHaveLength(hasSelect ? 8 : 7);
+
+    const ratios = measured.map(([label, fg, bg]) => [label, contrastRatio(fg, bg)] as const);
+    testInfo.annotations.push({
+      type: 'non-text-3-1',
+      description: ratios.map(([label, ratio]) => `${label}=${ratio.toFixed(2)}`).join('; '),
+    });
+    for (const [label, ratio] of ratios) {
+      expect(ratio, `${label} must reach ${NON_TEXT_MIN}:1`).toBeGreaterThanOrEqual(NON_TEXT_MIN);
+    }
   });
 
   test('notice_link board is registered as a standalone L1 component', async () => {

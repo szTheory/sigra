@@ -10,9 +10,11 @@ const darkStatePath = 'test-results/.auth/admin-design-dark.json';
 
 async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', { state: 'attached' });
+  // This runs on /users/register, a Tasklane host page that does not use the
+  // book faces, so there is no face to assert here: wait for fonts.ready and
+  // nothing more. Sigra-owned pages assert their faces in the specs that visit
+  // them (assertBrandFontsLoaded in admin-design.spec.ts and admin-eval.spec.ts).
   await page.evaluate(async () => { await (document as any).fonts.ready; });
-  const fontLoaded = await page.evaluate(() => (document as any).fonts.check('16px "Space Grotesk"'));
-  expect(fontLoaded, 'Space Grotesk must be loaded before persisting auth state').toBe(true);
 }
 
 async function registerDesignAdmin(page: Page, email: string) {

@@ -41,10 +41,18 @@
   --sg-text-xl: 1.875rem;
   --sg-text-2xl: clamp(1.6rem, 2.3vw, 2.4rem);
 
-  --sg-weight-regular: 450;
+  --sg-weight-regular: 400;
   --sg-weight-medium: 600;
   --sg-weight-semibold: 700;
-  --sg-weight-bold: 800;
+  --sg-weight-bold: 700;
+
+  /* Typeface. Theme-invariant, so declared here only and never restated in a
+   * theme block. Sans is the host's own face by default (inherit); mono is a
+   * system stack. This file ships no font file and no font-face rule: a host that
+   * wants the brand faces self-hosts them and sets both tokens (see the token
+   * reference). */
+  --sg-font-sans: inherit;
+  --sg-font-mono: ui-monospace, 'SF Mono', Consolas, monospace;
 
   --sg-leading-tight: 1.1;
   --sg-leading-snug: 1.3;
@@ -56,15 +64,15 @@
   --sg-tracking-wider: 0.08em;
 
   /* Color — neutrals */
-  --sg-color-ink: #151515;
-  --sg-color-muted: #686868;
-  --sg-color-subtle: #f6f5f2;
+  --sg-color-ink: #1F1A17;
+  --sg-color-muted: #5F554D;
+  --sg-color-subtle: #F7F3EE;
   --sg-color-panel: #ffffff;
   --sg-color-panel-alt: #fbfaf7;
-  --sg-color-line: rgba(21, 21, 21, 0.1);
+  --sg-color-line: #DDD3C8;
   --sg-color-line-strong: rgba(21, 21, 21, 0.16);
 
-  /* Color — brand (burnt orange) */
+  /* Color — brand (Kiln) */
   --sg-color-brand: #c2410c;
   --sg-color-brand-strong: #9a3412;
   --sg-color-brand-solid: #9a3412;
@@ -75,7 +83,7 @@
   --sg-color-on-brand-solid: #ffffff;
   --sg-logo-rail-accent: #fdba74;
   --sg-logo-rail-ember: #c2410c;
-  --sg-logo-core: #9a3412;
+  --sg-logo-core: #1F1A17;
 
   /* Color — semantic status */
   --sg-color-risk: #b42318;
@@ -86,6 +94,24 @@
   --sg-color-ok-soft: #ecfdf3;
   --sg-color-info: #1d4ed8;
   --sg-color-info-soft: #eef2ff;
+
+  /* Color — Kiln additions: status words, selected row, current tab, table
+   * header ground and control edge. Each is a literal hex and is restated in the
+   * other three token blocks, never a var() alias, so it survives an explicit
+   * theme. Two have consumers so far: --sg-color-sunken (the table header) and
+   * --sg-color-control-edge (the edge of interactive controls). The rest are
+   * defined and tested token to token; their consumers arrive with the layout
+   * work. */
+  --sg-status-active: #1D6B3C;
+  --sg-status-unconfirmed: #7A5F00;
+  --sg-status-locked: #7A5F00;
+  --sg-status-deleting: #7A5F00;
+  --sg-status-suspended: #5F554D;
+  --sg-color-selected: #EADFD2;
+  --sg-color-selected-edge: #C2410C;
+  --sg-color-current-tab: #9A3412;
+  --sg-color-sunken: #EFE9E1;
+  --sg-color-control-edge: #857569;
 
   /* Radii */
   --sg-radius-xs: 0.375rem;
@@ -145,9 +171,14 @@
     opacity var(--sg-motion-tooltip) var(--sg-ease-out),
     transform var(--sg-motion-tooltip) var(--sg-ease-out);
 
-  /* Focus */
-  --sg-focus-ring: 0 0 0 3px
-    color-mix(in oklab, var(--sg-color-brand) 35%, transparent);
+  /* Focus: two layers. A page-ground gap of --sg-focus-ring-offset, then a 2px
+   * ring in the text-grade accent (Kiln Deep in Light, Kiln Bright in Dark), so
+   * the ring stays apart from a Kiln-filled button. It reads theme-variant
+   * tokens, so it is declared in all four token blocks (a var() resolves where it
+   * is declared). */
+  --sg-focus-ring:
+    0 0 0 var(--sg-focus-ring-offset) var(--sg-color-subtle),
+    0 0 0 calc(var(--sg-focus-ring-offset) + 2px) var(--sg-color-brand-strong);
   --sg-focus-ring-offset: 2px;
 
   /* Z-index ladder */
@@ -175,24 +206,28 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --sg-color-ink: #f4f1eb;
-    --sg-color-muted: #bdb5aa;
-    --sg-color-subtle: #171614;
-    --sg-color-panel: #1f1d1a;
+    --sg-color-ink: #F3EEE8;
+    --sg-color-muted: #B8ABA0;
+    --sg-color-subtle: #17120F;
+    --sg-color-panel: #221B17;
     --sg-color-panel-alt: #25221e;
-    --sg-color-line: rgba(255, 255, 255, 0.1);
+    --sg-color-line: #3A2F28;
     --sg-color-line-strong: rgba(255, 255, 255, 0.16);
+    /* Dark accent is Kiln Bright. The label on it is Char: white on Kiln Bright
+     * is 2.48:1, Char is 7.50:1. */
+    --sg-color-brand: #F08A55;
     --sg-color-brand-soft: rgba(243, 90, 16, 0.16);
-    --sg-color-brand-solid: #fdba74;
-    --sg-color-brand-fill-hover: #c74712;
-    --sg-color-brand-fill-active: #9a3412;
-    --sg-color-on-brand-solid: #151515;
-    --sg-logo-rail-ember: #f97316;
-    --sg-logo-core: #f4f1eb;
-    /* Dark-mode brand-strong: lightened to clear WCAG AA on dark brand-soft tint
-     * (~1.88:1 → >=4.5:1). Supersedes the scoped chip fix at the .sg-filter-chip
-     * block below. */
-    --sg-color-brand-strong: #fdba74;
+    --sg-color-brand-solid: #F08A55;
+    --sg-color-brand-fill-hover: #F4A27C;
+    --sg-color-brand-fill-active: #E07A45;
+    --sg-color-on-brand: #17120F;
+    --sg-color-on-brand-solid: #17120F;
+    --sg-logo-rail-ember: #F08A55;
+    --sg-logo-core: #F3EEE8;
+    /* Dark-mode brand-strong: Kiln Bright clears WCAG AA (4.5:1) on the dark
+     * grounds and on the dark brand-soft tint; the old lightened value is
+     * retired. */
+    --sg-color-brand-strong: #F08A55;
     /* Lighten tone text + backgrounds for dark mode so pills/rows keep WCAG AA
      * contrast (dark-mode tinted backgrounds need light tone text). */
     --sg-color-ok: #5dd1a0;
@@ -203,6 +238,19 @@
     --sg-color-warn-soft: rgba(245, 196, 81, 0.16);
     --sg-color-ok-soft: rgba(52, 211, 153, 0.16);
     --sg-color-info-soft: rgba(120, 150, 245, 0.16);
+    --sg-status-active: #86C99B;
+    --sg-status-unconfirmed: #D6B957;
+    --sg-status-locked: #D6B957;
+    --sg-status-deleting: #D6B957;
+    --sg-status-suspended: #B8ABA0;
+    --sg-color-selected: #33281F;
+    --sg-color-selected-edge: #F08A55;
+    --sg-color-current-tab: #F08A55;
+    --sg-color-sunken: #120E0C;
+    --sg-color-control-edge: #8B7D72;
+    --sg-focus-ring:
+      0 0 0 var(--sg-focus-ring-offset) var(--sg-color-subtle),
+      0 0 0 calc(var(--sg-focus-ring-offset) + 2px) var(--sg-color-brand-strong);
     --sg-elev-inset: inset 0 0 0 1px var(--sg-color-line);
     --sg-elev-1: 0 0 0 1px rgba(255, 255, 255, 0.09);
     --sg-elev-2: 0 0 0 1px rgba(255, 255, 255, 0.15);
@@ -234,22 +282,24 @@
    * prefers-color-scheme block above (a parity test pins both). */
   .sg-admin-shell[data-theme="light"],
   html[data-sg-admin-theme="light"] .sg-admin-shell {
-    --sg-color-ink: #151515;
-    --sg-color-muted: #686868;
-    --sg-color-subtle: #f6f5f2;
+    --sg-color-ink: #1F1A17;
+    --sg-color-muted: #5F554D;
+    --sg-color-subtle: #F7F3EE;
     --sg-color-panel: #ffffff;
     --sg-color-panel-alt: #fbfaf7;
-    --sg-color-line: rgba(21, 21, 21, 0.1);
+    --sg-color-line: #DDD3C8;
     --sg-color-line-strong: rgba(21, 21, 21, 0.16);
+    --sg-color-brand: #c2410c;
     --sg-color-brand-soft: #fff0e8;
     --sg-color-brand-strong: #9a3412;
     --sg-color-brand-solid: #9a3412;
     --sg-color-brand-fill-hover: #c74712;
     --sg-color-brand-fill-active: #9a3412;
+    --sg-color-on-brand: #ffffff;
     --sg-color-on-brand-solid: #ffffff;
     --sg-logo-rail-accent: #fdba74;
     --sg-logo-rail-ember: #c2410c;
-    --sg-logo-core: #9a3412;
+    --sg-logo-core: #1F1A17;
     --sg-color-risk: #b42318;
     --sg-color-risk-soft: #fff1f0;
     --sg-color-warn: #a15c00;
@@ -258,6 +308,19 @@
     --sg-color-ok-soft: #ecfdf3;
     --sg-color-info: #1d4ed8;
     --sg-color-info-soft: #eef2ff;
+    --sg-status-active: #1D6B3C;
+    --sg-status-unconfirmed: #7A5F00;
+    --sg-status-locked: #7A5F00;
+    --sg-status-deleting: #7A5F00;
+    --sg-status-suspended: #5F554D;
+    --sg-color-selected: #EADFD2;
+    --sg-color-selected-edge: #C2410C;
+    --sg-color-current-tab: #9A3412;
+    --sg-color-sunken: #EFE9E1;
+    --sg-color-control-edge: #857569;
+    --sg-focus-ring:
+      0 0 0 var(--sg-focus-ring-offset) var(--sg-color-subtle),
+      0 0 0 calc(var(--sg-focus-ring-offset) + 2px) var(--sg-color-brand-strong);
     --sg-elev-inset: inset 0 0 0 1px var(--sg-color-line);
     --sg-elev-1:
       0 0 0 1px rgba(21, 21, 21, 0.06), 0 1px 2px -1px rgba(21, 21, 21, 0.08),
@@ -273,21 +336,23 @@
 
   .sg-admin-shell[data-theme="dark"],
   html[data-sg-admin-theme="dark"] .sg-admin-shell {
-    --sg-color-ink: #f4f1eb;
-    --sg-color-muted: #bdb5aa;
-    --sg-color-subtle: #171614;
-    --sg-color-panel: #1f1d1a;
+    --sg-color-ink: #F3EEE8;
+    --sg-color-muted: #B8ABA0;
+    --sg-color-subtle: #17120F;
+    --sg-color-panel: #221B17;
     --sg-color-panel-alt: #25221e;
-    --sg-color-line: rgba(255, 255, 255, 0.1);
+    --sg-color-line: #3A2F28;
     --sg-color-line-strong: rgba(255, 255, 255, 0.16);
+    --sg-color-brand: #F08A55;
     --sg-color-brand-soft: rgba(243, 90, 16, 0.16);
-    --sg-color-brand-solid: #fdba74;
-    --sg-color-brand-fill-hover: #c74712;
-    --sg-color-brand-fill-active: #9a3412;
-    --sg-color-on-brand-solid: #151515;
-    --sg-logo-rail-ember: #f97316;
-    --sg-logo-core: #f4f1eb;
-    --sg-color-brand-strong: #fdba74;
+    --sg-color-brand-solid: #F08A55;
+    --sg-color-brand-fill-hover: #F4A27C;
+    --sg-color-brand-fill-active: #E07A45;
+    --sg-color-on-brand: #17120F;
+    --sg-color-on-brand-solid: #17120F;
+    --sg-logo-rail-ember: #F08A55;
+    --sg-logo-core: #F3EEE8;
+    --sg-color-brand-strong: #F08A55;
     --sg-color-ok: #5dd1a0;
     --sg-color-warn: #f5c451;
     --sg-color-risk: #f8a39c;
@@ -296,6 +361,19 @@
     --sg-color-warn-soft: rgba(245, 196, 81, 0.16);
     --sg-color-ok-soft: rgba(52, 211, 153, 0.16);
     --sg-color-info-soft: rgba(120, 150, 245, 0.16);
+    --sg-status-active: #86C99B;
+    --sg-status-unconfirmed: #D6B957;
+    --sg-status-locked: #D6B957;
+    --sg-status-deleting: #D6B957;
+    --sg-status-suspended: #B8ABA0;
+    --sg-color-selected: #33281F;
+    --sg-color-selected-edge: #F08A55;
+    --sg-color-current-tab: #F08A55;
+    --sg-color-sunken: #120E0C;
+    --sg-color-control-edge: #8B7D72;
+    --sg-focus-ring:
+      0 0 0 var(--sg-focus-ring-offset) var(--sg-color-subtle),
+      0 0 0 calc(var(--sg-focus-ring-offset) + 2px) var(--sg-color-brand-strong);
     --sg-elev-inset: inset 0 0 0 1px var(--sg-color-line);
     --sg-elev-1: 0 0 0 1px rgba(255, 255, 255, 0.09);
     --sg-elev-2: 0 0 0 1px rgba(255, 255, 255, 0.15);
@@ -437,12 +515,30 @@
   }
 
   /* --------------------------------------------------------------------------
-   * ADMIN SHELL CHROME — brand mark lockup swap and the theme switch
+   * ADMIN SHELL CHROME — type, brand mark lockup swap and the theme switch
    * ------------------------------------------------------------------------*/
+  /* Type. `inherit` on a custom property is a CSS-wide keyword, so the sans token
+   * is unset by default and the usage-site fallback supplies the inheritance (the
+   * host's face). A host that sets the token gets its value. Controls do not
+   * inherit a family on their own, so they are told to. Code takes the mono token
+   * with ligatures off and a slashed zero (ignored by faces without one). */
+  .sg-admin-shell {
+    font-family: var(--sg-font-sans, inherit);
+  }
+  .sg-admin-shell :is(button, input, select, textarea) {
+    font-family: inherit;
+  }
+  .sg-code,
+  .sg-admin-shell code {
+    font-family: var(--sg-font-mono);
+    font-variant-ligatures: none;
+    font-feature-settings: "zero";
+  }
+
   .sg-brand-mark {
     display: inline-flex;
     align-items: center;
-    gap: var(--sg-space-2);
+    gap: var(--sg-space-4);
     min-height: var(--sg-control-sm);
     font-size: var(--sg-text-sm);
     font-weight: var(--sg-weight-semibold);
@@ -452,11 +548,10 @@
   .sg-brand-mark__lockup {
     position: relative;
     display: inline-flex;
-    width: 5.25rem;
-    height: 1.5rem;
+    width: 6rem;
+    height: 2.5rem;
     flex: 0 0 auto;
     align-items: center;
-    transform: translateY(-2px);
   }
   .sg-brand-mark__image {
     position: absolute;
@@ -512,7 +607,7 @@
     padding: var(--sg-space-1);
     border-radius: var(--sg-radius-full);
     background: var(--sg-color-panel-alt);
-    box-shadow: var(--sg-elev-inset);
+    box-shadow: inset 0 0 0 1px var(--sg-color-control-edge);
   }
   html[data-sg-admin-js="true"] .sg-theme-switch {
     display: inline-flex;
@@ -719,7 +814,7 @@
   .sg-btn--secondary {
     background: var(--sg-color-panel);
     color: var(--sg-color-ink);
-    box-shadow: var(--sg-elev-inset);
+    box-shadow: inset 0 0 0 1px var(--sg-color-control-edge);
   }
 
   .sg-btn--ghost {
@@ -734,7 +829,7 @@
   .sg-btn--danger {
     background: transparent;
     color: var(--sg-color-risk);
-    box-shadow: var(--sg-elev-inset);
+    box-shadow: inset 0 0 0 1px var(--sg-color-control-edge);
   }
   .sg-btn--danger:hover {
     background: var(--sg-color-risk-soft);
@@ -935,7 +1030,7 @@
     padding: var(--sg-space-2) var(--sg-space-3);
     border-radius: var(--sg-radius-sm);
     background: var(--sg-color-panel);
-    box-shadow: var(--sg-elev-inset);
+    box-shadow: inset 0 0 0 1px var(--sg-color-control-edge);
     cursor: pointer;
     font-size: var(--sg-text-sm);
   }
@@ -999,7 +1094,7 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    background: var(--sg-color-panel);
+    background: var(--sg-color-sunken);
     color: var(--sg-color-muted);
     font-size: var(--sg-text-xs);
     font-weight: var(--sg-weight-bold);
@@ -1012,6 +1107,7 @@
   .sg-table td,
   .sg-table th {
     border-bottom: 1px solid var(--sg-color-line);
+    font-variant-numeric: tabular-nums;
     padding: var(--sg-space-3) var(--sg-space-4);
     vertical-align: top;
   }
@@ -1719,5 +1815,677 @@
     animation: none !important;
     transform: scaleX(1);
     transition: none !important;
+  }
+}
+
+/* Installed admin coverage for library-owned markup. The example app used to
+ * supply these selectors from app.css; a fresh installed host only has this
+ * stylesheet, so shared admin components must be complete here. */
+@layer sg-components {
+  .sg-admin-shell {
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--sg-color-brand-soft) 42%, transparent),
+        transparent 18rem
+      ),
+      var(--sg-color-subtle);
+    color: var(--sg-color-ink);
+    min-height: 100vh;
+  }
+
+  .sg-admin-content {
+    padding-block: var(--sg-space-6) var(--sg-space-12);
+  }
+
+  @media (max-width: 1023px) {
+    .sg-admin-content {
+      padding-bottom: calc(
+        var(--sg-space-12) + 3.5rem + env(safe-area-inset-bottom)
+      );
+    }
+
+    .sg-bottom-nav {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+
+  .sg-admin-body {
+    display: flex;
+    gap: var(--sg-space-6);
+  }
+
+  .sg-admin-sidebar {
+    display: none;
+    width: 16rem;
+    flex-shrink: 0;
+  }
+
+  .sg-admin-main {
+    min-width: 0;
+    flex: 1;
+  }
+
+  @media (min-width: 1024px) {
+    .sg-admin-sidebar {
+      display: block;
+    }
+  }
+
+  .sg-admin-crumbs {
+    padding-bottom: var(--sg-space-4);
+  }
+
+  /* Scope switcher (native <details>; no JS, LiveView-safe) */
+  .sg-scope-switch {
+    position: relative;
+  }
+
+  .sg-scope-switch > summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .sg-scope-switch > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .sg-scope-switch > summary:focus-visible {
+    outline: none;
+    box-shadow: var(--sg-focus-ring);
+    border-radius: var(--sg-radius-full);
+  }
+
+  .sg-scope-switch__menu {
+    position: absolute;
+    top: calc(100% + var(--sg-space-2));
+    left: 0;
+    z-index: var(--sg-z-dropdown);
+    display: grid;
+    gap: var(--sg-space-1);
+    min-width: 13rem;
+    padding: var(--sg-space-2);
+    border-radius: var(--sg-radius-md);
+    background: var(--sg-color-panel);
+    box-shadow: var(--sg-elev-3);
+  }
+
+  .sg-scope-switch__item {
+    display: flex;
+    align-items: center;
+    gap: var(--sg-space-2);
+    min-height: var(--sg-control-sm);
+    padding-inline: var(--sg-space-3);
+    border-radius: var(--sg-radius-sm);
+    color: var(--sg-color-ink);
+    font-size: var(--sg-text-sm);
+    font-weight: var(--sg-weight-medium);
+    text-decoration: none;
+    transition: var(--sg-transition-tone);
+  }
+
+  .sg-scope-switch__item:hover,
+  .sg-scope-switch__item:focus-visible {
+    background: var(--sg-color-brand-soft);
+    color: var(--sg-color-brand-strong);
+    outline: none;
+  }
+
+  .sg-scope-switch__item[aria-current="true"] {
+    background: var(--sg-color-panel-alt);
+    color: var(--sg-color-muted);
+  }
+
+  .sg-nav-title {
+    margin-bottom: var(--sg-space-2);
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-2xs);
+    font-weight: var(--sg-weight-bold);
+    letter-spacing: var(--sg-tracking-wider);
+    text-transform: uppercase;
+  }
+
+  .sg-bottom-nav {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    border-top: 1px solid var(--sg-color-line);
+    background: color-mix(in oklab, var(--sg-color-panel) 94%, transparent);
+    backdrop-filter: blur(16px);
+    z-index: var(--sg-z-nav);
+  }
+
+  .sg-bottom-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sg-bottom-nav-gap);
+    min-height: 3.5rem;
+    padding: var(--sg-space-2);
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-2xs);
+    font-weight: var(--sg-weight-semibold);
+    text-decoration: none;
+    transition: var(--sg-transition-tone);
+  }
+
+  .sg-bottom-nav__item.active,
+  .sg-bottom-nav .active {
+    color: var(--sg-color-brand-strong);
+  }
+
+  /* Owns its own responsive hide (later source order than .sg-show-mobile so
+  * it reliably beats the .sg-bottom-nav display:flex rule above on desktop). */
+  @media (min-width: 1024px) {
+    .sg-bottom-nav {
+      display: none;
+    }
+  }
+
+  /* --------------------------------------------------------------------------
+  * PAGE HEADER & SECTIONS
+  * ------------------------------------------------------------------------*/
+  .sg-page-header {
+    display: grid;
+    gap: var(--sg-space-2);
+  }
+
+  .sg-page-kicker {
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-sm);
+    font-weight: var(--sg-weight-semibold);
+    letter-spacing: var(--sg-tracking-wide);
+    text-transform: uppercase;
+  }
+
+  .sg-page-copy {
+    max-width: var(--sg-measure);
+    color: var(--sg-color-muted);
+    line-height: var(--sg-leading-normal);
+    text-wrap: pretty;
+  }
+
+  .sg-section-heading {
+    font-size: var(--sg-text-md);
+    font-weight: var(--sg-weight-bold);
+    letter-spacing: 0;
+    line-height: var(--sg-leading-snug);
+  }
+
+  .sg-section-copy {
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-sm);
+  }
+
+  /* Breadcrumb */
+  .sg-breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sg-space-2);
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-sm);
+  }
+
+  .sg-breadcrumb > li,
+  .sg-breadcrumb__segment {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .sg-breadcrumb__segment {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sg-space-2);
+  }
+
+  .sg-breadcrumb__item {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    max-width: min(100%, 28rem);
+    color: var(--sg-color-muted);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: var(--sg-transition-tone);
+  }
+
+  .sg-breadcrumb__item:hover {
+    color: var(--sg-color-brand-strong);
+  }
+
+  .sg-breadcrumb__item[aria-current="page"] {
+    color: var(--sg-color-ink);
+    font-weight: var(--sg-weight-semibold);
+  }
+
+  .sg-breadcrumb__sep {
+    color: var(--sg-color-line-strong);
+    user-select: none;
+  }
+
+  /* Tabs */
+  .sg-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sg-space-1);
+    border-bottom: 1px solid var(--sg-color-line);
+  }
+
+  .sg-branding-editor__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--sg-space-2) var(--sg-space-3);
+  }
+
+  .sg-branding-draft {
+    min-height: 1.25rem;
+    padding: 0.125rem var(--sg-space-2);
+    border-radius: var(--sg-radius-xs);
+    background: color-mix(in oklab, var(--sg-color-brand) 12%, transparent);
+    color: var(--sg-color-brand-strong);
+  }
+
+  .sg-branding-panel[hidden] {
+    display: none;
+  }
+
+  .sg-branding-workbench {
+    display: grid;
+    gap: var(--sg-space-4);
+    min-inline-size: 0;
+  }
+
+  .sg-branding-workbench__controls,
+  .sg-branding-preview-rail {
+    min-inline-size: 0;
+  }
+
+  .sg-branding-details-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  }
+
+  @media (min-width: 1080px) {
+    .sg-branding-workbench {
+      align-items: start;
+      grid-template-columns: minmax(18rem, 0.82fr) minmax(24rem, 1.18fr);
+    }
+  }
+
+  /* --------------------------------------------------------------------------
+  * FORMS & CONTROLS
+  * ------------------------------------------------------------------------*/
+  .sg-self-start {
+    align-self: flex-start;
+  }
+
+  .sg-fieldset {
+    display: grid;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    gap: var(--sg-space-2);
+  }
+
+  .sg-fieldset__legend {
+    padding: 0;
+  }
+
+  .sg-color-grid {
+    align-items: start;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.75rem), 1fr));
+  }
+
+  .sg-input,
+  .sg-select {
+    min-height: var(--sg-control-md);
+    width: 100%;
+    padding-inline: var(--sg-space-3);
+    border: 1px solid var(--sg-color-control-edge);
+    border-radius: var(--sg-radius-sm);
+    background-color: var(--sg-color-panel);
+    color: var(--sg-color-ink);
+    font-size: var(--sg-text-sm);
+    transition: var(--sg-transition-tone);
+  }
+
+  .sg-input:focus-visible,
+  .sg-select:focus-visible {
+    outline: none;
+    border-color: var(--sg-color-brand);
+    box-shadow: var(--sg-focus-ring);
+  }
+
+  .sg-select {
+    padding-inline-end: 2.5rem;
+  }
+
+  .sg-field {
+    display: grid;
+    gap: var(--sg-space-1);
+  }
+
+  .sg-field-label-row {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-inline-size: 0;
+    gap: var(--sg-space-1);
+  }
+
+  .sg-field-label {
+    display: block;
+    color: var(--sg-color-ink);
+    font-size: var(--sg-text-sm);
+    font-weight: var(--sg-weight-semibold);
+  }
+
+  .sg-color-field {
+    align-content: start;
+    min-inline-size: 0;
+  }
+
+  .sg-color-field__control {
+    display: grid;
+    align-items: center;
+    justify-content: start;
+    grid-template-columns: 4rem minmax(0, max-content);
+    gap: var(--sg-space-2);
+    min-inline-size: 0;
+  }
+
+  .sg-color-field__input {
+    block-size: var(--sg-control-sm);
+    inline-size: 4rem;
+    padding: 0;
+    border: 1px solid var(--sg-color-line-strong);
+    border-radius: var(--sg-radius-xs);
+    background-color: var(--sg-color-panel);
+    color: var(--sg-color-ink);
+    cursor: pointer;
+    transition: var(--sg-transition-tone);
+  }
+
+  .sg-color-field__input:focus-visible {
+    outline: none;
+    border-color: var(--sg-color-brand);
+    box-shadow: var(--sg-focus-ring);
+  }
+
+  .sg-color-field__input::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  .sg-color-field__input::-webkit-color-swatch {
+    border: 0;
+    border-radius: calc(var(--sg-radius-xs) - 1px);
+  }
+
+  .sg-color-field__input::-moz-color-swatch {
+    border: 0;
+    border-radius: calc(var(--sg-radius-xs) - 1px);
+  }
+
+  .sg-color-field__value {
+    line-height: var(--sg-leading-tight);
+    white-space: nowrap;
+  }
+
+  .sg-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sg-space-3);
+  }
+
+  /* --------------------------------------------------------------------------
+  * SPECIAL PANELS
+  * ------------------------------------------------------------------------*/
+  .sg-impersonation {
+    border-top: 1px solid
+      color-mix(in oklab, var(--sg-color-warn) 36%, transparent);
+    background: var(--sg-color-warn-soft);
+    color: var(--sg-color-ink);
+    font-size: var(--sg-text-sm);
+  }
+
+  .sg-impersonation__inner {
+    padding-block: var(--sg-space-3);
+  }
+
+  .sg-impersonation__primary {
+    font-weight: var(--sg-weight-semibold);
+  }
+
+  .sg-cmdk__trigger-kbd {
+    font-variant-numeric: tabular-nums;
+    color: var(--sg-color-muted);
+  }
+
+  .sg-branding-editor {
+    display: grid;
+    gap: var(--sg-space-4);
+  }
+
+  .sg-cluster--2 {
+    gap: var(--sg-space-2);
+  }
+
+  .sg-stack--4 {
+    gap: var(--sg-space-4);
+  }
+
+  .sg-nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--sg-space-2);
+    min-height: var(--sg-control-sm);
+    padding-inline: var(--sg-space-3);
+    border-radius: var(--sg-radius-sm);
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-sm);
+    font-weight: var(--sg-weight-medium);
+    text-decoration: none;
+    transition: var(--sg-transition-tone);
+  }
+
+  .sg-nav-link:hover,
+  .sg-nav-link:focus-visible {
+    background: var(--sg-color-brand-soft);
+    color: var(--sg-color-brand-strong);
+    outline: none;
+  }
+
+  .sg-nav-link.active,
+  .sg-nav-link[aria-current="page"] {
+    background: var(--sg-color-brand);
+    color: var(--sg-color-on-brand);
+    box-shadow: 0 10px 20px -16px var(--sg-color-brand);
+  }
+
+  .sg-tabs__tab {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: var(--sg-space-2) var(--sg-space-3);
+    border-bottom: 2px solid transparent;
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-sm);
+    font-weight: var(--sg-weight-semibold);
+    text-decoration: none;
+    transition: var(--sg-transition-tone);
+  }
+
+  .sg-tabs__tab:hover {
+    color: var(--sg-color-ink);
+  }
+
+  .sg-tabs__tab--active,
+  .sg-tabs__tab[aria-current="page"] {
+    color: var(--sg-color-brand-strong);
+    border-bottom-color: var(--sg-color-brand);
+  }
+
+  .sg-toast-region {
+    position: fixed;
+    top: var(--sg-space-4);
+    right: var(--sg-space-4);
+    z-index: var(--sg-z-toast);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sg-space-2);
+    max-width: min(24rem, calc(100vw - 2rem));
+    pointer-events: none;
+  }
+
+  .sg-toast {
+    pointer-events: auto;
+    border-radius: var(--sg-radius-md);
+    background: var(--sg-color-panel);
+    box-shadow: var(--sg-elev-3);
+    padding: var(--sg-space-3) var(--sg-space-4);
+    font-size: var(--sg-text-sm);
+  }
+
+  .sg-toast--enter {
+    animation: sg-toast-enter var(--sg-motion-pop) var(--sg-ease-out) both;
+  }
+
+  .sg-toast--leave {
+    animation: sg-toast-leave var(--sg-motion-press) var(--sg-ease-out) both;
+  }
+
+  @keyframes sg-toast-enter {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes sg-toast-leave {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    to {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+  }
+
+  .sg-cmdk {
+    position: fixed;
+    inset: 0;
+    z-index: var(--sg-z-modal);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 12vh var(--sg-space-4) var(--sg-space-4);
+    background: color-mix(in oklab, var(--sg-color-ink) 38%, transparent);
+  }
+
+  .sg-cmdk__dialog {
+    width: calc(100vw - 2 * var(--sg-space-4));
+    max-width: 36rem;
+    background: var(--sg-color-panel);
+    border-radius: var(--sg-radius-md);
+    box-shadow: var(--sg-elev-3);
+    overflow: hidden;
+  }
+
+  .sg-cmdk--enter .sg-cmdk__dialog {
+    animation: sg-cmdk-enter var(--sg-motion-pop) var(--sg-ease-out) both;
+  }
+
+  @keyframes sg-cmdk-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .sg-cmdk__input {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--sg-color-line);
+    background: transparent;
+    color: var(--sg-color-ink);
+    font-size: var(--sg-text-sm);
+    padding: var(--sg-space-3) var(--sg-space-4);
+  }
+
+  .sg-cmdk__input:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .sg-cmdk__list {
+    list-style: none;
+    margin: 0;
+    padding: var(--sg-space-2);
+    max-height: 18rem;
+    overflow-y: auto;
+  }
+
+  .sg-cmdk__item {
+    display: flex;
+    align-items: center;
+    gap: var(--sg-space-2);
+    padding: var(--sg-space-2) var(--sg-space-3);
+    border-radius: var(--sg-radius-sm);
+    color: var(--sg-color-ink);
+    font-size: var(--sg-text-sm);
+    cursor: pointer;
+  }
+
+  .sg-cmdk__item.is-active,
+  .sg-cmdk__item[aria-selected="true"] {
+    background: var(--sg-color-brand-soft);
+    color: var(--sg-color-brand-strong);
+  }
+
+  .sg-cmdk__empty {
+    padding: var(--sg-space-3);
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-sm);
+  }
+
+  .sg-cmdk__trigger {
+    display: none;
+    align-items: center;
+    gap: var(--sg-pill-gap);
+    border: 1px solid var(--sg-color-line);
+    border-radius: var(--sg-radius-sm);
+    background: transparent;
+    color: var(--sg-color-muted);
+    font-size: var(--sg-text-xs);
+    padding: var(--sg-pill-pad-y) var(--sg-space-2);
+    cursor: pointer;
+    transition: var(--sg-transition-tone);
+  }
+
+  html[data-sg-admin-js="true"] .sg-cmdk__trigger {
+    display: inline-flex;
+  }
+
+  .sg-cmdk__trigger:hover {
+    color: var(--sg-color-ink);
+    background: var(--sg-color-panel-alt);
   }
 }

@@ -1,0 +1,35 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "space grotesk",
+        "createdAt": "2026-11-16T16:07:15.842Z",
+        "reason": "project decision: Phase 261-07 kept Space Grotesk for Tasklane host chrome because default.css inherits the app.css --font-sans override; see 261-07-SUMMARY.md"
+      },
+      {
+        "rule": "overused-font",
+        "value": "fraunces",
+        "createdAt": "2026-11-16T16:07:15.903Z",
+        "reason": "project decision: the Vaultr mini-brand intentionally uses Fraunces for display, distinct from Sigra; see 261-UI-SPEC.md Typography and app.css mini-brand comments"
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-11-16T16:07:15.963Z",
+        "reason": "project decision: the Vaultr mini-brand intentionally uses Inter for body text, distinct from Sigra; see 261-UI-SPEC.md Typography and app.css mini-brand comments"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "priv/templates/sigra.install/admin/sigra_admin.css"
+        ],
+        "createdAt": "2026-11-16T19:40:40.129Z",
+        "reason": "Project design contract: sg-notice is a byte-clone of sg-list-row; the paired tone accents are canonical semantic treatment, while the no-side-band rule applies to metric cards."
+      }
+    ]
+  }
+}

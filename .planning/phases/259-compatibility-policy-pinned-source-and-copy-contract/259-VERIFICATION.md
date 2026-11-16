@@ -1,6 +1,6 @@
 ---
 phase: 259-compatibility-policy-pinned-source-and-copy-contract
-verified: 2026-11-15T15:13:59Z
+verified: 2026-11-16T19:12:31Z
 status: passed
 score: 9/9 must-haves verified
 covered_files:
@@ -100,7 +100,7 @@ covered_files:
   - test/support/brand/copy_inventory.ex
   - test/support/brand/copy_scan.ex
   - test/support/brand/regen_guard.ex
-covered_digest: "v4:sha256:d34ff8a204127c48115db0bf3af9f8cb4ec8c7834851396707bf44da6e08962b"
+covered_digest: "v4:sha256:f3048aa6c6337bd4c4e097a33998274ce00c15a508484926c2b901f53e376828"
 behavior_unverified: 0
 overrides_applied: 0
 re_verification:
@@ -118,13 +118,29 @@ re_verification:
 # Phase 259: Compatibility Policy, Pinned Source and Copy Contract Verification Report
 
 **Phase Goal:** A maintainer can state, and a test enforces, exactly what the rebrand may and may not change: the policy is written, the brand book is pinned in-repo, and the copy and enumeration-safety contracts are under test before any visible change is made.
-**Verified:** 2026-11-15T15:13:59Z (HEAD `ea295b572`, working tree clean)
+**Verified:** 2026-11-16T19:12:31Z (HEAD `23d175e5d`; only the owner's `.planning/config.json` and `.planning/state.json` are dirty)
 **Status:** passed
-**Re-verification:** Yes. The previous report was `human_needed` with 9/9 verified and four human items; those four are now resolved (see `re_verification` above). No regression in any previously verified truth.
+**Re-verification:** Yes. The prior passed report was refreshed after later phase changes modified six covered files. The earlier four human items had already been resolved; this refresh found no regression.
 
 ## Verdict in one paragraph
 
-The goal is achieved. Every roadmap success criterion resolves to VERIFIED, all fourteen requirement IDs are accounted for, and I re-derived the status from the tree rather than carrying the old items forward. The suite you asked me to re-run is green at 359 tests, the example-host parity suite is green at 60, the vendored book still hashes clean at 72 of 72, and `git diff --stat` over `lib priv brand brandbook .github scripts` against the phase base is empty. I then mutated the product code, the registry, the docs and the vendored book in a throwaway copy (never in the working tree) and watched the tests go red every time, so the contracts are not green by accident. What remains are recorded warnings with a named owner or follow-up, none of which is a must-have: they are listed under Anti-Patterns and "Notes for the next phase planner".
+The goal remains achieved. All five roadmap success criteria and fourteen requirement IDs remain satisfied. This refresh reran the current brand and guide contracts (734 tests, 0 failures) and the example-host parity, selector, reset, and confirmation suite (60 tests, 0 failures); the vendored book still hashes clean at 72 of 72. The final Phase 261 CI and browser suites also passed after the shipped changes. The prior report's mutation controls remain applicable: they proved the policy, copy, enumeration, and source-pin contracts fail when their corresponding inputs are deliberately broken. The working tree's only dirty files are the owner's config and state JSON, which were left untouched.
+
+## Current-tree re-verification
+
+The previous report was verified at `ea295b572`. The six subsequently changed covered files are `.gitattributes`, ADR 005, `CLAUDE.md`, `guides/reference/admin-design-contract.md`, `test/example/priv/playwright/tests/demo-showcase.spec.ts`, and `test/support/brand/regen_guard.ex`. I re-read the current policy and guide sections, confirmed ADR 005 still records its frozen/add-only lists, ownership lanes, surface map, and decisions, and confirmed the demo spec still uses the test-only `loginSubmit` helper for submissions. The two later ADR paragraphs document Phase 260's already-approved PNG park mechanism; the admin contract records the Phase 261 token change. None removes a Phase 259 policy or claim boundary. The changed generated-regeneration helper documents opt-in fixture writers; it does not alter normal test behavior.
+
+| Current check | Result |
+|---|---|
+| `MIX_ENV=test mix test test/sigra/brand test/sigra/guides_dx02_test.exs` | 734 tests, 0 failures |
+| `MIX_ENV=test mix test --include example_app test/example_web/enumeration_parity_test.exs test/example_web/login_submit_selector_test.exs test/example_web/live/confirmation_live_test.exs test/example_web/live/reset_password_live_test.exs` from `test/example` | 60 tests, 0 failures |
+| `shasum -a 256 -c brand.sha256` | 72 files checked |
+| Phase 259 shipped-byte, brand-book, workflow and script surfaces | No `lib/`, `priv/`, or `brandbook/` changes; no `.github/` or `scripts/` changes in the phase commit range. The later changes since the prior verification also touch none of these paths. |
+| Disabled-test scan of the linked brand and example test files | No skipped or todo test declarations found. |
+
+### Test Quality Audit
+
+Requirement-linked tests make value and behavioral assertions against pinned assets, frozen-surface and copy fixtures, explicit response dimensions, and the registered install snippet. The no-regression examples use live example-host responses; they are not computed by the comparison test itself. The disabled-test scan found no skipped linked tests. The test writers found in these modules are opt-in fixture writers or planted controls; none writes a committed expected result from the system under test during a normal run. The source-pin test independently hashes the tree and its planted controls prove scanner behavior. No test-quality issue was found that changes the phase verdict.
 
 ## Re-verification of the four former human items
 

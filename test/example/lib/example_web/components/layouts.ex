@@ -28,6 +28,20 @@ defmodule ExampleWeb.Layouts do
   embed_templates "layouts/*"
 
   @doc """
+  True when the request targets a Sigra-owned page (the admin and the design
+  gallery, which lives under `/admin/_design`).
+
+  The root layout is shared with the host-facing Tasklane pages, so the Sigra
+  favicon links are emitted only when this returns true; Tasklane pages keep the
+  demo identity. Anything that is not a `Plug.Conn` is not a Sigra-owned page.
+  """
+  def sigra_owned_page?(%Plug.Conn{request_path: path}) do
+    path == "/admin" or String.starts_with?(path, "/admin/")
+  end
+
+  def sigra_owned_page?(_not_a_conn), do: false
+
+  @doc """
   Renders your app layout.
 
   This function is typically invoked from every template,
