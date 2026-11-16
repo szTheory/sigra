@@ -1182,6 +1182,12 @@ a.vt-panel {
   text-transform: uppercase;
 }
 
+/* CoreComponents.table emits DaisyUI's generic `.table` class instead of
+   `.vt-table`; use the same Tasklane muted token for those host table headers. */
+.vt-app-main .table :where(thead, tfoot) {
+  color: var(--vt-color-muted);
+}
+
 .vt-table tbody tr:nth-child(even) {
   background: color-mix(in oklab, var(--vt-color-panel-alt) 46%, transparent);
 }
@@ -1634,7 +1640,7 @@ html[data-sg-admin-page-loading="complete"] .sg-admin-loading-bar::before {
 }
 
 .sg-admin-topbar-inner {
-  min-height: 3.5rem;
+  min-height: 4rem;
   padding-block: var(--sg-space-3);
 }
 
@@ -2014,7 +2020,7 @@ html[data-sg-admin-page-loading="complete"] .sg-admin-loading-bar::before {
   min-height: var(--sg-control-md);
   width: 100%;
   padding-inline: var(--sg-space-3);
-  border: 1px solid var(--sg-color-line-strong);
+  border: 1px solid var(--sg-color-control-edge);
   border-radius: var(--sg-radius-sm);
   background-color: var(--sg-color-panel);
   color: var(--sg-color-ink);

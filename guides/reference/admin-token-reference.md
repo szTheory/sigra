@@ -6,17 +6,17 @@ Per-token rationale and brand reference for every `--sg-*` custom property in th
 
 ## Color — Neutrals
 
-Light-mode values from `:root`. Dark-mode overrides noted inline.
+Light-mode values from `:root`. Dark-mode overrides noted inline. The Brand Ref column names paths in `brand/tokens.json` (the Kiln brand book, v2.0); a row marked "kept, no book equivalent" keeps its pre-Kiln value because the book has no token for it.
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
-| `--sg-color-ink` | `#151515` (light) / `#f4f1eb` (dark) | Primary text; maximum contrast on panel and page backgrounds | `raw.color.ink` / `raw.color.dark-text` |
-| `--sg-color-muted` | `#686868` (light) / `#bdb5aa` (dark) | Secondary and supporting text; meets WCAG AA on light panel backgrounds | `raw.color.warm-700` / `raw.color.dark-muted` |
-| `--sg-color-subtle` | `#f6f5f2` (light) / `#171614` (dark) | Page canvas background; warm tint differentiates admin from plain white hosts | `semantic.light.color.bg` / `semantic.dark.color.bg` |
-| `--sg-color-panel` | `#ffffff` (light) / `#1f1d1a` (dark) | Card and modal surface; on top of the subtle page background | `semantic.light.color.surface` / `semantic.dark.color.surface` |
-| `--sg-color-panel-alt` | `#fbfaf7` (light) / `#25221e` (dark) | Alternating row and nested-section surface; slight warm shift from panel | `semantic.light.color.surface-alt` / `semantic.dark.color.surface-alt` |
-| `--sg-color-line` | `rgba(21, 21, 21, 0.1)` (light) / `rgba(255, 255, 255, 0.1)` (dark) | Default divider and subtle border; alpha-based so it composites correctly on any background | `semantic.light.color.border` / `semantic.dark.color.border` |
-| `--sg-color-line-strong` | `rgba(21, 21, 21, 0.16)` (light) / `rgba(255, 255, 255, 0.16)` (dark) | Emphasis border (table headers, selected controls); slightly stronger than line | `semantic.light.color.border-strong` / `semantic.dark.color.border-strong` |
+| `--sg-color-ink` | `#1F1A17` (light) / `#F3EEE8` (dark) | Primary text: Soot on light, Chalk on dark; maximum contrast on the page and panel grounds | `color.light.soot` / `color.dark.chalk` |
+| `--sg-color-muted` | `#5F554D` (light) / `#B8ABA0` (dark) | Secondary and supporting text; meets WCAG AA on the page, panel and selected-row grounds | `color.secondary.muted-soot` / `color.secondary.muted-chalk` |
+| `--sg-color-subtle` | `#F7F3EE` (light) / `#17120F` (dark) | Page canvas background: Paper on light, Char on dark; the warm tint differentiates admin from plain white hosts | `color.light.paper` / `color.dark.char` |
+| `--sg-color-panel` | `#ffffff` (light) / `#221B17` (dark) | Card, form field and table surface, on top of the page background: White on light, Char Surface on dark | `color.light.white` / `color.dark.char-surface` |
+| `--sg-color-panel-alt` | `#fbfaf7` (light) / `#25221e` (dark) | Alternating row and nested-section surface; slight warm shift from panel | kept, no book equivalent |
+| `--sg-color-line` | `#DDD3C8` (light) / `#3A2F28` (dark) | Default divider and card edge: Paper Line on light, Char Line on dark; opaque (it was an alpha value). Never the only edge of a control: a control's edge is `--sg-color-control-edge` | `color.light.paper-line` / `color.dark.char-line` |
+| `--sg-color-line-strong` | `rgba(21, 21, 21, 0.16)` (light) / `rgba(255, 255, 255, 0.16)` (dark) | Emphasis border (selected controls); slightly stronger than line; alpha-based so it composites on any background | kept, no book equivalent |
 
 ---
 
@@ -26,38 +26,59 @@ Light-mode values from `:root`. Dark overrides noted. See the dark AA remediatio
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
-| `--sg-color-brand` | `#c2410c` | Primary ember accent; used on interactive element labels, ownership emphasis, and focus indicators | `semantic.light.color.accent` (`raw.color.ember-700`) |
-| `--sg-color-brand-strong` | `#9a3412` (light) / `#fdba74` (dark) | Pressed and active states for brand elements; dark override lightened to meet WCAG AA — see dark AA note below | `semantic.light.color.accent-strong` (`raw.color.ember-800`) / `semantic.dark.color.accent-strong` (`raw.color.ember-300`) |
-| `--sg-color-brand-solid` | `#9a3412` (light) / `#fdba74` (dark) | Solid filled badge and chip foreground; same hue as brand-strong, ensures sufficient contrast on soft fill | `raw.color.ember-800` / `raw.color.ember-300` |
-| `--sg-color-brand-fill-hover` | `#c74712` | Hover fill for brand-colored interactive surfaces; brighter than the base brand to signal pointer entry | `raw.color.ember-700` (variant step, no dedicated tokens.json entry) |
-| `--sg-color-brand-fill-active` | `#9a3412` | Active/pressed fill; matches brand-strong to create a clear pressed-down visual | `raw.color.ember-800` |
-| `--sg-color-brand-soft` | `#fff0e8` (light) / `rgba(243, 90, 16, 0.16)` (dark) | Low-saturation tint for selected rows, chips, and soft callouts; preserves legibility at low contrast ratios | `semantic.light.color.accent-soft` (`raw.color.ember-050`) / `semantic.dark.color.accent-soft` |
-| `--sg-color-on-brand` | `#ffffff` | Text and icons on brand-colored interactive elements; white maximises contrast on ember hues | `semantic.light.color.on-accent` (`raw.color.paper`) |
-| `--sg-color-on-brand-solid` | `#ffffff` (light) / `#151515` (dark) | Text on solid-brand badges in dark mode; flipped to near-black because dark brand-solid is the light ember-300 | `raw.color.paper` / `raw.color.ink` |
-| `--sg-logo-rail-accent` | `#fdba74` | Rail accent mark fill in the logo lockup; the lighter ember tone gives the diagonal rail visual lift on dark and light surfaces | `raw.color.ember-300` |
-| `--sg-logo-rail-ember` | `#c2410c` (light) / `#f97316` (dark) | Ember fill for the primary rail rail element; dark mode shifts slightly warmer for visual consistency against dark backgrounds | `raw.color.ember-700` / `raw.color.ember-600` (adjacent palette step) |
-| `--sg-logo-core` | `#9a3412` (light) / `#f4f1eb` (dark) | Logo wordmark text fill; dark mode reverses to near-white warm ink so the wordmark reads on dark panels | `raw.color.ember-800` / `raw.color.dark-text` |
+| `--sg-color-brand` | `#c2410c` (light) / `#F08A55` (dark) | Primary accent: Kiln on light, Kiln Bright on dark. Reserved for the one main button per screen and the logo square; the label on it is `--sg-color-on-brand` | `color.light.kiln` / `color.dark.kiln-bright` |
+| `--sg-color-brand-strong` | `#9a3412` (light) / `#F08A55` (dark) | Text-grade accent: links, the focus ring and the current tab label. Kiln Deep on light, Kiln Bright on dark; never raw Kiln as small text on Char. See the dark AA note below | `color.secondary.kiln-deep` / `color.dark.kiln-bright` |
+| `--sg-color-brand-solid` | `#9a3412` (light) / `#F08A55` (dark) | Solid filled badge and chip foreground; same value as brand-strong in both themes | `color.secondary.kiln-deep` / `color.dark.kiln-bright` |
+| `--sg-color-brand-fill-hover` | `#c74712` (light) / `#F4A27C` (dark) | Hover fill for brand-colored surfaces. Light is kept (white on it is 4.84:1). Dark is forced: Char on the previous dark fill was 3.84:1, and Char on the lighter Kiln tone is 9.12:1 | light: kept, no book equivalent / dark: `color.code.keyword-dark` |
+| `--sg-color-brand-fill-active` | `#9a3412` (light) / `#E07A45` (dark) | Active and pressed fill. Light is kept (white on it is 7.31:1). Dark is forced: Char on the previous dark fill was 2.54:1, and Char on a darker Kiln Bright is 6.23:1 | light: kept, no book equivalent / dark: derived, a darker Kiln Bright with no tokens.json entry |
+| `--sg-color-brand-soft` | `#fff0e8` (light) / `rgba(243, 90, 16, 0.16)` (dark) | Low-saturation tint for selected rows, chips, and soft callouts; preserves legibility at low contrast ratios | kept, no book equivalent |
+| `--sg-color-on-brand` | `#ffffff` (light) / `#17120F` (dark) | Text and icons on `--sg-color-brand`: white on Kiln (5.18:1), Char on Kiln Bright (7.50:1). White on Kiln Bright is 2.48:1, which is why dark flips to Char | `color.dark.char` (dark); white on light |
+| `--sg-color-on-brand-solid` | `#ffffff` (light) / `#17120F` (dark) | Text on solid-brand badges; Char in dark because dark brand-solid is Kiln Bright | `color.dark.char` (dark); white on light |
+| `--sg-logo-rail-accent` | `#fdba74` | Fills the theme-switch active segment and its glow; the same light orange in Light and Dark | kept, no book equivalent |
+| `--sg-logo-rail-ember` | `#c2410c` (light) / `#F08A55` (dark) | The logo's square colour (Kiln on light, Kiln Bright on dark); no CSS consumer, the name is kept | `color.logo.kiln` / `color.logo.kiln-bright` |
+| `--sg-logo-core` | `#1F1A17` (light) / `#F3EEE8` (dark) | The logo's letter colour (Soot on light, Chalk on dark); no CSS consumer, the name is kept | `color.light.soot` / `color.dark.chalk` |
 
 ### Dark AA Remediation Note
 
-In the dark override block (`@media (prefers-color-scheme: dark)`), `--sg-color-brand-strong` is lightened from `#9a3412` to `#fdba74`. The original dark value produced a contrast ratio of approximately 1.88:1 against the dark `brand-soft` tint (`rgba(243, 90, 16, 0.16)` composited on `#1f1d1a`), failing WCAG AA (4.5:1 for normal text). The `#fdba74` (`ember-300`) override achieves ≥4.5:1 on the composited soft background. This remediation was applied in v1.34 and is recorded in `admin-design-contract.md` ~line 207.
+In the dark override block (`@media (prefers-color-scheme: dark)`, and the explicit Dark shell block that mirrors it), `--sg-color-brand-strong` and `--sg-color-brand-solid` are Kiln Bright `#F08A55`. The value `#fdba74`, which v1.34 introduced to clear WCAG AA on the dark `brand-soft` tint (`rgba(243, 90, 16, 0.16)` over `#1f1d1a` measured about 1.88:1 with the original `#9a3412`), is retired. Kiln Bright clears 4.5:1 on the dark grounds and on that tint (5.59:1 over Char Surface).
+
+The dark label on a Kiln Bright fill is Char `#17120F` (`--sg-color-on-brand`, 7.50:1). White on Kiln Bright is 2.48:1, so dark `--sg-color-on-brand` and `--sg-color-on-brand-solid` are Char, and the explicit Light block restates `--sg-color-brand` and `--sg-color-on-brand` so a Light choice on a dark OS keeps Kiln with a white label. The dark hover and active fills are forced for the same reason: Char on the previous dark fills (`#c74712`, `#9a3412`) is 3.84:1 and 2.54:1.
+
+---
+
+## Color — Kiln Additions
+
+Added by the Kiln migration. Each is a literal hex declared in all four token blocks (light `:root`, dark `@media`, explicit Light, explicit Dark), never a `var()` alias, so it survives an explicit theme. Two already have consumers: `--sg-color-sunken` is the table-header ground and `--sg-color-control-edge` is the edge of interactive controls (secondary and danger buttons, filter chips and the theme switch). The other eight are defined and tested token to token only, and their consumers arrive in Phase 262.
+
+| Token | Value | Rationale | Brand Ref |
+|-------|-------|-----------|-----------|
+| `--sg-status-active` | `#1D6B3C` (light) / `#86C99B` (dark) | Status word, Active (a green text colour, never the only way to tell a status) | `color.status.active-text-light` / `color.status.active-text-dark` |
+| `--sg-status-unconfirmed` | `#7A5F00` (light) / `#D6B957` (dark) | Status word, Unconfirmed (ochre) | `color.status.unconfirmed-text-light` / `color.status.unconfirmed-text-dark` |
+| `--sg-status-locked` | `#7A5F00` (light) / `#D6B957` (dark) | Status word, Locked (ochre) | `color.status.locked-text-light` / `color.status.locked-text-dark` |
+| `--sg-status-deleting` | `#7A5F00` (light) / `#D6B957` (dark) | Status word, Deleting (ochre) | `color.status.deleting-text-light` / `color.status.deleting-text-dark` |
+| `--sg-status-suspended` | `#5F554D` (light) / `#B8ABA0` (dark) | Status word, Suspended (muted) | `color.status.suspended-text-light` / `color.status.suspended-text-dark` |
+| `--sg-color-selected` | `#EADFD2` (light) / `#33281F` (dark) | Ground of the selected row, darker than the page so the row is plainly picked out | `color.secondary.selected-paper` (light); dark from `brand.json` `contrastPairs[selected-row]` (tokens.json has no entry) |
+| `--sg-color-selected-edge` | `#C2410C` (light) / `#F08A55` (dark) | The 2px rule on the selected row and the 8px square before the current tab's name | `color.light.kiln` / `color.dark.kiln-bright` |
+| `--sg-color-current-tab` | `#9A3412` (light) / `#F08A55` (dark) | Current-tab label; text-grade accent | `color.secondary.kiln-deep` / `color.dark.kiln-bright` |
+| `--sg-color-sunken` | `#EFE9E1` (light) / `#120E0C` (dark) | Table-header ground; opaque so a sticky header stays solid over scrolling rows | `color.secondary.sunken-paper` / `color.code.ground-dark` |
+| `--sg-color-control-edge` | `#857569` (light) / `#8B7D72` (dark) | Border of an input or button; 3:1 or more against the panel. Dividers keep `--sg-color-line` | `color.secondary.control-edge` (light); dark from `BRAND.md` (tokens.json has no entry) |
 
 ---
 
 ## Color — Semantic Status
 
-Light-mode values from `:root`. Dark overrides noted.
+Light-mode values from `:root`. Dark overrides noted. All eight tones are kept as they were: the book has no equivalent, `sigra_auth.css` carries the same ember fallbacks and a test pins admin `risk`, `warn` and `ok` equal to them, and they already clear WCAG AA on the Kiln grounds. The book's own status colours ship as the Kiln additions above.
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
-| `--sg-color-risk` | `#b42318` (light) / `#f8a39c` (dark) | Destructive actions, error states, and risk alerts; red hue triggers immediate attention | `semantic.light.color.error` (`raw.color.red-700`) / `semantic.dark.color.error` |
-| `--sg-color-risk-soft` | `#fff1f0` (light) / `rgba(248, 113, 113, 0.16)` (dark) | Background tint for risk callouts and invalid form fields; low saturation prevents alarm fatigue | `semantic.light.color.error-soft` (`raw.color.red-050`) / `semantic.dark.color.error-soft` |
-| `--sg-color-warn` | `#a15c00` (light) / `#f5c451` (dark) | Caution states, pending review, and advisory notices; amber hue signals attention without urgency | `semantic.light.color.warning` (`raw.color.yellow-700`) / `semantic.dark.color.warning` |
-| `--sg-color-warn-soft` | `#fff7e6` (light) / `rgba(245, 196, 81, 0.16)` (dark) | Background tint for warning callouts; warm wash without the severity of risk-soft | `semantic.light.color.warning-soft` (`raw.color.yellow-050`) / `semantic.dark.color.warning-soft` |
-| `--sg-color-ok` | `#176b43` (light) / `#5dd1a0` (dark) | Success confirmations, active/verified states, and positive health indicators | `semantic.light.color.success` (`raw.color.green-700`) / `semantic.dark.color.success` |
-| `--sg-color-ok-soft` | `#ecfdf3` (light) / `rgba(52, 211, 153, 0.16)` (dark) | Background tint for success callouts and confirmed-action rows | `semantic.light.color.success-soft` (`raw.color.green-050`) / `semantic.dark.color.success-soft` |
-| `--sg-color-info` | `#1d4ed8` (light) / `#9db8f5` (dark) | Informational notices, contextual help, and neutral status indicators | `semantic.light.color.info` (`raw.color.blue-700`) / `semantic.dark.color.info` |
-| `--sg-color-info-soft` | `#eef2ff` (light) / `rgba(120, 150, 245, 0.16)` (dark) | Background tint for info callouts; cooler wash distinguishes informational from actionable states | `semantic.light.color.info-soft` (`raw.color.blue-050`) / `semantic.dark.color.info-soft` |
+| `--sg-color-risk` | `#b42318` (light) / `#f8a39c` (dark) | Destructive actions, error states, and risk alerts; red hue triggers immediate attention | kept, no book equivalent |
+| `--sg-color-risk-soft` | `#fff1f0` (light) / `rgba(248, 113, 113, 0.16)` (dark) | Background tint for risk callouts and invalid form fields; low saturation prevents alarm fatigue | kept, no book equivalent |
+| `--sg-color-warn` | `#a15c00` (light) / `#f5c451` (dark) | Caution states, pending review, and advisory notices; amber hue signals attention without urgency | kept, no book equivalent |
+| `--sg-color-warn-soft` | `#fff7e6` (light) / `rgba(245, 196, 81, 0.16)` (dark) | Background tint for warning callouts; warm wash without the severity of risk-soft | kept, no book equivalent |
+| `--sg-color-ok` | `#176b43` (light) / `#5dd1a0` (dark) | Success confirmations, active/verified states, and positive health indicators | kept, no book equivalent |
+| `--sg-color-ok-soft` | `#ecfdf3` (light) / `rgba(52, 211, 153, 0.16)` (dark) | Background tint for success callouts and confirmed-action rows | kept, no book equivalent |
+| `--sg-color-info` | `#1d4ed8` (light) / `#9db8f5` (dark) | Informational notices, contextual help, and neutral status indicators | kept, no book equivalent |
+| `--sg-color-info-soft` | `#eef2ff` (light) / `rgba(120, 150, 245, 0.16)` (dark) | Background tint for info callouts; cooler wash distinguishes informational from actionable states | kept, no book equivalent |
 
 ---
 
@@ -82,7 +103,7 @@ Light-mode values from `:root`. Dark overrides noted.
 
 ## Type Scale
 
-Sizes follow a ~1.2 minor-third modular scale. Weights map exactly to the brand weight vocabulary.
+Sizes follow a ~1.2 minor-third modular scale. The book allows weights 400, 600 and 700 only, so the four weight tokens take those three values (`--sg-weight-semibold` and `--sg-weight-bold` share 700 and both names are kept). The two font tokens at the end of the table are theme-invariant: they are declared in the light `:root` only and never restated in a theme block. By default Sigra brings no typeface of its own; the book stack is opt-in.
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
@@ -94,10 +115,10 @@ Sizes follow a ~1.2 minor-third modular scale. Weights map exactly to the brand 
 | `--sg-text-lg` | `1.45rem` | ~23px — page section headings (H2) | `typography.size.lg` |
 | `--sg-text-xl` | `1.875rem` | 30px — page title (H1) | `typography.size.xl` |
 | `--sg-text-2xl` | `clamp(1.6rem, 2.3vw, 2.4rem)` | Fluid display heading for dashboards; clamp constrains to readable range | `admin-layer decision` |
-| `--sg-weight-regular` | `450` | Default text weight; slightly above 400 for legibility on variable-font axes | `typography.weight.regular` |
+| `--sg-weight-regular` | `400` | Default text weight; the book allows 400, 600 and 700 only (it was 450) | book type rules; no weight token in `brand/tokens.json` |
 | `--sg-weight-medium` | `600` | Strong body emphasis and table headers | `typography.weight.medium` |
 | `--sg-weight-semibold` | `700` | Section headings and active navigation labels | `typography.weight.semibold` |
-| `--sg-weight-bold` | `800` | Display/hero numbers and page titles | `typography.weight.bold` |
+| `--sg-weight-bold` | `700` | Display/hero numbers, page titles and labels; shares 700 with semibold and both names are kept (it was 800) | book type rules; no weight token in `brand/tokens.json` |
 | `--sg-leading-tight` | `1.1` | Dense display text; headings benefit from tighter leading | `typography.lineHeight.tight` |
 | `--sg-leading-snug` | `1.3` | Condensed body — audit rows, chip labels | `typography.lineHeight.snug` |
 | `--sg-leading-normal` | `1.5` | Default body line height for comfortable reading | `typography.lineHeight.normal` |
@@ -105,6 +126,8 @@ Sizes follow a ~1.2 minor-third modular scale. Weights map exactly to the brand 
 | `--sg-tracking-tight` | `0` | No extra tracking; default for most body text | `admin-layer decision` |
 | `--sg-tracking-wide` | `0.04em` | Label and kicker text; slight spacing improves legibility at small sizes | `admin-layer decision` |
 | `--sg-tracking-wider` | `0.08em` | ALL-CAPS labels and overline elements | `admin-layer decision` |
+| `--sg-font-sans` | `inherit` | Default: the host's own typeface. A custom property set to `inherit` is unset at the root, so `.sg-admin-shell` falls back to inheriting the host's family, and form controls inherit it from the shell. Opt-in: `'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif`, the book stack, enabled by self-hosting the Instrument Sans woff2 file and setting this token on the admin shell. The installer ships no font binary and `sigra_admin.css` has no font-face rule | `font.sans` |
+| `--sg-font-mono` | `ui-monospace, 'SF Mono', Consolas, monospace` | Default: a system monospace stack for `.sg-code` and `code` in the admin, with ligatures off and a slashed zero where the face has one (this replaces the inherited sans those elements used before, a visible change covered by the minor-release policy). Opt-in: `'Red Hat Mono', ui-monospace, 'SF Mono', Consolas, monospace`, the book stack, enabled by self-hosting the Red Hat Mono woff2 file and setting this token on the admin shell. The installer ships no font binary and `sigra_admin.css` has no font-face rule. Red Hat Mono has no arrow glyphs, so no arrow appears inside code | `font.mono` |
 
 ---
 
@@ -189,7 +212,7 @@ Seven duration tokens and four easing curves validated against emilkowal.ski's r
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
-| `--sg-focus-ring` | `0 0 0 3px color-mix(in oklab, var(--sg-color-brand) 35%, transparent)` | 3px brand-tinted halo; 35% opacity keeps the ring visible without overwhelming surrounding UI; `oklab` perceptual color space ensures consistent luminance across brand hues | `semantic.light.color.focus` |
+| `--sg-focus-ring` | `0 0 0 var(--sg-focus-ring-offset) var(--sg-color-subtle), 0 0 0 calc(var(--sg-focus-ring-offset) + 2px) var(--sg-color-brand-strong)` | Two layers: a page-ground gap of `--sg-focus-ring-offset`, then a 2px ring in `--sg-color-brand-strong` (Kiln Deep on light, Kiln Bright on dark; 6.61:1 and 7.50:1 on the page). The gap keeps the ring apart from a Kiln-filled button. The previous 35% halo was 1.67:1 on Paper and failed the book's 3:1 focus pair. It uses theme-variant tokens, so it is declared in all four token blocks | `brand.json` `contrastPairs[focus]` |
 | `--sg-focus-ring-offset` | `2px` | 2px clearance between the element border and the focus ring; ensures ring does not bleed into adjacent elements or get clipped by overflow:hidden parents | `admin-layer decision` |
 
 ---
@@ -239,7 +262,7 @@ Small named-value tokens for components that do not fit the regular spacing scal
 
 The `--sg-*` token set in this document is kept complete by automated CI guards (Phase 207 D-06 / D-07, PATH A):
 
-**Token completeness (D-06):** `scripts/ci/admin-token-completeness.sh` diffs the `--sg-*` custom properties defined in `:root` blocks of `sigra_admin.css` (both light and dark `@media (prefers-color-scheme: dark)`) against the backtick token names documented in this file. The guard fails CI on any divergence — undocumented token or stale doc row — making the documentation self-enforcing. Verified baseline: **100 unique `--sg-*` tokens** across both `:root` blocks exactly match the 100 documented backtick tokens.
+**Token completeness (D-06):** `scripts/ci/admin-token-completeness.sh` diffs the `--sg-*` custom properties defined in `:root` blocks of `sigra_admin.css` (both light and dark `@media (prefers-color-scheme: dark)`) against the backtick token names documented in this file. The guard fails CI on any divergence — undocumented token or stale doc row — making the documentation self-enforcing. Verified baseline: **112 unique `--sg-*` tokens** across both `:root` blocks exactly match the 112 documented backtick tokens.
 
 **Raw-hex conformance (CHECK 2):** `scripts/ci/admin-css-conformance.sh` CHECK 2 verifies that no raw hex colour literal appears outside a `:root` block. Fails CI on any violation.
 

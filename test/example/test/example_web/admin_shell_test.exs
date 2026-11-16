@@ -69,18 +69,23 @@ defmodule ExampleWeb.AdminShellTest do
       assert overview_breadcrumb?(html, "Overview")
     end
 
-    test "ships cropped path-only Sigra lockup assets" do
-      for path <- [
-            "priv/static/images/sigra-logo-primary.svg",
-            "priv/static/images/sigra-logo-primary-dark.svg"
+    test "ships the book's path-only Sigra lockup assets with one title" do
+      # The brand book sits at the repository root, four directories above this file.
+      brand_logo_dir = Path.expand("../../../../brand/assets/logo", __DIR__)
+
+      for {path, book_file} <- [
+            {"priv/static/images/sigra-logo-primary.svg", "sigra-lockup-light.svg"},
+            {"priv/static/images/sigra-logo-primary-dark.svg", "sigra-lockup-dark.svg"}
           ] do
         source = File.read!(path)
+        book = File.read!(Path.join(brand_logo_dir, book_file))
+        [view_box] = Regex.run(~r/viewBox="([^"]+)"/, book, capture: :all_but_first)
 
-        assert source =~ ~s(viewBox="20 220 2361 1000")
-        assert source =~ "Space Grotesk v2.0"
+        assert source =~ ~s(viewBox="#{view_box}")
         assert source =~ "<path"
         refute source =~ "<text"
         refute source =~ "font-family"
+        assert length(String.split(source, "<title>sigra</title>")) == 2
       end
     end
 

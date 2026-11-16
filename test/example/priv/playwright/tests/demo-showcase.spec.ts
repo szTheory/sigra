@@ -567,7 +567,7 @@ test.describe("demo-showcase", () => {
       .toBe("#171614");
     await expect(
       brandLab.locator("[data-demo-brand-logo]").first(),
-    ).toHaveAttribute("src", "/images/rail-accent-mark-dark.svg");
+    ).toHaveAttribute("src", "/images/tasklane-mark.svg");
     await brandSelect.selectOption("night-ops");
     await expect
       .poll(async () => {

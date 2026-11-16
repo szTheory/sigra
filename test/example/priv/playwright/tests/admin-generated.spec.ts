@@ -2,6 +2,7 @@ import { test, expect, type Page, type TestInfo } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { captureAdminCheckpoint } from "../helpers/adminArtifacts";
 import { adminUsersEmailLocator } from "../helpers/adminUsersIndex";
+import { hexToRgbString, tokenValue } from "../helpers/brandSource";
 import { TEST_PASSWORD } from "../helpers/fixtures";
 
 // Generated-host admin and adopter-experience parity smoke.
@@ -101,10 +102,22 @@ async function shellToken(page: Page, name: string) {
 }
 
 // The active segment is the button whose data-theme-value equals the
-// preference the shell loaded with. Its colours were #fdba74 on #151515 text in
-// every theme when they lived as raw hex in the example app.css.
-const ACTIVE_SWITCH_BACKGROUND = "rgb(253, 186, 116)";
-const ACTIVE_SWITCH_TEXT = "rgb(21, 21, 21)";
+// preference the shell loaded with. Its fill is --sg-logo-rail-accent, which is
+// the same colour whichever theme is shown. Its text depends on the theme that
+// is shown: --sg-color-ink when light is shown, and --sg-color-on-brand-solid
+// (the dark ink) when dark is shown, whether dark comes from the explicit
+// attribute or from the system scheme. Both are read from the shipped template
+// stylesheet when the check runs, so this spec keeps no copy of a token value
+// and a missing token fails the test instead of passing it.
+function activeSwitchExpectation(state: string) {
+  const darkShown = state.includes("dark");
+  return {
+    background: hexToRgbString(tokenValue("light", "--sg-logo-rail-accent")),
+    text: darkShown
+      ? hexToRgbString(tokenValue("dark", "--sg-color-on-brand-solid"))
+      : hexToRgbString(tokenValue("light", "--sg-color-ink")),
+  };
+}
 
 // The lockup fade and the switch tone change are 140ms transitions, so three
 // seconds is generous for a pass and keeps a red run (every soft assertion
@@ -139,16 +152,40 @@ async function expectActiveSwitchColours(page: Page, state: string) {
   const active = page.locator(
     `.sg-theme-switch__button[data-theme-value="${preference}"]`,
   );
+  const expected = activeSwitchExpectation(state);
   await expect
     .soft(active, `${state}: active theme-switch background`)
-    .toHaveCSS(
-      "background-color",
-      ACTIVE_SWITCH_BACKGROUND,
-      THEME_RULE_TIMEOUT,
-    );
+    .toHaveCSS("background-color", expected.background, THEME_RULE_TIMEOUT);
   await expect
     .soft(active, `${state}: active theme-switch text`)
-    .toHaveCSS("color", ACTIVE_SWITCH_TEXT, THEME_RULE_TIMEOUT);
+    .toHaveCSS("color", expected.text, THEME_RULE_TIMEOUT);
+}
+
+async function expectShellSurfaceTokens(page: Page, state: string) {
+  const surface = await page.locator(".sg-admin-shell").evaluate((shell) => {
+    const shellStyle = getComputedStyle(shell);
+    const probe = document.createElement("div");
+    probe.style.position = "fixed";
+    probe.style.opacity = "0";
+    probe.style.backgroundColor = shellStyle.getPropertyValue("--sg-color-subtle").trim();
+    probe.style.color = shellStyle.getPropertyValue("--sg-color-ink").trim();
+    document.body.append(probe);
+
+    const actualBackground = shellStyle.backgroundColor;
+    const actualColor = shellStyle.color;
+    const expectedBackground = getComputedStyle(probe).backgroundColor;
+    const expectedColor = getComputedStyle(probe).color;
+    probe.remove();
+
+    return { actualBackground, actualColor, expectedBackground, expectedColor };
+  });
+
+  expect.soft(surface.actualBackground, state + ": shell background matches --sg-color-subtle").toBe(
+    surface.expectedBackground,
+  );
+  expect.soft(surface.actualColor, state + ": shell foreground matches --sg-color-ink").toBe(
+    surface.expectedColor,
+  );
 }
 
 async function assertShippedThemeRules(page: Page, testInfo: TestInfo) {
@@ -157,11 +194,13 @@ async function assertShippedThemeRules(page: Page, testInfo: TestInfo) {
   await setThemeAttribute(page, null);
   await expectLockups(page, "1", "0", "system light");
   await expectActiveSwitchColours(page, "system light");
+  await expectShellSurfaceTokens(page, "system light");
 
   // Explicit Light attribute.
   await setThemeAttribute(page, "light");
   await expectLockups(page, "1", "0", "explicit light");
   await expectActiveSwitchColours(page, "explicit light");
+  await expectShellSurfaceTokens(page, "explicit light");
   const lightPanel = await shellToken(page, "--sg-color-panel");
   await page.screenshot({ path: testInfo.outputPath("admin-light.png") });
 
@@ -169,6 +208,7 @@ async function assertShippedThemeRules(page: Page, testInfo: TestInfo) {
   await setThemeAttribute(page, "dark");
   await expectLockups(page, "0", "1", "explicit dark");
   await expectActiveSwitchColours(page, "explicit dark");
+  await expectShellSurfaceTokens(page, "explicit dark");
   const darkPanel = await shellToken(page, "--sg-color-panel");
   expect
     .soft(lightPanel, "explicit light resolves --sg-color-panel")
@@ -189,7 +229,19 @@ async function assertShippedThemeRules(page: Page, testInfo: TestInfo) {
   await page.emulateMedia({ colorScheme: "dark" });
   await expectLockups(page, "0", "1", "system dark");
   await expectActiveSwitchColours(page, "system dark");
-  await page.screenshot({ path: testInfo.outputPath("admin-system-dark.png") });
+  await expectShellSurfaceTokens(page, "system dark");
+  await expect(page.locator(".sg-admin-shell")).toBeVisible();
+  await expect(page.locator(".sg-admin-content")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "What do you need to do?" }),
+  ).toBeVisible();
+  await page.evaluate(
+    () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))),
+  );
+  await page.screenshot({
+    path: testInfo.outputPath("admin-system-dark.png"),
+    animations: "disabled",
+  });
 
   // Leave the page as it was loaded for the checks that follow.
   await page.emulateMedia({ colorScheme: null });
@@ -384,13 +436,18 @@ test("generated host admin shell renders on desktop and mobile", async ({
   ).toContainText("Branding");
   // DIST-06: proves sigra_admin.css :root token block loaded
   // (the brand token is defined only in sigra_admin.css, not in default.css or app.css)
+  // The expected value is the light --sg-color-brand declared in the template
+  // stylesheet itself, read when the check runs; custom properties keep the
+  // case they were written in, so the comparison ignores case.
   const brandColor = await page.evaluate(
     () =>
       getComputedStyle(document.documentElement)
         .getPropertyValue("--sg-color-brand")
         .trim(),
   );
-  expect(brandColor).toBe("#c2410c");
+  expect(brandColor.toLowerCase()).toBe(
+    tokenValue("light", "--sg-color-brand").toLowerCase(),
+  );
 
   // BGEN-04 (L1): the brand mark lockup swap, the explicit Light/Dark theme
   // attribute and the theme-switch active colours must come from the shipped

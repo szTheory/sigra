@@ -4,13 +4,13 @@ milestone: v1.51
 milestone_name: BRAND-IDENTITY-ADOPTION
 current_phase: 261
 current_phase_name: Tokens, Type, Logo, Favicon and Contrast
-current_plan: Not started
-status: planning
-stopped_at: Phase 260 complete, ready to plan Phase 261
-last_updated: "2026-11-15T22:03:46.674Z"
+current_plan: 9
+status: executing
+stopped_at: Completed 261-08-PLAN.md
+last_updated: "2026-11-16T01:55:14.126Z"
 last_activity: 2026-11-15
 last_activity_desc: Phase 260 complete, transitioned to Phase 261
-state_head: 4dd223ffc97ccfe12b1816bfcfbfa10e378ad98b
+state_head: ed62f49bcc8e2192dcd59d68e7c310c340c3cda4
 progress:
   total_phases: 5
   completed_phases: 2
@@ -31,9 +31,9 @@ See: .planning/PROJECT.md
 ## Current Position
 
 Phase: 261 — Tokens, Type, Logo, Favicon and Contrast
-Current Plan: Not started
-Total Plans in Phase: 11
-Status: Ready to plan
+Current Plan: 9
+Total Plans in Phase: 12
+Status: Ready to execute
 Last activity: 2026-11-15 — Phase 260 complete, transitioned to Phase 261
 
 Progress: [░░░░░░░░░░] 0% (0/5 phases)
@@ -109,8 +109,8 @@ Items acknowledged by the production audit writer at the v1.50 closeout. Acknowl
 
 ## Session Continuity
 
-Last session: 2026-11-15T21:24:46.193Z
-Stopped at: Phase 260 complete, ready to plan Phase 261
+Last session: 2026-11-16T01:55:13.916Z
+Stopped at: Completed 261-08-PLAN.md
 Resume file: None
 
 No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.51 roadmap: `.planning/ROADMAP.md`). Preserve all halted one-use attempts; do not retry or renew them.
@@ -154,6 +154,15 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 | Phase 260 P04 | 23 min | 3 tasks | 3 files |
 | Phase 260 P10 | 20 min | 2 tasks | 5 files |
 | Phase 260 P11 | 12 min | 3 tasks | 1 files |
+| Phase 261 P01 | 8 min | 3 tasks | 3 files |
+| Phase 261 P02 | 9 min | 3 tasks | 12 files |
+| Phase 261 P12 | 3 min | 2 tasks | 5 files |
+| Phase 261 P03 | 8 min | 3 tasks | 8 files |
+| Phase 261 P04 | 6 min | 3 tasks | 7 files |
+| Phase 261 P05 | 4 min | 2 tasks | 12 files |
+| Phase 261 P06 | 12 min | 3 tasks | 2 files |
+| Phase 261 P07 | 7 min | 3 tasks | 8 files |
+| Phase 261 P08 | 45 min | 3 tasks | 2 files |
 
 ## Decisions
 
@@ -222,3 +231,22 @@ No phase command is active. Plan the next phase with `/gsd-plan-phase 260` (v1.5
 - [Phase 260]: Plan 10: CONTRIBUTING.md still says mix ci chains exactly seven legs (now nine) and was left unedited — The file is pinned by a live sha256 in the sealed Phase 235 source-complete test and verbatim in the Phase 235 terminal test, so a wording fix is a ratification re-baseline; logged in 260-deferred-items.md for plan 11 or a follow-up
 - [Phase 260]: [260-11] Park PR #381 (squash 4154a913e) merged into the milestone branch locally; ADR 005 decision 7 carries a dated note recording the park-first authoring order and the comparison-level SIGRA_PNG_COMPARE_SKIP mechanism
 - [Phase 260]: [260-11] Phase 261 should take the .sg-admin-shell surface rule (background, colour, min-height) as its first task: explicit Dark in a generated host currently renders dark text on dark panels
+- [Phase 261]: Contrast helper computed/2 is a two-level cascade (root element, then shell element), not a flat merge — A var() is substituted where it is declared, so an alias declared only in :root stays at the :root value inside an explicit-Dark shell; the instrument must model that to catch the four-place footgun
+- [Phase 261]: Token-parity invariant 3 treats theme-variant as the dark @media token set closed over transitive :root aliases — An alias of an alias carries the same staleness; strict superset of the UI-SPEC wording with no false positive on the current stylesheet
+- [Phase 261]: Unresolved colours fail closed against an exact-match allowlist (currently empty) compared on unique selectors — A stale allowlist entry must fail as hard as a new hole, and one selector unresolved in several scopes costs one entry; extend the helper, not the allowlist
+- [Phase 261]: 261-02: sigra_owned_page?/1 matches /admin exactly or any path under /admin/ (not a bare string prefix), so a host route such as /administrator never gets Sigra's favicon; the ICO link precedes the SVG link
+- [Phase 261]: 261-02: the Sigra-owned example stylesheet sigra_admin_brand.css (two self-hosted font-face rules plus the opt-in font tokens on .sg-admin-shell) is linked after app.css on every page; only the favicon links are scoped to /admin pages
+- [Phase 261]: [261-12] Example compile gate runs in the dev env (matches CI); the test-env build carries a pre-existing, unrelated /dev/mailbox verified-route warning in settings_live.ex that fails any warnings-as-errors compile of that env
+- [Phase 261]: 261-03: the old-to-new token table is enforced by token_migration_test; light values that differ from the book only in hex case stay kept (no byte churn) and kept dark cells are compared against both dark blocks — A case-only edit would be churn in every adopter stylesheet, and an unchecked kept dark tone could be edited by accident
+- [Phase 261]: 261-03: --sg-focus-ring is a two-layer ring (gap of --sg-focus-ring-offset in --sg-color-subtle, then 2px in --sg-color-brand-strong) declared in all four blocks; the sigra-admin-css stamp is not bumped — The old 35 percent halo was 1.67:1 on Paper; a var() resolves where declared so the ring must be restated in every token block; no selector or rule changed
+- [Phase 261]: 261-04: --sg-font-sans defaults to inherit and .sg-admin-shell reads var(--sg-font-sans, inherit); --sg-font-mono defaults to a system mono stack; both live in the light :root only, no @font-face, book stack opt-in — inherit on a custom property is a CSS-wide keyword, so the token is unset and the usage-site fallback supplies the host typeface. The browser computed-style probe in plan 261-08 is the oracle; if it fails the one-line fallback is var(--sg-font-sans) alone, and css_contract_test.exs pins the current form.
+- [Phase 261]: 261-04: control edges are split by role: interactive controls (secondary and danger buttons, filter chip, theme switch, example .sg-input and .sg-select) use --sg-color-control-edge; status pills, badges, list rows, notices, empty states and table rules keep the divider edge — The book forbids a divider-grade line as the only edge of a control. .sg-color-field__input and .sg-cmdk__trigger in app.css are controls too but were left to honour the plan's one-line app.css criterion; logged in deferred-items.md for Phase 262.
+- [Phase 261]: 261-05: the logo contract test carries its own small comment-stripped rule reader rather than promoting the private reader in css_contract_test.exs; the lockup check rejects any translate in transform, not only translateY(-2px)
+- [Phase 261]: 261-05: before/ catalog and MANIFEST.json retained untouched; verify_manifest re-hashes the committed directory against its own files map and pinned.css_sha256 has no live comparator
+- [Phase 261]: 261-06: rule_decls/2 merges every rule for a selector (later wins) instead of returning the first, and each state pair is bound to the real rule and the token it must declare — The .sg-code class is named by a font rule and a colour rule, so first-rule would miss the chip background; reading the declared expression and asserting it equals the UI-SPEC token makes a rule that drifts off its token fail by selector and property
+- [Phase 261]: 261-06: the tone and muted rows below 4.5 on sunken and selected are exactly light warn on each (4.30, 3.95), and the unresolved-colour allowlist is empty; both checks are exact in both directions — A new low pair or a new unresolved expression fails, and so does a stale entry; the allowlist is compared on selector and expression so an entry cannot cover a different colour under the same selector
+- [Phase 261]: 261-06: color_expressions/2 scans every CSS colour function and returns an unbalanced call to the end of its rule — The stylesheets use only color-mix and rgba today, but an unsupported or malformed colour must be reported as unresolved, never skipped, or the proof could pass on an expression it never evaluated
+- [Phase 261]: 261-07: Space Grotesk (woff2, @font-face, --font-sans override in the example app.css) is KEPT, and the three font guards assert Instrument Sans and Red Hat Mono through FontFace status — default.css feeds the --font-sans override to the html font of every Tasklane host element that is neither vt-* nor sg-*, so a grep cannot prove it dead; fonts.check is vacuously true for an undeclared face, so the guard forces the load and reads status, recording a rejected load() per face so the failure names it; the setup file only waits for fonts.ready
+- [Phase 261]: 261-07: Playwright pins read their expected value from the template stylesheet or brand/tokens.json through helpers that throw when the value is absent; the active theme-switch text expectation is state-aware (ink when light is shown, on-brand-solid when dark is shown) — A pin with a literal copy goes stale and a pin that reads nothing passes vacuously; the rules apply the dark text colour whenever dark is shown, which a throwaway Chromium run over the template stylesheet confirmed in 12 preference and state combinations
+- [Phase 261]: 261-08: the axe test reads its TestInfo from test.info() because the phase 230 and 260 contract tests pin the axe test declaration line verbatim — Same single analyze() result and annotation, no contract test edit
+- [Phase 261]: 261-08: the dark primary hover contrast test reads colours after the element's transitions settle; the 4.5 threshold is unchanged — The Kiln label changes from white to near-black across the theme switch, so a mid-transition frame measured 1.2 to 3.5

@@ -1,0 +1,23 @@
+/* Sigra-owned example styling: the book's two web fonts, self-hosted, and the
+ * opt-in font tokens for the Sigra admin shell only. Linked after app.css in
+ * root.html.heex. The Tasklane demo keeps its own Fraunces and Inter (vt-* rules
+ * in app.css); nothing here reaches a host-facing page, and nothing here is
+ * copied into the installer (priv/templates/sigra.install/ ships no font). */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/assets/fonts/instrument-sans-var.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Red Hat Mono';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('/assets/fonts/red-hat-mono-var.woff2') format('woff2');
+}
+.sg-admin-shell {
+  --sg-font-sans: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --sg-font-mono: 'Red Hat Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+}

@@ -26,6 +26,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { assertBrandFontsLoaded } from '../helpers/brandFonts';
 import { TEST_PASSWORD } from '../helpers/fixtures';
 import { renderSha256 } from '../lib/eval/canonicalize.ts';
 import {
@@ -143,9 +144,10 @@ async function waitForLiveViewReady(page: Page) {
   await page.waitForSelector('[data-phx-session].phx-connected', {
     state: 'attached',
   });
-  await page.evaluate(async () => { await (document as any).fonts.ready; });
-  const ok = await page.evaluate(() => (document as any).fonts.check('16px "Space Grotesk"'));
-  expect(ok, 'Space Grotesk must be loaded before snapshot').toBe(true);
+  // The guard proves the two self-hosted book faces (Instrument Sans and Red Hat
+  // Mono) are loaded. It forces the load and reads the FontFace status because
+  // fonts.check() is vacuously true for a face that was never declared.
+  await assertBrandFontsLoaded(page);
 }
 
 // ── Admin registration (platform-admin+…@example.test prefix) ─────────────────
@@ -153,7 +155,7 @@ async function waitForLiveViewReady(page: Page) {
 async function registerUser(page: Page, email: string, password: string) {
   // D-09: waitUntil:'domcontentloaded' on first-nav goto prevents the ~16min hung-on-load
   // flake (16 first-nav failures observed in 216-09). waitForLiveViewReady gates on
-  // phx-connected + Space Grotesk ready after each goto.
+  // phx-connected + both brand faces loaded after each goto.
   await page.goto('/users/register', { waitUntil: 'domcontentloaded' });
   await waitForLiveViewReady(page);
   await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email);

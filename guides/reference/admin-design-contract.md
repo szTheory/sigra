@@ -204,7 +204,7 @@ The three archetypes define how components compose into full pages. All composit
 - Deferred data load via `connected?(socket)` gate: disconnected mount assigns `loading: true` + empty structs; connected mount runs queries inline and assigns `loading: false`. Containing `<section>` carries `aria-busy="true"` during load.
 - No `page_back` on Overview screens (leaf-only constraint).
 - **role="status" adjudication (v1.34 close):** The alarm notice uses `role="status"` as an opt-in live-region attribute for the post-load dynamic count. This is intentional — `role="status"` is the correct ARIA live-region for polite post-load count updates on Overview screens (as opposed to `role="alert"` which is reserved for interrupting content). Resolved: no code change needed. Ratified at v1.34 close.
-- **Dark WCAG-AA resolution (v1.34 close):** The `--sg-color-brand-strong` token was lightened in the dark `:root` block in Phase 160 (D-06) to `#fdba74`, clearing WCAG-AA on dark brand-soft backgrounds. All dark baselines were re-recorded; axe confirms 0 violations.
+- **Dark WCAG-AA resolution (v1.34 close; value updated by the Kiln token migration):** The dark `--sg-color-brand-strong` token was lightened in Phase 160 (D-06) to clear WCAG-AA on dark brand-soft backgrounds. The Kiln migration replaced that lightened value with Kiln Bright `#F08A55`, which clears 4.5:1 on the dark grounds and on that tint, and the label on a dark Kiln Bright fill is Char (`--sg-color-on-brand`). The current values and the reasoning are in `admin-token-reference.md` (Dark AA Remediation Note).
 
 ---
 
