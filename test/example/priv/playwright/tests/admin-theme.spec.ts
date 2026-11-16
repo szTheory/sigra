@@ -3,13 +3,21 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test, expect, type Locator, type Page } from "@playwright/test";
-import { contrastRatio } from "../helpers/brandContrast";
+import { contrastRatio, rgbChannels } from "../helpers/brandContrast";
 import { assertBrandFontsLoaded } from "../helpers/brandFonts";
 import { brandTokensJson, repoRoot, tokenValue } from "../helpers/brandSource";
 import { TEST_PASSWORD } from "../helpers/fixtures";
 
 const DESKTOP_VIEWPORT = { width: 1280, height: 900 };
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
+
+test("converts the OKLab blue reference vector correctly", () => {
+  const [red, green, blue] = rgbChannels("oklab(45.2% -0.0325 -0.3115)");
+
+  expect(red).toBeLessThan(1);
+  expect(green).toBeLessThan(1);
+  expect(blue).toBeGreaterThan(254);
+});
 
 interface IcoEntry {
   size: number;

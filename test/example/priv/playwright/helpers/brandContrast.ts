@@ -41,7 +41,7 @@ export function oklabChannels(value: string): [number, number, number] {
 
   const longL = lightness + 0.3963377774 * a + 0.2158037573 * b;
   const longM = lightness - 0.1055613458 * a - 0.0638541728 * b;
-  const longS = lightness - 0.0894841775 * a + 1.291485548 * b;
+  const longS = lightness - 0.0894841775 * a - 1.291485548 * b;
   const l = longL ** 3;
   const m = longM ** 3;
   const s = longS ** 3;
