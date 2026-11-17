@@ -295,6 +295,16 @@ defmodule Sigra.Install.AuthUIContractTest do
              "If your email is in our system, you will receive reset instructions shortly."
   end
 
+  test "generated auth copy guide documents host-owned Gettext catalogs" do
+    guide = File.read!("guides/reference/generated-auth-copy.md")
+
+    assert guide =~ "mix gettext.extract"
+    assert guide =~ "mix gettext.merge priv/gettext --locale es"
+    assert guide =~ "fixed `sigra` Gettext domain"
+    assert guide =~ "host's configured Gettext backend loads the catalogs"
+    assert guide =~ "does not keep a runtime copy map"
+  end
+
   test "confirmation validation removes only ASCII spaces before strict ASCII digit matching" do
     confirmation = File.read!("priv/templates/sigra.install/core/confirmation_live.ex")
     submit_handler = confirmation |> String.split("defp do_confirm(socket, code)") |> Enum.at(1)
