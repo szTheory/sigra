@@ -4,6 +4,30 @@ defmodule Sigra.Install.GeneratorPasskeyPrimaryLoginTest do
   @core_template_dir Path.join([File.cwd!(), "priv", "templates", "sigra.install", "core"])
 
   describe "passkey-primary controller login template" do
+    test "fresh passkey config uses the resolved product name and keeps ceremony settings" do
+      config =
+        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "passkeys", "config_injection.ex"])
+        |> EEx.eval_file(
+          otp_app: :example_app,
+          app_name: "Example Product",
+          context_module: "Example.Accounts"
+        )
+
+      assert config =~ ~s(rp_name: "Example Product")
+
+      for unchanged <- [
+            ~s(rp_id: "localhost"),
+            ~s(origin: "http://localhost:4000"),
+            "timeout_ms: 60_000",
+            "attestation: :none",
+            "user_verification: :preferred",
+            "ceremony_rate_limit: [limit: 5, window_ms: 60_000]",
+            "passkey_primary_enabled: true"
+          ] do
+        assert config =~ unchanged
+      end
+    end
+
     test "renders identifier-first passkey login without LiveView submission" do
       content = read_core_template("login_html.ex")
 
