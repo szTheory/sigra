@@ -454,7 +454,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await waitForLiveViewReady(page);
   await expect(switcherTrigger).toContainText(renamedOrgName);
   await expect(
-    switcherTrigger.locator('.vt-status-pill').first(),
+    switcherTrigger.locator('.sigra-auth-status').last(),
   ).toContainText('Owner');
 
   // --- Step 18: Copywriting contract spot-checks ---

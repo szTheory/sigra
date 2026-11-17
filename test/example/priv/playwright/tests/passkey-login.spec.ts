@@ -231,7 +231,7 @@ test.describe("passkey-primary login fallback smoke", () => {
     );
     expect(reflow.productLines).toBeGreaterThan(1);
     expect(reflow.controls.every(({ visible, insideViewport }) => visible && insideViewport)).toBe(true);
-    await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Log in to Tasklane" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Use a passkey" })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("passkey-login-320-200-reflow.png") });
     expect(runtimeState).toEqual({

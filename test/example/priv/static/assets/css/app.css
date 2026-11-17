@@ -1227,6 +1227,7 @@ a.vt-panel {
   min-width: 0;
   width: min(100%, 27rem);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--sg-space-4);
   border-radius: var(--vt-radius);
   background: color-mix(in oklab, var(--vt-color-panel) 95%, transparent);
