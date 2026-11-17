@@ -1,6 +1,8 @@
 defmodule Sigra.Install.AuthUIContractTest do
   use ExUnit.Case, async: true
 
+  alias Sigra.Test.Brand.CopyScan
+
   @auth_css "priv/templates/sigra.install/core/sigra_auth.css"
   @auth_components "priv/templates/sigra.install/core/sigra_auth_components.ex"
   @login "priv/templates/sigra.install/core/login_html.ex"
@@ -159,6 +161,20 @@ defmodule Sigra.Install.AuthUIContractTest do
     assert confirmation =~ "case socket.assigns[:confirmation_token] do"
     assert confirmation =~ "when is_binary(token) and byte_size(token) > 0"
     assert confirmation =~ "invalid_confirmation_link_response(socket)"
+  end
+
+  test "generated copy exception baseline accepts only matched removals" do
+    kept = %{scope: "generated", kind: "banned_term", file: "core/login_html.ex", line: "Log in"}
+    removed = %{scope: "generated", kind: "banned_term", file: "core/emails.ex", line: "Log in:"}
+    added = %{scope: "generated", kind: "banned_term", file: "core/new_auth.ex", line: "Log in"}
+
+    # A legitimate cleanup removes the source hit and its exception entry together.
+    assert CopyScan.diff_baseline([kept], [kept]) == [new: [], stale: []]
+
+    # A copied-in exception with no source hit is stale; a new violation without an
+    # exception entry is new. Either direction blocks growth or mismatched cleanup.
+    assert CopyScan.diff_baseline([kept], [kept, removed]) == [new: [], stale: [removed]]
+    assert CopyScan.diff_baseline([kept, added], [kept]) == [new: [added], stale: []]
   end
 
   test "audit forms expose one named control per filter and label active state" do
