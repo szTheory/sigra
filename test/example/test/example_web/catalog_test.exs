@@ -120,16 +120,17 @@ defmodule ExampleWeb.CatalogTest do
     admin-user-show-zero-state
     admin-users-index
   )
+  # Keep 4b review states in the approved order before the 4a support pages.
   # Page groups, each identified by its slug prefix.
   @groups [
+    user_audit: "admin-user-audit-",
     overview: "admin-overview",
+    audit: "admin-audit-index",
+    org: "admin-org-",
+    branding: "admin-auth-branding",
     users: "admin-users-index",
     user_show: "admin-user-show-",
-    user_sessions: "admin-user-sessions-",
-    user_audit: "admin-user-audit-",
-    audit: "admin-audit-index",
-    branding: "admin-auth-branding",
-    org: "admin-org-"
+    user_sessions: "admin-user-sessions-"
   ]
   @email_shape ~r/[A-Za-z0-9._+-]+@[A-Za-z0-9-]+\.[A-Za-z0-9.-]+/
 

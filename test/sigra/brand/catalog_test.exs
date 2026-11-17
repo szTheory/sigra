@@ -710,7 +710,7 @@ defmodule Sigra.Brand.CatalogTest do
       {{UserSessionsLive, :empty}, "This user has no active sessions in the current scope."},
       {{AuditIndexLive, :populated}, "Impersonation started"},
       {{AuditIndexLive, :empty}, "No audit events match this view"},
-      {{AuditUserLive, :populated}, "Auth Login Success"},
+      {{AuditUserLive, :populated}, "Review recorded activity for this user."},
       {{AuditUserLive, :empty}, "No scoped events are currently tied to this user."},
       {{OrganizationLive, :populated}, "members need review"},
       {{OrganizationLive, :empty}, "No members yet"},

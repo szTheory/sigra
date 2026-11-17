@@ -135,6 +135,19 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     const desktopResults = page.locator('[data-testid="admin-audit-user-desktop-results"]');
     await expect(desktopResults.getByText(targetEmail).first()).toBeVisible();
 
+    await page.getByRole('link', { name: 'Failures' }).click();
+    await waitForLiveViewReady(page);
+    await expect(page.getByRole('link', { name: 'Failures' })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByText('No audit events match these filters for this user')).toBeVisible();
+    await expect(page.locator('[data-testid="admin-audit-user-desktop-results"]')).toHaveCount(0);
+
+    await page.getByRole('link', { name: 'Failures', exact: true }).click();
+    await waitForLiveViewReady(page);
+    await page.getByRole('link', { name: 'Impersonation', exact: true }).click();
+    await waitForLiveViewReady(page);
+    await expect(page.getByRole('link', { name: 'Impersonation', exact: true })).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('[data-testid="admin-audit-user-desktop-results"]')).toContainText(targetEmail);
+
     // Phase 228 (v1.46): the advanced audit filters were flattened out of the
     // collapsed "More filters" <details> disclosure into the always-visible
     // sg-filter-panel form, so the Action prefix textbox is directly interactable.
