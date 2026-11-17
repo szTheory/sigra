@@ -26,6 +26,9 @@ defmodule Sigra.Brand.NameClearanceTest do
   @record ".planning/decisions/006-name-clearance-search-log-and-claims-register.md"
   @registry "test/fixtures/brand/public-surfaces.json"
   @mix_exs "mix.exs"
+  @closed_library_claim_id "lib-moduledoc-claims"
+  @historical_pending_todo ".planning/todos/pending/2026-11-13-lib-moduledoc-enumeration-overclaims.md"
+  @completed_library_claim_todo ".planning/todos/completed/2026-11-13-lib-moduledoc-enumeration-overclaims.md"
 
   @title_phrase "search log, not clearance"
 
@@ -153,6 +156,11 @@ defmodule Sigra.Brand.NameClearanceTest do
     |> Enum.uniq()
   end
 
+  # ADR 006 is retained as a historical decision record, so its original todo
+  # citation remains. Resolve only that citation to the GSD-completed location.
+  defp resolve_historical_citation(@historical_pending_todo), do: @completed_library_claim_todo
+  defp resolve_historical_citation(path), do: path
+
   describe "title and the same-name package" do
     test "the record exists and its first line is an H1 with the title phrase" do
       # Arrange
@@ -258,6 +266,14 @@ defmodule Sigra.Brand.NameClearanceTest do
   end
 
   describe "claims register covers the surface registry" do
+    test "the prose-only library claim is no longer an open registry surface" do
+      # Arrange
+      ids = Enum.map(surfaces(), & &1["id"])
+
+      # Assert
+      refute @closed_library_claim_id in ids
+    end
+
     test "every non-parity registry id appears in backticks in the record" do
       # Arrange
       ids = non_parity_ids()
@@ -401,11 +417,23 @@ defmodule Sigra.Brand.NameClearanceTest do
       paths = cited_paths(record())
 
       # Act
-      missing = Enum.reject(paths, &File.exists?(Path.join(root(), &1)))
+      missing =
+        Enum.reject(paths, fn path ->
+          path
+          |> resolve_historical_citation()
+          |> then(&File.exists?(Path.join(root(), &1)))
+        end)
 
       # Assert
       assert length(paths) >= 10
       assert missing == [], "cited paths that do not exist: #{inspect(missing)}"
+    end
+
+    test "the historical library-claim todo citation resolves to its completed file" do
+      assert resolve_historical_citation(@historical_pending_todo) ==
+               @completed_library_claim_todo
+
+      assert File.regular?(Path.join(root(), @completed_library_claim_todo))
     end
 
     test "positive control: cited_paths picks file paths and ignores other code spans" do

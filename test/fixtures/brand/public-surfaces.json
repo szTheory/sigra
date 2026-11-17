@@ -165,16 +165,6 @@
       "note": "Identity = whether the submitted email belongs to an account, under repeated requests. Not proven: the library applies its optional rate limiter only to existing users (the unknown-email branch runs first and returns early) and the controller ignores the rate_limited result. The example host passes no rate limiter, so the throttle cannot be driven and nothing is compared.",
       "todo": ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
       "blocker": "test/example/lib/example/accounts.ex:463 calls Sigra.Auth.request_password_reset/3 without :rate_limiter, so the example host has no throttle to drive; the existing-user-only limiter branch is lib/sigra/auth.ex:1131"
-    },
-    {
-      "id": "lib-moduledoc-claims",
-      "route": "lib/sigra/lockout.ex, lib/sigra/error.ex and lib/sigra/auth.ex documentation",
-      "kind": "library",
-      "compare": [],
-      "state": "not_proven",
-      "note": "Prose claims, not a request surface: no probe exists. Library moduledocs and docs state enumeration safety more broadly than the parity rows prove. Other over-claim sites: lib/sigra/error.ex:7 and :138-141, lib/sigra/auth.ex:16, :132, :613 and :1097. They cannot be edited in this phase (zero lib bytes), so they are tracked by the linked todo and bounded by the claims register.",
-      "todo": ".planning/todos/pending/2026-11-13-lib-moduledoc-enumeration-overclaims.md",
-      "blocker": "lib/sigra/lockout.ex:13 states that messages are enumeration-safe; a prose claim in a moduledoc is not a request surface, so no deterministic probe exists"
     }
   ]
 }
