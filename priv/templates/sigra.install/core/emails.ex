@@ -50,8 +50,6 @@ defmodule <%= context_module %>.Emails do
 
     #{dgettext("sigra", "Your confirmation code:")} #{code}
 
-    #{dgettext("sigra", "Or confirm via this link:")} #{url}
-
     #{dgettext("sigra", "This link expires in 48 hours.")}
 
     ---
@@ -168,8 +166,6 @@ defmodule <%= context_module %>.Emails do
     #{dgettext("sigra", "Hi,")}
 
     #{dgettext("sigra", "Your organization %{organization} requires enterprise sign-in. Use your organization sign-in before requesting local account recovery.", organization: organization_name)}
-
-    #{dgettext("sigra", "Enterprise sign-in link:")} #{url}
 
     ---
     #{footer_text()}
@@ -652,8 +648,6 @@ defmodule <%= context_module %>.Emails do
     #{dgettext("sigra", "Changed your mind? You can cancel the deletion before the scheduled date.")}
 
     #{dgettext("sigra", "Your %{app_name} account has been deactivated and is scheduled for permanent deletion on %{date}. All sessions have been signed out.", app_name: "<%= app_name %>", date: formatted_date)}
-
-    #{dgettext("sigra", "Or cancel via this link:")} #{cancel_url}
 
     ---
     #{security_footer_text()}

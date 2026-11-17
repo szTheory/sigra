@@ -473,7 +473,6 @@ core/emails.ex	source_token	)} #{role_label} #{dgettext(
 core/emails.ex	source_token	)} #{settings_url}\n\n    #{dgettext(
 core/emails.ex	source_token	)} #{time}\n\n    #{dgettext(
 core/emails.ex	source_token	)} #{url}\n\n    #{dgettext(
-core/emails.ex	source_token	)} #{url}\n\n    ---\n    #{footer_text()}\n    
 core/emails.ex	source_token	)} #{url}\n    </p>\n    
 core/emails.ex	source_token	)} #{url}\n    </p>\n    <p style=
 core/emails.ex	source_token	)}: #{url}\n\n    #{dgettext(
@@ -490,13 +489,13 @@ core/emails.ex	source_token	,
 core/emails.ex	source_token	, app_name: 
 core/emails.ex	source_token	, app_name: product_name()), url)}\n    <p style=
 core/emails.ex	source_token	, date: expires_date)}\n    </p>\n    
-core/emails.ex	source_token	, date: formatted_date)}\n\n    #{dgettext(
+core/emails.ex	source_token	, date: formatted_date)}\n\n    ---\n    #{security_footer_text()}\n    
 core/emails.ex	source_token	, date: formatted_date)}\n    </p>\n    <p style=
 core/emails.ex	source_token	, inviter: inviter_safe, org: org_name_safe, role: role_safe, product: product_safe)}\n    </p>\n    <div style=
 core/emails.ex	source_token	, new_email: escaped_new_email)}\n    </p>\n    <p style=
 core/emails.ex	source_token	, new_email: new_email)}\n\n    #{dgettext(
 core/emails.ex	source_token	, org: org_name_safe)}\n    </h1>\n    #{cta_button(dgettext(
-core/emails.ex	source_token	, organization: organization_name)}\n\n    #{dgettext(
+core/emails.ex	source_token	, organization: organization_name)}\n\n    ---\n    #{footer_text()}\n    
 core/emails.ex	source_token	, organization: organization_name)}\n    </p>\n    <p style=
 core/emails.ex	source_token	, provider: provider_name), 
 core/emails.ex	source_token	, provider: provider_name)}\n\n    #{dgettext(
