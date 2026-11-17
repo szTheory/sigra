@@ -1096,7 +1096,7 @@ defmodule Sigra.Admin.Components do
                 <p>Use a magic link, passkey, password, or enterprise SSO.</p>
                 <div class="sigra-auth-preview-form">
                   <label>Email<input type="email" value="alex@example.com" /></label>
-                  <button type="button" class="btn btn-primary w-full">Send magic link</button>
+                  <button type="button" class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">Send magic link</button>
                 </div>
               </div>
             </div>

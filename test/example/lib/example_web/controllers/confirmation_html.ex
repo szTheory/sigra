@@ -37,7 +37,7 @@ defmodule ExampleWeb.ConfirmationHTML do
           required
         />
 
-        <.button class="btn btn-primary w-full">
+        <.button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Confirm email")} <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
@@ -85,7 +85,7 @@ defmodule ExampleWeb.ConfirmationHTML do
       </.header>
 
       <.form for={%{}} action={~p"/users/confirm/resend"} method="post">
-        <.button class="btn btn-primary w-full">
+        <.button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Send new confirmation email")} <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>

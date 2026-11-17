@@ -93,6 +93,90 @@ defmodule Sigra.Install.AuthUIContractTest do
     end
   end
 
+  test "organization templates use the neutral host-auth lane and preserve switch actions" do
+    organization_templates = [
+      "priv/templates/sigra.install/organizations/live/organization_members_live.ex",
+      "priv/templates/sigra.install/organizations/live/organization_settings_live.ex",
+      "priv/templates/sigra.install/organizations/live/organizations_live/index.ex",
+      "priv/templates/sigra.install/organizations/live/organizations_live/new.ex",
+      "priv/templates/sigra.install/organizations/components/org_switcher.ex"
+    ]
+
+    for path <- organization_templates do
+      source = File.read!(path)
+
+      markup_classes =
+        Regex.scan(~r/<[^>]+\bclass="([^"]*)"/s, source, capture: :all_but_first)
+        |> List.flatten()
+
+      assert Enum.any?(markup_classes, &String.contains?(&1, "sigra-auth-")),
+             "#{path} has no neutral auth styling"
+
+      refute Enum.any?(markup_classes, &String.contains?(&1, "sg-")),
+             "#{path} crosses into operator styling"
+
+      refute Enum.any?(markup_classes, &String.contains?(&1, "vt-")),
+             "#{path} crosses into Tasklane styling"
+
+      refute Enum.any?(
+               markup_classes,
+               &Regex.match?(
+                 ~r/\b(?:btn-primary|badge-(?:primary|neutral|ghost|secondary))\b/,
+                 &1
+               )
+             ),
+             "#{path} still depends on Daisy-style brand variants"
+    end
+
+    switcher = File.read!("priv/templates/sigra.install/organizations/components/org_switcher.ex")
+    assert switcher =~ "form action={~p\"/organizations/switch\"} method=\"post\""
+    assert switcher =~ "name=\"_csrf_token\" value={CSRFProtection.get_csrf_token()}"
+    assert switcher =~ "name=\"organization_id\" value={org.id}"
+    assert switcher =~ "name=\"return_to\" value={@return_to}"
+    assert switcher =~ "@current_scope.active_organization"
+  end
+
+  test "demo primary actions and generated switcher mirror use neutral classes" do
+    demo_pages = [
+      "test/example/lib/example_web/live/confirmation_live.ex",
+      "test/example/lib/example_web/live/reset_password_live.ex",
+      "test/example/lib/example_web/live/registration_live.ex",
+      "test/example/lib/example_web/live/invitation_accept_live.ex",
+      "test/example/lib/example_web/controllers/confirmation_html.ex",
+      "test/example/lib/example_web/controllers/reset_password_html.ex"
+    ]
+
+    primary_actions =
+      Enum.sum(
+        Enum.map(demo_pages, fn path ->
+          source = File.read!(path)
+          refute source =~ ~s(class="btn btn-primary)
+          length(Regex.scan(~r/class="sigra-auth-action sigra-auth-action--primary/, source))
+        end)
+      )
+
+    assert primary_actions == 17
+
+    generated =
+      File.read!("priv/templates/sigra.install/organizations/components/org_switcher.ex")
+
+    example = File.read!("test/example/lib/example_web/components/org_switcher.ex")
+
+    assert auth_class_values(generated) == auth_class_values(example)
+
+    for source <- [generated, example] do
+      assert source =~ "form action={~p\"/organizations/switch\"} method=\"post\""
+      assert source =~ "name=\"_csrf_token\" value={CSRFProtection.get_csrf_token()}"
+      assert source =~ "name=\"organization_id\" value={org.id}"
+      assert source =~ "name=\"return_to\" value={@return_to}"
+    end
+
+    components = File.read!("lib/sigra/admin/components.ex")
+
+    assert components =~
+             ~s(class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">Send magic link)
+  end
+
   test "modernized auth templates depend only on their semantic class contract" do
     components = File.read!(@auth_components)
     assert components =~ "def sigra_auth_button(assigns)"
@@ -194,5 +278,11 @@ defmodule Sigra.Install.AuthUIContractTest do
       assert source =~ "preset_path("
       assert source =~ "<.applied_chip"
     end
+  end
+
+  defp auth_class_values(source) do
+    Regex.scan(~r/sigra-auth-[a-zA-Z0-9_-]+/, source)
+    |> List.flatten()
+    |> Enum.uniq()
   end
 end
