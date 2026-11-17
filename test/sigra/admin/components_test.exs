@@ -779,6 +779,7 @@ defmodule Sigra.Admin.ComponentsTest do
     assert html =~ ~s(href="/admin/audit?cursor=previous-cursor")
     refute html =~ ~s(href="/admin/audit?cursor=next-cursor")
   end
+
   test "activity_value renders equivalent offsets as the same UTC instant" do
     utc = ~U[2025-02-02 14:07:00Z]
     plus_two = %{utc | hour: 16, utc_offset: 7_200, time_zone: "UTC+02", zone_abbr: "+02"}
@@ -793,5 +794,4 @@ defmodule Sigra.Admin.ComponentsTest do
   test "activity_value keeps the unavailable timestamp fallback" do
     assert Components.activity_value(nil) == "Not available"
   end
-
 end
