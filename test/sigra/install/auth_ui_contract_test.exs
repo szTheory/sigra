@@ -370,7 +370,13 @@ defmodule Sigra.Install.AuthUIContractTest do
   test "auth email actions precede their ignored-request outcomes in both body formats" do
     emails = File.read!("priv/templates/sigra.install/core/emails.ex")
 
-    assert_email_order(emails, "confirmation_email", "Confirm email address", "expires in 48 hours")
+    assert_email_order(
+      emails,
+      "confirmation_email",
+      "Confirm email address",
+      "expires in 48 hours"
+    )
+
     assert_email_order(emails, "reset_password_email", "Reset", "you can ignore this email")
     assert_email_order(emails, "magic_link_email", "Log in", "expires in 10 minutes")
     assert_email_order(emails, "oauth_reset_email", "Sign in with", "set a password")
@@ -383,15 +389,64 @@ defmodule Sigra.Install.AuthUIContractTest do
     )
 
     assert_email_order(emails, "suspicious_login_email", "Secure your account", "If this was you")
-    assert_email_order(emails, "passkey_registration_email", "Secure your account", "If this was you")
-    assert_email_order(emails, "lockout_notification_email", "Change your password", "If this was you")
-    assert_email_order(emails, "mfa_enabled_email", "Change your password", "If you did not enable this")
-    assert_email_order(emails, "mfa_disabled_email", "Secure your account", "was disabled on your")
-    assert_email_order(emails, "backup_code_used_email", "Generate new backup codes", "A backup code was used")
+
+    assert_email_order(
+      emails,
+      "passkey_registration_email",
+      "Secure your account",
+      "If this was you"
+    )
+
+    assert_email_order(
+      emails,
+      "lockout_notification_email",
+      "Change your password",
+      "If this was you"
+    )
+
+    assert_email_order(
+      emails,
+      "mfa_enabled_email",
+      "Change your password",
+      "If you did not enable this"
+    )
+
+    assert_email_order(
+      emails,
+      "mfa_disabled_email",
+      "Secure your account",
+      "was disabled on your"
+    )
+
+    assert_email_order(
+      emails,
+      "backup_code_used_email",
+      "Generate new backup codes",
+      "A backup code was used"
+    )
+
     assert_email_order(emails, "mfa_lockout_email", "Change your password", "If this was you")
-    assert_email_order(emails, "email_changed_email", "Secure your account", "has been changed to this address")
-    assert_email_order(emails, "deletion_cancelled_email", "Log in to your account", "account deletion has been cancelled")
-    assert_email_order(emails, "password_changed_email", "Reset your password", "account password was changed")
+
+    assert_email_order(
+      emails,
+      "email_changed_email",
+      "Secure your account",
+      "has been changed to this address"
+    )
+
+    assert_email_order(
+      emails,
+      "deletion_cancelled_email",
+      "Log in to your account",
+      "account deletion has been cancelled"
+    )
+
+    assert_email_order(
+      emails,
+      "password_changed_email",
+      "Reset your password",
+      "account password was changed"
+    )
 
     assert_email_order(
       emails,

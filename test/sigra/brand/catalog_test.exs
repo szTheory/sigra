@@ -583,6 +583,7 @@ defmodule Sigra.Brand.CatalogTest do
     test "after capture includes the complete generated auth and email surface set" do
       if Sigra.Test.Brand.RegenGuard.requested?(Catalog.regen_env(), "after") do
         after_dir = Catalog.out_dir(:after)
+
         paths =
           after_dir
           |> Path.join("**/*")
@@ -632,11 +633,13 @@ defmodule Sigra.Brand.CatalogTest do
           visible_text = Regex.replace(~r/<[^>]*>/, visible_text, " ")
 
           accessible_labels =
-            Regex.scan(~r/\b(?:aria-label|alt|title)="([^"]*)"/i, content, capture: :all_but_first)
+            Regex.scan(~r/\b(?:aria-label|alt|title)="([^"]*)"/i, content,
+              capture: :all_but_first
+            )
             |> List.flatten()
             |> Enum.join(" ")
 
-          refute (visible_text <> " " <> accessible_labels) =~ ~r/\b(?:Sigra|Kiln)\b/i,
+          refute visible_text <> " " <> accessible_labels =~ ~r/\b(?:Sigra|Kiln)\b/i,
                  "#{path} exposes library identity"
         end
       end
