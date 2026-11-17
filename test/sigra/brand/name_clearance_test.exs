@@ -16,7 +16,8 @@ defmodule Sigra.Brand.NameClearanceTest do
       `parity` may never read as proven or bounded);
     * the example-host limitation, the two decisions and their
       `confirmed as recommended` status are present;
-    * every file path the record cites exists.
+    * every product file path the record cites exists (planning-only paths are
+      checked by GSD locally and are excluded from the strict code-only PR).
 
   Pure filesystem; no database is touched. The repo root is resolved from
   `__DIR__`, never from the working directory.
@@ -28,8 +29,6 @@ defmodule Sigra.Brand.NameClearanceTest do
   @registry "test/fixtures/brand/public-surfaces.json"
   @mix_exs "mix.exs"
   @closed_library_claim_id "lib-moduledoc-claims"
-  @historical_pending_todo ".planning/todos/pending/2026-11-13-lib-moduledoc-enumeration-overclaims.md"
-  @completed_library_claim_todo ".planning/todos/completed/2026-11-13-lib-moduledoc-enumeration-overclaims.md"
 
   @title_phrase "search log, not clearance"
 
@@ -156,11 +155,6 @@ defmodule Sigra.Brand.NameClearanceTest do
     |> List.flatten()
     |> Enum.uniq()
   end
-
-  # ADR 006 is retained as a historical decision record, so its original todo
-  # citation remains. Resolve only that citation to the GSD-completed location.
-  defp resolve_historical_citation(@historical_pending_todo), do: @completed_library_claim_todo
-  defp resolve_historical_citation(path), do: path
 
   describe "title and the same-name package" do
     test "the record exists and its first line is an H1 with the title phrase" do
@@ -415,26 +409,17 @@ defmodule Sigra.Brand.NameClearanceTest do
 
     test "every file path the record cites exists in the repository" do
       # Arrange
-      paths = cited_paths(record())
+      paths = cited_paths(record()) |> Enum.reject(&String.starts_with?(&1, ".planning/"))
 
       # Act
       missing =
         Enum.reject(paths, fn path ->
-          path
-          |> resolve_historical_citation()
-          |> then(&File.exists?(Path.join(root(), &1)))
+          File.exists?(Path.join(root(), path))
         end)
 
       # Assert
       assert length(paths) >= 10
       assert missing == [], "cited paths that do not exist: #{inspect(missing)}"
-    end
-
-    test "the historical library-claim todo citation resolves to its completed file" do
-      assert resolve_historical_citation(@historical_pending_todo) ==
-               @completed_library_claim_todo
-
-      assert File.regular?(Path.join(root(), @completed_library_claim_todo))
     end
 
     test "positive control: cited_paths picks file paths and ignores other code spans" do
