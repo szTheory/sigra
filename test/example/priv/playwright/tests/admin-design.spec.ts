@@ -293,9 +293,45 @@ test.describe('Design gallery board snapshots', () => {
       expect(currentSquare.width).toBe('8px');
       expect(currentSquare.height).toBe('8px');
       expect(currentSquare.color).toBe(await tokenColor(currentTab, '--sg-color-current-tab'));
-      await expect(
-        page.getByRole('navigation', { name: 'Admin navigation' }).getByRole('link', { name: 'Branding' }),
-      ).toHaveAttribute('aria-current', 'page');
+      const brandingLink = page
+        .getByRole('navigation', { name: 'Admin navigation' })
+        .getByRole('link', { name: 'Branding' });
+      await expect(brandingLink).toHaveAttribute('aria-current', 'page');
+
+      // Phase 262 follow-up: keep the real admin controls readable in every
+      // resolved theme. The earlier exploratory 2.83:1 result sampled the
+      // 140ms color transition, so wait for each control to reach the actual
+      // theme tokens before checking the stable rendered contrast.
+      const expectedBrandingForeground = await tokenColor(brandingLink, '--sg-color-on-brand');
+      const expectedBrandingBackground = await tokenColor(brandingLink, '--sg-color-brand');
+      await expect.poll(() => brandingLink.evaluate((node) => getComputedStyle(node).color))
+        .toBe(expectedBrandingForeground);
+      await expect.poll(() => brandingLink.evaluate((node) => getComputedStyle(node).backgroundColor))
+        .toBe(expectedBrandingBackground);
+      const brandingLinkColors = await brandingLink.evaluate((node) => {
+        const style = getComputedStyle(node);
+        return { foreground: style.color, background: style.backgroundColor };
+      });
+      expect(
+        contrastRatio(brandingLinkColors.foreground, brandingLinkColors.background),
+        `${theme} active Branding link contrast`,
+      ).toBeGreaterThanOrEqual(4.5);
+
+      const saveButton = page.getByRole('button', { name: 'Save profile' });
+      const expectedButtonForeground = await tokenColor(saveButton, '--sg-color-on-brand');
+      const expectedButtonBackground = await tokenColor(saveButton, '--sg-color-brand');
+      await expect.poll(() => saveButton.evaluate((node) => getComputedStyle(node).color))
+        .toBe(expectedButtonForeground);
+      await expect.poll(() => saveButton.evaluate((node) => getComputedStyle(node).backgroundColor))
+        .toBe(expectedButtonBackground);
+      const saveButtonColors = await saveButton.evaluate((node) => {
+        const style = getComputedStyle(node);
+        return { foreground: style.color, background: style.backgroundColor };
+      });
+      expect(
+        contrastRatio(saveButtonColors.foreground, saveButtonColors.background),
+        `${theme} Save profile button contrast`,
+      ).toBeGreaterThanOrEqual(4.5);
       await page.goto('/admin/_design');
       await waitForLiveViewReady(page);
       await page.getByRole('button', { name: 'Open command palette' }).click();
