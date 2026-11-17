@@ -266,7 +266,7 @@ test.describe('Design gallery board snapshots', () => {
 
   test('selected command rows and current tabs use the brand tokens in every theme', async ({
     page,
-  }) => {
+  }, testInfo) => {
     const tokenColor = (element: Locator, token: string) =>
       element.evaluate((node, name) => {
         const probe = document.createElement('span');
@@ -293,25 +293,37 @@ test.describe('Design gallery board snapshots', () => {
       expect(currentSquare.width).toBe('8px');
       expect(currentSquare.height).toBe('8px');
       expect(currentSquare.color).toBe(await tokenColor(currentTab, '--sg-color-current-tab'));
-      const brandingLink = page
-        .getByRole('navigation', { name: 'Admin navigation' })
-        .getByRole('link', { name: 'Branding' });
+      const mobile = testInfo.project.name === 'admin-design-mobile';
+      const brandingNavigation = page.getByRole('navigation', {
+        name: mobile ? 'Admin bottom nav' : 'Admin navigation',
+      });
+      const brandingLink = brandingNavigation.getByRole('link', {
+        name: mobile ? 'Brand' : 'Branding',
+        exact: true,
+      });
       await expect(brandingLink).toHaveAttribute('aria-current', 'page');
 
       // Phase 262 follow-up: keep the real admin controls readable in every
       // resolved theme. The earlier exploratory 2.83:1 result sampled the
       // 140ms color transition, so wait for each control to reach the actual
       // theme tokens before checking the stable rendered contrast.
-      const expectedBrandingForeground = await tokenColor(brandingLink, '--sg-color-on-brand');
-      const expectedBrandingBackground = await tokenColor(brandingLink, '--sg-color-brand');
+      const expectedBrandingForeground = await tokenColor(
+        brandingLink,
+        mobile ? '--sg-color-brand-strong' : '--sg-color-on-brand',
+      );
       await expect.poll(() => brandingLink.evaluate((node) => getComputedStyle(node).color))
         .toBe(expectedBrandingForeground);
-      await expect.poll(() => brandingLink.evaluate((node) => getComputedStyle(node).backgroundColor))
-        .toBe(expectedBrandingBackground);
-      const brandingLinkColors = await brandingLink.evaluate((node) => {
-        const style = getComputedStyle(node);
-        return { foreground: style.color, background: style.backgroundColor };
-      });
+      if (!mobile) {
+        const expectedBrandingBackground = await tokenColor(brandingLink, '--sg-color-brand');
+        await expect.poll(() => brandingLink.evaluate((node) => getComputedStyle(node).backgroundColor))
+          .toBe(expectedBrandingBackground);
+      }
+      const brandingLinkColors = {
+        foreground: await brandingLink.evaluate((node) => getComputedStyle(node).color),
+        background: await (mobile ? brandingNavigation : brandingLink).evaluate(
+          (node) => getComputedStyle(node).backgroundColor,
+        ),
+      };
       expect(
         contrastRatio(brandingLinkColors.foreground, brandingLinkColors.background),
         `${theme} active Branding link contrast`,

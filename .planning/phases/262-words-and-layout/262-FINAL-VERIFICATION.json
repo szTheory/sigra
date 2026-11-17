@@ -1,0 +1,272 @@
+{
+  "phase": "262",
+  "plan": "13",
+  "status": "blocked",
+  "completed_date": "2026-11-17",
+  "readiness_evidence": ".planning/phases/262-words-and-layout/262-REBLISS-READINESS.json",
+  "golden_rebless": {
+    "status": "passed",
+    "invocations": 1,
+    "remaining": 0,
+    "commit": "bb7db16ae",
+    "delta": {
+      "added": 0,
+      "modified": 22,
+      "removed": 0
+    },
+    "stdout_snapshot_changed": false,
+    "check_command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test mix sigra.fixture.rebless_golden --check",
+    "check_exit_code": 0,
+    "tests_command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/golden_diff_test.exs test/sigra/install/asset_parity_test.exs",
+    "tests_exit_code": 0,
+    "tests_result": "37 tests, 0 failures",
+    "evidence": [
+      "/private/tmp/phase262-13-rebless.out",
+      "/private/tmp/phase262-13-golden-check.out",
+      "/private/tmp/phase262-13-golden-tests.out"
+    ]
+  },
+  "completed_checks": [
+    {
+      "name": "4a readiness schema preflight",
+      "command": "jq -e '.status == \"passed\" and .checks.support_empty_single_liveview == true and .checks.support_overflow_browser == true and .checks.support_320px_200pct_browser == true and (.browser_backstops.support_overflow_browser.result == true) and (.browser_backstops.support_320px_200pct_browser.result == true) and (.browser_backstops.support_overflow_browser.test_target | type == \"string\" and length > 0) and (.browser_backstops.support_overflow_browser.test_title | type == \"string\" and length > 0) and (.browser_backstops.support_overflow_browser.command | type == \"string\" and length > 0) and (.browser_backstops.support_320px_200pct_browser.test_target | type == \"string\" and length > 0) and (.browser_backstops.support_320px_200pct_browser.test_title | type == \"string\" and length > 0) and (.browser_backstops.support_320px_200pct_browser.command | type == \"string\" and length > 0)' .planning/phases/262-words-and-layout/262-4A-GATE.json",
+      "exit_code": 0,
+      "result": "passed before Task 2; initial output true"
+    },
+    {
+      "name": "pre-rebless source contracts",
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test mix test test/sigra/brand/copy_inventory_test.exs test/sigra/brand/frozen_surface_test.exs test/sigra/install/auth_ui_contract_test.exs test/sigra/install/generator_passkey_primary_login_test.exs",
+      "exit_code": 0,
+      "result": "96 tests, 0 failures"
+    },
+    {
+      "name": "formatter",
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test mix format --check-formatted",
+      "exit_code": 0,
+      "result": "passed after formatting only the four files initially reported by the check"
+    },
+    {
+      "name": "cached compilation",
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix compile --warnings-as-errors",
+      "exit_code": 0,
+      "result": "passed",
+      "evidence": "/private/tmp/phase262-13-compile.out"
+    },
+    {
+      "name": "fresh generated-host acceptance smoke --test all",
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home GITHUB_WORKSPACE=/private/tmp/sigra-phase262 TMP_APP_DIR=/tmp/phase262-host-verify-20261117/sigra_admin_smoke PORT=4027 bash /private/tmp/phase262-admin-acceptance-smoke.sh --test all",
+      "exit_code": 0,
+      "result": "8 Playwright tests passed and 1 was intentionally skipped; generated confirmation passed (1 test); revoke-and-deny passed (1 test).",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/admin-smoke-all.log",
+        "/private/tmp/phase262-host-verify-20261117/generated-host-all-last-run.json",
+        "/private/tmp/phase262-host-verify-20261117/generated-confirmation-last-run.json",
+        "/private/tmp/phase262-host-verify-20261117/generated-revocation-all-last-run.json"
+      ]
+    },
+    {
+      "name": "fresh generated-host acceptance smoke --test auth",
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home GITHUB_WORKSPACE=/private/tmp/sigra-phase262 TMP_APP_DIR=/tmp/phase262-host-verify-20261117/sigra_admin_smoke PORT=4027 bash /private/tmp/phase262-admin-acceptance-smoke.sh --test auth",
+      "exit_code": 0,
+      "result": "Generated auth shell Playwright test passed (1 test); revoke-and-deny passed (1 test).",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/admin-smoke-auth.log",
+        "/private/tmp/phase262-host-verify-20261117/generated-host-auth-last-run.json",
+        "/private/tmp/phase262-host-verify-20261117/generated-revocation-auth-last-run.json"
+      ]
+    },
+    {
+      "name": "full example-app suite",
+      "command": "cd test/example && HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test --include example_app",
+      "exit_code": 0,
+      "result": "449 tests, 0 failures.",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/example-suite.log"
+      ]
+    },
+    {
+      "name": "admin CSS conformance",
+      "command": "bash scripts/ci/admin-css-conformance.sh",
+      "exit_code": 0,
+      "result": "All checks passed.",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/css-conformance.log"
+      ]
+    },
+    {
+      "name": "admin token completeness",
+      "command": "bash scripts/ci/admin-token-completeness.sh",
+      "exit_code": 0,
+      "result": "112 tokens; CSS :root values match documentation.",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/token-completeness.log"
+      ]
+    },
+    {
+      "name": "catalog diff",
+      "command": "bash scripts/brand/catalog-diff.sh",
+      "exit_code": 0,
+      "result": "Completed with 55 changed entries and no additions or removals; working tree remained unchanged.",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/catalog-diff.log"
+      ]
+    },
+    {
+      "name": "targeted overview copy Playwright assertion",
+      "command": "CI=true SIGRA_EXAMPLE_URL=http://localhost:4011 ./node_modules/.bin/playwright test tests/admin-theme.spec.ts --project=chromium --grep 'overview keeps notices and task cards without duplicate info sections' --retries=0 --output test-results/phase262-theme-target",
+      "exit_code": 0,
+      "result": "1 test passed after updating the obsolete heading expectation to the approved “Review users” copy.",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/target-overview-playwright.log"
+      ]
+    },
+    {
+      "name": "targeted brand navigation contrast Playwright assertion",
+      "command": "CI=true SIGRA_EXAMPLE_URL=http://localhost:4011 ./node_modules/.bin/playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark --grep 'selected command rows and current tabs use the brand tokens in every theme' --retries=0 --output test-results/phase262-design-target",
+      "exit_code": 0,
+      "result": "6 tests passed including setup: the desktop, mobile, and dark assertions now target their rendered navigation and color tokens.",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/target-brand-nav-playwright.log"
+      ]
+    },
+    {
+      "name": "targeted organization slug alias browser flow",
+      "command": "CI=true SIGRA_EXAMPLE_URL=http://localhost:4011 ./node_modules/.bin/playwright test tests/organizations.spec.ts --project=chromium --grep 'phase 16 organizations UX' --retries=0 --trace off --output test-results/phase262-org-diagnostic",
+      "exit_code": 0,
+      "result": "1 test passed after the full-shard LiveView timeout.",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/organization-diagnostic.log",
+        "/private/tmp/sigra-phase262/test/example/priv/playwright/test-results/phase262-org-diagnostic/.last-run.json"
+      ]
+    },
+    {
+      "name": "targeted signed-in organization invitation browser flow",
+      "command": "CI=true SIGRA_EXAMPLE_URL=http://localhost:4011 ./node_modules/.bin/playwright test tests/organizations.spec.ts --project=chromium --grep 'signed-in matching user accepts through the mailbox link' --retries=0 --output test-results/phase262-invite-isolated",
+      "exit_code": 0,
+      "result": "1 test passed in isolation after timing out in the full shard.",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/organization-invite-isolated.log",
+        "/private/tmp/sigra-phase262/test/example/priv/playwright/test-results/phase262-invite-isolated/.last-run.json"
+      ]
+    }
+  ],
+  "blocking_verification": {
+    "name": "Phase 262 gate replay",
+    "command": "bash scripts/ci/phase-262-4a-gate.sh",
+    "exit_code": 2,
+    "stopped_at": "glossary_lexicon",
+    "failed_test_command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test mix test test/sigra/brand/copy_contract_test.exs test/sigra/admin/glossary_test.exs test/sigra/brand/vocabulary_docs_test.exs",
+    "failed_tests": [
+      {
+        "test": "Sigra.Brand.CopyContractTest real scan of scope :generated",
+        "failure": "The action-first plain-text email added a second occurrence of the banned msgid 'Log in with %{provider}'. The existing HTML CTA predates Plan 12; Plan 12 added the second occurrence."
+      },
+      {
+        "test": "Sigra.Brand.CopyContractTest real scan of scope :generated",
+        "failure": "The shrink-only baseline contains entries for copy changed in the preceding phase plans. These rows can be removed from test/fixtures/brand/copy-baseline.json without changing generated output."
+      },
+      {
+        "test": "Sigra.Brand.CopyContractTest real scan of scope :admin",
+        "failure": "One baseline entry remains for organization_live.ex after its copy changed. This is removable from the baseline only."
+      }
+    ],
+    "passed_before_stop": [
+      "library_support_tests",
+      "support_empty_single_liveview",
+      "enumeration_parity",
+      "contrast"
+    ],
+    "not_run_after_stop": [
+      "browser_modal",
+      "copy_inventory_shrink",
+      "css_conformance",
+      "dark_axe",
+      "light_axe",
+      "normalized_catalog_capture",
+      "normalized_light_catalog_diff",
+      "normalized_dark_catalog_diff",
+      "previous_release_css_compatibility",
+      "support_overflow_browser",
+      "support_320px_200pct_browser",
+      "theme_switch_dom_state"
+    ],
+    "generated_report": ".planning/phases/262-words-and-layout/262-4A-GATE.json",
+    "log": "/private/tmp/phase262-13-4a-gate.out",
+    "note": "The gate generator initializes checks to false and exits at the first failure, so false values for later checks mean not run. This report lists those separately; no missing check is treated as passing."
+  },
+  "library_ci": {
+    "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix ci",
+    "result": "failed",
+    "test_summary": "3477 tests, 8 failures, 12 skipped (26 excluded)",
+    "failures": [
+      "Two Phase 235 sandbox-exec verification tests failed because sandbox_apply returned Operation not permitted.",
+      "Brand.RegenGuardTest found direct environment reads in test/sigra/brand/catalog_test.exs.",
+      "SettingsLiveTest still expects the old account-deletion msgid.",
+      "OrganizationsTest expects literal copy while the template now uses dgettext.",
+      "Generated and admin shrink-only copy-contract scans failed as detailed above.",
+      "Old admin CSS compatibility could not launch Chromium: bootstrap_check_in returned Permission denied (1100)."
+    ],
+    "dependency_change": false,
+    "resolver_note": "The CI alias includes deps.get --check-locked and deps.unlock --check-unused. The run showed no tracked mix.lock, mix.exs, or dependency changes. It was not retried.",
+    "exit_code": null,
+    "exit_code_note": "The zsh wrapper lost the Mix exit code after assigning to its read-only $status variable; the failing test summary proves the command did not pass.",
+    "evidence": "/private/tmp/phase262-13-library-ci.out"
+  },
+  "dark_admin_browser_change": {
+    "file": "test/example/priv/playwright/tests/admin-design.spec.ts",
+    "prior_result": "The parent agent reported 2/2 including setup passed before this isolated run.",
+    "command": "cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 ./node_modules/.bin/playwright test --project=admin-design-dark tests/admin-design.spec.ts --grep 'selected command rows and current tabs use the brand tokens in every theme' --retries=0",
+    "isolated_run_exit_code": 1,
+    "isolated_run_result": "blocked before the test ran; Chromium setup failed with macOS bootstrap_check_in Permission denied (1100)",
+    "evidence": "/private/tmp/phase262-13-dark-admin-test.out",
+    "follow_up_result": "The corrected targeted brand-navigation contrast test passed in desktop, mobile, and dark projects, including their setup projects.",
+    "follow_up_evidence": "/private/tmp/phase262-host-verify-20261117/target-brand-nav-playwright.log"
+  },
+  "required_source_follow_up": {
+    "change": "Change both the HTML and plain-text OAuth reset CTA to the canonical msgid 'Sign in with %{provider}'.",
+    "required_artifacts": [
+      "priv/templates/sigra.install/core/emails.ex",
+      ".planning/phases/262-words-and-layout/262-MSGID-RENAME-TABLE.md",
+      "test/fixtures/brand/copy-inventory/generated.tsv",
+      "test/fixtures/brand/copy-baseline.json",
+      "test/fixtures/brand/frozen-surface.json",
+      "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/emails.ex"
+    ],
+    "constraint": "The sole golden rebless has already run and is committed. Template and golden changes await an owner decision and a revised plan that explicitly authorizes regeneration. A baseline-only cleanup was committed separately; no template or golden edits were made after the rebless."
+  },
+  "follow_up_cleanup": {
+    "name": "Remove stale shrink-only copy baseline entries",
+    "commit": "09fd057c3",
+    "changed_file": "test/fixtures/brand/copy-baseline.json",
+    "rows_removed": 11,
+    "copy_contract_command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test mix test test/sigra/brand/copy_contract_test.exs",
+    "exit_code": 2,
+    "result": "78 tests; 1 failure remains, the new plain-text 'Log in with %{provider}' CTA. All stale baseline failures are gone.",
+    "generated_output_changed": false
+  },
+  "unrun_phase_matrix": [
+    "Full enumeration and catalog test matrix",
+    "Final golden --check after all final source corrections"
+  ],
+  "plan_14_ready": false,
+  "browser_shard_results": {
+    "example_auth_admin_behavior": {
+      "command": "CI=true SIGRA_EXAMPLE_URL=http://localhost:4011 ./node_modules/.bin/playwright test tests/admin-user-operations.spec.ts tests/impersonation.spec.ts tests/admin-audit.spec.ts tests/admin-theme.spec.ts tests/admin-coherence-sweep.spec.ts tests/admin-modal-interaction.spec.ts tests/organizations.spec.ts tests/passkey-login.spec.ts --project=chromium --retries=0 --output test-results/phase262-behavior-final",
+      "exit_code": 1,
+      "result": "41 passed; the signed-in invitation journey timed out at the 60-second limit while closing its browser context. The isolated retry of that test passed. The shard is retained as failed, not treated as green.",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/example-playwright-behavior-final.log",
+        "/private/tmp/phase262-host-verify-20261117/organization-invite-isolated.log"
+      ]
+    },
+    "example_design_axe": {
+      "command": "CI=true SIGRA_EXAMPLE_URL=http://localhost:4011 ./node_modules/.bin/playwright test tests/admin-design.spec.ts --project=admin-design-chromium --project=admin-design-mobile --project=admin-design-dark --grep-invert '@snapshot' --retries=0",
+      "exit_code": 1,
+      "result": "47 passed; the mobile active-brand selector initially expected the desktop Branding link. The corrected nav/contrast test passed in all three projects including setup.",
+      "evidence": [
+        "/private/tmp/phase262-host-verify-20261117/example-playwright-design-retry1.log",
+        "/private/tmp/phase262-host-verify-20261117/target-brand-nav-playwright.log"
+      ]
+    }
+  }
+}

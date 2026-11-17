@@ -1024,7 +1024,7 @@ test.describe("admin theme switch", () => {
       page.getByRole("heading", { name: "Investigate an event" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Review risky users" }),
+      page.getByRole("heading", { name: "Review users" }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "User snapshot" }),
