@@ -14,7 +14,7 @@
 
 Sigra is an open-source authentication library for Phoenix 1.8 and later. A library holds the security-sensitive core, and generators write the screens, routes and emails into your own repository as normal code. Fixes arrive with `mix deps.update`; the rest is yours to edit.
 
-[Social card](docs/assets/brand/sigra-social-card-1280x640.png)
+[Social card](docs/assets/brand/social-card-1280x640.png)
 
 **TL;DR**
 

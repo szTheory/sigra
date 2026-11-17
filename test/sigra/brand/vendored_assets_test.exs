@@ -28,6 +28,10 @@ defmodule Sigra.Brand.VendoredAssetsTest do
 
   # {book source, example copy}. Copy with `cp`; never edit either side.
   @pairs [
+    {"brand/assets/logo/sigra-lockup-light.svg", "docs/assets/brand/sigra-lockup-light.svg"},
+    {"brand/assets/logo/sigra-lockup-dark.svg", "docs/assets/brand/sigra-lockup-dark.svg"},
+    {"brand/assets/social/sigra-social-card-1280x640.png",
+     "docs/assets/brand/social-card-1280x640.png"},
     {"brand/assets/icon/favicon.svg", "docs/assets/brand/favicon.svg"},
     {"brand/assets/fonts/web/fonts.css", "docs/assets/fonts/fonts.css"},
     {"brand/assets/fonts/web/sans.woff2", "docs/assets/fonts/sans.woff2"},
@@ -86,6 +90,14 @@ defmodule Sigra.Brand.VendoredAssetsTest do
   end
 
   describe "packaged ExDoc assets" do
+    test "the README social-card reference resolves to the packaged asset" do
+      readme = @root |> Path.join("README.md") |> File.read!()
+      social_card = Path.join(@root, "docs/assets/brand/social-card-1280x640.png")
+
+      assert String.contains?(readme, "[Social card](docs/assets/brand/social-card-1280x640.png)")
+      assert File.regular?(social_card)
+    end
+
     test "favicon and stylesheet URLs resolve through the docs asset mapping" do
       mix_exs = @root |> Path.join("mix.exs") |> File.read!()
 
@@ -120,18 +132,26 @@ defmodule Sigra.Brand.VendoredAssetsTest do
       assert css_declaration(css, "h1,h2,h3,h4,h5,h6", "font-weight") == "700"
       assert css_declaration(css, "h1,h2,h3,h4,h5,h6", "line-height") == "1.2"
       assert css_declaration(css, "body", "color") == "var(--sigra-page-text)"
-      assert css_declaration(css, ".content .content-inner", "color") == "var(--sigra-surface-text)"
+
+      assert css_declaration(css, ".content .content-inner", "color") ==
+               "var(--sigra-surface-text)"
+
       assert css_declaration(css, "body a", "color") == "var(--sigra-link)"
       assert css_declaration(css, ".content-inner a", "color") == "var(--sigra-link)"
       assert css_declaration(css, "body", "color", 1) == "var(--sigra-page-text)"
+
       assert css_declaration(css, ".content .content-inner", "color", 1) ==
                "var(--sigra-surface-text)"
+
       assert css_declaration(css, "body a", "color", 1) == "var(--sigra-link)"
       assert css_declaration(css, ".content-inner a", "color", 1) == "var(--sigra-link)"
       assert css_declaration(css, "body.dark", "color", 2) == "var(--sigra-page-text)"
+
       assert css_declaration(css, "body.dark .content .content-inner", "color") ==
                "var(--sigra-surface-text)"
+
       assert css_declaration(css, "body.dark a", "color") == "var(--sigra-link)"
+
       assert css_declaration(css, "body.dark .content-inner a", "color") ==
                "var(--sigra-link)"
 
@@ -147,12 +167,14 @@ defmodule Sigra.Brand.VendoredAssetsTest do
       assert String.contains?(css, ".makeup .k,.makeup .kd,.makeup .kn")
       assert String.contains?(css, ".makeup .s,.makeup .s1,.makeup .s2")
       assert String.contains?(css, ".makeup .ss,.makeup .na,.makeup .no")
+
       assert css_declaration(css, ":focus-visible", "outline") ==
                "2px solid var(--sigra-focus)"
 
       assert_contrast(css, :light, ":root", 2, ":root", 0)
       assert_contrast(css, :dark_system, ":root", 3, ":root", 1)
       assert_contrast(css, :dark_explicit, "body.dark", 1, "body.dark", 0)
+
       assert css_declaration(css, "body.dark :focus-visible", "outline-color") ==
                "var(--sigra-focus)"
 
@@ -419,7 +441,9 @@ defmodule Sigra.Brand.VendoredAssetsTest do
     |> Enum.map(&List.last/1)
     |> Enum.at(occurrence)
     |> case do
-      nil -> nil
+      nil ->
+        nil
+
       body ->
         body
         |> String.split(";")
@@ -469,7 +493,14 @@ defmodule Sigra.Brand.VendoredAssetsTest do
     end
 
     code_background = css_declaration(css, code_selector, "--sigra-doc-bg", code_occurrence)
-    code_tokens = ["--sigra-doc-text", "--sigra-doc-comment", "--sigra-doc-keyword", "--sigra-doc-string", "--sigra-doc-atom"]
+
+    code_tokens = [
+      "--sigra-doc-text",
+      "--sigra-doc-comment",
+      "--sigra-doc-keyword",
+      "--sigra-doc-string",
+      "--sigra-doc-atom"
+    ]
 
     for token <- code_tokens do
       color = css_declaration(css, code_selector, token, code_occurrence)
