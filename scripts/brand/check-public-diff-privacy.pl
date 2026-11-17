@@ -42,7 +42,7 @@ sub name_pattern {
   # Whitespace is a normal prose boundary, including around multi-word names.
   # URL/path punctuation remains excluded so an organization URL does not look
   # like a standalone name mention.
-  return qr/(?<![A-Za-z0-9_:\/.\-])\Q$name\E(?![A-Za-z0-9_:\/.\-])/i;
+  return qr/(?<![A-Za-z0-9_:\/.\-])\Q$name\E(?![A-Za-z0-9_:\/\-])/i;
 }
 
 my @rules = (
@@ -56,7 +56,7 @@ my @rules = (
 # Prove each detector catches a synthetic control without exposing runtime values.
 my @controls = (
   " $account ",
-  "The draft was reviewed by $git_name today.",
+  "The draft was reviewed by $git_name.",
   "x$home/tmp x",
   "https://$origin/",
   join('', 'person', '@', 'example', '.', 'com'),
@@ -69,7 +69,7 @@ for my $i (0 .. $#rules) {
 my $synthetic_multiword = join(' ', 'Synthetic', 'Reviewer');
 my $multiword_pattern = name_pattern($synthetic_multiword);
 die "multi-word name boundary self-check failed\n"
-  unless "The draft was reviewed by $synthetic_multiword today." =~ $multiword_pattern;
+  unless "The draft was reviewed by $synthetic_multiword." =~ $multiword_pattern;
 die "name URL-boundary self-check failed\n"
   if "https://example.test/$synthetic_multiword/path" =~ $multiword_pattern;
 my $test_email = join('', 'fixture', '@', 'example', '.', 'test');
