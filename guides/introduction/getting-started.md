@@ -2,7 +2,7 @@
 
 # Getting Started
 
-This guide takes you from a fresh Phoenix app with Sigra installed to a working auth experience: register a user, log in, protect a route, log out, request a password reset, click the reset link, and log in again with the new password. **Budget: under 30 minutes of reading.** Every code block here runs against the scaffolding `mix sigra.install` generates.
+This guide takes you from a fresh Phoenix app with Sigra installed to a working authentication experience: register a user, sign in, protect a route, sign out, request a password reset, click the reset link, and sign in again with the new password. **Budget: under 30 minutes of reading.** Every code block here runs against the generated code from `mix sigra.install`.
 
 If you have not installed Sigra yet, read [Installation](installation.html) first.
 
@@ -51,7 +51,7 @@ Visit <http://localhost:4000/users/register>. The generated `RegistrationLive` r
       end
     end
 
-Submit the form with a real-looking email (`alice@example.com`) and a strong password (12+ characters). On success you are redirected to the login page with a flash message.
+Submit the form with an email address (`alice@example.com`) and a strong password (12+ characters). On success you are redirected to the sign-in page with a flash message.
 
 **Important:** Sigra uses the [phx.gen.auth naming convention](https://hexdocs.pm/phoenix/mix_phx_gen_auth.html). The context function is `register_user/2`, never `create_user/1` or `signup/1`. Keep your custom code in the same vocabulary to avoid churn when you upgrade.
 
@@ -78,7 +78,7 @@ You'll see one message: **"Confirmation instructions"** addressed to `alice@exam
 
 Click the link. `ConfirmationLive` calls `Accounts.confirm_user/1` under the hood, which verifies the HMAC-signed token, sets `confirmed_at: DateTime.utc_now()`, and invalidates the token so it can't be replayed.
 
-If you skip this step, the user can still log in unless you set `require_confirmation: true` in your Sigra config (see [User Registration](registration.html#requiring-confirmation)).
+If you skip this step, the user can still sign in unless you set `require_confirmation: true` in your Sigra config (see [User Registration](registration.html#requiring-confirmation)).
 
 ### Optional: make this account the first platform admin
 
@@ -89,7 +89,7 @@ If you installed the default admin feature, stop the server only if your deploym
 
 This is intentionally separate from registration. Sigra never promotes the first user or trusts an email domain implicitly. Visit `/admin` after signing in; revoke the grant later with `mix sigra.admin.revoke --email alice@example.com`.
 
-## 4. Log in
+## 4. Sign in
 
 Visit <http://localhost:4000/users/log_in>. Enter `alice@example.com` and the password you chose in step 2.
 
@@ -137,13 +137,13 @@ And the authenticated `live_session` block:
       end
     end
 
-Any route inside this block rejects unauthenticated visitors and redirects them to `/users/log_in`. Add a route like `/dashboard` and visit it — you'll see the LiveView only because you're logged in. Log out (next section) and try again — you'll be bounced to the login page.
+Any route inside this block rejects unauthenticated visitors and redirects them to `/users/log_in`. Add a route like `/dashboard` and visit it — you'll see the LiveView only because you're signed in. Sign out (next section) and try again — you'll be bounced to the sign-in page.
 
 `UserAuth.require_authenticated_user/2` is a plug; `MyAppWeb.UserAuth.on_mount(:require_authenticated, ...)` is its LiveView counterpart. Both are in the generated `user_auth.ex` and both read the current user from the session cookie.
 
-## 6. Log out
+## 6. Sign out
 
-The default layout includes a "Log out" link that posts to `DELETE /users/log_out`. That route calls:
+The default layout includes a sign-out link that posts to `DELETE /users/log_out`. That route calls:
 
     # lib/my_app_web/user_auth.ex
     def log_out_user(conn) do
@@ -188,13 +188,13 @@ If the token is valid, you see a form with two fields: **new password** and **co
 
     Accounts.reset_user_password(user, %{"password" => new_password, "password_confirmation" => confirm})
 
-which updates the `hashed_password` field and — critically — deletes **all** sessions and tokens for that user via `Accounts.delete_all_user_session_tokens/1`. Anyone who was logged in as `alice@example.com` on any device is now logged out.
+which updates the `hashed_password` field and — critically — deletes **all** sessions and tokens for that user via `Accounts.delete_all_user_session_tokens/1`. Anyone signed in as `alice@example.com` on any device is now signed out.
 
-You're redirected to the login page with a "Password reset successfully" flash.
+You're redirected to the sign-in page with a "Password reset successfully" flash.
 
-## 9. Log in with the new password
+## 9. Sign in with the new password
 
-Enter `alice@example.com` and the new password. You're logged in again, and a brand-new session token is written to the cookie. The old tokens are gone forever.
+Enter `alice@example.com` and the new password. You're signed in again, and a brand-new session token is written to the cookie. The old tokens are gone forever.
 
 ## 10. Organizations & Passkeys
 
@@ -218,7 +218,7 @@ On the default install, a newly registered user gets a personal organization and
 
 ### 10.2 Sign in and confirm the org-aware redirect
 
-Log in with the user you created earlier. On a fresh default install the post-login landing page is either:
+Sign in with the user you created earlier. On a fresh default install the landing page after sign-in is either:
 
 - `/` when the user already has an active personal organization
 - `/organizations` when the user needs to create or accept one
@@ -255,7 +255,7 @@ The default config injected by `mix sigra.install` looks like:
 
 When you click **Add passkey**, the app posts to `/users/settings/mfa/passkeys/options`, the browser completes the WebAuthn ceremony, and the generated controller finishes registration at `/users/settings/mfa/passkeys`.
 
-### 10.5 Try the passkey-primary login path
+### 10.5 Try the passkey-primary sign-in path
 
 Open a private window and visit <http://localhost:4000/users/log_in>. With `passkey_primary_enabled: true`, the generated page keeps all three entry points visible:
 
@@ -280,15 +280,15 @@ In under 30 minutes you:
 
 1. Registered a user with `Accounts.register_user/2` — Argon2id hashing, validation, audit log.
 2. Delivered a confirmation email via `deliver_user_confirmation_instructions/2`.
-3. Logged in with `UserAuth.log_in_user/3` — session token, remember-me cookie.
+3. Signed in with `UserAuth.log_in_user/3` — session token, remember-me cookie.
 4. Protected a route with `:require_authenticated_user`.
-5. Logged out with `UserAuth.log_out_user/1` — session renewed, cookies cleared, token deleted.
+5. Signed out with `UserAuth.log_out_user/1` — session renewed, cookies cleared, token deleted.
 6. Delivered a password reset email with `deliver_user_reset_password_instructions/2`.
 7. Reset the password with `reset_user_password/2` — all sessions invalidated.
 
 8. Continued into the default organizations + passkeys surface.
 9. Scoped tenant-owned queries with `Sigra.Organizations.Query.for_org/2`.
-10. Enrolled a passkey and verified the passkey-primary login posture keeps password and magic link recovery available.
+10. Enrolled a passkey and verified the passkey-primary sign-in setup keeps password and magic link recovery available.
 
 Every one of those calls is in the generated `Accounts`, `Organizations`, and `UserAuth` modules. You own that code: read it, edit it, extend it. Security-critical primitives (hashing, HMAC, TOTP, WebAuthn) live in the library and update via `mix deps.update sigra`.
 
@@ -300,7 +300,7 @@ You've covered the core session auth flow. Most apps need one or more of:
 - **[After the first hour: toward solo production](intermediate-production-path.html)** — ordered path toward solo production confidence (links out to deployment + flows).
 - **[Multi-factor authentication](mfa.html)** — TOTP enrollment, backup codes, trust-this-browser.
 - **[Upgrading to v1.1](upgrading-to-v1.1.html)** — the tested `mix sigra.upgrade` path from v1.0.
-- **[OAuth and social login](oauth.html)** — Google, GitHub, Apple via Assent.
+- **[OAuth and social sign-in](oauth.html)** — Google, GitHub, Apple via Assent.
 - **[API authentication](api-authentication.html)** — Bearer tokens and JWT for non-browser clients.
 - **[Account lifecycle](account-lifecycle.html)** — email change, password change, scheduled deletion.
 - **[Audit logging](audit-logging.html)** — every auth event logged to `audit_events` with actor, target, metadata.
@@ -318,7 +318,7 @@ And a few cross-cutting recipes:
 
 - **"Invalid email or password" on a user you just created** — check `confirmed_at`. If you have `require_confirmation: true` in your Sigra config, you must click the confirmation link first. Otherwise click through <http://localhost:4000/dev/mailbox>.
 - **Reset email never arrives in dev** — Swoosh dev mailer stores emails in memory at `/dev/mailbox`. For prod, configure a real adapter (Postmark, Mailgun, SES) in `config/runtime.exs`.
-- **Remember-me cookie not persisting across browser restart** — verify you checked the box on the login form, then check devtools → Cookies for `_my_app_web_user_remember_me`. If it's missing, check your Phoenix endpoint's `secure_browser_headers` config.
+- **Remember-me cookie not persisting across browser restart** — verify you checked the box on the sign-in form, then check devtools → Cookies for `_my_app_web_user_remember_me`. If it's missing, check your Phoenix endpoint's `secure_browser_headers` config.
 - **Password reset link shows "Reset password link is invalid or it has expired"** — the token is older than 60 minutes, or the password has already been reset (tokens are single-use), or the URL was copied incorrectly.
 
 ## Before you ship to production

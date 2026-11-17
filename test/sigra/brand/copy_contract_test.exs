@@ -848,6 +848,14 @@ defmodule Sigra.Brand.CopyContractTest do
       assert "guides/introduction/contract.md" in files
       assert Enum.any?(files, &String.starts_with?(&1, "guides/flows/"))
 
+      for file <- [
+            "guides/introduction/first-hour.md",
+            "guides/introduction/getting-started.md",
+            "guides/introduction/installation.md"
+          ] do
+        assert file in files, "primary guide missing from the lexicon source list: #{file}"
+      end
+
       %{entries: entries} = CopyScan.load_baseline()
       assert Enum.count(entries, &(&1.scope == "lexicon")) >= 1
     end

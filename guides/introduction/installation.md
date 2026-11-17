@@ -56,14 +56,14 @@ For the **complete** switch matrix (defaults, “see also” links, and prose cl
 | `--auth-prefix` | Postgres schema for Sigra-owned tables (default: `auth`; use `public` for old placement). |
 | `--api` | Generate API token controller (implied by `--jwt`). |
 | `--jwt` | Generate JWT token controller. |
-| `--admin` / `--no-admin` | Admin scaffolding (default: on). |
-| `--passkeys` / `--no-passkeys` | Passkey scaffolding (default: on). |
-| `--organizations` / `--no-organizations` | Organizations scaffolding (default: on). |
+| `--admin` / `--no-admin` | Generate admin code (default: on). |
+| `--passkeys` / `--no-passkeys` | Generate passkey code (default: on). |
+| `--organizations` / `--no-organizations` | Generate organization code (default: on). |
 | `--yes` | Non-interactive mode (CI / scripts). |
 
 **Subset:** the rows above are a quick cheat sheet only—the canonical table with “See also” links lives at **[Generator and install options](../reference/generator-options.html)**.
 
-Before production, work through the **[Production checklist (read first)](../recipes/deployment.html#production-checklist-read-first)** on the same deployment recipe. Mail and background delivery tradeoffs are in **[Mail delivery: inline vs Oban (TL;DR)](../recipes/deployment.html#mail-delivery-inline-vs-oban-tl-dr)**. For a CI-backed host that mirrors recommended wiring, browse **`test/example/`** in the Sigra repo.
+Before production, work through the **[Production checklist (read first)](../recipes/deployment.html#production-checklist-read-first)** on the same deployment recipe. Mail and background delivery tradeoffs are in **[Mail delivery: inline vs Oban (TL;DR)](../recipes/deployment.html#mail-delivery-inline-vs-oban-tl-dr)**. For a CI-backed Phoenix app that mirrors recommended wiring, browse **`test/example/`** in the Sigra repo.
 
 Sigra generates `uuid` (binary_id) primary keys by default — no flag required. If your app is already on bigint integer IDs and you want to stay on them, pass `--no-binary-id`:
 
@@ -77,22 +77,22 @@ If you want the old public-schema placement for a new Postgres install, choose i
 
 MySQL and SQLite keep their current default-schema behavior.
 
-This generates the **application-owned** scaffolding into your project:
+This writes **generated code owned by your app** into your project:
 
 - `lib/my_app/accounts.ex` — the `Accounts` context with `register_user/2`, `get_user_by_email_and_password/2`, `deliver_user_reset_password_instructions/2`, and friends.
 - `lib/my_app/accounts/user.ex` — the `User` Ecto schema with password changesets and validation.
 - `lib/my_app/accounts/user_token.ex` — session, confirmation, reset, and magic-link token schema.
 - `lib/my_app_web/user_auth.ex` — the `UserAuth` plug module: `log_in_user/3`, `log_out_user/1`, `fetch_current_scope/2`, `require_authenticated_user/2`.
-- `lib/my_app_web/live/user_registration_live.ex` and friends — the registration, login, password-reset, and settings LiveViews.
+- `lib/my_app_web/live/user_registration_live.ex` and friends — the registration, sign-in, password-reset, and settings LiveViews.
 - `lib/my_app_web/components/sigra_auth_components.ex` and `priv/static/assets/sigra_auth.css` — the generated auth shell and scoped Light/Dark/System styling.
-- `lib/my_app/sigra_admin_access.ex`, `lib/my_app/accounts/platform_admin_grant.ex`, and `mix sigra.admin.*` tasks — the explicit, persisted first-admin seam when admin scaffolding is enabled.
+- `lib/my_app/sigra_admin_access.ex`, `lib/my_app/accounts/platform_admin_grant.ex`, and `mix sigra.admin.*` tasks — the explicit, persisted first-admin seam when admin code is enabled.
 - `priv/repo/migrations/*_create_users_auth_tables.exs` — the users + tokens migrations, under `auth` by default on Postgres.
-- `priv/repo/migrations/*_create_sigra_brand_profiles.exs` — optional global auth/email brand tokens managed from the generated admin UI.
+- `priv/repo/migrations/*_create_sigra_brand_profiles.exs` — optional global auth/email brand tokens configured through the generated admin UI.
 - `test/support/auth_fixtures.ex` — scenario fixtures (`user_fixture`, `authenticated_fixture`, etc.).
 
 **You own this code.** Security-critical primitives (hashing, TOTP verification, token HMACs) live in the library and update via `mix deps.update sigra`. Everything in your app — schemas, routes, templates, LiveViews — is yours to customize without fighting the library.
 
-Auth forms and transactional emails also get brandable defaults. Use `branding:` in `sigra_config/0`, the generated `/admin/auth-branding` page, or edit the generated host templates directly. See [Auth Branding](../recipes/auth-branding.html) for the lanes and tradeoffs.
+Auth forms and transactional emails also get brandable defaults. Use `branding:` in `sigra_config/0`, the generated `/admin/auth-branding` page, or edit the generated templates in your app directly. See [Auth Branding](../recipes/auth-branding.html) for the lanes and tradeoffs.
 
 The generator also patches your router with the auth pipelines and scopes. Re-running `mix sigra.install` is safe: it detects existing files and skips them (pass `--force` to overwrite).
 
@@ -108,7 +108,7 @@ Admin-enabled installs start closed: registering first, using a particular email
 
     mix sigra.admin.grant --email operator@example.com
 
-The task asks for confirmation, writes the host-owned grant and its audit event in one transaction, and is safe to repeat. For deployment automation, add `--yes`. Useful companion commands are:
+The task asks for confirmation, writes the app-owned grant and its audit event in one transaction, and is safe to repeat. For deployment automation, add `--yes`. Useful companion commands are:
 
     mix sigra.admin.check --email operator@example.com
     mix sigra.admin.list
@@ -122,9 +122,9 @@ Start the server:
 
     mix phx.server
 
-Visit <http://localhost:4000/users/register>. You should see the generated registration LiveView. Fill in an email and password — the user should be created and you should be logged in.
+Visit <http://localhost:4000/users/register>. You should see the generated registration LiveView. Fill in an email and password — the user should be created and you should be signed in.
 
-If that worked, you're ready. Continue with [Getting Started](getting-started.html) for the full walkthrough including login, logout, and password reset.
+If that worked, you're ready. Continue with [Getting Started](getting-started.html) for the full walkthrough including sign in, sign out, and password reset.
 
 ## Troubleshooting
 
@@ -143,6 +143,6 @@ Sigra defaults to `uuid` (binary_id) primary keys. If you installed Sigra before
 
 ## What's next
 
-- [Getting Started](getting-started.html) — register, log in, log out, reset password in under 30 minutes.
+- [Getting Started](getting-started.html) — register, sign in, sign out, and reset a password in under 30 minutes.
 - [User Registration flow](registration.html) — customizing the registration form and confirmation flow.
-- [Login and Logout flow](login-and-logout.html) — remember-me, session renewal, logout hooks.
+- [Sign in and sign out flow](login-and-logout.html) — remember-me, session renewal, and sign-out hooks.
