@@ -56,7 +56,7 @@ defmodule <%= web_module %>.OrganizationsLive.New do
     ~H"""
     <Layouts.flash_group flash={@flash} />
 
-    <div class="mx-auto max-w-md py-16">
+    <div class="sigra-auth-flow">
       <.header>
         Create organization
       </.header>
@@ -66,13 +66,13 @@ defmodule <%= web_module %>.OrganizationsLive.New do
         id="organization-new-form"
         phx-change="validate"
         phx-submit="create"
-        class="mt-8"
+        class="sigra-auth-stack"
       >
         <.input field={@form[:name]} type="text" label="Organization name" required />
 
         <p
           id="slug-preview"
-          class="text-sm text-base-content/70 mt-1"
+          class="sigra-auth-copy sigra-auth-copy--muted"
           aria-live="polite"
         >
           {@slug_preview}
@@ -80,14 +80,14 @@ defmodule <%= web_module %>.OrganizationsLive.New do
 
         <.button
           phx-disable-with="Creating..."
-          class="btn btn-primary w-full mt-4"
+          class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
         >
           Create organization
         </.button>
       </.form>
 
-      <div class="mt-6 text-center">
-        <.link navigate={~p"/organizations"} class="link link-hover text-sm">
+      <div class="sigra-auth-cluster sigra-auth-cluster--center">
+        <.link navigate={~p"/organizations"} class="sigra-auth-action sigra-auth-action--ghost">
           Cancel
         </.link>
       </div>
