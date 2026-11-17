@@ -193,7 +193,15 @@ defmodule ExampleWeb.CatalogTest do
     test("user detail, one page per account state", ctx, do: assert_group!(ctx, :user_show))
     test("user sessions, one page per account state", ctx, do: assert_group!(ctx, :user_sessions))
     test("user audit, one page per account state", ctx, do: assert_group!(ctx, :user_audit))
-    test("audit index", ctx, do: assert_group!(ctx, :audit))
+
+    test "audit index", ctx do
+      html = ctx |> assert_group!(:audit) |> Map.fetch!("admin-audit-index")
+
+      assert html =~ ~s(data-testid="admin-audit-desktop-results")
+      assert html =~ "Export CSV"
+      refute html =~ "No audit events yet."
+    end
+
     test("auth branding", ctx, do: assert_group!(ctx, :branding))
     test("organization", ctx, do: assert_group!(ctx, :org))
   end

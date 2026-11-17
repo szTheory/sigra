@@ -93,6 +93,8 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
 
     const detailUrl = new URL(page.url());
     const detailPath = `${detailUrl.pathname}${detailUrl.search}`;
+    const targetUserId = detailUrl.pathname.split('/').at(-1);
+    expect(targetUserId).toBeTruthy();
     await page.goto(`/users/sudo?return_to=${encodeURIComponent(detailPath)}`);
     await confirmSudo(page, password);
     await waitForLiveViewReady(page);
@@ -107,11 +109,30 @@ test.describe('Phase 31 admin audit browser contract (D-04 4)', () => {
     await expect(page).toHaveURL(/\/admin\/users\?.*q=/);
     await waitForLiveViewReady(page);
 
-    await page.goto('/admin/audit?action_prefix=admin.impersonation');
+    await page.goto(`/admin/audit?action_prefix=admin.impersonation&effective_user=${targetUserId}`);
     await waitForLiveViewReady(page);
     await expect(page.getByRole('heading', { name: 'Audit' })).toBeVisible();
     await expect(page.getByText('Impersonation').first()).toBeVisible();
     await expect(page.getByText('acting as').first()).toBeVisible();
+    const globalResults = page.locator('[data-testid="admin-audit-desktop-results"]');
+    await expect(globalResults.locator('tbody tr')).toHaveCount(2);
+
+    await page.getByRole('textbox', { name: 'Action prefix' }).fill('admin.impersonation.start');
+    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await waitForLiveViewReady(page);
+    await expect(globalResults.locator('tbody tr')).toHaveCount(1);
+
+    await page.getByRole('textbox', { name: 'Action prefix' }).fill(`missing.${suffix}`);
+    await page.getByRole('button', { name: 'Apply filters' }).click();
+    await expect(page).toHaveURL(new RegExp(encodeURIComponent(`missing.${suffix}`)));
+    await waitForLiveViewReady(page);
+    await expect(page.getByText('No audit events match this view', { exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Clear all filters' })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Action prefix' })).toHaveValue(`missing.${suffix}`);
+
+    await page.getByRole('link', { name: 'Clear all filters' }).click();
+    await waitForLiveViewReady(page);
+    await expect.poll(() => globalResults.locator('tbody tr').count()).toBeGreaterThan(1);
 
     const globalDownload = page.waitForEvent('download');
     await page.getByRole('link', { name: 'Export CSV' }).click();
