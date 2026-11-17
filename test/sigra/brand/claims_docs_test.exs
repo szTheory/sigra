@@ -36,6 +36,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @root Path.expand("../../..", __DIR__)
 
   @readme "README.md"
+  @announcement "docs/launch/v1.51/announcement.md"
   @registration "guides/flows/registration.md"
   @password_reset "guides/flows/password-reset.md"
   @login_logout "guides/flows/login-and-logout.md"
@@ -291,7 +292,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       |> Path.wildcard()
       |> Enum.map(&Path.relative_to(&1, @root))
 
-    [@readme, @example_readme | guides]
+    [@readme, @announcement, @example_readme | guides]
     |> Enum.filter(&File.regular?(Path.join(@root, &1)))
     |> Enum.uniq()
     |> Enum.sort()
@@ -668,11 +669,12 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
   # --- the repo-wide sweep -----------------------------------------------
 
-  describe "unbounded-claim sweep over README.md, guides/**/*.md and test/example/README.md" do
+  describe "unbounded-claim sweep over README.md, guides/**/*.md, the announcement and test/example/README.md" do
     test "the sweep cannot pass vacuously" do
       files = sweep_files()
 
       assert @readme in files
+      assert @announcement in files
       assert @example_readme in files
       assert Enum.any?(files, &String.starts_with?(&1, "guides/flows/"))
       assert Enum.any?(files, &String.starts_with?(&1, "guides/introduction/"))

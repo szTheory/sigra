@@ -1,5 +1,6 @@
 defmodule Sigra.Brand.VocabularyDocsTest do
   use ExUnit.Case, async: true
+  alias Sigra.Test.Brand.CopyScan
 
   @moduledoc """
   Doc contract for the brand book vocabulary reconciliation (BCOPY-01) in
@@ -36,6 +37,7 @@ defmodule Sigra.Brand.VocabularyDocsTest do
   """
 
   @glossary "guides/reference/admin-glossary.md"
+  @announcement "docs/launch/v1.51/announcement.md"
   @heading "## Brand book v2.0 reconciliation"
   @columns ["Canonical", "Banned synonyms", "Context rule", "Enforcement"]
 
@@ -675,6 +677,14 @@ defmodule Sigra.Brand.VocabularyDocsTest do
       # Assert
       assert missing == ["test/sigra/brand/no_such_test.exs"]
       assert unnamed == ["**vague**"]
+    end
+  end
+
+  describe "release announcement" do
+    test "the local draft passes the existing brand-book lexicon scanner" do
+      lines = read!(@announcement) |> String.split("\n")
+
+      assert CopyScan.scan_lines(:lexicon, @announcement, lines) == []
     end
   end
 end

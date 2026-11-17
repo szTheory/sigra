@@ -24,6 +24,7 @@ defmodule Sigra.Brand.NameClearanceTest do
   use ExUnit.Case, async: true
 
   @record ".planning/decisions/006-name-clearance-search-log-and-claims-register.md"
+  @announcement "docs/launch/v1.51/announcement.md"
   @registry "test/fixtures/brand/public-surfaces.json"
   @mix_exs "mix.exs"
   @closed_library_claim_id "lib-moduledoc-claims"
@@ -445,6 +446,16 @@ defmodule Sigra.Brand.NameClearanceTest do
 
       # Assert
       assert paths == ["a/b_test.exs", "x.json"]
+    end
+  end
+
+  describe "local release announcement" do
+    test "the announcement is marked as a draft and makes no name-clearance claim" do
+      content = read!(@announcement)
+
+      assert content =~ "LOCAL DRAFT"
+      assert forbidden_wording(content) == []
+      refute mentions?(content, source_owner())
     end
   end
 end
