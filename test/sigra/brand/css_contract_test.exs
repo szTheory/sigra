@@ -224,6 +224,33 @@ defmodule Sigra.Brand.CssContractTest do
     end
   end
 
+  describe "selected and current states (Phase 262)" do
+    test "selected command rows use the selected surface and 2px edge tokens", %{css: css} do
+      selector = ".sg-cmdk__item[aria-selected=\"true\"]"
+
+      assert rule_bodies(css, selector) != []
+      assert declares?(css, selector, "background", "var(--sg-color-selected)")
+      assert declares?(css, selector, "border-inline-start", "2px solid var(--sg-color-selected-edge)")
+      assert declares?(css, selector, "color", "var(--sg-color-ink)")
+
+      planted = "#{selector} { background: var(--sg-color-selected); }"
+      refute declares?(planted, selector, "border-inline-start", "2px solid var(--sg-color-selected-edge)")
+    end
+
+    test "the current tab keeps its text cue and gets one tokenized square", %{css: css} do
+      selector = ".sg-tabs__tab[aria-current=\"page\"]::before"
+
+      assert rule_bodies(css, selector) != []
+      assert declares?(css, selector, "width", "0.5rem")
+      assert declares?(css, selector, "height", "0.5rem")
+      assert declares?(css, selector, "background", "var(--sg-color-current-tab)")
+      assert declares?(css, ".sg-tabs__tab[aria-current=\"page\"]", "color", "var(--sg-color-brand-strong)")
+
+      planted = ".sg-tabs__tab[aria-current=\"page\"]::before { width: 0.5rem; }"
+      refute declares?(planted, selector, "background", "var(--sg-color-current-tab)")
+    end
+  end
+
   describe "table header ground (BTOK-08)" do
     test "the sticky header cell reads the sunken token, not the panel", %{css: css} do
       for selector <- [".sg-table-panel th", ".sg-table__head th"] do

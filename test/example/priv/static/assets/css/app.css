@@ -1946,12 +1946,6 @@ html[data-sg-admin-page-loading="complete"] .sg-admin-loading-bar::before {
 .sg-tabs__tab:hover {
   color: var(--sg-color-ink);
 }
-.sg-tabs__tab--active,
-.sg-tabs__tab[aria-current="page"] {
-  color: var(--sg-color-brand-strong);
-  border-bottom-color: var(--sg-color-brand);
-}
-
 .sg-branding-editor__status {
   display: flex;
   flex-wrap: wrap;
@@ -2380,11 +2374,6 @@ html[data-sg-admin-page-loading="complete"] .sg-admin-loading-bar::before {
   color: var(--sg-color-ink);
   font-size: var(--sg-text-sm);
   cursor: pointer;
-}
-.sg-cmdk__item.is-active,
-.sg-cmdk__item[aria-selected="true"] {
-  background: var(--sg-color-brand-soft);
-  color: var(--sg-color-brand-strong);
 }
 .sg-cmdk__empty {
   padding: var(--sg-space-3);

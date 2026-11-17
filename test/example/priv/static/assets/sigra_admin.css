@@ -2369,7 +2369,15 @@
   .sg-tabs__tab--active,
   .sg-tabs__tab[aria-current="page"] {
     color: var(--sg-color-brand-strong);
-    border-bottom-color: var(--sg-color-brand);
+    border-bottom-color: transparent;
+  }
+
+  .sg-tabs__tab[aria-current="page"]::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: 0 0 0.5rem;
+    background: var(--sg-color-current-tab);
   }
 
   .sg-toast-region {
@@ -2497,8 +2505,10 @@
 
   .sg-cmdk__item.is-active,
   .sg-cmdk__item[aria-selected="true"] {
-    background: var(--sg-color-brand-soft);
-    color: var(--sg-color-brand-strong);
+    border-inline-start: 2px solid var(--sg-color-selected-edge);
+    border-radius: 0 var(--sg-radius-sm) var(--sg-radius-sm) 0;
+    background: var(--sg-color-selected);
+    color: var(--sg-color-ink);
   }
 
   .sg-cmdk__empty {
