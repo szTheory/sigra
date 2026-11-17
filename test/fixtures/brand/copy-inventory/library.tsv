@@ -77,6 +77,7 @@ lib/sigra/admin/live/audit_index_live.ex	heex_text	Occurred from
 lib/sigra/admin/live/audit_index_live.ex	heex_text	Occurred to
 lib/sigra/admin/live/audit_index_live.ex	heex_text	Outcome
 lib/sigra/admin/live/audit_index_live.ex	heex_text	Success
+lib/sigra/admin/live/audit_index_live.ex	heex_text	We couldn't load audit events. Refresh this page, then try again.
 lib/sigra/admin/live/audit_index_live.ex	literal	#{name} Audit
 lib/sigra/admin/live/audit_index_live.ex	literal	Action: 
 lib/sigra/admin/live/audit_index_live.ex	literal	Actor: 
@@ -85,11 +86,12 @@ lib/sigra/admin/live/audit_index_live.ex	literal	Effective user:
 lib/sigra/admin/live/audit_index_live.ex	literal	Failure
 lib/sigra/admin/live/audit_index_live.ex	literal	From: 
 lib/sigra/admin/live/audit_index_live.ex	literal	Global audit explorer
+lib/sigra/admin/live/audit_index_live.ex	literal	No audit events match this view
+lib/sigra/admin/live/audit_index_live.ex	literal	No audit events yet.
 lib/sigra/admin/live/audit_index_live.ex	literal	Organization-scoped audit explorer for #{name}
 lib/sigra/admin/live/audit_index_live.ex	literal	Outcome: 
 lib/sigra/admin/live/audit_index_live.ex	literal	Success
 lib/sigra/admin/live/audit_index_live.ex	literal	To: 
-lib/sigra/admin/live/audit_index_live.ex	literal	We couldn't load this audit view. Refresh the page, then try again.
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Action prefix
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Active filters
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Actor
@@ -102,15 +104,14 @@ lib/sigra/admin/live/audit_user_live.ex	heex_text	Event
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Export CSV
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Failure
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Failures
-lib/sigra/admin/live/audit_user_live.ex	heex_text	Filter this user's scoped event history, distinguish support actions from user actions, and export evidence.
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Impersonation
-lib/sigra/admin/live/audit_user_live.ex	heex_text	No scoped events are currently tied to this user.
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Occurred
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Occurred from
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Occurred to
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Outcome
+lib/sigra/admin/live/audit_user_live.ex	heex_text	Review recorded activity for this user. Event rows show the actor and effective user when those details are available.
 lib/sigra/admin/live/audit_user_live.ex	heex_text	Success
-lib/sigra/admin/live/audit_user_live.ex	heex_text	User audit evidence
+lib/sigra/admin/live/audit_user_live.ex	heex_text	User audit
 lib/sigra/admin/live/audit_user_live.ex	literal	#{detail.display_name || detail.user.email} audit
 lib/sigra/admin/live/audit_user_live.ex	literal	Action: 
 lib/sigra/admin/live/audit_user_live.ex	literal	Actor: 
@@ -169,7 +170,7 @@ lib/sigra/admin/live/branding_live.ex	literal	Surface
 lib/sigra/admin/live/branding_live.ex	literal	Text
 lib/sigra/admin/live/branding_live.ex	literal	Unsaved branding changes discarded.
 lib/sigra/admin/live/index_live.ex	heex_text	Admin overview
-lib/sigra/admin/live/index_live.ex	heex_text	No flagged accounts
+lib/sigra/admin/live/index_live.ex	heex_text	No users need review.
 lib/sigra/admin/live/index_live.ex	heex_text	Review users
 lib/sigra/admin/live/index_live.ex	heex_text	Start from the job at hand — find a user, investigate an event, or review risky users.
 lib/sigra/admin/live/index_live.ex	heex_text	User snapshot
@@ -185,11 +186,11 @@ lib/sigra/admin/live/organization_live.ex	heex_text	Invitations appear here when
 lib/sigra/admin/live/organization_live.ex	heex_text	Locked
 lib/sigra/admin/live/organization_live.ex	heex_text	Members
 lib/sigra/admin/live/organization_live.ex	heex_text	Members appear here as people join this organization.
+lib/sigra/admin/live/organization_live.ex	heex_text	Members, audit events, and invitations stay within this organization.
 lib/sigra/admin/live/organization_live.ex	heex_text	No flagged accounts
 lib/sigra/admin/live/organization_live.ex	heex_text	Organization overview
 lib/sigra/admin/live/organization_live.ex	heex_text	Pending invitations
 lib/sigra/admin/live/organization_live.ex	heex_text	Unconfirmed
-lib/sigra/admin/live/organization_live.ex	heex_text	Work inside this organization scope: support members, inspect security posture, and review audit evidence without losing tenant context.
 lib/sigra/admin/live/organization_live.ex	heex_text	review — Review members
 lib/sigra/admin/live/organization_live.ex	literal	#{organization_name} overview
 lib/sigra/admin/live/organization_live.ex	literal	Admin
