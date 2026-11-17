@@ -7,7 +7,7 @@ defmodule <%= web_module %>.Components.OrgSwitcher do
   into your app layout (typically the `<header>` in
   `lib/<%= otp_app %>_web/components/layouts.ex`).
 
-  The component renders a native `<details>` switcher — click to
+  The component renders a daisyUI `<details class="dropdown">` — click to
   open, click-outside to close, Esc closes via native `<details>` behaviour.
   Other organizations are each wrapped in a tiny POST form that submits to
   `/organizations/switch`, preserving the sensitive-mutation-via-POST
@@ -38,7 +38,7 @@ defmodule <%= web_module %>.Components.OrgSwitcher do
         <span class="sigra-auth-copy">
           {@current_scope.active_organization.name}
         </span>
-        <span class={["sigra-auth-status", role_badge_class(@current_scope.membership.role)]}>
+        <span class="sigra-auth-status">
           {humanize_role(@current_scope.membership.role)}
         </span>
         <.icon name="hero-chevron-down" class="sigra-auth-icon" />
@@ -50,7 +50,7 @@ defmodule <%= web_module %>.Components.OrgSwitcher do
           <span>
             <.icon name="hero-check" class="sigra-auth-icon" />
             {@current_scope.active_organization.name}
-            <span class={["sigra-auth-status", role_badge_class(@current_scope.membership.role)]}>
+            <span class="sigra-auth-status">
               {humanize_role(@current_scope.membership.role)}
             </span>
           </span>
@@ -69,7 +69,7 @@ defmodule <%= web_module %>.Components.OrgSwitcher do
                   aria-label={"Switch to #{org.name}"}
                   class="sigra-auth-action sigra-auth-action--secondary sigra-auth-cluster sigra-auth-cluster--between">
                   <span>{org.name}</span>
-                  <span class={["sigra-auth-status", role_badge_class(role)]}>
+                  <span class="sigra-auth-status">
                     {humanize_role(role)}
                   </span>
                 </button>
@@ -110,12 +110,6 @@ defmodule <%= web_module %>.Components.OrgSwitcher do
   end
 
   defp initials(_), do: "?"
-
-  # Role badges use neutral status styles owned by the generated auth stylesheet.
-  defp role_badge_class(:owner), do: "sigra-auth-status--success"
-  defp role_badge_class(:admin), do: "sigra-auth-status--warning"
-  defp role_badge_class(:member), do: ""
-  defp role_badge_class(_), do: ""
 
   defp humanize_role(:owner), do: "Owner"
   defp humanize_role(:admin), do: "Admin"

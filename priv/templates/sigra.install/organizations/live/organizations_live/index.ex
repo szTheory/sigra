@@ -181,7 +181,7 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
         <li :for={{org, role} <- @memberships} class="sigra-auth-split">
           <div>
             <div class="sigra-auth-copy">{org.name}</div>
-            <span class={["sigra-auth-status", role_badge_class(role)]}>{humanize_role(role)}</span>
+            <span class="sigra-auth-status">{humanize_role(role)}</span>
           </div>
 
           <form action={~p"/organizations/switch"} method="post" class="sigra-auth-stack">
@@ -211,11 +211,6 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
     </div>
     """
   end
-
-  # Role status styles are part of the neutral generated-auth contract.
-  defp role_badge_class(:owner), do: "sigra-auth-status--success"
-  defp role_badge_class(:admin), do: "sigra-auth-status--warning"
-  defp role_badge_class(_), do: ""
 
   defp humanize_role(role) when is_atom(role),
     do: role |> Atom.to_string() |> String.capitalize()

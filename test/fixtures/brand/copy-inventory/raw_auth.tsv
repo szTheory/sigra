@@ -1893,7 +1893,7 @@ organizations/components/org_switcher.ex	source_token	\n        aria-expanded=
 organizations/components/org_switcher.ex	source_token	\n        class=
 organizations/components/org_switcher.ex	source_token	\n    <details class=
 organizations/components/org_switcher.ex	source_token	\n  Organization switcher function component.\n\n  Paste `<.org_switcher current_scope={@current_scope}\n  user_organizations={@user_organizations} return_to={@current_path} />`\n  into your app layout (typically the `<header>` in\n  `lib/<%= otp_app %>_web/components/layouts.ex`).\n\n  The component renders a daisyUI `<details class=
-organizations/components/org_switcher.ex	source_token	 />\n            {@current_scope.active_organization.name}\n            <span class={[
+organizations/components/org_switcher.ex	source_token	 />\n            {@current_scope.active_organization.name}\n            <span class=
 organizations/components/org_switcher.ex	source_token	 />\n      </summary>\n\n      <ul class=
 organizations/components/org_switcher.ex	source_token	 /> Create organization\n          </.link>\n        </li>\n        <%%= if @current_scope.membership.role in [:owner, :admin] do %>\n          <li>\n            <.link navigate={~p
 organizations/components/org_switcher.ex	source_token	 /> Manage organizations\n          </.link>\n        </li>\n      </ul>\n    </details>\n    
@@ -1904,14 +1904,14 @@ organizations/components/org_switcher.ex	source_token	 name=
 organizations/components/org_switcher.ex	source_token	 value={@return_to} />\n                <button\n                  type=
 organizations/components/org_switcher.ex	source_token	 value={CSRFProtection.get_csrf_token()} />\n                <input type=
 organizations/components/org_switcher.ex	source_token	 value={org.id} />\n                <input type=
-organizations/components/org_switcher.ex	source_token	, role_badge_class(@current_scope.membership.role)]}>\n              {humanize_role(@current_scope.membership.role)}\n            </span>\n          </span>\n        </li>\n\n        <%%= if other_orgs(@user_organizations, @current_scope.active_organization) != [] do %>\n          <li class=
-organizations/components/org_switcher.ex	source_token	, role_badge_class(@current_scope.membership.role)]}>\n          {humanize_role(@current_scope.membership.role)}\n        </span>\n        <.icon name=
-organizations/components/org_switcher.ex	source_token	, role_badge_class(role)]}>\n                    {humanize_role(role)}\n                  </span>\n                </button>\n              </form>\n            </li>\n          <%% end %>\n        <%% end %>\n\n        <li class=
 organizations/components/org_switcher.ex	source_token	/
-organizations/components/org_switcher.ex	source_token	>\n                  <span>{org.name}</span>\n                  <span class={[
+organizations/components/org_switcher.ex	source_token	>\n                    {humanize_role(role)}\n                  </span>\n                </button>\n              </form>\n            </li>\n          <%% end %>\n        <%% end %>\n\n        <li class=
+organizations/components/org_switcher.ex	source_token	>\n                  <span>{org.name}</span>\n                  <span class=
 organizations/components/org_switcher.ex	source_token	>\n                <input type=
+organizations/components/org_switcher.ex	source_token	>\n              {humanize_role(@current_scope.membership.role)}\n            </span>\n          </span>\n        </li>\n\n        <%%= if other_orgs(@user_organizations, @current_scope.active_organization) != [] do %>\n          <li class=
 organizations/components/org_switcher.ex	source_token	>\n          <span>\n            <.icon name=
-organizations/components/org_switcher.ex	source_token	>\n          {@current_scope.active_organization.name}\n        </span>\n        <span class={[
+organizations/components/org_switcher.ex	source_token	>\n          {@current_scope.active_organization.name}\n        </span>\n        <span class=
+organizations/components/org_switcher.ex	source_token	>\n          {humanize_role(@current_scope.membership.role)}\n        </span>\n        <.icon name=
 organizations/components/org_switcher.ex	source_token	>\n          {initials(@current_scope.active_organization.name)}\n        </span>\n        <span class=
 organizations/components/org_switcher.ex	source_token	>\n        <li class=
 organizations/components/org_switcher.ex	source_token	>\n        <span class=
@@ -2176,16 +2176,14 @@ organizations/live/organization_members_live.ex	source_token	#{div(diff, 3_600)}
 organizations/live/organization_members_live.ex	source_token	#{div(diff, 60)} minutes ago
 organizations/live/organization_members_live.ex	source_token	#{div(diff, 86_400)} days ago
 organizations/live/organization_members_live.ex	source_token	#{params[
-organizations/live/organization_members_live.ex	source_token	, role_badge_class(inv.role)]}>\n                {humanize_role(inv.role)}\n              </span>\n            </:col>\n            <:col :let={{_dom_id, inv}} label=
-organizations/live/organization_members_live.ex	source_token	, role_badge_class(m.role)]}>{humanize_role(m.role)}</span>\n        </:col>\n        <:col :let={{_dom_id, _m}} label=
 organizations/live/organization_members_live.ex	source_token	>\n                <option value=
 organizations/live/organization_members_live.ex	source_token	>\n                Cancel\n              </button>\n            </div>\n          </form>\n        </div>\n        <form method=
+organizations/live/organization_members_live.ex	source_token	>\n                {humanize_role(inv.role)}\n              </span>\n            </:col>\n            <:col :let={{_dom_id, inv}} label=
 organizations/live/organization_members_live.ex	source_token	>\n                {invitation_expires_relative(inv.expires_at)}\n              </span>\n            </:col>\n            <:action :let={{_dom_id, inv}}>\n              <button\n                :if={owner_or_admin?(@current_scope)}\n                type=
 organizations/live/organization_members_live.ex	source_token	>\n              <.icon name=
 organizations/live/organization_members_live.ex	source_token	>\n              <button type=
 organizations/live/organization_members_live.ex	source_token	>\n              <li>\n                <button type=
 organizations/live/organization_members_live.ex	source_token	>\n              <span class=
-organizations/live/organization_members_live.ex	source_token	>\n              <span class={[
 organizations/live/organization_members_live.ex	source_token	>\n              Cancel\n            </button>\n            <button\n              type=
 organizations/live/organization_members_live.ex	source_token	>\n              {invited_by_email(inv)}\n            </:col>\n            <:col :let={{_dom_id, inv}} label=
 organizations/live/organization_members_live.ex	source_token	>\n            <button type=
@@ -2202,7 +2200,6 @@ organizations/live/organization_members_live.ex	source_token	>\n          <butto
 organizations/live/organization_members_live.ex	source_token	>\n          <h3 class=
 organizations/live/organization_members_live.ex	source_token	>\n          <label class=
 organizations/live/organization_members_live.ex	source_token	>\n          <span class=
-organizations/live/organization_members_live.ex	source_token	>\n          <span class={[
 organizations/live/organization_members_live.ex	source_token	>\n          No pending invitations. Click <strong>Invite member</strong>\n          above to invite someone.\n        </div>\n      <%% else %>\n        <div class=
 organizations/live/organization_members_live.ex	source_token	>\n          Send an invitation to join {@current_scope.active_organization.name}.\n          They will receive an email with a secure accept link.\n        </p>\n\n        <.form for={@invite_form} phx-submit=
 organizations/live/organization_members_live.ex	source_token	>\n          {if m.__last_active__, do: relative_time(m.__last_active__), else: 
@@ -2232,6 +2229,7 @@ organizations/live/organization_members_live.ex	source_token	>Role</span>\n     
 organizations/live/organization_members_live.ex	source_token	>` confirmation modals. The modal stays open when the\n      server returns `{:error, :last_owner}` and renders an inline error above\n      the form.\n    * Removal relies on the `remove_member/2` library Multi, which\n      purges `user_sessions` rows scoped to the removed user + this org inside\n      the same transaction (force-logout).\n    * Pagination is `LIMIT 100` + 
 organizations/live/organization_members_live.ex	source_token	>{@remove_modal_error}</p>\n          <%% end %>\n\n          <form phx-submit=
 organizations/live/organization_members_live.ex	source_token	>{@role_modal_error}</p>\n          <%% end %>\n\n          <form phx-submit=
+organizations/live/organization_members_live.ex	source_token	>{humanize_role(m.role)}</span>\n        </:col>\n        <:col :let={{_dom_id, _m}} label=
 organizations/live/organization_members_live.ex	source_token	>{inv.email}</:col>\n            <:col :let={{_dom_id, inv}} label=
 organizations/live/organization_members_live.ex	source_token	>{m.user.email}</:col>\n        <:col :let={{_dom_id, m}} label=
 organizations/live/organization_members_live.ex	source_token	>{relative_time(m.inserted_at)}</:col>\n        <:col :let={{_dom_id, m}} label=
@@ -2509,7 +2507,6 @@ organizations/live/organizations_live/index.ex	source_token	 name=
 organizations/live/organizations_live/index.ex	source_token	 required />\n\n        <p\n          id=
 organizations/live/organizations_live/index.ex	source_token	 value=
 organizations/live/organizations_live/index.ex	source_token	 value={org.id} />\n            <input type=
-organizations/live/organizations_live/index.ex	source_token	, role_badge_class(role)]}>{humanize_role(role)}</span>\n          </div>\n\n          <form action={~p
 organizations/live/organizations_live/index.ex	source_token	/organizations/#{org.slug}/members
 organizations/live/organizations_live/index.ex	source_token	>\n            + New organization\n          </.link>\n        </:actions>\n      </.header>\n\n      <ul id=
 organizations/live/organizations_live/index.ex	source_token	>\n            <input\n              type=
@@ -2527,7 +2524,8 @@ organizations/live/organizations_live/index.ex	source_token	>\n      <.header>\n
 organizations/live/organizations_live/index.ex	source_token	>\n      <.header>\n        You have {length(@pending_invitations)} pending invitation(s)\n      </.header>\n\n      <ul id=
 organizations/live/organizations_live/index.ex	source_token	>\n      <.header>\n        Your organizations\n        <:actions>\n          <.link navigate={~p
 organizations/live/organizations_live/index.ex	source_token	>Pending invitations</h2>\n        <p\n          :if={@pending_invitations == []}\n          class=
-organizations/live/organizations_live/index.ex	source_token	>{org.name}</div>\n            <span class={[
+organizations/live/organizations_live/index.ex	source_token	>{humanize_role(role)}</span>\n          </div>\n\n          <form action={~p
+organizations/live/organizations_live/index.ex	source_token	>{org.name}</div>\n            <span class=
 organizations/live/organizations_live/index.ex	source_token	Could not create organization.
 organizations/live/organizations_live/index.ex	source_token	Organization created.
 organizations/live/organizations_live/index.ex	source_token	That slug is already in use. Try another.

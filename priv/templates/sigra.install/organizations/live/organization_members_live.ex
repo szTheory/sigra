@@ -11,8 +11,8 @@ defmodule <%= web_module %>.OrganizationMembersLive do
 
     * Two LiveView streams: `@streams.members` (populated on mount) and
       `@streams.pending_invitations`, rendered in the
-      `pending-invitations-section` `<section>`, which falls back to a neutral
-      empty state when `@pending_count == 0`.
+      `pending-invitations-section` `<section>`, which falls back to an
+      empty-state card when `@pending_count == 0`.
     * Row mutations (role change, remove) funnel through native `<dialog
       class="sigra-auth-section">` confirmation modals. The modal stays open when the
       server returns `{:error, :last_owner}` and renders an inline error above
@@ -376,7 +376,7 @@ defmodule <%= web_module %>.OrganizationMembersLive do
       <.table id="members-table" rows={@streams.members}>
         <:col :let={{_dom_id, m}} label="Email">{m.user.email}</:col>
         <:col :let={{_dom_id, m}} label="Role">
-          <span class={["sigra-auth-status", role_badge_class(m.role)]}>{humanize_role(m.role)}</span>
+          <span class="sigra-auth-status">{humanize_role(m.role)}</span>
         </:col>
         <:col :let={{_dom_id, _m}} label="Status">
           <span class="sigra-auth-status">Active</span>
@@ -432,7 +432,7 @@ defmodule <%= web_module %>.OrganizationMembersLive do
           <.table id="pending-invitations-table" rows={@streams.pending_invitations}>
             <:col :let={{_dom_id, inv}} label="Email">{inv.email}</:col>
             <:col :let={{_dom_id, inv}} label="Role">
-              <span class={["sigra-auth-status", role_badge_class(inv.role)]}>
+              <span class="sigra-auth-status">
                 {humanize_role(inv.role)}
               </span>
             </:col>
@@ -684,12 +684,6 @@ defmodule <%= web_module %>.OrganizationMembersLive do
   defp safe_role_atom("admin"), do: {:ok, :admin}
   defp safe_role_atom("member"), do: {:ok, :member}
   defp safe_role_atom(_other), do: {:error, :invalid_role}
-
-  # Role badge variants.
-  defp role_badge_class(:owner), do: "sigra-auth-status--success"
-  defp role_badge_class(:admin), do: "sigra-auth-status--warning"
-  defp role_badge_class(:member), do: ""
-  defp role_badge_class(_), do: ""
 
   defp humanize_role(:owner), do: "Owner"
   defp humanize_role(:admin), do: "Admin"
