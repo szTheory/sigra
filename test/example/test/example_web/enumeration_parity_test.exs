@@ -143,9 +143,8 @@ defmodule ExampleWeb.EnumerationParityTest do
   @named_leak_ids ~w(passkey-signin-options registration password-signin-repeat-attempts magic-link-rate-limit password-reset-rate-limit)
 
   # The exact todo path each row carries (single path per row, every other row
-  # null). Plan 259-13 asserts the three new files exist, Plan 259-17 the fourth
-  # (the generated reset page); this test only fixes the strings, so it stays
-  # green on its own.
+  # null). This pins only the open follow-up todos; prose-only library wording
+  # work is complete and no longer has a registry row.
   @expected_todos %{
     "passkey-signin-options" =>
       ".planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md",
@@ -157,23 +156,20 @@ defmodule ExampleWeb.EnumerationParityTest do
       ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
     "password-reset-rate-limit" =>
       ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
-    "lib-moduledoc-claims" =>
-      ".planning/todos/pending/2026-11-13-lib-moduledoc-enumeration-overclaims.md",
     "registration" =>
       ".planning/todos/pending/2026-11-13-duplicate-registration-timing-oracle.md",
     "confirmation-resend" =>
       ".planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md"
   }
 
-  # The four fix-tracking todos filed for the known divergences, the deferred
-  # library over-claims and the generated host's reset request page (a parity row
-  # here covers the example host only). Named here independently of
+  # The three open fix-tracking todos filed for the known divergences and the
+  # generated host's reset request page (a parity row here covers the example
+  # host only). Named here independently of
   # @expected_todos so that a registry edit which drops a reference to one of them
   # goes red.
   @new_todo_paths [
     ".planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md",
     ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
-    ".planning/todos/pending/2026-11-13-lib-moduledoc-enumeration-overclaims.md",
     ".planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md"
   ]
 
@@ -416,7 +412,7 @@ defmodule ExampleWeb.EnumerationParityTest do
       end
     end
 
-    test "every non-null registry todo path is a real file, and the four new todos are referenced" do
+    test "every non-null registry todo path is a real file, and the three open todos are referenced" do
       todos = for %{"todo" => todo} when is_binary(todo) <- surfaces(), do: todo
 
       assert todos != [], "no registry row carries a todo path"
@@ -442,13 +438,8 @@ defmodule ExampleWeb.EnumerationParityTest do
       assert missing_files([Path.join(@repo_root, real)]) == [Path.join(@repo_root, real)]
     end
 
-    test "the library-claims row is a not_proven library row with no probe dimensions" do
-      row = Enum.find(surfaces(), &(&1["id"] == "lib-moduledoc-claims"))
-
-      assert row["kind"] == "library"
-      assert row["state"] == "not_proven"
-      assert row["compare"] == []
-      assert row["blocker"] =~ "lib/sigra/lockout.ex:13"
+    test "the completed library-documentation claim row is absent" do
+      refute Enum.any?(surfaces(), &(&1["id"] == "lib-moduledoc-claims"))
     end
 
     test "every blocker citation points at a real file and an existing line" do
