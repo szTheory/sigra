@@ -206,19 +206,20 @@ lib/sigra/admin/live/user_sessions_live.ex	heex_text	Sessions
 lib/sigra/admin/live/user_sessions_live.ex	heex_text	This user has no active sessions in the current scope.
 lib/sigra/admin/live/user_sessions_live.ex	heex_text	Type
 lib/sigra/admin/live/user_sessions_live.ex	literal	#{detail.display_name || detail.user.email} sessions
+lib/sigra/admin/live/user_sessions_live.ex	literal	#{session_user_name(detail)} will be signed out of this browser or device immediately and must sign in again.
+lib/sigra/admin/live/user_sessions_live.ex	literal	All active sessions for #{name} across devices will end immediately. #{name} must sign in again.
 lib/sigra/admin/live/user_sessions_live.ex	literal	All active sessions revoked.
 lib/sigra/admin/live/user_sessions_live.ex	literal	Cancel
+lib/sigra/admin/live/user_sessions_live.ex	literal	Could not open session confirmation. Refresh the page and try again.
 lib/sigra/admin/live/user_sessions_live.ex	literal	Global user operations
-lib/sigra/admin/live/user_sessions_live.ex	literal	Invalid session reference.
 lib/sigra/admin/live/user_sessions_live.ex	literal	Organization-scoped user operations for #{name}
 lib/sigra/admin/live/user_sessions_live.ex	literal	Overview
-lib/sigra/admin/live/user_sessions_live.ex	literal	Revoke
+lib/sigra/admin/live/user_sessions_live.ex	literal	Revoke all sessions
 lib/sigra/admin/live/user_sessions_live.ex	literal	Revoke all sessions?
+lib/sigra/admin/live/user_sessions_live.ex	literal	Revoke session
 lib/sigra/admin/live/user_sessions_live.ex	literal	Revoke this session?
 lib/sigra/admin/live/user_sessions_live.ex	literal	Session revoked.
 lib/sigra/admin/live/user_sessions_live.ex	literal	Sessions
-lib/sigra/admin/live/user_sessions_live.ex	literal	The user will be signed out of all active sessions immediately. If any sessions were compromised, they must sign in again with verified credentials to re-establish access.
-lib/sigra/admin/live/user_sessions_live.ex	literal	The user will be signed out of this session immediately. If this session was compromised, they must sign in again with verified credentials to re-establish access.
 lib/sigra/admin/live/user_sessions_live.ex	literal	Users
 lib/sigra/admin/live/user_show_live.ex	heex_text	Danger zone
 lib/sigra/admin/live/user_show_live.ex	heex_text	End impersonation before starting another session.
@@ -232,7 +233,6 @@ lib/sigra/admin/live/user_show_live.ex	heex_text	Manage sessions
 lib/sigra/admin/live/user_show_live.ex	heex_text	No audit events are associated with this user in the current scope.
 lib/sigra/admin/live/user_show_live.ex	heex_text	No external identities are associated with this user.
 lib/sigra/admin/live/user_show_live.ex	heex_text	No organizations are associated with this user.
-lib/sigra/admin/live/user_show_live.ex	heex_text	No sessions are associated with this user in the current scope.
 lib/sigra/admin/live/user_show_live.ex	heex_text	Open organization-scoped view for
 lib/sigra/admin/live/user_show_live.ex	heex_text	Organization
 lib/sigra/admin/live/user_show_live.ex	heex_text	Organizations
@@ -243,6 +243,7 @@ lib/sigra/admin/live/user_show_live.ex	heex_text	Sessions
 lib/sigra/admin/live/user_show_live.ex	heex_text	Shows the most recent events. Open the full audit to filter and export.
 lib/sigra/admin/live/user_show_live.ex	heex_text	Start impersonation
 lib/sigra/admin/live/user_show_live.ex	heex_text	Support actions affect in .
+lib/sigra/admin/live/user_show_live.ex	heex_text	This user has no active sessions in the current scope.
 lib/sigra/admin/live/user_show_live.ex	heex_text	Type
 lib/sigra/admin/live/user_show_live.ex	heex_text	User detail
 lib/sigra/admin/live/user_show_live.ex	heex_text	View all organizations
@@ -253,7 +254,7 @@ lib/sigra/admin/live/user_show_live.ex	literal	Email unconfirmed — the user ca
 lib/sigra/admin/live/user_show_live.ex	literal	Enabled
 lib/sigra/admin/live/user_show_live.ex	literal	Global user operations
 lib/sigra/admin/live/user_show_live.ex	literal	Locked
-lib/sigra/admin/live/user_show_live.ex	literal	Locked — revoke active sessions and unlock below.
+lib/sigra/admin/live/user_show_live.ex	literal	Locked — review active sessions with Manage sessions.
 lib/sigra/admin/live/user_show_live.ex	literal	MFA + passkeys
 lib/sigra/admin/live/user_show_live.ex	literal	No MFA
 lib/sigra/admin/live/user_show_live.ex	literal	No MFA configured — ask the user to set up a second factor.
