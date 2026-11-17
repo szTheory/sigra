@@ -24,13 +24,17 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     }
   }
 
-  test "admin_behavior explicitly owns both useful orphan specs on retry-zero chromium" do
+  test "admin_behavior explicitly owns the source-pinned browser specs on retry-zero chromium" do
     workflow = File.read!(@workflow_path)
     config = File.read!(@config_path)
     shard = job_body(workflow, "example_playwright_shard")
     admin_behavior = run_block(shard, "Run admin behavior browser truth")
 
-    for spec <- ["admin-theme.spec.ts", "admin-coherence-sweep.spec.ts"] do
+    for spec <- [
+          "admin-theme.spec.ts",
+          "admin-coherence-sweep.spec.ts",
+          "previous-release-css-compat.spec.ts"
+        ] do
       assert occurrences(admin_behavior, "tests/#{spec}") == 1,
              "admin_behavior must name tests/#{spec} exactly once"
     end
@@ -41,6 +45,7 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
     assert shard =~ "seam: admin_behavior"
     assert config =~ "admin-theme"
     assert config =~ "admin-coherence-sweep"
+    assert config =~ "previous-release-css-compat"
   end
 
   test "the terminal Playwright aggregate remains the full-lifecycle guard" do
@@ -64,7 +69,8 @@ defmodule Sigra.Planning.Phase234PlaywrightInventoryContractTest do
 
     for spec <- [
           "test/example/priv/playwright/tests/admin-theme.spec.ts",
-          "test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts"
+          "test/example/priv/playwright/tests/admin-coherence-sweep.spec.ts",
+          "test/example/priv/playwright/tests/previous-release-css-compat.spec.ts"
         ] do
       assert %{
                "lanes" => [

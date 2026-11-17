@@ -132,11 +132,26 @@ defmodule Sigra.Admin.Audit.QueryParams do
   end
 
   defp put_datetime(acc, key, value) do
-    case DateTime.from_iso8601(to_string(value)) do
-      {:ok, dt, _offset} -> {:cont, {:ok, Map.put(acc, key, dt)}}
-      _ -> {:halt, {:error, {key, :invalid}}}
+    value = to_string(value)
+
+    case DateTime.from_iso8601(value) do
+      {:ok, dt, _offset} ->
+        {:cont, {:ok, Map.put(acc, key, dt)}}
+
+      _ ->
+        case Date.from_iso8601(value) do
+          {:ok, date} -> {:cont, {:ok, Map.put(acc, key, date_bound(date, key))}}
+          _ -> {:halt, {:error, {key, :invalid}}}
+        end
     end
   end
+
+  # The admin explorer renders these filters as HTML date inputs. Normalize
+  # their date-only values in UTC while preserving full ISO-8601 timestamps.
+  defp date_bound(date, :from), do: DateTime.new!(date, ~T[00:00:00], "Etc/UTC")
+
+  defp date_bound(date, :to),
+    do: DateTime.new!(date, ~T[23:59:59.999999], "Etc/UTC")
 
   defp stringify_map(params) when is_list(params),
     do: Map.new(params, fn {k, v} -> {to_string(k), v} end)

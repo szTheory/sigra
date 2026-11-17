@@ -43,6 +43,21 @@ defmodule ExampleWeb.AdminAuditIndexLiveTest do
       refute html =~ "No audit events yet."
     end
 
+    test "date-only filters include the complete selected day", %{conn: conn} do
+      html =
+        conn
+        |> log_in_user(platform_admin_fixture())
+        |> get("/admin/audit?from=2020-01-01&to=2020-01-02")
+        |> html_response(200)
+
+      assert html =~ "No audit events match this view"
+      refute html =~ "We couldn't load audit events."
+      assert html =~ ~s(name="from")
+      assert html =~ ~s(value="2020-01-01")
+      assert html =~ ~s(name="to")
+      assert html =~ ~s(value="2020-01-02")
+    end
+
     test "one global event renders and filtered zero results keep the filter value", %{conn: conn} do
       platform_admin = platform_admin_fixture()
 
