@@ -12,6 +12,7 @@ defmodule <%= web_module %>.AuthErrorHandler do
 
   @behaviour Sigra.Plug.ErrorHandler
 
+  use Gettext, backend: <%= web_module %>.Gettext
   use <%= web_module %>, :verified_routes
 
   import Plug.Conn
