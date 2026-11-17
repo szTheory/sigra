@@ -32,6 +32,7 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     assert mix_exs =~ ~s(main: "demo-showcase")
 
     assert llms =~ "- [Demo Showcase — Tasklane Example App](demo-showcase.md)"
+    assert llms =~ "- [Sigra](readme.md)"
     assert llms =~ "- [Troubleshooting install](troubleshooting-install.md)"
   end
 

@@ -223,7 +223,7 @@ defmodule Sigra.MixProject do
       before_closing_head_tag: &before_closing_head_tag/1,
       before_closing_body_tag: &before_closing_body_tag/1,
       extras: [
-        "README.md",
+        {"README.md", title: "Sigra"},
         "CONTRIBUTING.md",
         "SECURITY.md",
         "MAINTAINING.md",
