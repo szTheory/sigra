@@ -85,7 +85,7 @@ const GRAPHIC_DESIGN_QUESTIONS = [
     target_failure:
       'Perceived first-fixation dominance of the wrong element — the eye lands on a secondary or decorative element before the primary action or key status signal.',
     citation:
-      'admin-ui-principles.md §Information Architecture — "make the next action obvious"; brand/BRAND.md §Voice — plain and specific, and say what Sigra does not do',
+      'admin-ui-principles.md §Information Architecture — "make the next action obvious"; `brand/BRAND.md` §Voice — plain and specific, and say what Sigra does not do',
   },
   {
     key: 'emphasis_ember',
@@ -101,9 +101,9 @@ const GRAPHIC_DESIGN_QUESTIONS = [
     target_failure:
       'Semantic drift of the Kiln accent — used decoratively where no ownership boundary, primary action, or selection state exists; OR under-emphasis of meaning-bearing elements.',
     brand_values:
-      'Light theme: Kiln #C2410C (brand/tokens.json color.light.kiln). Dark theme: Kiln Bright #F08A55 (brand/tokens.json color.dark.kiln-bright). Sigra-owned type uses Instrument Sans and Red Hat Mono; Tasklane host chrome may retain Space Grotesk. The current mark is the sigra word with one plain square above the i.',
+      'Light theme: Kiln #C2410C (`brand/tokens.json` `color.light.kiln`). Dark theme: Kiln Bright #F08A55 (`brand/tokens.json` `color.dark.kiln-bright`). Sigra-owned type uses Instrument Sans and Red Hat Mono; Tasklane host chrome may retain Space Grotesk. The current mark is the sigra word with one plain square above the i.',
     citation:
-      'brand/BRAND.md §Color: Kiln on light and Kiln Bright on dark; brand/tokens.json color.light.kiln / color.dark.kiln-bright; admin-ui-principles.md §Brand Application for the admin accent’s semantic use',
+      '`brand/BRAND.md` §Color: Kiln on light and Kiln Bright on dark; `brand/tokens.json` `color.light.kiln` / `color.dark.kiln-bright`; admin-ui-principles.md §Brand Application for the admin accent’s semantic use',
   },
   {
     key: 'composition',
@@ -120,7 +120,7 @@ const GRAPHIC_DESIGN_QUESTIONS = [
     screenshot_requirement:
       'This question requires BOTH light-theme AND dark-theme screenshot.png. Must cite which theme(s) the finding was observed on: evidence_cell: light | dark | both.',
     citation:
-      'admin-ui-principles.md §Design System — "8px visual rhythm; same job means same component"; §Theme And Motion — "Admin supports Light, Dark, and System"; brand/BRAND.md §Type: the hierarchy for Sigra-owned type',
+      'admin-ui-principles.md §Design System — "8px visual rhythm; same job means same component"; §Theme And Motion — "Admin supports Light, Dark, and System"; `brand/BRAND.md` §Type: the hierarchy for Sigra-owned type',
   },
 ];
 

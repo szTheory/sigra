@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// axe accessibility check for brandbook/index.html
+// axe accessibility check for brand/assets/index.html
 // Usage: node scripts/brand/axe-brandbook.mjs
 // Exits 0 on zero violations; non-zero otherwise.
 //
@@ -26,15 +26,15 @@ const require = createRequire(playwrightBase + 'package.json');
 const { chromium } = require('playwright-core');
 const { default: AxeBuilder } = require('@axe-core/playwright');
 
-const brandbookDir = resolve(__dirname, '../../brandbook');
+const brandAssetsDir = resolve(__dirname, '../../brand/assets');
 const PORT = 7743; // hardcoded; low-collision port for local use
 
-// Start a short-lived python3 static server to serve brandbook/ over localhost.
+// Start a short-lived python3 static server to serve the active brand assets over localhost.
 // Using http://localhost rather than file:// avoids potential CORS ambiguity
 // with @axe-core/playwright's page.evaluate() script injection.
 const server = spawn(
   'python3',
-  ['-m', 'http.server', String(PORT), '--directory', brandbookDir],
+  ['-m', 'http.server', String(PORT), '--directory', brandAssetsDir],
   { stdio: 'ignore' }
 );
 
@@ -69,7 +69,7 @@ try {
     .analyze();
 
   if (violations.length === 0) {
-    console.log('axe: PASS — zero violations on brandbook/index.html');
+    console.log('axe: PASS — zero violations on brand/assets/index.html');
   } else {
     console.error(`axe: FAIL — ${violations.length} violation(s):`);
     for (const v of violations) {
