@@ -288,7 +288,7 @@ defmodule ExampleWeb.InvitationAcceptLive do
         <.input field={f[:password]} type="password" label="Password" required />
 
         <div>
-          <.button class="btn btn-primary btn-block">
+          <.button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
             Create account & join {@organization.name}
           </.button>
         </div>
@@ -313,7 +313,7 @@ defmodule ExampleWeb.InvitationAcceptLive do
         id="accept-invitation-button"
         phx-click="accept_invitation"
         phx-disable-with="Joining..."
-        class="btn btn-primary btn-block"
+        class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
       >
         Accept & join {@organization.name}
       </.button>
@@ -369,7 +369,7 @@ defmodule ExampleWeb.InvitationAcceptLive do
       <p class="text-base mt-4 text-base-content/70">
         This invitation link is not valid.
       </p>
-      <.link navigate={~p"/"} class="btn btn-primary mt-6">Return home</.link>
+      <.link navigate={~p"/"} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block mt-6">Return home</.link>
     </section>
     """
   end
@@ -381,7 +381,7 @@ defmodule ExampleWeb.InvitationAcceptLive do
       <p class="text-base mt-4 text-base-content/70">
         This invitation has expired. Ask the person who invited you to send a new one.
       </p>
-      <.link navigate={~p"/"} class="btn btn-primary mt-6">Return home</.link>
+      <.link navigate={~p"/"} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block mt-6">Return home</.link>
     </section>
     """
   end
@@ -393,7 +393,7 @@ defmodule ExampleWeb.InvitationAcceptLive do
       <p class="text-base mt-4 text-base-content/70">
         This invitation is no longer valid.
       </p>
-      <.link navigate={~p"/"} class="btn btn-primary mt-6">Return home</.link>
+      <.link navigate={~p"/"} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block mt-6">Return home</.link>
     </section>
     """
   end
@@ -405,7 +405,7 @@ defmodule ExampleWeb.InvitationAcceptLive do
       <p class="text-base mt-4 text-base-content/70">
         This invitation has already been accepted.
       </p>
-      <.link navigate={~p"/"} class="btn btn-primary mt-6">Return home</.link>
+      <.link navigate={~p"/"} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block mt-6">Return home</.link>
     </section>
     """
   end

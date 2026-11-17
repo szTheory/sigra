@@ -1924,9 +1924,6 @@ organizations/components/org_switcher.ex	source_token	?
 organizations/components/org_switcher.ex	source_token	Admin
 organizations/components/org_switcher.ex	source_token	Member
 organizations/components/org_switcher.ex	source_token	Owner
-organizations/components/org_switcher.ex	source_token	badge-ghost
-organizations/components/org_switcher.ex	source_token	badge-neutral
-organizations/components/org_switcher.ex	source_token	badge-primary
 organizations/components/org_switcher.ex	source_token	}\n                  class=
 organizations/components/org_switcher.ex	source_token	} method=
 organizations/components/org_switcher.ex	source_token	}>\n              <.icon name=
@@ -2260,9 +2257,6 @@ organizations/live/organization_members_live.ex	source_token	You do not have per
 organizations/live/organization_members_live.ex	source_token	You have invited too many people today. Try again tomorrow.
 organizations/live/organization_members_live.ex	source_token	]} is already a member of this organization.
 organizations/live/organization_members_live.ex	source_token	admin
-organizations/live/organization_members_live.ex	source_token	badge-ghost
-organizations/live/organization_members_live.ex	source_token	badge-neutral
-organizations/live/organization_members_live.ex	source_token	badge-primary
 organizations/live/organization_members_live.ex	source_token	cancel_action
 organizations/live/organization_members_live.ex	source_token	cancel_invite
 organizations/live/organization_members_live.ex	source_token	cancel_revoke
@@ -2538,9 +2532,6 @@ organizations/live/organizations_live/index.ex	source_token	Could not create org
 organizations/live/organizations_live/index.ex	source_token	Organization created.
 organizations/live/organizations_live/index.ex	source_token	That slug is already in use. Try another.
 organizations/live/organizations_live/index.ex	source_token	That slug is reserved. Try another.
-organizations/live/organizations_live/index.ex	source_token	badge-ghost
-organizations/live/organizations_live/index.ex	source_token	badge-primary
-organizations/live/organizations_live/index.ex	source_token	badge-secondary
 organizations/live/organizations_live/index.ex	source_token	create
 organizations/live/organizations_live/index.ex	source_token	has already been taken
 organizations/live/organizations_live/index.ex	source_token	is reserved and cannot be used
