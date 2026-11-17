@@ -104,6 +104,8 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
       <header class="sg-page-header">
         <p class="sg-page-kicker">Sessions</p>
         <h1 class="sg-page-title">{@detail.display_name || @detail.user.email}</h1>
+        <.status_mark status={status_for_user(@detail.user)} size={:detail} />
+        <p class="sg-page-copy">{@detail.user.email}</p>
         <p class="sg-page-copy">{pluralize(length(@detail.sessions), "active session")}</p>
       </header>
 

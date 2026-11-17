@@ -18,7 +18,9 @@ defmodule ExampleWeb.AdminUserSessionsLiveTest do
       target =
         user_fixture(%{email: "sessions-revoke-one@example.com", display_name: "Revoke One"})
 
-      keep = session_fixture(target, %{ip: "10.9.9.1"})
+      keep =
+        session_fixture(target, %{ip: "10.9.9.1", last_active_at: ~U[2025-02-02 14:07:00.000000Z]})
+
       victim = session_fixture(target, %{ip: "10.9.9.2"})
 
       {:ok, view, html} =
@@ -29,6 +31,10 @@ defmodule ExampleWeb.AdminUserSessionsLiveTest do
       assert html =~ "Revoke all sessions"
       assert html =~ keep.ip
       assert html =~ victim.ip
+      assert html =~ target.email
+      assert html =~ ~s(data-status="unconfirmed")
+      assert html =~ "standard"
+      assert html =~ "2025-02-02 2:07 PM UTC"
 
       html =
         render_click(view, :open_revoke_session, %{

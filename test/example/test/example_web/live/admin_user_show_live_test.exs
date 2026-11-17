@@ -78,7 +78,7 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       target =
         user_fixture(%{email: "detail-sessions-link@example.com", display_name: "Detail Link"})
 
-      session_fixture(target, %{ip: "10.2.2.2"})
+      session_fixture(target, %{ip: "10.2.2.2", last_active_at: ~U[2025-02-02 14:07:00.000000Z]})
 
       {:ok, _view, html} =
         conn
@@ -92,6 +92,9 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html =~ "Manage sessions"
       assert html =~ "/admin/users/#{target.id}/sessions"
       assert html =~ "return_to=%2Fadmin%2Fusers%3Fq%3Ddetail-sessions-link"
+      assert html =~ ~s(data-status="unconfirmed")
+      assert html =~ target.email
+      assert html =~ "2025-02-02 2:07 PM UTC"
 
       # The revoke flow lives on UserSessionsLive now — confirm it is absent here.
       refute html =~ "Revoke session"

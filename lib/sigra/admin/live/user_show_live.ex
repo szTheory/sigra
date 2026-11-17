@@ -46,6 +46,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
       <header class="sg-page-header">
         <p class="sg-page-kicker">User detail</p>
         <h1 class="sg-page-title">{@detail.display_name || @detail.user.email}</h1>
+        <.status_mark status={status_for_user(@detail.user)} size={:detail} />
         <div class="sg-cluster sg-cluster--2">
           <span class="sg-muted sg-text-sm">{@detail.user.email}</span>
           <code class="sg-code">{@detail.user.id}</code>
