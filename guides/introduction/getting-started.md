@@ -51,7 +51,7 @@ Visit <http://localhost:4000/users/register>. The generated `RegistrationLive` r
       end
     end
 
-Submit the form with an email address (`alice@example.com`) and a strong password (12+ characters). On success you are redirected to the sign-in page with a flash message.
+Submit the form with an email address (`alice@example.test`) and a strong password (12+ characters). On success you are redirected to the sign-in page with a flash message.
 
 **Important:** Sigra uses the [phx.gen.auth naming convention](https://hexdocs.pm/phoenix/mix_phx_gen_auth.html). The context function is `register_user/2`, never `create_user/1` or `signup/1`. Keep your custom code in the same vocabulary to avoid churn when you upgrade.
 
@@ -188,13 +188,13 @@ If the token is valid, you see a form with two fields: **new password** and **co
 
     Accounts.reset_user_password(user, %{"password" => new_password, "password_confirmation" => confirm})
 
-which updates the `hashed_password` field and — critically — deletes **all** sessions and tokens for that user via `Accounts.delete_all_user_session_tokens/1`. Anyone signed in as `alice@example.com` on any device is now signed out.
+which updates the `hashed_password` field and — critically — deletes **all** sessions and tokens for that user via `Accounts.delete_all_user_session_tokens/1`. Anyone signed in as `alice@example.test` on any device is now signed out.
 
 You're redirected to the sign-in page with a "Password reset successfully" flash.
 
 ## 9. Sign in with the new password
 
-Enter `alice@example.com` and the new password. You're signed in again, and a brand-new session token is written to the cookie. The old tokens are gone forever.
+Enter `alice@example.test` and the new password. You're signed in again, and a brand-new session token is written to the cookie. The old tokens are gone forever.
 
 ## 10. Organizations & Passkeys
 
