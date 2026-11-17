@@ -20,7 +20,7 @@ defmodule <%= web_module %>.AuthErrorHandler do
   @impl true
   def auth_error(conn, :unauthenticated, _opts) do
     conn
-    |> put_flash(:error, "You must log in to access this page.")
+    |> put_flash(:error, dgettext("sigra", "You must log in to access this page."))
     |> redirect(to: ~p"/users/log_in")
   end
 
@@ -31,7 +31,7 @@ defmodule <%= web_module %>.AuthErrorHandler do
     # redirect_if_user_is_authenticated, so the password prompt never shows).
     # Carry the original path so SudoController returns them there after confirming.
     conn
-    |> put_flash(:error, "Please re-enter your password to continue.")
+    |> put_flash(:error, dgettext("sigra", "Please re-enter your password to continue."))
     |> redirect(to: ~p"/users/sudo?#{[return_to: conn.request_path]}")
   end
 
@@ -46,7 +46,7 @@ defmodule <%= web_module %>.AuthErrorHandler do
   @impl true
   def auth_error(conn, :no_active_org, _opts) do
     conn
-    |> put_flash(:info, "Pick or create an organization to continue.")
+    |> put_flash(:info, dgettext("sigra", "Pick or create an organization to continue."))
     |> redirect(to: ~p"/organizations")
   end
 <% else %>
@@ -64,7 +64,7 @@ defmodule <%= web_module %>.AuthErrorHandler do
   @impl true
   def auth_error(conn, :insufficient_role, _opts) do
     conn
-    |> put_flash(:error, "You don't have permission to access this page in the current organization.")
+    |> put_flash(:error, dgettext("sigra", "You don't have permission to access this page in the current organization."))
     |> put_status(:forbidden)
     |> put_view(<%= web_module %>.ErrorHTML)
     |> render(:"403")
