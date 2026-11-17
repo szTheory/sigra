@@ -51,9 +51,9 @@ defmodule ExampleWeb.CatalogTest do
   pin, or that equals the run day, fails the dump and names the page and the token.
   A failure means another displayed column has to join the pin set.
 
-  Run (the example suite is not part of `mix ci`):
+  Run with the local test Postgres defaults (the example suite is not part of `mix ci`):
 
-      source tmp/db.env && cd test/example && MIX_ENV=test \\
+      cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test \\
         SIGRA_CATALOG_RAW_DIR="$(git rev-parse --show-toplevel)/tmp/catalog-raw" \\
         mix test --include example_app test/example_web/catalog_test.exs
   """

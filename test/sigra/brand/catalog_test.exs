@@ -579,6 +579,70 @@ defmodule Sigra.Brand.CatalogTest do
     end
   end
 
+  describe "generated host after catalog review" do
+    test "after capture includes the complete generated auth and email surface set" do
+      if System.get_env("SIGRA_BRAND_CATALOG") == "after" do
+        after_dir = Catalog.out_dir(:after)
+        paths =
+          after_dir
+          |> Path.join("**/*")
+          |> Path.wildcard()
+          |> Enum.filter(&File.regular?/1)
+          |> Enum.map(&Path.relative_to(&1, after_dir))
+
+        for path <- ~w(
+          generated-host-pages/confirm.html
+          generated-host-pages/log-in.html
+          generated-host-pages/register.html
+          generated-host-pages/reset-password-invalid-token.html
+          generated-host-pages/reset-password.html
+          generated-host-emails/confirmation.txt
+          generated-host-emails/reset-password.txt
+          generated-host-emails/magic-link.txt
+          generated-host-emails/suspicious-login.txt
+          generated-host-emails/oauth-reset.txt
+          generated-host-emails/enterprise-sso-reset.txt
+          generated-host-emails/passkey-registration.txt
+          generated-host-emails/lockout-notification.txt
+          generated-host-emails/mfa-enabled.txt
+          generated-host-emails/mfa-disabled.txt
+          generated-host-emails/backup-code-used.txt
+          generated-host-emails/mfa-lockout.txt
+          generated-host-emails/email-changed.txt
+          generated-host-emails/deletion-scheduled.txt
+          generated-host-emails/deletion-cancelled.txt
+          generated-host-emails/deletion-finalized.txt
+          generated-host-emails/password-changed.txt
+          generated-host-emails/organization-invitation.txt
+        ) do
+          assert path in paths, "generated host catalog is missing #{path}"
+        end
+
+        for path <- Enum.filter(paths, &String.starts_with?(&1, "generated-host-emails/")) do
+          email = after_dir |> Path.join(path) |> File.read!()
+          assert email =~ "=== HTML ==="
+          assert email =~ "=== TEXT ==="
+        end
+
+        for path <- paths,
+            String.starts_with?(path, "generated-host-emails/") or
+              String.starts_with?(path, "generated-host-pages/") do
+          content = after_dir |> Path.join(path) |> File.read!()
+          visible_text = content |> then(&Regex.replace(~r/<!--.*?-->/s, &1, " "))
+          visible_text = Regex.replace(~r/<[^>]*>/, visible_text, " ")
+
+          accessible_labels =
+            Regex.scan(~r/\b(?:aria-label|alt|title)="([^"]*)"/i, content, capture: :all_but_first)
+            |> List.flatten()
+            |> Enum.join(" ")
+
+          refute (visible_text <> " " <> accessible_labels) =~ ~r/\b(?:Sigra|Kiln)\b/i,
+                 "#{path} exposes library identity"
+        end
+      end
+    end
+  end
+
   describe "privacy_violations/1 planted-failure controls" do
     @slash "/"
     @users_dir @slash <> "Users" <> @slash
