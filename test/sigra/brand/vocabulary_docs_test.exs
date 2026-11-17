@@ -69,7 +69,7 @@ defmodule Sigra.Brand.VocabularyDocsTest do
     {"Unconfirmed", "lib/sigra/admin/live/user_show_live.ex"},
     {"Active", "lib/sigra/admin/live/index_live.ex"},
     {"Review users", "lib/sigra/admin/live/index_live.ex"},
-    {"No flagged accounts", "lib/sigra/admin/live/index_live.ex"},
+    {"No users need review.", "lib/sigra/admin/live/index_live.ex"},
     {"Review accounts", "lib/sigra/admin/components.ex"},
     {"Admin (operator)", "test/example/lib/example/demo/personas.ex"}
   ]

@@ -58,7 +58,7 @@ defmodule <%= web_module %>.MFASettingsLive do
        enroll_form: to_form(%{"code" => ""}, as: "enroll"),
        disable_form: to_form(%{"code" => ""}, as: "disable"),
        regenerate_form: to_form(%{"code" => ""}, as: "regenerate"),
-       page_title: "MFA Settings"
+       page_title: dgettext("sigra", "MFA Settings")
      )}
   end
 
@@ -72,16 +72,16 @@ defmodule <%= web_module %>.MFASettingsLive do
         <section class="sigra-auth-section">
           <div class="sigra-auth-split">
             <div>
-              <h2>Two-factor authentication</h2>
+              <h2>{dgettext("sigra", "Two-factor authentication")}</h2>
               <span class="sigra-auth-status sigra-auth-status--success">
-                Enabled
+                {dgettext("sigra", "Enabled")}
               </span>
             </div>
             <button
               phx-click="show_disable"
               class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small"
             >
-              Disable
+              {dgettext("sigra", "Disable")}
             </button>
           </div>
 
@@ -90,16 +90,16 @@ defmodule <%= web_module %>.MFASettingsLive do
               <%% @backup_remaining == 0 -> %>
                 <div class="sigra-auth-notice sigra-auth-notice--danger">
                   <.icon name="hero-exclamation-triangle" class="sigra-auth-icon" />
-                  All backup codes used. Generate new ones now.
+                  {dgettext("sigra", "All backup codes used. Generate new ones now.")}
                 </div>
               <%% @backup_remaining <= 2 -> %>
                 <div class="sigra-auth-notice sigra-auth-notice--warning">
                   <.icon name="hero-exclamation-triangle" class="sigra-auth-icon" />
-                  <%= "{@backup_remaining}" %> of 8 backup codes remaining
+                  <%= "{@backup_remaining}" %> {dgettext("sigra", "of 8 backup codes remaining")}
                 </div>
               <%% true -> %>
                 <p class="sigra-auth-copy sigra-auth-copy--muted">
-                  <%= "{@backup_remaining}" %> of 8 backup codes remaining
+                  <%= "{@backup_remaining}" %> {dgettext("sigra", "of 8 backup codes remaining")}
                 </p>
             <%% end %>
 
@@ -108,7 +108,7 @@ defmodule <%= web_module %>.MFASettingsLive do
                 phx-click="show_regenerate"
                 class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
               >
-                Regenerate codes
+                {dgettext("sigra", "Regenerate codes")}
               </button>
             </p>
           </div>
@@ -117,20 +117,19 @@ defmodule <%= web_module %>.MFASettingsLive do
           <div>
             <button
               phx-click="revoke_trust"
-              data-confirm="This will require two-factor authentication on all your browsers. Continue?"
+              data-confirm={dgettext("sigra", "This will require two-factor authentication on all your browsers. Continue?")}
               class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
             >
-              Revoke all trusted browsers
+              {dgettext("sigra", "Revoke all trusted browsers")}
             </button>
           </div>
         </section>
 
         <%% # Surface 4: Disable Confirmation %>
         <section :if={@show_disable} class="sigra-auth-notice sigra-auth-notice--danger sigra-auth-stack sigra-auth-stack--4">
-          <h2>Disable two-factor authentication</h2>
+          <h2>{dgettext("sigra", "Disable two-factor authentication")}</h2>
           <p>
-            This will remove the extra security on your account.
-            You'll need to set it up again to re-enable.
+            {dgettext("sigra", "This will remove the extra security on your account. You'll need to set it up again to re-enable.")}
           </p>
 
           <.form
@@ -142,7 +141,7 @@ defmodule <%= web_module %>.MFASettingsLive do
             <div class="sigra-auth-stack sigra-auth-stack--3">
               <div>
                 <label for="disable_code">
-                  Enter your current 6-digit code or a backup code to confirm:
+                  {dgettext("sigra", "Enter your current 6-digit code or a backup code to confirm:")}
                 </label>
                 <input
                   type="text"
@@ -160,14 +159,14 @@ defmodule <%= web_module %>.MFASettingsLive do
                   type="submit"
                   class="sigra-auth-action sigra-auth-action--danger"
                 >
-                  Disable two-factor authentication
+                  {dgettext("sigra", "Disable two-factor authentication")}
                 </button>
                 <button
                   type="button"
                   phx-click="cancel_disable"
                   class="sigra-auth-action sigra-auth-action--ghost"
                 >
-                  Cancel
+                  {dgettext("sigra", "Cancel")}
                 </button>
               </div>
             </div>
@@ -176,9 +175,9 @@ defmodule <%= web_module %>.MFASettingsLive do
 
         <%% # Regenerate codes confirmation %>
         <section :if={@show_regenerate} class="sigra-auth-section">
-          <h2>Regenerate backup codes</h2>
+          <h2>{dgettext("sigra", "Regenerate backup codes")}</h2>
           <p>
-            This will replace all existing backup codes. Enter your current TOTP code to confirm.
+            {dgettext("sigra", "This will replace all existing backup codes. Enter your current TOTP code to confirm.")}
           </p>
 
           <.form
@@ -190,7 +189,7 @@ defmodule <%= web_module %>.MFASettingsLive do
             <div class="sigra-auth-stack sigra-auth-stack--3">
               <div>
                 <label for="regenerate_code">
-                  Current authenticator code:
+                  {dgettext("sigra", "Current authenticator code:")}
                 </label>
                 <input
                   type="text"
@@ -207,13 +206,13 @@ defmodule <%= web_module %>.MFASettingsLive do
               </div>
 
               <div class="sigra-auth-cluster">
-                <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">Regenerate codes</.sigra_auth_button>
+                <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">{dgettext("sigra", "Regenerate codes")}</.sigra_auth_button>
                 <button
                   type="button"
                   phx-click="cancel_regenerate"
                   class="sigra-auth-action sigra-auth-action--ghost"
                 >
-                  Cancel
+                  {dgettext("sigra", "Cancel")}
                 </button>
               </div>
             </div>
@@ -240,9 +239,9 @@ defmodule <%= web_module %>.MFASettingsLive do
           <%% :done -> %>
             <div class="sigra-auth-empty sigra-auth-stack sigra-auth-stack--4">
               <.icon name="hero-check-circle" class="sigra-auth-icon sigra-auth-icon--lg" />
-              <h2>Two-factor authentication enabled</h2>
+              <h2>{dgettext("sigra", "Two-factor authentication enabled")}</h2>
               <p>
-                Your account is now protected with an extra layer of security.
+                {dgettext("sigra", "Your account is now protected with an extra layer of security.")}
               </p>
             </div>
         <%% end %>
@@ -263,9 +262,9 @@ defmodule <%= web_module %>.MFASettingsLive do
     <section id="passkeys" class="sigra-auth-section">
       <div class="sigra-auth-split">
         <div>
-          <h2>Passkeys</h2>
+          <h2>{dgettext("sigra", "Passkeys")}</h2>
           <p class="sigra-auth-copy sigra-auth-copy--muted">
-            Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.
+            {dgettext("sigra", "Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.")}
           </p>
         </div>
 
@@ -276,7 +275,7 @@ defmodule <%= web_module %>.MFASettingsLive do
           disabled={@passkey_status == :enrolling}
           class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--small"
         >
-          Add passkey
+          {dgettext("sigra", "Add passkey")}
         </button>
       </div>
 
@@ -299,9 +298,9 @@ defmodule <%= web_module %>.MFASettingsLive do
       <div>
         <%%= if @passkeys == [] do %>
           <div class="sigra-auth-empty sigra-auth-stack sigra-auth-stack--2">
-            <strong>No passkeys added yet</strong>
+            <strong>{dgettext("sigra", "No passkeys added yet")}</strong>
             <p>
-              Add a passkey to sign in faster on this device and keep a backup sign-in method available.
+              {dgettext("sigra", "Add a passkey to sign in faster on this device and keep a backup sign-in method available.")}
             </p>
           </div>
         <%% else %>
@@ -317,12 +316,12 @@ defmodule <%= web_module %>.MFASettingsLive do
                 </div>
 
                 <p class="sigra-auth-copy sigra-auth-copy--muted">
-                  Added {relative_time(passkey.inserted_at)}
+                  {dgettext("sigra", "Added")} {relative_time(passkey.inserted_at)}
                   &middot;
                   <%%= if passkey.last_used_at do %>
-                    Last used {relative_time(passkey.last_used_at)}
+                    {dgettext("sigra", "Last used")} {relative_time(passkey.last_used_at)}
                   <%% else %>
-                    Never used
+                    {dgettext("sigra", "Never used")}
                   <%% end %>
                 </p>
 
@@ -335,7 +334,7 @@ defmodule <%= web_module %>.MFASettingsLive do
                     <input type="hidden" name="passkey[id]" value={passkey_param_id(passkey)} />
                     <div class="sigra-auth-grow">
                       <label for={"passkey-name-#{passkey_param_id(passkey)}"}>
-                        Passkey name
+                        {dgettext("sigra", "Passkey name")}
                       </label>
                       <input
                         id={"passkey-name-#{passkey_param_id(passkey)}"}
@@ -346,33 +345,33 @@ defmodule <%= web_module %>.MFASettingsLive do
                     </div>
                     <div class="sigra-auth-cluster">
                       <button type="submit" class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--small">
-                        Save name
+                        {dgettext("sigra", "Save name")}
                       </button>
                       <button
                         type="button"
                         phx-click="cancel_passkey_rename"
                         class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
                       >
-                        Cancel
+                        {dgettext("sigra", "Cancel")}
                       </button>
                     </div>
                   </.form>
                 </div>
 
                 <div :if={@deleting_passkey_id == passkey_param_id(passkey)} class="sigra-auth-notice sigra-auth-notice--danger sigra-auth-stack sigra-auth-stack--3">
-                  <strong>Delete this passkey?</strong>
+                  <strong>{dgettext("sigra", "Delete this passkey?")}</strong>
                   <p>
-                    You'll still need another sign-in method before removing your last recovery option.
+                    {dgettext("sigra", "You'll still need another sign-in method before removing your last recovery option.")}
                   </p>
                   <p :if={@passkey_count == 1}>
-                    You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
+                    {dgettext("sigra", "You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.")}
                   </p>
 
                   <div class="sigra-auth-cluster">
                     <form action={~p"/users/settings/mfa/passkeys/#{passkey_param_id(passkey)}/delete"} method="post">
                       <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
                       <button type="submit" class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small">
-                        Delete
+                        {dgettext("sigra", "Delete")}
                       </button>
                     </form>
                     <button
@@ -380,7 +379,7 @@ defmodule <%= web_module %>.MFASettingsLive do
                       phx-click="cancel_passkey_delete"
                       class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
                     >
-                      Cancel
+                      {dgettext("sigra", "Cancel")}
                     </button>
                   </div>
                 </div>
@@ -393,7 +392,7 @@ defmodule <%= web_module %>.MFASettingsLive do
                   phx-value-id={passkey_param_id(passkey)}
                   class="sigra-auth-action sigra-auth-action--ghost sigra-auth-action--small"
                 >
-                  Rename
+                  {dgettext("sigra", "Rename")}
                 </button>
                 <button
                   type="button"
@@ -417,13 +416,13 @@ defmodule <%= web_module %>.MFASettingsLive do
     ~H"""
     <section class="sigra-auth-stack sigra-auth-stack--6">
       <.header>
-        Two-Factor Authentication
-        <:subtitle>Add an extra layer of security to your account.</:subtitle>
+        {dgettext("sigra", "Two-Factor Authentication")}
+        <:subtitle>{dgettext("sigra", "Add an extra layer of security to your account.")}</:subtitle>
       </.header>
 
       <div>
         <.sigra_auth_button phx-click="begin_enrollment" class="sigra-auth-action sigra-auth-action--primary">
-          Set up two-factor authentication
+          {dgettext("sigra", "Set up two-factor authentication")}
         </.sigra_auth_button>
       </div>
     </section>
@@ -434,19 +433,19 @@ defmodule <%= web_module %>.MFASettingsLive do
     ~H"""
     <div>
       <.header>
-        Two-Factor Authentication
-        <:subtitle>Add an extra layer of security to your account.</:subtitle>
+        {dgettext("sigra", "Two-Factor Authentication")}
+        <:subtitle>{dgettext("sigra", "Add an extra layer of security to your account.")}</:subtitle>
       </.header>
 
       <div class="sigra-auth-stack sigra-auth-stack--6">
         <%% # QR Code %>
         <div class="sigra-auth-stack sigra-auth-stack--4 sigra-auth-copy--center">
           <p class="sigra-auth-copy sigra-auth-copy--muted">
-            Scan this QR code with your authenticator app
+            {dgettext("sigra", "Scan this QR code with your authenticator app")}
           </p>
           <div
             role="img"
-            aria-label="QR code for TOTP setup"
+            aria-label={dgettext("sigra", "QR code for TOTP setup")}
           >
             <%= "{raw(@svg)}" %>
           </div>
@@ -455,7 +454,7 @@ defmodule <%= web_module %>.MFASettingsLive do
         <%% # Manual key %>
         <div>
           <p class="sigra-auth-copy sigra-auth-copy--muted">
-            Can't scan? Enter this key manually:
+            {dgettext("sigra", "Can't scan? Enter this key manually:")}
           </p>
           <div
             class="sigra-auth-section sigra-auth-copy--center"
@@ -470,7 +469,7 @@ defmodule <%= web_module %>.MFASettingsLive do
         <%% # Confirmation form %>
         <div>
           <p>
-            Enter the 6-digit code from your app to verify setup:
+            {dgettext("sigra", "Enter the 6-digit code from your app to verify setup:")}
           </p>
 
           <.form
@@ -492,11 +491,11 @@ defmodule <%= web_module %>.MFASettingsLive do
                 autofocus
                 required
                 class="sigra-auth-code-input"
-                aria-label="6-digit verification code"
+                aria-label={dgettext("sigra", "6-digit verification code")}
               />
 
               <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
-                Enable two-factor authentication
+                {dgettext("sigra", "Enable two-factor authentication")}
               </.sigra_auth_button>
             </div>
           </.form>
@@ -518,14 +517,14 @@ defmodule <%= web_module %>.MFASettingsLive do
     ~H"""
     <section class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6" aria-labelledby="backup-codes-title">
       <.header>
-        <span id="backup-codes-title">Save your backup codes</span>
+        <span id="backup-codes-title">{dgettext("sigra", "Save your backup codes")}</span>
         <:subtitle>
-          Store these one-time codes somewhere safe. You will not be able to see them again after leaving this step.
+          {dgettext("sigra", "Store these one-time codes somewhere safe. You will not be able to see them again after leaving this step.")}
         </:subtitle>
       </.header>
 
       <div class="sigra-auth-section">
-        <ol class="sigra-auth-code-list" aria-label="One-time backup codes">
+        <ol class="sigra-auth-code-list" aria-label={dgettext("sigra", "One-time backup codes")}>
           <li :for={code <- @backup_codes}>
             <code><%= "{code}" %></code>
           </li>
@@ -542,7 +541,7 @@ defmodule <%= web_module %>.MFASettingsLive do
           class="sigra-auth-action sigra-auth-action--secondary"
         >
           <.icon name="hero-clipboard-document" class="sigra-auth-icon" />
-          <span id="copy-btn-text">Copy all</span>
+          <span id="copy-btn-text">{dgettext("sigra", "Copy all")}</span>
         </button>
         <button
           type="button"
@@ -552,7 +551,7 @@ defmodule <%= web_module %>.MFASettingsLive do
           class="sigra-auth-action sigra-auth-action--secondary"
         >
           <.icon name="hero-arrow-down-tray" class="sigra-auth-icon" />
-          Download .txt
+          {dgettext("sigra", "Download .txt")}
         </button>
       </div>
 
@@ -564,7 +563,7 @@ defmodule <%= web_module %>.MFASettingsLive do
             checked={@codes_acknowledged}
             class="sigra-auth-check"
           />
-          I have saved these backup codes in a safe place
+          {dgettext("sigra", "I have saved these backup codes in a safe place")}
         </label>
       </div>
 
@@ -575,7 +574,7 @@ defmodule <%= web_module %>.MFASettingsLive do
           disabled={!@codes_acknowledged}
           class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
         >
-          I saved these codes
+          {dgettext("sigra", "I saved these codes")}
         </.sigra_auth_button>
       </div>
     </section>
@@ -657,8 +656,8 @@ defmodule <%= web_module %>.MFASettingsLive do
      assign(socket,
        passkey_status: :idle,
        passkey_notice: %{
-         title: "Finishing passkey setup...",
-         body: "Keep this page open while we finish saving your passkey."
+         title: dgettext("sigra", "Finishing passkey setup..."),
+         body: dgettext("sigra", "Keep this page open while we finish saving your passkey.")
        }
      )}
   end
@@ -668,8 +667,8 @@ defmodule <%= web_module %>.MFASettingsLive do
      assign(socket,
        passkey_status: :idle,
        passkey_notice: %{
-         title: "Passkey sign-in was canceled.",
-         body: "Nothing changed. Try again or choose another way to continue."
+         title: dgettext("sigra", "Passkey sign-in was canceled."),
+         body: dgettext("sigra", "Nothing changed. Try again or choose another way to continue.")
        }
      )}
   end
@@ -679,20 +678,20 @@ defmodule <%= web_module %>.MFASettingsLive do
       case passkey_error_bucket(payload) do
         :timeout ->
           %{
-            title: "That passkey request timed out.",
-            body: "Try again when you're ready, or use another sign-in method."
+            title: dgettext("sigra", "That passkey request timed out."),
+            body: dgettext("sigra", "Try again when you're ready, or use another sign-in method.")
           }
 
         :unsupported ->
           %{
-            title: "Passkeys aren't available in this browser.",
-            body: "Use your password or a magic link here, or switch to a device that supports passkeys."
+            title: dgettext("sigra", "Passkeys aren't available in this browser."),
+            body: dgettext("sigra", "Use your password or a magic link here, or switch to a device that supports passkeys.")
           }
 
         :generic ->
           %{
-            title: "We couldn't finish passkey sign-in.",
-            body: "Try again or use another way to continue."
+            title: dgettext("sigra", "We couldn't finish passkey sign-in."),
+            body: dgettext("sigra", "Try again or use another way to continue.")
           }
       end
 
@@ -730,13 +729,13 @@ defmodule <%= web_module %>.MFASettingsLive do
     nickname = Map.get(params, "nickname", "")
 
     if impersonating?(socket) do
-      {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+      {:noreply, put_flash(socket, :error, dgettext("sigra", "You can't change account security settings while impersonating."))}
     else
       case Auth.rename_passkey(user, credential_id, nickname || "", scope: socket.assigns.current_scope) do
         {:ok, _passkey} ->
           {:noreply,
            socket
-           |> put_flash(:info, "Passkey name saved.")
+           |> put_flash(:info, dgettext("sigra", "Passkey name saved."))
            |> refresh_passkey_assigns()
            |> assign(
              renaming_passkey_id: nil,
@@ -744,10 +743,10 @@ defmodule <%= web_module %>.MFASettingsLive do
            )}
 
         {:error, :impersonation_forbidden} ->
-          {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+          {:noreply, put_flash(socket, :error, dgettext("sigra", "You can't change account security settings while impersonating."))}
 
         {:error, _reason} ->
-          {:noreply, put_flash(socket, :error, "Could not save passkey name. Please try again.")}
+          {:noreply, put_flash(socket, :error, dgettext("sigra", "Could not save passkey name. Please try again."))}
       end
     end
   end
@@ -778,14 +777,14 @@ defmodule <%= web_module %>.MFASettingsLive do
     user = socket.assigns.current_scope.user
 
     if impersonating?(socket) do
-      {:noreply, put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+      {:noreply, put_flash(socket, :error, dgettext("sigra", "You can't change account security settings while impersonating."))}
     else
       case Auth.mfa_disable(user, code, scope: socket.assigns.current_scope) do
         {:ok, :disabled} ->
           {:noreply,
            socket
-           |> put_flash(:info, "Two-factor authentication has been disabled.")
-           |> put_flash(:warning, "Consider changing your password for additional security.")
+           |> put_flash(:info, dgettext("sigra", "Two-factor authentication has been disabled."))
+           |> put_flash(:warning, dgettext("sigra", "Consider changing your password for additional security."))
            |> assign(
              mfa_enabled: false,
              show_disable: false,
@@ -797,13 +796,13 @@ defmodule <%= web_module %>.MFASettingsLive do
         {:error, :invalid_code, _remaining} ->
           {:noreply,
            socket
-           |> put_flash(:error, "Invalid verification code. Please try again.")
+           |> put_flash(:error, dgettext("sigra", "Invalid verification code. Please try again."))
            |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
 
         {:error, :invalid_backup_code, _remaining} ->
           {:noreply,
            socket
-           |> put_flash(:error, "Invalid verification code. Please try again.")
+           |> put_flash(:error, dgettext("sigra", "Invalid verification code. Please try again."))
            |> assign(disable_form: to_form(%{"code" => ""}, as: "disable"))}
 
         {:error, :lockout, seconds} ->
@@ -811,16 +810,16 @@ defmodule <%= web_module %>.MFASettingsLive do
 
           {:noreply,
            socket
-           |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
+           |> put_flash(:error, dgettext("sigra", "Too many failed attempts. Try again in %{minutes} minutes.", minutes: minutes))}
 
         {:error, :impersonation_forbidden} ->
           {:noreply,
-           put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+           put_flash(socket, :error, dgettext("sigra", "You can't change account security settings while impersonating."))}
 
         {:error, _reason} ->
           {:noreply,
            socket
-           |> put_flash(:error, "Could not disable two-factor authentication. Please try again.")}
+           |> put_flash(:error, dgettext("sigra", "Could not disable two-factor authentication. Please try again."))}
       end
     end
   end
@@ -844,7 +843,7 @@ defmodule <%= web_module %>.MFASettingsLive do
 
         {:noreply,
          socket
-         |> put_flash(:info, "Your backup codes were regenerated. Save your new backup codes.")
+         |> put_flash(:info, dgettext("sigra", "Your backup codes were regenerated. Save your new backup codes."))
          |> assign(
            show_regenerate: false,
            backup_codes: codes,
@@ -857,7 +856,7 @@ defmodule <%= web_module %>.MFASettingsLive do
       {:error, :invalid_code, _remaining} ->
         {:noreply,
          socket
-         |> put_flash(:error, "Invalid verification code. Please try again.")
+         |> put_flash(:error, dgettext("sigra", "Invalid verification code. Please try again."))
          |> assign(regenerate_form: to_form(%{"code" => ""}, as: "regenerate"))}
 
       {:error, :lockout, seconds} ->
@@ -865,22 +864,22 @@ defmodule <%= web_module %>.MFASettingsLive do
 
         {:noreply,
          socket
-         |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")}
+         |> put_flash(:error, dgettext("sigra", "Too many failed attempts. Try again in %{minutes} minutes.", minutes: minutes))}
 
       {:error, :not_enrolled} ->
         {:noreply,
          socket
-         |> put_flash(:error, "Two-factor authentication is not enabled for this account.")
+         |> put_flash(:error, dgettext("sigra", "Two-factor authentication is not enabled for this account."))
          |> assign(regenerate_form: to_form(%{"code" => ""}, as: "regenerate"))}
 
       {:error, :impersonation_forbidden} ->
         {:noreply,
-         put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+         put_flash(socket, :error, dgettext("sigra", "You can't change account security settings while impersonating."))}
 
       {:error, _reason} ->
         {:noreply,
          socket
-         |> put_flash(:error, "Could not regenerate backup codes. Please try again.")
+         |> put_flash(:error, dgettext("sigra", "Could not regenerate backup codes. Please try again."))
          |> assign(regenerate_form: to_form(%{"code" => ""}, as: "regenerate"))}
     end
   end
@@ -892,7 +891,7 @@ defmodule <%= web_module %>.MFASettingsLive do
 
     {:noreply,
      socket
-     |> put_flash(:info, "All trusted browsers have been revoked.")}
+     |> put_flash(:info, dgettext("sigra", "All trusted browsers have been revoked."))}
   end
 
   defp do_confirm_enrollment(socket, code) do
@@ -903,7 +902,7 @@ defmodule <%= web_module %>.MFASettingsLive do
       {:ok, %{backup_codes: codes}} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Two-factor authentication has been enabled.")
+         |> put_flash(:info, dgettext("sigra", "Two-factor authentication has been enabled."))
          |> assign(
            enrollment_step: :backup_codes,
            backup_codes: codes,
@@ -916,7 +915,7 @@ defmodule <%= web_module %>.MFASettingsLive do
 
         {:noreply,
          socket
-         |> put_flash(:error, "Invalid verification code. Please try again.")
+         |> put_flash(:error, dgettext("sigra", "Invalid verification code. Please try again."))
          |> assign(enroll_form: form)}
 
       {:error, _reason} ->
@@ -924,7 +923,7 @@ defmodule <%= web_module %>.MFASettingsLive do
 
         {:noreply,
          socket
-         |> put_flash(:error, "Could not verify your code. Please try again.")
+         |> put_flash(:error, dgettext("sigra", "Could not verify your code. Please try again."))
          |> assign(enroll_form: form)}
     end
   end
@@ -979,7 +978,7 @@ defmodule <%= web_module %>.MFASettingsLive do
 <% end %>
 
 <%= if passkeys? do %>
-  defp relative_time(nil), do: "Never"
+  defp relative_time(nil), do: dgettext("sigra", "Never")
 
   defp relative_time(%DateTime{} = dt) do
     diff = DateTime.diff(DateTime.utc_now(), dt, :second)

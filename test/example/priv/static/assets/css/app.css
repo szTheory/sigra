@@ -1223,8 +1223,11 @@ a.vt-panel {
 }
 
 .vt-auth__panel {
+  box-sizing: border-box;
+  min-width: 0;
   width: min(100%, 27rem);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--sg-space-4);
   border-radius: var(--vt-radius);
   background: color-mix(in oklab, var(--vt-color-panel) 95%, transparent);
@@ -1421,6 +1424,12 @@ a.vt-panel {
   color: var(--vt-color-muted);
   font-size: var(--sg-text-xs);
   font-weight: var(--sg-weight-bold);
+}
+
+#registration_form .label.mb-1,
+#confirmation_form .label.mb-1,
+#invitation-signup-form .label.mb-1 {
+  color: var(--vt-color-muted);
 }
 
 .vt-auth .input,
@@ -1946,12 +1955,6 @@ html[data-sg-admin-page-loading="complete"] .sg-admin-loading-bar::before {
 .sg-tabs__tab:hover {
   color: var(--sg-color-ink);
 }
-.sg-tabs__tab--active,
-.sg-tabs__tab[aria-current="page"] {
-  color: var(--sg-color-brand-strong);
-  border-bottom-color: var(--sg-color-brand);
-}
-
 .sg-branding-editor__status {
   display: flex;
   flex-wrap: wrap;
@@ -2380,11 +2383,6 @@ html[data-sg-admin-page-loading="complete"] .sg-admin-loading-bar::before {
   color: var(--sg-color-ink);
   font-size: var(--sg-text-sm);
   cursor: pointer;
-}
-.sg-cmdk__item.is-active,
-.sg-cmdk__item[aria-selected="true"] {
-  background: var(--sg-color-brand-soft);
-  color: var(--sg-color-brand-strong);
 }
 .sg-cmdk__empty {
   padding: var(--sg-space-3);

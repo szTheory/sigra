@@ -4,7 +4,7 @@ defmodule <%= web_module %>.SessionController do
   alias <%= context_module %>, as: Auth
   alias <%= web_module %>.UserAuth
 
-  @impersonation_denial_message "You can't change account security settings while impersonating."
+  @impersonation_denial_message dgettext("sigra", "You can't change account security settings while impersonating.")
 
   plug Sigra.Plug.ForbidDuringImpersonation,
        [
@@ -45,7 +45,7 @@ defmodule <%= web_module %>.SessionController do
 
     # Always show same message for enumeration prevention
     conn
-    |> put_flash(:info, "If your email is registered, you will receive a magic link shortly.")
+    |> put_flash(:info, dgettext("sigra", "If your email is registered, you will receive a magic link shortly."))
     |> redirect(to: ~p"/users/log_in")
   end
 <%= if organizations? do %>
@@ -73,11 +73,11 @@ defmodule <%= web_module %>.SessionController do
   end
 <% end %>
   def create(conn, %{"_action" => "registered"} = params) do
-    create(conn, params, "Account created successfully!")
+    create(conn, params, dgettext("sigra", "Account created successfully!"))
   end
 
   def create(conn, params) do
-    create(conn, params, "Welcome back!")
+    create(conn, params, dgettext("sigra", "Welcome back!"))
   end
 
   defp create(conn, %{"user" => user_params}, info) do
@@ -92,7 +92,7 @@ defmodule <%= web_module %>.SessionController do
       {:error, :sso_required, %{organization_slug: slug}}
       when is_binary(slug) and slug != "" ->
         conn
-        |> put_flash(:error, "Your organization requires enterprise sign-in.")
+        |> put_flash(:error, dgettext("sigra", "Your organization requires enterprise sign-in."))
         |> redirect(
           to:
             ~p"/organizations/#{slug}/sso?#{%{routing_source: "local_policy"}}"
@@ -100,7 +100,7 @@ defmodule <%= web_module %>.SessionController do
 <% end %>
       _ ->
         conn
-        |> put_flash(:error, "Invalid email or password")
+        |> put_flash(:error, dgettext("sigra", "Invalid email or password"))
         |> put_flash(:email, String.slice(email, 0, 160))
         |> redirect(to: ~p"/users/log_in")
     end
@@ -110,12 +110,12 @@ defmodule <%= web_module %>.SessionController do
     case Auth.verify_magic_link(token) do
       {:ok, user} ->
         conn
-        |> put_flash(:info, "Welcome!")
+        |> put_flash(:info, dgettext("sigra", "Welcome!"))
         |> UserAuth.log_in_user(user)
 
       {:error, _} ->
         conn
-        |> put_flash(:error, "Magic link is invalid or has expired.")
+        |> put_flash(:error, dgettext("sigra", "Magic link is invalid or has expired."))
         |> redirect(to: ~p"/users/log_in")
     end
   end
@@ -185,22 +185,22 @@ defmodule <%= web_module %>.SessionController do
       _ = credential
 
       conn
-      |> put_flash(:info, "Passkey added.")
+      |> put_flash(:info, dgettext("sigra", "Passkey added."))
       |> redirect(to: ~p"/users/settings/mfa#passkeys")
     else
       {:error, _conn, :duplicate_passkey} ->
         conn
-        |> put_flash(:warning, "This passkey is already registered.")
+        |> put_flash(:warning, dgettext("sigra", "This passkey is already registered."))
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
 
       {:error, :duplicate_passkey} ->
         conn
-        |> put_flash(:warning, "This passkey is already registered.")
+        |> put_flash(:warning, dgettext("sigra", "This passkey is already registered."))
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
 
       _ ->
         conn
-        |> put_flash(:error, "We couldn't finish adding this passkey. Try again or use another way to continue.")
+        |> put_flash(:error, dgettext("sigra", "We couldn't finish adding this passkey. Try again or use another way to continue."))
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
     end
   end
@@ -216,7 +216,7 @@ defmodule <%= web_module %>.SessionController do
              Auth.authenticate_passkey(user, Map.put(decoded_response, "challenge", challenge))
            end) do
       conn
-      |> put_flash(:info, "Welcome back!")
+      |> put_flash(:info, dgettext("sigra", "Welcome back!"))
       |> UserAuth.log_in_user(user, %{})
     else
       {:error, :email_not_confirmed} ->
@@ -237,7 +237,7 @@ defmodule <%= web_module %>.SessionController do
            end),
          :ok <- Auth.ensure_passkey_primary_user_eligible(user) do
       conn
-      |> put_flash(:info, "Welcome back!")
+      |> put_flash(:info, dgettext("sigra", "Welcome back!"))
       |> UserAuth.log_in_user(user, %{})
     else
       {:error, :email_not_confirmed} -> passkey_login_failed(conn, nil)
@@ -269,12 +269,12 @@ defmodule <%= web_module %>.SessionController do
       |> delete_session(:mfa_pending)
       |> delete_session(:mfa_return_to)
       |> delete_session(:mfa_remember_me)
-      |> put_flash(:info, "Two-factor authentication verified.")
+        |> put_flash(:info, dgettext("sigra", "Two-factor authentication verified."))
       |> redirect(to: return_to)
     else
       _ ->
         conn
-        |> put_flash(:error, "We couldn't finish passkey sign-in. Try again or use another way to continue.")
+        |> put_flash(:error, dgettext("sigra", "We couldn't finish passkey sign-in. Try again or use another way to continue."))
         |> redirect(to: ~p"/users/mfa")
     end
   end
@@ -295,21 +295,21 @@ defmodule <%= web_module %>.SessionController do
 
       {:error, :impersonation_forbidden} ->
         conn
-        |> put_flash(:error, "You can't change account security settings while impersonating.")
+        |> put_flash(:error, dgettext("sigra", "You can't change account security settings while impersonating."))
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
 
       {:error, _reason} ->
         conn
-        |> put_flash(:error, "We couldn't delete that passkey. Re-authenticate and try again.")
+        |> put_flash(:error, dgettext("sigra", "We couldn't delete that passkey. Re-authenticate and try again."))
         |> redirect(to: ~p"/users/settings/mfa#passkeys")
     end
   end
 
   defp delete_passkey_success_message(:last_deleted) do
-    "Last passkey deleted. Next time, sign in with your password, authenticator code, backup code, or magic link until you add another passkey."
+    dgettext("sigra", "Last passkey deleted. Next time, sign in with your password, authenticator code, backup code, or magic link until you add another passkey.")
   end
 
-  defp delete_passkey_success_message(:deleted), do: "Passkey deleted."
+  defp delete_passkey_success_message(:deleted), do: dgettext("sigra", "Passkey deleted.")
 <% end %>
 
   def delete(conn, _params) do
@@ -320,7 +320,7 @@ defmodule <%= web_module %>.SessionController do
     )
 
     conn
-    |> put_flash(:info, "Logged out successfully.")
+    |> put_flash(:info, dgettext("sigra", "Logged out successfully."))
     |> UserAuth.log_out_user()
   end
 
@@ -333,13 +333,13 @@ defmodule <%= web_module %>.SessionController do
   end
 <%= if organizations? do %>
   defp enterprise_discovery_error(:multiple_org_matches),
-    do: "We couldn't determine your organization from that work email. Enter your organization and try again."
+    do: dgettext("sigra", "We couldn't determine your organization from that work email. Enter your organization and try again.")
 
   defp enterprise_discovery_error(:org_connection_unavailable),
-    do: "Enterprise sign-in is not available for that organization right now. Try again or contact your administrator."
+    do: dgettext("sigra", "Enterprise sign-in is not available for that organization right now. Try again or contact your administrator.")
 
   defp enterprise_discovery_error(_reason),
-    do: "We couldn't find an enterprise sign-in route for that work email. Check your organization details and try again."
+    do: dgettext("sigra", "We couldn't find an enterprise sign-in route for that work email. Check your organization details and try again.")
 <% end %>
 <%= if passkeys? do %>
   defp passkey_registration_options_json(user, challenge, passkeys, config) do
@@ -409,7 +409,7 @@ defmodule <%= web_module %>.SessionController do
 
   defp passkey_login_failed(conn, email) do
     conn
-    |> put_flash(:error, "We couldn't finish passkey sign-in. Try again or use another way to continue.")
+    |> put_flash(:error, dgettext("sigra", "We couldn't finish passkey sign-in. Try again or use another way to continue."))
     |> maybe_put_passkey_email(email)
     |> redirect(to: ~p"/users/log_in")
   end

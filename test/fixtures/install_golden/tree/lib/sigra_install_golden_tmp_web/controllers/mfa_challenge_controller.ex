@@ -52,33 +52,33 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeController do
         |> delete_session(:mfa_return_to)
         |> delete_session(:mfa_remember_me)
         |> maybe_set_trust_cookie(user, trust)
-        |> put_flash(:info, "Two-factor authentication verified.")
+        |> put_flash(:info, dgettext("sigra", "Two-factor authentication verified."))
         |> redirect(to: return_to)
 
       {:error, :invalid_code, remaining} ->
         masked_email = mask_email(user.email)
 
         conn
-        |> put_flash(:error, "Invalid verification code. #{remaining} attempts remaining.")
+        |> put_flash(:error, dgettext("sigra", "Invalid verification code. %{remaining} attempts remaining.", remaining: remaining))
         |> render(:mfa_challenge, masked_email: masked_email, tab: mfa_params["method"] || "totp")
 
       {:error, :invalid_backup_code, remaining} ->
         masked_email = mask_email(user.email)
 
         conn
-        |> put_flash(:error, "Invalid verification code. #{remaining} attempts remaining.")
+        |> put_flash(:error, dgettext("sigra", "Invalid verification code. %{remaining} attempts remaining.", remaining: remaining))
         |> render(:mfa_challenge, masked_email: masked_email, tab: "backup")
 
       {:error, :lockout, seconds} ->
         minutes = div(seconds + 59, 60)
 
         conn
-        |> put_flash(:error, "Too many failed attempts. Try again in #{minutes} minutes.")
+        |> put_flash(:error, dgettext("sigra", "Too many failed attempts. Try again in %{minutes} minutes.", minutes: minutes))
         |> render(:mfa_challenge, masked_email: mask_email(user.email), tab: "totp")
 
       {:error, :not_enrolled} ->
         conn
-        |> put_flash(:error, "MFA is not enabled on your account.")
+        |> put_flash(:error, dgettext("sigra", "MFA is not enabled on your account."))
         |> redirect(to: ~p"/users/settings")
         |> halt()
     end

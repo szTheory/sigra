@@ -25,7 +25,7 @@ defmodule <%= web_module %>.SettingsLive do
 
     {:ok,
      assign(socket,
-       page_title: "Account Settings",
+       page_title: dgettext("sigra", "Account Settings"),
        pending_email_change?: user.pending_email != nil,
        deletion_status: deletion_status,
        scheduled_deletion_date: scheduled_deletion_date(user),
@@ -41,13 +41,13 @@ defmodule <%= web_module %>.SettingsLive do
       {:ok, _user} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Your email has been updated.")
+         |> put_flash(:info, dgettext("sigra", "Your email has been updated."))
          |> push_navigate(to: ~p"/users/settings")}
 
       :error ->
         {:noreply,
          socket
-         |> put_flash(:error, "This confirmation link is invalid or has expired. Request a new email change from your settings.")
+         |> put_flash(:error, dgettext("sigra", "This confirmation link is invalid or has expired. Request a new email change from your settings."))
          |> push_navigate(to: ~p"/users/settings")}
     end
   end
@@ -59,8 +59,8 @@ defmodule <%= web_module %>.SettingsLive do
     <.sigra_auth_page>
       <div class="sigra-auth-flow sigra-auth-flow--wide sigra-auth-stack sigra-auth-stack--6">
       <.header>
-        Account Settings
-        <:subtitle>Manage your email, password, and account.</:subtitle>
+        {dgettext("sigra", "Account Settings")}
+        <:subtitle>{dgettext("sigra", "Manage your email, password, and account.")}</:subtitle>
       </.header>
 
       <div
@@ -68,115 +68,114 @@ defmodule <%= web_module %>.SettingsLive do
         class="sigra-auth-notice sigra-auth-notice--warning"
       >
         <p>
-          You must change your password before you can continue using your account.
+          {dgettext("sigra", "You must change your password before you can continue using your account.")}
         </p>
       </div>
 
       <div class="sigra-auth-stack sigra-auth-stack--6">
         <section id="email" class="sigra-auth-section">
-          <h2>Email address</h2>
+          <h2>{dgettext("sigra", "Email address")}</h2>
           <p class="sigra-auth-copy sigra-auth-copy--muted">
-            Current email: <%= "{@current_scope.user.email}" %>
+            {dgettext("sigra", "Current email:")} <%= "{@current_scope.user.email}" %>
           </p>
 
           <%%= if @pending_email_change? do %>
             <div class="sigra-auth-notice sigra-auth-notice--warning sigra-auth-stack sigra-auth-stack--2">
               <strong>
-                Changing to: <%= "{@current_scope.user.pending_email}" %> (awaiting confirmation)
+                {dgettext("sigra", "Changing to:")} <%= "{@current_scope.user.pending_email}" %> {dgettext("sigra", "(awaiting confirmation)")}
               </strong>
               <p>
-                We sent a confirmation link to <%= "{@current_scope.user.pending_email}" %>. Check your inbox.
+                {dgettext("sigra", "We sent a confirmation link to")} <%= "{@current_scope.user.pending_email}" %>. {dgettext("sigra", "Check your inbox.")}
               </p>
               <button
                 phx-click="cancel_email_change"
                 class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small"
               >
-                Cancel email change
+                {dgettext("sigra", "Cancel email change")}
               </button>
             </div>
           <%% else %>
             <.form for={@email_form} phx-submit="request_email_change" class="sigra-auth-stack sigra-auth-stack--4">
-              <.input field={@email_form[:email]} type="email" label="New email" required />
-              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">Update email</.sigra_auth_button>
+              <.input field={@email_form[:email]} type="email" label={dgettext("sigra", "New email")} required />
+              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">{dgettext("sigra", "Update email")}</.sigra_auth_button>
             </.form>
           <%% end %>
         </section>
 
         <section id="password" class="sigra-auth-section">
-          <h2>Password</h2>
+          <h2>{dgettext("sigra", "Password")}</h2>
           <%%= if @has_password? do %>
             <.form for={@password_form} phx-submit="change_password" class="sigra-auth-stack sigra-auth-stack--4">
               <.input
                 field={@password_form[:current_password]}
                 type="password"
-                label="Current password"
+                label={dgettext("sigra", "Current password")}
                 autocomplete="current-password"
                 required
               />
               <.input
                 field={@password_form[:password]}
                 type="password"
-                label="New password"
+                label={dgettext("sigra", "New password")}
                 autocomplete="new-password"
                 required
               />
               <.input
                 field={@password_form[:password_confirmation]}
                 type="password"
-                label="Confirm new password"
+                label={dgettext("sigra", "Confirm new password")}
                 autocomplete="new-password"
                 required
               />
-              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">Change password</.sigra_auth_button>
+              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">{dgettext("sigra", "Change password")}</.sigra_auth_button>
             </.form>
           <%% else %>
             <p class="sigra-auth-copy sigra-auth-copy--muted">
-              You signed in with a social provider. Set a password to enable email login.
+              {dgettext("sigra", "You signed in with a social provider. Set a password to enable email login.")}
             </p>
             <.form for={@password_form} phx-submit="set_password" class="sigra-auth-stack sigra-auth-stack--4">
               <.input
                 field={@password_form[:password]}
                 type="password"
-                label="New password"
+                label={dgettext("sigra", "New password")}
                 autocomplete="new-password"
                 required
               />
               <.input
                 field={@password_form[:password_confirmation]}
                 type="password"
-                label="Confirm new password"
+                label={dgettext("sigra", "Confirm new password")}
                 autocomplete="new-password"
                 required
               />
-              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">Set a password</.sigra_auth_button>
+              <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary">{dgettext("sigra", "Set a password")}</.sigra_auth_button>
             </.form>
           <%% end %>
         </section>
 
         <section id="delete" class="sigra-auth-section sigra-auth-notice--danger">
-          <h2>Delete account</h2>
+          <h2>{dgettext("sigra", "Delete account")}</h2>
           <%%= case @deletion_status do %>
             <%% {:scheduled, _days} -> %>
               <p class="sigra-auth-copy sigra-auth-copy--danger">
-                Your account is scheduled for deletion on <%= "{@scheduled_deletion_date}" %>.
+                {dgettext("sigra", "Your account is scheduled for deletion on")} <%= "{@scheduled_deletion_date}" %>.
               </p>
               <button
                 phx-click="cancel_deletion"
                 class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--small"
               >
-                Cancel deletion
+                {dgettext("sigra", "Cancel deletion")}
               </button>
             <%% :not_scheduled -> %>
               <p class="sigra-auth-copy sigra-auth-copy--muted">
-                Schedule account deletion according to your configured deletion strategy.
-                After the grace period expires, Sigra finalizes the account lifecycle according to that strategy.
+                {dgettext("sigra", "Schedule account deletion according to your configured deletion strategy. After the grace period expires, the selected strategy is applied to your account.")}
               </p>
               <button
                 phx-click="confirm_delete"
-                data-confirm="Are you sure? Your account will be deactivated immediately, all sessions will be signed out, and finalization will follow your configured deletion strategy."
+                data-confirm={dgettext("sigra", "Are you sure? Your account will be deactivated immediately, all sessions will be signed out, and finalization will follow your configured deletion strategy.")}
                 class="sigra-auth-action sigra-auth-action--danger"
               >
-                Delete my account
+                {dgettext("sigra", "Delete my account")}
               </button>
             <%% _ -> %>
           <%% end %>
@@ -196,7 +195,7 @@ defmodule <%= web_module %>.SettingsLive do
       {:ok, updated_user, _token} ->
         {:noreply,
          socket
-         |> put_flash(:info, "We sent a confirmation link to #{new_email}. Your current email stays active until you confirm.")
+         |> put_flash(:info, dgettext("sigra", "We sent a confirmation link to %{new_email}. Your current email stays active until you confirm.", new_email: new_email))
          |> assign(
            current_scope: %{socket.assigns.current_scope | user: updated_user},
            pending_email_change?: true
@@ -216,7 +215,7 @@ defmodule <%= web_module %>.SettingsLive do
       {:ok, updated_user} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Email change cancelled. Your email remains #{user.email}.")
+         |> put_flash(:info, dgettext("sigra", "Email change cancelled. Your email remains %{email}.", email: user.email))
          |> assign(
            current_scope: %{socket.assigns.current_scope | user: updated_user},
            pending_email_change?: false
@@ -225,7 +224,7 @@ defmodule <%= web_module %>.SettingsLive do
       {:error, _changeset} ->
         {:noreply,
          socket
-         |> put_flash(:error, "Something went wrong while processing your request. Please try again.")}
+         |> put_flash(:error, dgettext("sigra", "Something went wrong while processing your request. Please try again."))}
     end
   end
 
@@ -238,7 +237,7 @@ defmodule <%= web_module %>.SettingsLive do
       {:ok, _user} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Your password has been changed. All other sessions have been signed out.")
+         |> put_flash(:info, dgettext("sigra", "Your password has been changed. All other sessions have been signed out."))
          |> assign(
            force_password_change?: false,
            password_form: to_form(%{}, as: "password")
@@ -246,7 +245,7 @@ defmodule <%= web_module %>.SettingsLive do
 
       {:error, :impersonation_forbidden} ->
         {:noreply,
-         put_flash(socket, :error, "You can't change account security settings while impersonating.")}
+         put_flash(socket, :error, dgettext("sigra", "You can't change account security settings while impersonating."))}
 
       {:error, changeset} ->
         {:noreply,
@@ -263,7 +262,7 @@ defmodule <%= web_module %>.SettingsLive do
       {:ok, _user} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Password set successfully. You can now sign in with email and password.")
+         |> put_flash(:info, dgettext("sigra", "Password set successfully. You can now sign in with email and password."))
          |> assign(
            has_password?: true,
            password_form: to_form(%{}, as: "password")
@@ -283,7 +282,7 @@ defmodule <%= web_module %>.SettingsLive do
       {:ok, updated_user, scheduled_date} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Your account is scheduled for deletion on #{scheduled_date}. You can cancel this from your settings.")
+         |> put_flash(:info, dgettext("sigra", "Your account is scheduled for deletion on %{date}. You can cancel this from your settings.", date: scheduled_date))
          |> assign(
            current_scope: %{socket.assigns.current_scope | user: updated_user},
            deletion_status: Auth.deletion_status(updated_user),
@@ -293,10 +292,10 @@ defmodule <%= web_module %>.SettingsLive do
       {:error, reason} ->
         message =
           case reason do
-            :already_scheduled -> "Your account is already scheduled for deletion."
-            :cooldown -> "You recently cancelled a deletion request. Please wait before requesting again."
-            :impersonation_forbidden -> "You can't delete an account while impersonating."
-            _ -> "Something went wrong while processing your request. Please try again."
+            :already_scheduled -> dgettext("sigra", "Your account is already scheduled for deletion.")
+            :cooldown -> dgettext("sigra", "You recently cancelled a deletion request. Please wait before requesting again.")
+            :impersonation_forbidden -> dgettext("sigra", "You can't delete an account while impersonating.")
+            _ -> dgettext("sigra", "Something went wrong while processing your request. Please try again.")
           end
 
         {:noreply, socket |> put_flash(:error, message)}
@@ -310,7 +309,7 @@ defmodule <%= web_module %>.SettingsLive do
       {:ok, updated_user} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Account deletion cancelled. Your account is active again.")
+         |> put_flash(:info, dgettext("sigra", "Account deletion cancelled. Your account is active again."))
          |> assign(
            current_scope: %{socket.assigns.current_scope | user: updated_user},
            deletion_status: :not_scheduled,
@@ -319,12 +318,12 @@ defmodule <%= web_module %>.SettingsLive do
 
       {:error, :impersonation_forbidden} ->
         {:noreply,
-         put_flash(socket, :error, "You can't change account deletion while impersonating.")}
+         put_flash(socket, :error, dgettext("sigra", "You can't change account deletion while impersonating."))}
 
       {:error, _reason} ->
         {:noreply,
          socket
-         |> put_flash(:error, "Something went wrong while processing your request. Please try again.")}
+         |> put_flash(:error, dgettext("sigra", "Something went wrong while processing your request. Please try again."))}
     end
   end
 

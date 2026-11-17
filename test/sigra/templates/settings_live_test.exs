@@ -89,7 +89,7 @@ defmodule Sigra.Templates.SettingsLiveTest do
                "Schedule account deletion according to your configured deletion strategy."
 
       assert content =~
-               "After the grace period expires, Sigra finalizes the account lifecycle according to that strategy."
+               "After the grace period expires, the selected strategy is applied to your account."
 
       refute content =~ "all associated data"
       refute content =~ "account and data will be permanently removed"

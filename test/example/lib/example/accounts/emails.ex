@@ -130,7 +130,7 @@ defmodule Example.Accounts.Emails do
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Hi, it looks like you signed up using %{provider}. You can log in with %{provider} instead, or set a password from your account settings.", provider: provider_name)}
     </p>
-    #{cta_button(dgettext("sigra", "Log in with %{provider}", provider: provider_name), "/users/log_in")}
+    #{cta_button(dgettext("sigra", "Sign in with %{provider}", provider: provider_name), "/users/log_in")}
     """
 
     text_body = """

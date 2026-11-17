@@ -39,7 +39,7 @@ CMD_CONTRAST="HEX_HOME=$HEX_HOME MIX_ENV=test mix test test/sigra/brand/css_cont
 CMD_GLOSSARY="HEX_HOME=$HEX_HOME MIX_ENV=test mix test test/sigra/brand/copy_contract_test.exs test/sigra/admin/glossary_test.exs test/sigra/brand/vocabulary_docs_test.exs"
 CMD_COPY_INVENTORY="HEX_HOME=$HEX_HOME MIX_ENV=test mix test test/sigra/brand/copy_inventory_test.exs"
 CMD_CSS_CONFORMANCE="bash scripts/ci/admin-css-conformance.sh"
-CMD_PREVIOUS_RELEASE="HEX_HOME=$HEX_HOME MIX_ENV=test mix test test/sigra/install/old_admin_css_compatibility_test.exs"
+CMD_PREVIOUS_RELEASE="cd test/example/priv/playwright && npx playwright test --project=chromium tests/previous-release-css-compat.spec.ts --retries=0"
 CMD_CATALOG_CAPTURE="cd test/example && HEX_HOME=$HEX_HOME MIX_ENV=test SIGRA_CATALOG_RAW_DIR=$CATALOG_RAW_DIR mix test --include example_app test/example_web/catalog_test.exs && cd ../.. && HEX_HOME=$HEX_HOME MIX_ENV=test SIGRA_BRAND_CATALOG=after SIGRA_CATALOG_RAW_DIR=$CATALOG_RAW_DIR mix test test/sigra/brand/catalog_test.exs"
 LIGHT_CATALOG_DIFF_LOG="$LOG_DIR/normalized_light_catalog_diff.log"
 DARK_CATALOG_DIFF_LOG="$LOG_DIR/normalized_dark_catalog_diff.log"

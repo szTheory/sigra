@@ -16,6 +16,11 @@ defmodule Sigra.Test.Brand.CopyInventory do
       (error response bodies, keyword values) are not extracted. The header of
       each TSV states this coverage, because a clean inventory diff proves
       nothing about copy in a form that is not covered.
+    * `:raw_auth` - raw string forms in generated core, organization and passkey
+      sources. It records every double-quoted source token in `.ex`, `.exs` and
+      `.js` files, plus HEEx text nodes and selected visible HEEx attributes.
+      This deliberately includes code and comments as reviewable rows; it does
+      not pretend to classify every string as user-facing copy.
     * `:library` - copy in the library-owned admin LiveViews and components
       (`lib/sigra/admin/**`) and the `safe_message/1` strings in
       `lib/sigra/error.ex`: string literals read from the AST (doc and type
@@ -47,9 +52,24 @@ defmodule Sigra.Test.Brand.CopyInventory do
   @host_note "no Sigra copy by design: host-owned CSS and logos carry no Sigra copy, and the Tasklane demo app is out of lane"
   @hex_color ~r/^#[0-9a-fA-F]{6}$/
 
-  @lanes [:host, :generated, :library]
+  @lanes [:host, :generated, :raw_auth, :library]
 
   @templates_dir "priv/templates/sigra.install"
+  @raw_auth_dirs ["core", "organizations", "passkeys"]
+  @raw_auth_extensions [".ex", ".exs", ".js"]
+  @raw_auth_literal ~r/"((?:[^"\\]|\\.)*)"/s
+  @raw_auth_heex ~r/~H"""\n(.*?)\n[ \t]*"""/s
+  @raw_auth_attribute ~r/\b(?:aria-label|title|placeholder|label|alt|action)\s*=\s*"([^"]*)"/s
+  @raw_auth_exceptions [
+    {"(raw-auth coverage exceptions)", "coverage_exception",
+     "single-quoted and charlist source forms"},
+    {"(raw-auth coverage exceptions)", "coverage_exception",
+     "plain EEx/HTML heredoc text outside ~H and double-quoted tokens"},
+    {"(raw-auth coverage exceptions)", "coverage_exception",
+     "CSS, SVG and JSON under generated core/, organizations/ and passkeys/"},
+    {"(raw-auth coverage exceptions)", "coverage_exception",
+     "auth-related sources outside generated installer core/, organizations/ and passkeys/"}
+  ]
   @admin_glob "lib/sigra/admin/**/*.ex"
   @error_file "lib/sigra/error.ex"
 
@@ -141,12 +161,47 @@ defmodule Sigra.Test.Brand.CopyInventory do
     |> normalize()
   end
 
+  def extract(:raw_auth) do
+    @raw_auth_dirs
+    |> Enum.flat_map(fn dir ->
+      Path.join([@root, @templates_dir, dir, "**/*"])
+      |> Path.wildcard()
+      |> Enum.filter(&(File.regular?(&1) and Path.extname(&1) in @raw_auth_extensions))
+    end)
+    |> Enum.flat_map(fn path ->
+      path
+      |> File.read!()
+      |> raw_auth_rows_from_source(Path.relative_to(path, Path.join(@root, @templates_dir)))
+    end)
+    |> Kernel.++(@raw_auth_exceptions)
+    |> normalize()
+  end
+
   def extract(:library) do
     admin = @root |> Path.join(@admin_glob) |> Path.wildcard()
 
     [Path.join(@root, @error_file) | admin]
     |> Enum.flat_map(&library_rows(&1, Path.relative_to(&1, @root)))
     |> normalize()
+  end
+
+  @doc "Extracts the declared raw-auth source forms from one planted source file."
+  @spec raw_auth_rows_from_source(String.t(), String.t()) :: [row()]
+  def raw_auth_rows_from_source(source, file) do
+    literal_rows =
+      for [_, value] <- Regex.scan(@raw_auth_literal, source),
+          do: {file, "source_token", value}
+
+    heex_rows =
+      for [_, body] <- Regex.scan(@raw_auth_heex, source),
+          value <- heex_text_lines(body),
+          do: {file, "heex_text", value}
+
+    attribute_rows =
+      for [_, value] <- Regex.scan(@raw_auth_attribute, source),
+          do: {file, "heex_attribute", value}
+
+    normalize(literal_rows ++ heex_rows ++ attribute_rows)
   end
 
   @doc """
@@ -231,6 +286,21 @@ defmodule Sigra.Test.Brand.CopyInventory do
       "#   HEEx attribute values (aria-label, title, placeholder and similar), and raw string",
       "#   literals outside dgettext, put_flash, ~H text and the email builders (for example",
       "#   error response bodies and keyword values)."
+    ]
+  end
+
+  defp coverage_lines(:raw_auth) do
+    [
+      "# Covered: every double-quoted source token in .ex, .exs and .js files under",
+      "#   generated core/, organizations/ and passkeys/ (including code/comments),",
+      "#   text nodes in ~H heredocs, and values named aria-label, title, placeholder,",
+      "#   label, alt and action in those sources (wherever assigned). This includes raw forms",
+      "#   outside dgettext and JS hook string literals; it is a source-token inventory,",
+      "#   not a semantic claim that every row is user-facing copy.",
+      "# Not covered: single-quoted/charlist forms, non-HEEx HTML/EEx text outside",
+      "#   double-quoted tokens, CSS/SVG/JSON, files outside these three directories,",
+      "#   or auth-related source outside the generated installer templates. Each of these",
+      "#   exclusions has a coverage_exception row below; remove a row only when covered."
     ]
   end
 

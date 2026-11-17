@@ -1319,6 +1319,7 @@ jobs:
             tests/impersonation.spec.ts \
             tests/admin-audit.spec.ts \
             tests/admin-theme.spec.ts \
+            tests/previous-release-css-compat.spec.ts \
             tests/admin-coherence-sweep.spec.ts \
             tests/admin-modal-interaction.spec.ts \
             tests/admin-flow-platform-admin.spec.ts \

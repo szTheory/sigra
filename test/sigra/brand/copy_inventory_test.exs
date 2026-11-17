@@ -79,6 +79,88 @@ defmodule Sigra.Brand.CopyInventoryTest do
       assert msgid_rows |> Enum.map(&elem(&1, 1)) |> Enum.uniq() |> length() >= 150
     end
 
+    test "the raw auth inventory equals its generated-source extraction" do
+      assert_inventory_current(:raw_auth)
+
+      rows = CopyInventory.extract(:raw_auth)
+
+      files =
+        rows
+        |> Enum.reject(&(elem(&1, 1) == "coverage_exception"))
+        |> Enum.map(&elem(&1, 0))
+        |> Enum.uniq()
+
+      assert Enum.any?(files, &String.ends_with?(&1, ".ex"))
+      assert Enum.any?(files, &String.ends_with?(&1, ".exs"))
+      assert Enum.any?(files, &String.ends_with?(&1, ".js"))
+      assert Enum.all?(files, &String.starts_with?(&1, ["core/", "organizations/", "passkeys/"]))
+
+      exceptions = for {file, "coverage_exception", form} <- rows, do: {file, form}
+      assert length(exceptions) == 4
+      assert Enum.any?(exceptions, fn {_file, form} -> form =~ "charlist" end)
+    end
+
+    test "core auth screen and flash copy is covered by generated msgids" do
+      core_files =
+        ~w(
+          core/mfa_challenge_html.ex
+          core/mfa_settings_live.ex
+          core/sudo_html.ex
+          core/settings_live.ex
+          core/session_controller.ex
+          core/mfa_challenge_controller.ex
+          core/user_auth.ex
+          core/error_handler.ex
+        )
+
+      eligible_kinds = ~w(heex_text heex_attribute flash)
+
+      eligible_rows =
+        for {file, kind, text} <- CopyInventory.extract(:raw_auth),
+            file in core_files,
+            kind in eligible_kinds,
+            do: {file, text}
+
+      msgids =
+        for {file, "msgid", msgid} <- CopyInventory.extract(:generated),
+            file in core_files,
+            into: MapSet.new(),
+            do: {file, msgid}
+
+      uncovered = Enum.reject(eligible_rows, &MapSet.member?(msgids, &1))
+
+      assert uncovered == [],
+             "core auth screen or flash copy is not covered by sigra msgids: #{inspect(uncovered)}"
+    end
+
+    test "each declared raw auth form becomes a required inventory row" do
+      controls = [
+        {"priv/templates/sigra.install/core/planted.ex", ~S("New raw source literal"),
+         "source_token", "New raw source literal"},
+        {"priv/templates/sigra.install/core/planted.ex", ~S|dgettext("sigra", "New raw msgid")|,
+         "source_token", "New raw msgid"},
+        {"priv/templates/sigra.install/passkeys/planted.js",
+         ~S(const message = "New JS hook message";), "source_token", "New JS hook message"},
+        {"priv/templates/sigra.install/core/planted.ex",
+         "~H\"\"\"\n<p>New HEEx text node</p>\n\"\"\"", "heex_text", "New HEEx text node"},
+        {"priv/templates/sigra.install/core/planted.ex",
+         "~H\"\"\"\n<input aria-label=\"New accessible label\" />\n\"\"\"", "heex_attribute",
+         "New accessible label"}
+      ]
+
+      committed = CopyInventory.extract(:raw_auth)
+
+      for {file, source, kind, value} <- controls do
+        planted = CopyInventory.raw_auth_rows_from_source(source, file)
+        assert {file, kind, value} in planted
+
+        diff = CopyInventory.diff_rows(committed, committed ++ planted)
+
+        assert {file, kind, value} in diff.added,
+               "new #{kind} in #{file} must fail until it is inventoried"
+      end
+    end
+
     test "rows are prose only: no Elixir or EEx code leaked in" do
       rows = CopyInventory.extract(:generated)
 
@@ -289,6 +371,14 @@ defmodule Sigra.Brand.CopyInventoryTest do
       assert generated =~ ".js hooks"
       assert generated =~ "HEEx attribute values"
       assert generated =~ "literals outside dgettext"
+
+      raw_auth = :raw_auth |> CopyInventory.header_lines() |> Enum.join("\n")
+      assert raw_auth =~ ".ex, .exs and .js"
+      assert raw_auth =~ "text nodes in ~H heredocs"
+      assert raw_auth =~ "aria-label, title, placeholder"
+      assert raw_auth =~ "Not covered: single-quoted/charlist forms"
+      assert raw_auth =~ "not a semantic claim"
+      assert raw_auth =~ "coverage_exception row below"
     end
 
     test "each committed inventory carries the header render/2 writes" do

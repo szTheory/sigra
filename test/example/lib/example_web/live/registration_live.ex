@@ -88,7 +88,7 @@ defmodule ExampleWeb.RegistrationLive do
           </ul>
         </div>
 
-        <.button phx-disable-with="Creating account..." class="btn btn-primary w-full">
+        <.button phx-disable-with="Creating account..." class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           Create an account <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>

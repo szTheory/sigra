@@ -7,6 +7,77 @@ defmodule ExampleWeb.AdminAuditIndexLiveTest do
   alias Example.Repo
 
   describe "Phase 30 admin audit explorer contracts" do
+    test "filtered zero results explain how to widen the search and preserve the filter", %{
+      conn: conn
+    } do
+      html =
+        conn
+        |> log_in_user(platform_admin_fixture())
+        |> get("/admin/audit?action_prefix=missing.event")
+        |> html_response(200)
+
+      assert html =~ "No audit events match this view"
+
+      assert html =~
+               "No audit events match the active filters. Clear one or more to widen the timeline."
+
+      assert html =~ ~s(value="missing.event")
+      refute html =~ ~s(data-testid="admin-audit-desktop-results")
+    end
+
+    test "load errors name the operation, preserve scope and keep the submitted page size", %{
+      conn: conn
+    } do
+      platform_admin = platform_admin_fixture()
+
+      html =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/audit?page_size=0")
+        |> html_response(200)
+
+      assert html =~ "We couldn't load audit events. Refresh this page, then try again."
+      assert html =~ "Global audit explorer"
+      assert html =~ ~s(name="page_size")
+      assert html =~ ~s(value="0")
+      refute html =~ "No audit events yet."
+    end
+
+    test "one global event renders and filtered zero results keep the filter value", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+
+      unique_action = "admin.plan05.single.#{System.unique_integer([:positive])}"
+
+      insert_audit_event(%{
+        action: unique_action,
+        actor_id: platform_admin.id,
+        effective_user_id: platform_admin.id,
+        target_id: platform_admin.id
+      })
+
+      one_event_html =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/audit?action_prefix=#{unique_action}")
+        |> html_response(200)
+
+      assert one_event_html =~ ~s(data-testid="admin-audit-desktop-results")
+      assert one_event_html =~ unique_action
+      assert length(Regex.scan(~r/<tr(?:\s|>)/, one_event_html)) == 2
+
+      no_results_html =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/audit?action_prefix=missing.event")
+        |> html_response(200)
+
+      assert no_results_html =~ "No audit events match this view"
+      assert no_results_html =~ "Clear all filters"
+      assert no_results_html =~ ~s(name="action_prefix")
+      assert no_results_html =~ ~s(value="missing.event")
+      refute no_results_html =~ ~s(data-testid="admin-audit-desktop-results")
+    end
+
     test "global explorer preserves URL-driven filters across sort and pagination links", %{
       conn: conn
     } do
@@ -90,7 +161,8 @@ defmodule ExampleWeb.AdminAuditIndexLiveTest do
         |> get("/admin/organizations/#{allowed_org.slug}/audit?organization=#{other_org.id}")
         |> html_response(200)
 
-      assert html =~ "No audit events match this view"
+      assert html =~ "No audit events yet."
+      assert html =~ "Audit events appear here as activity is recorded."
       refute html =~ "allowed-org-audit@example.com"
       refute html =~ "other-org-audit@example.com"
     end

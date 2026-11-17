@@ -41,7 +41,7 @@ defmodule <%= web_module %>.SessionHTML do
           data-options-path={~p"/users/log_in/passkey/options"}
           class="sigra-auth-stack sigra-auth-stack--4"
         >
-          <.input field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username webauthn" required />
+          <.input id="passkey_login_email" field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username webauthn" required />
           <input type="hidden" name="passkey[response]" id="passkey_login_response" />
           <p
             data-passkey-login-status
@@ -65,7 +65,7 @@ defmodule <%= web_module %>.SessionHTML do
           <div class="sigra-auth-stack sigra-auth-stack--6">
             <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
               <input type="hidden" name="_action" value="magic_link" />
-              <.input field={f[:email]} type="email" label={dgettext("sigra", "Email for sign-in link")} autocomplete="username" required />
+              <.input id="magic_link_email" field={f[:email]} type="email" label={dgettext("sigra", "Email for sign-in link")} autocomplete="username" required />
               <.sigra_auth_button class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--block">
                 {dgettext("sigra", "Email me a sign-in link")}
               </.sigra_auth_button>
@@ -82,7 +82,7 @@ defmodule <%= web_module %>.SessionHTML do
 <% end %>
         <.form :let={f} for={@magic_link_form} id="magic_link_form" action={~p"/users/log_in"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
           <input type="hidden" name="_action" value="magic_link" />
-          <.input field={f[:email]} type="email" label={dgettext("sigra", "Email for sign-in link")} autocomplete="username" required />
+          <.input id="magic_link_email" field={f[:email]} type="email" label={dgettext("sigra", "Email for sign-in link")} autocomplete="username" required />
 
           <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
             {dgettext("sigra", "Email me a sign-in link")} <span aria-hidden="true">&rarr;</span>
@@ -108,7 +108,7 @@ defmodule <%= web_module %>.SessionHTML do
   defp password_form(assigns) do
     ~H"""
     <.form :let={f} for={@form} id="login_form" action={~p"/users/log_in"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
-      <.input field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
+      <.input id="login_email" field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
       <.input field={f[:password]} type="password" label={dgettext("sigra", "Password")} autocomplete="current-password" required />
 
       <label class="sigra-auth-cluster">
@@ -133,7 +133,7 @@ defmodule <%= web_module %>.SessionHTML do
 
       <.form :let={f} for={@form} id="enterprise_login_form" action={~p"/users/log_in"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
         <input type="hidden" name="_action" value="enterprise" />
-        <.input field={f[:email]} type="email" label={dgettext("sigra", "Work email")} autocomplete="username" required />
+        <.input id="enterprise_login_email" field={f[:email]} type="email" label={dgettext("sigra", "Work email")} autocomplete="username" required />
         <.sigra_auth_button class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--block">
           {dgettext("sigra", "Continue with work sign-in")}
         </.sigra_auth_button>

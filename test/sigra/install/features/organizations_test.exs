@@ -145,7 +145,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # Copy Rules non-negotiable: no role-name leak in the insufficient_role message.
       refute error_handler =~ "This page requires the"
       # :no_active_org uses :info (not :error) per UI-SPEC (non-blaming).
-      assert error_handler =~ "put_flash(:info, \"Pick or create an organization to continue.\")"
+      assert error_handler =~
+               ~s|put_flash(:info, dgettext("sigra", "Pick or create an organization to continue."))|
     end
 
     test "organizations.ex template defines set_active_organization/2 as a call/3 wrapper" do
@@ -347,8 +348,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
 
       assert template =~ "defmodule <%= web_module %>.Components.OrgSwitcher"
       assert template =~ "def org_switcher(assigns)"
-      # daisyUI dropdown + ARIA contract (UI-SPEC §Screen Anatomy 1)
-      assert template =~ ~s|<details class="dropdown dropdown-end"|
+      # Neutral auth dropdown + ARIA contract.
+      assert template =~ ~s|<details class="sigra-auth-disclosure"|
       assert template =~ ~s|aria-label="Organization switcher"|
       # Each "other org" row posts to /organizations/switch via a form
       assert template =~ ~s|action={~p"/organizations/switch"}|
@@ -359,10 +360,9 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert template =~ ~s|~p"/organizations/new"|
       # Settings link ONLY for owner/admin
       assert template =~ "role in [:owner, :admin]"
-      # Role badge variants (UI-SPEC §Color)
-      assert template =~ "badge-primary"
-      assert template =~ "badge-neutral"
-      assert template =~ "badge-ghost"
+      # Role labels use the neutral generated-auth status class.
+      assert template =~ ~s|class="sigra-auth-status"|
+      refute template =~ "badge-"
     end
 
     @tag :phase16
@@ -539,8 +539,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # Exact copy anchor from Plan 16-04 Test 4 / UI-SPEC §Destructive Action Confirmations
       assert template =~ "Your current slug"
       assert template =~ "will redirect to the new slug for 7 days"
-      # Warning alert variant
-      assert template =~ "alert alert-warning"
+      # Neutral generated-auth warning variant
+      assert template =~ "sigra-auth-notice--warning"
     end
 
     @tag :phase16
@@ -550,8 +550,9 @@ defmodule Sigra.Install.Features.OrganizationsTest do
           "priv/templates/sigra.install/organizations/live/organization_settings_live.ex"
         )
 
-      # Per UI-SPEC §Screen Anatomy 4 + §Color "Destructive red zone treatment"
-      assert template =~ "border-l-4 border-l-error"
+      # The danger zone uses the neutral host-auth section and danger copy.
+      assert template =~ "sigra-auth-section"
+      assert template =~ "sigra-auth-copy--danger"
       assert template =~ "Danger zone"
     end
 
@@ -744,10 +745,9 @@ defmodule Sigra.Install.Features.OrganizationsTest do
                "OrganizationMembersLive template must define #{handler}"
       end
 
-      # Native <dialog class="modal"> per CD-04 research (no stock <.modal>
-      # in core_components — core_components.ex ships no def modal).
-      assert template =~ ~S|<dialog id="confirm-role-modal" class="modal"|
-      assert template =~ ~S|<dialog id="confirm-remove-modal" class="modal"|
+      # Native dialogs keep their IDs and hook while using neutral host-auth classes.
+      assert template =~ ~S|<dialog id="confirm-role-modal" class="sigra-auth-section"|
+      assert template =~ ~S|<dialog id="confirm-remove-modal" class="sigra-auth-section"|
 
       # Role change modal contains the role select + submit wired to
       # phx-submit "change_role"
@@ -787,14 +787,12 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       assert template =~ "No pending invitations."
       assert template =~ "Click <strong>Invite member</strong>"
 
-      # Role badge variants per UI-SPEC §Color.
-      assert template =~ "badge-primary"
-      assert template =~ "badge-neutral"
-      assert template =~ "badge-ghost"
+      # Role labels use the neutral generated-auth status class.
+      assert template =~ ~s|class="sigra-auth-status"|
+      refute template =~ "badge-"
 
-      # Actions dropdown: <details class="dropdown dropdown-end"> matches the
-      # UI-SPEC anatomy without requiring a new library widget (D-29).
-      assert template =~ ~S|<details class="dropdown dropdown-end"|
+      # Native details controls keep their behavior and use neutral auth styling.
+      assert template =~ ~S|<details class="sigra-auth-disclosure"|
       assert template =~ ~S|phx-click="open_role_modal"|
       assert template =~ ~S|phx-click="open_remove_modal"|
 

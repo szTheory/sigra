@@ -35,6 +35,29 @@ defmodule Sigra.Admin.IndexLiveTest do
     assert html =~ ~s(<dd class="sg-metric__subvalue">4 this month</dd>)
   end
 
+  test "uses the approved empty review copy and only offers review when users need it" do
+    empty_html =
+      render_index(%{
+        growth: %{},
+        activity: %{},
+        posture: posture(total: 0, locked_out: 0, deletion_scheduled: 0)
+      })
+
+    assert empty_html =~ "No users need review."
+    refute empty_html =~ "No flagged accounts"
+    assert length(Regex.scan(~r{href="/admin/users\?needs_review=true"}, empty_html)) == 1
+
+    review_html =
+      render_index(%{
+        growth: %{},
+        activity: %{},
+        posture: posture(total: 1, locked_out: 1)
+      })
+
+    assert length(Regex.scan(~r{href="/admin/users\?needs_review=true"}, review_html)) == 2
+    assert review_html =~ "Review users"
+  end
+
   defp render_index(summary_stats) do
     %{
       __changed__: %{},

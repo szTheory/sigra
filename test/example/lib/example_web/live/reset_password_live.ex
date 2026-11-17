@@ -34,7 +34,7 @@ defmodule ExampleWeb.ResetPasswordLive do
           required
         />
 
-        <.button phx-disable-with={dgettext("sigra", "Sending...")} class="btn btn-primary w-full">
+        <.button phx-disable-with={dgettext("sigra", "Sending...")} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Send reset instructions")} <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
@@ -67,7 +67,7 @@ defmodule ExampleWeb.ResetPasswordLive do
         </.header>
 
         <div class="mt-6">
-          <.link navigate={~p"/users/reset-password"} class="btn btn-primary w-full text-center block">
+          <.link navigate={~p"/users/reset-password"} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
             {dgettext("sigra", "Request new reset email")}
           </.link>
         </div>
@@ -127,7 +127,7 @@ defmodule ExampleWeb.ResetPasswordLive do
           required
         />
 
-        <.button phx-disable-with={dgettext("sigra", "Resetting...")} class="btn btn-primary w-full">
+        <.button phx-disable-with={dgettext("sigra", "Resetting...")} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Reset password")} <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>

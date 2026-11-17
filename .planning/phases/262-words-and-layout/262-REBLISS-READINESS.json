@@ -1,0 +1,208 @@
+{
+  "phase": "262",
+  "plan": "13",
+  "status": "ready",
+  "created_at": "2026-11-17T07:49:11Z",
+  "approved_rename_table": ".planning/phases/262-words-and-layout/262-MSGID-RENAME-TABLE.md",
+  "source_slices": {
+    "summaries": [
+      {
+        "path": ".planning/phases/262-words-and-layout/262-07-SUMMARY.md",
+        "status": "complete"
+      },
+      {
+        "path": ".planning/phases/262-words-and-layout/262-08-SUMMARY.md",
+        "status": "complete"
+      },
+      {
+        "path": ".planning/phases/262-words-and-layout/262-09-SUMMARY.md",
+        "status": "complete"
+      },
+      {
+        "path": ".planning/phases/262-words-and-layout/262-10-SUMMARY.md",
+        "status": "complete"
+      },
+      {
+        "path": ".planning/phases/262-words-and-layout/262-11-SUMMARY.md",
+        "status": "complete"
+      },
+      {
+        "path": ".planning/phases/262-words-and-layout/262-12-SUMMARY.md",
+        "status": "complete"
+      }
+    ],
+    "generated_host": {
+      "status": "passed",
+      "evidence": ".planning/phases/262-words-and-layout/262-12-SUMMARY.md",
+      "limitation": "The catalog probe for /users/reset-password without a token is a documented existing route defect from Plan 12; it is not a regression."
+    }
+  },
+  "gate_4a": {
+    "path": ".planning/phases/262-words-and-layout/262-4A-GATE.json",
+    "status": "passed",
+    "preflight_command": "jq -e '.status == \"passed\" and .checks.support_empty_single_liveview == true and .checks.support_overflow_browser == true and .checks.support_320px_200pct_browser == true and .browser_backstops.support_overflow_browser.result == true and .browser_backstops.support_320px_200pct_browser.result == true and (.browser_backstops.support_overflow_browser.test_target | type == \"string\" and length > 0) and (.browser_backstops.support_overflow_browser.test_title | type == \"string\" and length > 0) and (.browser_backstops.support_overflow_browser.command | type == \"string\" and length > 0) and (.browser_backstops.support_320px_200pct_browser.test_target | type == \"string\" and length > 0) and (.browser_backstops.support_320px_200pct_browser.test_title | type == \"string\" and length > 0) and (.browser_backstops.support_320px_200pct_browser.command | type == \"string\" and length > 0)' .planning/phases/262-words-and-layout/262-4A-GATE.json",
+    "preflight_exit_code": 0,
+    "preflight_output": "true",
+    "required_checks": {
+      "support_empty_single_liveview": true,
+      "support_overflow_browser": true,
+      "support_320px_200pct_browser": true
+    },
+    "browser_backstops": {
+      "support_overflow_browser": {
+        "result": true,
+        "test_target": "tests/admin-user-operations.spec.ts",
+        "test_title": "4a support long-content overflow",
+        "fixture_id": "support-long-content",
+        "command": "cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test --project=chromium tests/admin-user-operations.spec.ts --grep \"4a support long-content overflow\" --retries=0"
+      },
+      "support_320px_200pct_browser": {
+        "result": true,
+        "test_target": "tests/admin-user-operations.spec.ts",
+        "test_title": "4a support 320px/200% reflow",
+        "fixture_id": "support-long-content",
+        "command": "cd test/example/priv/playwright && SIGRA_EXAMPLE_URL=http://localhost:4011 npx playwright test --project=chromium tests/admin-user-operations.spec.ts --grep \"4a support 320px/200% reflow\" --retries=0"
+      }
+    },
+    "retry_history": [
+      {
+        "attempt": 1,
+        "result": "failed",
+        "check": "example_server_ready",
+        "exit_code": 1,
+        "cause": "Example app had been compiled with dev PORT=4000; the gate launched PORT=4011 and Mix rejected the compile/runtime configuration mismatch.",
+        "correction": "Cleaned the example dev build and recompiled with PORT=4011, then reran the gate once.",
+        "log": "/var/folders/f3/f0clj9rd2zb85n2c849wcsrc0000gn/T//sigra-phase262-4a.ifP2gJ/logs/example-server.log"
+      },
+      {
+        "attempt": 2,
+        "result": "passed",
+        "command": "bash scripts/ci/phase-262-4a-gate.sh with isolated PGDATABASE=sigra_phase262_browser_codex_20261117c",
+        "exit_code": 0,
+        "report": ".planning/phases/262-words-and-layout/262-4A-GATE.json"
+      }
+    ]
+  },
+  "pre_rebless_checks": {
+    "formatter": {
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test mix format --check-formatted",
+      "exit_code": 0,
+      "result": true
+    },
+    "source_contracts": {
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/brand/copy_inventory_test.exs test/sigra/brand/frozen_surface_test.exs test/sigra/brand/copy_contract_test.exs test/sigra/install/auth_ui_contract_test.exs test/sigra/install/generator_passkey_primary_login_test.exs",
+      "exit_code": 0,
+      "result": true,
+      "output_summary": "174 tests, 0 failures"
+    },
+    "diff_whitespace": {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": true
+    },
+    "formatting_deviation": {
+      "status": "fixed",
+      "files": [
+        "test/sigra/admin/components_test.exs",
+        "test/sigra/install/auth_ui_contract_test.exs",
+        "test/sigra/brand/css_contract_test.exs",
+        "test/sigra/brand/catalog_test.exs"
+      ],
+      "reason": "The required repository formatter check reported existing formatting drift in these committed Phase 262 test files. Only the reported files were formatted; the full formatter check then passed."
+    },
+    "example_oauth_email": {
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test --include example_app test/example/accounts/emails_lifecycle_html_test.exs (from test/example)",
+      "exit_code": 0,
+      "result": true,
+      "output_summary": "14 tests, 0 failures"
+    }
+  },
+  "owner_authorized_corrective_rebless": {
+    "authorized_on": "2026-11-17",
+    "reason": "The 4a gate identified the generated OAuth reset CTA as its only remaining failure after the original golden rebless.",
+    "scope": "Log in with %{provider} to Sign in with %{provider} in both generated email body formats and the matching golden output.",
+    "additional_invocations_authorized": 1,
+    "no_further_rebless_authorized": true
+  },
+  "golden_reblesses_remaining": 0,
+  "rebless_invocations": 2,
+  "rebless_command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test mix sigra.fixture.rebless_golden",
+  "rebless_exit_code": 0,
+  "rebless_output_evidence": "/private/tmp/phase262-13-corrective-rebless.out",
+  "source_correction": {
+    "authorized_change": "OAuth reset CTA msgid",
+    "old_msgid": "Log in with %{provider}",
+    "new_msgid": "Sign in with %{provider}",
+    "template": "priv/templates/sigra.install/core/emails.ex",
+    "bodies_changed": [
+      "HTML",
+      "plain text"
+    ],
+    "example_mirror": "test/example/lib/example/accounts/emails.ex",
+    "rename_table": ".planning/phases/262-words-and-layout/262-MSGID-RENAME-TABLE.md",
+    "copy_baseline_entry_removed": true,
+    "frozen_surface_baseline": "retained old msgid; test allows this exact rename through the rename table"
+  },
+  "prior_rebless_review": {
+    "result": "approved",
+    "output_delta": {
+      "added": 0,
+      "modified": 22,
+      "removed": 0
+    },
+    "stdout_snapshot_changed": false,
+    "golden_check": {
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test mix sigra.fixture.rebless_golden --check",
+      "exit_code": 0,
+      "result": true,
+      "output_evidence": "/private/tmp/phase262-13-golden-check.out"
+    },
+    "tests": {
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/golden_diff_test.exs test/sigra/install/asset_parity_test.exs",
+      "exit_code": 0,
+      "result": true,
+      "output_summary": "37 tests, 0 failures",
+      "output_evidence": "/private/tmp/phase262-13-golden-tests.out"
+    },
+    "whitespace_check": {
+      "command": "git diff --check -- test/fixtures/install_golden",
+      "exit_code": 0,
+      "result": true
+    },
+    "source_alignment": "The generated fixture diff matches the phase source changes: generated auth and organization templates, generated email copy, the Gettext handler integration, and admin CSS version 2. The rendered installer config contains rp_name: SigraInstallGoldenTmp."
+  },
+  "rebless_review": {
+    "result": "approved",
+    "invocation": 2,
+    "output_delta": {
+      "added": 0,
+      "modified": 1,
+      "removed": 0
+    },
+    "modified_path": "test/fixtures/install_golden/tree/lib/sigra_install_golden_tmp/accounts/emails.ex",
+    "expected_changes": [
+      "HTML OAuth reset CTA msgid: Log in with %{provider} -> Sign in with %{provider}",
+      "plain-text OAuth reset CTA msgid: Log in with %{provider} -> Sign in with %{provider}"
+    ],
+    "stdout_snapshot_changed": false,
+    "golden_check": {
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test mix sigra.fixture.rebless_golden --check",
+      "exit_code": 0,
+      "result": true,
+      "output_summary": "OK: fixture is up-to-date (check mode).",
+      "output_evidence": "/private/tmp/phase262-13-corrective-golden-check.out"
+    },
+    "tests": {
+      "command": "HEX_HOME=/private/tmp/sigra-phase262-hex-home MIX_ENV=test PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost mix test test/sigra/install/golden_diff_test.exs test/sigra/install/asset_parity_test.exs",
+      "exit_code": 0,
+      "result": true,
+      "output_summary": "37 tests, 0 failures"
+    },
+    "whitespace_check": {
+      "command": "git diff --check -- test/fixtures/install_golden",
+      "exit_code": 0,
+      "result": true
+    },
+    "source_alignment": "The generated fixture diff contains only the approved HTML and plain-text OAuth reset CTA msgid changes. No stdout, route, helper, or asset changed."
+  }
+}

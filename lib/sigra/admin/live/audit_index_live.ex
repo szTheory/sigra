@@ -18,6 +18,7 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
      |> assign(:rows, [])
      |> assign(:meta, nil)
      |> assign(:current_params, %{})
+     |> assign(:load_error, false)
      |> assign(:page_title, "Audit")}
   end
 
@@ -30,18 +31,17 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
          |> assign(:rows, rows)
          |> assign(:meta, meta)
          |> assign(:current_params, current_params)
+         |> assign(:load_error, false)
          |> assign(:page_title, page_title(socket.assigns.admin_scope))}
 
       {:error, _reason} ->
         {:noreply,
          socket
-         |> put_flash(
-           :error,
-           "We couldn't load this audit view. Refresh the page, then try again."
-         )
          |> assign(:rows, [])
          |> assign(:meta, nil)
-         |> assign(:current_params, %{})}
+         |> assign(:current_params, preserved_params(params))
+         |> assign(:load_error, true)
+         |> assign(:page_title, page_title(socket.assigns.admin_scope))}
     end
   end
 
@@ -64,6 +64,8 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
 
   @impl true
   def render(assigns) do
+    assigns = Map.put_new(assigns, :load_error, false)
+
     ~H"""
     <section class="sg-stack sg-stack--6">
       <.scope_ribbon copy={scope_copy(@admin_scope)} />
@@ -195,7 +197,11 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
         <.audit_row :for={row <- @rows} row={row} show_detail show_codes />
       </div>
 
-      <.audit_empty_state :if={@rows == []} title="No audit events match this view">
+      <.notice :if={@load_error} tone={:warn}>
+        We couldn't load audit events. Refresh this page, then try again.
+      </.notice>
+
+      <.audit_empty_state :if={@rows == [] and not @load_error} title={empty_title(@current_params)}>
         <%= if any_filter_active?(@current_params) do %>
           <p class="sg-muted sg-text-sm">No audit events match the active filters. Clear one or more to widen the timeline.</p>
           <div class="sg-cluster sg-cluster--center">
@@ -233,6 +239,18 @@ defmodule Sigra.Admin.Live.AuditIndexLive do
 
   defp page_title(%Scope{mode: :organization, organization: %{name: name}}), do: "#{name} Audit"
   defp page_title(_admin_scope), do: "Audit"
+
+  defp empty_title(params) do
+    if any_filter_active?(params),
+      do: "No audit events match this view",
+      else: "No audit events yet."
+  end
+
+  defp preserved_params(params) do
+    Map.take(params, @filter_param_keys)
+    |> Enum.filter(fn {_key, value} -> is_binary(value) end)
+    |> Map.new()
+  end
 
   defp scope_copy(%Scope{mode: :organization, organization: %{name: name}}),
     do: "Organization-scoped audit explorer for #{name}"

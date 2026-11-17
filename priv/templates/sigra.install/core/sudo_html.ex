@@ -18,8 +18,8 @@ defmodule <%= web_module %>.Auth.SudoHTML do
     <.sigra_auth_page>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
-        Re-enter your password
-        <:subtitle>For your security, please re-enter your password to continue.</:subtitle>
+        {dgettext("sigra", "Re-enter your password")}
+        <:subtitle>{dgettext("sigra", "For your security, please re-enter your password to continue.")}</:subtitle>
       </.header>
 
       <.form :let={f} for={@form} action={~p"/users/sudo"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
@@ -27,17 +27,17 @@ defmodule <%= web_module %>.Auth.SudoHTML do
         <.input
           field={f[:password]}
           type="password"
-          label="Password"
+          label={dgettext("sigra", "Password")}
           autocomplete="current-password"
           autofocus
           required
         />
-        <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">Confirm password</.sigra_auth_button>
+        <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">{dgettext("sigra", "Confirm password")}</.sigra_auth_button>
       </.form>
 
       <p class="sigra-auth-copy sigra-auth-copy--center">
         <.link navigate={@return_to || ~p"/"}>
-          Go back
+          {dgettext("sigra", "Go back")}
         </.link>
       </p>
       </div>

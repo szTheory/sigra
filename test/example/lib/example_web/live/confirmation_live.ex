@@ -49,7 +49,7 @@ defmodule ExampleWeb.ConfirmationLive do
 
             <.button
               phx-disable-with={dgettext("sigra", "Confirming...")}
-              class="btn btn-primary w-full"
+              class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
             >
               {dgettext("sigra", "Confirm email")} <span aria-hidden="true">&rarr;</span>
             </.button>
@@ -84,7 +84,7 @@ defmodule ExampleWeb.ConfirmationLive do
           <.button
             phx-click="resend"
             phx-disable-with={dgettext("sigra", "Sending...")}
-            class="btn btn-primary w-full"
+            class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
           >
             {dgettext("sigra", "Send new confirmation email")} <span aria-hidden="true">&rarr;</span>
           </.button>
