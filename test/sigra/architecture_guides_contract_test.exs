@@ -3,7 +3,7 @@ defmodule Sigra.ArchitectureGuidesContractTest do
 
   @architecture "guides/introduction/architecture.md"
   @walkthrough "guides/introduction/code-walkthrough.md"
-  @favicon "brandbook/favicon.svg"
+  @favicon "docs/assets/brand/favicon.svg"
 
   @forbidden_published_paths ~r{
     (?:lib/|priv/templates/|test/example/|test/sigra/)|
@@ -209,19 +209,18 @@ defmodule Sigra.ArchitectureGuidesContractTest do
            "Mermaid source must be hidden only after successful SVG rendering"
   end
 
-  test "ExDoc uses the existing theme-aware Rail Accent favicon" do
+  test "ExDoc uses the packaged theme-aware Sigra favicon" do
     assert File.regular?(@favicon), "missing #{@favicon}"
 
     mix = File.read!("mix.exs")
     svg = File.read!(@favicon)
 
-    assert mix =~ ~s(favicon: "brandbook/favicon.svg")
-    assert svg =~ "Sigra D4 Linked Rail favicon mark"
-    assert svg =~ "prefers-color-scheme: dark"
-    assert svg =~ "#c2410c"
-    assert svg =~ "#fdba74"
+    assert mix =~ ~s(favicon: "docs/assets/brand/favicon.svg")
+    assert svg =~ "<title>sigra</title>"
+    assert svg =~ "prefers-color-scheme:dark"
+    assert svg =~ "#C2410C"
+    assert svg =~ "#F08A55"
     assert svg =~ ~s(role="img")
-    assert svg =~ ~s(aria-labelledby="title desc")
   end
 
   test "walkthrough source anchors fail actionably when implementation drifts" do

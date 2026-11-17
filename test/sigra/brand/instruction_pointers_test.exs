@@ -26,7 +26,12 @@ defmodule Sigra.Brand.InstructionPointersTest do
   ]
 
   @consumer_files @instruction_files ++
-                    @identity_reference_files ++ ["scripts/brand/axe-brandbook.mjs"]
+                    @identity_reference_files ++
+                    [
+                      "scripts/brand/axe-brandbook.mjs",
+                      "scripts/brand/outline-wordmark.mjs",
+                      "test/sigra/architecture_guides_contract_test.exs"
+                    ]
   @pointer_files @instruction_files ++ @identity_reference_files
 
   @admin_guides [
