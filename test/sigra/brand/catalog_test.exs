@@ -581,7 +581,7 @@ defmodule Sigra.Brand.CatalogTest do
 
   describe "generated host after catalog review" do
     test "after capture includes the complete generated auth and email surface set" do
-      if System.get_env("SIGRA_BRAND_CATALOG") == "after" do
+      if Sigra.Test.Brand.RegenGuard.requested?(Catalog.regen_env(), "after") do
         after_dir = Catalog.out_dir(:after)
         paths =
           after_dir

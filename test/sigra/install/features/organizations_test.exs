@@ -145,7 +145,8 @@ defmodule Sigra.Install.Features.OrganizationsTest do
       # Copy Rules non-negotiable: no role-name leak in the insufficient_role message.
       refute error_handler =~ "This page requires the"
       # :no_active_org uses :info (not :error) per UI-SPEC (non-blaming).
-      assert error_handler =~ "put_flash(:info, \"Pick or create an organization to continue.\")"
+      assert error_handler =~
+               ~s|put_flash(:info, dgettext("sigra", "Pick or create an organization to continue."))|
     end
 
     test "organizations.ex template defines set_active_organization/2 as a call/3 wrapper" do
