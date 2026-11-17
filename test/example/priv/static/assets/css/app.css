@@ -1223,6 +1223,8 @@ a.vt-panel {
 }
 
 .vt-auth__panel {
+  box-sizing: border-box;
+  min-width: 0;
   width: min(100%, 27rem);
   display: grid;
   gap: var(--sg-space-4);

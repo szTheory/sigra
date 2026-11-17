@@ -6,7 +6,14 @@ defmodule Sigra.Install.GeneratorPasskeyPrimaryLoginTest do
   describe "passkey-primary controller login template" do
     test "fresh passkey config uses the resolved product name and keeps ceremony settings" do
       config =
-        Path.join([File.cwd!(), "priv", "templates", "sigra.install", "passkeys", "config_injection.ex"])
+        Path.join([
+          File.cwd!(),
+          "priv",
+          "templates",
+          "sigra.install",
+          "passkeys",
+          "config_injection.ex"
+        ])
         |> EEx.eval_file(
           otp_app: :example_app,
           app_name: "Example Product",
@@ -35,6 +42,10 @@ defmodule Sigra.Install.GeneratorPasskeyPrimaryLoginTest do
             "@passkey_primary_enabled",
             ~s(autocomplete="username webauthn"),
             ~s(id="passkey_login_form"),
+            ~s(id="passkey_login_email"),
+            ~s(id="magic_link_email"),
+            ~s(id="login_email"),
+            ~s(id="enterprise_login_email"),
             ~s(id="passkey_login_button"),
             "passkey[response]",
             "/users/log_in/passkey",
