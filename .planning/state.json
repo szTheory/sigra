@@ -11,17 +11,17 @@
     {
       "number": "260",
       "name": "Deterministic Output, Before Catalog and PNG Park",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "261",
       "name": "Tokens, Type, Logo, Favicon and Contrast",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "262",
       "name": "Words and Layout",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "263",
@@ -31,8 +31,8 @@
   ],
   "next": {
     "command": "/gsd-progress --next",
-    "label": "Advance to the next step (verify)",
-    "reason": "Phase 2 of 5 · ready to verify"
+    "label": "Advance to the next step",
+    "reason": "Phase 4 of 5 · 60% · executing"
   },
-  "updated_at": "2026-11-15T21:24:36.165Z"
+  "updated_at": "2026-11-17T13:39:26Z"
 }

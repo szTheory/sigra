@@ -2,99 +2,73 @@
 phase: 262-words-and-layout
 plan: "13"
 subsystem: auth, testing
-tags: [generated-auth, golden-fixture, gettext, playwright, verification]
+tags: [generated-auth, golden-fixture, gettext, verification]
 requires:
   - phase: 262-12
     provides: generated auth and email copy, catalogs, and source contracts
 provides:
-  - One reviewed and committed generated install golden rebless
-  - Machine-readable readiness and blocked final-verification evidence
+  - Final Phase 262 verification evidence and readiness for Plan 14 delivery
+  - One owner-authorized corrective update to the generated golden
 affects: [262-14, generated-auth, install-golden]
 tech-stack:
   added: []
-  patterns: [single generated fixture rebless, machine-readable gate evidence]
+  patterns: [machine-readable gate evidence, isolated generated fixture commit]
 key-files:
-  created:
+  modified:
+    - priv/templates/sigra.install/core/emails.ex
+    - test/example/lib/example/accounts/emails.ex
+    - test/example/test/example/accounts/emails_lifecycle_html_test.exs
+    - test/fixtures/brand/copy-baseline.json
+    - test/fixtures/brand/copy-inventory/generated.tsv
+    - test/fixtures/install_golden/tree/
+    - .planning/phases/262-words-and-layout/262-4A-GATE.json
     - .planning/phases/262-words-and-layout/262-REBLISS-READINESS.json
     - .planning/phases/262-words-and-layout/262-FINAL-VERIFICATION.json
-  modified:
-    - test/fixtures/install_golden/tree/
-    - test/example/priv/playwright/tests/admin-design.spec.ts
-    - .planning/phases/262-words-and-layout/262-4A-GATE.json
-    - test/fixtures/brand/copy-baseline.json
-    - test/sigra/admin/components_test.exs
-    - test/sigra/brand/catalog_test.exs
-    - test/sigra/brand/css_contract_test.exs
-    - test/sigra/install/auth_ui_contract_test.exs
 key-decisions:
-  - "Do not repeat the golden rebless after discovering an action-first email copy failure; the required correction needs an owner-approved plan that permits regenerated output."
-requirements-completed: []
+  - "The owner authorized exactly one corrective golden rebless on 2026-11-17 after the 4a gate identified the OAuth reset CTA as its only failure. No further rebless is authorized."
+requirements-completed: [BOPS-01, BAUTH-02, BAUTH-03, BAUTH-05, BAUTH-06, BAUTH-07]
 actuals:
-  tokens: 50676
-  tasks: 2
-  commits: 4
-plan_head_before: d68e068cb19948df853b093f190b91add2bd3c08
-plan_head_after: 86f7c398615a5f5d66b1430cc731f4049d6c8224
-commits: 4
-metrics:
-  duration: about 22min
+  tasks: 3
+  implementation_commits: 2
   completed: 2026-11-17
-status: halted
+status: complete
 ---
 
-# Phase 262 Plan 13: Single Golden Rebless and Verification Summary
+# Phase 262 Plan 13: Final Golden and Verification Summary
 
-The generated install fixture and fresh-host acceptance checks pass; Plan 13 remains halted on the OAuth CTA copy contract, which needs an owner-approved corrective golden rebless.
+Plan 13 is complete. Both OAuth reset email CTA msgids now use “Sign in with %{provider},” the final 4a gate passes, and all 15 Phase 262 requirements have machine-readable passing evidence.
 
 ## Accomplishments
 
-- Proved the saved 4a gate was passing before the rebless, and verified source, frozen-surface, passkey-default, formatting, golden-diff, and template/example/golden parity checks.
-- Invoked the generator exactly once. It changed 22 files in the generated tree, with zero additions or removals; `STDOUT.txt` stayed unchanged. The mechanical fixture commit contains only the generated tree.
-- Committed the existing dark Branding contrast assertion. A prior run reported 2/2 including setup; this isolated rerun could not launch Chromium under the current sandbox.
-- Wrote final verification evidence and recorded the failed gate and CI results. The full Phase 262 verification matrix remains incomplete.
-
-## Task Commits
-
-1. **Task 1: Prove source alignment and readiness** — `f617a77e9`.
-2. **Task 2: Rebless the generated fixture exactly once** — `53287fb87` (readiness update), `bb7db16ae` (fixture-only commit).
-3. **Existing dark Branding contrast assertion** — `86f7c3986`.
-4. **Baseline-only shrink cleanup** — `09fd057c3`.
+- Updated the generated HTML and plain-text OAuth reset CTAs, the matching example email, lifecycle and contract assertions, the approved rename table, generated copy inventory, and shrink-only copy baseline.
+- Kept the frozen-surface baseline unchanged; its existing rename-table guard allows this exact msgid replacement.
+- Passed the 4a gate, including copy and enumeration contracts, Light/Dark catalog comparisons, support content backstops, browser interactions, and Light/Dark axe checks.
+- Performed exactly one corrective golden generator invocation after the original invocation. The corrective output changed one generated file with two intended msgid lines; the stdout snapshot did not change. The corrective fixture is isolated in its own commit.
+- Passed the full direct library test step (3,477 tests, 0 failures) and full example suite (449 tests, 0 failures).
+- Passed fresh generated-host smoke runs for all and auth, using Phoenix installer 1.8.8 and cached dependencies.
+- Passed golden freshness and parity (37 tests), format, old CSS compatibility, doctor, copy inventory, frozen-surface, CSS conformance, token completeness, and catalog checks.
+- Removed the temporary Phase 262 and generated-host databases; ports 4011 and 4027 are closed.
 
 ## Verification
 
-- Pre-rebless source contracts: 96 tests, 0 failures; formatter check passed after formatting the four files it reported.
-- Golden `--check`: passed. Golden diff and asset parity: 37 tests, 0 failures.
-- Cached compile with warnings as errors: passed.
-- Full gate replay stopped at `glossary_lexicon`: the action-first email added a second banned occurrence of `Log in with %{provider}` in Plan 12's text body, and shrink-only baselines retain stale rows. The gate report records checks not reached as false defaults; the final JSON labels those checks `not_run`.
-- A safe baseline-only follow-up removed the 11 stale rows. The focused copy-contract suite then reported 78 tests with 1 failure: only the new plain-text CTA remains.
-- Full library CI reported 3,477 tests with 8 failures. Failures include sandbox restrictions in Phase 235 verification, an environment-read guard, stale template expectations, the copy-contract failures, and a Chromium process permission error. The Mix exit code was lost by the zsh wrapper; the failing test summary is preserved in the log.
-- The first isolated browser attempt could not launch Chromium under the sandbox. The authorized browser follow-up passed the corrected brand-navigation contrast assertion in desktop, mobile, and dark projects, including setup.
-- A fresh generated-host `--test all` run passed: 8 browser tests, 1 intentional skip, 1 confirmation test, and 1 revoke-and-deny test. A separate `--test auth` run passed its auth and revoke-and-deny tests. The full example-app suite passed with 449 tests; CSS conformance, token completeness (112 tokens), and catalog diff also exited successfully.
-- Updated two stale Playwright assertions: the overview now expects “Review users”, and the mobile contrast check targets the “Brand” bottom-nav link with the mobile brand-strong/panel color treatment. Their focused checks passed. The broader design/axe shard had 47 passes and one pre-fix mobile selector failure.
-- The broader admin/auth browser shard had 41 passes and one 60-second timeout while closing the signed-in invitation test’s extra browser context. The organization slug-alias flow and that invitation flow both passed when rerun individually; the aggregate timeout remains recorded as a failure.
-- Logs and Playwright status files are listed in `262-FINAL-VERIFICATION.json`.
+The exact commands, outcomes, gate results, and requirement mapping are in [262-FINAL-VERIFICATION.json](./262-FINAL-VERIFICATION.json). The owner-authorized rebless record is in [262-REBLISS-READINESS.json](./262-REBLISS-READINESS.json).
 
-Machine-readable details are in [262-FINAL-VERIFICATION.json](./262-FINAL-VERIFICATION.json). The failed gate replay updated [262-4A-GATE.json](./262-4A-GATE.json); its later checks were not run.
+The library suite ran outside the outer sandbox because two existing tests start a nested sandbox and another launches Chromium. The sandboxed run showed those subprocess denials; the complete out-of-sandbox run passed. The 4a gate initially stopped because the example was compiled for port 4000 while the gate uses 4011. A clean compile at 4011 resolved that configuration mismatch, and the single retry passed.
 
-## Blocker and Required Follow-up
+A broader admin/auth browser shard had one browser-context timeout during invitation cleanup, and a design shard had an outdated mobile selector expectation. The invitation and organization flows passed individually; the selector was corrected and its desktop, mobile, and dark checks passed. The final 4a Light/Dark accessibility and support browser checks passed.
 
-Plan 12 added a plain-text OAuth reset CTA with a second `Log in with %{provider}` occurrence. The original HTML CTA predates Plan 12. Both HTML and text CTAs need the canonical `Sign in with %{provider}` msgid, with the rename table, frozen/copy inventory artifacts, and generated golden kept in sync. The 11 stale baseline rows were removed in commit `09fd057c3`; the CTA remains the only copy-contract failure.
+The mix ci alias was not rerun because it includes dependency checks outside this task’s retry scope. Its direct library test step passed. Remote pull request CI remains part of Plan 14.
 
-The one allowed golden rebless has already run. No template or golden edits were made after it. The baseline-only cleanup does not change generated output. An owner decision authorizing exactly one corrective rebless is still pending; no copy source or golden edit has been made. Plan 14 must wait until that blocker is resolved and the remaining full verification matrix passes.
+## Commits
 
-## Unrun Verification
+- Source and contract correction: f45ce98e1.
+- Corrective golden fixture only: 5b25b8d18.
+- Original golden fixture: bb7db16ae.
 
-- The full enumeration/catalog test matrix.
-- The final golden check after the required email source correction.
+## Handoff
 
-No roadmap/state progress or requirements were advanced because this plan is halted. Pre-existing dirty state and cache files were preserved.
+Plan 13 has no remaining verification work. Plan 14 can prepare the three ordered Phase 262 PRs and run their review and CI gates. Each merge still requires explicit owner approval; Phase 263 remains gated behind those merges.
 
 ---
 *Phase: 262-words-and-layout*
-*Completed: 2026-11-17 (halted)*
-
-## Self-Check: PASSED
-
-- Summary, readiness report, and final verification report exist and parse.
-- Task commits `f617a77e9`, `53287fb87`, `bb7db16ae`, `86f7c3986`, and `09fd057c3` are ancestors of `HEAD`.
-- The plan remains halted; no roadmap, state, or requirement progress was advanced.
+*Completed: 2026-11-17*
