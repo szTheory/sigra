@@ -106,6 +106,23 @@ defmodule Sigra.Brand.VendoredAssetsTest do
       assert File.regular?(social_card)
     end
 
+    test "showcase guide images point at packaged screenshot copies" do
+      guide = @root |> Path.join("guides/introduction/demo-showcase.md") |> File.read!()
+
+      for filename <- ~w(
+            admin-user-detail-demo-showcase-chromium.png
+            admin-user-list-demo-showcase-chromium.png
+            audit-explorer-demo-showcase-chromium.png
+            demo-credentials-demo-showcase-chromium.png
+          ) do
+        packaged_path = "assets/screenshots/#{filename}"
+        packaged_file = Path.join(@root, "docs/#{packaged_path}")
+
+        assert String.contains?(guide, packaged_path)
+        assert File.regular?(packaged_file)
+      end
+    end
+
     test "favicon and stylesheet URLs resolve through the docs asset mapping" do
       mix_exs = @root |> Path.join("mix.exs") |> File.read!()
 

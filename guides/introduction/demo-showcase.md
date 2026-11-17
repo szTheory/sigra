@@ -46,11 +46,11 @@ These nine personas come from `Example.Demo.Personas.feature_map/0` and are the 
 
 | Credentials | Admin Users |
 | --- | --- |
-| ![Credentials view with nine seeded personas](assets/demo-credentials-demo-showcase-chromium.png) | ![Admin users list view](assets/admin-user-list-demo-showcase-chromium.png) |
+| ![Credentials view with nine seeded personas](assets/screenshots/demo-credentials-demo-showcase-chromium.png) | ![Admin users list view](assets/screenshots/admin-user-list-demo-showcase-chromium.png) |
 
 | Admin User Detail | Audit Explorer |
 | --- | --- |
-| ![Admin user detail including MFA and passkey rows](assets/admin-user-detail-demo-showcase-chromium.png) | ![Audit explorer view with seeded events](assets/audit-explorer-demo-showcase-chromium.png) |
+| ![Admin user detail including MFA and passkey rows](assets/screenshots/admin-user-detail-demo-showcase-chromium.png) | ![Audit explorer view with seeded events](assets/screenshots/audit-explorer-demo-showcase-chromium.png) |
 
 ## Proof Boundary And Limitations
 
