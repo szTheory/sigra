@@ -47,7 +47,12 @@ lib/sigra/admin/components.ex	literal	#{div(diff, 3600)}h ago
 lib/sigra/admin/components.ex	literal	#{div(diff, 60)}m ago
 lib/sigra/admin/components.ex	literal	#{div(diff, 86400)}d ago
 lib/sigra/admin/components.ex	literal	1 #{label}
+lib/sigra/admin/components.ex	literal	Active
+lib/sigra/admin/components.ex	literal	Deletion scheduled
+lib/sigra/admin/components.ex	literal	Locked
 lib/sigra/admin/components.ex	literal	Not available
+lib/sigra/admin/components.ex	literal	Suspended
+lib/sigra/admin/components.ex	literal	Unconfirmed
 lib/sigra/admin/components.ex	literal	just now
 lib/sigra/admin/live/audit_index_live.ex	heex_text	Action prefix
 lib/sigra/admin/live/audit_index_live.ex	heex_text	Active filters
