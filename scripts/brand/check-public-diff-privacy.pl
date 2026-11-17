@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use File::Spec;
 
 my $base = shift @ARGV or die "usage: $0 <base-revision> [--include <file> ...]\n";
 my @include;
@@ -38,9 +37,17 @@ close $index;
 my ($origin) = $html =~ m{https?://([^/"'\s]+)}i;
 die "brand-book origin did not resolve\n" unless defined($origin) && length($origin);
 
+sub name_pattern {
+  my ($name) = @_;
+  # Whitespace is a normal prose boundary, including around multi-word names.
+  # URL/path punctuation remains excluded so an organization URL does not look
+  # like a standalone name mention.
+  return qr/(?<![A-Za-z0-9_:\/.\-])\Q$name\E(?![A-Za-z0-9_:\/.\-])/i;
+}
+
 my @rules = (
   [account_name => qr/(?<![A-Za-z0-9_.-])\Q$account\E(?![A-Za-z0-9_.-])/i],
-  [git_user_name => qr/(?<![A-Za-z0-9_:\/. -])\Q$git_name\E(?![A-Za-z0-9_:\/. -])/i],
+  [git_user_name => name_pattern($git_name)],
   [home_prefix => qr/\Q$home\E/],
   [brand_origin => qr/\Q$origin\E/i],
   [non_test_email => qr/(?<![A-Za-z0-9_.+-])[A-Za-z0-9_.+-]+\@[A-Za-z0-9.-]+\.(?!test\b)[A-Za-z]{2,}/i],
@@ -49,7 +56,7 @@ my @rules = (
 # Prove each detector catches a synthetic control without exposing runtime values.
 my @controls = (
   " $account ",
-  "!$git_name!",
+  "The draft was reviewed by $git_name today.",
   "x$home/tmp x",
   "https://$origin/",
   join('', 'person', '@', 'example', '.', 'com'),
@@ -59,6 +66,12 @@ for my $i (0 .. $#rules) {
   die "privacy detector self-check failed (rule $rules[$i][0])\n"
     unless $controls[$i] =~ $pattern;
 }
+my $synthetic_multiword = join(' ', 'Synthetic', 'Reviewer');
+my $multiword_pattern = name_pattern($synthetic_multiword);
+die "multi-word name boundary self-check failed\n"
+  unless "The draft was reviewed by $synthetic_multiword today." =~ $multiword_pattern;
+die "name URL-boundary self-check failed\n"
+  if "https://example.test/$synthetic_multiword/path" =~ $multiword_pattern;
 my $test_email = join('', 'fixture', '@', 'example', '.', 'test');
 my $non_test_email = join('', 'fixture', '@', 'example', '.', 'com');
 die "email fixture exception self-check failed\n"
