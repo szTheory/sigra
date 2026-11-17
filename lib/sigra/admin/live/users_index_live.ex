@@ -384,6 +384,7 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
   defp user_status_cluster(assigns) do
     ~H"""
     <div class="sg-cluster sg-cluster--2">
+      <.status_mark status={status_for_user(@row.user)} />
       <span :for={{label, tone} <- status_pills(@row)} class="sg-status-pill" data-tone={tone}>
         {label}
       </span>
@@ -400,7 +401,10 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
     |> maybe_append(is_nil(row.user.confirmed_at), {"Unconfirmed", "warn"})
     |> maybe_append(no_security?(row), {"No MFA", "warn"})
     |> maybe_append(row.user.locked_at, {"Locked", "risk"})
-    |> maybe_append(row.user.deleted_at, {"Deletion scheduled", "warn"})
+    |> maybe_append(
+      row.user.deleted_at && Map.get(row.user, :scheduled_deletion_at),
+      {"Deletion scheduled", "warn"}
+    )
   end
 
   # True when the row has neither MFA nor any passkeys — the only unsecured state worth surfacing.

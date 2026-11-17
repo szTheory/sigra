@@ -476,6 +476,45 @@
    * PILLS & BADGES
    * ------------------------------------------------------------------------*/
   .sg-scope-pill,
+  .sg-status-mark {
+    display: inline-flex;
+    min-height: var(--sg-space-5);
+    align-items: center;
+    gap: var(--sg-space-2);
+    font-size: var(--sg-text-sm);
+    font-weight: var(--sg-weight-medium);
+    line-height: var(--sg-leading-snug);
+    white-space: nowrap;
+  }
+
+  .sg-status-mark__glyph {
+    display: block;
+    width: var(--sg-space-5);
+    height: var(--sg-space-5);
+    flex: none;
+  }
+
+  .sg-status-mark--detail .sg-status-mark__glyph {
+    width: var(--sg-space-6);
+    height: var(--sg-space-6);
+  }
+
+  .sg-status-mark[data-status="active"] {
+    color: var(--sg-status-active);
+  }
+  .sg-status-mark[data-status="unconfirmed"] {
+    color: var(--sg-status-unconfirmed);
+  }
+  .sg-status-mark[data-status="locked"] {
+    color: var(--sg-status-locked);
+  }
+  .sg-status-mark[data-status="deleting"] {
+    color: var(--sg-status-deleting);
+  }
+  .sg-status-mark[data-status="suspended"] {
+    color: var(--sg-status-suspended);
+  }
+
   .sg-status-pill,
   .sg-badge {
     display: inline-flex;
