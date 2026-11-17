@@ -384,6 +384,14 @@ defmodule Sigra.Brand.VendoredAssetsTest do
       assert font_face_violations(css) == [:font_face]
     end
 
+    test "the stylesheet guard recognizes case-insensitive font-face at-rules" do
+      for at_rule <- ["@font-face", "@FONT-FACE", "@Font-Face"] do
+        css = ".sg-btn { color: red; }\n#{at_rule} { font-family: X; src: url('/x.woff2'); }\n"
+
+        assert font_face_violations(css) == [:font_face]
+      end
+    end
+
     test "prose that names the at-rule inside a comment is not a font-face rule" do
       css =
         "/* hosts add their own @font-face rules; none ships here */\n.sg-btn { color: red; }\n"
@@ -427,7 +435,7 @@ defmodule Sigra.Brand.VendoredAssetsTest do
 
   # `[:font_face]` when a comment-stripped stylesheet declares the at-rule.
   defp font_face_violations(css) do
-    if String.contains?(strip_comments(css), "@font-face"), do: [:font_face], else: []
+    if Regex.match?(~r/@font-face(?![\w-])/i, strip_comments(css)), do: [:font_face], else: []
   end
 
   # Regular files under the installer templates, relative to that directory.
