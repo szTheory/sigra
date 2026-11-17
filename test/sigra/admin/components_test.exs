@@ -316,6 +316,51 @@ defmodule Sigra.Admin.ComponentsTest do
     assert html =~ ~s(href="/admin/users?role=")
   end
 
+  describe "status_mark/1" do
+    test "keeps each runtime status word visible without style classes" do
+      for {status, label} <- [
+            {:active, "Active"},
+            {:unconfirmed, "Unconfirmed"},
+            {:locked, "Locked"},
+            {:deleting, "Deletion scheduled"}
+          ] do
+        html = render_component(&Components.status_mark/1, status: status)
+        classless_html = Regex.replace(~r/\sclass="[^"]*"/, html, "")
+        visible_text = classless_html |> String.replace(~r/<[^>]+>/, "") |> String.trim()
+
+        assert html =~ ~s(data-status="#{status}")
+        assert visible_text == label
+      end
+    end
+
+    test "derives one status from persisted fields in the documented precedence" do
+      now = ~U[2026-06-04 12:30:00Z]
+
+      assert Components.status_for_user(%{
+               deleted_at: now,
+               scheduled_deletion_at: now,
+               locked_at: now,
+               confirmed_at: nil
+             }) == :deleting
+
+      assert Components.status_for_user(%{deleted_at: nil, locked_at: now, confirmed_at: nil}) ==
+               :locked
+
+      assert Components.status_for_user(%{deleted_at: nil, locked_at: nil, confirmed_at: nil}) ==
+               :unconfirmed
+
+      assert Components.status_for_user(%{deleted_at: nil, locked_at: nil, confirmed_at: now}) ==
+               :active
+    end
+
+    test "falls back safely when an adopter schema has no scheduled-deletion field" do
+      now = ~U[2026-06-04 12:30:00Z]
+
+      assert Components.status_for_user(%{deleted_at: now, locked_at: nil, confirmed_at: now}) ==
+               :active
+    end
+  end
+
   test "empty_state renders contract empty state copy faithfully" do
     html =
       render_component(&Components.empty_state/1,

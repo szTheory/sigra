@@ -40,6 +40,8 @@ defmodule Sigra.Brand.CatalogTest do
     UsersIndexLive
   }
 
+  alias Sigra.Admin.Components
+  import Phoenix.LiveViewTest, only: [render_component: 2]
   alias Sigra.Test.Brand.Catalog
 
   @root Path.expand("../../..", __DIR__)
@@ -678,6 +680,18 @@ defmodule Sigra.Brand.CatalogTest do
 
       assert "test/fixtures/brand/before/** -text" in lines
       assert "brand/** -text linguist-vendored" in lines
+    end
+  end
+
+  describe "catalog-only status mark specimen" do
+    test "Suspended renders as a pure specimen and stays out of runtime page output" do
+      html = render_component(&Components.status_mark/1, status: :suspended)
+      visible_text = html |> String.replace(~r/<[^>]+>/, "") |> String.trim()
+      runtime_pages = Enum.map(Catalog.tier1_states(), &Catalog.tier1_html/1)
+
+      assert html =~ ~s(data-status="suspended")
+      assert visible_text == "Suspended"
+      refute Enum.any?(runtime_pages, &String.contains?(&1, "Suspended"))
     end
   end
 
