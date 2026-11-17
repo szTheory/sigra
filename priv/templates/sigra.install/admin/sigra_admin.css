@@ -1102,7 +1102,9 @@
 
   .sg-kv {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--sg-space-3);
+    min-width: 0;
   }
   .sg-kv__term,
   .sg-meta-label {

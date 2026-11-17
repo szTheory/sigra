@@ -109,6 +109,14 @@ test.describe('ConfirmDialog modal interaction (PAGE-03 APG gates)', () => {
     await expect(overlay).toBeVisible();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
+    await expect(dialog).toHaveAttribute('aria-modal', 'true');
+    await expect(dialog).toHaveAttribute('aria-labelledby', 'user-session-confirm-title');
+    await expect(dialog.locator('#user-session-confirm-title')).toHaveText('Revoke this session?');
+    await expect(dialog).toContainText(
+      `${targetEmail} will be signed out of this browser or device immediately and must sign in again.`,
+    );
+    await expect(dialog.getByRole('button', { name: 'Cancel', exact: true })).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Revoke session', exact: true })).toBeVisible();
 
     // ── Gate 2: Initial focus is on Cancel button ─────────────────────────────
     // The ConfirmDialog hook focuses the Cancel button (first focusable) on mount.

@@ -43,7 +43,12 @@ defmodule ExampleWeb.AdminUserSessionsLiveTest do
 
       # The APG confirm dialog opens with the new copy (not the old detail-page string).
       assert html =~ "Revoke this session?"
-      assert html =~ "The user will be signed out of this session immediately."
+
+      assert html =~
+               "Revoke One will be signed out of this browser or device immediately and must sign in again."
+
+      assert html =~ "Cancel"
+      assert html =~ "Revoke session"
 
       html = render_click(view, :confirm_action, %{})
 
@@ -69,7 +74,12 @@ defmodule ExampleWeb.AdminUserSessionsLiveTest do
       html = render_click(view, :open_revoke_all_sessions, %{})
 
       assert html =~ "Revoke all sessions?"
-      assert html =~ "The user will be signed out of all active sessions immediately."
+
+      assert html =~
+               "All active sessions for Revoke All across devices will end immediately. Revoke All must sign in again."
+
+      assert html =~ "Cancel"
+      assert html =~ "Revoke all sessions"
 
       html = render_click(view, :confirm_action, %{})
 
@@ -115,7 +125,7 @@ defmodule ExampleWeb.AdminUserSessionsLiveTest do
 
       html = render_click(view, :open_revoke_session, %{"token" => "not-valid-base64!!"})
 
-      assert html =~ "Invalid session reference."
+      assert html =~ "Could not open session confirmation. Refresh the page and try again."
       refute html =~ "Revoke this session?"
     end
   end

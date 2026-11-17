@@ -109,7 +109,9 @@ defmodule Sigra.Admin.Live.UserShowLive do
           </table>
         </div>
 
-        <.empty_state :if={@detail.sessions == []} title="No active sessions"><p class="sg-muted sg-text-sm">No sessions are associated with this user in the current scope.</p></.empty_state>
+        <.empty_state :if={@detail.sessions == []} title="No active sessions">
+          <p class="sg-muted sg-text-sm">This user has no active sessions in the current scope.</p>
+        </.empty_state>
       </section>
 
       <div class="sg-detail-grid">
@@ -383,7 +385,7 @@ defmodule Sigra.Admin.Live.UserShowLive do
 
     cond do
       identity.locked? ->
-        {:risk, "Locked — revoke active sessions and unlock below."}
+        {:risk, "Locked — review active sessions with Manage sessions."}
 
       not identity.confirmed? ->
         {:warn, "Email unconfirmed — the user cannot complete sign-in."}

@@ -69,6 +69,28 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html_offset(breadcrumb, "Users") < html_offset(breadcrumb, target.email)
     end
 
+    test "locked detail names the available session action without promising an unlock control",
+         %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      target = user_fixture(%{email: "detail-locked@example.com", display_name: "Detail Locked"})
+
+      target =
+        Repo.update!(
+          Ecto.Changeset.change(target,
+            locked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+          )
+        )
+
+      {:ok, _view, html} =
+        conn
+        |> log_in_user(platform_admin)
+        |> live("/admin/users/#{target.id}")
+
+      assert html =~ ~s(data-status="locked")
+      assert html =~ "Locked — review active sessions with Manage sessions."
+      refute html =~ "unlock below"
+    end
+
     test "detail page links out to the scoped sessions surface with the preserved return_to",
          %{
            conn: conn
