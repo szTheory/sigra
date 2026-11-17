@@ -100,6 +100,39 @@ defmodule Sigra.Brand.CopyInventoryTest do
       assert Enum.any?(exceptions, fn {_file, form} -> form =~ "charlist" end)
     end
 
+    test "core auth screen and flash copy is covered by generated msgids" do
+      core_files =
+        ~w(
+          core/mfa_challenge_html.ex
+          core/mfa_settings_live.ex
+          core/sudo_html.ex
+          core/settings_live.ex
+          core/session_controller.ex
+          core/mfa_challenge_controller.ex
+          core/user_auth.ex
+          core/error_handler.ex
+        )
+
+      eligible_kinds = ~w(heex_text heex_attribute flash)
+
+      eligible_rows =
+        for {file, kind, text} <- CopyInventory.extract(:raw_auth),
+            file in core_files,
+            kind in eligible_kinds,
+            do: {file, text}
+
+      msgids =
+        for {file, "msgid", msgid} <- CopyInventory.extract(:generated),
+            file in core_files,
+            into: MapSet.new(),
+            do: {file, msgid}
+
+      uncovered = Enum.reject(eligible_rows, &MapSet.member?(msgids, &1))
+
+      assert uncovered == [],
+             "core auth screen or flash copy is not covered by sigra msgids: #{inspect(uncovered)}"
+    end
+
     test "each declared raw auth form becomes a required inventory row" do
       controls = [
         {"priv/templates/sigra.install/core/planted.ex", ~S("New raw source literal"),
