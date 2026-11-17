@@ -367,6 +367,47 @@ defmodule Sigra.Install.AuthUIContractTest do
     assert CopyScan.diff_baseline([kept, added], [kept]) == [new: [added], stale: []]
   end
 
+  test "auth email actions precede their ignored-request outcomes in both body formats" do
+    emails = File.read!("priv/templates/sigra.install/core/emails.ex")
+
+    assert_email_order(emails, "confirmation_email", "Confirm email address", "expires in 48 hours")
+    assert_email_order(emails, "reset_password_email", "Reset", "you can ignore this email")
+    assert_email_order(emails, "magic_link_email", "Log in", "expires in 10 minutes")
+    assert_email_order(emails, "oauth_reset_email", "Log in with", "set a password")
+
+    assert_email_order(
+      emails,
+      "enterprise_sso_reset_email",
+      "Continue with enterprise sign-in",
+      "before requesting local account recovery"
+    )
+
+    assert_email_order(emails, "suspicious_login_email", "Secure your account", "If this was you")
+    assert_email_order(emails, "passkey_registration_email", "Secure your account", "If this was you")
+    assert_email_order(emails, "lockout_notification_email", "Change your password", "If this was you")
+    assert_email_order(emails, "mfa_enabled_email", "Change your password", "If you did not enable this")
+    assert_email_order(emails, "mfa_disabled_email", "Secure your account", "was disabled on your")
+    assert_email_order(emails, "backup_code_used_email", "Generate new backup codes", "A backup code was used")
+    assert_email_order(emails, "mfa_lockout_email", "Change your password", "If this was you")
+    assert_email_order(emails, "email_changed_email", "Secure your account", "has been changed to this address")
+    assert_email_order(emails, "deletion_cancelled_email", "Log in to your account", "account deletion has been cancelled")
+    assert_email_order(emails, "password_changed_email", "Reset your password", "account password was changed")
+
+    assert_email_order(
+      emails,
+      "deletion_scheduled_email",
+      "Cancel",
+      "permanent deletion on"
+    )
+
+    assert_email_order(
+      emails,
+      "organization_invitation",
+      "Accept",
+      "safely ignore this email"
+    )
+  end
+
   test "audit forms expose one named control per filter and label active state" do
     for path <- [
           "lib/sigra/admin/live/audit_index_live.ex",
@@ -390,5 +431,28 @@ defmodule Sigra.Install.AuthUIContractTest do
     Regex.scan(~r/sigra-auth-[a-zA-Z0-9_-]+/, source)
     |> List.flatten()
     |> Enum.uniq()
+  end
+
+  defp assert_email_order(source, function_name, action, outcome) do
+    function = source |> String.split("def #{function_name}", parts: 2) |> Enum.fetch!(1)
+    function = function |> String.split("\n  def ", parts: 2) |> hd()
+    html = function |> String.split("html_content = \"\"\"", parts: 2) |> Enum.fetch!(1)
+    html = html |> String.split("\"\"\"", parts: 2) |> hd()
+    text = function |> String.split("text_body = \"\"\"", parts: 2) |> Enum.fetch!(1)
+    text = text |> String.split("\"\"\"", parts: 2) |> hd()
+
+    for body <- [html, text] do
+      action_at = :binary.match(body, action)
+      outcome_at = :binary.match(body, outcome)
+
+      assert match?({action_index, _} when action_index >= 0, action_at),
+             "#{function_name} is missing its action #{inspect(action)}"
+
+      assert match?({outcome_index, _} when outcome_index >= 0, outcome_at),
+             "#{function_name} is missing its outcome #{inspect(outcome)}"
+
+      assert elem(action_at, 0) < elem(outcome_at, 0),
+             "#{function_name} must place #{inspect(action)} before #{inspect(outcome)}"
+    end
   end
 end

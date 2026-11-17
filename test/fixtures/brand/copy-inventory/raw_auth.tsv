@@ -408,8 +408,8 @@ core/create_brand_profiles.exs	source_token	CREATE SCHEMA IF NOT EXISTS #{@auth_
 core/emails.ex	heex_attribute	#{html_escape_string(logo_alt)}
 core/emails.ex	source_token	
 core/emails.ex	source_token	\n        <p style=
+core/emails.ex	source_token	\n    #{cta_button(dgettext(
 core/emails.ex	source_token	\n    #{dgettext(
-core/emails.ex	source_token	\n    #{inviter_display} #{dgettext(
 core/emails.ex	source_token	\n    <!DOCTYPE html>\n    <html lang=
 core/emails.ex	source_token	\n    <h1 style=
 core/emails.ex	source_token	\n    <img src=
@@ -437,23 +437,23 @@ core/emails.ex	source_token	%Y-%m-%d %H:%M:%S UTC
 core/emails.ex	source_token	%{inviter} invited you to join %{org}
 core/emails.ex	source_token	), accept_url)}\n    <p style=
 core/emails.ex	source_token	), cancel_url)}\n    <p style=
-core/emails.ex	source_token	), login_url)}\n    
-core/emails.ex	source_token	), reset_url)}\n    
+core/emails.ex	source_token	), login_url)}\n    <p style=
 core/emails.ex	source_token	), reset_url)}\n    <p style=
-core/emails.ex	source_token	), settings_url)}\n    
+core/emails.ex	source_token	), settings_url)}\n    <p style=
 core/emails.ex	source_token	), url)}\n    <p style=
 core/emails.ex	source_token	)}\n\n    #{dgettext(
 core/emails.ex	source_token	)}\n\n    ---\n    #{footer_text()}\n    
 core/emails.ex	source_token	)}\n\n    ---\n    #{security_footer_text()}\n    
-core/emails.ex	source_token	)}\n    
 core/emails.ex	source_token	)}\n        </p>\n        
 core/emails.ex	source_token	)}\n      </p>\n      <p style=
-core/emails.ex	source_token	)}\n    #{accept_url}\n\n    #{dgettext(
+core/emails.ex	source_token	)}\n    #{accept_url}\n\n    #{inviter_display} #{dgettext(
 core/emails.ex	source_token	)}\n    #{dgettext(
 core/emails.ex	source_token	)}\n    </p>\n    
 core/emails.ex	source_token	)}\n    </p>\n    #{cta_button(dgettext(
 core/emails.ex	source_token	)}\n    </p>\n    <div style=
 core/emails.ex	source_token	)}\n    </p>\n    <p style=
+core/emails.ex	source_token	)}\n    <p style=
+core/emails.ex	source_token	)} #{cancel_url}\n\n    #{dgettext(
 core/emails.ex	source_token	)} #{cancel_url}\n\n    ---\n    #{security_footer_text()}\n    
 core/emails.ex	source_token	)} #{cancel_url}\n    </p>\n    
 core/emails.ex	source_token	)} #{city}\n    #{dgettext(
@@ -463,23 +463,23 @@ core/emails.ex	source_token	)} #{expires_date}.\n\n    ---\n    #{footer_text()}
 core/emails.ex	source_token	)} #{expires_formatted}\n\n    #{dgettext(
 core/emails.ex	source_token	)} #{ip}\n    #{dgettext(
 core/emails.ex	source_token	)} #{location}\n    #{dgettext(
-core/emails.ex	source_token	)} #{login_url}\n\n    ---\n    #{footer_text()}\n    
+core/emails.ex	source_token	)} #{login_url}\n\n    #{dgettext(
 core/emails.ex	source_token	)} #{org_name_plain}\n    #{dgettext(
 core/emails.ex	source_token	)} #{org_name_plain} #{dgettext(
 core/emails.ex	source_token	)} #{product_name}.\n\n    #{dgettext(
 core/emails.ex	source_token	)} #{reset_url}\n\n    #{dgettext(
-core/emails.ex	source_token	)} #{reset_url}\n\n    ---\n    #{security_footer_text()}\n    
 core/emails.ex	source_token	)} #{role_label}\n    #{dgettext(
 core/emails.ex	source_token	)} #{role_label} #{dgettext(
-core/emails.ex	source_token	)} #{settings_url}\n\n    ---\n    #{security_footer_text()}\n    
+core/emails.ex	source_token	)} #{settings_url}\n\n    #{dgettext(
 core/emails.ex	source_token	)} #{time}\n\n    #{dgettext(
 core/emails.ex	source_token	)} #{url}\n\n    #{dgettext(
 core/emails.ex	source_token	)} #{url}\n\n    ---\n    #{footer_text()}\n    
 core/emails.ex	source_token	)} #{url}\n    </p>\n    
 core/emails.ex	source_token	)} #{url}\n    </p>\n    <p style=
+core/emails.ex	source_token	)}: #{url}\n\n    #{dgettext(
 core/emails.ex	source_token	)}</strong> #{city}\n      </p>\n      <p style=
 core/emails.ex	source_token	)}</strong> #{device}\n      </p>\n      <p style=
-core/emails.ex	source_token	)}</strong> #{expires_formatted}\n      </p>\n    </div>\n    #{cta_button(dgettext(
+core/emails.ex	source_token	)}</strong> #{expires_formatted}\n      </p>\n    </div>\n    <p style=
 core/emails.ex	source_token	)}</strong> #{ip}\n      </p>\n      <p style=
 core/emails.ex	source_token	)}</strong> #{location}\n      </p>\n      <p style=
 core/emails.ex	source_token	)}</strong> #{org_name_safe}\n      </p>\n      <p style=
@@ -495,14 +495,15 @@ core/emails.ex	source_token	, date: formatted_date)}\n    </p>\n    <p style=
 core/emails.ex	source_token	, inviter: inviter_safe, org: org_name_safe, role: role_safe, product: product_safe)}\n    </p>\n    <div style=
 core/emails.ex	source_token	, new_email: escaped_new_email)}\n    </p>\n    <p style=
 core/emails.ex	source_token	, new_email: new_email)}\n\n    #{dgettext(
-core/emails.ex	source_token	, org: org_name_safe)}\n    </h1>\n    <p style=
+core/emails.ex	source_token	, org: org_name_safe)}\n    </h1>\n    #{cta_button(dgettext(
 core/emails.ex	source_token	, organization: organization_name)}\n\n    #{dgettext(
-core/emails.ex	source_token	, organization: organization_name)}\n    </p>\n    #{cta_button(dgettext(
+core/emails.ex	source_token	, organization: organization_name)}\n    </p>\n    <p style=
 core/emails.ex	source_token	, provider: provider_name), 
+core/emails.ex	source_token	, provider: provider_name)}\n\n    #{dgettext(
 core/emails.ex	source_token	, provider: provider_name)}\n\n    ---\n    #{footer_text()}\n    
-core/emails.ex	source_token	, provider: provider_name)}\n    </p>\n    #{cta_button(dgettext(
-core/emails.ex	source_token	, remaining: remaining)}\n    #{low_codes_text}\n    #{dgettext(
-core/emails.ex	source_token	, remaining: remaining)}\n    </p>\n    #{low_codes_warning}#{cta_button(dgettext(
+core/emails.ex	source_token	, provider: provider_name)}\n    </p>\n    
+core/emails.ex	source_token	, remaining: remaining)}\n    #{low_codes_text}\n    ---\n    #{security_footer_text()}\n    
+core/emails.ex	source_token	, remaining: remaining)}\n    </p>\n    #{low_codes_warning}\n    
 core/emails.ex	source_token	<%= app_name %>
 core/emails.ex	source_token	<%= from_email %>
 core/emails.ex	source_token	<%= reset_password_url %>

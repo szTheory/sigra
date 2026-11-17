@@ -21,6 +21,7 @@ defmodule <%= context_module %>.Emails do
     code_display = code |> String.graphemes() |> Enum.join(" ")
 
     html_content = """
+    #{cta_button(dgettext("sigra", "Confirm email address"), url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Hi, please confirm your email address by clicking the button below or entering the code.")}
     </p>
@@ -35,13 +36,14 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 12px 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "This code expires in 48 hours.")}
     </p>
-    #{cta_button(dgettext("sigra", "Confirm email address"), url)}
     <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family}; word-break: break-all;">
       #{dgettext("sigra", "Or confirm via this link:")} #{url}
     </p>
     """
 
     text_body = """
+    #{dgettext("sigra", "Confirm email address")}: #{url}
+
     #{dgettext("sigra", "Hi,")}
 
     #{dgettext("sigra", "Please confirm your email address.")}
@@ -65,21 +67,21 @@ defmodule <%= context_module %>.Emails do
   @doc "Builds a password reset email."
   def reset_password_email(user, url) do
     html_content = """
+    #{cta_button(dgettext("sigra", "Reset password"), url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Hi, we received a request to reset your password. If you didn't make this request, you can ignore this email.")}
     </p>
-    #{cta_button(dgettext("sigra", "Reset password"), url)}
     <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family}; word-break: break-all;">
       #{dgettext("sigra", "Or use this link:")} #{url}
     </p>
     """
 
     text_body = """
+    #{dgettext("sigra", "Reset your password:")} #{url}
+
     #{dgettext("sigra", "Hi,")}
 
     #{dgettext("sigra", "We received a request to reset your password. If you didn't make this request, you can ignore this email.")}
-
-    #{dgettext("sigra", "Reset your password:")} #{url}
 
     ---
     #{footer_text()}
@@ -94,21 +96,21 @@ defmodule <%= context_module %>.Emails do
   @doc "Builds a magic link login email."
   def magic_link_email(user, url) do
     html_content = """
+    #{cta_button(dgettext("sigra", "Log in to %{app_name}", app_name: product_name()), url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Hi, click the button below to log in to your account. This link expires in 10 minutes.")}
     </p>
-    #{cta_button(dgettext("sigra", "Log in to %{app_name}", app_name: product_name()), url)}
     <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family}; word-break: break-all;">
       #{dgettext("sigra", "Or use this link:")} #{url}
     </p>
     """
 
     text_body = """
+    #{dgettext("sigra", "Log in:")} #{url}
+
     #{dgettext("sigra", "Hi,")}
 
     #{dgettext("sigra", "Click the link below to log in to your account. This link expires in 10 minutes.")}
-
-    #{dgettext("sigra", "Log in:")} #{url}
 
     ---
     #{footer_text()}
@@ -125,13 +127,15 @@ defmodule <%= context_module %>.Emails do
     provider_name = provider |> to_string() |> String.capitalize()
 
     html_content = """
+    #{cta_button(dgettext("sigra", "Log in with %{provider}", provider: provider_name), "<%= log_in_url %>")}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Hi, it looks like you signed up using %{provider}. You can log in with %{provider} instead, or set a password from your account settings.", provider: provider_name)}
     </p>
-    #{cta_button(dgettext("sigra", "Log in with %{provider}", provider: provider_name), "<%= log_in_url %>")}
     """
 
     text_body = """
+    #{dgettext("sigra", "Log in with %{provider}", provider: provider_name)}
+
     #{dgettext("sigra", "Hi,")}
 
     #{dgettext("sigra", "It looks like you signed up using %{provider}. You can log in with %{provider} instead, or set a password from your account settings.", provider: provider_name)}
@@ -149,16 +153,18 @@ defmodule <%= context_module %>.Emails do
   @doc "Builds enterprise SSO reset guidance email when local reset is unavailable."
   def enterprise_sso_reset_email(user, organization_name, url) do
     html_content = """
+    #{cta_button(dgettext("sigra", "Continue with enterprise sign-in"), url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Hi, your organization %{organization} requires enterprise sign-in. Use your organization sign-in before requesting local account recovery.", organization: organization_name)}
     </p>
-    #{cta_button(dgettext("sigra", "Continue with enterprise sign-in"), url)}
     <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family}; word-break: break-all;">
       #{dgettext("sigra", "Enterprise sign-in link:")} #{url}
     </p>
     """
 
     text_body = """
+    #{dgettext("sigra", "Continue with enterprise sign-in")}: #{url}
+
     #{dgettext("sigra", "Hi,")}
 
     #{dgettext("sigra", "Your organization %{organization} requires enterprise sign-in. Use your organization sign-in before requesting local account recovery.", organization: organization_name)}
@@ -200,6 +206,7 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "New Sign-In Detected")}
     </p>
+    #{cta_button(dgettext("sigra", "Not you? Secure your account"), reset_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "We noticed a new sign-in to your account from an unrecognized device or location.")}
     </p>
@@ -220,11 +227,12 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "If this was you, you can safely ignore this email.")}
     </p>
-    #{cta_button(dgettext("sigra", "Not you? Secure your account"), reset_url)}
     """
 
     text_body = """
     #{dgettext("sigra", "New Sign-In Detected")}
+
+    #{dgettext("sigra", "Not you? Secure your account:")} #{reset_url}
 
     #{dgettext("sigra", "We noticed a new sign-in to your account from an unrecognized device or location.")}
 
@@ -234,8 +242,6 @@ defmodule <%= context_module %>.Emails do
     #{dgettext("sigra", "Time:")} #{time}
 
     #{dgettext("sigra", "If this was you, you can safely ignore this email.")}
-
-    #{dgettext("sigra", "Not you? Secure your account:")} #{reset_url}
 
     ---
     #{security_footer_text()}
@@ -265,6 +271,7 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "New Passkey Added")}
     </p>
+    #{cta_button(dgettext("sigra", "Not you? Secure your account"), reset_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "A new passkey was added to your account.")}
     </p>
@@ -285,11 +292,12 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "If this was you, you can safely ignore this email.")}
     </p>
-    #{cta_button(dgettext("sigra", "Not you? Secure your account"), reset_url)}
     """
 
     text_body = """
     #{dgettext("sigra", "New Passkey Added")}
+
+    #{dgettext("sigra", "Not you? Secure your account:")} #{reset_url}
 
     #{dgettext("sigra", "A new passkey was added to your account.")}
 
@@ -299,8 +307,6 @@ defmodule <%= context_module %>.Emails do
     #{dgettext("sigra", "Time:")} #{time}
 
     #{dgettext("sigra", "If this was you, you can safely ignore this email.")}
-
-    #{dgettext("sigra", "Not you? Secure your account:")} #{reset_url}
 
     ---
     #{security_footer_text()}
@@ -320,13 +326,13 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "Account Locked")}
     </p>
+    #{cta_button(dgettext("sigra", "Change your password"), reset_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "We detected multiple failed login attempts on your account. For your security, your account has been temporarily locked for 15 minutes.")}
     </p>
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "If this was you, you can try again after the lockout period.")}
     </p>
-    #{cta_button(dgettext("sigra", "Change your password"), reset_url)}
     <p style="margin: 12px 0 0 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "If you did not attempt to log in, we recommend changing your password immediately.")}
     </p>
@@ -335,11 +341,11 @@ defmodule <%= context_module %>.Emails do
     text_body = """
     #{dgettext("sigra", "Account Locked")}
 
+    #{dgettext("sigra", "Change your password:")} #{reset_url}
+
     #{dgettext("sigra", "We detected multiple failed login attempts on your account. For your security, your account has been temporarily locked for 15 minutes.")}
 
     #{dgettext("sigra", "If this was you, you can try again after the lockout period.")}
-
-    #{dgettext("sigra", "Change your password:")} #{reset_url}
 
     #{dgettext("sigra", "If you did not attempt to log in, we recommend changing your password immediately.")}
 
@@ -361,23 +367,23 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "Two-Factor Authentication Enabled")}
     </p>
+    #{cta_button(dgettext("sigra", "Change your password"), reset_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Two-factor authentication has been enabled on your %{app_name} account. Your account is now more secure.", app_name: "<%= app_name %>")}
     </p>
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "If you did not enable this, change your password immediately.")}
     </p>
-    #{cta_button(dgettext("sigra", "Change your password"), reset_url)}
     """
 
     text_body = """
     #{dgettext("sigra", "Two-Factor Authentication Enabled")}
 
+    #{dgettext("sigra", "Change your password:")} #{reset_url}
+
     #{dgettext("sigra", "Two-factor authentication has been enabled on your %{app_name} account. Your account is now more secure.", app_name: "<%= app_name %>")}
 
     #{dgettext("sigra", "If you did not enable this, change your password immediately.")}
-
-    #{dgettext("sigra", "Change your password:")} #{reset_url}
 
     ---
     #{security_footer_text()}
@@ -397,18 +403,18 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "Two-Factor Authentication Disabled")}
     </p>
+    #{cta_button(dgettext("sigra", "Secure your account"), settings_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Two-factor authentication was disabled on your %{app_name} account. If this wasn't you, re-enable MFA and change your password.", app_name: "<%= app_name %>")}
     </p>
-    #{cta_button(dgettext("sigra", "Secure your account"), settings_url)}
     """
 
     text_body = """
     #{dgettext("sigra", "Two-Factor Authentication Disabled")}
 
-    #{dgettext("sigra", "Two-factor authentication was disabled on your %{app_name} account. If this wasn't you, re-enable MFA and change your password.", app_name: "<%= app_name %>")}
-
     #{dgettext("sigra", "Secure your account:")} #{settings_url}
+
+    #{dgettext("sigra", "Two-factor authentication was disabled on your %{app_name} account. If this wasn't you, re-enable MFA and change your password.", app_name: "<%= app_name %>")}
 
     ---
     #{security_footer_text()}
@@ -447,19 +453,20 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "Backup Code Used")}
     </p>
+    #{cta_button(dgettext("sigra", "Generate new backup codes"), settings_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "A backup code was used to sign in to your %{app_name} account. You have %{remaining} of 8 backup codes remaining.", app_name: "<%= app_name %>", remaining: remaining)}
     </p>
-    #{low_codes_warning}#{cta_button(dgettext("sigra", "Generate new backup codes"), settings_url)}
+    #{low_codes_warning}
     """
 
     text_body = """
     #{dgettext("sigra", "Backup Code Used")}
 
-    #{dgettext("sigra", "A backup code was used to sign in to your %{app_name} account. You have %{remaining} of 8 backup codes remaining.", app_name: "<%= app_name %>", remaining: remaining)}
-    #{low_codes_text}
     #{dgettext("sigra", "Generate new backup codes:")} #{settings_url}
 
+    #{dgettext("sigra", "A backup code was used to sign in to your %{app_name} account. You have %{remaining} of 8 backup codes remaining.", app_name: "<%= app_name %>", remaining: remaining)}
+    #{low_codes_text}
     ---
     #{security_footer_text()}
     """
@@ -478,23 +485,23 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "Verification Temporarily Locked")}
     </p>
+    #{cta_button(dgettext("sigra", "Change your password"), reset_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "We detected multiple failed two-factor authentication attempts on your %{app_name} account. Verification has been temporarily locked for 15 minutes.", app_name: "<%= app_name %>")}
     </p>
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "If this was you, wait for the lockout to expire and try again. If this wasn't you, change your password immediately.")}
     </p>
-    #{cta_button(dgettext("sigra", "Change your password"), reset_url)}
     """
 
     text_body = """
     #{dgettext("sigra", "Verification Temporarily Locked")}
 
+    #{dgettext("sigra", "Change your password:")} #{reset_url}
+
     #{dgettext("sigra", "We detected multiple failed two-factor authentication attempts on your %{app_name} account. Verification has been temporarily locked for 15 minutes.", app_name: "<%= app_name %>")}
 
     #{dgettext("sigra", "If this was you, wait for the lockout to expire and try again. If this wasn't you, change your password immediately.")}
-
-    #{dgettext("sigra", "Change your password:")} #{reset_url}
 
     ---
     #{security_footer_text()}
@@ -568,9 +575,9 @@ defmodule <%= context_module %>.Emails do
     text_body = """
     #{dgettext("sigra", "Email Change Requested")}
 
-    #{dgettext("sigra", "Someone requested to change your %{app_name} account email from this address to %{new_email}. If this was you, no action is needed -- confirm the change from your new email.", app_name: "<%= app_name %>", new_email: new_email)}
-
     #{dgettext("sigra", "If you did not request this change, click below to cancel it immediately.")}
+
+    #{dgettext("sigra", "Someone requested to change your %{app_name} account email from this address to %{new_email}. If this was you, no action is needed -- confirm the change from your new email.", app_name: "<%= app_name %>", new_email: new_email)}
 
     #{dgettext("sigra", "Cancel via this link:")} #{cancel_url}
 
@@ -592,18 +599,18 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "Email Updated")}
     </p>
+    #{cta_button(dgettext("sigra", "Secure your account"), reset_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Your %{app_name} account email has been changed to this address. If you did not make this change, secure your account immediately.", app_name: "<%= app_name %>")}
     </p>
-    #{cta_button(dgettext("sigra", "Secure your account"), reset_url)}
     """
 
     text_body = """
     #{dgettext("sigra", "Email Updated")}
 
-    #{dgettext("sigra", "Your %{app_name} account email has been changed to this address. If you did not make this change, secure your account immediately.", app_name: "<%= app_name %>")}
-
     #{dgettext("sigra", "Secure your account:")} #{reset_url}
+
+    #{dgettext("sigra", "Your %{app_name} account email has been changed to this address. If you did not make this change, secure your account immediately.", app_name: "<%= app_name %>")}
 
     ---
     #{security_footer_text()}
@@ -625,13 +632,13 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "Account Deletion Scheduled")}
     </p>
+    #{cta_button(dgettext("sigra", "Cancel account deletion"), cancel_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Your %{app_name} account has been deactivated and is scheduled for permanent deletion on %{date}. All sessions have been signed out.", app_name: "<%= app_name %>", date: formatted_date)}
     </p>
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Changed your mind? You can cancel the deletion before the scheduled date.")}
     </p>
-    #{cta_button(dgettext("sigra", "Cancel account deletion"), cancel_url)}
     <p style="margin: 12px 0 0 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family}; word-break: break-all;">
       #{dgettext("sigra", "Or cancel via this link:")} #{cancel_url}
     </p>
@@ -640,11 +647,13 @@ defmodule <%= context_module %>.Emails do
     text_body = """
     #{dgettext("sigra", "Account Deletion Scheduled")}
 
-    #{dgettext("sigra", "Your %{app_name} account has been deactivated and is scheduled for permanent deletion on %{date}. All sessions have been signed out.", app_name: "<%= app_name %>", date: formatted_date)}
+    #{dgettext("sigra", "Cancel via this link:")} #{cancel_url}
 
     #{dgettext("sigra", "Changed your mind? You can cancel the deletion before the scheduled date.")}
 
-    #{dgettext("sigra", "Cancel via this link:")} #{cancel_url}
+    #{dgettext("sigra", "Your %{app_name} account has been deactivated and is scheduled for permanent deletion on %{date}. All sessions have been signed out.", app_name: "<%= app_name %>", date: formatted_date)}
+
+    #{dgettext("sigra", "Or cancel via this link:")} #{cancel_url}
 
     ---
     #{security_footer_text()}
@@ -662,18 +671,18 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "Deletion Cancelled")}
     </p>
+    #{cta_button(dgettext("sigra", "Log in to your account"), login_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Your %{app_name} account deletion has been cancelled. Your account is active again. You can log in as usual.", app_name: "<%= app_name %>")}
     </p>
-    #{cta_button(dgettext("sigra", "Log in to your account"), login_url)}
     """
 
     text_body = """
     #{dgettext("sigra", "Deletion Cancelled")}
 
-    #{dgettext("sigra", "Your %{app_name} account deletion has been cancelled. Your account is active again. You can log in as usual.", app_name: "<%= app_name %>")}
-
     #{dgettext("sigra", "Log in to your account:")} #{login_url}
+
+    #{dgettext("sigra", "Your %{app_name} account deletion has been cancelled. Your account is active again. You can log in as usual.", app_name: "<%= app_name %>")}
 
     ---
     #{footer_text()}
@@ -738,6 +747,7 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 16px 0; font-size: 20px; font-weight: 600; color: #18181b; line-height: 1.2; font-family: #{@font_family};">
       #{dgettext("sigra", "Password Changed")}
     </p>
+    #{cta_button(dgettext("sigra", "Reset your password"), reset_url)}
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #3f3f46; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Your %{app_name} account password was changed.", app_name: "<%= app_name %>")}
     </p>
@@ -758,11 +768,12 @@ defmodule <%= context_module %>.Emails do
     <p style="margin: 0 0 12px 0; font-size: 16px; color: #dc2626; font-weight: 600; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "If this wasn't you, reset your password immediately.")}
     </p>
-    #{cta_button(dgettext("sigra", "Reset your password"), reset_url)}
     """
 
     text_body = """
     #{dgettext("sigra", "Password Changed")}
+
+    #{dgettext("sigra", "Reset your password:")} #{reset_url}
 
     #{dgettext("sigra", "Your %{app_name} account password was changed.", app_name: "<%= app_name %>")}
 
@@ -772,8 +783,6 @@ defmodule <%= context_module %>.Emails do
     #{dgettext("sigra", "Time:")} #{time}
 
     #{dgettext("sigra", "If this wasn't you, reset your password immediately.")}
-
-    #{dgettext("sigra", "Reset your password:")} #{reset_url}
 
     ---
     #{security_footer_text()}
@@ -827,6 +836,7 @@ defmodule <%= context_module %>.Emails do
     <h1 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 600; line-height: 1.2; color: #18181b; font-family: #{@font_family};">
       #{dgettext("sigra", "You're invited to join %{org}", org: org_name_safe)}
     </h1>
+    #{cta_button(dgettext("sigra", "Accept invitation"), accept_url)}
     <p style="margin: 0 0 16px 0; font-size: 16px; line-height: 1.5; color: #3f3f46; font-family: #{@font_family};">
       #{dgettext("sigra", "%{inviter} invited you to join %{org} as %{role} on %{product}.", inviter: inviter_safe, org: org_name_safe, role: role_safe, product: product_safe)}
     </p>
@@ -841,7 +851,6 @@ defmodule <%= context_module %>.Emails do
         <strong>#{dgettext("sigra", "Expires:")}</strong> #{expires_formatted}
       </p>
     </div>
-    #{cta_button(dgettext("sigra", "Accept invitation"), accept_url)}
     <p style="margin: 24px 0 8px 0; font-size: 14px; color: #71717a; line-height: 1.5; font-family: #{@font_family};">
       #{dgettext("sigra", "Or copy and paste this link into your browser:")}
     </p>
@@ -856,14 +865,14 @@ defmodule <%= context_module %>.Emails do
     org_name_plain = org.name
 
     text_body = """
+    #{dgettext("sigra", "Accept the invitation:")}
+    #{accept_url}
+
     #{inviter_display} #{dgettext("sigra", "invited you to join")} #{org_name_plain} #{dgettext("sigra", "as")} #{role_label} #{dgettext("sigra", "on")} #{product_name}.
 
     #{dgettext("sigra", "Organization:")} #{org_name_plain}
     #{dgettext("sigra", "Role:")} #{role_label}
     #{dgettext("sigra", "Expires:")} #{expires_formatted}
-
-    #{dgettext("sigra", "Accept the invitation:")}
-    #{accept_url}
 
     #{dgettext("sigra", "If you weren't expecting this invitation, you can safely ignore this email.")}
     #{dgettext("sigra", "It will expire on")} #{expires_date}.
