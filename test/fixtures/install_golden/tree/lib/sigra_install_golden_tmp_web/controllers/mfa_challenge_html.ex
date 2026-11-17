@@ -16,13 +16,13 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeHTML do
     <.sigra_auth_page>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
-        Two-factor authentication
+        {dgettext("sigra", "Two-factor authentication")}
         <:subtitle>
-          Enter the code for {@masked_email}
+          {dgettext("sigra", "Enter the code for")} {@masked_email}
         </:subtitle>
       </.header>
 
-      <div role="tablist" aria-label="Verification method">
+      <div role="tablist" aria-label={dgettext("sigra", "Verification method")}>
         <div class="sigra-auth-tabs">
           <button
             type="button"
@@ -33,7 +33,7 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeHTML do
             class="sigra-auth-tab"
             onclick="switchTab('totp')"
           >
-            Authenticator code
+            {dgettext("sigra", "Authenticator code")}
           </button>
           <button
             type="button"
@@ -44,7 +44,7 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeHTML do
             class="sigra-auth-tab"
             onclick="switchTab('backup')"
           >
-            Backup code
+            {dgettext("sigra", "Backup code")}
           </button>
         </div>
       </div>
@@ -62,7 +62,7 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeHTML do
           <div class="sigra-auth-stack sigra-auth-stack--4">
             <div>
               <label for="mfa_totp_code">
-                Authenticator code
+                {dgettext("sigra", "Authenticator code")}
               </label>
               <input
                 type="text"
@@ -75,17 +75,17 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeHTML do
                 autofocus
                 required
                 class="sigra-auth-code-input"
-                aria-label="6-digit authenticator code"
+                aria-label={dgettext("sigra", "6-digit authenticator code")}
               />
             </div>
 
             <label class="sigra-auth-check-row">
               <input type="checkbox" name="mfa[trust]" value="true" class="sigra-auth-check" />
-              Trust this browser for 30 days
+              {dgettext("sigra", "Trust this browser for 30 days")}
             </label>
 
             <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
-              Verify
+              {dgettext("sigra", "Verify")}
             </.sigra_auth_button>
           </div>
         </.form>
@@ -104,21 +104,21 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeHTML do
           <div class="sigra-auth-stack sigra-auth-stack--4">
             <div>
               <label for="mfa_backup_code">
-                Backup code
+                {dgettext("sigra", "Backup code")}
               </label>
               <input
                 type="text"
                 id="mfa_backup_code"
                 name="mfa[code]"
-                placeholder="XXXX-XXXX"
+                placeholder={dgettext("sigra", "XXXX-XXXX")}
                 required
                 class="sigra-auth-code-input"
-                aria-label="Backup code"
+                aria-label={dgettext("sigra", "Backup code")}
               />
             </div>
 
             <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
-              Verify
+              {dgettext("sigra", "Verify")}
             </.sigra_auth_button>
           </div>
         </.form>
@@ -126,13 +126,13 @@ defmodule SigraInstallGoldenTmpWeb.MFAChallengeHTML do
 
       <div aria-live="polite">
         <p class="sigra-auth-copy sigra-auth-copy--muted sigra-auth-copy--center">
-          Enter the code from your authenticator app to continue.
+          {dgettext("sigra", "Enter the code from your authenticator app to continue.")}
         </p>
       </div>
 
       <p class="sigra-auth-copy sigra-auth-copy--center">
         <.link href={~p"/users/log_out"} method="delete">
-          Cancel and sign out
+          {dgettext("sigra", "Cancel and sign out")}
         </.link>
       </p>
       </div>

@@ -167,6 +167,21 @@ defmodule Sigra.Admin.Audit.QueryTest do
              }
     end
 
+    test "normalizes date-only bounds from date inputs to inclusive UTC day limits", %{
+      global_scope: global_scope
+    } do
+      assert {:ok, normalized} =
+               QueryParams.normalize(
+                 %{"from" => "2020-01-01", "to" => "2020-01-02"},
+                 global_scope
+               )
+
+      assert normalized.from == DateTime.from_naive!(~N[2020-01-01 00:00:00], "Etc/UTC")
+
+      assert normalized.to ==
+               DateTime.from_naive!(~N[2020-01-02 23:59:59.999999], "Etc/UTC")
+    end
+
     test "rejects malformed actor UUIDs instead of widening to all actors", %{
       global_scope: global_scope
     } do

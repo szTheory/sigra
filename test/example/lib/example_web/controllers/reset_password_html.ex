@@ -35,7 +35,7 @@ defmodule ExampleWeb.ResetPasswordHTML do
           required
         />
 
-        <.button class="btn btn-primary w-full">
+        <.button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Send reset instructions")} <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
@@ -84,7 +84,7 @@ defmodule ExampleWeb.ResetPasswordHTML do
           required
         />
 
-        <.button class="btn btn-primary w-full">
+        <.button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Reset password")} <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
@@ -107,7 +107,7 @@ defmodule ExampleWeb.ResetPasswordHTML do
       </.header>
 
       <div class="mt-6">
-        <.link navigate={~p"/users/reset-password"} class="btn btn-primary w-full text-center block">
+        <.link navigate={~p"/users/reset-password"} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
           {dgettext("sigra", "Request new reset email")}
         </.link>
       </div>

@@ -84,7 +84,7 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
   # ──────────────────────────────────────────────────────────────────────
   defp render_branch_a(assigns) do
     ~H"""
-    <div class="mx-auto max-w-md py-16">
+    <div class="sigra-auth-flow">
       <.header>
         Create your first organization
         <:subtitle>
@@ -97,13 +97,13 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
         id="organization-create-form"
         phx-change="validate"
         phx-submit="create"
-        class="mt-8"
+        class="sigra-auth-stack"
       >
         <.input field={@form[:name]} type="text" label="Organization name" required />
 
         <p
           id="slug-preview"
-          class="text-sm text-base-content/70 mt-1"
+          class="sigra-auth-copy sigra-auth-copy--muted"
           aria-live="polite"
         >
           {@slug_preview}
@@ -111,14 +111,14 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
 
         <.button
           phx-disable-with="Creating..."
-          class="btn btn-primary w-full mt-4"
+          class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
         >
           Create organization
         </.button>
       </.form>
 
-      <div class="mt-6 text-center">
-        <.link navigate={~p"/"} class="link link-hover text-sm">
+      <div class="sigra-auth-cluster sigra-auth-cluster--center">
+        <.link navigate={~p"/"} class="sigra-auth-action sigra-auth-action--ghost">
           Skip for now
         </.link>
       </div>
@@ -131,17 +131,17 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
   # ──────────────────────────────────────────────────────────────────────
   defp render_branch_b(assigns) do
     ~H"""
-    <div class="mx-auto max-w-md py-16">
+    <div class="sigra-auth-flow">
       <.header>
         You have {length(@pending_invitations)} pending invitation(s)
       </.header>
 
-      <ul id="pending-invitations-list" class="mt-6 divide-y divide-base-200">
-        <li :for={invitation <- @pending_invitations} class="py-3 flex items-center justify-between">
+      <ul id="pending-invitations-list" class="sigra-auth-stack">
+        <li :for={invitation <- @pending_invitations} class="sigra-auth-split">
           <span>{invitation.organization.name}</span>
           <button
             type="button"
-            class="btn btn-primary btn-sm"
+            class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--small"
             disabled
             title="Available in the next release"
           >
@@ -150,11 +150,11 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
         </li>
       </ul>
 
-      <details class="collapse collapse-arrow bg-base-200 mt-8">
-        <summary class="collapse-title text-sm">
+      <details class="sigra-auth-disclosure">
+        <summary class="sigra-auth-action sigra-auth-action--secondary">
           Or create your own organization →
         </summary>
-        <div class="collapse-content">
+        <div class="sigra-auth-stack">
           {render_branch_a(assigns)}
         </div>
       </details>
@@ -167,24 +167,24 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
   # ──────────────────────────────────────────────────────────────────────
   defp render_branch_c(assigns) do
     ~H"""
-    <div class="mx-auto max-w-2xl py-12">
+    <div class="sigra-auth-flow sigra-auth-flow--wide">
       <.header>
         Your organizations
         <:actions>
-          <.link navigate={~p"/organizations/new"} class="btn btn-primary">
+          <.link navigate={~p"/organizations/new"} class="sigra-auth-action sigra-auth-action--primary">
             + New organization
           </.link>
         </:actions>
       </.header>
 
-      <ul id="organizations-picker-list" class="mt-6 divide-y divide-base-200">
-        <li :for={{org, role} <- @memberships} class="py-3 flex items-center justify-between">
+      <ul id="organizations-picker-list" class="sigra-auth-stack">
+        <li :for={{org, role} <- @memberships} class="sigra-auth-split">
           <div>
-            <div class="font-medium">{org.name}</div>
-            <span class={["badge badge-sm", role_badge_class(role)]}>{humanize_role(role)}</span>
+            <div class="sigra-auth-copy">{org.name}</div>
+            <span class="sigra-auth-status">{humanize_role(role)}</span>
           </div>
 
-          <form action={~p"/organizations/switch"} method="post" class="inline">
+          <form action={~p"/organizations/switch"} method="post" class="sigra-auth-stack">
             <input
               type="hidden"
               name="_csrf_token"
@@ -192,18 +192,18 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
             />
             <input type="hidden" name="organization_id" value={org.id} />
             <input type="hidden" name="return_to" value="/" />
-            <button type="submit" class="btn btn-sm" aria-label={"Open " <> org.name}>
+            <button type="submit" class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--small" aria-label={"Open " <> org.name}>
               Open
             </button>
           </form>
         </li>
       </ul>
 
-      <section class="mt-10">
-        <h2 class="text-sm font-semibold text-base-content/70">Pending invitations</h2>
+      <section class="sigra-auth-stack">
+        <h2 class="sigra-auth-heading sigra-auth-copy--muted">Pending invitations</h2>
         <p
           :if={@pending_invitations == []}
-          class="text-sm text-base-content/60 mt-2"
+          class="sigra-auth-copy sigra-auth-copy--muted"
         >
           No pending invitations.
         </p>
@@ -211,11 +211,6 @@ defmodule <%= web_module %>.OrganizationsLive.Index do
     </div>
     """
   end
-
-  # Per-role daisyUI badge class.
-  defp role_badge_class(:owner), do: "badge-primary"
-  defp role_badge_class(:admin), do: "badge-secondary"
-  defp role_badge_class(_), do: "badge-ghost"
 
   defp humanize_role(role) when is_atom(role),
     do: role |> Atom.to_string() |> String.capitalize()

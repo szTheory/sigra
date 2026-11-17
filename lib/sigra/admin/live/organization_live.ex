@@ -51,7 +51,7 @@ defmodule Sigra.Admin.Live.OrganizationLive do
         <p class="sg-page-kicker">Organization overview</p>
         <h1 class="sg-page-title">{@organization_name}</h1>
         <p class="sg-page-copy">
-          Work inside this organization scope: support members, inspect security posture, and review audit evidence without losing tenant context.
+          Members, audit events, and invitations stay within this organization.
         </p>
       </header>
 

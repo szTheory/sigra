@@ -16,6 +16,8 @@ defmodule ExampleWeb.AdminBrandingLiveTest do
         |> live(~p"/admin/auth-branding")
 
       assert html =~ "Auth forms and emails"
+      assert html =~ "Sign-in preview"
+      refute html =~ "Login preview"
       assert html =~ ~s(data-testid="admin-auth-branding-workbench")
       assert html =~ ~s(data-testid="admin-auth-branding-form")
       assert html =~ ~s(phx-hook="AuthBrandingPreview")

@@ -326,7 +326,7 @@ defmodule <%= web_module %>.UserAuth do
     else
       socket =
         socket
-        |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
+        |> Phoenix.LiveView.put_flash(:error, dgettext("sigra", "You must log in to access this page."))
         |> Phoenix.LiveView.redirect(to: ~p"/users/log_in")
 
       {:halt, socket}
@@ -428,7 +428,7 @@ defmodule <%= web_module %>.UserAuth do
       conn
     else
       conn
-      |> put_flash(:error, "You must log in to access this page.")
+      |> put_flash(:error, dgettext("sigra", "You must log in to access this page."))
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/log_in")
       |> halt()
@@ -549,7 +549,7 @@ defmodule <%= web_module %>.UserAuth do
     if user && Map.get(user, :must_change_password, false) &&
          not exempt_path?(conn, ["/users/settings", "/users/log_out"]) do
       conn
-      |> put_flash(:error, "You must change your password before you can continue using your account.")
+      |> put_flash(:error, dgettext("sigra", "You must change your password before you can continue using your account."))
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/settings#password")
       |> halt()

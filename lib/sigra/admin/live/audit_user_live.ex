@@ -67,10 +67,10 @@ defmodule Sigra.Admin.Live.AuditUserLive do
       <.scope_ribbon copy={scope_copy(@admin_scope)} />
 
       <header class="sg-page-header">
-        <p class="sg-page-kicker">User audit evidence</p>
+        <p class="sg-page-kicker">User audit</p>
         <h1 class="sg-page-title">{@detail.display_name || @detail.user.email}</h1>
         <p class="sg-page-copy">
-          Filter this user's scoped event history, distinguish support actions from user actions, and export evidence.
+          Review recorded activity for this user. Event rows show the actor and effective user when those details are available.
         </p>
         <div class="sg-cluster sg-cluster--2">
           <span class="sg-status-pill">{@detail.user.email}</span>
@@ -195,8 +195,13 @@ defmodule Sigra.Admin.Live.AuditUserLive do
         <.audit_row :for={row <- @rows} row={row} show_detail show_codes />
       </div>
 
-      <.audit_empty_state :if={@rows == []} title="No audit events for this user">
-        <p class="sg-muted sg-text-sm">No scoped events are currently tied to this user.</p>
+      <.audit_empty_state
+        :if={@rows == []}
+        title={if(any_filter_active?(@current_params), do: "No audit events match these filters for this user", else: "No audit events for this user")}
+      >
+        <p class="sg-muted sg-text-sm">
+          {if(any_filter_active?(@current_params), do: "Adjust or clear the filters to review recorded activity for this user.", else: "No scoped events are currently tied to this user.")}
+        </p>
         <div :if={any_filter_active?(@current_params)} class="sg-cluster sg-cluster--center">
           <a
             href={clear_path(@admin_scope, @detail.user.id, @return_to)}

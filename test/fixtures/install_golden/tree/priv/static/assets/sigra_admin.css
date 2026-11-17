@@ -1,4 +1,4 @@
-/* sigra-admin-css: 1 */
+/* sigra-admin-css: 2 */
 /* Vaultr/Sigra demo design layer.
  *
  * The generated admin screens carry Tailwind/DaisyUI utility classes as a
@@ -476,6 +476,45 @@
    * PILLS & BADGES
    * ------------------------------------------------------------------------*/
   .sg-scope-pill,
+  .sg-status-mark {
+    display: inline-flex;
+    min-height: var(--sg-space-5);
+    align-items: center;
+    gap: var(--sg-space-2);
+    font-size: var(--sg-text-sm);
+    font-weight: var(--sg-weight-medium);
+    line-height: var(--sg-leading-snug);
+    white-space: nowrap;
+  }
+
+  .sg-status-mark__glyph {
+    display: block;
+    width: var(--sg-space-5);
+    height: var(--sg-space-5);
+    flex: none;
+  }
+
+  .sg-status-mark--detail .sg-status-mark__glyph {
+    width: var(--sg-space-6);
+    height: var(--sg-space-6);
+  }
+
+  .sg-status-mark[data-status="active"] {
+    color: var(--sg-status-active);
+  }
+  .sg-status-mark[data-status="unconfirmed"] {
+    color: var(--sg-status-unconfirmed);
+  }
+  .sg-status-mark[data-status="locked"] {
+    color: var(--sg-status-locked);
+  }
+  .sg-status-mark[data-status="deleting"] {
+    color: var(--sg-status-deleting);
+  }
+  .sg-status-mark[data-status="suspended"] {
+    color: var(--sg-status-suspended);
+  }
+
   .sg-status-pill,
   .sg-badge {
     display: inline-flex;
@@ -1063,7 +1102,9 @@
 
   .sg-kv {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--sg-space-3);
+    min-width: 0;
   }
   .sg-kv__term,
   .sg-meta-label {
@@ -2328,7 +2369,15 @@
   .sg-tabs__tab--active,
   .sg-tabs__tab[aria-current="page"] {
     color: var(--sg-color-brand-strong);
-    border-bottom-color: var(--sg-color-brand);
+    border-bottom-color: transparent;
+  }
+
+  .sg-tabs__tab[aria-current="page"]::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: 0 0 0.5rem;
+    background: var(--sg-color-current-tab);
   }
 
   .sg-toast-region {
@@ -2456,8 +2505,10 @@
 
   .sg-cmdk__item.is-active,
   .sg-cmdk__item[aria-selected="true"] {
-    background: var(--sg-color-brand-soft);
-    color: var(--sg-color-brand-strong);
+    border-inline-start: 2px solid var(--sg-color-selected-edge);
+    border-radius: 0 var(--sg-radius-sm) var(--sg-radius-sm) 0;
+    background: var(--sg-color-selected);
+    color: var(--sg-color-ink);
   }
 
   .sg-cmdk__empty {

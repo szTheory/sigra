@@ -32,7 +32,7 @@ defmodule <%= web_module %>.ResetPasswordHTML do
 
       <p class="sigra-auth-copy sigra-auth-copy--center">
         <.link navigate={~p"/users/log_in"}>
-          {dgettext("sigra", "Back to log in")}
+          {dgettext("sigra", "Back to sign in")}
         </.link>
       </p>
       </div>

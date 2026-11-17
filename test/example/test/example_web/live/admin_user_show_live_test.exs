@@ -69,6 +69,28 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html_offset(breadcrumb, "Users") < html_offset(breadcrumb, target.email)
     end
 
+    test "locked detail names the available session action without promising an unlock control",
+         %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      target = user_fixture(%{email: "detail-locked@example.com", display_name: "Detail Locked"})
+
+      target =
+        Repo.update!(
+          Ecto.Changeset.change(target,
+            locked_at: DateTime.utc_now() |> DateTime.truncate(:second)
+          )
+        )
+
+      {:ok, _view, html} =
+        conn
+        |> log_in_user(platform_admin)
+        |> live("/admin/users/#{target.id}")
+
+      assert html =~ ~s(data-status="locked")
+      assert html =~ "Locked — review active sessions with Manage sessions."
+      refute html =~ "unlock below"
+    end
+
     test "detail page links out to the scoped sessions surface with the preserved return_to",
          %{
            conn: conn
@@ -78,7 +100,7 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       target =
         user_fixture(%{email: "detail-sessions-link@example.com", display_name: "Detail Link"})
 
-      session_fixture(target, %{ip: "10.2.2.2"})
+      session_fixture(target, %{ip: "10.2.2.2", last_active_at: ~U[2025-02-02 14:07:00.000000Z]})
 
       {:ok, _view, html} =
         conn
@@ -92,6 +114,9 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       assert html =~ "Manage sessions"
       assert html =~ "/admin/users/#{target.id}/sessions"
       assert html =~ "return_to=%2Fadmin%2Fusers%3Fq%3Ddetail-sessions-link"
+      assert html =~ ~s(data-status="unconfirmed")
+      assert html =~ target.email
+      assert html =~ "2025-02-02 2:07 PM UTC"
 
       # The revoke flow lives on UserSessionsLive now — confirm it is absent here.
       refute html =~ "Revoke session"

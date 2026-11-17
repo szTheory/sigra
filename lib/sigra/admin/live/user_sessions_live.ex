@@ -44,12 +44,17 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
            token: token,
            title: "Revoke this session?",
            copy: revoke_session_copy(socket.assigns.detail),
-           confirm_label: "Revoke",
+           confirm_label: "Revoke session",
            cancel_label: "Cancel"
          })}
 
       :error ->
-        {:noreply, put_flash(socket, :error, "Invalid session reference.")}
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "Could not open session confirmation. Refresh the page and try again."
+         )}
     end
   end
 
@@ -59,7 +64,7 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
        type: :revoke_all_sessions,
        title: "Revoke all sessions?",
        copy: revoke_all_sessions_copy(socket.assigns.detail),
-       confirm_label: "Revoke",
+       confirm_label: "Revoke all sessions",
        cancel_label: "Cancel"
      })}
   end
@@ -104,6 +109,8 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
       <header class="sg-page-header">
         <p class="sg-page-kicker">Sessions</p>
         <h1 class="sg-page-title">{@detail.display_name || @detail.user.email}</h1>
+        <.status_mark status={status_for_user(@detail.user)} size={:detail} />
+        <p class="sg-page-copy">{@detail.user.email}</p>
         <p class="sg-page-copy">{pluralize(length(@detail.sessions), "active session")}</p>
       </header>
 
@@ -199,13 +206,18 @@ defmodule Sigra.Admin.Live.UserSessionsLive do
     assign(socket, detail: detail, confirm_action: nil)
   end
 
-  defp revoke_session_copy(_detail) do
-    "The user will be signed out of this session immediately. If this session was compromised, they must sign in again with verified credentials to re-establish access."
+  defp revoke_session_copy(detail) do
+    "#{session_user_name(detail)} will be signed out of this browser or device immediately and must sign in again."
   end
 
-  defp revoke_all_sessions_copy(_detail) do
-    "The user will be signed out of all active sessions immediately. If any sessions were compromised, they must sign in again with verified credentials to re-establish access."
+  defp revoke_all_sessions_copy(detail) do
+    name = session_user_name(detail)
+
+    "All active sessions for #{name} across devices will end immediately. #{name} must sign in again."
   end
+
+  defp session_user_name(%{display_name: name}) when is_binary(name) and name != "", do: name
+  defp session_user_name(%{user: %{email: email}}), do: email
 
   defp scope_copy(%Scope{mode: :organization, organization: %{name: name}}),
     do: "Organization-scoped user operations for #{name}"

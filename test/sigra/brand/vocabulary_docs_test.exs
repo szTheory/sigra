@@ -62,14 +62,14 @@ defmodule Sigra.Brand.VocabularyDocsTest do
   @anchor_pairs [
     {"Locked", "lib/sigra/admin/live/user_show_live.ex"},
     {"Deletion scheduled", "lib/sigra/admin/live/user_show_live.ex"},
-    {"unlock below", "lib/sigra/admin/live/user_show_live.ex"},
+    {"Manage sessions", "lib/sigra/admin/live/user_show_live.ex"},
     {"auto-unlocks", "lib/sigra/lockout.ex"},
     {"Log in", "test/example/lib/example_web/controllers/session_html.ex"},
     {"Confirmed", "lib/sigra/admin/live/user_show_live.ex"},
     {"Unconfirmed", "lib/sigra/admin/live/user_show_live.ex"},
     {"Active", "lib/sigra/admin/live/index_live.ex"},
     {"Review users", "lib/sigra/admin/live/index_live.ex"},
-    {"No flagged accounts", "lib/sigra/admin/live/index_live.ex"},
+    {"No users need review.", "lib/sigra/admin/live/index_live.ex"},
     {"Review accounts", "lib/sigra/admin/components.ex"},
     {"Admin (operator)", "test/example/lib/example/demo/personas.ex"}
   ]

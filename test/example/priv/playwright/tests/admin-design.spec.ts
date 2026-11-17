@@ -264,6 +264,108 @@ test.describe('Design gallery board snapshots', () => {
     await waitForLiveViewReady(page);
   });
 
+  test('selected command rows and current tabs use the brand tokens in every theme', async ({
+    page,
+  }, testInfo) => {
+    const tokenColor = (element: Locator, token: string) =>
+      element.evaluate((node, name) => {
+        const probe = document.createElement('span');
+        probe.style.color = `var(${name})`;
+        (node.closest('.sg-admin-shell') ?? document.documentElement).appendChild(probe);
+        const color = getComputedStyle(probe).color;
+        probe.remove();
+        return color;
+      }, token);
+
+    for (const theme of ['Light', 'Dark', 'System'] as const) {
+      await page.goto('/admin/auth-branding?panel=dark');
+      await waitForLiveViewReady(page);
+      const themeRadio = page.getByRole('radio', { name: theme, exact: true });
+      await themeRadio.click();
+      await expect(themeRadio).toHaveAttribute('aria-checked', 'true');
+
+      const currentTab = page.locator('.sg-tabs__tab[aria-current="page"]');
+      await expect(currentTab).toBeVisible();
+      const currentSquare = await currentTab.evaluate((node) => {
+        const style = getComputedStyle(node, '::before');
+        return { width: style.width, height: style.height, color: style.backgroundColor };
+      });
+      expect(currentSquare.width).toBe('8px');
+      expect(currentSquare.height).toBe('8px');
+      expect(currentSquare.color).toBe(await tokenColor(currentTab, '--sg-color-current-tab'));
+      const mobile = testInfo.project.name === 'admin-design-mobile';
+      const brandingNavigation = page.getByRole('navigation', {
+        name: mobile ? 'Admin bottom nav' : 'Admin navigation',
+      });
+      const brandingLink = brandingNavigation.getByRole('link', {
+        name: mobile ? 'Brand' : 'Branding',
+        exact: true,
+      });
+      await expect(brandingLink).toHaveAttribute('aria-current', 'page');
+
+      // Phase 262 follow-up: keep the real admin controls readable in every
+      // resolved theme. The earlier exploratory 2.83:1 result sampled the
+      // 140ms color transition, so wait for each control to reach the actual
+      // theme tokens before checking the stable rendered contrast.
+      const expectedBrandingForeground = await tokenColor(
+        brandingLink,
+        mobile ? '--sg-color-brand-strong' : '--sg-color-on-brand',
+      );
+      await expect.poll(() => brandingLink.evaluate((node) => getComputedStyle(node).color))
+        .toBe(expectedBrandingForeground);
+      if (!mobile) {
+        const expectedBrandingBackground = await tokenColor(brandingLink, '--sg-color-brand');
+        await expect.poll(() => brandingLink.evaluate((node) => getComputedStyle(node).backgroundColor))
+          .toBe(expectedBrandingBackground);
+      }
+      const brandingLinkColors = {
+        foreground: await brandingLink.evaluate((node) => getComputedStyle(node).color),
+        background: await (mobile ? brandingNavigation : brandingLink).evaluate(
+          (node) => getComputedStyle(node).backgroundColor,
+        ),
+      };
+      expect(
+        contrastRatio(brandingLinkColors.foreground, brandingLinkColors.background),
+        `${theme} active Branding link contrast`,
+      ).toBeGreaterThanOrEqual(4.5);
+
+      const saveButton = page.getByRole('button', { name: 'Save profile' });
+      const expectedButtonForeground = await tokenColor(saveButton, '--sg-color-on-brand');
+      const expectedButtonBackground = await tokenColor(saveButton, '--sg-color-brand');
+      await expect.poll(() => saveButton.evaluate((node) => getComputedStyle(node).color))
+        .toBe(expectedButtonForeground);
+      await expect.poll(() => saveButton.evaluate((node) => getComputedStyle(node).backgroundColor))
+        .toBe(expectedButtonBackground);
+      const saveButtonColors = await saveButton.evaluate((node) => {
+        const style = getComputedStyle(node);
+        return { foreground: style.color, background: style.backgroundColor };
+      });
+      expect(
+        contrastRatio(saveButtonColors.foreground, saveButtonColors.background),
+        `${theme} Save profile button contrast`,
+      ).toBeGreaterThanOrEqual(4.5);
+      await page.goto('/admin/_design');
+      await waitForLiveViewReady(page);
+      await page.getByRole('button', { name: 'Open command palette' }).click();
+      const selectedRow = page.locator('.sg-cmdk__item[aria-selected="true"]').first();
+      await expect(selectedRow).toBeVisible();
+      const selectedStyle = await selectedRow.evaluate((node) => {
+        const style = getComputedStyle(node);
+        return {
+          background: style.backgroundColor,
+          edgeWidth: style.borderLeftWidth,
+          edgeStyle: style.borderLeftStyle,
+          edgeColor: style.borderLeftColor,
+        };
+      });
+      expect(selectedStyle.background).toBe(await tokenColor(selectedRow, '--sg-color-selected'));
+      expect(selectedStyle.edgeWidth).toBe('2px');
+      expect(selectedStyle.edgeStyle).toBe('solid');
+      expect(selectedStyle.edgeColor).toBe(await tokenColor(selectedRow, '--sg-color-selected-edge'));
+      await page.keyboard.press('Escape');
+    }
+  });
+
   // Phase 230 (FAST-02 / D-01): tag the 28 pixel-diff board tests `@snapshot`
   // so they can be event-gated off the PR critical path while the WCAG scan
   // below stays on every lane. The tag lives on this per-board `test(...)`

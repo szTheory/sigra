@@ -9,13 +9,13 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
     <.sigra_auth_page flash={@flash}>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
         <.header>
-          Register
+          {dgettext("sigra", "Register")}
           <:subtitle>
-            Already registered?
+            {dgettext("sigra", "Already registered?")}
             <.link navigate={~p"/users/log_in"}>
-              Log in
+              {dgettext("sigra", "Sign in")}
             </.link>
-            to your account now.
+            {dgettext("sigra", "to your account now.")}
           </:subtitle>
         </.header>
 
@@ -31,12 +31,12 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
         class="sigra-auth-stack sigra-auth-stack--4"
       >
         <p :if={@check_errors} class="sigra-auth-notice sigra-auth-notice--danger">
-          We couldn't create your account. Check the highlighted fields and try again.
+          {dgettext("sigra", "We couldn't create your account. Check the highlighted fields and try again.")}
         </p>
 
         <% # Add custom fields here (e.g., :name, :company) %>
-        <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
-        <.input field={f[:password]} type="password" label="Password" autocomplete="new-password" required />
+        <.input field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
+        <.input field={f[:password]} type="password" label={dgettext("sigra", "Password")} autocomplete="new-password" required />
 
 
         <label
@@ -51,9 +51,9 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
             class="sigra-auth-check"
           />
           <span>
-            <strong>Add a passkey after creating your account</strong>
+            <strong>{dgettext("sigra", "Add a passkey after creating your account")}</strong>
             <span class="sigra-auth-copy sigra-auth-copy--muted">
-              After confirming your email, you will continue to passkey setup.
+              {dgettext("sigra", "After confirming your email, you will continue to passkey setup.")}
             </span>
           </span>
         </label>
@@ -80,8 +80,8 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
           </ul>
         </div>
 
-        <.sigra_auth_button phx-disable-with="Creating account..." class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
-          Create an account <span aria-hidden="true">&rarr;</span>
+        <.sigra_auth_button phx-disable-with={dgettext("sigra", "Creating account...")} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
+          {dgettext("sigra", "Create an account")} <span aria-hidden="true">&rarr;</span>
         </.sigra_auth_button>
         </.form>
       </div>
@@ -137,7 +137,7 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
 
         {:noreply,
          socket
-         |> put_flash(:info, "If this email is available, your account has been created. Please check your email.")
+         |> put_flash(:info, dgettext("sigra", "If this email is available, your account has been created. Please check your email."))
          |> assign_form(changeset)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -187,9 +187,9 @@ defmodule SigraInstallGoldenTmpWeb.RegistrationLive do
   defp password_strength_width(:strong), do: 100
   defp password_strength_width(_), do: 0
 
-  defp password_strength_label(:weak), do: "Weak"
-  defp password_strength_label(:fair), do: "Fair"
-  defp password_strength_label(:strong), do: "Strong"
+  defp password_strength_label(:weak), do: dgettext("sigra", "Weak")
+  defp password_strength_label(:fair), do: dgettext("sigra", "Fair")
+  defp password_strength_label(:strong), do: dgettext("sigra", "Strong")
   defp password_strength_label(_), do: ""
 
   defp password_strength_text_color(:weak), do: "sigra-auth-status--danger"

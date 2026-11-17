@@ -46,10 +46,11 @@ defmodule Example.Accounts.EmailsLifecycleHtmlTest do
   end
 
   describe "oauth_reset_email/2" do
-    test "includes provider-specific copy and login CTA" do
+    test "includes provider-specific copy and sign-in CTA" do
       html = Emails.oauth_reset_email(user(), :google).html_body
 
       assert html =~ "Google"
+      assert html =~ "Sign in with Google"
       assert html =~ "/users/log_in"
       assert html =~ "role=\"link\""
     end

@@ -13,6 +13,7 @@
 // the same PR.
 
 import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import { extractConfirmationLink } from '../fixtures/mailbox';
 import { loginSubmit } from '../helpers/loginSubmit';
 
@@ -24,6 +25,17 @@ async function waitForLiveViewReady(
   await page.waitForSelector('[data-phx-session].phx-connected', {
     state: 'attached',
   });
+}
+
+async function assertHostAuthSurface(page: Parameters<typeof test>[0]['page']) {
+  await expect(page.locator('body')).not.toContainText(/\b(?:Sigra|Kiln)\b/i);
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+    .analyze();
+  expect(
+    violations,
+    `host auth axe violations: ${JSON.stringify(violations).slice(0, 2000)}`,
+  ).toHaveLength(0);
 }
 
 async function dismissFlash(page: Parameters<typeof test>[0]['page']) {
@@ -53,6 +65,7 @@ async function registerAndConfirmUser(
 ) {
   await page.goto('/users/register');
   await waitForLiveViewReady(page);
+  await assertHostAuthSurface(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
   // Wait for the server-rendered strength label so the phx-change validation has landed before submit.
@@ -69,6 +82,7 @@ async function logInIfNeeded(
 ) {
   await page.goto('/users/log_in');
   if (page.url().includes('/users/log_in')) {
+    await assertHostAuthSurface(page);
     await page.fill('#login_form input[name="user[email]"]', email);
     await page.fill('#login_form input[name="user[password]"]', password);
     await loginSubmit(page).click();
@@ -149,6 +163,17 @@ async function extractInvitationLink(
 
     if (invitationEmail) {
       const body = [invitationEmail.html_body || '', invitationEmail.text_body || ''].join('\n');
+      const identity = await page.evaluate((message) => {
+        const htmlText = message.html_body
+          ? new DOMParser().parseFromString(message.html_body, 'text/html').body.textContent ?? ''
+          : '';
+        const identityLines = (message.text_body || '')
+          .split(/\r?\n/)
+          .filter((line) => /\b(?:Sigra|Kiln)\b/i.test(line));
+        return { htmlText, identityLines };
+      }, invitationEmail);
+      expect(identity.htmlText).not.toMatch(/\b(?:Sigra|Kiln)\b/i);
+      expect(identity.identityLines.every((line) => line.trim() === 'Authentication by Sigra')).toBe(true);
       const match = body.match(/https?:\/\/[^\s"'<>]*\/invitations\/[^\s"'<>]*\/accept/);
 
       if (match) {
@@ -188,6 +213,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   // --- Step 1: Register ---
   await page.goto('/users/register');
   await waitForLiveViewReady(page);
+  await assertHostAuthSurface(page);
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
   // Wait for the server-rendered strength label so the phx-change validation has landed before submit.
@@ -216,6 +242,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   // example app's configured return path which may not be Branch A.
   await page.goto('/organizations');
   await waitForLiveViewReady(page);
+  await assertHostAuthSurface(page);
   await expect(page).toHaveURL(/\/organizations$/);
   await expect(
     page.getByRole('heading', { name: 'Create your first organization' }),
@@ -243,6 +270,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
     new RegExp(`/organizations/${firstOrgSlug}/members$`),
   );
   await waitForLiveViewReady(page);
+  await assertHostAuthSurface(page);
 
   // --- Step 7: Switcher chip shows active org + Owner badge ---
   // The switcher renders only when current_scope.active_organization is
@@ -254,10 +282,10 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   const switcherTrigger = switcherDetails.locator('summary');
   await expect(switcherTrigger).toBeVisible();
   await expect(switcherTrigger).toContainText(firstOrgName);
-  // Role pill is a <span class="vt-status-pill vt-status-pill--ok">Owner</span>
+  // Role pill uses the neutral host-auth status class.
   // inside the trigger summary. The Elixir helper renders literal "Owner".
   await expect(
-    switcherTrigger.locator('.vt-status-pill').first(),
+    switcherTrigger.locator('.sigra-auth-status').last(),
   ).toContainText('Owner');
 
   // --- Step 8: Open switcher dropdown, verify menu anatomy ---
@@ -265,7 +293,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   // alert overlay intercepts pointer events on the switcher otherwise.
   await dismissFlash(page);
   await switcherTrigger.click();
-  const switcherMenu = page.locator('#org-switcher .vt-menu__panel');
+  const switcherMenu = page.locator('#org-switcher ul');
   await expect(switcherMenu).toBeVisible();
   await expect(switcherMenu).toContainText('Active');
   // "Switch to" section only exists when there's another org; at this
@@ -426,7 +454,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   await waitForLiveViewReady(page);
   await expect(switcherTrigger).toContainText(renamedOrgName);
   await expect(
-    switcherTrigger.locator('.vt-status-pill').first(),
+    switcherTrigger.locator('.sigra-auth-status').last(),
   ).toContainText('Owner');
 
   // --- Step 18: Copywriting contract spot-checks ---
@@ -435,6 +463,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   // of truth.
   await page.goto(`/organizations/${renamedSlug}/settings`);
   await waitForLiveViewReady(page);
+  await assertHostAuthSurface(page);
   await expect(
     page.getByText('Soft-delete this organization. Members lose access immediately.'),
   ).toBeVisible();
@@ -470,6 +499,7 @@ test('organization invitations: new user accepts through the mailbox signup path
   try {
     await inviteePage.goto(invitationHref);
     await waitForLiveViewReady(inviteePage);
+    await assertHostAuthSurface(inviteePage);
     await expect(inviteePage.locator('#invitation-accept-signup')).toBeVisible();
     await expect(inviteePage.getByLabel('Email')).toHaveValue(inviteeEmail);
     await expect(inviteePage.getByLabel('Email')).toBeDisabled();

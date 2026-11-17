@@ -25,6 +25,10 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
 
   @root Path.expand("../../..", __DIR__)
   @baseline_path Path.join(@root, "test/fixtures/brand/frozen-surface.json")
+  @msgid_rename_table Path.join(
+                        @root,
+                        ".planning/phases/262-words-and-layout/262-MSGID-RENAME-TABLE.md"
+                      )
   @schema_version "sigra.brand-frozen-surface/v1"
   @extend_env "SIGRA_BRAND_BASELINE"
   @extend_command "SIGRA_BRAND_BASELINE=extend mix test test/sigra/brand/frozen_surface_test.exs"
@@ -51,6 +55,7 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
     css_custom_properties_sigra_auth
     data_testids
     gettext_domains
+    gettext_msgids_by_surface
     installer_targets
     profile_defaults
     routes
@@ -210,7 +215,7 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
       assert baseline["categories"] |> Map.keys() |> Enum.sort() == Enum.sort(@categories)
     end
 
-    for category <- @categories do
+    for category <- Enum.reject(@categories, &(&1 == "gettext_msgids_by_surface")) do
       test "#{category}: baseline is a subset of the current surface" do
         category = unquote(category)
         baseline = baseline_names!(category)
@@ -220,7 +225,9 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
 
         assert removed == [], removal_message(category, removed)
       end
+    end
 
+    for category <- @categories do
       test "#{category}: baseline and current surface are both non-empty" do
         category = unquote(category)
 
@@ -229,6 +236,33 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
 
         assert extract(category) != [],
                "extractor for #{category} found nothing: its source path moved or the pattern drifted"
+      end
+    end
+
+    test "gettext msgids stay frozen per template except for the approved rename table" do
+      baseline = baseline_names!("gettext_msgids_by_surface")
+      current = extract("gettext_msgids_by_surface")
+      removed = missing(baseline, current)
+
+      allowed_removed =
+        @msgid_rename_table
+        |> File.read!()
+        |> msgid_rename_rows()
+        |> Enum.map(fn {file, _surface, old_msgid, _new_msgid} -> "#{file} :: #{old_msgid}" end)
+        |> Enum.filter(&(&1 in baseline and &1 not in current))
+        |> Enum.uniq()
+        |> Enum.sort()
+
+      assert removed == allowed_removed,
+             "unlisted generated msgids were removed or renamed: #{inspect(removed -- allowed_removed)}"
+
+      for {file, surface, old_msgid, new_msgid} <-
+            @msgid_rename_table |> File.read!() |> msgid_rename_rows() do
+        old = "#{file} :: #{old_msgid}"
+        new = "#{file} :: #{new_msgid}"
+
+        assert new in current, "#{surface} is missing approved msgid #{inspect(new_msgid)}"
+        refute old in current, "#{surface} still uses renamed msgid #{inspect(old_msgid)}"
       end
     end
 
@@ -350,8 +384,8 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
     |> Enum.sort()
   end
 
-  # Only the domain is frozen, never the msgids: ADR 005 allows targeted msgid
-  # renames through a rename table.
+  # Keep the domain as a stable category; the per-template msgid ratchet below
+  # allows only the targeted renames recorded in ADR 005's phase table.
   defp extract("gettext_domains") do
     @template_roots
     |> repo_texts()
@@ -382,6 +416,39 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
           do: "#{source} -> #{target}"
 
     Enum.sort(targets)
+  end
+
+  defp extract("gettext_msgids_by_surface") do
+    @template_roots
+    |> Enum.flat_map(fn glob ->
+      glob
+      |> Path.wildcard()
+      |> Enum.filter(&(File.regular?(&1) and Path.extname(&1) in [".ex", ".exs"]))
+      |> Enum.flat_map(fn path ->
+        relative = Path.relative_to(path, "priv/templates/sigra.install")
+
+        path
+        |> File.read!()
+        |> capture_all(~r/dgettext\(\s*"sigra"\s*,\s*"((?:[^"\\]|\\.)*)"/s)
+        |> Enum.map(&"#{relative} :: #{&1}")
+      end)
+    end)
+    |> Enum.uniq()
+    |> Enum.sort()
+  end
+
+  defp msgid_rename_rows(contents) do
+    contents
+    |> String.split("\n")
+    |> Enum.flat_map(fn line ->
+      case Regex.run(~r/^\| `([^`]+)` \| ([^|]+) \| `([^`]+)` \| `([^`]+)` \|/, line) do
+        [_, file, surface, old_msgid, new_msgid] ->
+          [{file, String.trim(surface), old_msgid, new_msgid}]
+
+        _ ->
+          []
+      end
+    end)
   end
 
   defp encode_default(key, value), do: "#{key}=" <> inspect(value)

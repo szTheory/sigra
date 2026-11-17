@@ -14,7 +14,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
       `pending-invitations-section` `<section>`, which falls back to an
       empty-state card when `@pending_count == 0`.
     * Row mutations (role change, remove) funnel through native `<dialog
-      class="modal">` confirmation modals. The modal stays open when the
+      class="sigra-auth-section">` confirmation modals. The modal stays open when the
       server returns `{:error, :last_owner}` and renders an inline error above
       the form.
     * Removal relies on the `remove_member/2` library Multi, which
@@ -372,26 +372,26 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
       </:actions>
     </.header>
 
-    <section id="members-section" class="overflow-x-auto">
+    <section id="members-section" class="sigra-auth-stack">
       <.table id="members-table" rows={@streams.members}>
         <:col :let={{_dom_id, m}} label="Email">{m.user.email}</:col>
         <:col :let={{_dom_id, m}} label="Role">
-          <span class={["badge", role_badge_class(m.role)]}>{humanize_role(m.role)}</span>
+          <span class="sigra-auth-status">{humanize_role(m.role)}</span>
         </:col>
         <:col :let={{_dom_id, _m}} label="Status">
-          <span class="badge badge-ghost">Active</span>
+          <span class="sigra-auth-status">Active</span>
         </:col>
         <:col :let={{_dom_id, m}} label="Joined">{relative_time(m.inserted_at)}</:col>
         <:col :let={{_dom_id, m}} label="Last active">
           {if m.__last_active__, do: relative_time(m.__last_active__), else: "Never"}
         </:col>
         <:action :let={{_dom_id, m}}>
-          <details class="dropdown dropdown-end">
-            <summary class="btn btn-ghost btn-xs">
-              <.icon name="hero-ellipsis-horizontal" class="size-4" />
+          <details class="sigra-auth-disclosure">
+            <summary class="sigra-auth-action sigra-auth-action--secondary sigra-auth-action--small">
+              <.icon name="hero-ellipsis-horizontal" class="sigra-auth-icon" />
               <span class="sr-only">Member actions</span>
             </summary>
-            <ul class="menu dropdown-content bg-base-100 rounded-box z-10 w-40 p-1 shadow">
+            <ul class="sigra-auth-stack sigra-auth-section">
               <li>
                 <button type="button" phx-click="open_role_modal" phx-value-id={m.id}>
                   Change role
@@ -400,7 +400,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
               <li>
                 <button
                   type="button"
-                  class="text-error"
+                  class="sigra-auth-copy--danger"
                   phx-click="open_remove_modal"
                   phx-value-id={m.id}
                 >
@@ -412,27 +412,27 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
         </:action>
       </.table>
 
-      <.button :if={@has_more} phx-click="load_more" class="mt-4">
+      <.button :if={@has_more} phx-click="load_more" class="sigra-auth-action sigra-auth-action--secondary">
         Load more
       </.button>
     </section>
 
-    <section id="pending-invitations-section" class="mt-8">
+    <section id="pending-invitations-section" class="sigra-auth-stack">
       <.header>
         Pending invitations ({@pending_count})
       </.header>
 
       <%= if @pending_count == 0 do %>
-        <div class="card bg-base-200 p-6 text-center text-sm text-base-content/70">
+        <div class="sigra-auth-empty sigra-auth-copy--center">
           No pending invitations. Click <strong>Invite member</strong>
           above to invite someone.
         </div>
       <% else %>
-        <div class="overflow-x-auto">
+        <div class="sigra-auth-stack">
           <.table id="pending-invitations-table" rows={@streams.pending_invitations}>
             <:col :let={{_dom_id, inv}} label="Email">{inv.email}</:col>
             <:col :let={{_dom_id, inv}} label="Role">
-              <span class={["badge badge-sm", role_badge_class(inv.role)]}>
+              <span class="sigra-auth-status">
                 {humanize_role(inv.role)}
               </span>
             </:col>
@@ -440,7 +440,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
               {invited_by_email(inv)}
             </:col>
             <:col :let={{_dom_id, inv}} label="Expires">
-              <span class="text-sm text-base-content/70">
+              <span class="sigra-auth-copy sigra-auth-copy--muted">
                 {invitation_expires_relative(inv.expires_at)}
               </span>
             </:col>
@@ -448,7 +448,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
               <button
                 :if={owner_or_admin?(@current_scope)}
                 type="button"
-                class="btn btn-ghost btn-xs text-error"
+                class="sigra-auth-action sigra-auth-action--danger sigra-auth-action--small"
                 phx-click="open_revoke_modal"
                 phx-value-id={inv.id}
                 aria-label={"Revoke invitation for #{inv.email}"}
@@ -461,17 +461,17 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
       <% end %>
     </section>
 
-    <dialog id="invite-member-modal" class="modal" phx-hook="DialogModal">
-      <div class="modal-box">
-        <h3 class="text-lg font-semibold">Invite a member</h3>
-        <p class="text-sm text-base-content/70 mt-2">
+    <dialog id="invite-member-modal" class="sigra-auth-section" phx-hook="DialogModal">
+      <div class="sigra-auth-stack">
+        <h3 class="sigra-auth-heading">Invite a member</h3>
+        <p class="sigra-auth-copy sigra-auth-copy--muted">
           Send an invitation to join {@current_scope.active_organization.name}.
           They will receive an email with a secure accept link.
         </p>
 
-        <.form for={@invite_form} phx-submit="invite_member" class="mt-4 space-y-4">
-          <label class="form-control w-full">
-            <span class="label-text">Email address</span>
+        <.form for={@invite_form} phx-submit="invite_member" class="sigra-auth-stack sigra-auth-stack--4">
+          <label class="sigra-auth-stack">
+            <span class="sigra-auth-copy--muted">Email address</span>
             <input
               type="email"
               name="invitation[email]"
@@ -480,15 +480,15 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
               required
               autocomplete="off"
               phx-debounce="300"
-              class="input input-bordered w-full"
+              class="sigra-auth-grow"
             />
           </label>
 
-          <label class="form-control w-full">
-            <span class="label-text">Role</span>
+          <label class="sigra-auth-stack">
+            <span class="sigra-auth-copy--muted">Role</span>
             <select
               name="invitation[role]"
-              class="select select-bordered w-full"
+              class="sigra-auth-grow"
             >
               <option value="member">Member — can access the organization</option>
               <option value="admin">Admin — can invite and manage members</option>
@@ -496,13 +496,13 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
             </select>
           </label>
 
-          <div class="modal-action">
-            <button type="button" class="btn btn-ghost" phx-click="cancel_invite">
+          <div class="sigra-auth-cluster">
+            <button type="button" class="sigra-auth-action sigra-auth-action--secondary" phx-click="cancel_invite">
               Cancel
             </button>
             <button
               type="submit"
-              class="btn btn-primary"
+              class="sigra-auth-action sigra-auth-action--primary"
               phx-disable-with="Sending..."
             >
               Send invitation
@@ -510,15 +510,15 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
           </div>
         </.form>
       </div>
-      <form method="dialog" class="modal-backdrop"><button>close</button></form>
+      <form method="dialog" class="sigra-auth-hidden"><button>close</button></form>
     </dialog>
 
-    <dialog id="revoke-invitation-modal" class="modal" phx-hook="DialogModal">
-      <div class="modal-box">
-        <h3 class="text-lg font-semibold">Revoke invitation?</h3>
+    <dialog id="revoke-invitation-modal" class="sigra-auth-section" phx-hook="DialogModal">
+      <div class="sigra-auth-stack">
+        <h3 class="sigra-auth-heading">Revoke invitation?</h3>
 
         <%= if @revoking_invitation do %>
-          <p class="text-sm mt-2">
+          <p class="sigra-auth-copy">
             Revoke the invitation for
             <strong>{@revoking_invitation.email}</strong>? They will no longer be able to join
             <strong>{@current_scope.active_organization.name}</strong>
@@ -526,13 +526,13 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
           </p>
         <% end %>
 
-        <div class="modal-action">
-          <button type="button" class="btn btn-ghost" phx-click="cancel_revoke">
+        <div class="sigra-auth-cluster">
+          <button type="button" class="sigra-auth-action sigra-auth-action--secondary" phx-click="cancel_revoke">
             Cancel
           </button>
           <button
             type="button"
-            class="btn btn-error"
+            class="sigra-auth-action sigra-auth-action--danger"
             phx-click="confirm_revoke"
             phx-value-id={@revoking_invitation && @revoking_invitation.id}
             phx-disable-with="Revoking..."
@@ -541,66 +541,66 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
           </button>
         </div>
       </div>
-      <form method="dialog" class="modal-backdrop"><button>close</button></form>
+      <form method="dialog" class="sigra-auth-hidden"><button>close</button></form>
     </dialog>
 
-    <dialog id="confirm-role-modal" class="modal" phx-hook="DialogModal">
+    <dialog id="confirm-role-modal" class="sigra-auth-section" phx-hook="DialogModal">
       <%= if match?({:role, _}, @pending_action) do %>
         <% {:role, m} = @pending_action %>
-        <div class="modal-box">
-          <h3 class="text-lg font-semibold">Change {m.user.email}'s role?</h3>
+        <div class="sigra-auth-stack">
+          <h3 class="sigra-auth-heading">Change {m.user.email}'s role?</h3>
 
           <%= if @role_modal_error do %>
-            <p class="text-error mt-2 text-sm" role="alert">{@role_modal_error}</p>
+            <p class="sigra-auth-copy sigra-auth-copy--danger" role="alert">{@role_modal_error}</p>
           <% end %>
 
-          <form phx-submit="change_role" class="mt-4 space-y-4">
-            <label class="form-control w-full">
-              <span class="label-text">New role</span>
-              <select name="role" class="select select-bordered w-full">
+          <form phx-submit="change_role" class="sigra-auth-stack sigra-auth-stack--4">
+            <label class="sigra-auth-stack">
+              <span class="sigra-auth-copy--muted">New role</span>
+              <select name="role" class="sigra-auth-grow">
                 <option value="owner" selected={m.role == :owner}>Owner</option>
                 <option value="admin" selected={m.role == :admin}>Admin</option>
                 <option value="member" selected={m.role == :member}>Member</option>
               </select>
             </label>
 
-            <div class="modal-action">
-              <button type="submit" class="btn btn-primary">Change role</button>
-              <button type="button" class="btn btn-ghost" phx-click="cancel_action">
+            <div class="sigra-auth-cluster">
+              <button type="submit" class="sigra-auth-action sigra-auth-action--primary">Change role</button>
+              <button type="button" class="sigra-auth-action sigra-auth-action--secondary" phx-click="cancel_action">
                 Cancel
               </button>
             </div>
           </form>
         </div>
-        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        <form method="dialog" class="sigra-auth-hidden"><button>close</button></form>
       <% end %>
     </dialog>
 
-    <dialog id="confirm-remove-modal" class="modal" phx-hook="DialogModal">
+    <dialog id="confirm-remove-modal" class="sigra-auth-section" phx-hook="DialogModal">
       <%= if match?({:remove, _}, @pending_action) do %>
         <% {:remove, m} = @pending_action %>
-        <div class="modal-box">
-          <h3 class="text-lg font-semibold">
+        <div class="sigra-auth-stack">
+          <h3 class="sigra-auth-heading">
             Remove {m.user.email} from {@current_scope.active_organization.name}?
           </h3>
-          <p class="py-2 text-sm">
+          <p class="sigra-auth-copy">
             {m.user.email} will be signed out of this organization immediately. You can re-invite them later.
           </p>
 
           <%= if @remove_modal_error do %>
-            <p class="text-error mt-2 text-sm" role="alert">{@remove_modal_error}</p>
+            <p class="sigra-auth-copy sigra-auth-copy--danger" role="alert">{@remove_modal_error}</p>
           <% end %>
 
           <form phx-submit="remove_member">
-            <div class="modal-action">
-              <button type="submit" class="btn btn-error">Remove member</button>
-              <button type="button" class="btn btn-ghost" phx-click="cancel_action">
+            <div class="sigra-auth-cluster">
+              <button type="submit" class="sigra-auth-action sigra-auth-action--danger">Remove member</button>
+              <button type="button" class="sigra-auth-action sigra-auth-action--secondary" phx-click="cancel_action">
                 Cancel
               </button>
             </div>
           </form>
         </div>
-        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        <form method="dialog" class="sigra-auth-hidden"><button>close</button></form>
       <% end %>
     </dialog>
     """
@@ -684,12 +684,6 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationMembersLive do
   defp safe_role_atom("admin"), do: {:ok, :admin}
   defp safe_role_atom("member"), do: {:ok, :member}
   defp safe_role_atom(_other), do: {:error, :invalid_role}
-
-  # Role badge variants.
-  defp role_badge_class(:owner), do: "badge-primary"
-  defp role_badge_class(:admin), do: "badge-neutral"
-  defp role_badge_class(:member), do: "badge-ghost"
-  defp role_badge_class(_), do: "badge-ghost"
 
   defp humanize_role(:owner), do: "Owner"
   defp humanize_role(:admin), do: "Admin"

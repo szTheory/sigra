@@ -2,7 +2,7 @@ defmodule Sigra.Admin.Components do
   @moduledoc """
   Lib-owned canonical admin component set for Sigra's admin LiveViews.
 
-  Provides 16 flat, stateless `Phoenix.Component` function components that consolidate
+  Provides 17 flat, stateless `Phoenix.Component` function components that consolidate
   the duplicated admin chrome across LiveViews. Security-critical design and a11y fixes
   propagate to host apps via `mix deps.update` (D-05).
 
@@ -18,7 +18,7 @@ defmodule Sigra.Admin.Components do
     - `task_card/1` — Verb-first action prompt with CTA
     - `summary_chip/1` — Non-interactive aggregate posture badge
     - `applied_chip/1` — Active filter indicator with remove affordance
-    - `empty_state/1` — Dashed centred zero-rows placeholder
+    - `empty_state/1` — Dashed centred zero-rows placeholder; `status_mark/1` — User status square with its visible status word
     - `page_back/1` — Single-step back to list
     - `scope_ribbon/1` — Persistent in-body scope indicator
     - `notice/1` — Block-level toned contextual alert
@@ -1096,7 +1096,7 @@ defmodule Sigra.Admin.Components do
                 <p>Use a magic link, passkey, password, or enterprise SSO.</p>
                 <div class="sigra-auth-preview-form">
                   <label>Email<input type="email" value="alex@example.com" /></label>
-                  <button type="button" class="btn btn-primary w-full">Send magic link</button>
+                  <button type="button" class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">Send magic link</button>
                 </div>
               </div>
             </div>
@@ -1196,7 +1196,11 @@ defmodule Sigra.Admin.Components do
   def session_type(%{type: type}), do: to_string(type)
 
   @doc false
-  def activity_value(%DateTime{} = at), do: Calendar.strftime(at, "%Y-%m-%d %H:%M")
+  def activity_value(%DateTime{} = at) do
+    at
+    |> DateTime.shift_zone!("Etc/UTC")
+    |> Calendar.strftime("%Y-%m-%d %-I:%M %p %Z")
+  end
 
   @doc false
   def activity_value(_), do: "Not available"
@@ -1220,4 +1224,116 @@ defmodule Sigra.Admin.Components do
   @doc false
   def pluralize(1, label), do: "1 #{label}"
   def pluralize(count, label), do: "#{count} #{label}s"
+
+  # ---------------------------------------------------------------------------
+  # status_mark/1
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders a user's primary status with its word and brand-book square geometry.
+
+  The visible word remains present in the HTML, so status meaning does not depend
+  on color or an SVG glyph.
+  """
+  attr :status, :atom,
+    required: true,
+    values: [:active, :unconfirmed, :locked, :deleting, :suspended],
+    doc: "the primary user status represented by the mark"
+
+  attr :size, :atom,
+    default: :list,
+    values: [:list, :detail],
+    doc: "the context size for list rows or user detail"
+
+  def status_mark(assigns) do
+    assigns = assign(assigns, :label, status_label(assigns.status))
+
+    ~H"""
+    <span
+      class={if(@size == :detail, do: "sg-status-mark sg-status-mark--detail", else: "sg-status-mark")}
+      data-status={@status}
+    >
+      <svg
+        class="sg-status-mark__glyph"
+        viewBox="0 0 20 20"
+        width="20"
+        height="20"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <%= case @status do %>
+          <% :active -> %>
+            <rect x="2" y="2" width="16" height="16" rx="1.25" fill="currentColor" />
+            <path
+              d="m6 10 2.5 2.5L14 7"
+              fill="none"
+              stroke="var(--sg-color-panel)"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          <% :unconfirmed -> %>
+            <rect
+              x="2.75"
+              y="2.75"
+              width="14.5"
+              height="14.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-dasharray="2 2"
+            />
+            <rect x="8" y="8" width="4" height="4" fill="currentColor" />
+          <% :locked -> %>
+            <rect x="2" y="2" width="16" height="16" rx="1.25" fill="currentColor" />
+            <path d="M5 9.25h10v1.5H5z" fill="var(--sg-color-panel)" />
+          <% :deleting -> %>
+            <rect
+              x="2.75"
+              y="2.75"
+              width="14.5"
+              height="14.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path d="M10 3.5h6.5V10H10z" fill="currentColor" />
+          <% :suspended -> %>
+            <rect
+              x="2.75"
+              y="2.75"
+              width="14.5"
+              height="14.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path d="M5 7.25h10v1.5H5zM5 11.25h10v1.5H5z" fill="currentColor" />
+        <% end %>
+      </svg>
+      {@label}
+    </span>
+    """
+  end
+
+  @doc false
+  def status_for_user(user) when is_map(user) do
+    cond do
+      scheduled_deletion?(user) -> :deleting
+      not is_nil(Map.get(user, :locked_at)) -> :locked
+      is_nil(Map.get(user, :confirmed_at)) -> :unconfirmed
+      true -> :active
+    end
+  end
+
+  defp scheduled_deletion?(user) do
+    not is_nil(Map.get(user, :deleted_at)) and
+      not is_nil(Map.get(user, :scheduled_deletion_at))
+  end
+
+  defp status_label(:active), do: "Active"
+  defp status_label(:unconfirmed), do: "Unconfirmed"
+  defp status_label(:locked), do: "Locked"
+  defp status_label(:deleting), do: "Deletion scheduled"
+  defp status_label(:suspended), do: "Suspended"
 end

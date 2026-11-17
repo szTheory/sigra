@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 import { extractConfirmationLink } from "../fixtures/mailbox";
 
 async function waitForLiveViewReady(page: Parameters<typeof test>[0]["page"]) {
@@ -121,8 +122,9 @@ async function enrollPasskeyFromSettings(
 test.describe("passkey-primary login fallback smoke", () => {
   test("keeps identifier, password, and magic-link fallback visible on the real login page", async ({
     page,
-  }) => {
+  }, testInfo) => {
     await page.goto("/users/log_in");
+    await expect(page.locator("body")).not.toContainText(/\b(?:Sigra|Kiln)\b/i);
 
     const runtimeState = await page.evaluate(() => {
       const runtime = (
@@ -160,6 +162,19 @@ test.describe("passkey-primary login fallback smoke", () => {
     });
 
     await expect(page.locator("#passkey_login_form")).toBeVisible();
+    const fieldAssociations = await page.locator("[data-testid=tasklane-login] input[type=email]").evaluateAll((inputs) =>
+      inputs.map((input) => {
+        const label = Array.from(document.querySelectorAll("label")).find(
+          (candidate) => candidate.control === input,
+        );
+        return { id: input.id, label: label?.textContent?.trim() ?? null };
+      }),
+    );
+    expect(new Set(fieldAssociations.map(({ id }) => id)).size).toBe(
+      fieldAssociations.length,
+    );
+    expect(fieldAssociations.length).toBeGreaterThanOrEqual(2);
+    expect(fieldAssociations.every(({ id, label }) => Boolean(id && label))).toBe(true);
     await expect(
       page.locator('input[autocomplete="username webauthn"]'),
     ).toBeVisible();
@@ -169,6 +184,56 @@ test.describe("passkey-primary login fallback smoke", () => {
       page.getByText("We couldn't finish passkey sign-in"),
     ).toHaveCount(0);
     await expect(page.getByText("Email me a magic link")).toBeVisible();
+
+    await page.locator("[data-testid=tasklane-login]").evaluate((root) => {
+      const productName = root.querySelector(".vt-brand__name");
+      if (productName) {
+        productName.textContent =
+          "A Product Name Long Enough to Wrap Across Several Lines";
+      }
+    });
+    const { violations } = await new AxeBuilder({ page })
+      .include("[data-testid=tasklane-login]")
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .analyze();
+    expect(
+      violations,
+      `passkey login axe violations: ${JSON.stringify(violations).slice(0, 2000)}`,
+    ).toHaveLength(0);
+
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.locator("html").evaluate((element) => {
+      element.style.fontSize = "32px";
+    });
+    await page.locator('[data-testid="demo-bar"]').evaluate((bar) => bar.remove());
+    const reflow = await page.evaluate(() => {
+      const root = document.querySelector("[data-testid=tasklane-login]");
+      const productName = root?.querySelector(".vt-brand__name");
+      const range = document.createRange();
+      if (productName?.firstChild) range.selectNodeContents(productName);
+      return {
+        viewportWidth: window.innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        productLines: range.getClientRects().length,
+        controls: Array.from(
+          root?.querySelectorAll("input[type=email], button") ?? [],
+        ).map((control) => {
+          const rect = control.getBoundingClientRect();
+          return {
+            visible: rect.width > 0 && rect.height > 0,
+            insideViewport: rect.left >= 0 && rect.right <= window.innerWidth,
+          };
+        }).filter(({ visible }) => visible),
+      };
+    });
+    expect(reflow.scrollWidth, JSON.stringify(reflow)).toBeLessThanOrEqual(
+      reflow.viewportWidth,
+    );
+    expect(reflow.productLines).toBeGreaterThan(1);
+    expect(reflow.controls.every(({ visible, insideViewport }) => visible && insideViewport)).toBe(true);
+    await expect(page.getByRole("heading", { name: "Log in to Tasklane" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Use a passkey" })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath("passkey-login-320-200-reflow.png") });
     expect(runtimeState).toEqual({
       hasRuntime: true,
       registerMountedType: "function",

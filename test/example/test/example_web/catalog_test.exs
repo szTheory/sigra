@@ -51,9 +51,9 @@ defmodule ExampleWeb.CatalogTest do
   pin, or that equals the run day, fails the dump and names the page and the token.
   A failure means another displayed column has to join the pin set.
 
-  Run (the example suite is not part of `mix ci`):
+  Run with the local test Postgres defaults (the example suite is not part of `mix ci`):
 
-      source tmp/db.env && cd test/example && MIX_ENV=test \\
+      cd test/example && PGUSER=postgres PGPASSWORD=postgres PGHOST=localhost MIX_ENV=test \\
         SIGRA_CATALOG_RAW_DIR="$(git rev-parse --show-toplevel)/tmp/catalog-raw" \\
         mix test --include example_app test/example_web/catalog_test.exs
   """
@@ -120,16 +120,17 @@ defmodule ExampleWeb.CatalogTest do
     admin-user-show-zero-state
     admin-users-index
   )
+  # Keep 4b review states in the approved order before the 4a support pages.
   # Page groups, each identified by its slug prefix.
   @groups [
+    user_audit: "admin-user-audit-",
     overview: "admin-overview",
+    audit: "admin-audit-index",
+    org: "admin-org-",
+    branding: "admin-auth-branding",
     users: "admin-users-index",
     user_show: "admin-user-show-",
-    user_sessions: "admin-user-sessions-",
-    user_audit: "admin-user-audit-",
-    audit: "admin-audit-index",
-    branding: "admin-auth-branding",
-    org: "admin-org-"
+    user_sessions: "admin-user-sessions-"
   ]
   @email_shape ~r/[A-Za-z0-9._+-]+@[A-Za-z0-9-]+\.[A-Za-z0-9.-]+/
 
@@ -192,9 +193,24 @@ defmodule ExampleWeb.CatalogTest do
     test("user detail, one page per account state", ctx, do: assert_group!(ctx, :user_show))
     test("user sessions, one page per account state", ctx, do: assert_group!(ctx, :user_sessions))
     test("user audit, one page per account state", ctx, do: assert_group!(ctx, :user_audit))
-    test("audit index", ctx, do: assert_group!(ctx, :audit))
+
+    test "audit index", ctx do
+      html = ctx |> assert_group!(:audit) |> Map.fetch!("admin-audit-index")
+
+      assert html =~ ~s(data-testid="admin-audit-desktop-results")
+      assert html =~ "Export CSV"
+      refute html =~ "No audit events yet."
+    end
+
     test("auth branding", ctx, do: assert_group!(ctx, :branding))
-    test("organization", ctx, do: assert_group!(ctx, :org))
+
+    test "organization overview keeps scoped copy and populated member states", ctx do
+      html = ctx |> assert_group!(:org) |> Map.fetch!("admin-org-#{owner_org(ctx).handle}")
+
+      assert html =~ "Members, audit events, and invitations stay within this organization."
+      assert html =~ "Members"
+      assert html =~ "Pending invitations"
+    end
   end
 
   describe "the whole tier-2 set" do

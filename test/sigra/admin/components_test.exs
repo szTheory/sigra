@@ -316,6 +316,51 @@ defmodule Sigra.Admin.ComponentsTest do
     assert html =~ ~s(href="/admin/users?role=")
   end
 
+  describe "status_mark/1" do
+    test "keeps each runtime status word visible without style classes" do
+      for {status, label} <- [
+            {:active, "Active"},
+            {:unconfirmed, "Unconfirmed"},
+            {:locked, "Locked"},
+            {:deleting, "Deletion scheduled"}
+          ] do
+        html = render_component(&Components.status_mark/1, status: status)
+        classless_html = Regex.replace(~r/\sclass="[^"]*"/, html, "")
+        visible_text = classless_html |> String.replace(~r/<[^>]+>/, "") |> String.trim()
+
+        assert html =~ ~s(data-status="#{status}")
+        assert visible_text == label
+      end
+    end
+
+    test "derives one status from persisted fields in the documented precedence" do
+      now = ~U[2026-06-04 12:30:00Z]
+
+      assert Components.status_for_user(%{
+               deleted_at: now,
+               scheduled_deletion_at: now,
+               locked_at: now,
+               confirmed_at: nil
+             }) == :deleting
+
+      assert Components.status_for_user(%{deleted_at: nil, locked_at: now, confirmed_at: nil}) ==
+               :locked
+
+      assert Components.status_for_user(%{deleted_at: nil, locked_at: nil, confirmed_at: nil}) ==
+               :unconfirmed
+
+      assert Components.status_for_user(%{deleted_at: nil, locked_at: nil, confirmed_at: now}) ==
+               :active
+    end
+
+    test "falls back safely when an adopter schema has no scheduled-deletion field" do
+      now = ~U[2026-06-04 12:30:00Z]
+
+      assert Components.status_for_user(%{deleted_at: now, locked_at: nil, confirmed_at: now}) ==
+               :active
+    end
+  end
+
   test "empty_state renders contract empty state copy faithfully" do
     html =
       render_component(&Components.empty_state/1,
@@ -733,5 +778,20 @@ defmodule Sigra.Admin.ComponentsTest do
 
     assert html =~ ~s(href="/admin/audit?cursor=previous-cursor")
     refute html =~ ~s(href="/admin/audit?cursor=next-cursor")
+  end
+
+  test "activity_value renders equivalent offsets as the same UTC instant" do
+    utc = ~U[2025-02-02 14:07:00Z]
+    plus_two = %{utc | hour: 16, utc_offset: 7_200, time_zone: "UTC+02", zone_abbr: "+02"}
+    minus_five = %{utc | hour: 9, utc_offset: -18_000, time_zone: "UTC-05", zone_abbr: "-05"}
+    expected = "2025-02-02 2:07 PM UTC"
+
+    assert Components.activity_value(utc) == expected
+    assert Components.activity_value(plus_two) == expected
+    assert Components.activity_value(minus_five) == expected
+  end
+
+  test "activity_value keeps the unavailable timestamp fallback" do
+    assert Components.activity_value(nil) == "Not available"
   end
 end

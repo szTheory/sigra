@@ -255,6 +255,7 @@ test("generated auth shell communicates hierarchy and survives theme and reflow 
   await page.goto("/users/log_in");
 
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  await expect(page.locator("body")).not.toContainText(/\b(?:Sigra|Kiln)\b/i);
   await expect(
     page.getByRole("button", { name: "Email me a sign-in link" }),
   ).toBeVisible();

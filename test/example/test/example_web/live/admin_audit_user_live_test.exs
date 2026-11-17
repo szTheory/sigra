@@ -55,6 +55,27 @@ defmodule ExampleWeb.AdminAuditUserLiveTest do
 
       assert html =~ "No scoped events are currently tied to this user.",
              "empty_state body must match per-user copy contract"
+
+      assert html =~ "User audit"
+      assert html =~ "Review recorded activity for this user."
+    end
+
+    test "filtered zero state explains that the selected filters have no matching events", %{
+      conn: conn
+    } do
+      platform_admin = platform_admin_fixture()
+      subject = user_fixture(%{email: "audit-filtered-empty@example.com"})
+
+      html =
+        conn
+        |> log_in_user(platform_admin)
+        |> get("/admin/users/#{subject.id}/audit?action_prefix=admin.impersonation")
+        |> html_response(200)
+
+      assert html =~ "No audit events match these filters for this user"
+      assert html =~ "Adjust or clear the filters to review recorded activity for this user."
+      assert html =~ ~s(aria-current="page")
+      assert html =~ "Impersonation"
     end
   end
 

@@ -111,6 +111,58 @@ defmodule ExampleWeb.AdminUserIndexLiveTest do
       assert html =~ "Page 1 of 2"
       refute html =~ "Showing all 2 users"
     end
+
+    test "status marks reflect the persisted user state in desktop and mobile results", %{
+      conn: conn
+    } do
+      platform_admin = platform_admin_fixture()
+
+      _active =
+        user_fixture(%{email: "status-mark-active@example.com"})
+        |> update_user(%{confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)})
+
+      _unconfirmed = user_fixture(%{email: "status-mark-unconfirmed@example.com"})
+
+      _locked =
+        user_fixture(%{email: "status-mark-locked@example.com"})
+        |> locked_user_fixture()
+
+      _deleting_and_locked =
+        scheduled_deletion_fixture(%{email: "status-mark-deleting@example.com"})
+        |> locked_user_fixture()
+
+      conn = conn |> log_in_user(platform_admin) |> get("/admin/users?q=status-mark")
+      html = html_response(conn, 200)
+      desktop_marker = ~s(data-testid="admin-users-desktop-results")
+      mobile_marker = ~s(data-testid="admin-users-mobile-results")
+      [_, desktop_after_marker] = String.split(html, desktop_marker, parts: 2)
+      [desktop_section, _] = String.split(desktop_after_marker, mobile_marker, parts: 2)
+      [_, mobile_section] = String.split(html, mobile_marker, parts: 2)
+
+      expected_marks =
+        [
+          {"active", "Active"},
+          {"deleting", "Deletion scheduled"},
+          {"locked", "Locked"},
+          {"unconfirmed", "Unconfirmed"}
+        ]
+        |> Enum.sort()
+
+      for section <- [desktop_section, mobile_section] do
+        marks =
+          Regex.scan(
+            ~r/<span class="sg-status-mark" data-status="([^"]+)">.*?<svg\b.*?<\/svg>\s*([^<]+)<\/span>/s,
+            section,
+            capture: :all_but_first
+          )
+          |> Enum.map(fn [status, label] -> {status, String.trim(label)} end)
+          |> Enum.sort()
+
+        assert marks == expected_marks
+      end
+
+      refute html =~ "Suspended"
+    end
   end
 
   defp platform_admin_fixture do

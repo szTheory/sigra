@@ -128,18 +128,13 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
     // strict mode forbids ambiguous `getByRole` clicks, and a single revoke must not assume
     // the list is empty afterward.
     const revokeSession = page.getByRole('button', { name: 'Revoke session' });
-    // New UserSessionsLive confirm copy (no per-target email interpolation) — see
-    // lib/sigra/admin/live/user_sessions_live.ex revoke_session_copy/1. Phase 209-04
-    // (commit 869f1997) rewrote the copy to a security-remediation framing, dropping
-    // the "They can sign in again." reassurance clause.
     const confirmPrompt = page.getByText(
-      'The user will be signed out of this session immediately. If this session was compromised, they must sign in again with verified credentials to re-establish access.',
+      `${targetEmail} will be signed out of this browser or device immediately and must sign in again.`,
     );
-    // The ConfirmDialog's danger button carries the action label "Revoke"; scope the
-    // confirm click to the dialog overlay so it can't collide with per-row triggers.
+    // Keep the action-specific confirmation separate from the per-row trigger.
     const confirmButton = page
       .locator('#user-session-confirm-overlay')
-      .getByRole('button', { name: 'Revoke', exact: true });
+      .getByRole('button', { name: 'Revoke session', exact: true });
 
     while ((await revokeSession.count()) > 0) {
       const before = await revokeSession.count();
@@ -191,5 +186,122 @@ test.describe('Phase 31 admin user operations browser contract (D-04 1/2)', () =
     await expect(page).toHaveURL(new RegExp(`/admin/organizations/${orgSlug}/users/`));
     await expect(page.getByText(`Organization-scoped user operations for ${orgName}`)).toBeVisible();
     await expectScopeChrome(page, orgName);
+  });
+});
+
+test.describe('Phase 262 4a long-content support fixture', () => {
+  const fixtureSuffix = Date.now().toString(36);
+  const longEmail = `support-long-content-review-review-review-${fixtureSuffix}@example.test`;
+  const longOrganizationName =
+    `Support organization for operator teams across regions ${fixtureSuffix}`;
+  const organizationSlug = longOrganizationName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  const adminEmail = `platform-admin+support-long-content-${fixtureSuffix}@example.test`;
+
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext();
+    const setupPage = await context.newPage();
+
+    try {
+      await registerUser(setupPage, longEmail, TEST_PASSWORD);
+      await createOrganization(setupPage, longOrganizationName, organizationSlug);
+
+      await setupPage.goto('/users/settings');
+      await waitForLiveViewReady(setupPage);
+      setupPage.once('dialog', (dialog) => dialog.accept());
+      await setupPage.getByRole('button', { name: 'Delete my account' }).click();
+      await expect(
+        setupPage.getByTestId('settings-delete').locator('.vt-alert'),
+      ).toContainText(/Your account is scheduled for deletion on/);
+
+      await context.clearCookies();
+      await registerUser(setupPage, adminEmail, TEST_PASSWORD);
+    } finally {
+      await context.close();
+    }
+  });
+
+  async function openSupportUser(page: Page) {
+    await logInIfNeeded(page, adminEmail, TEST_PASSWORD);
+    await page.goto(`/admin/users?q=${encodeURIComponent(longEmail)}`);
+    await waitForLiveViewReady(page);
+  }
+
+  test('4a support long-content overflow', async ({ page }) => {
+    await openSupportUser(page);
+
+    const row = page.getByRole('row').filter({ hasText: longEmail });
+    await expect(row).toHaveCount(1);
+    await expect(row.getByTitle(longEmail)).toBeVisible();
+    await expect(row.getByTitle(longOrganizationName)).toBeVisible();
+    await expect(row.locator('[data-status="deleting"]')).toContainText('Deletion scheduled');
+
+    const openUser = row.getByRole('link', { name: 'Open user' });
+    await expect(openUser).toBeVisible();
+
+    const rowContentFits = await row.evaluate((element) => {
+      const rowBounds = element.getBoundingClientRect();
+      const content = element.querySelectorAll('.sg-truncate, .sg-status-mark, .sg-btn');
+      return Array.from(content).every((child) => {
+        const bounds = child.getBoundingClientRect();
+        return bounds.left >= rowBounds.left - 1 && bounds.right <= rowBounds.right + 1;
+      });
+    });
+    expect(rowContentFits, 'identity, organization, status, and action stay within the row').toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test('4a support 320px/200% reflow', async ({ page }) => {
+    await openSupportUser(page);
+    // A 320 CSS-pixel viewport is the 200% zoom reflow target for a 640px desktop viewport.
+    await page.setViewportSize({ width: 320, height: 900 });
+
+    const results = page.getByTestId('admin-users-mobile-results');
+    await expect(results).toBeVisible();
+    const card = results.locator('article').filter({ hasText: longEmail });
+    await expect(card).toHaveCount(1);
+    await expect(card.getByTitle(longEmail)).toBeVisible();
+    await expect(card.getByText('Organizations', { exact: true })).toBeVisible();
+    await expect(card.getByTitle(longOrganizationName)).toBeVisible();
+    await expect(card.locator('[data-status="deleting"]')).toContainText('Deletion scheduled');
+
+    const openUser = card.getByRole('link', { name: 'Open user' });
+    await expect(openUser).toBeVisible();
+    const cardOverflow = await card.evaluate((element) => {
+      const cardBounds = element.getBoundingClientRect();
+      const content = element.querySelectorAll('.sg-truncate, .sg-status-mark, .sg-btn');
+      return Array.from(content).flatMap((child) => {
+        const bounds = child.getBoundingClientRect();
+        if (bounds.left >= cardBounds.left - 1 && bounds.right <= cardBounds.right + 1) return [];
+        return [
+          {
+            className: child.className,
+            text: child.textContent?.trim(),
+            left: bounds.left,
+            right: bounds.right,
+            cardLeft: cardBounds.left,
+            cardRight: cardBounds.right,
+          },
+        ];
+      });
+    });
+    expect(
+      cardOverflow,
+      'identity, organization, status, and action stay within the card: ' + JSON.stringify(cardOverflow),
+    ).toEqual([]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+    await openUser.focus();
+    await expect(openUser).toBeFocused();
+    await page.keyboard.press('Enter');
+    await waitForLiveViewReady(page);
+    await expect(page).toHaveURL(/\/admin\/users\/[^?]+/);
+    await expect(
+      page.getByRole('heading', { level: 1, name: longEmail, exact: true }),
+    ).toBeVisible();
+    await expect(page.getByText(longOrganizationName, { exact: true })).toBeVisible();
+    await expect(page.locator('[data-status="deleting"]')).toContainText('Deletion scheduled');
   });
 });

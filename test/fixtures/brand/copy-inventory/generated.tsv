@@ -66,10 +66,10 @@ core/confirmation_html.ex	msgid	Confirmation link expired
 core/confirmation_html.ex	msgid	Didn't receive a code?
 core/confirmation_html.ex	msgid	Email already confirmed
 core/confirmation_html.ex	msgid	Enter the 6-digit code we sent to your email, or check your inbox for a confirmation link.
-core/confirmation_html.ex	msgid	Log in
 core/confirmation_html.ex	msgid	Send new confirmation email
+core/confirmation_html.ex	msgid	Sign in
 core/confirmation_html.ex	msgid	This confirmation link has expired or was already used.
-core/confirmation_html.ex	msgid	Your email was already confirmed. You can log in below.
+core/confirmation_html.ex	msgid	Your email was already confirmed. You can sign in below.
 core/confirmation_live.ex	msgid	A new confirmation email has been sent.
 core/confirmation_live.ex	msgid	Confirm email
 core/confirmation_live.ex	msgid	Confirm that you own this email address.
@@ -82,17 +82,17 @@ core/confirmation_live.ex	msgid	Email already confirmed
 core/confirmation_live.ex	msgid	Email confirmed
 core/confirmation_live.ex	msgid	Enter the 6-digit code we sent to your email, or check your inbox for a confirmation link.
 core/confirmation_live.ex	msgid	Invalid confirmation code. Please try again.
-core/confirmation_live.ex	msgid	Log in
 core/confirmation_live.ex	msgid	Please sign in to confirm your email.
 core/confirmation_live.ex	msgid	Send new confirmation email
 core/confirmation_live.ex	msgid	Sending...
+core/confirmation_live.ex	msgid	Sign in
 core/confirmation_live.ex	msgid	Sign in required
 core/confirmation_live.ex	msgid	This confirmation link has expired or was already used.
 core/confirmation_live.ex	msgid	This confirmation link is invalid or has expired.
 core/confirmation_live.ex	msgid	Too many attempts. Please wait a few minutes before trying again.
 core/confirmation_live.ex	msgid	Your email has been confirmed.
 core/confirmation_live.ex	msgid	Your email is already confirmed.
-core/confirmation_live.ex	msgid	Your email was already confirmed. You can log in below.
+core/confirmation_live.ex	msgid	Your email was already confirmed. You can sign in below.
 core/emails.ex	email_text	Unknown device
 core/emails.ex	msgid	%{inviter} invited you to join %{org}
 core/emails.ex	msgid	%{inviter} invited you to join %{org} as %{role} on %{product}.
@@ -151,7 +151,6 @@ core/emails.ex	msgid	Location:
 core/emails.ex	msgid	Log in to %{app_name}
 core/emails.ex	msgid	Log in to your account
 core/emails.ex	msgid	Log in to your account:
-core/emails.ex	msgid	Log in with %{provider}
 core/emails.ex	msgid	Log in:
 core/emails.ex	msgid	New Passkey Added
 core/emails.ex	msgid	New Sign-In Detected
@@ -172,6 +171,7 @@ core/emails.ex	msgid	Reset your password:
 core/emails.ex	msgid	Role:
 core/emails.ex	msgid	Secure your account
 core/emails.ex	msgid	Secure your account:
+core/emails.ex	msgid	Sign in with %{provider}
 core/emails.ex	msgid	Someone requested to change your %{app_name} account email from this address to %{new_email}. If this was you, no action is needed -- confirm the change from your new email.
 core/emails.ex	msgid	This code expires in 48 hours.
 core/emails.ex	msgid	This link expires in 24 hours.
@@ -210,10 +210,10 @@ core/emails.ex	msgid	Your password was changed
 core/emails.ex	msgid	as
 core/emails.ex	msgid	invited you to join
 core/emails.ex	msgid	on
-core/error_handler.ex	flash	Pick or create an organization to continue.
-core/error_handler.ex	flash	Please re-enter your password to continue.
-core/error_handler.ex	flash	You don't have permission to access this page in the current organization.
-core/error_handler.ex	flash	You must log in to access this page.
+core/error_handler.ex	msgid	Pick or create an organization to continue.
+core/error_handler.ex	msgid	Please re-enter your password to continue.
+core/error_handler.ex	msgid	You don't have permission to access this page in the current organization.
+core/error_handler.ex	msgid	You must log in to access this page.
 core/login_html.ex	msgid	Continue with a passkey
 core/login_html.ex	msgid	Continue with work sign-in
 core/login_html.ex	msgid	Create an account
@@ -231,18 +231,21 @@ core/login_html.ex	msgid	Work email
 core/login_html.ex	msgid	Work sign-in
 core/login_html.ex	msgid	or use a password
 core/login_html.ex	msgid	or use work sign-in
-core/mfa_challenge_controller.ex	flash	Invalid verification code. #{remaining} attempts remaining.
-core/mfa_challenge_controller.ex	flash	MFA is not enabled on your account.
-core/mfa_challenge_controller.ex	flash	Too many failed attempts. Try again in #{minutes} minutes.
-core/mfa_challenge_controller.ex	flash	Two-factor authentication verified.
-core/mfa_challenge_html.ex	heex_text	Authenticator code
-core/mfa_challenge_html.ex	heex_text	Backup code
-core/mfa_challenge_html.ex	heex_text	Cancel and sign out
-core/mfa_challenge_html.ex	heex_text	Enter the code for
-core/mfa_challenge_html.ex	heex_text	Enter the code from your authenticator app to continue.
-core/mfa_challenge_html.ex	heex_text	Trust this browser for 30 days
-core/mfa_challenge_html.ex	heex_text	Two-factor authentication
-core/mfa_challenge_html.ex	heex_text	Verify
+core/mfa_challenge_controller.ex	msgid	Invalid verification code. %{remaining} attempts remaining.
+core/mfa_challenge_controller.ex	msgid	MFA is not enabled on your account.
+core/mfa_challenge_controller.ex	msgid	Too many failed attempts. Try again in %{minutes} minutes.
+core/mfa_challenge_controller.ex	msgid	Two-factor authentication verified.
+core/mfa_challenge_html.ex	msgid	6-digit authenticator code
+core/mfa_challenge_html.ex	msgid	Authenticator code
+core/mfa_challenge_html.ex	msgid	Backup code
+core/mfa_challenge_html.ex	msgid	Cancel and sign out
+core/mfa_challenge_html.ex	msgid	Enter the code for
+core/mfa_challenge_html.ex	msgid	Enter the code from your authenticator app to continue.
+core/mfa_challenge_html.ex	msgid	Trust this browser for 30 days
+core/mfa_challenge_html.ex	msgid	Two-factor authentication
+core/mfa_challenge_html.ex	msgid	Verification method
+core/mfa_challenge_html.ex	msgid	Verify
+core/mfa_challenge_html.ex	msgid	XXXX-XXXX
 core/mfa_challenge_live.ex	flash	Invalid verification code. #{remaining} attempts remaining.
 core/mfa_challenge_live.ex	flash	MFA is not enabled on your account.
 core/mfa_challenge_live.ex	flash	No MFA challenge pending.
@@ -288,65 +291,81 @@ core/mfa_settings_html.ex	heex_text	Two-Factor Authentication
 core/mfa_settings_html.ex	heex_text	Two-factor authentication
 core/mfa_settings_html.ex	heex_text	You'll need to set it up again to re-enable.
 core/mfa_settings_html.ex	heex_text	of 8 backup codes remaining
-core/mfa_settings_live.ex	flash	All trusted browsers have been revoked.
-core/mfa_settings_live.ex	flash	Consider changing your password for additional security.
-core/mfa_settings_live.ex	flash	Could not disable two-factor authentication. Please try again.
-core/mfa_settings_live.ex	flash	Could not regenerate backup codes. Please try again.
-core/mfa_settings_live.ex	flash	Could not save passkey name. Please try again.
-core/mfa_settings_live.ex	flash	Could not verify your code. Please try again.
-core/mfa_settings_live.ex	flash	Invalid verification code. Please try again.
-core/mfa_settings_live.ex	flash	Passkey name saved.
-core/mfa_settings_live.ex	flash	Too many failed attempts. Try again in #{minutes} minutes.
-core/mfa_settings_live.ex	flash	Two-factor authentication has been disabled.
-core/mfa_settings_live.ex	flash	Two-factor authentication has been enabled.
-core/mfa_settings_live.ex	flash	Two-factor authentication is not enabled for this account.
-core/mfa_settings_live.ex	flash	You can't change account security settings while impersonating.
-core/mfa_settings_live.ex	flash	Your backup codes were regenerated. Save your new backup codes.
-core/mfa_settings_live.ex	heex_text	Add a passkey to sign in faster on this device and keep a backup sign-in method available.
-core/mfa_settings_live.ex	heex_text	Add an extra layer of security to your account.
-core/mfa_settings_live.ex	heex_text	Add passkey
-core/mfa_settings_live.ex	heex_text	Added
-core/mfa_settings_live.ex	heex_text	All backup codes used. Generate new ones now.
-core/mfa_settings_live.ex	heex_text	Can't scan? Enter this key manually:
-core/mfa_settings_live.ex	heex_text	Cancel
-core/mfa_settings_live.ex	heex_text	Copy all
-core/mfa_settings_live.ex	heex_text	Current authenticator code:
 core/mfa_settings_live.ex	heex_text	Delete
-core/mfa_settings_live.ex	heex_text	Delete this passkey?
-core/mfa_settings_live.ex	heex_text	Disable
-core/mfa_settings_live.ex	heex_text	Disable two-factor authentication
-core/mfa_settings_live.ex	heex_text	Download .txt
-core/mfa_settings_live.ex	heex_text	Enable two-factor authentication
-core/mfa_settings_live.ex	heex_text	Enabled
-core/mfa_settings_live.ex	heex_text	Enter the 6-digit code from your app to verify setup:
-core/mfa_settings_live.ex	heex_text	Enter your current 6-digit code or a backup code to confirm:
-core/mfa_settings_live.ex	heex_text	I have saved these backup codes in a safe place
-core/mfa_settings_live.ex	heex_text	I saved these codes
-core/mfa_settings_live.ex	heex_text	Last used
-core/mfa_settings_live.ex	heex_text	Never used
-core/mfa_settings_live.ex	heex_text	No passkeys added yet
-core/mfa_settings_live.ex	heex_text	Passkey name
-core/mfa_settings_live.ex	heex_text	Passkeys
-core/mfa_settings_live.ex	heex_text	Regenerate backup codes
-core/mfa_settings_live.ex	heex_text	Regenerate codes
-core/mfa_settings_live.ex	heex_text	Rename
-core/mfa_settings_live.ex	heex_text	Revoke all trusted browsers
-core/mfa_settings_live.ex	heex_text	Save name
-core/mfa_settings_live.ex	heex_text	Save your backup codes
-core/mfa_settings_live.ex	heex_text	Scan this QR code with your authenticator app
-core/mfa_settings_live.ex	heex_text	Set up two-factor authentication
-core/mfa_settings_live.ex	heex_text	Store these one-time codes somewhere safe. You will not be able to see them again after leaving this step.
-core/mfa_settings_live.ex	heex_text	This will remove the extra security on your account.
-core/mfa_settings_live.ex	heex_text	This will replace all existing backup codes. Enter your current TOTP code to confirm.
-core/mfa_settings_live.ex	heex_text	Two-Factor Authentication
-core/mfa_settings_live.ex	heex_text	Two-factor authentication
-core/mfa_settings_live.ex	heex_text	Two-factor authentication enabled
-core/mfa_settings_live.ex	heex_text	Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.
-core/mfa_settings_live.ex	heex_text	You'll need to set it up again to re-enable.
-core/mfa_settings_live.ex	heex_text	You'll still need another sign-in method before removing your last recovery option.
-core/mfa_settings_live.ex	heex_text	You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
-core/mfa_settings_live.ex	heex_text	Your account is now protected with an extra layer of security.
-core/mfa_settings_live.ex	heex_text	of 8 backup codes remaining
+core/mfa_settings_live.ex	msgid	6-digit verification code
+core/mfa_settings_live.ex	msgid	Add a passkey to sign in faster on this device and keep a backup sign-in method available.
+core/mfa_settings_live.ex	msgid	Add an extra layer of security to your account.
+core/mfa_settings_live.ex	msgid	Add passkey
+core/mfa_settings_live.ex	msgid	Added
+core/mfa_settings_live.ex	msgid	All backup codes used. Generate new ones now.
+core/mfa_settings_live.ex	msgid	All trusted browsers have been revoked.
+core/mfa_settings_live.ex	msgid	Can't scan? Enter this key manually:
+core/mfa_settings_live.ex	msgid	Cancel
+core/mfa_settings_live.ex	msgid	Consider changing your password for additional security.
+core/mfa_settings_live.ex	msgid	Copy all
+core/mfa_settings_live.ex	msgid	Could not disable two-factor authentication. Please try again.
+core/mfa_settings_live.ex	msgid	Could not regenerate backup codes. Please try again.
+core/mfa_settings_live.ex	msgid	Could not save passkey name. Please try again.
+core/mfa_settings_live.ex	msgid	Could not verify your code. Please try again.
+core/mfa_settings_live.ex	msgid	Current authenticator code:
+core/mfa_settings_live.ex	msgid	Delete
+core/mfa_settings_live.ex	msgid	Delete this passkey?
+core/mfa_settings_live.ex	msgid	Disable
+core/mfa_settings_live.ex	msgid	Disable two-factor authentication
+core/mfa_settings_live.ex	msgid	Download .txt
+core/mfa_settings_live.ex	msgid	Enable two-factor authentication
+core/mfa_settings_live.ex	msgid	Enabled
+core/mfa_settings_live.ex	msgid	Enter the 6-digit code from your app to verify setup:
+core/mfa_settings_live.ex	msgid	Enter your current 6-digit code or a backup code to confirm:
+core/mfa_settings_live.ex	msgid	Finishing passkey setup...
+core/mfa_settings_live.ex	msgid	I have saved these backup codes in a safe place
+core/mfa_settings_live.ex	msgid	I saved these codes
+core/mfa_settings_live.ex	msgid	Invalid verification code. Please try again.
+core/mfa_settings_live.ex	msgid	Keep this page open while we finish saving your passkey.
+core/mfa_settings_live.ex	msgid	Last used
+core/mfa_settings_live.ex	msgid	MFA Settings
+core/mfa_settings_live.ex	msgid	Never
+core/mfa_settings_live.ex	msgid	Never used
+core/mfa_settings_live.ex	msgid	No passkeys added yet
+core/mfa_settings_live.ex	msgid	Nothing changed. Try again or choose another way to continue.
+core/mfa_settings_live.ex	msgid	One-time backup codes
+core/mfa_settings_live.ex	msgid	Passkey name
+core/mfa_settings_live.ex	msgid	Passkey name saved.
+core/mfa_settings_live.ex	msgid	Passkey sign-in was canceled.
+core/mfa_settings_live.ex	msgid	Passkeys
+core/mfa_settings_live.ex	msgid	Passkeys aren't available in this browser.
+core/mfa_settings_live.ex	msgid	QR code for TOTP setup
+core/mfa_settings_live.ex	msgid	Regenerate backup codes
+core/mfa_settings_live.ex	msgid	Regenerate codes
+core/mfa_settings_live.ex	msgid	Rename
+core/mfa_settings_live.ex	msgid	Revoke all trusted browsers
+core/mfa_settings_live.ex	msgid	Save name
+core/mfa_settings_live.ex	msgid	Save your backup codes
+core/mfa_settings_live.ex	msgid	Scan this QR code with your authenticator app
+core/mfa_settings_live.ex	msgid	Set up two-factor authentication
+core/mfa_settings_live.ex	msgid	Store these one-time codes somewhere safe. You will not be able to see them again after leaving this step.
+core/mfa_settings_live.ex	msgid	That passkey request timed out.
+core/mfa_settings_live.ex	msgid	This will remove the extra security on your account. You'll need to set it up again to re-enable.
+core/mfa_settings_live.ex	msgid	This will replace all existing backup codes. Enter your current TOTP code to confirm.
+core/mfa_settings_live.ex	msgid	This will require two-factor authentication on all your browsers. Continue?
+core/mfa_settings_live.ex	msgid	Too many failed attempts. Try again in %{minutes} minutes.
+core/mfa_settings_live.ex	msgid	Try again or use another way to continue.
+core/mfa_settings_live.ex	msgid	Try again when you're ready, or use another sign-in method.
+core/mfa_settings_live.ex	msgid	Two-Factor Authentication
+core/mfa_settings_live.ex	msgid	Two-factor authentication
+core/mfa_settings_live.ex	msgid	Two-factor authentication enabled
+core/mfa_settings_live.ex	msgid	Two-factor authentication has been disabled.
+core/mfa_settings_live.ex	msgid	Two-factor authentication has been enabled.
+core/mfa_settings_live.ex	msgid	Two-factor authentication is not enabled for this account.
+core/mfa_settings_live.ex	msgid	Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.
+core/mfa_settings_live.ex	msgid	Use your password or a magic link here, or switch to a device that supports passkeys.
+core/mfa_settings_live.ex	msgid	We couldn't finish passkey sign-in.
+core/mfa_settings_live.ex	msgid	You can't change account security settings while impersonating.
+core/mfa_settings_live.ex	msgid	You'll still need another sign-in method before removing your last recovery option.
+core/mfa_settings_live.ex	msgid	You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
+core/mfa_settings_live.ex	msgid	Your account is now protected with an extra layer of security.
+core/mfa_settings_live.ex	msgid	Your backup codes were regenerated. Save your new backup codes.
+core/mfa_settings_live.ex	msgid	of 8 backup codes remaining
 core/reactivation_live.ex	flash	Account deletion cancelled. Your account is active again.
 core/reactivation_live.ex	flash	Something went wrong while processing your request. Please try again.
 core/reactivation_live.ex	flash	You can't change account security settings while impersonating.
@@ -356,25 +375,33 @@ core/reactivation_live.ex	heex_text	I understand, sign me out
 core/reactivation_live.ex	heex_text	If you'd like to keep your account, you can cancel the deletion now.
 core/reactivation_live.ex	heex_text	Your account is scheduled for deletion
 core/reactivation_live.ex	heex_text	Your account is scheduled for deletion on .
-core/registration_html.ex	heex_text	Add a passkey after creating your account
-core/registration_html.ex	heex_text	After confirming your email, you will continue to passkey setup.
-core/registration_html.ex	heex_text	Already registered?
-core/registration_html.ex	heex_text	Create an account &rarr;
-core/registration_html.ex	heex_text	Log in
-core/registration_html.ex	heex_text	Register
-core/registration_html.ex	heex_text	to your account now.
-core/registration_live.ex	flash	If this email is available, your account has been created. Please check your email.
-core/registration_live.ex	heex_text	Add a passkey after creating your account
-core/registration_live.ex	heex_text	After confirming your email, you will continue to passkey setup.
-core/registration_live.ex	heex_text	Already registered?
-core/registration_live.ex	heex_text	Create an account &rarr;
-core/registration_live.ex	heex_text	Log in
-core/registration_live.ex	heex_text	Register
-core/registration_live.ex	heex_text	We couldn't create your account. Check the highlighted fields and try again.
-core/registration_live.ex	heex_text	to your account now.
+core/registration_html.ex	msgid	Add a passkey after creating your account
+core/registration_html.ex	msgid	After confirming your email, you will continue to passkey setup.
+core/registration_html.ex	msgid	Already registered?
+core/registration_html.ex	msgid	Create an account
+core/registration_html.ex	msgid	Email
+core/registration_html.ex	msgid	Password
+core/registration_html.ex	msgid	Register
+core/registration_html.ex	msgid	Sign in
+core/registration_html.ex	msgid	to your account now.
+core/registration_live.ex	msgid	Add a passkey after creating your account
+core/registration_live.ex	msgid	After confirming your email, you will continue to passkey setup.
+core/registration_live.ex	msgid	Already registered?
+core/registration_live.ex	msgid	Create an account
+core/registration_live.ex	msgid	Creating account...
+core/registration_live.ex	msgid	Email
+core/registration_live.ex	msgid	Fair
+core/registration_live.ex	msgid	If this email is available, your account has been created. Please check your email.
+core/registration_live.ex	msgid	Password
+core/registration_live.ex	msgid	Register
+core/registration_live.ex	msgid	Sign in
+core/registration_live.ex	msgid	Strong
+core/registration_live.ex	msgid	We couldn't create your account. Check the highlighted fields and try again.
+core/registration_live.ex	msgid	Weak
+core/registration_live.ex	msgid	to your account now.
 core/reset_password_controller.ex	msgid	If your email is in our system, you will receive reset instructions shortly.
 core/reset_password_controller.ex	msgid	Your password has been reset.
-core/reset_password_html.ex	msgid	Back to log in
+core/reset_password_html.ex	msgid	Back to sign in
 core/reset_password_html.ex	msgid	Confirm new password
 core/reset_password_html.ex	msgid	Email
 core/reset_password_html.ex	msgid	Enter your email and we'll send you a reset link.
@@ -387,7 +414,7 @@ core/reset_password_html.ex	msgid	Reset password
 core/reset_password_html.ex	msgid	Reset your password
 core/reset_password_html.ex	msgid	Send reset instructions
 core/reset_password_html.ex	msgid	This password reset link has expired or was already used.
-core/reset_password_live.ex	msgid	Back to log in
+core/reset_password_live.ex	msgid	Back to sign in
 core/reset_password_live.ex	msgid	Confirm new password
 core/reset_password_live.ex	msgid	Email
 core/reset_password_live.ex	msgid	Enter your email and we'll send you a reset link.
@@ -408,69 +435,85 @@ core/reset_password_live.ex	msgid	This password reset link has expired or was al
 core/reset_password_live.ex	msgid	We couldn't reset your password. Check the highlighted fields and try again.
 core/reset_password_live.ex	msgid	Weak
 core/reset_password_live.ex	msgid	Your password has been reset.
-core/session_controller.ex	flash	If your email is registered, you will receive a magic link shortly.
-core/session_controller.ex	flash	Invalid email or password
-core/session_controller.ex	flash	Logged out successfully.
-core/session_controller.ex	flash	Magic link is invalid or has expired.
-core/session_controller.ex	flash	Passkey added.
-core/session_controller.ex	flash	This passkey is already registered.
-core/session_controller.ex	flash	Two-factor authentication verified.
-core/session_controller.ex	flash	We couldn't delete that passkey. Re-authenticate and try again.
-core/session_controller.ex	flash	We couldn't finish adding this passkey. Try again or use another way to continue.
-core/session_controller.ex	flash	We couldn't finish passkey sign-in. Try again or use another way to continue.
-core/session_controller.ex	flash	Welcome back!
-core/session_controller.ex	flash	Welcome!
-core/session_controller.ex	flash	You can't change account security settings while impersonating.
-core/session_controller.ex	flash	Your organization requires enterprise sign-in.
+core/session_controller.ex	msgid	Account created successfully!
+core/session_controller.ex	msgid	Enterprise sign-in is not available for that organization right now. Try again or contact your administrator.
+core/session_controller.ex	msgid	If your email is registered, you will receive a magic link shortly.
+core/session_controller.ex	msgid	Invalid email or password
+core/session_controller.ex	msgid	Last passkey deleted. Next time, sign in with your password, authenticator code, backup code, or magic link until you add another passkey.
+core/session_controller.ex	msgid	Logged out successfully.
+core/session_controller.ex	msgid	Magic link is invalid or has expired.
+core/session_controller.ex	msgid	Passkey added.
+core/session_controller.ex	msgid	Passkey deleted.
+core/session_controller.ex	msgid	This passkey is already registered.
+core/session_controller.ex	msgid	Two-factor authentication verified.
+core/session_controller.ex	msgid	We couldn't delete that passkey. Re-authenticate and try again.
+core/session_controller.ex	msgid	We couldn't determine your organization from that work email. Enter your organization and try again.
+core/session_controller.ex	msgid	We couldn't find an enterprise sign-in route for that work email. Check your organization details and try again.
+core/session_controller.ex	msgid	We couldn't finish adding this passkey. Try again or use another way to continue.
+core/session_controller.ex	msgid	We couldn't finish passkey sign-in. Try again or use another way to continue.
+core/session_controller.ex	msgid	Welcome back!
+core/session_controller.ex	msgid	Welcome!
+core/session_controller.ex	msgid	You can't change account security settings while impersonating.
+core/session_controller.ex	msgid	Your organization requires enterprise sign-in.
 core/session_live.ex	flash	Session revoked.
 core/session_live.ex	heex_text	Active Sessions
 core/session_live.ex	heex_text	Log out of all devices
 core/session_live.ex	heex_text	Revoke session
 core/session_live.ex	heex_text	These devices are currently signed in to your account.
 core/session_live.ex	heex_text	This device
-core/settings_live.ex	flash	Account deletion cancelled. Your account is active again.
-core/settings_live.ex	flash	Email change cancelled. Your email remains #{user.email}.
-core/settings_live.ex	flash	Password set successfully. You can now sign in with email and password.
-core/settings_live.ex	flash	Something went wrong while processing your request. Please try again.
-core/settings_live.ex	flash	This confirmation link is invalid or has expired. Request a new email change from your settings.
-core/settings_live.ex	flash	We sent a confirmation link to #{new_email}. Your current email stays active until you confirm.
-core/settings_live.ex	flash	You can't change account deletion while impersonating.
-core/settings_live.ex	flash	You can't change account security settings while impersonating.
-core/settings_live.ex	flash	Your account is scheduled for deletion on #{scheduled_date}. You can cancel this from your settings.
-core/settings_live.ex	flash	Your email has been updated.
-core/settings_live.ex	flash	Your password has been changed. All other sessions have been signed out.
-core/settings_live.ex	heex_text	Account Settings
-core/settings_live.ex	heex_text	After the grace period expires, Sigra finalizes the account lifecycle according to that strategy.
-core/settings_live.ex	heex_text	Cancel deletion
-core/settings_live.ex	heex_text	Cancel email change
-core/settings_live.ex	heex_text	Change password
-core/settings_live.ex	heex_text	Changing to: (awaiting confirmation)
-core/settings_live.ex	heex_text	Current email:
-core/settings_live.ex	heex_text	Delete account
-core/settings_live.ex	heex_text	Delete my account
-core/settings_live.ex	heex_text	Email address
-core/settings_live.ex	heex_text	Manage your email, password, and account.
-core/settings_live.ex	heex_text	Password
-core/settings_live.ex	heex_text	Schedule account deletion according to your configured deletion strategy.
-core/settings_live.ex	heex_text	Set a password
-core/settings_live.ex	heex_text	Update email
-core/settings_live.ex	heex_text	We sent a confirmation link to . Check your inbox.
-core/settings_live.ex	heex_text	You must change your password before you can continue using your account.
-core/settings_live.ex	heex_text	You signed in with a social provider. Set a password to enable email login.
-core/settings_live.ex	heex_text	Your account is scheduled for deletion on .
+core/settings_live.ex	msgid	(awaiting confirmation)
+core/settings_live.ex	msgid	Account Settings
+core/settings_live.ex	msgid	Account deletion cancelled. Your account is active again.
+core/settings_live.ex	msgid	Are you sure? Your account will be deactivated immediately, all sessions will be signed out, and finalization will follow your configured deletion strategy.
+core/settings_live.ex	msgid	Cancel deletion
+core/settings_live.ex	msgid	Cancel email change
+core/settings_live.ex	msgid	Change password
+core/settings_live.ex	msgid	Changing to:
+core/settings_live.ex	msgid	Check your inbox.
+core/settings_live.ex	msgid	Confirm new password
+core/settings_live.ex	msgid	Current email:
+core/settings_live.ex	msgid	Current password
+core/settings_live.ex	msgid	Delete account
+core/settings_live.ex	msgid	Delete my account
+core/settings_live.ex	msgid	Email address
+core/settings_live.ex	msgid	Email change cancelled. Your email remains %{email}.
+core/settings_live.ex	msgid	Manage your email, password, and account.
+core/settings_live.ex	msgid	New email
+core/settings_live.ex	msgid	New password
+core/settings_live.ex	msgid	Password
+core/settings_live.ex	msgid	Password set successfully. You can now sign in with email and password.
+core/settings_live.ex	msgid	Schedule account deletion according to your configured deletion strategy. After the grace period expires, the selected strategy is applied to your account.
+core/settings_live.ex	msgid	Set a password
+core/settings_live.ex	msgid	Something went wrong while processing your request. Please try again.
+core/settings_live.ex	msgid	This confirmation link is invalid or has expired. Request a new email change from your settings.
+core/settings_live.ex	msgid	Update email
+core/settings_live.ex	msgid	We sent a confirmation link to
+core/settings_live.ex	msgid	We sent a confirmation link to %{new_email}. Your current email stays active until you confirm.
+core/settings_live.ex	msgid	You can't change account deletion while impersonating.
+core/settings_live.ex	msgid	You can't change account security settings while impersonating.
+core/settings_live.ex	msgid	You can't delete an account while impersonating.
+core/settings_live.ex	msgid	You must change your password before you can continue using your account.
+core/settings_live.ex	msgid	You recently cancelled a deletion request. Please wait before requesting again.
+core/settings_live.ex	msgid	You signed in with a social provider. Set a password to enable email login.
+core/settings_live.ex	msgid	Your account is already scheduled for deletion.
+core/settings_live.ex	msgid	Your account is scheduled for deletion on
+core/settings_live.ex	msgid	Your account is scheduled for deletion on %{date}. You can cancel this from your settings.
+core/settings_live.ex	msgid	Your email has been updated.
+core/settings_live.ex	msgid	Your password has been changed. All other sessions have been signed out.
 core/sigra_auth_components.ex	heex_text	Privacy
 core/sigra_auth_components.ex	heex_text	Support
 core/sigra_auth_components.ex	heex_text	Terms
 core/sudo_controller.ex	flash	Incorrect password. Please try again.
 core/sudo_controller.ex	flash	Password confirmed.
-core/sudo_html.ex	heex_text	Confirm password
-core/sudo_html.ex	heex_text	For your security, please re-enter your password to continue.
-core/sudo_html.ex	heex_text	Go back
-core/sudo_html.ex	heex_text	Re-enter your password
-core/user_auth.ex	flash	You must change your password before you can continue using your account.
-core/user_auth.ex	flash	You must log in to access this page.
+core/sudo_html.ex	msgid	Confirm password
+core/sudo_html.ex	msgid	For your security, please re-enter your password to continue.
+core/sudo_html.ex	msgid	Go back
+core/sudo_html.ex	msgid	Password
+core/sudo_html.ex	msgid	Re-enter your password
 core/user_auth.ex	msgid	Please confirm your email. Check your inbox or request a new confirmation email.
+core/user_auth.ex	msgid	You must change your password before you can continue using your account.
 core/user_auth.ex	msgid	You must confirm your email before logging in. We've sent a new confirmation email.
+core/user_auth.ex	msgid	You must log in to access this page.
 organizations/components/org_switcher.ex	heex_text	Active
 organizations/components/org_switcher.ex	heex_text	Create organization
 organizations/components/org_switcher.ex	heex_text	Manage organizations
