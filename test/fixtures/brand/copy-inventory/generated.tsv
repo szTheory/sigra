@@ -356,22 +356,30 @@ core/reactivation_live.ex	heex_text	I understand, sign me out
 core/reactivation_live.ex	heex_text	If you'd like to keep your account, you can cancel the deletion now.
 core/reactivation_live.ex	heex_text	Your account is scheduled for deletion
 core/reactivation_live.ex	heex_text	Your account is scheduled for deletion on .
-core/registration_html.ex	heex_text	Add a passkey after creating your account
-core/registration_html.ex	heex_text	After confirming your email, you will continue to passkey setup.
-core/registration_html.ex	heex_text	Already registered?
-core/registration_html.ex	heex_text	Create an account &rarr;
-core/registration_html.ex	heex_text	Log in
-core/registration_html.ex	heex_text	Register
-core/registration_html.ex	heex_text	to your account now.
-core/registration_live.ex	flash	If this email is available, your account has been created. Please check your email.
-core/registration_live.ex	heex_text	Add a passkey after creating your account
-core/registration_live.ex	heex_text	After confirming your email, you will continue to passkey setup.
-core/registration_live.ex	heex_text	Already registered?
-core/registration_live.ex	heex_text	Create an account &rarr;
-core/registration_live.ex	heex_text	Log in
-core/registration_live.ex	heex_text	Register
-core/registration_live.ex	heex_text	We couldn't create your account. Check the highlighted fields and try again.
-core/registration_live.ex	heex_text	to your account now.
+core/registration_html.ex	msgid	Add a passkey after creating your account
+core/registration_html.ex	msgid	After confirming your email, you will continue to passkey setup.
+core/registration_html.ex	msgid	Already registered?
+core/registration_html.ex	msgid	Create an account
+core/registration_html.ex	msgid	Email
+core/registration_html.ex	msgid	Password
+core/registration_html.ex	msgid	Register
+core/registration_html.ex	msgid	Sign in
+core/registration_html.ex	msgid	to your account now.
+core/registration_live.ex	msgid	Add a passkey after creating your account
+core/registration_live.ex	msgid	After confirming your email, you will continue to passkey setup.
+core/registration_live.ex	msgid	Already registered?
+core/registration_live.ex	msgid	Create an account
+core/registration_live.ex	msgid	Creating account...
+core/registration_live.ex	msgid	Email
+core/registration_live.ex	msgid	Fair
+core/registration_live.ex	msgid	If this email is available, your account has been created. Please check your email.
+core/registration_live.ex	msgid	Password
+core/registration_live.ex	msgid	Register
+core/registration_live.ex	msgid	Sign in
+core/registration_live.ex	msgid	Strong
+core/registration_live.ex	msgid	We couldn't create your account. Check the highlighted fields and try again.
+core/registration_live.ex	msgid	Weak
+core/registration_live.ex	msgid	to your account now.
 core/reset_password_controller.ex	msgid	If your email is in our system, you will receive reset instructions shortly.
 core/reset_password_controller.ex	msgid	Your password has been reset.
 core/reset_password_html.ex	msgid	Back to log in

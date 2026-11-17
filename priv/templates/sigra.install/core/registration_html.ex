@@ -14,20 +14,20 @@ defmodule <%= web_module %>.RegistrationHTML do
     <.sigra_auth_page>
       <div class="sigra-auth-flow sigra-auth-stack sigra-auth-stack--6">
       <.header>
-        Register
+        {dgettext("sigra", "Register")}
         <:subtitle>
-          Already registered?
+          {dgettext("sigra", "Already registered?")}
           <.link navigate={~p"/users/log_in"}>
-            Log in
+            {dgettext("sigra", "Sign in")}
           </.link>
-          to your account now.
+          {dgettext("sigra", "to your account now.")}
         </:subtitle>
       </.header>
 
       <.form :let={f} for={@form} id="registration_form" action={~p"/users/register"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
         <%% # Add custom fields here (e.g., :name, :company) %>
-        <.input field={f[:email]} type="email" label="Email" autocomplete="username" required />
-        <.input field={f[:password]} type="password" label="Password" autocomplete="new-password" required />
+        <.input field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
+        <.input field={f[:password]} type="password" label={dgettext("sigra", "Password")} autocomplete="new-password" required />
 
 <%= if passkeys? do %>
         <%% # @passkey_primary_enabled gates signup-time passkey enrollment. %>
@@ -35,9 +35,9 @@ defmodule <%= web_module %>.RegistrationHTML do
           <label class="sigra-auth-section sigra-auth-check-row">
             <input type="checkbox" name="user[enroll_passkey]" value="true" class="sigra-auth-check" />
             <span>
-              <strong>Add a passkey after creating your account</strong>
+              <strong>{dgettext("sigra", "Add a passkey after creating your account")}</strong>
               <span class="sigra-auth-copy sigra-auth-copy--muted">
-                After confirming your email, you will continue to passkey setup.
+                {dgettext("sigra", "After confirming your email, you will continue to passkey setup.")}
               </span>
             </span>
           </label>
@@ -45,7 +45,7 @@ defmodule <%= web_module %>.RegistrationHTML do
 <% end %>
 
         <.sigra_auth_button class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
-          Create an account <span aria-hidden="true">&rarr;</span>
+          {dgettext("sigra", "Create an account")} <span aria-hidden="true">&rarr;</span>
         </.sigra_auth_button>
       </.form>
       </div>

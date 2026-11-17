@@ -243,6 +243,28 @@ defmodule Sigra.Install.AuthUIContractTest do
     assert registration =~ "If this email is available, your account has been created."
   end
 
+  test "registration copy uses the sigra domain and the approved sign-in wording" do
+    for path <- [
+          "priv/templates/sigra.install/core/registration_live.ex",
+          "priv/templates/sigra.install/core/registration_html.ex"
+        ] do
+      source = File.read!(path)
+
+      assert source =~ "dgettext(\"sigra\", \"Sign in\")"
+      assert source =~ "dgettext(\"sigra\", \"Already registered?\")"
+      assert source =~ "dgettext(\"sigra\", \"Create an account\")"
+      assert source =~ "dgettext(\"sigra\", \"Email\")"
+      assert source =~ "dgettext(\"sigra\", \"Password\")"
+      refute source =~ ~r/>\s*Log in\s*</
+      refute source =~ ~r/label="(?:Email|Password)"/
+    end
+
+    registration = File.read!("priv/templates/sigra.install/core/registration_live.ex")
+
+    assert registration =~
+             "dgettext(\"sigra\", \"If this email is available, your account has been created. Please check your email.\")"
+  end
+
   test "confirmation validation removes only ASCII spaces before strict ASCII digit matching" do
     confirmation = File.read!("priv/templates/sigra.install/core/confirmation_live.ex")
     submit_handler = confirmation |> String.split("defp do_confirm(socket, code)") |> Enum.at(1)
