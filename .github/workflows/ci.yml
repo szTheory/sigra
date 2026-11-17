@@ -605,6 +605,9 @@ jobs:
         run: |
           mix local.hex --force
           mix local.rebar --force
+      - name: Verify documented Sigra pin resolves to a non-retired release
+        if: github.event_name == 'pull_request'
+        run: bash scripts/ci/verify-sigra-pin-resolution.sh
       # phx_new archive is required by test/sigra/install/golden_diff_test.exs
       # and idempotency_test.exs — both use InstallFixture.setup_tmp_app/1
       # which shells out to `mix phx.new` to scaffold a fresh Phoenix app.
