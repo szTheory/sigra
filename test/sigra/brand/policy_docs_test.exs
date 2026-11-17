@@ -263,8 +263,7 @@ defmodule Sigra.Brand.PolicyDocsTest do
       assert slice =~ "| Template | Surface | Old msgid | New msgid |"
       assert length(rows) == 10
 
-      assert ["`core/registration_live.ex`", "Existing-account link", "`Log in`", "`Sign in`"] in
-               rows
+      assert ["`core/registration_live.ex`", "Existing-account link", "`Log in`", "`Sign in`"] in rows
 
       assert [
                "`core/settings_live.ex`",
@@ -281,8 +280,7 @@ defmodule Sigra.Brand.PolicyDocsTest do
       assert slice =~ "| Token | Old light | New light | Old dark | New dark |"
       assert length(rows) == 44
 
-      assert ["`--sg-color-ink`", "`#151515`", "`#1F1A17`", "`#f4f1eb`", "`#F3EEE8`"] in
-               rows
+      assert ["`--sg-color-ink`", "`#151515`", "`#1F1A17`", "`#f4f1eb`", "`#F3EEE8`"] in rows
 
       assert ["`--sg-font-sans`", "none", "`inherit`", "none", "n/a"] in rows
     end
