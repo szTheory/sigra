@@ -98,6 +98,18 @@ defmodule Sigra.Brand.VendoredAssetsTest do
   end
 
   describe "packaged ExDoc assets" do
+    test "the README opens with the approved lockup, copy, and install action" do
+      readme = @root |> Path.join("README.md") |> File.read!()
+
+      assert Regex.match?(
+               ~r/<picture>.*?<\/picture>\s*<p><b>Phoenix auth you own and can still update\.<\/b><\/p>\s*<p>Production-minded authentication for Phoenix 1\.8\+<\/p>\s*\*\*\[Install Sigra\]\(guides\/introduction\/installation\.md\)\*\*.*?\n# Sigra\s+\[!\[Hex version\]/s,
+               readme
+             )
+
+      assert readme =~
+               "**[Install Sigra](guides/introduction/installation.md)** — add `{:sigra, \"~> 1.7.1\"}` to `mix.exs`"
+    end
+
     test "the README social-card reference resolves to the packaged asset" do
       readme = @root |> Path.join("README.md") |> File.read!()
       social_card = Path.join(@root, "docs/assets/brand/social-card-1280x640.png")
