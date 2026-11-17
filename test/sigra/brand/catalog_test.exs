@@ -184,6 +184,21 @@ defmodule Sigra.Brand.CatalogTest do
     end
   end
 
+  describe "Phase 262 overview and audit copy" do
+    test "overview and global audit captures use the approved zero-state language" do
+      overview = Catalog.tier1_html({IndexLive, :overview})
+      needs_review = Catalog.tier1_html({IndexLive, :needs_review})
+      audit_empty = Catalog.tier1_html({AuditIndexLive, :empty})
+
+      assert overview =~ "No users need review."
+      refute overview =~ "No flagged accounts"
+      assert needs_review =~ "Review users"
+      refute needs_review =~ "Review risky users"
+      assert audit_empty =~ "No audit events yet."
+      assert audit_empty =~ "Audit events appear here as activity is recorded."
+    end
+  end
+
   describe "write!/2 in after mode" do
     test "writes the tier-1 files under tier1-library-admin/ of the output directory" do
       out = tmp_dir()
@@ -709,12 +724,12 @@ defmodule Sigra.Brand.CatalogTest do
       {{UserSessionsLive, :populated}, "Revoke all sessions"},
       {{UserSessionsLive, :empty}, "This user has no active sessions in the current scope."},
       {{AuditIndexLive, :populated}, "Impersonation started"},
-      {{AuditIndexLive, :empty}, "No audit events match this view"},
+      {{AuditIndexLive, :empty}, "No audit events yet."},
       {{AuditUserLive, :populated}, "Review recorded activity for this user."},
       {{AuditUserLive, :empty}, "No scoped events are currently tied to this user."},
       {{OrganizationLive, :populated}, "members need review"},
       {{OrganizationLive, :empty}, "No members yet"},
-      {{IndexLive, :overview}, "No flagged accounts"},
+      {{IndexLive, :overview}, "No users need review."},
       {{IndexLive, :needs_review}, "users need review"},
       {{BrandingLive, :default_profile}, "Config defaults"},
       {{BrandingLive, :explicit_profile}, "Admin profile"}

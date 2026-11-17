@@ -34,7 +34,7 @@ defmodule Sigra.Admin.Live.IndexLive do
       )
 
     ~H"""
-    <section class="sg-stack sg-stack--6">
+    <section class="sg-stack sg-stack--6" aria-busy={@loading}>
       <header class="sg-page-header">
         <p class="sg-page-kicker">Admin overview</p>
         <h1 class="sg-page-title">What do you need to do?</h1>
@@ -48,7 +48,7 @@ defmodule Sigra.Admin.Live.IndexLive do
           {@needs_review} users need review —
           <.notice_link href="/admin/users?needs_review=true">Review users</.notice_link>
         <% else %>
-          No flagged accounts
+          No users need review.
         <% end %>
       </.notice>
 
@@ -66,8 +66,8 @@ defmodule Sigra.Admin.Live.IndexLive do
           action="Investigate audit"
         />
         <.task_card
-          title="Review risky users"
-          body="Jump straight to locked or deletion-scheduled users before they surprise support."
+          title="Review users"
+          body="Review users who are locked or have scheduled deletion."
           href="/admin/users?needs_review=true"
           action="Review users"
         />
