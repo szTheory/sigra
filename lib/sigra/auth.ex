@@ -11,9 +11,14 @@ defmodule Sigra.Auth do
       Sigra.Auth.register(MyApp.Repo, attrs, changeset_fn: &MyApp.User.registration_changeset/1)
       Sigra.Auth.authenticate(MyApp.Repo, params, user_schema: MyApp.User)
 
-  ## Security Properties
+  ## Account-discovery scope
 
-  - User enumeration prevention: generic error messages, constant-time operations
+  The example application compares the status, redirect, flash and response
+  body for one sign-in, magic-link and password-reset request using an existing
+  address and an unknown address. That comparison does not cover timing,
+  repeated attempts, registration outcomes, passkey options or other account
+  states.
+
   - Hash upgrade: transparent bcrypt-to-Argon2id migration on successful login
   - Failed attempt tracking: incremented on wrong password, reset on success
   - Magic link: single-use, 10-minute TTL, rate limited
@@ -129,11 +134,13 @@ defmodule Sigra.Auth do
 
   Returns `{:ok, user}` on success, `{:error, changeset}` for validation
   errors, or `{:error, :email_taken}` when the email is already registered
-  (enumeration-safe -- callers should show a generic message). A duplicate is
+  (callers receive a distinct duplicate-email result). A duplicate is
   recognised whether the host changeset rejected it via `unsafe_validate_unique/3`
   or the database unique constraint rejected it on insert. When a duplicate
   coincides with other field errors, `{:error, changeset}` is returned with the
-  email uniqueness error removed, so the response never reveals the email exists.
+  email uniqueness error removed, so the changeset does not carry the duplicate
+  email validation error alongside unrelated field errors. The returned
+  `:email_taken` result still differs from successful registration.
 
   ## Options
 
@@ -609,8 +616,11 @@ defmodule Sigra.Auth do
   Requests a magic link for the given email.
 
   If the user exists and is not rate-limited, generates a token and returns
-  `{:ok, {raw_token, url}}`. If the user does not exist, returns `{:ok, :sent}`
-  to prevent email enumeration. If rate-limited, returns `{:error, :rate_limited}`.
+  `{:ok, {raw_token, url}}`. If the user does not exist, returns `{:ok, :sent}`.
+  These library return values differ. The example application's single-request
+  comparison covers status, redirect, flash and response body; it does not
+  compare this function's return values, timing or repeated requests. The
+  optional rate limiter is applied only to the existing-user path.
 
   ## Options
 
@@ -1094,8 +1104,11 @@ defmodule Sigra.Auth do
   @doc """
   Requests a password reset for the given email.
 
-  Enumeration-safe: always returns `{:ok, :sent}` for non-existent emails
-  with a dummy hash operation to match timing (per D-38).
+  For a non-existent email this function returns `{:ok, :sent}` after a dummy
+  hash operation. Timing equivalence is not established by that operation; the
+  optional rate limiter is applied only to the existing-user path. The example
+  application's single-request comparison covers status, redirect, flash and
+  response body, not timing or repeated requests.
 
   ## Options
 

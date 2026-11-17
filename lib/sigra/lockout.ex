@@ -10,7 +10,9 @@ defmodule Sigra.Lockout do
   ## Security Properties
 
   - Lockout check happens before password hash verification (saves CPU).
-  - Messages are enumeration-safe (generic text via `Sigra.Error.safe_message/1`).
+  - `Sigra.Error.safe_message/1` maps a given error to generic text. Lockout
+    outcomes still differ: a locked user receives `:account_locked` with
+    remaining seconds, while a `nil` user receives `:ok`.
   - Counter resets on successful login.
   - Auto-unlocks after duration expires.
   - Hooks via telemetry only (`[:sigra, :security, :lockout]`).
@@ -39,8 +41,9 @@ defmodule Sigra.Lockout do
 
   Returns `:ok` or `{:error, :account_locked, remaining_seconds}`.
 
-  Returns `:ok` for `nil` users (non-existent account) to support
-  enumeration-safe flows where a dummy hash is performed regardless.
+  Returns `:ok` for `nil` users (non-existent account), allowing callers to
+  continue their missing-user path. This function does not establish timing
+  equivalence or equal handling of locked and missing accounts.
 
   ## Examples
 

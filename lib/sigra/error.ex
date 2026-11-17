@@ -3,8 +3,10 @@ defmodule Sigra.Error do
   Error types and safe message mapping for Sigra authentication.
 
   Sigra uses structured error types for precise internal error handling,
-  combined with a `safe_message/1` function that maps internal errors to
-  enumeration-safe user-facing strings.
+  combined with a `safe_message/1` function that maps each supplied internal
+  error to a generic user-facing string. The selected error still depends on
+  the caller's flow and account state, so this mapping alone does not establish
+  that different account states produce the same response.
 
   ## Error Types
 
@@ -15,12 +17,13 @@ defmodule Sigra.Error do
   - `Sigra.Error.AccountLocked` -- account temporarily locked
   - `Sigra.Error.OAuthError` -- OAuth operation failed (provider, error_code)
 
-  ## Enumeration Prevention
+  ## Message Mapping
 
-  The `safe_message/1` function ensures that user-facing messages never
-  leak information about which part of authentication failed. For example,
-  `:invalid_credentials` always returns `"Invalid email or password."` --
-  never `"wrong password"` or `"user not found"`.
+  The `safe_message/1` function maps each supplied error atom to a fixed
+  user-facing string. For example, `:invalid_credentials` returns
+  `"Invalid email or password."`. Callers choose which error atom to pass, so
+  this mapping says nothing about how separate authentication paths select or
+  render their errors.
   """
 
   defmodule InvalidCredentials do
@@ -135,11 +138,11 @@ defmodule Sigra.Error do
   end
 
   @doc """
-  Maps an internal error atom to an enumeration-safe user-facing message.
+  Maps an internal error atom to a generic user-facing message.
 
-  These messages are intentionally generic to prevent user enumeration
-  attacks. Internal code uses precise error atoms; the safe message is
-  for display to end users.
+  The message depends on the supplied error atom. This function does not
+  compare request outcomes or establish that separate account states produce
+  equal responses.
 
   ## Examples
 

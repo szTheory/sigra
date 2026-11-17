@@ -2,7 +2,8 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @moduledoc """
   BCOPY-07 honest-claims contract for published enumeration statements.
 
-  The published docs may claim only what the enumeration parity harness proves:
+  The published docs and the library's public docstrings may claim only what
+  the enumeration parity harness proves:
   an existing and an unknown address get the same status, redirect, flash and
   page for ONE attempt on the sign-in, magic-link and password reset request
   screens, in Sigra's example application. Timing, repeated attempts (lockout
@@ -43,6 +44,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @walkthrough "guides/introduction/code-walkthrough.md"
   @demo_showcase "guides/introduction/demo-showcase.md"
   @example_readme "test/example/README.md"
+  @library_docs ["lib/sigra/auth.ex", "lib/sigra/error.ex", "lib/sigra/lockout.ex"]
 
   @scope_opener "**Scope of this claim:**"
 
@@ -63,6 +65,28 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @intro_guides [@getting_started, @architecture, @walkthrough]
   @demo_files [@demo_showcase, @example_readme]
   @files [@readme | @flow_guides] ++ @intro_guides ++ @demo_files
+
+  # Published source docstrings whose broader account-discovery wording was
+  # retired. The module/function documentation is extracted before checking it;
+  # implementation comments and code are not part of the public-doc claim scan.
+  @retired_library_claims %{
+    "lib/sigra/auth.ex" => [
+      "User enumeration prevention",
+      "constant-time operations",
+      "(enumeration-safe -- callers should show a generic message)",
+      "to prevent email enumeration",
+      "Enumeration-safe: always returns"
+    ],
+    "lib/sigra/error.ex" => [
+      "enumeration-safe user-facing strings",
+      "ensures that user-facing messages never",
+      "prevent user enumeration attacks"
+    ],
+    "lib/sigra/lockout.ex" => [
+      "Messages are enumeration-safe",
+      "enumeration-safe flows where a dummy hash is performed regardless"
+    ]
+  }
 
   # Sweep allow-list: `{file, normalized substring}` pairs naming a paragraph
   # that may stay unqualified. It starts empty and every hit is fixed by
@@ -219,6 +243,20 @@ defmodule Sigra.Brand.ClaimsDocsTest do
         unbounded?(unit),
         not qualified?(unit, qualifiers),
         do: collapse(unit)
+  end
+
+  # Public `@moduledoc` and multiline `@doc` strings from an Elixir module.
+  # Keep source comments and executable strings out of the published-doc scan.
+  defp library_docs!(file) do
+    file
+    |> read!()
+    |> library_docs_from_source()
+  end
+
+  defp library_docs_from_source(source) do
+    Regex.scan(~r/@(?:module)?doc\s+"""(.*?)"""/s, source, capture: :all_but_first)
+    |> List.flatten()
+    |> Enum.join("\n\n")
   end
 
   # Drops the paragraphs a `{file, substring}` allow-list entry for `file`
@@ -424,6 +462,45 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
       refute not_covered_list(after_marker) =~ ~r/password[\s-]reset/i
       assert not_covered_list(after_marker) =~ "timing"
+    end
+
+    test "the cited library documentation no longer carries retired claims" do
+      offenders =
+        for {file, phrases} <- @retired_library_claims,
+            phrase <- retired_present(library_docs!(file), phrases),
+            do: "#{file}: #{inspect(phrase)}"
+
+      assert offenders == [],
+             "Retired library doc claims are back:\n#{Enum.join(offenders, "\n")}"
+    end
+
+    test "positive control: every retired library claim is detected in planted docstrings" do
+      for {file, phrases} <- @retired_library_claims do
+        planted = "@moduledoc \"\"\"\n" <> Enum.join(phrases, " and ") <> "\n\"\"\""
+
+        assert retired_present(library_docs_from_source(planted), phrases) == phrases,
+               "#{file}: a planted retired claim went unreported"
+      end
+    end
+  end
+
+  describe "library moduledoc and function-doc claim units" do
+    test "all listed modules have public docs and no unqualified enumeration claim" do
+      for file <- @library_docs do
+        docs = library_docs!(file)
+
+        assert docs != "", "#{file} has no extracted public docstrings"
+
+        assert unbounded_units(docs, @qualifiers) == [],
+               "#{file} contains an unqualified claim unit: #{inspect(unbounded_units(docs, @qualifiers))}"
+      end
+    end
+
+    test "a planted library moduledoc claim is caught by the shared claim-unit scanner" do
+      planted = "@moduledoc \"\"\"\nMessages are enumeration-safe.\n\"\"\""
+      claims = library_docs_from_source(planted)
+
+      assert unbounded_units(claims, @qualifiers) == ["Messages are enumeration-safe."]
     end
   end
 
