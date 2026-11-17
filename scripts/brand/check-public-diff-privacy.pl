@@ -52,15 +52,17 @@ my @controls = (
   "!$git_name!",
   "x$home/tmp x",
   "https://$origin/",
-  'person@example.com',
+  join('', 'person', '@', 'example', '.', 'com'),
 );
 for my $i (0 .. $#rules) {
   my $pattern = $rules[$i][1];
   die "privacy detector self-check failed (rule $rules[$i][0])\n"
     unless $controls[$i] =~ $pattern;
 }
+my $test_email = join('', 'fixture', '@', 'example', '.', 'test');
+my $non_test_email = join('', 'fixture', '@', 'example', '.', 'com');
 die "email fixture exception self-check failed\n"
-  unless 'fixture@example.test' !~ $rules[-1][1] && 'fixture@example.com' =~ $rules[-1][1];
+  unless $test_email !~ $rules[-1][1] && $non_test_email =~ $rules[-1][1];
 
 my @lines;
 my $diff = run_capture('git', 'diff', '--no-ext-diff', '--unified=0', $base, '--', '.', ':!.planning/**');
