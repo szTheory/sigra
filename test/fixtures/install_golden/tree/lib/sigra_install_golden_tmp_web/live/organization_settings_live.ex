@@ -51,28 +51,28 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationSettingsLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-    <div class="mx-auto max-w-2xl">
+    <div class="sigra-auth-flow sigra-auth-flow--wide">
       <.header>
         Organization settings
         <:subtitle>{@org.name}</:subtitle>
       </.header>
 
-      <section class="bg-base-200 p-6 rounded-lg mt-6">
-        <h2 class="text-lg font-semibold">General</h2>
-        <.form for={@rename_form} phx-submit="rename" class="mt-4">
+      <section class="sigra-auth-section">
+        <h2 class="sigra-auth-heading">General</h2>
+        <.form for={@rename_form} phx-submit="rename" class="sigra-auth-stack">
           <.input field={@rename_form[:name]} label="Organization name" required />
           <.button phx-disable-with="Saving...">Save name</.button>
         </.form>
       </section>
 
-      <section class="bg-base-200 p-6 rounded-lg mt-8">
-        <h2 class="text-lg font-semibold">Slug</h2>
-        <p class="text-sm text-base-content/70 mt-1">
+      <section class="sigra-auth-section">
+        <h2 class="sigra-auth-heading">Slug</h2>
+        <p class="sigra-auth-copy sigra-auth-copy--muted">
           Current: <code>{@org.slug}</code>
         </p>
 
         <%= if @slug_form_open? do %>
-          <.form for={@slug_form} phx-submit="update_slug" class="mt-4 space-y-3">
+          <.form for={@slug_form} phx-submit="update_slug" class="sigra-auth-stack sigra-auth-stack--3">
             <.input field={@slug_form[:slug]} label="New slug" required />
             <.input
               field={@slug_form[:password]}
@@ -87,8 +87,8 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationSettingsLive do
               required
             />
 
-            <div role="alert" class="alert alert-warning alert-soft">
-              <.icon name="hero-exclamation-triangle" class="w-5 h-5" />
+            <div role="alert" class="sigra-auth-notice sigra-auth-notice--warning">
+              <.icon name="hero-exclamation-triangle" class="sigra-auth-icon" />
               <span>
                 Your current slug <code>{@org.slug}</code>
                 will redirect to the new slug for 7 days, after which it becomes
@@ -98,28 +98,28 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationSettingsLive do
               </span>
             </div>
 
-            <div class="flex gap-2">
-              <.button class="btn btn-error" phx-disable-with="Updating...">
+            <div class="sigra-auth-cluster">
+              <.button class="sigra-auth-action sigra-auth-action--danger" phx-disable-with="Updating...">
                 Update slug
               </.button>
-              <button type="button" phx-click="close_slug_form" class="btn btn-ghost">
+              <button type="button" phx-click="close_slug_form" class="sigra-auth-action sigra-auth-action--secondary">
                 Cancel
               </button>
             </div>
           </.form>
         <% else %>
-          <.button phx-click="open_slug_form" class="mt-4">Change slug</.button>
+          <.button phx-click="open_slug_form" class="sigra-auth-stack">Change slug</.button>
         <% end %>
       </section>
 
-      <section class="mt-8 rounded-lg border border-error/40 border-l-4 border-l-error bg-base-100 p-6">
-        <h2 class="text-lg font-semibold text-error">Danger zone</h2>
-        <p class="text-sm mt-1">
+      <section class="sigra-auth-section">
+        <h2 class="sigra-auth-heading sigra-auth-copy--danger">Danger zone</h2>
+        <p class="sigra-auth-copy">
           Soft-delete this organization. Members lose access immediately.
         </p>
 
         <%= if @delete_form_open? do %>
-          <.form for={@delete_form} phx-submit="soft_delete" class="mt-4 space-y-3">
+          <.form for={@delete_form} phx-submit="soft_delete" class="sigra-auth-stack sigra-auth-stack--3">
             <.input
               field={@delete_form[:password]}
               type="password"
@@ -133,61 +133,61 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationSettingsLive do
               required
             />
 
-            <div class="flex gap-2">
-              <.button class="btn btn-error" phx-disable-with="Deleting...">
+            <div class="sigra-auth-cluster">
+              <.button class="sigra-auth-action sigra-auth-action--danger" phx-disable-with="Deleting...">
                 Delete organization permanently
               </.button>
-              <button type="button" phx-click="close_delete_form" class="btn btn-ghost">
+              <button type="button" phx-click="close_delete_form" class="sigra-auth-action sigra-auth-action--secondary">
                 Cancel
               </button>
             </div>
           </.form>
         <% else %>
-          <.button phx-click="open_delete_form" class="btn btn-error btn-soft mt-4">
+          <.button phx-click="open_delete_form" class="sigra-auth-action sigra-auth-action--danger">
             Delete organization
           </.button>
         <% end %>
       </section>
 
-      <section class="bg-base-200 p-6 rounded-lg mt-8">
-        <div class="flex items-start justify-between gap-4">
+      <section class="sigra-auth-section">
+        <div class="sigra-auth-split">
           <div>
-            <h2 class="text-lg font-semibold">Enterprise SSO</h2>
-            <p class="text-sm text-base-content/70 mt-1">
+            <h2 class="sigra-auth-heading">Enterprise SSO</h2>
+            <p class="sigra-auth-copy sigra-auth-copy--muted">
               Configure an organization-bound enterprise connection. Saving keeps a draft;
               validate checks OIDC discovery; activate only succeeds when validation passes.
             </p>
           </div>
-          <span class="badge badge-outline">
+          <span class="sigra-auth-status">
             {enterprise_status(@enterprise_connection)}
           </span>
         </div>
 
-        <div class="mt-4 grid gap-3 md:grid-cols-2">
-          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
-            <h3 class="font-semibold">Setup</h3>
-            <p class="mt-1 text-sm text-base-content/70">
+        <div class="sigra-auth-stack sigra-auth-stack--3">
+          <div class="sigra-auth-section">
+            <h3 class="sigra-auth-heading">Setup</h3>
+            <p class="sigra-auth-copy sigra-auth-copy--muted">
               Save a draft, validate discovery, then activate. If the connection stays
               `validation_failed`, use the last validation error as the setup-stage truth.
             </p>
           </div>
-          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
-            <h3 class="font-semibold">Routing</h3>
-            <p class="mt-1 text-sm text-base-content/70">
+          <div class="sigra-auth-section">
+            <h3 class="sigra-auth-heading">Routing</h3>
+            <p class="sigra-auth-copy sigra-auth-copy--muted">
               Enterprise sign-in should start from the canonical organization route or
               bounded domain discovery, not a generic fallback path.
             </p>
           </div>
-          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
-            <h3 class="font-semibold">Reconciliation</h3>
-            <p class="mt-1 text-sm text-base-content/70">
+          <div class="sigra-auth-section">
+            <h3 class="sigra-auth-heading">Reconciliation</h3>
+            <p class="sigra-auth-copy sigra-auth-copy--muted">
               Callback recovery stays on the same organization enterprise route when
               reconciliation fails safely.
             </p>
           </div>
-          <div class="rounded-lg border border-base-300 bg-base-100 p-4">
-            <h3 class="font-semibold">Enforcement</h3>
-            <p class="mt-1 text-sm text-base-content/70">
+          <div class="sigra-auth-section">
+            <h3 class="sigra-auth-heading">Enforcement</h3>
+            <p class="sigra-auth-copy sigra-auth-copy--muted">
               SSO-only denial is separate from setup and routing. Use explicit break-glass
               members for the password-only recovery path.
             </p>
@@ -195,13 +195,13 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationSettingsLive do
         </div>
 
         <%= if @enterprise_connection && @enterprise_connection.last_validation_error do %>
-          <div role="alert" class="alert alert-warning alert-soft mt-4">
-            <.icon name="hero-exclamation-triangle" class="w-5 h-5" />
+          <div role="alert" class="sigra-auth-notice sigra-auth-notice--warning">
+            <.icon name="hero-exclamation-triangle" class="sigra-auth-icon" />
             <span>{@enterprise_connection.last_validation_error}</span>
           </div>
         <% end %>
 
-        <.form for={@enterprise_form} phx-submit="submit_enterprise_connection" class="mt-4 space-y-4">
+        <.form for={@enterprise_form} phx-submit="submit_enterprise_connection" class="sigra-auth-stack sigra-auth-stack--4">
           <.input field={@enterprise_form[:display_name]} label="Display name" required />
           <.input
             field={@enterprise_form[:login_hint_domains]}
@@ -210,7 +210,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationSettingsLive do
           />
 
           <.inputs_for :let={oidc_form} field={@enterprise_form[:oidc_settings]}>
-            <div class="grid gap-4 md:grid-cols-2">
+            <div class="sigra-auth-stack">
               <.input field={oidc_form[:issuer]} label="OIDC issuer" required />
               <.input field={oidc_form[:client_id]} label="Client ID" required />
               <.input
@@ -237,7 +237,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationSettingsLive do
             </div>
           </.inputs_for>
 
-          <div class="flex flex-wrap gap-2">
+          <div class="sigra-auth-cluster">
             <.button name="_action" value="save" phx-disable-with="Saving...">
               Save draft
             </.button>
@@ -251,7 +251,7 @@ defmodule SigraInstallGoldenTmpWeb.OrganizationSettingsLive do
               :if={@enterprise_connection}
               type="button"
               phx-click="disable_enterprise_connection"
-              class="btn btn-ghost"
+              class="sigra-auth-action sigra-auth-action--secondary"
             >
               Disable
             </button>

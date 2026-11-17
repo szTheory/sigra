@@ -27,49 +27,49 @@ defmodule SigraInstallGoldenTmpWeb.Components.OrgSwitcher do
 
   def org_switcher(assigns) do
     ~H"""
-    <details class="dropdown dropdown-end" id="org-switcher">
+    <details class="sigra-auth-disclosure" id="org-switcher">
       <summary
         aria-label="Organization switcher"
         aria-expanded="false"
-        class="btn btn-ghost gap-2 normal-case">
-        <span class="avatar placeholder bg-primary/10 text-primary-content rounded w-6 h-6 text-xs">
+        class="sigra-auth-action sigra-auth-action--secondary sigra-auth-cluster">
+        <span class="sigra-auth-status">
           {initials(@current_scope.active_organization.name)}
         </span>
-        <span class="text-sm font-semibold truncate max-w-[20ch]">
+        <span class="sigra-auth-copy">
           {@current_scope.active_organization.name}
         </span>
-        <span class={["badge badge-xs", role_badge_class(@current_scope.membership.role)]}>
+        <span class="sigra-auth-status">
           {humanize_role(@current_scope.membership.role)}
         </span>
-        <.icon name="hero-chevron-down" class="w-4 h-4" />
+        <.icon name="hero-chevron-down" class="sigra-auth-icon" />
       </summary>
 
-      <ul class="menu menu-sm dropdown-content bg-base-100 rounded-box w-64 p-1 shadow z-50">
-        <li class="menu-title text-xs uppercase">Active</li>
-        <li class="menu-active">
+      <ul class="sigra-auth-stack sigra-auth-section">
+        <li class="sigra-auth-copy sigra-auth-copy--muted">Active</li>
+        <li class="sigra-auth-status">
           <span>
-            <.icon name="hero-check" class="w-4 h-4" />
+            <.icon name="hero-check" class="sigra-auth-icon" />
             {@current_scope.active_organization.name}
-            <span class={["badge badge-xs", role_badge_class(@current_scope.membership.role)]}>
+            <span class="sigra-auth-status">
               {humanize_role(@current_scope.membership.role)}
             </span>
           </span>
         </li>
 
         <%= if other_orgs(@user_organizations, @current_scope.active_organization) != [] do %>
-          <li class="menu-title text-xs uppercase">Switch to</li>
+          <li class="sigra-auth-copy sigra-auth-copy--muted">Switch to</li>
           <%= for {org, role} <- other_orgs(@user_organizations, @current_scope.active_organization) do %>
             <li>
-              <form action={~p"/organizations/switch"} method="post" class="w-full">
+              <form action={~p"/organizations/switch"} method="post" class="sigra-auth-grow">
                 <input type="hidden" name="_csrf_token" value={CSRFProtection.get_csrf_token()} />
                 <input type="hidden" name="organization_id" value={org.id} />
                 <input type="hidden" name="return_to" value={@return_to} />
                 <button
                   type="submit"
                   aria-label={"Switch to #{org.name}"}
-                  class="flex w-full items-center justify-between">
+                  class="sigra-auth-action sigra-auth-action--secondary sigra-auth-cluster sigra-auth-cluster--between">
                   <span>{org.name}</span>
-                  <span class={["badge badge-xs", role_badge_class(role)]}>
+                  <span class="sigra-auth-status">
                     {humanize_role(role)}
                   </span>
                 </button>
@@ -78,22 +78,22 @@ defmodule SigraInstallGoldenTmpWeb.Components.OrgSwitcher do
           <% end %>
         <% end %>
 
-        <li class="divider my-1"></li>
+        <li class="sigra-auth-divider"></li>
         <li>
           <.link navigate={~p"/organizations/new"}>
-            <.icon name="hero-plus" class="w-4 h-4" /> Create organization
+            <.icon name="hero-plus" class="sigra-auth-icon" /> Create organization
           </.link>
         </li>
         <%= if @current_scope.membership.role in [:owner, :admin] do %>
           <li>
             <.link navigate={~p"/organizations/#{@current_scope.active_organization}/settings"}>
-              <.icon name="hero-cog-6-tooth" class="w-4 h-4" /> Organization settings
+              <.icon name="hero-cog-6-tooth" class="sigra-auth-icon" /> Organization settings
             </.link>
           </li>
         <% end %>
         <li>
           <.link navigate={~p"/organizations"}>
-            <.icon name="hero-users" class="w-4 h-4" /> Manage organizations
+            <.icon name="hero-users" class="sigra-auth-icon" /> Manage organizations
           </.link>
         </li>
       </ul>
@@ -110,15 +110,6 @@ defmodule SigraInstallGoldenTmpWeb.Components.OrgSwitcher do
   end
 
   defp initials(_), do: "?"
-
-  # daisyUI badge variants:
-  #   owner  -> badge-primary (accent)
-  #   admin  -> badge-neutral (neutral)
-  #   member -> badge-ghost   (lowest weight)
-  defp role_badge_class(:owner), do: "badge-primary"
-  defp role_badge_class(:admin), do: "badge-neutral"
-  defp role_badge_class(:member), do: "badge-ghost"
-  defp role_badge_class(_), do: "badge-ghost"
 
   defp humanize_role(:owner), do: "Owner"
   defp humanize_role(:admin), do: "Admin"
