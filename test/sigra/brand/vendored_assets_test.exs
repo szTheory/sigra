@@ -21,14 +21,17 @@ defmodule Sigra.Brand.VendoredAssetsTest do
   use ExUnit.Case, async: true
 
   alias Sigra.Install.Features.Admin
+  alias Sigra.Branding.Contrast
 
   @root Path.expand("../../..", __DIR__)
   @fonts_dir "test/example/priv/static/assets/fonts"
 
   # {book source, example copy}. Copy with `cp`; never edit either side.
   @pairs [
-    {"brand/assets/docs/sigra-exdoc.css", "docs/assets/brand/sigra-exdoc.css"},
     {"brand/assets/icon/favicon.svg", "docs/assets/brand/favicon.svg"},
+    {"brand/assets/fonts/web/fonts.css", "docs/assets/fonts/fonts.css"},
+    {"brand/assets/fonts/web/sans.woff2", "docs/assets/fonts/sans.woff2"},
+    {"brand/assets/fonts/web/mono.woff2", "docs/assets/fonts/mono.woff2"},
     {"brand/assets/fonts/web/sans.woff2", "#{@fonts_dir}/instrument-sans-var.woff2"},
     {"brand/assets/fonts/web/mono.woff2", "#{@fonts_dir}/red-hat-mono-var.woff2"},
     {"brand/assets/fonts/OFL-InstrumentSans.txt", "#{@fonts_dir}/OFL-InstrumentSans.txt"},
@@ -90,6 +93,72 @@ defmodule Sigra.Brand.VendoredAssetsTest do
       assert String.contains?(mix_exs, ~s("docs/assets" => "assets"))
       assert String.contains?(mix_exs, ~s("guides/assets" => "assets"))
       assert String.contains?(mix_exs, ~s(href="assets/brand/sigra-exdoc.css"))
+    end
+
+    test "the copied stylesheet preserves the brand colors and imports packaged fonts" do
+      source = @root |> Path.join("brand/assets/docs/sigra-exdoc.css") |> File.read!()
+      css = read_docs_css()
+      import = "@import url(\"../fonts/fonts.css\");\n\n"
+
+      assert String.starts_with?(css, import <> source)
+      assert String.contains?(css, "'Instrument Sans', system-ui, sans-serif")
+      assert String.contains?(css, "'Red Hat Mono', ui-monospace, monospace")
+      assert String.contains?(css, "@media (prefers-color-scheme: dark)")
+      assert String.contains?(css, "body.dark {")
+    end
+
+    test "authored typography, colors, and focus meet the approved contract" do
+      css = read_docs_css()
+
+      assert css_declaration(css, "body", "font-family") ==
+               "'Instrument Sans', system-ui, sans-serif"
+
+      assert css_declaration(css, "body", "font-size") == "16px"
+      assert css_declaration(css, "body", "font-weight") == "400"
+      assert css_declaration(css, "body", "line-height") == "1.55"
+      assert css_declaration(css, "h1,h2,h3,h4,h5,h6", "font-size") == "28px"
+      assert css_declaration(css, "h1,h2,h3,h4,h5,h6", "font-weight") == "700"
+      assert css_declaration(css, "h1,h2,h3,h4,h5,h6", "line-height") == "1.2"
+      assert css_declaration(css, "body", "color") == "var(--sigra-page-text)"
+      assert css_declaration(css, ".content .content-inner", "color") == "var(--sigra-surface-text)"
+      assert css_declaration(css, "body a", "color") == "var(--sigra-link)"
+      assert css_declaration(css, ".content-inner a", "color") == "var(--sigra-link)"
+      assert css_declaration(css, "body", "color", 1) == "var(--sigra-page-text)"
+      assert css_declaration(css, ".content .content-inner", "color", 1) ==
+               "var(--sigra-surface-text)"
+      assert css_declaration(css, "body a", "color", 1) == "var(--sigra-link)"
+      assert css_declaration(css, ".content-inner a", "color", 1) == "var(--sigra-link)"
+      assert css_declaration(css, "body.dark", "color", 2) == "var(--sigra-page-text)"
+      assert css_declaration(css, "body.dark .content .content-inner", "color") ==
+               "var(--sigra-surface-text)"
+      assert css_declaration(css, "body.dark a", "color") == "var(--sigra-link)"
+      assert css_declaration(css, "body.dark .content-inner a", "color") ==
+               "var(--sigra-link)"
+
+      assert css_declaration(css, "pre code.makeup", "font-family", 1) ==
+               "'Red Hat Mono', ui-monospace, monospace"
+
+      assert css_declaration(css, "pre code.makeup", "font-size", 1) == "13px"
+      assert css_declaration(css, "pre code.makeup", "font-weight", 1) == "400"
+      assert css_declaration(css, "pre code.makeup", "line-height", 1) == "1.5"
+      assert css_declaration(css, "pre code.makeup", "background") == "var(--sigra-doc-bg)"
+      assert css_declaration(css, "pre code.makeup", "color") == "var(--sigra-doc-text)"
+      assert String.contains?(css, ".makeup .c,.makeup .c1,.makeup .cm")
+      assert String.contains?(css, ".makeup .k,.makeup .kd,.makeup .kn")
+      assert String.contains?(css, ".makeup .s,.makeup .s1,.makeup .s2")
+      assert String.contains?(css, ".makeup .ss,.makeup .na,.makeup .no")
+      assert css_declaration(css, ":focus-visible", "outline") ==
+               "2px solid var(--sigra-focus)"
+
+      assert_contrast(css, :light, ":root", 2, ":root", 0)
+      assert_contrast(css, :dark_system, ":root", 3, ":root", 1)
+      assert_contrast(css, :dark_explicit, "body.dark", 1, "body.dark", 0)
+      assert css_declaration(css, "body.dark :focus-visible", "outline-color") ==
+               "var(--sigra-focus)"
+
+      # The contract's missing-rule control is in memory; no repository file is modified.
+      planted = String.replace(css, "body a {", "body a_missing {")
+      assert :light_body_link in css_violations(planted)
     end
   end
 
@@ -340,6 +409,75 @@ defmodule Sigra.Brand.VendoredAssetsTest do
   end
 
   defp read_brand_css, do: @root |> Path.join(@brand_css) |> File.read!()
+
+  defp read_docs_css, do: @root |> Path.join("docs/assets/brand/sigra-exdoc.css") |> File.read!()
+
+  defp css_declaration(css, selector, property, occurrence \\ 0) do
+    pattern = ~r/(?:^|[{}\n])\s*#{Regex.escape(selector)}\s*\{([^{}]*)\}/s
+
+    Regex.scan(pattern, strip_comments(css))
+    |> Enum.map(&List.last/1)
+    |> Enum.at(occurrence)
+    |> case do
+      nil -> nil
+      body ->
+        body
+        |> String.split(";")
+        |> Enum.find_value(fn declaration ->
+          case String.split(String.trim(declaration), ":", parts: 2) do
+            [^property, value] -> String.trim(value)
+            _ -> nil
+          end
+        end)
+    end
+  end
+
+  defp css_violations(css) do
+    checks = [
+      {:light_body_link, css_declaration(css, "body a", "color") == nil},
+      {:light_focus, css_declaration(css, ":focus-visible", "outline") == nil},
+      {:dark_system, css_declaration(css, ":root", "--sigra-page-bg", 3) == nil},
+      {:dark_explicit, css_declaration(css, "body.dark", "--sigra-page-bg", 1) == nil}
+    ]
+
+    for {kind, true} <- checks, do: kind
+  end
+
+  defp assert_contrast(css, mode, selector, occurrence, code_selector, code_occurrence) do
+    values = %{
+      page: css_declaration(css, selector, "--sigra-page-bg", occurrence),
+      page_text: css_declaration(css, selector, "--sigra-page-text", occurrence),
+      surface: css_declaration(css, selector, "--sigra-surface-bg", occurrence),
+      surface_text: css_declaration(css, selector, "--sigra-surface-text", occurrence),
+      link: css_declaration(css, selector, "--sigra-link", occurrence),
+      focus: css_declaration(css, selector, "--sigra-focus", occurrence)
+    }
+
+    for {foreground, background, label} <- [
+          {values.page_text, values.page, :page_text_on_page},
+          {values.page_text, values.surface, :page_text_on_surface},
+          {values.surface_text, values.page, :surface_text_on_page},
+          {values.surface_text, values.surface, :surface_text_on_surface},
+          {values.link, values.page, :link_on_page},
+          {values.link, values.surface, :link_on_surface},
+          {values.focus, values.page, :focus_on_page}
+        ] do
+      minimum = if label == :focus_on_page, do: 3.0, else: 4.5
+
+      assert Contrast.contrast_ratio(foreground, background) >= minimum,
+             "#{mode} #{label} contrast is below #{minimum}:1"
+    end
+
+    code_background = css_declaration(css, code_selector, "--sigra-doc-bg", code_occurrence)
+    code_tokens = ["--sigra-doc-text", "--sigra-doc-comment", "--sigra-doc-keyword", "--sigra-doc-string", "--sigra-doc-atom"]
+
+    for token <- code_tokens do
+      color = css_declaration(css, code_selector, token, code_occurrence)
+
+      assert Contrast.contrast_ratio(color, code_background) >= 4.5,
+             "#{mode} #{token} contrast is below 4.5:1"
+    end
+  end
 
   # `:ok` when the example copy has the same sha256 as the book source, otherwise
   # `{:mismatch, example_path}`. `contents` is `%{repo_relative_path => bytes}`.

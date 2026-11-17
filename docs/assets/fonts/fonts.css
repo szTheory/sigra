@@ -1,0 +1,3 @@
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400 700;font-display:swap;src:url('sans.woff2') format('woff2')}
+@font-face{font-family:'Red Hat Mono';font-style:normal;font-weight:400 500;font-display:swap;src:url('mono.woff2') format('woff2')}
+/* Latin subsets; for other scripts use the files in ../variable. */
