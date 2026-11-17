@@ -55,7 +55,7 @@ my @rules = (
 
 # Prove each detector catches a synthetic control without exposing runtime values.
 my @controls = (
-  " $account ",
+  "The draft was prepared by $account.",
   "The draft was reviewed by $git_name.",
   "x$home/tmp x",
   "https://$origin/",
