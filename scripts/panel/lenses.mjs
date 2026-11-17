@@ -85,25 +85,25 @@ const GRAPHIC_DESIGN_QUESTIONS = [
     target_failure:
       'Perceived first-fixation dominance of the wrong element — the eye lands on a secondary or decorative element before the primary action or key status signal.',
     citation:
-      'admin-ui-principles.md §Information Architecture — "make the next action obvious"; brandbook/brand-book.md §Design Principles — "Proof over mood"',
+      'admin-ui-principles.md §Information Architecture — "make the next action obvious"; brand/BRAND.md §Voice — plain and specific, and say what Sigra does not do',
   },
   {
     key: 'emphasis_ember',
-    label: 'Is emphasis (especially ember) earning its meaning, or decorating?',
+    label: 'Is the Kiln accent earning its meaning, or decorating?',
     class_key: 'graphic_design:emphasis_ember',
     named_pillars: 'restraint + ember-as-boundary',
     refutation_probe:
-      'Name one place in this PNG where ember is applied decoratively (not at an ownership boundary, CTA, or selection state), ' +
-      'OR name one meaning-bearing element that is under-emphasized (should carry ember or heavier weight and does not). ' +
+      'Name one place in this PNG where the Kiln accent is applied decoratively (not at an ownership boundary, CTA, or selection state), ' +
+      'OR name one meaning-bearing element that is under-emphasized (should carry the accent or stronger weight and does not). ' +
       'If neither, say so explicitly, including what you searched for.',
     none_path:
-      'NONE — searched for: <description, e.g. "decorative ember on section headings" or "under-emphasized primary CTA on the dark-theme screenshot">',
+      'NONE — searched for: <description, e.g. "decorative Kiln accent on section headings" or "under-emphasized primary CTA on the dark-theme screenshot">',
     target_failure:
-      'Semantic drift of the ember accent — used decoratively where no ownership boundary, primary action, or selection state exists; OR under-emphasis of meaning-bearing elements.',
+      'Semantic drift of the Kiln accent — used decoratively where no ownership boundary, primary action, or selection state exists; OR under-emphasis of meaning-bearing elements.',
     brand_values:
-      'Light theme: #c2410c (CSS token --sigra-accent). Dark theme: #fdba74 (CSS token --sigra-accent-strong in dark mode). Space Grotesk weight conventions (wght=700). Core Rails visual identity: the rail-block mark + linked g-tail lockup.',
+      'Light theme: Kiln #C2410C (brand/tokens.json color.light.kiln). Dark theme: Kiln Bright #F08A55 (brand/tokens.json color.dark.kiln-bright). Sigra-owned type uses Instrument Sans and Red Hat Mono; Tasklane host chrome may retain Space Grotesk. The current mark is the sigra word with one plain square above the i.',
     citation:
-      'brandbook/brand-book.md §Color — "Ember is for Sigra identity, primary CTAs, selected states, and ownership-boundary highlights. Do not use accent color for every icon or heading. Dark mode must use the lightened accent-strong token (#fdba74)"; admin-ui-principles.md §Brand Application — "Ember accent is for Sigra identity, primary actions, selected states, and ownership-boundary emphasis. Do not use it for every heading or icon"',
+      'brand/BRAND.md §Color: Kiln on light and Kiln Bright on dark; brand/tokens.json color.light.kiln / color.dark.kiln-bright; admin-ui-principles.md §Brand Application for the admin accent’s semantic use',
   },
   {
     key: 'composition',
@@ -120,7 +120,7 @@ const GRAPHIC_DESIGN_QUESTIONS = [
     screenshot_requirement:
       'This question requires BOTH light-theme AND dark-theme screenshot.png. Must cite which theme(s) the finding was observed on: evidence_cell: light | dark | both.',
     citation:
-      'admin-ui-principles.md §Design System — "8px visual rhythm; same job means same component"; §Theme And Motion — "Admin supports Light, Dark, and System"; brandbook/brand-book.md §Layout — "8px visual rhythm; prefer full-width bands and constrained inner content"',
+      'admin-ui-principles.md §Design System — "8px visual rhythm; same job means same component"; §Theme And Motion — "Admin supports Light, Dark, and System"; brand/BRAND.md §Type: the hierarchy for Sigra-owned type',
   },
 ];
 
@@ -179,9 +179,9 @@ const GRAPHIC_DESIGN_LENS = {
   seven_pillars: [
     'hierarchy/salience — Primary actions and key status signals must dominate attention; secondary elements recede',
     'restraint — Accent color and visual weight are spent only where they carry meaning',
-    'ember-as-boundary — Ember (#c2410c light / #fdba74 dark) marks Sigra identity, primary actions, selected states, and ownership-boundary highlights — it is a semantic signal, not decoration',
+    'ember-as-boundary — the Kiln accent (#C2410C light / #F08A55 dark) marks Sigra identity, primary actions, selected states, and ownership-boundary highlights — it is a semantic signal, not decoration',
     'consistency — Same job → same component; identical patterns across sibling surfaces',
-    'typographic coherence — Type hierarchy is legible, unambiguous, and consistent with Space Grotesk weight conventions',
+    'typographic coherence — Sigra-owned type follows Instrument Sans and Red Hat Mono; host chrome may retain its own face, including Space Grotesk in Tasklane',
     'dark/light emphasis parity — Emphasis signals (weight, color contrast, size) land with equal clarity in both light and dark themes',
     'composition/balance — Gestalt grouping, whitespace rhythm, and visual weight are distributed so the layout reads as an intentional whole',
   ],

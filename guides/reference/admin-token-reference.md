@@ -40,7 +40,7 @@ Light-mode values from `:root`. Dark overrides noted. See the dark AA remediatio
 
 ### Dark AA Remediation Note
 
-In the dark override block (`@media (prefers-color-scheme: dark)`, and the explicit Dark shell block that mirrors it), `--sg-color-brand-strong` and `--sg-color-brand-solid` are Kiln Bright `#F08A55`. The value `#fdba74`, which v1.34 introduced to clear WCAG AA on the dark `brand-soft` tint (`rgba(243, 90, 16, 0.16)` over `#1f1d1a` measured about 1.88:1 with the original `#9a3412`), is retired. Kiln Bright clears 4.5:1 on the dark grounds and on that tint (5.59:1 over Char Surface).
+In the dark override block (`@media (prefers-color-scheme: dark)`, and the explicit Dark shell block that mirrors it), `--sg-color-brand-strong` and `--sg-color-brand-solid` are Kiln Bright `#F08A55`. The previous dark brand-strong value `#fdba74`, introduced in v1.34, is retired for those tokens; it remains separately assigned to `--sg-logo-rail-accent` above. Kiln Bright clears 4.5:1 on the dark grounds and on the dark `brand-soft` tint (5.59:1 over Char Surface).
 
 The dark label on a Kiln Bright fill is Char `#17120F` (`--sg-color-on-brand`, 7.50:1). White on Kiln Bright is 2.48:1, so dark `--sg-color-on-brand` and `--sg-color-on-brand-solid` are Char, and the explicit Light block restates `--sg-color-brand` and `--sg-color-on-brand` so a Light choice on a dark OS keeps Kiln with a white label. The dark hover and active fills are forced for the same reason: Char on the previous dark fills (`#c74712`, `#9a3412`) is 3.84:1 and 2.54:1.
 
@@ -67,7 +67,7 @@ Added by the Kiln migration. Each is a literal hex declared in all four token bl
 
 ## Color — Semantic Status
 
-Light-mode values from `:root`. Dark overrides noted. All eight tones are kept as they were: the book has no equivalent, `sigra_auth.css` carries the same ember fallbacks and a test pins admin `risk`, `warn` and `ok` equal to them, and they already clear WCAG AA on the Kiln grounds. The book's own status colours ship as the Kiln additions above.
+Light-mode values from `:root`. Dark overrides noted. These eight generic admin feedback tones remain unchanged: `brand/tokens.json` has no direct equivalents, `sigra_auth.css` carries the matching fallbacks, and a test pins admin `risk`, `warn` and `ok` to them. The account-status colors are defined separately under `color.status.*` in `brand/tokens.json` and mapped in the status rows above.
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
@@ -145,7 +145,7 @@ Sizes follow a ~1.2 minor-third modular scale. The book allows weights 400, 600 
 
 ## Control Heights
 
-Fixed heights for interactive form controls. No equivalent in `brandbook/tokens.json`; sized by admin UX requirements only.
+Fixed heights for interactive form controls. No equivalent in `brand/tokens.json`; sized by admin UX requirements only.
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
@@ -219,7 +219,7 @@ Seven duration tokens and four easing curves validated against emilkowal.ski's r
 
 ## Z-Index Ladder
 
-Fixed integer steps for layering contexts. No equivalent in `brandbook/tokens.json`; admin-layer decisions throughout.
+Fixed integer steps for layering contexts. No equivalent in `brand/tokens.json`; admin-layer decisions throughout.
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
@@ -233,7 +233,7 @@ Fixed integer steps for layering contexts. No equivalent in `brandbook/tokens.js
 
 ## Layout
 
-Container and breakpoint tokens. No equivalent in `brandbook/tokens.json`; admin-layer decisions throughout.
+Container and breakpoint tokens. No equivalent in `brand/tokens.json`; admin-layer decisions throughout.
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
@@ -270,4 +270,4 @@ The `--sg-*` token set in this document is kept complete by automated CI guards 
 
 ---
 
-Cross-reference: `admin-design-contract.md` (dark AA resolution note ~line 207), `brandbook/tokens.json` (brand source of truth), `guides/reference/admin-quality-ledger.md` (L0 row).
+Cross-reference: `admin-design-contract.md` (dark AA resolution note ~line 207), `brand/tokens.json` (brand source of truth), `guides/reference/admin-quality-ledger.md` (L0 row).
