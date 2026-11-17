@@ -24,16 +24,16 @@ Add `:sigra` to `deps/0` in `mix.exs`:
         {:phoenix, "~> 1.8"},
         {:ecto_sql, "~> 3.12"},
         # ...
-        {:sigra, "~> 1.5.0"}
+        {:sigra, "~> 1.7.1"}
       ]
     end
 
-The selected 1.5 package line is governed by the [Sigra 1.0 contract](contract.html).
+The selected 1.7.1 package line is governed by the [Sigra 1.0 contract](contract.html).
 
 The three-segment requirement is deliberate. An erroneous `1.20.0` was published to
-Hex and, by SemVer ordering, sorts above the current `1.5.x` releases. `~> 1.5.0`
-means `>= 1.5.0 and < 1.6.0`, which keeps resolution on the supported line. A
-retirement warning is advisory, so use this bounded requirement rather than expecting registry
+Hex and, by SemVer ordering, sorts above the 1.7.x releases. `~> 1.7.1` means
+`>= 1.7.1 and < 1.8.0`, which keeps resolution on the supported line. A retirement
+warning is advisory, so use this bounded requirement rather than expecting registry
 metadata to rewrite an existing lockfile or resolver result.
 
 Fetch it:

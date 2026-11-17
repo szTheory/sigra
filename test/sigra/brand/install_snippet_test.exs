@@ -6,16 +6,14 @@ defmodule Sigra.Brand.InstallSnippetTest do
   README, the guides, `docs/` and the generator templates must use a
   three-segment requirement, and all of them must be identical.
 
-  A two-segment requirement still resolves to the retired stray 1.20.0 Hex
-  release, because Hex retirement is advisory and a looser requirement picks
-  the highest matching version. A three-segment requirement bounds resolution
-  to one maintained minor line.
+  A two-segment requirement such as `~> 1.7` can still select the retired stray
+  1.20.0 Hex release because retirement is advisory. Use the three-segment
+  `~> 1.7.1` requirement to bound resolution below 1.8.0.
 
-  The test checks SHAPE and cross-file EQUALITY, never a specific version. The
-  value is bumped by the publish-readiness work, which also owns the separate
-  Phase 242 contract test that pins the current value. This module is therefore
-  green for any equal three-segment set and must not be edited when the pin is
-  bumped.
+  The test checks SHAPE and cross-file EQUALITY, never a specific version. Phase
+  263 sets the documented value to `~> 1.7.1`; a separate remote pull-request CI
+  scratch-project check verifies it selects a non-retired release. This module
+  remains green for any equal three-segment set and does not pin the value.
 
   There is no allow-list, exemption or per-file skip. If a doc ever carries a
   non-conforming tuple, the fix is the doc.
@@ -33,8 +31,8 @@ defmodule Sigra.Brand.InstallSnippetTest do
 
   @root Path.expand("../../..", __DIR__)
 
-  @why "Two-segment requirements still resolve to the retired stray 1.20.0 Hex " <>
-         "release; use a three-segment requirement such as ~> X.Y.Z."
+  @why "A two-segment requirement such as ~> 1.7 can select retired 1.20.0; " <>
+         "use a three-segment requirement such as ~> X.Y.Z."
 
   # A sigra dependency tuple with a quoted requirement. The ellipsis form used
   # in prose (a tuple whose second element is `...`) has no quote after the

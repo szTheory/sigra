@@ -83,7 +83,7 @@ flowchart TD
 1. **Dependency** (`mix.exs`):
 
    ```elixir
-   {:sigra, "~> 1.5.0"}
+   {:sigra, "~> 1.7.1"}
    ```
 
    For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.0 contract](guides/introduction/contract.md).

@@ -87,12 +87,12 @@ Visual and copy changes ship in a minor release.
 - The release notes group these changes under a "Visual and copy changes" section.
 - Nothing is hand-added under CHANGELOG "Unreleased". The release tooling owns that block, and a hand-written note there ships inside the released package.
 
-Install-pin facts, verified on 2026-11-13 against live Hex:
+Install-pin facts, checked on 2026-11-17 against Hex:
 
-- Documented dependency snippets use a three-segment requirement, such as `~> 1.7.0`.
-- A two-segment requirement such as `~> 1.7` still resolves to the retired stray 1.20.0 release, because Hex retirement is advisory and 1.20.0 remains the latest stable version.
-- A three-segment requirement of `~> 1.7.0` resolved 1.7.1.
-- The value bump for the documented snippets belongs to Phase 263; until then a test enforces only the three-segment shape and that every snippet is identical.
+- Hex lists 1.7.1 as the newest non-retired Sigra release; 1.7.2 is not published, and the stray 1.20.0 release is retired.
+- A two-segment requirement such as `~> 1.7` can still select 1.20.0 because Hex retirement is advisory.
+- The documented snippets use `~> 1.7.1`, which bounds resolution to `>= 1.7.1 and < 1.8.0`. Pull-request CI checks that this requirement selects a non-retired release in an isolated scratch project.
+- The install-snippet contract enforces a three-segment shape and equality across every occurrence; it also keeps planted controls to prove the checks can fail.
 
 ## Upgrade notes
 
