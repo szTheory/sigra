@@ -589,6 +589,7 @@ core/error_handler.ex	source_token	Please re-enter your password to continue.
 core/error_handler.ex	source_token	Too many requests. Please try again later.
 core/error_handler.ex	source_token	You don't have permission to access this page in the current organization.
 core/error_handler.ex	source_token	You must log in to access this page.
+core/error_handler.ex	source_token	sigra
 core/error_handler.ex	source_token	text/plain
 core/login_html.ex	source_token	
 core/login_html.ex	source_token	\n            aria-live=
@@ -670,31 +671,20 @@ core/mfa_challenge_controller.ex	source_token	/
 core/mfa_challenge_controller.ex	source_token	/users/log_in
 core/mfa_challenge_controller.ex	source_token	/users/settings
 core/mfa_challenge_controller.ex	source_token	@
-core/mfa_challenge_controller.ex	source_token	Invalid verification code. #{remaining} attempts remaining.
+core/mfa_challenge_controller.ex	source_token	Invalid verification code. %{remaining} attempts remaining.
 core/mfa_challenge_controller.ex	source_token	MFA is not enabled on your account.
-core/mfa_challenge_controller.ex	source_token	Too many failed attempts. Try again in #{minutes} minutes.
+core/mfa_challenge_controller.ex	source_token	Too many failed attempts. Try again in %{minutes} minutes.
 core/mfa_challenge_controller.ex	source_token	Two-factor authentication verified.
 core/mfa_challenge_controller.ex	source_token	backup
 core/mfa_challenge_controller.ex	source_token	code
 core/mfa_challenge_controller.ex	source_token	method
 core/mfa_challenge_controller.ex	source_token	mfa
+core/mfa_challenge_controller.ex	source_token	sigra
 core/mfa_challenge_controller.ex	source_token	totp
 core/mfa_challenge_controller.ex	source_token	true
 core/mfa_challenge_controller.ex	source_token	trust
-core/mfa_challenge_html.ex	heex_attribute	6-digit authenticator code
-core/mfa_challenge_html.ex	heex_attribute	Backup code
-core/mfa_challenge_html.ex	heex_attribute	Verification method
-core/mfa_challenge_html.ex	heex_attribute	XXXX-XXXX
-core/mfa_challenge_html.ex	heex_text	Authenticator code
-core/mfa_challenge_html.ex	heex_text	Backup code
-core/mfa_challenge_html.ex	heex_text	Cancel and sign out
-core/mfa_challenge_html.ex	heex_text	Enter the code for
-core/mfa_challenge_html.ex	heex_text	Enter the code from your authenticator app to continue.
-core/mfa_challenge_html.ex	heex_text	Trust this browser for 30 days
-core/mfa_challenge_html.ex	heex_text	Two-factor authentication
-core/mfa_challenge_html.ex	heex_text	Verify
 core/mfa_challenge_html.ex	source_token	
-core/mfa_challenge_html.ex	source_token	\n                aria-label=
+core/mfa_challenge_html.ex	source_token	\n                aria-label={dgettext(
 core/mfa_challenge_html.ex	source_token	\n                autocomplete=
 core/mfa_challenge_html.ex	source_token	\n                autofocus\n                required\n                class=
 core/mfa_challenge_html.ex	source_token	\n                id=
@@ -702,17 +692,13 @@ core/mfa_challenge_html.ex	source_token	\n                inputmode=
 core/mfa_challenge_html.ex	source_token	\n                maxlength=
 core/mfa_challenge_html.ex	source_token	\n                name=
 core/mfa_challenge_html.ex	source_token	\n                pattern=
-core/mfa_challenge_html.ex	source_token	\n                placeholder=
-core/mfa_challenge_html.ex	source_token	\n                required\n                class=
-core/mfa_challenge_html.ex	source_token	\n              />\n            </div>\n\n            <.sigra_auth_button class=
-core/mfa_challenge_html.ex	source_token	\n              />\n            </div>\n\n            <label class=
+core/mfa_challenge_html.ex	source_token	\n                placeholder={dgettext(
 core/mfa_challenge_html.ex	source_token	\n            aria-selected={@tab == 
 core/mfa_challenge_html.ex	source_token	\n            class=
 core/mfa_challenge_html.ex	source_token	\n            id=
 core/mfa_challenge_html.ex	source_token	\n            onclick=
 core/mfa_challenge_html.ex	source_token	\n            role=
-core/mfa_challenge_html.ex	source_token	\n          >\n            Authenticator code\n          </button>\n          <button\n            type=
-core/mfa_challenge_html.ex	source_token	\n          >\n            Backup code\n          </button>\n        </div>\n      </div>\n\n      <%% # TOTP Tab Content %>\n      <div\n        id=
+core/mfa_challenge_html.ex	source_token	\n          >\n            {dgettext(
 core/mfa_challenge_html.ex	source_token	\n        aria-labelledby=
 core/mfa_challenge_html.ex	source_token	\n        class={if @tab != 
 core/mfa_challenge_html.ex	source_token	\n        role=
@@ -720,28 +706,39 @@ core/mfa_challenge_html.ex	source_token	\n    <.sigra_auth_page>\n      <div cla
 core/mfa_challenge_html.ex	source_token	\n  Controller-mode MFA challenge templates for non-LiveView installs.\n\n  Provides the two-factor authentication verification page with\n  TOTP authenticator code and backup code tabs.\n\n  Generated by `mix sigra.install --no-live`. Customize freely -- this module\n  is owned by your application.\n  
 core/mfa_challenge_html.ex	source_token	 %>\n        </:subtitle>\n      </.header>\n\n      <div role=
 core/mfa_challenge_html.ex	source_token	 />\n\n          <div class=
-core/mfa_challenge_html.ex	source_token	 />\n              Trust this browser for 30 days\n            </label>\n\n            <.sigra_auth_button class=
+core/mfa_challenge_html.ex	source_token	 />\n              {dgettext(
 core/mfa_challenge_html.ex	source_token	 action={~p
-core/mfa_challenge_html.ex	source_token	 aria-label=
+core/mfa_challenge_html.ex	source_token	 aria-label={dgettext(
 core/mfa_challenge_html.ex	source_token	 class=
 core/mfa_challenge_html.ex	source_token	 name=
 core/mfa_challenge_html.ex	source_token	 value=
+core/mfa_challenge_html.ex	source_token	)}\n                required\n                class=
+core/mfa_challenge_html.ex	source_token	)}\n              />\n            </div>\n\n            <.sigra_auth_button class=
+core/mfa_challenge_html.ex	source_token	)}\n              />\n            </div>\n\n            <label class=
+core/mfa_challenge_html.ex	source_token	)}\n              </label>\n              <input\n                type=
+core/mfa_challenge_html.ex	source_token	)}\n            </.sigra_auth_button>\n          </div>\n        </.form>\n      </div>\n\n      <%% # Backup Code Tab Content %>\n      <div\n        id=
+core/mfa_challenge_html.ex	source_token	)}\n            </.sigra_auth_button>\n          </div>\n        </.form>\n      </div>\n\n      <div aria-live=
+core/mfa_challenge_html.ex	source_token	)}\n            </label>\n\n            <.sigra_auth_button class=
+core/mfa_challenge_html.ex	source_token	)}\n          </button>\n          <button\n            type=
+core/mfa_challenge_html.ex	source_token	)}\n          </button>\n        </div>\n      </div>\n\n      <%% # TOTP Tab Content %>\n      <div\n        id=
+core/mfa_challenge_html.ex	source_token	)}\n        </.link>\n      </p>\n      </div>\n\n      <%% # Tab switching JS %>\n      <script>\n      function switchTab(tab) {\n        // Update tab buttons\n        document.querySelectorAll('[role=
+core/mfa_challenge_html.ex	source_token	)}\n        </p>\n      </div>\n\n      <p class=
+core/mfa_challenge_html.ex	source_token	)}\n        <:subtitle>\n          {dgettext(
+core/mfa_challenge_html.ex	source_token	)} <%= 
+core/mfa_challenge_html.ex	source_token	)}>\n        <div class=
+core/mfa_challenge_html.ex	source_token	, 
 core/mfa_challenge_html.ex	source_token	, do: 
 core/mfa_challenge_html.ex	source_token	, else: 
-core/mfa_challenge_html.ex	source_token	>\n                Authenticator code\n              </label>\n              <input\n                type=
-core/mfa_challenge_html.ex	source_token	>\n                Backup code\n              </label>\n              <input\n                type=
+core/mfa_challenge_html.ex	source_token	>\n                {dgettext(
 core/mfa_challenge_html.ex	source_token	>\n              <input type=
-core/mfa_challenge_html.ex	source_token	>\n              Verify\n            </.sigra_auth_button>\n          </div>\n        </.form>\n      </div>\n\n      <%% # Backup Code Tab Content %>\n      <div\n        id=
-core/mfa_challenge_html.ex	source_token	>\n              Verify\n            </.sigra_auth_button>\n          </div>\n        </.form>\n      </div>\n\n      <div aria-live=
+core/mfa_challenge_html.ex	source_token	>\n              {dgettext(
 core/mfa_challenge_html.ex	source_token	>\n            <div>\n              <label for=
 core/mfa_challenge_html.ex	source_token	>\n          <button\n            type=
 core/mfa_challenge_html.ex	source_token	>\n          <input type=
-core/mfa_challenge_html.ex	source_token	>\n          Cancel and sign out\n        </.link>\n      </p>\n      </div>\n\n      <%% # Tab switching JS %>\n      <script>\n      function switchTab(tab) {\n        // Update tab buttons\n        document.querySelectorAll('[role=
-core/mfa_challenge_html.ex	source_token	>\n          Enter the code from your authenticator app to continue.\n        </p>\n      </div>\n\n      <p class=
+core/mfa_challenge_html.ex	source_token	>\n          {dgettext(
 core/mfa_challenge_html.ex	source_token	>\n        <.link href={~p
-core/mfa_challenge_html.ex	source_token	>\n        <div class=
 core/mfa_challenge_html.ex	source_token	>\n        <p class=
-core/mfa_challenge_html.ex	source_token	>\n      <.header>\n        Two-factor authentication\n        <:subtitle>\n          Enter the code for <%= 
+core/mfa_challenge_html.ex	source_token	>\n      <.header>\n        {dgettext(
 core/mfa_challenge_html.ex	source_token	]').forEach(function(btn) {\n          var isActive = btn.id === 'tab-' + tab;\n          btn.setAttribute('aria-selected', isActive);\n        });\n        // Update tab panels\n        document.querySelectorAll('[role=
 core/mfa_challenge_html.ex	source_token	]').forEach(function(panel) {\n          if (panel.id === 'panel-' + tab) {\n            panel.classList.remove('sigra-auth-hidden');\n            var input = panel.querySelector('input[name=
 core/mfa_challenge_html.ex	source_token	]');\n            if (input) input.focus();\n          } else {\n            panel.classList.add('sigra-auth-hidden');\n          }\n        });\n      }\n\n      // Auto-submit TOTP when 6 digits entered\n      document.addEventListener('DOMContentLoaded', function() {\n        var totpInput = document.getElementById('mfa_totp_code');\n        if (totpInput) {\n          totpInput.addEventListener('input', function() {\n            if (this.value.length === 6 && /^\\d{6}$/.test(this.value)) {\n              this.closest('form').requestSubmit();\n            }\n          });\n        }\n      });\n      </script>\n    </.sigra_auth_page>\n    
@@ -1001,63 +998,16 @@ core/mfa_settings_html.ex	source_token	}\n              class=
 core/mfa_settings_html.ex	source_token	}\n              method=
 core/mfa_settings_html.ex	source_token	} class=
 core/mfa_settings_html.ex	source_token	} method=
-core/mfa_settings_live.ex	heex_attribute	6-digit verification code
-core/mfa_settings_live.ex	heex_attribute	One-time backup codes
-core/mfa_settings_live.ex	heex_attribute	QR code for TOTP setup
-core/mfa_settings_live.ex	heex_text	Add a passkey to sign in faster on this device and keep a backup sign-in method available.
-core/mfa_settings_live.ex	heex_text	Add an extra layer of security to your account.
-core/mfa_settings_live.ex	heex_text	Add passkey
-core/mfa_settings_live.ex	heex_text	Added
-core/mfa_settings_live.ex	heex_text	All backup codes used. Generate new ones now.
-core/mfa_settings_live.ex	heex_text	Can't scan? Enter this key manually:
-core/mfa_settings_live.ex	heex_text	Cancel
-core/mfa_settings_live.ex	heex_text	Copy all
-core/mfa_settings_live.ex	heex_text	Current authenticator code:
 core/mfa_settings_live.ex	heex_text	Delete
-core/mfa_settings_live.ex	heex_text	Delete this passkey?
-core/mfa_settings_live.ex	heex_text	Disable
-core/mfa_settings_live.ex	heex_text	Disable two-factor authentication
-core/mfa_settings_live.ex	heex_text	Download .txt
-core/mfa_settings_live.ex	heex_text	Enable two-factor authentication
-core/mfa_settings_live.ex	heex_text	Enabled
-core/mfa_settings_live.ex	heex_text	Enter the 6-digit code from your app to verify setup:
-core/mfa_settings_live.ex	heex_text	Enter your current 6-digit code or a backup code to confirm:
-core/mfa_settings_live.ex	heex_text	I have saved these backup codes in a safe place
-core/mfa_settings_live.ex	heex_text	I saved these codes
-core/mfa_settings_live.ex	heex_text	Last used
-core/mfa_settings_live.ex	heex_text	Never used
-core/mfa_settings_live.ex	heex_text	No passkeys added yet
-core/mfa_settings_live.ex	heex_text	Passkey name
-core/mfa_settings_live.ex	heex_text	Passkeys
-core/mfa_settings_live.ex	heex_text	Regenerate backup codes
-core/mfa_settings_live.ex	heex_text	Regenerate codes
-core/mfa_settings_live.ex	heex_text	Rename
-core/mfa_settings_live.ex	heex_text	Revoke all trusted browsers
-core/mfa_settings_live.ex	heex_text	Save name
-core/mfa_settings_live.ex	heex_text	Save your backup codes
-core/mfa_settings_live.ex	heex_text	Scan this QR code with your authenticator app
-core/mfa_settings_live.ex	heex_text	Set up two-factor authentication
-core/mfa_settings_live.ex	heex_text	Store these one-time codes somewhere safe. You will not be able to see them again after leaving this step.
-core/mfa_settings_live.ex	heex_text	This will remove the extra security on your account.
-core/mfa_settings_live.ex	heex_text	This will replace all existing backup codes. Enter your current TOTP code to confirm.
-core/mfa_settings_live.ex	heex_text	Two-Factor Authentication
-core/mfa_settings_live.ex	heex_text	Two-factor authentication
-core/mfa_settings_live.ex	heex_text	Two-factor authentication enabled
-core/mfa_settings_live.ex	heex_text	Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.
-core/mfa_settings_live.ex	heex_text	You'll need to set it up again to re-enable.
-core/mfa_settings_live.ex	heex_text	You'll still need another sign-in method before removing your last recovery option.
-core/mfa_settings_live.ex	heex_text	You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.
-core/mfa_settings_live.ex	heex_text	Your account is now protected with an extra layer of security.
-core/mfa_settings_live.ex	heex_text	of 8 backup codes remaining
 core/mfa_settings_live.ex	source_token	
 core/mfa_settings_live.ex	source_token	\n                        class=
 core/mfa_settings_live.ex	source_token	\n                        name=
 core/mfa_settings_live.ex	source_token	\n                        phx-click=
 core/mfa_settings_live.ex	source_token	\n                        value={@rename_form[:nickname].value}\n                      />\n                    </div>\n                    <div class=
-core/mfa_settings_live.ex	source_token	\n                      >\n                        Cancel\n                      </button>\n                    </div>\n                  </.form>\n                </div>\n\n                <div :if={@deleting_passkey_id == passkey_param_id(passkey)} class=
+core/mfa_settings_live.ex	source_token	\n                      >\n                        {dgettext(
 core/mfa_settings_live.ex	source_token	\n                      class=
 core/mfa_settings_live.ex	source_token	\n                      phx-click=
-core/mfa_settings_live.ex	source_token	\n                    >\n                      Cancel\n                    </button>\n                  </div>\n                </div>\n              </div>\n\n              <div class=
+core/mfa_settings_live.ex	source_token	\n                    >\n                      {dgettext(
 core/mfa_settings_live.ex	source_token	\n                    class=
 core/mfa_settings_live.ex	source_token	\n                  >\n                    <input type=
 core/mfa_settings_live.ex	source_token	\n                  autocomplete=
@@ -1071,12 +1021,9 @@ core/mfa_settings_live.ex	source_token	\n                  phx-value-id={passkey
 core/mfa_settings_live.ex	source_token	\n                  required\n                />\n              </div>\n\n              <div class=
 core/mfa_settings_live.ex	source_token	\n                  value={@disable_form[:code].value}\n                  inputmode=
 core/mfa_settings_live.ex	source_token	\n                  value={@regenerate_form[:code].value}\n                  inputmode=
-core/mfa_settings_live.ex	source_token	\n                >\n                  Cancel\n                </button>\n              </div>\n            </div>\n          </.form>\n        </section>\n\n        <%% # Backup codes display (after regeneration) %>\n        <div :if={@enrollment_step == :backup_codes}>\n          <%%= render_backup_codes(assigns) %>\n        </div>\n\n      <%% else %>\n        <%% # Surface 2: TOTP Enrollment %>\n        <%%= case @enrollment_step do %>\n          <%% nil -> %>\n            <%%= render_enrollment_start(assigns) %>\n\n          <%% :qr -> %>\n            <%%= render_enrollment_qr(assigns) %>\n\n          <%% :backup_codes -> %>\n            <%%= render_enrollment_backup_codes(assigns) %>\n\n          <%% :done -> %>\n            <div class=
-core/mfa_settings_live.ex	source_token	\n                >\n                  Cancel\n                </button>\n              </div>\n            </div>\n          </.form>\n        </section>\n\n        <%% # Regenerate codes confirmation %>\n        <section :if={@show_regenerate} class=
 core/mfa_settings_live.ex	source_token	\n                >\n                  Delete\n                </button>\n              </div>\n            </div>\n          </div>\n        <%% end %>\n      </div>\n    </section>\n    
-core/mfa_settings_live.ex	source_token	\n                >\n                  Disable two-factor authentication\n                </button>\n                <button\n                  type=
-core/mfa_settings_live.ex	source_token	\n                >\n                  Rename\n                </button>\n                <button\n                  type=
-core/mfa_settings_live.ex	source_token	\n                aria-label=
+core/mfa_settings_live.ex	source_token	\n                >\n                  {dgettext(
+core/mfa_settings_live.ex	source_token	\n                aria-label={dgettext(
 core/mfa_settings_live.ex	source_token	\n                autocomplete=
 core/mfa_settings_live.ex	source_token	\n                autofocus\n                required\n                class=
 core/mfa_settings_live.ex	source_token	\n                class=
@@ -1084,22 +1031,19 @@ core/mfa_settings_live.ex	source_token	\n                maxlength=
 core/mfa_settings_live.ex	source_token	\n                name=
 core/mfa_settings_live.ex	source_token	\n                pattern=
 core/mfa_settings_live.ex	source_token	\n                value={@enroll_form[:code].value}\n                inputmode=
-core/mfa_settings_live.ex	source_token	\n              />\n\n              <.sigra_auth_button class=
-core/mfa_settings_live.ex	source_token	\n              >\n                Regenerate codes\n              </button>\n            </p>\n          </div>\n\n          <%% # Trust section %>\n          <div>\n            <button\n              phx-click=
+core/mfa_settings_live.ex	source_token	\n              >\n                {dgettext(
 core/mfa_settings_live.ex	source_token	\n              class=
-core/mfa_settings_live.ex	source_token	\n              data-confirm=
+core/mfa_settings_live.ex	source_token	\n              data-confirm={dgettext(
 core/mfa_settings_live.ex	source_token	\n            >\n              <div class=
-core/mfa_settings_live.ex	source_token	\n            >\n              Disable\n            </button>\n          </div>\n\n          <div class=
-core/mfa_settings_live.ex	source_token	\n            >\n              Revoke all trusted browsers\n            </button>\n          </div>\n        </section>\n\n        <%% # Surface 4: Disable Confirmation %>\n        <section :if={@show_disable} class=
-core/mfa_settings_live.ex	source_token	\n            aria-label=
+core/mfa_settings_live.ex	source_token	\n            >\n              {dgettext(
+core/mfa_settings_live.ex	source_token	\n            aria-label={dgettext(
 core/mfa_settings_live.ex	source_token	\n            checked={@codes_acknowledged}\n            class=
 core/mfa_settings_live.ex	source_token	\n            class=
 core/mfa_settings_live.ex	source_token	\n            phx-change=
 core/mfa_settings_live.ex	source_token	\n            phx-click=
 core/mfa_settings_live.ex	source_token	\n            phx-submit=
 core/mfa_settings_live.ex	source_token	\n            style=
-core/mfa_settings_live.ex	source_token	\n          />\n          I have saved these backup codes in a safe place\n        </label>\n      </div>\n\n      <%% # Done button %>\n      <div>\n        <.sigra_auth_button\n          phx-click=
-core/mfa_settings_live.ex	source_token	\n          >\n            <%= 
+core/mfa_settings_live.ex	source_token	\n          />\n          {dgettext(
 core/mfa_settings_live.ex	source_token	\n          >\n            <code data-testid=
 core/mfa_settings_live.ex	source_token	\n          >\n            <div class=
 core/mfa_settings_live.ex	source_token	\n          data-codes={Enum.join(@backup_codes, 
@@ -1109,33 +1053,31 @@ core/mfa_settings_live.ex	source_token	\n          id=
 core/mfa_settings_live.ex	source_token	\n          phx-click=
 core/mfa_settings_live.ex	source_token	\n          phx-hook=
 core/mfa_settings_live.ex	source_token	\n        >\n          <.icon name=
-core/mfa_settings_live.ex	source_token	\n        >\n          Add passkey\n        </button>\n      </div>\n\n      <div\n        id=
-core/mfa_settings_live.ex	source_token	\n        >\n          I saved these codes\n        </.sigra_auth_button>\n      </div>\n    </section>\n    
+core/mfa_settings_live.ex	source_token	\n        >\n          {dgettext(
 core/mfa_settings_live.ex	source_token	\n        class=
 core/mfa_settings_live.ex	source_token	\n        phx-hook=
 core/mfa_settings_live.ex	source_token	\n      />\n\n      <form id=
 core/mfa_settings_live.ex	source_token	\n    <.sigra_auth_page>\n      <div class=
 core/mfa_settings_live.ex	source_token	\n    <div>\n      <%%= render_backup_codes(assigns) %>\n    </div>\n    
-core/mfa_settings_live.ex	source_token	\n    <div>\n      <.header>\n        Two-Factor Authentication\n        <:subtitle>Add an extra layer of security to your account.</:subtitle>\n      </.header>\n\n      <div class=
+core/mfa_settings_live.ex	source_token	\n    <div>\n      <.header>\n        {dgettext(
 core/mfa_settings_live.ex	source_token	\n    <section class=
 core/mfa_settings_live.ex	source_token	\n    <section id=
 core/mfa_settings_live.ex	source_token	\n  LiveView for MFA enrollment, settings, and management.\n\n  Handles the full MFA lifecycle:\n  - Enrollment: QR code display, manual key, confirmation code entry\n  - Backup codes: display, copy, download, acknowledgment\n  - Settings: enabled status, backup code count, disable, regenerate\n  - Trust management: revoke all trusted browsers\n\n  This component is designed to be embedded in the user settings page.\n\n  Generated by `mix sigra.install --live`. Customize freely -- this module\n  is owned by your application.\n  
 core/mfa_settings_live.ex	source_token	\n  Mount the MFA settings LiveView.\n\n  Checks current MFA status and sets appropriate initial state.\n  
 core/mfa_settings_live.ex	source_token	 
-core/mfa_settings_live.ex	source_token	 %>\n            </code>\n          </div>\n        </div>\n\n        <%% # Confirmation form %>\n        <div>\n          <p>\n            Enter the 6-digit code from your app to verify setup:\n          </p>\n\n          <.form\n            for={@enroll_form}\n            id=
+core/mfa_settings_live.ex	source_token	 %>\n            </code>\n          </div>\n        </div>\n\n        <%% # Confirmation form %>\n        <div>\n          <p>\n            {dgettext(
 core/mfa_settings_live.ex	source_token	 %>\n          </div>\n        </div>\n\n        <%% # Manual key %>\n        <div>\n          <p class=
-core/mfa_settings_live.ex	source_token	 %> of 8 backup codes remaining\n                </div>\n              <%% true -> %>\n                <p class=
-core/mfa_settings_live.ex	source_token	 %> of 8 backup codes remaining\n                </p>\n            <%% end %>\n\n            <p class=
+core/mfa_settings_live.ex	source_token	 %> {dgettext(
 core/mfa_settings_live.ex	source_token	 %></code>\n          </li>\n        </ol>\n      </div>\n\n      <%% # Action buttons %>\n      <div class=
 core/mfa_settings_live.ex	source_token	 />\n                  <%= 
 core/mfa_settings_live.ex	source_token	 />\n                  <strong>{Auth.passkey_label(passkey)}</strong>\n                </div>\n\n                <p class=
-core/mfa_settings_live.ex	source_token	 />\n                  All backup codes used. Generate new ones now.\n                </div>\n              <%% @backup_remaining <= 2 -> %>\n                <div class=
-core/mfa_settings_live.ex	source_token	 />\n              <h2>Two-factor authentication enabled</h2>\n              <p>\n                Your account is now protected with an extra layer of security.\n              </p>\n            </div>\n        <%% end %>\n      <%% end %>\n      <%% end %>\n\n<%= if passkeys? do %>\n      <%%= if @passkeys_enabled, do: render_passkeys_section(assigns) %>\n<% end %>\n      </div>\n    </.sigra_auth_page>\n    
+core/mfa_settings_live.ex	source_token	 />\n                  {dgettext(
+core/mfa_settings_live.ex	source_token	 />\n              <h2>{dgettext(
 core/mfa_settings_live.ex	source_token	 />\n          <span id=
-core/mfa_settings_live.ex	source_token	 />\n          Download .txt\n        </button>\n      </div>\n\n      <div>\n        <label class=
+core/mfa_settings_live.ex	source_token	 />\n          {dgettext(
 core/mfa_settings_live.ex	source_token	 />\n      </form>\n\n      <div :if={@passkey_notice} class=
 core/mfa_settings_live.ex	source_token	 action={~p
-core/mfa_settings_live.ex	source_token	 aria-label=
+core/mfa_settings_live.ex	source_token	 aria-label={dgettext(
 core/mfa_settings_live.ex	source_token	 aria-labelledby=
 core/mfa_settings_live.ex	source_token	 class=
 core/mfa_settings_live.ex	source_token	 id=
@@ -1146,26 +1088,74 @@ core/mfa_settings_live.ex	source_token	 value={passkey_param_id(passkey)} />\n  
 core/mfa_settings_live.ex	source_token	#{div(seconds, 3600)}h ago
 core/mfa_settings_live.ex	source_token	#{div(seconds, 60)}m ago
 core/mfa_settings_live.ex	source_token	#{div(seconds, 86_400)}d ago
+core/mfa_settings_live.ex	source_token	)}\n                      </button>\n                      <button\n                        type=
+core/mfa_settings_live.ex	source_token	)}\n                      </button>\n                    </div>\n                  </.form>\n                </div>\n\n                <div :if={@deleting_passkey_id == passkey_param_id(passkey)} class=
+core/mfa_settings_live.ex	source_token	)}\n                      </button>\n                    </form>\n                    <button\n                      type=
+core/mfa_settings_live.ex	source_token	)}\n                      </label>\n                      <input\n                        id={
+core/mfa_settings_live.ex	source_token	)}\n                    </button>\n                  </div>\n                </div>\n              </div>\n\n              <div class=
+core/mfa_settings_live.ex	source_token	)}\n                  <%% end %>\n                </p>\n\n                <div :if={@renaming_passkey_id == passkey_param_id(passkey)}>\n                  <.form\n                    for={@rename_form}\n                    phx-submit=
+core/mfa_settings_live.ex	source_token	)}\n                  </p>\n\n                  <div class=
+core/mfa_settings_live.ex	source_token	)}\n                  </p>\n                  <p :if={@passkey_count == 1}>\n                    {dgettext(
+core/mfa_settings_live.ex	source_token	)}\n                </button>\n                <button\n                  type=
+core/mfa_settings_live.ex	source_token	)}\n                </button>\n              </div>\n            </div>\n          </.form>\n        </section>\n\n        <%% # Backup codes display (after regeneration) %>\n        <div :if={@enrollment_step == :backup_codes}>\n          <%%= render_backup_codes(assigns) %>\n        </div>\n\n      <%% else %>\n        <%% # Surface 2: TOTP Enrollment %>\n        <%%= case @enrollment_step do %>\n          <%% nil -> %>\n            <%%= render_enrollment_start(assigns) %>\n\n          <%% :qr -> %>\n            <%%= render_enrollment_qr(assigns) %>\n\n          <%% :backup_codes -> %>\n            <%%= render_enrollment_backup_codes(assigns) %>\n\n          <%% :done -> %>\n            <div class=
+core/mfa_settings_live.ex	source_token	)}\n                </button>\n              </div>\n            </div>\n          </.form>\n        </section>\n\n        <%% # Regenerate codes confirmation %>\n        <section :if={@show_regenerate} class=
+core/mfa_settings_live.ex	source_token	)}\n                </div>\n              <%% @backup_remaining <= 2 -> %>\n                <div class=
+core/mfa_settings_live.ex	source_token	)}\n                </div>\n              <%% true -> %>\n                <p class=
+core/mfa_settings_live.ex	source_token	)}\n                </label>\n                <input\n                  type=
+core/mfa_settings_live.ex	source_token	)}\n                </p>\n            <%% end %>\n\n            <p class=
+core/mfa_settings_live.ex	source_token	)}\n              />\n\n              <.sigra_auth_button class=
+core/mfa_settings_live.ex	source_token	)}\n              </.sigra_auth_button>\n            </div>\n          </.form>\n        </div>\n      </div>\n    </div>\n    
+core/mfa_settings_live.ex	source_token	)}\n              </button>\n            </p>\n          </div>\n\n          <%% # Trust section %>\n          <div>\n            <button\n              phx-click=
+core/mfa_settings_live.ex	source_token	)}\n              </p>\n            </div>\n        <%% end %>\n      <%% end %>\n      <%% end %>\n\n<%= if passkeys? do %>\n      <%%= if @passkeys_enabled, do: render_passkeys_section(assigns) %>\n<% end %>\n      </div>\n    </.sigra_auth_page>\n    
+core/mfa_settings_live.ex	source_token	)}\n              </span>\n            </div>\n            <button\n              phx-click=
+core/mfa_settings_live.ex	source_token	)}\n              class=
+core/mfa_settings_live.ex	source_token	)}\n            </button>\n          </div>\n\n          <div class=
+core/mfa_settings_live.ex	source_token	)}\n            </button>\n          </div>\n        </section>\n\n        <%% # Surface 4: Disable Confirmation %>\n        <section :if={@show_disable} class=
+core/mfa_settings_live.ex	source_token	)}\n            </p>\n          </div>\n        <%% else %>\n          <div class=
+core/mfa_settings_live.ex	source_token	)}\n          </p>\n\n          <.form\n            for={@disable_form}\n            id=
+core/mfa_settings_live.ex	source_token	)}\n          </p>\n\n          <.form\n            for={@enroll_form}\n            id=
+core/mfa_settings_live.ex	source_token	)}\n          </p>\n\n          <.form\n            for={@regenerate_form}\n            id=
+core/mfa_settings_live.ex	source_token	)}\n          </p>\n          <div\n            class=
+core/mfa_settings_live.ex	source_token	)}\n          </p>\n          <div\n            role=
+core/mfa_settings_live.ex	source_token	)}\n          </p>\n        </div>\n\n        <button\n          type=
+core/mfa_settings_live.ex	source_token	)}\n          >\n            <%= 
 core/mfa_settings_live.ex	source_token	)}\n          class=
+core/mfa_settings_live.ex	source_token	)}\n        </.sigra_auth_button>\n      </div>\n    </section>\n    
+core/mfa_settings_live.ex	source_token	)}\n        </:subtitle>\n      </.header>\n\n      <div class=
+core/mfa_settings_live.ex	source_token	)}\n        </button>\n      </div>\n\n      <div\n        id=
+core/mfa_settings_live.ex	source_token	)}\n        </button>\n      </div>\n\n      <div>\n        <label class=
+core/mfa_settings_live.ex	source_token	)}\n        </label>\n      </div>\n\n      <%% # Done button %>\n      <div>\n        <.sigra_auth_button\n          phx-click=
+core/mfa_settings_live.ex	source_token	)}\n        <:subtitle>{dgettext(
+core/mfa_settings_live.ex	source_token	)} {relative_time(passkey.inserted_at)}\n                  &middot;\n                  <%%= if passkey.last_used_at do %>\n                    {dgettext(
+core/mfa_settings_live.ex	source_token	)} {relative_time(passkey.last_used_at)}\n                  <%% else %>\n                    {dgettext(
+core/mfa_settings_live.ex	source_token	)}</.sigra_auth_button>\n                <button\n                  type=
+core/mfa_settings_live.ex	source_token	)}</:subtitle>\n      </.header>\n\n      <div class=
+core/mfa_settings_live.ex	source_token	)}</:subtitle>\n      </.header>\n\n      <div>\n        <.sigra_auth_button phx-click=
+core/mfa_settings_live.ex	source_token	)}</h2>\n              <p>\n                {dgettext(
+core/mfa_settings_live.ex	source_token	)}</h2>\n              <span class=
+core/mfa_settings_live.ex	source_token	)}</h2>\n          <p class=
+core/mfa_settings_live.ex	source_token	)}</h2>\n          <p>\n            {dgettext(
+core/mfa_settings_live.ex	source_token	)}</span>\n        </button>\n        <button\n          type=
+core/mfa_settings_live.ex	source_token	)}</span>\n        <:subtitle>\n          {dgettext(
+core/mfa_settings_live.ex	source_token	)}</strong>\n                  <p>\n                    {dgettext(
+core/mfa_settings_live.ex	source_token	)}</strong>\n            <p>\n              {dgettext(
+core/mfa_settings_live.ex	source_token	)}>\n          <li :for={code <- @backup_codes}>\n            <code><%= 
+core/mfa_settings_live.ex	source_token	, 
 core/mfa_settings_live.ex	source_token	/users/settings/mfa/passkeys
 core/mfa_settings_live.ex	source_token	/users/settings/mfa/passkeys/options
-core/mfa_settings_live.ex	source_token	>\n                        Delete\n                      </button>\n                    </form>\n                    <button\n                      type=
-core/mfa_settings_live.ex	source_token	>\n                        Save name\n                      </button>\n                      <button\n                        type=
+core/mfa_settings_live.ex	source_token	>\n                        {dgettext(
 core/mfa_settings_live.ex	source_token	>\n                      <button type=
 core/mfa_settings_live.ex	source_token	>\n                      <input type=
 core/mfa_settings_live.ex	source_token	>\n                      <label for={
 core/mfa_settings_live.ex	source_token	>\n                    <form action={~p
 core/mfa_settings_live.ex	source_token	>\n                  <%= 
 core/mfa_settings_live.ex	source_token	>\n                  <.icon name=
-core/mfa_settings_live.ex	source_token	>\n                  <strong>Delete this passkey?</strong>\n                  <p>\n                    You'll still need another sign-in method before removing your last recovery option.\n                  </p>\n                  <p :if={@passkey_count == 1}>\n                    You're removing your last passkey. Make sure you can still sign in with your password, authenticator code, backup code, or magic link.\n                  </p>\n\n                  <div class=
-core/mfa_settings_live.ex	source_token	>\n                  Added {relative_time(passkey.inserted_at)}\n                  &middot;\n                  <%%= if passkey.last_used_at do %>\n                    Last used {relative_time(passkey.last_used_at)}\n                  <%% else %>\n                    Never used\n                  <%% end %>\n                </p>\n\n                <div :if={@renaming_passkey_id == passkey_param_id(passkey)}>\n                  <.form\n                    for={@rename_form}\n                    phx-submit=
-core/mfa_settings_live.ex	source_token	>\n                  Current authenticator code:\n                </label>\n                <input\n                  type=
-core/mfa_settings_live.ex	source_token	>\n                  Enter your current 6-digit code or a backup code to confirm:\n                </label>\n                <input\n                  type=
+core/mfa_settings_live.ex	source_token	>\n                  <strong>{dgettext(
+core/mfa_settings_live.ex	source_token	>\n                  {dgettext(
 core/mfa_settings_live.ex	source_token	>\n                <.sigra_auth_button class=
 core/mfa_settings_live.ex	source_token	>\n                <button\n                  type=
 core/mfa_settings_live.ex	source_token	>\n                <div class=
-core/mfa_settings_live.ex	source_token	>\n                Enable two-factor authentication\n              </.sigra_auth_button>\n            </div>\n          </.form>\n        </div>\n      </div>\n    </div>\n    
-core/mfa_settings_live.ex	source_token	>\n                Enabled\n              </span>\n            </div>\n            <button\n              phx-click=
+core/mfa_settings_live.ex	source_token	>\n                {dgettext(
 core/mfa_settings_live.ex	source_token	>\n              <%= 
 core/mfa_settings_live.ex	source_token	>\n              <.icon name=
 core/mfa_settings_live.ex	source_token	>\n              <button\n                phx-click=
@@ -1173,31 +1163,25 @@ core/mfa_settings_live.ex	source_token	>\n              <div>\n                <
 core/mfa_settings_live.ex	source_token	>\n              <input\n                type=
 core/mfa_settings_live.ex	source_token	>\n            <%%= cond do %>\n              <%% @backup_remaining == 0 -> %>\n                <div class=
 core/mfa_settings_live.ex	source_token	>\n            <div\n              :for={passkey <- @passkeys}\n              class=
-core/mfa_settings_live.ex	source_token	>\n            <div>\n              <h2>Two-factor authentication</h2>\n              <span class=
-core/mfa_settings_live.ex	source_token	>\n            <strong>No passkeys added yet</strong>\n            <p>\n              Add a passkey to sign in faster on this device and keep a backup sign-in method available.\n            </p>\n          </div>\n        <%% else %>\n          <div class=
-core/mfa_settings_live.ex	source_token	>\n            Can't scan? Enter this key manually:\n          </p>\n          <div\n            class=
-core/mfa_settings_live.ex	source_token	>\n            Scan this QR code with your authenticator app\n          </p>\n          <div\n            role=
-core/mfa_settings_live.ex	source_token	>\n            Use Face ID, Touch ID, Windows Hello, or your password manager to sign in without typing a code.\n          </p>\n        </div>\n\n        <button\n          type=
+core/mfa_settings_live.ex	source_token	>\n            <div>\n              <h2>{dgettext(
+core/mfa_settings_live.ex	source_token	>\n            <strong>{dgettext(
+core/mfa_settings_live.ex	source_token	>\n            {dgettext(
 core/mfa_settings_live.ex	source_token	>\n          <div class=
-core/mfa_settings_live.ex	source_token	>\n          <h2>Disable two-factor authentication</h2>\n          <p>\n            This will remove the extra security on your account.\n            You'll need to set it up again to re-enable.\n          </p>\n\n          <.form\n            for={@disable_form}\n            id=
-core/mfa_settings_live.ex	source_token	>\n          <h2>Regenerate backup codes</h2>\n          <p>\n            This will replace all existing backup codes. Enter your current TOTP code to confirm.\n          </p>\n\n          <.form\n            for={@regenerate_form}\n            id=
+core/mfa_settings_live.ex	source_token	>\n          <h2>{dgettext(
 core/mfa_settings_live.ex	source_token	>\n          <input\n            type=
-core/mfa_settings_live.ex	source_token	>\n          <li :for={code <- @backup_codes}>\n            <code><%= 
 core/mfa_settings_live.ex	source_token	>\n          <p class=
-core/mfa_settings_live.ex	source_token	>\n          Set up two-factor authentication\n        </.sigra_auth_button>\n      </div>\n    </section>\n    
+core/mfa_settings_live.ex	source_token	>\n          {dgettext(
 core/mfa_settings_live.ex	source_token	>\n        <%% # QR Code %>\n        <div class=
 core/mfa_settings_live.ex	source_token	>\n        <button\n          type=
-core/mfa_settings_live.ex	source_token	>\n        <div>\n          <h2>Passkeys</h2>\n          <p class=
+core/mfa_settings_live.ex	source_token	>\n        <div>\n          <h2>{dgettext(
 core/mfa_settings_live.ex	source_token	>\n        <input type=
 core/mfa_settings_live.ex	source_token	>\n        <ol class=
 core/mfa_settings_live.ex	source_token	>\n        <strong>{@passkey_notice.title}</strong>\n        <p>{@passkey_notice.body}</p>\n      </div>\n\n      <div>\n        <%%= if @passkeys == [] do %>\n          <div class=
 core/mfa_settings_live.ex	source_token	>\n      <%%= if @mfa_capability_enabled do %>\n      <%%= if @mfa_enabled do %>\n        <%% # Surface 3: MFA Settings Card %>\n        <section class=
 core/mfa_settings_live.ex	source_token	>\n      <.header>\n        <span id=
-core/mfa_settings_live.ex	source_token	>\n      <.header>\n        Two-Factor Authentication\n        <:subtitle>Add an extra layer of security to your account.</:subtitle>\n      </.header>\n\n      <div>\n        <.sigra_auth_button phx-click=
+core/mfa_settings_live.ex	source_token	>\n      <.header>\n        {dgettext(
 core/mfa_settings_live.ex	source_token	>\n      <div class=
-core/mfa_settings_live.ex	source_token	>Copy all</span>\n        </button>\n        <button\n          type=
-core/mfa_settings_live.ex	source_token	>Regenerate codes</.sigra_auth_button>\n                <button\n                  type=
-core/mfa_settings_live.ex	source_token	>Save your backup codes</span>\n        <:subtitle>\n          Store these one-time codes somewhere safe. You will not be able to see them again after leaving this step.\n        </:subtitle>\n      </.header>\n\n      <div class=
+core/mfa_settings_live.ex	source_token	>{dgettext(
 core/mfa_settings_live.ex	source_token	All trusted browsers have been revoked.
 core/mfa_settings_live.ex	source_token	Consider changing your password for additional security.
 core/mfa_settings_live.ex	source_token	Could not disable two-factor authentication. Please try again.
@@ -1215,7 +1199,7 @@ core/mfa_settings_live.ex	source_token	Passkey name saved.
 core/mfa_settings_live.ex	source_token	Passkey sign-in was canceled.
 core/mfa_settings_live.ex	source_token	Passkeys aren't available in this browser.
 core/mfa_settings_live.ex	source_token	That passkey request timed out.
-core/mfa_settings_live.ex	source_token	Too many failed attempts. Try again in #{minutes} minutes.
+core/mfa_settings_live.ex	source_token	Too many failed attempts. Try again in %{minutes} minutes.
 core/mfa_settings_live.ex	source_token	Try again or use another way to continue.
 core/mfa_settings_live.ex	source_token	Try again when you're ready, or use another sign-in method.
 core/mfa_settings_live.ex	source_token	Two-factor authentication has been disabled.
@@ -1253,6 +1237,7 @@ core/mfa_settings_live.ex	source_token	revoke_trust
 core/mfa_settings_live.ex	source_token	save_passkey_name
 core/mfa_settings_live.ex	source_token	show_disable
 core/mfa_settings_live.ex	source_token	show_regenerate
+core/mfa_settings_live.ex	source_token	sigra
 core/mfa_settings_live.ex	source_token	sigra:passkey-register:aborted
 core/mfa_settings_live.ex	source_token	sigra:passkey-register:error
 core/mfa_settings_live.ex	source_token	sigra:passkey-register:start
@@ -1263,7 +1248,7 @@ core/mfa_settings_live.ex	source_token	unsupported
 core/mfa_settings_live.ex	source_token	validate_enroll
 core/mfa_settings_live.ex	source_token	}\n                        type=
 core/mfa_settings_live.ex	source_token	} method=
-core/mfa_settings_live.ex	source_token	}>\n                        Passkey name\n                      </label>\n                      <input\n                        id={
+core/mfa_settings_live.ex	source_token	}>\n                        {dgettext(
 core/migration.exs	source_token	CREATE EXTENSION IF NOT EXISTS citext
 core/migration.exs	source_token	CREATE SCHEMA IF NOT EXISTS #{@auth_prefix}
 core/migration.exs	source_token	DROP EXTENSION IF EXISTS citext
@@ -1546,6 +1531,7 @@ core/session_controller.ex	source_token	password
 core/session_controller.ex	source_token	public-key
 core/session_controller.ex	source_token	registered
 core/session_controller.ex	source_token	response
+core/session_controller.ex	source_token	sigra
 core/session_controller.ex	source_token	token
 core/session_controller.ex	source_token	true
 core/session_controller.ex	source_token	unavailable
@@ -1599,81 +1585,68 @@ core/session_live.ex	source_token	revoke_all
 core/session_live.ex	source_token	revoke_current
 core/session_live.ex	source_token	token
 core/session_live.ex	source_token	user_token
-core/settings_live.ex	heex_attribute	Confirm new password
-core/settings_live.ex	heex_attribute	Current password
-core/settings_live.ex	heex_attribute	New email
-core/settings_live.ex	heex_attribute	New password
-core/settings_live.ex	heex_text	Account Settings
-core/settings_live.ex	heex_text	After the grace period expires, Sigra finalizes the account lifecycle according to that strategy.
-core/settings_live.ex	heex_text	Cancel deletion
-core/settings_live.ex	heex_text	Cancel email change
-core/settings_live.ex	heex_text	Change password
-core/settings_live.ex	heex_text	Changing to: (awaiting confirmation)
-core/settings_live.ex	heex_text	Current email:
-core/settings_live.ex	heex_text	Delete account
-core/settings_live.ex	heex_text	Delete my account
-core/settings_live.ex	heex_text	Email address
-core/settings_live.ex	heex_text	Manage your email, password, and account.
-core/settings_live.ex	heex_text	Password
-core/settings_live.ex	heex_text	Schedule account deletion according to your configured deletion strategy.
-core/settings_live.ex	heex_text	Set a password
-core/settings_live.ex	heex_text	Update email
-core/settings_live.ex	heex_text	We sent a confirmation link to . Check your inbox.
-core/settings_live.ex	heex_text	You must change your password before you can continue using your account.
-core/settings_live.ex	heex_text	You signed in with a social provider. Set a password to enable email login.
-core/settings_live.ex	heex_text	Your account is scheduled for deletion on .
 core/settings_live.ex	source_token	
-core/settings_live.ex	source_token	\n                autocomplete=
 core/settings_live.ex	source_token	\n                class=
-core/settings_live.ex	source_token	\n                data-confirm=
-core/settings_live.ex	source_token	\n                label=
+core/settings_live.ex	source_token	\n                data-confirm={dgettext(
+core/settings_live.ex	source_token	\n                label={dgettext(
 core/settings_live.ex	source_token	\n                required\n              />\n              <.input\n                field={@password_form[:password]}\n                type=
 core/settings_live.ex	source_token	\n                required\n              />\n              <.input\n                field={@password_form[:password_confirmation]}\n                type=
 core/settings_live.ex	source_token	\n                required\n              />\n              <.sigra_auth_button class=
-core/settings_live.ex	source_token	\n              >\n                Cancel deletion\n              </button>\n            <%% :not_scheduled -> %>\n              <p class=
-core/settings_live.ex	source_token	\n              >\n                Cancel email change\n              </button>\n            </div>\n          <%% else %>\n            <.form for={@email_form} phx-submit=
-core/settings_live.ex	source_token	\n              >\n                Delete my account\n              </button>\n            <%% _ -> %>\n          <%% end %>\n        </section>\n      </div>\n      </div>\n    </.sigra_auth_page>\n    
-core/settings_live.ex	source_token	\n      >\n        <p>\n          You must change your password before you can continue using your account.\n        </p>\n      </div>\n\n      <div class=
+core/settings_live.ex	source_token	\n              >\n                {dgettext(
+core/settings_live.ex	source_token	\n      >\n        <p>\n          {dgettext(
 core/settings_live.ex	source_token	\n    <.sigra_auth_page>\n      <div class=
 core/settings_live.ex	source_token	\n  LiveView for account settings management.\n\n  Provides three sections:\n  - **Email** — view current email, request change, cancel pending change\n  - **Password** — change password (or set password for OAuth-only users)\n  - **Delete account** — schedule deletion with grace period, cancel pending deletion\n\n  Adapts for OAuth-only users (no current password field), displays inline\n  status indicators for pending email changes and scheduled deletions, and\n  shows a force-password-change banner when required.\n\n  Generated by `mix sigra.install --live`. Customize freely -- this module\n  is owned by your application.\n  
 core/settings_live.ex	source_token	 %>\n          </p>\n\n          <%%= if @pending_email_change? do %>\n            <div class=
-core/settings_live.ex	source_token	 %> (awaiting confirmation)\n              </strong>\n              <p>\n                We sent a confirmation link to <%= 
+core/settings_live.ex	source_token	 %> {dgettext(
 core/settings_live.ex	source_token	 %>.\n              </p>\n              <button\n                phx-click=
-core/settings_live.ex	source_token	 %>. Check your inbox.\n              </p>\n              <button\n                phx-click=
+core/settings_live.ex	source_token	 %>. {dgettext(
 core/settings_live.ex	source_token	 class=
-core/settings_live.ex	source_token	 label=
-core/settings_live.ex	source_token	 required />\n              <.sigra_auth_button class=
+core/settings_live.ex	source_token	 label={dgettext(
 core/settings_live.ex	source_token	%B %d, %Y
+core/settings_live.ex	source_token	)}\n                autocomplete=
+core/settings_live.ex	source_token	)}\n                class=
+core/settings_live.ex	source_token	)}\n              </button>\n            <%% :not_scheduled -> %>\n              <p class=
+core/settings_live.ex	source_token	)}\n              </button>\n            <%% _ -> %>\n          <%% end %>\n        </section>\n      </div>\n      </div>\n    </.sigra_auth_page>\n    
+core/settings_live.ex	source_token	)}\n              </button>\n            </div>\n          <%% else %>\n            <.form for={@email_form} phx-submit=
+core/settings_live.ex	source_token	)}\n              </p>\n              <button\n                phx-click=
+core/settings_live.ex	source_token	)}\n              </strong>\n              <p>\n                {dgettext(
+core/settings_live.ex	source_token	)}\n            </p>\n            <.form for={@password_form} phx-submit=
+core/settings_live.ex	source_token	)}\n        </p>\n      </div>\n\n      <div class=
+core/settings_live.ex	source_token	)}\n        <:subtitle>{dgettext(
+core/settings_live.ex	source_token	)} <%= 
+core/settings_live.ex	source_token	)} required />\n              <.sigra_auth_button class=
+core/settings_live.ex	source_token	)}</.sigra_auth_button>\n            </.form>\n          <%% else %>\n            <p class=
+core/settings_live.ex	source_token	)}</.sigra_auth_button>\n            </.form>\n          <%% end %>\n        </section>\n\n        <section id=
+core/settings_live.ex	source_token	)}</:subtitle>\n      </.header>\n\n      <div\n        :if={@force_password_change?}\n        class=
+core/settings_live.ex	source_token	)}</h2>\n          <%%= case @deletion_status do %>\n            <%% {:scheduled, _days} -> %>\n              <p class=
+core/settings_live.ex	source_token	)}</h2>\n          <%%= if @has_password? do %>\n            <.form for={@password_form} phx-submit=
+core/settings_live.ex	source_token	)}</h2>\n          <p class=
+core/settings_live.ex	source_token	, 
 core/settings_live.ex	source_token	/users/settings
-core/settings_live.ex	source_token	>\n                Schedule account deletion according to your configured deletion strategy.\n                After the grace period expires, Sigra finalizes the account lifecycle according to that strategy.\n              </p>\n              <button\n                phx-click=
-core/settings_live.ex	source_token	>\n                Your account is scheduled for deletion on <%= 
+core/settings_live.ex	source_token	>\n                {dgettext(
 core/settings_live.ex	source_token	>\n              <.input\n                field={@password_form[:current_password]}\n                type=
 core/settings_live.ex	source_token	>\n              <.input\n                field={@password_form[:password]}\n                type=
 core/settings_live.ex	source_token	>\n              <.input field={@email_form[:email]} type=
-core/settings_live.ex	source_token	>\n              <strong>\n                Changing to: <%= 
-core/settings_live.ex	source_token	>\n              You signed in with a social provider. Set a password to enable email login.\n            </p>\n            <.form for={@password_form} phx-submit=
-core/settings_live.ex	source_token	>\n            Current email: <%= 
-core/settings_live.ex	source_token	>\n          <h2>Delete account</h2>\n          <%%= case @deletion_status do %>\n            <%% {:scheduled, _days} -> %>\n              <p class=
-core/settings_live.ex	source_token	>\n          <h2>Email address</h2>\n          <p class=
-core/settings_live.ex	source_token	>\n          <h2>Password</h2>\n          <%%= if @has_password? do %>\n            <.form for={@password_form} phx-submit=
+core/settings_live.ex	source_token	>\n              <strong>\n                {dgettext(
+core/settings_live.ex	source_token	>\n              {dgettext(
+core/settings_live.ex	source_token	>\n            {dgettext(
+core/settings_live.ex	source_token	>\n          <h2>{dgettext(
 core/settings_live.ex	source_token	>\n        <section id=
-core/settings_live.ex	source_token	>\n      <.header>\n        Account Settings\n        <:subtitle>Manage your email, password, and account.</:subtitle>\n      </.header>\n\n      <div\n        :if={@force_password_change?}\n        class=
-core/settings_live.ex	source_token	>Change password</.sigra_auth_button>\n            </.form>\n          <%% else %>\n            <p class=
-core/settings_live.ex	source_token	>Set a password</.sigra_auth_button>\n            </.form>\n          <%% end %>\n        </section>\n\n        <section id=
-core/settings_live.ex	source_token	>Update email</.sigra_auth_button>\n            </.form>\n          <%% end %>\n        </section>\n\n        <section id=
+core/settings_live.ex	source_token	>\n      <.header>\n        {dgettext(
+core/settings_live.ex	source_token	>{dgettext(
 core/settings_live.ex	source_token	Account Settings
 core/settings_live.ex	source_token	Account deletion cancelled. Your account is active again.
-core/settings_live.ex	source_token	Email change cancelled. Your email remains #{user.email}.
+core/settings_live.ex	source_token	Email change cancelled. Your email remains %{email}.
 core/settings_live.ex	source_token	Password set successfully. You can now sign in with email and password.
 core/settings_live.ex	source_token	Something went wrong while processing your request. Please try again.
 core/settings_live.ex	source_token	This confirmation link is invalid or has expired. Request a new email change from your settings.
-core/settings_live.ex	source_token	We sent a confirmation link to #{new_email}. Your current email stays active until you confirm.
+core/settings_live.ex	source_token	We sent a confirmation link to %{new_email}. Your current email stays active until you confirm.
 core/settings_live.ex	source_token	You can't change account deletion while impersonating.
 core/settings_live.ex	source_token	You can't change account security settings while impersonating.
 core/settings_live.ex	source_token	You can't delete an account while impersonating.
 core/settings_live.ex	source_token	You recently cancelled a deletion request. Please wait before requesting again.
 core/settings_live.ex	source_token	Your account is already scheduled for deletion.
-core/settings_live.ex	source_token	Your account is scheduled for deletion on #{scheduled_date}. You can cancel this from your settings.
+core/settings_live.ex	source_token	Your account is scheduled for deletion on %{date}. You can cancel this from your settings.
 core/settings_live.ex	source_token	Your email has been updated.
 core/settings_live.ex	source_token	Your password has been changed. All other sessions have been signed out.
 core/settings_live.ex	source_token	cancel_deletion
@@ -1686,6 +1659,7 @@ core/settings_live.ex	source_token	password
 core/settings_live.ex	source_token	password_confirmation
 core/settings_live.ex	source_token	request_email_change
 core/settings_live.ex	source_token	set_password
+core/settings_live.ex	source_token	sigra
 core/settings_live.ex	source_token	token
 core/sigra_auth_components.ex	heex_text	Privacy
 core/sigra_auth_components.ex	heex_text	Support
@@ -1731,26 +1705,26 @@ core/sudo_controller.ex	source_token	Password confirmed.
 core/sudo_controller.ex	source_token	password
 core/sudo_controller.ex	source_token	return_to
 core/sudo_controller.ex	source_token	sudo
-core/sudo_html.ex	heex_attribute	Password
-core/sudo_html.ex	heex_text	Confirm password
-core/sudo_html.ex	heex_text	For your security, please re-enter your password to continue.
-core/sudo_html.ex	heex_text	Go back
-core/sudo_html.ex	heex_text	Re-enter your password
 core/sudo_html.ex	source_token	
-core/sudo_html.ex	source_token	\n          autocomplete=
 core/sudo_html.ex	source_token	\n          autofocus\n          required\n        />\n        <.sigra_auth_button class=
-core/sudo_html.ex	source_token	\n          label=
+core/sudo_html.ex	source_token	\n          label={dgettext(
 core/sudo_html.ex	source_token	\n    <.sigra_auth_page>\n      <div class=
 core/sudo_html.ex	source_token	\n  HTML templates for sudo/re-authentication mode.\n\n  Single-purpose page: password field + confirm button, centered in a\n  narrow column matching the login form width. Follows GitHub's sudo\n  pattern.\n\n  Generated by `mix sigra.install`. Customize freely -- this module\n  is owned by your application.\n  
 core/sudo_html.ex	source_token	 class=
 core/sudo_html.ex	source_token	 name=
 core/sudo_html.ex	source_token	 value={@return_to} />\n        <.input\n          field={f[:password]}\n          type=
+core/sudo_html.ex	source_token	)}\n          autocomplete=
+core/sudo_html.ex	source_token	)}\n        </.link>\n      </p>\n      </div>\n    </.sigra_auth_page>\n    
+core/sudo_html.ex	source_token	)}\n        <:subtitle>{dgettext(
+core/sudo_html.ex	source_token	)}</.sigra_auth_button>\n      </.form>\n\n      <p class=
+core/sudo_html.ex	source_token	)}</:subtitle>\n      </.header>\n\n      <.form :let={f} for={@form} action={~p
+core/sudo_html.ex	source_token	, 
 core/sudo_html.ex	source_token	>\n        <.link navigate={@return_to || ~p
 core/sudo_html.ex	source_token	>\n        <input type=
-core/sudo_html.ex	source_token	>\n      <.header>\n        Re-enter your password\n        <:subtitle>For your security, please re-enter your password to continue.</:subtitle>\n      </.header>\n\n      <.form :let={f} for={@form} action={~p
-core/sudo_html.ex	source_token	>Confirm password</.sigra_auth_button>\n      </.form>\n\n      <p class=
+core/sudo_html.ex	source_token	>\n      <.header>\n        {dgettext(
+core/sudo_html.ex	source_token	>{dgettext(
 core/sudo_html.ex	source_token	} method=
-core/sudo_html.ex	source_token	}>\n          Go back\n        </.link>\n      </p>\n      </div>\n    </.sigra_auth_page>\n    
+core/sudo_html.ex	source_token	}>\n          {dgettext(
 core/token_controller.ex	source_token	
 core/token_controller.ex	source_token	\n  Authenticates a user with email and password.\n\n  Returns JWT access/refresh tokens on success, or `mfa_required: true`\n  if the user has MFA enabled.\n  
 core/token_controller.ex	source_token	\n  Completes MFA challenge for JWT authentication.\n\n  Verifies the MFA token and TOTP/backup code, then issues JWTs.\n  

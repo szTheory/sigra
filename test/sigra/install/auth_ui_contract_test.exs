@@ -217,6 +217,33 @@ defmodule Sigra.Install.AuthUIContractTest do
     end
   end
 
+  test "MFA and auth feedback is localized while machine responses stay literal" do
+    mfa_controller =
+      File.read!("priv/templates/sigra.install/core/mfa_challenge_controller.ex")
+
+    settings_controller =
+      File.read!("priv/templates/sigra.install/core/settings_live.ex")
+
+    session_controller =
+      File.read!("priv/templates/sigra.install/core/session_controller.ex")
+
+    error_handler = File.read!("priv/templates/sigra.install/core/error_handler.ex")
+    token_controller = File.read!("priv/templates/sigra.install/core/token_controller.ex")
+
+    assert mfa_controller =~
+             ~S|dgettext("sigra", "Invalid verification code. %{remaining} attempts remaining.", remaining: remaining)|
+
+    assert settings_controller =~
+             ~S|dgettext("sigra", "Your account is scheduled for deletion on %{date}. You can cancel this from your settings.", date: scheduled_date)|
+
+    assert session_controller =~
+             ~S|dgettext("sigra", "If your email is registered, you will receive a magic link shortly.")|
+
+    assert error_handler =~ ~S|send_resp(429, "Too many requests. Please try again later.")|
+    assert token_controller =~ ~S|detail: "Too many failed attempts."|
+    assert token_controller =~ ~S|error: "mfa_locked"|
+  end
+
   test "confirmation feedback uses localized shared live regions and keeps retry state" do
     confirmation = File.read!("priv/templates/sigra.install/core/confirmation_live.ex")
     components = File.read!(@auth_components)
