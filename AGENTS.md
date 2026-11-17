@@ -12,6 +12,7 @@ Key constraints:
 ## Automation-first verification
 
 - Within explicitly authorized work, replace human verification and UAT with deterministic tests, browser automation, CI polling, and committed machine-readable evidence.
+- Before a long suite, server boot, or CI dispatch, run the cheapest checks likely to catch wiring or contract errors first: format/static parsing, live-spec ownership reconciliation, focused unit or contract tests, and browser-runner `--list`. Record useful failure and bottleneck findings with the phase evidence, then run the required full gates.
 - Agents may create or update scoped evidence branches and pull requests, dispatch CI workflows, inspect run logs, and enable auto-merge when those actions are required by the authorized delivery workflow.
 - Retry transient failures once and automatically diagnose and repair deterministic failures. Never waive, auto-approve, or mark missing evidence as passed; block with durable diagnostics when a requirement cannot be proven automatically.
 - Do not use automation-first verification as authority to start unrelated phases or expand product scope.
