@@ -203,7 +203,14 @@ defmodule ExampleWeb.CatalogTest do
     end
 
     test("auth branding", ctx, do: assert_group!(ctx, :branding))
-    test("organization", ctx, do: assert_group!(ctx, :org))
+
+    test "organization overview keeps scoped copy and populated member states", ctx do
+      html = ctx |> assert_group!(:org) |> Map.fetch!("admin-org-#{owner_org(ctx).handle}")
+
+      assert html =~ "Members, audit events, and invitations stay within this organization."
+      assert html =~ "Members"
+      assert html =~ "Pending invitations"
+    end
   end
 
   describe "the whole tier-2 set" do

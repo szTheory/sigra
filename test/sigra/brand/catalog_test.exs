@@ -199,6 +199,19 @@ defmodule Sigra.Brand.CatalogTest do
     end
   end
 
+  describe "Phase 262 organization catalog states" do
+    test "populated and empty organization captures retain scoped language and truthful states" do
+      populated = Catalog.tier1_html({OrganizationLive, :populated})
+      empty = Catalog.tier1_html({OrganizationLive, :empty})
+
+      assert populated =~ "Members, audit events, and invitations stay within this organization."
+      assert populated =~ "Review members"
+      assert empty =~ "No members yet"
+      assert empty =~ "No pending invitations"
+      refute empty =~ "Review members"
+    end
+  end
+
   describe "write!/2 in after mode" do
     test "writes the tier-1 files under tier1-library-admin/ of the output directory" do
       out = tmp_dir()
