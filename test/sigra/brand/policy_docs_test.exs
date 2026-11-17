@@ -3,6 +3,7 @@ defmodule Sigra.Brand.PolicyDocsTest do
 
   @adr ".planning/decisions/005-brand-adoption-compatibility-policy.md"
   @guide "guides/reference/brand-compatibility.md"
+  @upgrade_guide "guides/introduction/upgrading-to-v1.51.md"
   @contract "guides/introduction/contract.md"
 
   @adr_headings [
@@ -37,6 +38,14 @@ defmodule Sigra.Brand.PolicyDocsTest do
     "Consumed brand subset",
     "SemVer and changelog treatment",
     "Upgrade notes"
+  ]
+
+  @upgrade_headings [
+    "Before you start",
+    "Ownership lanes",
+    "Generated auth message changes",
+    "Admin token value changes",
+    "Release notes"
   ]
 
   # Decision numbers recorded by Phase 259 (#10 and #13 belong to later phases).
@@ -224,6 +233,58 @@ defmodule Sigra.Brand.PolicyDocsTest do
       ]
 
       assert missing_terms(slice, expected) == []
+    end
+  end
+
+  describe "v1.51 upgrade guide" do
+    test "exists and presents the upgrade sections in order" do
+      assert File.regular?(path(@upgrade_guide)), "missing #{@upgrade_guide}"
+
+      guide = read!(@upgrade_guide)
+      positions = Enum.map(@upgrade_headings, &byte_index!(guide, h2(&1)))
+
+      assert String.starts_with?(guide, "# Upgrading to v1.51\n")
+      assert positions == Enum.sort(positions)
+    end
+
+    test "lists the three ownership lanes in their policy order" do
+      slice = read!(@upgrade_guide) |> section_slice("## Ownership lanes")
+      rows = table_data_rows(slice)
+
+      assert slice =~ "| Lane | What changes in v1.51 | How your app receives it | What you do |"
+      assert Enum.map(rows, &hd/1) == ["Library-owned", "Generated", "Host-owned"]
+      assert rows |> Enum.map(&Enum.count/1) |> Enum.uniq() == [4]
+    end
+
+    test "carries all generated msgid rows and representative old/new copy" do
+      slice = read!(@upgrade_guide) |> section_slice("## Generated auth message changes")
+      rows = table_data_rows(slice)
+
+      assert slice =~ "| Template | Surface | Old msgid | New msgid |"
+      assert length(rows) == 10
+
+      assert ["`core/registration_live.ex`", "Existing-account link", "`Log in`", "`Sign in`"] in
+               rows
+
+      assert [
+               "`core/settings_live.ex`",
+               "Account deletion strategy notice",
+               "`Schedule account deletion according to your configured deletion strategy. After the grace period expires, Sigra finalizes the account lifecycle according to that strategy.`",
+               "`Schedule account deletion according to your configured deletion strategy. After the grace period expires, the selected strategy is applied to your account.`"
+             ] in rows
+    end
+
+    test "carries all token rows and representative light/dark values" do
+      slice = read!(@upgrade_guide) |> section_slice("## Admin token value changes")
+      rows = table_data_rows(slice)
+
+      assert slice =~ "| Token | Old light | New light | Old dark | New dark |"
+      assert length(rows) == 44
+
+      assert ["`--sg-color-ink`", "`#151515`", "`#1F1A17`", "`#f4f1eb`", "`#F3EEE8`"] in
+               rows
+
+      assert ["`--sg-font-sans`", "none", "`inherit`", "none", "n/a"] in rows
     end
   end
 
