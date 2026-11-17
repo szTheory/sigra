@@ -12,7 +12,6 @@
     {"file": "priv/templates/sigra.install/core/emails.ex", "kind": "banned_term", "line": "Log in to %{app_name}", "scope": "generated"},
     {"file": "priv/templates/sigra.install/core/emails.ex", "kind": "banned_term", "line": "Log in to your account", "scope": "generated"},
     {"file": "priv/templates/sigra.install/core/emails.ex", "kind": "banned_term", "line": "Log in to your account:", "scope": "generated"},
-    {"file": "priv/templates/sigra.install/core/emails.ex", "kind": "banned_term", "line": "Log in with %{provider}", "scope": "generated"},
     {"file": "priv/templates/sigra.install/core/emails.ex", "kind": "banned_term", "line": "Log in:", "scope": "generated"},
     {"file": "priv/templates/sigra.install/core/emails.ex", "kind": "banned_term", "line": "We detected multiple failed login attempts on your account. For your security, your account has been temporarily locked for 15 minutes.", "scope": "generated"},
     {"file": "priv/templates/sigra.install/core/emails.ex", "kind": "banned_term", "line": "We detected multiple failed login attempts on your account. For your security, your account has been temporarily locked for 15 minutes.", "scope": "generated"},

@@ -151,7 +151,6 @@ core/emails.ex	msgid	Location:
 core/emails.ex	msgid	Log in to %{app_name}
 core/emails.ex	msgid	Log in to your account
 core/emails.ex	msgid	Log in to your account:
-core/emails.ex	msgid	Log in with %{provider}
 core/emails.ex	msgid	Log in:
 core/emails.ex	msgid	New Passkey Added
 core/emails.ex	msgid	New Sign-In Detected
@@ -172,6 +171,7 @@ core/emails.ex	msgid	Reset your password:
 core/emails.ex	msgid	Role:
 core/emails.ex	msgid	Secure your account
 core/emails.ex	msgid	Secure your account:
+core/emails.ex	msgid	Sign in with %{provider}
 core/emails.ex	msgid	Someone requested to change your %{app_name} account email from this address to %{new_email}. If this was you, no action is needed -- confirm the change from your new email.
 core/emails.ex	msgid	This code expires in 48 hours.
 core/emails.ex	msgid	This link expires in 24 hours.

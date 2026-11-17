@@ -373,7 +373,7 @@ defmodule Sigra.Install.AuthUIContractTest do
     assert_email_order(emails, "confirmation_email", "Confirm email address", "expires in 48 hours")
     assert_email_order(emails, "reset_password_email", "Reset", "you can ignore this email")
     assert_email_order(emails, "magic_link_email", "Log in", "expires in 10 minutes")
-    assert_email_order(emails, "oauth_reset_email", "Log in with", "set a password")
+    assert_email_order(emails, "oauth_reset_email", "Sign in with", "set a password")
 
     assert_email_order(
       emails,
