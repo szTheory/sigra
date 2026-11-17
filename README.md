@@ -4,7 +4,17 @@
 [![Docs](https://img.shields.io/badge/hexdocs-api%20%26%20guides-5865F2)](https://hexdocs.pm/sigra)
 [![CI](https://github.com/szTheory/sigra/actions/workflows/ci.yml/badge.svg)](https://github.com/szTheory/sigra/actions/workflows/ci.yml)
 
-**Production-minded authentication for Phoenix 1.8+** — sessions, passwords, email flows, OAuth, MFA, passkeys, optional organizations and admin tooling — without treating security-sensitive code as throwaway scaffolding.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-dark.svg">
+  <img src="https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-light.svg" alt="sigra" width="260">
+</picture>
+
+<p><b>Phoenix auth you own and can still update.</b></p>
+<p>Production-minded authentication for Phoenix 1.8+</p>
+
+Sigra is an open-source authentication library for Phoenix 1.8 and later. A library holds the security-sensitive core, and generators write the screens, routes and emails into your own repository as normal code. Fixes arrive with `mix deps.update`; the rest is yours to edit.
+
+[Social card](docs/assets/brand/sigra-social-card-1280x640.png)
 
 **TL;DR**
 
@@ -18,7 +28,7 @@
 
 | You are… | Do this first |
 |----------|----------------|
-| **Evaluating** | Run `scripts/uat/up.sh` — one command boots the seeded Vaultr demo behind Traefik and auto-opens it (no second terminal). See the [Demo Showcase](guides/introduction/demo-showcase.md) for the guided walkthrough, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
+| **Evaluating** | Run `scripts/uat/up.sh` — one command boots the seeded Tasklane demo behind Traefik and auto-opens it (no second terminal). See the [Demo Showcase](guides/introduction/demo-showcase.md) for the guided walkthrough, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
 | **Greenfield Phoenix app** | Read [Installation](guides/introduction/installation.md), then follow [Getting started](guides/introduction/getting-started.md) for first-run auth flows. |
 | **Existing Sigra app / upgrade** | Follow [Upgrading to v1.0](guides/introduction/upgrading-to-v1.0.md) for the operational preflight, generated-host review, and rollback path. |
 | **Migrating from another auth stack** | Use [Migrating from phx.gen.auth](guides/introduction/migrating-from-phx-gen-auth.md) and [Migrating from Pow, Guardian, and Ueberauth](guides/introduction/migrating-from-pow-guardian-ueberauth.md) to choose the right cutover lane. |
