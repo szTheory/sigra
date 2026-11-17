@@ -1,8 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 type MailboxMessage = {
   html_body: string | null;
+  text_body: string | null;
   to: string[];
 };
 
@@ -37,6 +39,12 @@ async function confirmationCodeFromMailbox(page: Page, recipient: string) {
           const paragraphs = Array.from(parsed.querySelectorAll("p"), (node) =>
             node.textContent?.trim() ?? "",
           );
+          const htmlText = parsed.body.textContent ?? "";
+          const identityLines = (message.text_body ?? "")
+            .split(/\r?\n/)
+            .filter((line) => /\b(?:Sigra|Kiln)\b/i.test(line));
+          if (/\b(?:Sigra|Kiln)\b/i.test(htmlText)) return null;
+          if (identityLines.some((line) => line.trim() !== "Authentication by Sigra")) return null;
           const labelIndex = paragraphs.findIndex((paragraph) =>
             paragraph.includes("Your confirmation code:"),
           );
@@ -80,6 +88,15 @@ test("generated confirmation accepts the literal email code paste and announces 
 
   await page.goto("/users/confirm");
   await waitForLiveViewReady(page);
+  await expect(page.locator("body")).not.toContainText(/\b(?:Sigra|Kiln)\b/i);
+  const { violations } = await new AxeBuilder({ page })
+    .include("main")
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(
+    violations,
+    `generated confirmation axe violations: ${JSON.stringify(violations).slice(0, 2000)}`,
+  ).toHaveLength(0);
   const codeInput = page.getByRole("textbox", { name: "Confirmation code" });
   await expect(codeInput).toBeVisible();
 

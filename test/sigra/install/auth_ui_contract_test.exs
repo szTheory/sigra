@@ -200,6 +200,23 @@ defmodule Sigra.Install.AuthUIContractTest do
     end
   end
 
+  test "generated core auth copy contains no hard-coded library identity" do
+    for path <- @modern_auth_templates do
+      source = File.read!(path)
+
+      refute source =~
+               ~r/dgettext\(\s*"sigra"\s*,\s*"[^"]*\b(?:Sigra|Kiln)\b/i,
+             "#{path} exposes a library identity in translated host-auth copy"
+
+      refute source =~ ~r/\b(?:alt|aria-label|title)="[^"]*\b(?:Sigra|Kiln)\b/i,
+             "#{path} exposes a library identity in visible or accessible markup"
+
+      refute source =~
+               ~r/<(?:p|span|strong|h[1-6])\b[^>]*>\s*(?:Sigra|Kiln)\b/i,
+             "#{path} exposes a library identity in host-auth text"
+    end
+  end
+
   test "confirmation feedback uses localized shared live regions and keeps retry state" do
     confirmation = File.read!("priv/templates/sigra.install/core/confirmation_live.ex")
     components = File.read!(@auth_components)

@@ -1425,6 +1425,12 @@ a.vt-panel {
   font-weight: var(--sg-weight-bold);
 }
 
+#registration_form .label.mb-1,
+#confirmation_form .label.mb-1,
+#invitation-signup-form .label.mb-1 {
+  color: var(--vt-color-muted);
+}
+
 .vt-auth .input,
 .vt-auth .select,
 .vt-auth .textarea {
