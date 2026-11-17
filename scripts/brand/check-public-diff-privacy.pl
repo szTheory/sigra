@@ -40,13 +40,13 @@ die "brand-book origin did not resolve\n" unless defined($origin) && length($ori
 sub name_pattern {
   my ($name) = @_;
   # Whitespace is a normal prose boundary, including around multi-word names.
-  # URL/path punctuation remains excluded so an organization URL does not look
-  # like a standalone name mention.
-  return qr/(?<![A-Za-z0-9_:\/.\-])\Q$name\E(?![A-Za-z0-9_:\/\-])/i;
+  # URL/path and email punctuation remains excluded so an organization URL or
+  # an allowed .test fixture does not look like a standalone name mention.
+  return qr/(?<![A-Za-z0-9_:\/.\-+\@])\Q$name\E(?![A-Za-z0-9_:\/\-+\@])/i;
 }
 
 my @rules = (
-  [account_name => qr/(?<![A-Za-z0-9_.-])\Q$account\E(?![A-Za-z0-9_.-])/i],
+  [account_name => name_pattern($account)],
   [git_user_name => name_pattern($git_name)],
   [home_prefix => qr/\Q$home\E/],
   [brand_origin => qr/\Q$origin\E/i],
@@ -72,6 +72,9 @@ die "multi-word name boundary self-check failed\n"
   unless "The draft was reviewed by $synthetic_multiword." =~ $multiword_pattern;
 die "name URL-boundary self-check failed\n"
   if "https://example.test/$synthetic_multiword/path" =~ $multiword_pattern;
+my $account_test_email = join('', $account, '@', 'example', '.', 'test');
+die "account name matched an allowed .test email control\n"
+  if $account_test_email =~ $rules[0][1];
 my $test_email = join('', 'fixture', '@', 'example', '.', 'test');
 my $non_test_email = join('', 'fixture', '@', 'example', '.', 'com');
 die "email fixture exception self-check failed\n"
