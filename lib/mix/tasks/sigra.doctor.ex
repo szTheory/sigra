@@ -50,6 +50,12 @@ defmodule Mix.Tasks.Sigra.Doctor do
 
   use Mix.Task
 
+  # A stylesheet contract level is intentionally independent of the package
+  # version. Library markup can require a newer generated stylesheet while the
+  # host's installed copy remains unchanged.
+  @minimum_admin_css_contract 2
+  @admin_css_stamp ~r/^\/\* sigra-admin-css: (\d+) \*\/$/
+
   @options_schema [
     quiet: [
       type: :boolean,
@@ -103,6 +109,8 @@ defmodule Mix.Tasks.Sigra.Doctor do
       print_row(row, quiet)
     end)
 
+    warn_if_admin_css_is_stale(opts)
+
     Mix.shell().info("")
 
     case result.verdict do
@@ -123,6 +131,54 @@ defmodule Mix.Tasks.Sigra.Doctor do
         )
 
         exit({:shutdown, 1})
+    end
+  end
+
+  defp warn_if_admin_css_is_stale(opts) do
+    css_path = Keyword.get(opts, :admin_css_path, host_admin_css_path())
+
+    case read_admin_css_contract(css_path) do
+      {:ok, level} when level >= @minimum_admin_css_contract ->
+        :ok
+
+      {:ok, level} ->
+        Mix.shell().error(
+          "WARNING: generated admin CSS is stale (contract level #{level}; " <>
+            "this Sigra version requires level #{@minimum_admin_css_contract}). " <>
+            "Regenerate the admin assets with `mix sigra.install`."
+        )
+
+      {:error, :enoent} ->
+        Mix.shell().error(
+          "WARNING: generated admin CSS is missing or has no valid contract stamp at " <>
+            "#{css_path}; this Sigra version requires level #{@minimum_admin_css_contract}. " <>
+            "Regenerate the admin assets with `mix sigra.install`."
+        )
+
+      {:error, _reason} ->
+        Mix.shell().error(
+          "WARNING: generated admin CSS has a missing or malformed contract stamp at " <>
+            "#{css_path}; this Sigra version requires level #{@minimum_admin_css_contract}. " <>
+            "Regenerate the admin assets with `mix sigra.install`."
+        )
+    end
+  end
+
+  defp host_admin_css_path do
+    Path.join([File.cwd!(), "priv", "static", "assets", "sigra_admin.css"])
+  end
+
+  defp read_admin_css_contract(path) do
+    with {:ok, css} <- File.read(path),
+         [first_line | _] <- String.split(css, "\n"),
+         [_, level] <- Regex.run(@admin_css_stamp, String.trim_trailing(first_line, "\r")) do
+      case Integer.parse(level) do
+        {integer, ""} -> {:ok, integer}
+        _ -> {:error, :malformed_stamp}
+      end
+    else
+      {:error, reason} -> {:error, reason}
+      _ -> {:error, :malformed_stamp}
     end
   end
 

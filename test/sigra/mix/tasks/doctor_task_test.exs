@@ -47,6 +47,36 @@ defmodule Mix.Tasks.Sigra.DoctorTest do
     ]
   end
 
+  defp doctor_output_with_css(css_contents) do
+    css_path =
+      Path.join(
+        System.tmp_dir!(),
+        "sigra-doctor-css-#{System.unique_integer([:positive])}.css"
+      )
+
+    if css_contents, do: File.write!(css_path, css_contents)
+    on_exit(fn -> File.rm(css_path) end)
+
+    stdout =
+      capture_io(fn ->
+        stderr =
+          capture_io(:stderr, fn ->
+            Mix.Tasks.Sigra.Doctor.run_with_opts(dep_off_opts() ++ [admin_css_path: css_path])
+          end)
+
+        send(self(), {:doctor_stderr, stderr})
+      end)
+
+    stderr =
+      receive do
+        {:doctor_stderr, captured} -> captured
+      after
+        0 -> ""
+      end
+
+    {stdout, stderr}
+  end
+
   # ---------------------------------------------------------------------------
   # Test 1: smoke — ok verdict, no exit exception
   # ---------------------------------------------------------------------------
@@ -152,5 +182,43 @@ defmodule Mix.Tasks.Sigra.DoctorTest do
       end)
 
     assert stdout != "", "expected non-empty stdout output before the exit call"
+  end
+
+  test "current and newer generated CSS contracts do not warn" do
+    for level <- [2, 3] do
+      {stdout, stderr} = doctor_output_with_css("/* sigra-admin-css: #{level} */\n")
+
+      assert stdout =~ "OK: all configured features are properly wired."
+      refute stderr =~ "WARNING: generated admin CSS"
+    end
+  end
+
+  test "older generated CSS warns without changing the doctor verdict" do
+    {stdout, stderr} = doctor_output_with_css("/* sigra-admin-css: 1 */\n")
+
+    assert stderr =~ "WARNING: generated admin CSS is stale"
+    assert stderr =~ "contract level 1"
+    assert stdout =~ "OK: all configured features are properly wired."
+  end
+
+  test "missing and malformed generated CSS stamps warn without changing the doctor verdict" do
+    {missing_stdout, missing_stderr} = doctor_output_with_css(nil)
+    {malformed_stdout, malformed_stderr} = doctor_output_with_css("/* sigra-admin-css: x */\n")
+
+    assert missing_stderr =~
+             "WARNING: generated admin CSS is missing or has no valid contract stamp"
+
+    assert malformed_stderr =~
+             "WARNING: generated admin CSS has a missing or malformed contract stamp"
+
+    assert missing_stdout =~ "OK: all configured features are properly wired."
+    assert malformed_stdout =~ "OK: all configured features are properly wired."
+  end
+
+  test "the pure doctor result keeps its existing shape" do
+    result = Sigra.Doctor.run(dep_off_opts())
+
+    assert Map.keys(result) |> Enum.sort() == [:rows, :verdict, :wiring]
+    assert result.verdict == :ok
   end
 end
