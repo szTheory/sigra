@@ -173,7 +173,7 @@ defmodule Sigra.Brand.CatalogTest do
       raw = Catalog.tier1_raw({UserShowLive, :locked})
       normalized = Catalog.tier1_html({UserShowLive, :locked})
 
-      assert normalized =~ "revoke active sessions and unlock below."
+      assert normalized =~ "Locked — review active sessions with Manage sessions."
       assert normalized =~ "Locked"
 
       # The raw render really did carry the volatiles the normalizer is claimed to remove.
@@ -704,7 +704,7 @@ defmodule Sigra.Brand.CatalogTest do
       {{UsersIndexLive, :filtered_empty}, "No users match the active filters"},
       {{UserShowLive, :active}, "MFA + passkeys"},
       {{UserShowLive, :unconfirmed}, "Email unconfirmed"},
-      {{UserShowLive, :locked}, "revoke active sessions and unlock below."},
+      {{UserShowLive, :locked}, "Locked — review active sessions with Manage sessions."},
       {{UserShowLive, :scheduled_deletion}, "Deletion scheduled"},
       {{UserSessionsLive, :populated}, "Revoke all sessions"},
       {{UserSessionsLive, :empty}, "This user has no active sessions in the current scope."},
