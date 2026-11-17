@@ -378,7 +378,7 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "sg-notice"
       assert html =~ "Find a user"
       assert html =~ "Investigate an event"
-      assert html =~ "Review risky users"
+      assert html =~ "Review users"
       refute html =~ ~s(role="status")
       refute html =~ ~s(data-phx-id=)
       refute html =~ "sg-metric-link__value"
