@@ -27,6 +27,8 @@ defmodule Sigra.Brand.VendoredAssetsTest do
 
   # {book source, example copy}. Copy with `cp`; never edit either side.
   @pairs [
+    {"brand/assets/docs/sigra-exdoc.css", "docs/assets/brand/sigra-exdoc.css"},
+    {"brand/assets/icon/favicon.svg", "docs/assets/brand/favicon.svg"},
     {"brand/assets/fonts/web/sans.woff2", "#{@fonts_dir}/instrument-sans-var.woff2"},
     {"brand/assets/fonts/web/mono.woff2", "#{@fonts_dir}/red-hat-mono-var.woff2"},
     {"brand/assets/fonts/OFL-InstrumentSans.txt", "#{@fonts_dir}/OFL-InstrumentSans.txt"},
@@ -77,6 +79,17 @@ defmodule Sigra.Brand.VendoredAssetsTest do
                  "never edited; restore it from the repo root with:\n\n" <>
                  "  cp #{@brand} #{@example}\n"
       end
+    end
+  end
+
+  describe "packaged ExDoc assets" do
+    test "favicon and stylesheet URLs resolve through the docs asset mapping" do
+      mix_exs = @root |> Path.join("mix.exs") |> File.read!()
+
+      assert String.contains?(mix_exs, ~s(favicon: "docs/assets/brand/favicon.svg"))
+      assert String.contains?(mix_exs, ~s("docs/assets" => "assets"))
+      assert String.contains?(mix_exs, ~s("guides/assets" => "assets"))
+      assert String.contains?(mix_exs, ~s(href="assets/brand/sigra-exdoc.css"))
     end
   end
 
