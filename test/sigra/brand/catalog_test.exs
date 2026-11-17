@@ -189,6 +189,7 @@ defmodule Sigra.Brand.CatalogTest do
       overview = Catalog.tier1_html({IndexLive, :overview})
       needs_review = Catalog.tier1_html({IndexLive, :needs_review})
       audit_empty = Catalog.tier1_html({AuditIndexLive, :empty})
+      branding = Catalog.tier1_html({BrandingLive, :default_profile})
 
       assert overview =~ "No users need review."
       refute overview =~ "No flagged accounts"
@@ -196,6 +197,8 @@ defmodule Sigra.Brand.CatalogTest do
       refute needs_review =~ "Review risky users"
       assert audit_empty =~ "No audit events yet."
       assert audit_empty =~ "Audit events appear here as activity is recorded."
+      assert branding =~ "Sign-in preview"
+      refute branding =~ "Login preview"
     end
   end
 

@@ -58,6 +58,9 @@ test.describe('Phase 190 platform admin flow (FLOW-01..03, DATA-01)', () => {
     await loginDemoAdmin(page);
     await page.goto('/admin');
     await waitForLiveViewReady(page);
+    await expect(
+      page.getByRole('navigation', { name: 'Admin navigation' }).getByRole('link', { name: 'Global overview' }),
+    ).toHaveAttribute('aria-current', 'page');
   });
 
   // ── Reduced-motion (FLOW-02) ──────────────────────────────────────────────

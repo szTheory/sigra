@@ -47,6 +47,7 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "Branding"
       assert html =~ "href=\"/admin/auth-branding\""
       assert_live_nav_link(html, "/admin")
+      assert_current_nav_link(html, "/admin")
       assert_live_nav_link(html, "/admin/users")
       assert_live_nav_link(html, "/admin/audit")
       assert_live_nav_link(html, "/admin/auth-branding")
@@ -162,7 +163,7 @@ defmodule ExampleWeb.AdminShellTest do
       assert html =~ "href=\"/admin/organizations/#{organization.slug}/users\""
       assert html =~ "Audit"
       assert html =~ "href=\"/admin/organizations/#{organization.slug}/audit\""
-      assert html =~ "Work inside this organization scope"
+      assert html =~ "Members, audit events, and invitations stay within this organization."
       assert html =~ "data-scope=\"organization\""
       assert html =~ "Org · Acme Ops"
       assert sidebar_overviews_before_workspace?(html)
@@ -300,6 +301,19 @@ defmodule ExampleWeb.AdminShellTest do
 
     assert fragment =~ ~s(data-phx-link="redirect")
     assert fragment =~ ~s(data-phx-link-state="push")
+  end
+
+  defp assert_current_nav_link(html, href) do
+    fragment = html |> admin_navigation_fragment() |> anchor_fragment(href)
+
+    assert fragment =~ ~s(aria-current="page")
+    assert fragment =~ "active"
+  end
+
+  defp admin_navigation_fragment(html) do
+    [_before, after_nav] = String.split(html, ~s(<nav aria-label="Admin navigation"), parts: 2)
+    [fragment | _] = String.split(after_nav, "</nav>", parts: 2)
+    fragment
   end
 
   defp refute_live_nav_link(html, href) do
@@ -475,7 +489,7 @@ defmodule ExampleWeb.AdminShellTest do
       assert html_offset(html, "sg-notice") < html_offset(html, "sg-grid sg-grid--2")
 
       assert html_offset(html, "sg-grid sg-grid--2") <
-               html_offset(html, "Members")
+               html_offset(html, "Members</h2>")
 
       assert html =~ "Members"
       assert html =~ "Pending invitations"

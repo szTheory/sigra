@@ -192,6 +192,7 @@ defmodule ExampleWeb.Components.AdminShell do
                       }
                       href={~p"/admin"}
                       live={same_admin_session?(@admin_scope, ~p"/admin")}
+                      aria-current={if overview_active?(@page_title) and global_active?(@admin_scope), do: "page"}
                     >
                       Global overview
                     </.admin_link>
@@ -205,6 +206,9 @@ defmodule ExampleWeb.Components.AdminShell do
                       }
                       href={organization_link(@admin_scope)}
                       live={same_admin_session?(@admin_scope, organization_link(@admin_scope))}
+                      aria-current={
+                        if overview_active?(@page_title) and organization_active?(@admin_scope), do: "page"
+                      }
                     >
                       Organization overview
                     </.admin_link>
@@ -220,6 +224,7 @@ defmodule ExampleWeb.Components.AdminShell do
                       class={nav_item_class(users_active?(@page_title))}
                       href={users_link(@admin_scope)}
                       live={same_admin_session?(@admin_scope, users_link(@admin_scope))}
+                      aria-current={if users_active?(@page_title), do: "page"}
                     >
                       Users
                     </.admin_link>
@@ -229,6 +234,7 @@ defmodule ExampleWeb.Components.AdminShell do
                       class={nav_item_class(audit_active?(@page_title))}
                       href={audit_link(@admin_scope)}
                       live={same_admin_session?(@admin_scope, audit_link(@admin_scope))}
+                      aria-current={if audit_active?(@page_title), do: "page"}
                     >
                       Audit
                     </.admin_link>
@@ -238,6 +244,7 @@ defmodule ExampleWeb.Components.AdminShell do
                       class={nav_item_class(branding_active?(@page_title))}
                       href={branding_link(@admin_scope)}
                       live={same_admin_session?(@admin_scope, branding_link(@admin_scope))}
+                      aria-current={if branding_active?(@page_title), do: "page"}
                     >
                       Branding
                     </.admin_link>
@@ -258,6 +265,7 @@ defmodule ExampleWeb.Components.AdminShell do
           href={overview_link(@admin_scope)}
           live={same_admin_session?(@admin_scope, overview_link(@admin_scope))}
           class={["sg-bottom-nav__item", bottom_nav_class(overview_active?(@page_title))]}
+          aria-current={if overview_active?(@page_title), do: "page"}
         >
           <span>{scope_label(@admin_scope)}</span>
         </.admin_link>
@@ -265,6 +273,7 @@ defmodule ExampleWeb.Components.AdminShell do
           href={users_link(@admin_scope)}
           live={same_admin_session?(@admin_scope, users_link(@admin_scope))}
           class={["sg-bottom-nav__item", bottom_nav_class(users_active?(@page_title))]}
+          aria-current={if users_active?(@page_title), do: "page"}
         >
           <span>Users</span>
         </.admin_link>
@@ -272,6 +281,7 @@ defmodule ExampleWeb.Components.AdminShell do
           href={audit_link(@admin_scope)}
           live={same_admin_session?(@admin_scope, audit_link(@admin_scope))}
           class={["sg-bottom-nav__item", bottom_nav_class(audit_active?(@page_title))]}
+          aria-current={if audit_active?(@page_title), do: "page"}
         >
           <span>Audit</span>
         </.admin_link>
@@ -279,6 +289,7 @@ defmodule ExampleWeb.Components.AdminShell do
           href={branding_link(@admin_scope)}
           live={same_admin_session?(@admin_scope, branding_link(@admin_scope))}
           class={["sg-bottom-nav__item", bottom_nav_class(branding_active?(@page_title))]}
+          aria-current={if branding_active?(@page_title), do: "page"}
         >
           <span>Brand</span>
         </.admin_link>
