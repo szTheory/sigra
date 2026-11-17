@@ -265,6 +265,36 @@ defmodule Sigra.Install.AuthUIContractTest do
              "dgettext(\"sigra\", \"If this email is available, your account has been created. Please check your email.\")"
   end
 
+  test "confirmation and reset copy uses the approved sign-in wording" do
+    confirmation_live = File.read!("priv/templates/sigra.install/core/confirmation_live.ex")
+    confirmation_html = File.read!("priv/templates/sigra.install/core/confirmation_html.ex")
+    reset_live = File.read!("priv/templates/sigra.install/core/reset_password_live.ex")
+    reset_html = File.read!("priv/templates/sigra.install/core/reset_password_html.ex")
+
+    assert length(Regex.scan(~r/dgettext\("sigra", "Sign in"\)/, confirmation_live)) == 3
+
+    for source <- [confirmation_live, confirmation_html] do
+      assert source =~
+               "dgettext(\"sigra\", \"Your email was already confirmed. You can sign in below.\")"
+
+      refute source =~ "You can log in below."
+    end
+
+    assert confirmation_html =~ "dgettext(\"sigra\", \"Sign in\")"
+
+    for source <- [reset_live, reset_html] do
+      assert source =~ "dgettext(\"sigra\", \"Back to sign in\")"
+      refute source =~ "Back to log in"
+    end
+
+    # These generic responses deliberately do not distinguish known from unknown identities.
+    assert File.read!("priv/templates/sigra.install/core/registration_live.ex") =~
+             "If this email is available, your account has been created. Please check your email."
+
+    assert reset_live =~
+             "If your email is in our system, you will receive reset instructions shortly."
+  end
+
   test "confirmation validation removes only ASCII spaces before strict ASCII digit matching" do
     confirmation = File.read!("priv/templates/sigra.install/core/confirmation_live.ex")
     submit_handler = confirmation |> String.split("defp do_confirm(socket, code)") |> Enum.at(1)

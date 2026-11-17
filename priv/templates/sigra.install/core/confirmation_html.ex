@@ -59,13 +59,13 @@ defmodule <%= web_module %>.ConfirmationHTML do
       <.header>
         {dgettext("sigra", "Email already confirmed")}
         <:subtitle>
-          {dgettext("sigra", "Your email was already confirmed. You can log in below.")}
+          {dgettext("sigra", "Your email was already confirmed. You can sign in below.")}
         </:subtitle>
       </.header>
 
       <p class="sigra-auth-copy sigra-auth-copy--center">
         <.link navigate={~p"/users/log_in"}>
-          {dgettext("sigra", "Log in")}
+          {dgettext("sigra", "Sign in")}
         </.link>
       </p>
       </div>
