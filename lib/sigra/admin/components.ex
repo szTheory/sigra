@@ -1196,7 +1196,11 @@ defmodule Sigra.Admin.Components do
   def session_type(%{type: type}), do: to_string(type)
 
   @doc false
-  def activity_value(%DateTime{} = at), do: Calendar.strftime(at, "%Y-%m-%d %H:%M")
+  def activity_value(%DateTime{} = at) do
+    at
+    |> DateTime.shift_zone!("Etc/UTC")
+    |> Calendar.strftime("%Y-%m-%d %-I:%M %p %Z")
+  end
 
   @doc false
   def activity_value(_), do: "Not available"
