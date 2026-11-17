@@ -35,9 +35,8 @@ defmodule Sigra.MixProject do
       ],
       name: "Sigra",
       description:
-        "Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth " <>
-          "(sessions, Argon2id, TOTP, passkeys, encryption, audit). OAuth, mailers, Oban, and more " <>
-          "are optional host deps. Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html.",
+        "A library of hardened primitives plus generators that put ordinary authentication code " <>
+          "for Phoenix in your repo.",
       source_url: @source_url,
       homepage_url: @source_url,
       package: package(),
