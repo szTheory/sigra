@@ -242,6 +242,13 @@ defmodule Sigra.Brand.VendoredAssetsTest do
              ) == "1"
 
       assert String.contains?(css, ~S{.top-heading:has(> .copy-markdown[href="readme.md"]) > h1})
+
+      assert css_declaration(
+               css,
+               ~S{.top-heading:has(> .copy-markdown[href="readme.md"]) > h1},
+               "display"
+             ) == "none"
+
       assert String.contains?(css, ".content-inner picture img")
       assert String.contains?(css, "max-width: min(260px, 100%)")
     end

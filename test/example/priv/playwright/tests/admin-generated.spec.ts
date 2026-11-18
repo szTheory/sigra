@@ -425,6 +425,7 @@ test("generated host admin shell renders on desktop and mobile", async ({
   // Desktop shell: Global scope label and admin sidebar navigation.
   await page.setViewportSize(DESKTOP_VIEWPORT);
   await page.goto("/admin");
+  await waitForLiveViewReady(page);
   await expect(
     adminShellHeader(page).getByText("Admin", { exact: true }),
   ).toBeVisible();
