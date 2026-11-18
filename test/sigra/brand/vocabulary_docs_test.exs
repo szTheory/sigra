@@ -46,6 +46,7 @@ defmodule Sigra.Brand.VocabularyDocsTest do
   @required_terms [
     "Suspended",
     "Deletion scheduled",
+    "Deleted",
     "Locked",
     "sign in",
     "revoke",
@@ -64,6 +65,7 @@ defmodule Sigra.Brand.VocabularyDocsTest do
   @anchor_pairs [
     {"Locked", "lib/sigra/admin/live/user_show_live.ex"},
     {"Deletion scheduled", "lib/sigra/admin/live/user_show_live.ex"},
+    {"Deleted", "lib/sigra/admin/live/user_show_live.ex"},
     {"Manage sessions", "lib/sigra/admin/live/user_show_live.ex"},
     {"auto-unlocks", "lib/sigra/lockout.ex"},
     {"Log in", "test/example/lib/example_web/controllers/session_html.ex"},
