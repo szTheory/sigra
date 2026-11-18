@@ -767,6 +767,7 @@ defmodule Sigra.Brand.CopyContractTest do
                  "Email confirmed",
                  "Your email has been confirmed.",
                  "Email address",
+                 "Are you sure?",
                  "Locked",
                  "Active"
                ]
