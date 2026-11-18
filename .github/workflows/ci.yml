@@ -621,6 +621,17 @@ jobs:
           PGPASSWORD: postgres
           PGHOST: localhost
         run: MIX_ENV=test mix ci
+      # Phase 260 SC-1: publish the complete normalized before catalog for review.
+      # The catalog tests above verify its manifest and privacy contract; the committed
+      # fixture remains the durable baseline because this artifact expires after 7 days.
+      - name: Upload full HTML brand catalog
+        if: success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: brand-before-html-catalog
+          path: test/fixtures/brand/before/
+          retention-days: 7
+          if-no-files-found: error
 
   # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
   # and name `Library tests` — byte-identical to ruleset 14941512 required check string
