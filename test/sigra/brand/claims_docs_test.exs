@@ -161,18 +161,18 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   # The unbounded claim families. Regexes live in functions, not module
   # attributes, so they are not escaped into function bodies at compile time.
   #
-  # Family A: a safety, resistance, prevention or protection label on
-  # enumeration, or a verb that promises to stop it.
+  # Family A: a safety, resistance, proof, prevention or protection label on
+  # enumeration, or a verb that promises to block or stop it.
   defp family_a_regexes do
     [
-      ~r/\benumeration[\s-]+(?:safe\w*|safety|resistan\w*|prevent\w*|protect\w*)/i,
-      ~r/\b(?:prevent(?:s|ing)?|protects?\s+against|safe\s+(?:from|against))\s+(?:(?:user|account|email)\s+)?enumeration/i
+      ~r/\benumeration[\s-]+(?:safe\w*|safety|resistan\w*|proof\w*|prevent\w*|protect\w*)/i,
+      ~r/\b(?:block\w*|stop\w*|prevent\w*|protect\w*\s+against|safe\s+(?:from|against))\s+(?:(?:user|account|email|username)\s+)?enumeration\b/i
     ]
   end
 
-  # Family B: the non-existence promise ("does not reveal whether ...").
+  # Family B: the non-existence promise ("does not reveal whether/which ...").
   defp family_b_regex do
-    ~r/\b(?:does\s+not|doesn['’]t|never|without)\s+(?:reveal|disclos|leak|expos|indicat|confirm)\w*\s+(?:whether|if)\b/iu
+    ~r/\b(?:does\s+not|doesn['’]t|never|without)\s+(?:reveal|disclos|leak|expos|indicat|confirm)\w*\s+(?:whether|if|which)\b/iu
   end
 
   # Family C: the same promise made without a verb ("indistinguishable",
@@ -778,6 +778,21 @@ end|
 
       assert unbounded_units(bare, @qualifiers) == [bare]
       assert unbounded_units(qualified, @qualifiers) == []
+    end
+
+    test "common block, username, proof and registered-email promises are flagged" do
+      for claim <- [
+            "Sigra blocks enumeration of accounts.",
+            "It prevents username enumeration.",
+            "The flow is enumeration-proof.",
+            "The response does not reveal which emails are registered."
+          ] do
+        assert unbounded_units(claim, @qualifiers) == [claim],
+               "expected the unqualified claim to be flagged: #{claim}"
+      end
+
+      neutral_threat = "Attackers can attempt account enumeration against public routes."
+      assert unbounded_units(neutral_threat, @qualifiers) == []
     end
 
     test "each qualifier phrase bounds a planted claim, whatever its case" do
