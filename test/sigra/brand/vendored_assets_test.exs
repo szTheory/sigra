@@ -102,12 +102,12 @@ defmodule Sigra.Brand.VendoredAssetsTest do
       readme = @root |> Path.join("README.md") |> File.read!()
 
       assert Regex.match?(
-               ~r/^# !\[Sigra\]\(.*#gh-light-mode-only\) !\[Sigra\]\(.*#gh-dark-mode-only\)\s*\n\s*<p><b>Phoenix auth you own and can still update\.<\/b><\/p>\s*<p>Production-minded authentication for Phoenix 1\.8\+<\/p>\s*\*\*\[Install Sigra\]\(guides\/introduction\/installation\.md\)\*\*.*?\n\[!\[Hex version\]/s,
+               ~r/^<picture role="heading" aria-level="1">\s*<source media="\(prefers-color-scheme: dark\)" srcset=".*sigra-header-dark\.svg">\s*<img src=".*sigra-header-light\.svg" alt="Sigra" width="260">\s*<\/picture>\s*<p><b>Phoenix auth you own and can still update\.<\/b><\/p>\s*<p>Production-minded authentication for Phoenix 1\.8\+<\/p>\s*\*\*\[Install Sigra\]\(guides\/introduction\/installation\.md\)\*\*.*?\n\[!\[Hex version\]/s,
                readme
              )
 
-      assert readme =~ "#gh-light-mode-only"
-      assert readme =~ "#gh-dark-mode-only"
+      assert readme =~ "prefers-color-scheme: dark"
+      assert readme =~ "alt=\"Sigra\" width=\"260\""
       refute readme =~ "\n# Sigra\n"
 
       assert readme =~
@@ -201,8 +201,8 @@ defmodule Sigra.Brand.VendoredAssetsTest do
                "opacity"
              ) == "1"
 
-      assert String.contains?(css, ~S{.top-heading:has(> .copy-markdown[href="readme.md"])})
-      assert String.contains?(css, "> h1 img")
+      assert String.contains?(css, ~S{.top-heading:has(> .copy-markdown[href="readme.md"]) > h1})
+      assert String.contains?(css, ".content-inner picture img")
       assert String.contains?(css, "max-width: min(260px, 100%)")
     end
 

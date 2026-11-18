@@ -1,4 +1,7 @@
-# ![Sigra](https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-light.svg#gh-light-mode-only) ![Sigra](https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-dark.svg#gh-dark-mode-only)
+<picture role="heading" aria-level="1">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-dark.svg">
+  <img src="https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-light.svg" alt="Sigra" width="260">
+</picture>
 
 <p><b>Phoenix auth you own and can still update.</b></p>
 <p>Production-minded authentication for Phoenix 1.8+</p>

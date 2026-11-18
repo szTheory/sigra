@@ -157,21 +157,19 @@ body a,
   color: var(--sigra-doc-surface-bg);
 }
 
-/* The theme-specific logo images form the README's one visible page heading.
-   ExDoc keeps the textual page title in metadata and navigation. */
+/* The logo is the README's only visible title. ExDoc keeps its text title in
+   metadata and navigation, so hide the generated heading on this page only. */
 .top-heading:has(> .copy-markdown[href="readme.md"]) {
   align-items: flex-start;
   gap: 1rem;
 }
 
 .top-heading:has(> .copy-markdown[href="readme.md"]) > h1 {
-  flex: 1 1 auto;
-  min-width: 0;
-  margin: 0 auto 0 0;
-  line-height: 1;
+  display: none;
 }
 
-.top-heading:has(> .copy-markdown[href="readme.md"]) > h1 img {
+#top-content:has(> .top-heading > .copy-markdown[href="readme.md"]) .content-inner picture img {
+  width: 260px;
   max-width: min(260px, 100%);
   height: auto;
   vertical-align: top;
