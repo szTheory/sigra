@@ -116,6 +116,7 @@ defmodule Sigra.Planning.Phase260CiAliasContractTest do
 
     assert gate_at != :nomatch
     assert upload_at != :nomatch
+
     assert elem(gate_at, 0) < elem(upload_at, 0),
            "the artifact should be uploaded only after the manifest/privacy tests pass"
 
