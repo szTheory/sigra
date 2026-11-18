@@ -93,7 +93,7 @@ defmodule <%= web_module %>.OAuthController do
             })
             |> put_flash(
               :info,
-              "An account with this email exists. Log in to link your #{provider} account."
+              "An account with this email exists. Sign in to link your #{provider} account."
             )
             |> redirect(to: ~p"<%= login_path %>")
 

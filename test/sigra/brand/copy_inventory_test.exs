@@ -15,6 +15,7 @@ defmodule Sigra.Brand.CopyInventoryTest do
 
   @root Path.expand("../../..", __DIR__)
   @template_root Path.join(@root, "priv/templates/sigra.install")
+  @upgrade_template_root Path.join(@root, "priv/templates/sigra.upgrade")
   @msgid_scan ~r/dgettext\(\s*"sigra"\s*,\s*"((?:[^"\\]|\\.)*)"/s
 
   # Written once, before any test reads a TSV, so the async tests never race the
@@ -70,13 +71,61 @@ defmodule Sigra.Brand.CopyInventoryTest do
         for path <- template_files(),
             [_, msgid] <- Regex.scan(@msgid_scan, File.read!(path)),
             uniq: true,
-            do: {Path.relative_to(path, @template_root), msgid}
+            do: {inventory_template_path(path), msgid}
 
       rows = CopyInventory.extract(:generated)
       msgid_rows = for {file, "msgid", msgid} <- rows, do: {file, msgid}
 
       assert Enum.sort(msgid_rows) == Enum.sort(scanned)
       assert msgid_rows |> Enum.map(&elem(&1, 1)) |> Enum.uniq() |> length() >= 150
+    end
+
+    test "OAuth generator copy is inventoried; upgrade templates remain migration-only" do
+      rows = CopyInventory.extract(:generated)
+
+      oauth_files =
+        Enum.filter(
+          template_files(),
+          &String.starts_with?(&1, Path.join(@root, "priv/templates/sigra.gen.oauth"))
+        )
+
+      upgrade_files =
+        @upgrade_template_root
+        |> Path.join("**/*")
+        |> Path.wildcard()
+        |> Enum.filter(&File.regular?/1)
+
+      assert oauth_files != []
+
+      assert Enum.any?(rows, fn {file, _kind, _text} ->
+               String.starts_with?(file, "priv/templates/sigra.gen.oauth/")
+             end)
+
+      assert Enum.any?(rows, fn {file, _kind, text} ->
+               String.starts_with?(file, "priv/templates/sigra.gen.oauth/") and
+                 String.contains?(text, "Sign in to link")
+             end)
+
+      assert {"priv/templates/sigra.gen.oauth/oauth_settings.html.heex", "heex_text",
+              "Connected Accounts"} in rows
+
+      refute Enum.any?(rows, fn {file, _kind, text} ->
+               String.starts_with?(file, "priv/templates/sigra.gen.oauth/") and
+                 String.contains?(text, ["OAuthHTML", "%>"])
+             end)
+
+      assert upgrade_files != []
+
+      refute Enum.any?(rows, fn {file, _kind, _text} ->
+               String.contains?(file, "sigra.upgrade")
+             end)
+
+      for path <- upgrade_files do
+        source = File.read!(path)
+
+        refute source =~ ~r/~H\b|dgettext\(|put_flash\(/,
+               "#{Path.relative_to(path, @root)} must remain migration code without user-facing copy forms"
+      end
     end
 
     test "the raw auth inventory equals its generated-source extraction" do
@@ -196,7 +245,7 @@ defmodule Sigra.Brand.CopyInventoryTest do
     end
 
     test "every template file type is classified, so a new type cannot be skipped silently" do
-      known = ~w(.ex .exs .css .svg .json .js)
+      known = ~w(.ex .exs .heex .css .svg .json .js)
 
       unclassified =
         template_files()
@@ -405,7 +454,15 @@ defmodule Sigra.Brand.CopyInventoryTest do
   end
 
   defp template_files do
-    @template_root |> Path.join("**/*") |> Path.wildcard() |> Enum.filter(&File.regular?/1)
+    [@template_root, Path.join(@root, "priv/templates/sigra.gen.oauth")]
+    |> Enum.flat_map(&(Path.join(&1, "**/*") |> Path.wildcard()))
+    |> Enum.filter(&File.regular?/1)
+  end
+
+  defp inventory_template_path(path) do
+    if String.starts_with?(path, @template_root),
+      do: Path.relative_to(path, @template_root),
+      else: Path.relative_to(path, @root)
   end
 
   defp assert_inventory_current(lane) do

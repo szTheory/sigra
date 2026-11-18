@@ -13,7 +13,8 @@ defmodule Sigra.Brand.CopyContractTest do
     * `admin` - the nine admin chrome files the glossary guard watches plus the
       shipped admin templates. Banned terms (the glossary terms, the book's
       phrase-level avoid-words, "admin (operator)") and the lexicon.
-    * `generated` - `priv/templates/sigra.install/**`. "log in", "log out",
+    * `generated` - `priv/templates/sigra.install/**` and
+      `priv/templates/sigra.gen.oauth/**`. "log in", "log out",
       "login", "logout", "signin" and "admin (operator)" are banned as COPY
       (string literals, HEEx text and user-visible attribute values such as
       `aria-label`, `aria-description`, `title`, `placeholder`, `label`, `alt`,
@@ -837,8 +838,31 @@ defmodule Sigra.Brand.CopyContractTest do
       assert length(files) >= 50
       assert "priv/templates/sigra.install/core/emails.ex" in files
       assert "priv/templates/sigra.install/core/user_auth.ex" in files
-      assert Enum.all?(files, &String.starts_with?(&1, "priv/templates/sigra.install/"))
+      assert "priv/templates/sigra.gen.oauth/oauth_controller.ex" in files
+
+      assert Enum.all?(files, fn file ->
+               String.starts_with?(file, "priv/templates/sigra.install/") or
+                 String.starts_with?(file, "priv/templates/sigra.gen.oauth/")
+             end)
+
       assert Enum.all?(files, &(Path.extname(&1) in [".ex", ".eex", ".heex"]))
+    end
+
+    test "upgrade templates are deliberately outside the generated-copy scope" do
+      files = CopyScan.files_for(:generated)
+
+      upgrade_files =
+        Path.wildcard("priv/templates/sigra.upgrade/**/*") |> Enum.filter(&File.regular?/1)
+
+      assert upgrade_files != []
+      refute Enum.any?(files, &String.starts_with?(&1, "priv/templates/sigra.upgrade/"))
+
+      for path <- upgrade_files do
+        source = File.read!(path)
+
+        refute source =~ ~r/~H\b|dgettext\(|put_flash\(/,
+               "#{path} must remain migration code without user-facing copy forms"
+      end
     end
 
     test "the code scopes extract real copy from real files" do

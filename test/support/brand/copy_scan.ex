@@ -36,7 +36,10 @@ defmodule Sigra.Test.Brand.CopyScan do
       shipped admin templates. The glossary terms, the brand book's phrase-level
       avoid-words and the phrase "admin (operator)" are banned, and so is the
       lexicon.
-    * `:generated` - `priv/templates/sigra.install/**` (`.ex`, `.eex`, `.heex`).
+    * `:generated` - `priv/templates/sigra.install/**` and
+      `priv/templates/sigra.gen.oauth/**` (`.ex`, `.eex`, `.heex`). Upgrade
+      migrations are outside the lane: they contain migration code, not screens,
+      messages or other user-facing copy.
       "log in", "log out", "login", "logout", "signin" and "admin (operator)"
       are banned as *copy*, and so is the lexicon.
 
@@ -82,6 +85,7 @@ defmodule Sigra.Test.Brand.CopyScan do
     "lib/sigra/admin/components.ex"
   ]
   @templates_dir "priv/templates/sigra.install"
+  @oauth_templates_dir "priv/templates/sigra.gen.oauth"
   @code_exts "{ex,eex,heex}"
 
   # Attribute values that are visible copy. Every other attribute is markup.
@@ -209,7 +213,10 @@ defmodule Sigra.Test.Brand.CopyScan do
   `:lexicon` is `README.md`, `guides/introduction/*.md` and `guides/flows/*.md`.
   `:admin` is the nine admin chrome files plus the shipped admin templates under
   `priv/templates/sigra.install/admin/`. `:generated` is every `.ex`, `.eex` and
-  `.heex` file under `priv/templates/sigra.install/`.
+  `.heex` file under `priv/templates/sigra.install/` and
+  `priv/templates/sigra.gen.oauth/`. Upgrade migrations are excluded because
+  their generated files are database migration code and contain no user-facing
+  screens, messages or other copy.
 
   CSS, SVG and JSON files carry no copy. JS files do (the passkey browser hook
   ships user-visible status messages) but the scanner does not read them, so
@@ -226,7 +233,9 @@ defmodule Sigra.Test.Brand.CopyScan do
   end
 
   def files_for(:generated) do
-    "#{@templates_dir}/**/*.#{@code_exts}" |> wildcard() |> Enum.sort()
+    [@templates_dir, @oauth_templates_dir]
+    |> Enum.flat_map(&wildcard("#{&1}/**/*.#{@code_exts}"))
+    |> Enum.sort()
   end
 
   @doc """
