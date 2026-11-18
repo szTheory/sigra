@@ -183,7 +183,9 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       ~r/\bindistinguishable\b/i,
       ~r/\bregardless\s+of\s+whether\b/i,
       ~r/\b(?:responses?|results?|outcomes?|messages?|pages?)\s+(?:(?:are|is|were|was|remain|remains|stay|stays)\s+)?(?:the\s+)?(?:same|identical)\s+(?:for|between|across)\s+(?:registered|existing|known)\s+(?:and|vs\.?|versus)\s+(?:unregistered|unknown|nonexistent)\b/i,
-      ~r/\b(?:the\s+)?(?:same|identical)\s+(?:responses?|results?|outcomes?|messages?|pages?)\s+(?:for|between|across)\s+(?:registered|existing|known)\s+(?:and|vs\.?|versus)\s+(?:unregistered|unknown|nonexistent)\b/i
+      ~r/\b(?:the\s+)?(?:same|identical)\s+(?:responses?|results?|outcomes?|messages?|pages?)\s+(?:for|between|across)\s+(?:registered|existing|known)\s+(?:and|vs\.?|versus)\s+(?:unregistered|unknown|nonexistent)\b/i,
+      ~r/\b(?:registered|existing|known)\s+and\s+(?:unregistered|unknown|nonexistent)\s+(?:accounts?|users?|(?:email\s+)?addresses?|emails?)\s+(?:receive|received|get|gets|see|sees|have|has|show|shows|return|returns|produce|produces|yield|yields)\s+(?:the\s+)?(?:same|identical)\s+(?:responses?|results?|outcomes?|messages?|pages?)\b/i,
+      ~r/\b(?:unregistered|unknown|nonexistent)\s+and\s+(?:registered|existing|known)\s+(?:accounts?|users?|(?:email\s+)?addresses?|emails?)\s+(?:receive|received|get|gets|see|sees|have|has|show|shows|return|returns|produce|produces|yield|yields)\s+(?:the\s+)?(?:same|identical)\s+(?:responses?|results?|outcomes?|messages?|pages?)\b/i
     ]
   end
 
@@ -702,7 +704,9 @@ end|
             "Regardless of\nwhether the address is registered, the page is the same.",
             "The response is the same for registered and unregistered email addresses.",
             "The results are identical across existing and unknown accounts.",
-            "Same result for known and unknown users."
+            "Same result for known and unknown users.",
+            "Registered and unknown accounts receive identical responses.",
+            "Unknown and registered email addresses get the same response."
           ] do
         assert unbounded?(text), "should have been flagged: #{inspect(text)}"
       end
