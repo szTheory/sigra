@@ -267,6 +267,15 @@ defmodule Sigra.Brand.CopyContractTest do
       assert line == "You must log in to access this page."
     end
 
+    test "joins adjacent string literals before checking copy on one line and across lines" do
+      for lines <- [
+            [~s'copy = "Please log " <> "in to continue"'],
+            [~s'copy = "Please log " <>', ~s'  "in to continue"']
+          ] do
+        assert [%{kind: "banned_term", line: "Please log in to continue"}] = generated(lines)
+      end
+    end
+
     test "flags every banned spelling when it is copy" do
       for phrase <- ["Log in", "log out", "Login", "logout", "signin", "admin (operator)"] do
         assert [%{kind: "banned_term"}] =

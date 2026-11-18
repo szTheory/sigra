@@ -745,6 +745,7 @@ defmodule Sigra.Test.Brand.CopyScan do
 
   defp code(<<"\"", rest::binary>>, ctx, acc) do
     {raw, rest} = take_string(rest)
+    {raw, rest} = take_concat_literals(raw, rest)
     code(rest, ctx, literal(raw, ctx, acc))
   end
 
@@ -758,6 +759,34 @@ defmodule Sigra.Test.Brand.CopyScan do
     text = unescape(text)
 
     if copy_literal?(text), do: [normalize(text) | acc], else: acc
+  end
+
+  # Adjacent literal fragments joined with `<>` are one rendered string. Keep
+  # this deliberately narrow: only a literal immediately followed by another
+  # literal is coalesced; expressions and other operators remain separate.
+  defp take_concat_literals(raw, rest) do
+    trimmed = String.trim_leading(rest)
+    whitespace_size = byte_size(rest) - byte_size(trimmed)
+
+    case trimmed do
+      <<"<>", after_operator::binary>> ->
+        after_operator = String.trim_leading(after_operator)
+
+        case after_operator do
+          <<"\"", tail::binary>> ->
+            {next, tail} = take_string(tail)
+            take_concat_literals(raw <> next, tail)
+
+          _ ->
+            {raw, rest}
+        end
+
+      _ when whitespace_size > 0 ->
+        {raw, rest}
+
+      _ ->
+        {raw, rest}
+    end
   end
 
   # Prose has a letter, is not a route or URL, and either has a space or is a
