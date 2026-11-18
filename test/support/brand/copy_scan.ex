@@ -42,8 +42,9 @@ defmodule Sigra.Test.Brand.CopyScan do
 
   For the two code scopes the text is reduced to *copy segments* before any
   matching: string literals, HEEx text nodes (including the string literals
-  inside `{...}` expressions) and the values of the `aria-label`, `title`,
-  `placeholder`, `label`, `alt` and `action` attributes. Identifiers, function
+  inside `{...}` expressions) and user-visible attribute values, including
+  `aria-label`, `aria-description`, `title`, `placeholder`, `label`, `alt`,
+  `action`, `data-confirm` and `phx-disable-with`. Identifiers, function
   names, route paths (`/users/log_in`, `~p"..."`), atoms (telemetry names such as
   `[:sigra, :auth, :logout, :stop]`), comments, `@doc`/`@moduledoc` text and
   every other attribute are never matched. The admin scope keeps the glossary
@@ -84,7 +85,9 @@ defmodule Sigra.Test.Brand.CopyScan do
   @code_exts "{ex,eex,heex}"
 
   # Attribute values that are visible copy. Every other attribute is markup.
-  @copy_attrs ~w(aria-label title placeholder label alt action)
+  @copy_attrs ~w(
+    aria-label aria-description title placeholder label alt action data-confirm phx-disable-with
+  )
 
   # The admin chrome shows a replica of the host's sign-in screen. Its copy is
   # the host's, so the glossary guard exempts it and so does this scanner.

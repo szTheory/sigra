@@ -15,8 +15,9 @@ defmodule Sigra.Brand.CopyContractTest do
       phrase-level avoid-words, "admin (operator)") and the lexicon.
     * `generated` - `priv/templates/sigra.install/**`. "log in", "log out",
       "login", "logout", "signin" and "admin (operator)" are banned as COPY
-      (string literals, HEEx text, the `aria-label`, `title`, `placeholder`,
-      `label`, `alt` and `action` attribute values), never as identifiers, route
+      (string literals, HEEx text and user-visible attribute values such as
+      `aria-label`, `aria-description`, `title`, `placeholder`, `label`, `alt`,
+      `action`, `data-confirm` and `phx-disable-with`), never as identifiers, route
       paths or telemetry atoms. The lexicon applies to the same copy segments.
 
   A hit's `kind` is `lexicon` for a Do-not-say word in any scope and
@@ -298,7 +299,17 @@ defmodule Sigra.Brand.CopyContractTest do
     end
 
     test "flags the copy attributes and nothing else on a tag" do
-      for attr <- ["aria-label", "title", "placeholder", "label", "alt", "action"] do
+      for attr <- [
+            "aria-label",
+            "aria-description",
+            "title",
+            "placeholder",
+            "label",
+            "alt",
+            "action",
+            "data-confirm",
+            "phx-disable-with"
+          ] do
         assert [%{line: "Log in here"}] =
                  generated([~s'~H"""', ~s'<input #{attr}="Log in here" />', ~s'"""']),
                "expected #{attr} to be scanned"
@@ -629,7 +640,17 @@ defmodule Sigra.Brand.CopyContractTest do
     end
 
     test "a single-quoted copy attribute value is copy, any other single-quoted value is not" do
-      for attr <- ["aria-label", "title", "placeholder", "label", "alt", "action"] do
+      for attr <- [
+            "aria-label",
+            "aria-description",
+            "title",
+            "placeholder",
+            "label",
+            "alt",
+            "action",
+            "data-confirm",
+            "phx-disable-with"
+          ] do
         assert [%{line: "Log in here"}] =
                  generated([~s'~H"""', ~s'<a #{attr}=\'Log in here\'>x</a>', ~s'"""']),
                "expected single-quoted #{attr} to be scanned"
