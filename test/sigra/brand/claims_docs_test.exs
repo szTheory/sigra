@@ -246,8 +246,9 @@ defmodule Sigra.Brand.ClaimsDocsTest do
         do: collapse(unit)
   end
 
-  # Public `@moduledoc` and multiline `@doc` strings from an Elixir module.
-  # Keep source comments and executable strings out of the published-doc scan.
+  # Public literal `@moduledoc` and `@doc` strings from an Elixir module.
+  # Parsing the source keeps comments and executable strings out of the
+  # published-doc scan and includes both one-line strings and heredocs.
   defp library_docs!(file) do
     file
     |> read!()
@@ -255,8 +256,18 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   end
 
   defp library_docs_from_source(source) do
-    Regex.scan(~r/@(?:module)?doc\s+"""(.*?)"""/s, source, capture: :all_but_first)
-    |> List.flatten()
+    source
+    |> Code.string_to_quoted!()
+    |> Macro.prewalk([], fn
+      {:@, _meta, [{attribute, _attribute_meta, [doc]}]} = node, docs
+      when attribute in [:doc, :moduledoc] and is_binary(doc) ->
+        {node, [doc | docs]}
+
+      node, docs ->
+        {node, docs}
+    end)
+    |> elem(1)
+    |> Enum.reverse()
     |> Enum.join("\n\n")
   end
 
@@ -502,6 +513,17 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       claims = library_docs_from_source(planted)
 
       assert unbounded_units(claims, @qualifiers) == ["Messages are enumeration-safe."]
+    end
+
+    test "a planted single-line public doc claim is caught by the shared claim-unit scanner" do
+      planted = ~S|defmodule Planted do
+  @doc "It prevents user enumeration."
+  def action, do: :ok
+end|
+
+      claims = library_docs_from_source(planted)
+
+      assert unbounded_units(claims, @qualifiers) == ["It prevents user enumeration."]
     end
   end
 
