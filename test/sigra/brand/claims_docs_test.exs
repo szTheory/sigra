@@ -260,8 +260,11 @@ defmodule Sigra.Brand.ClaimsDocsTest do
     |> Code.string_to_quoted!()
     |> Macro.prewalk([], fn
       {:@, _meta, [{attribute, _attribute_meta, [doc]}]} = node, docs
-      when attribute in [:doc, :moduledoc] and is_binary(doc) ->
-        {node, [doc | docs]}
+      when attribute in [:doc, :moduledoc] ->
+        case literal_doc_text(doc) do
+          {:ok, text} -> {node, [text | docs]}
+          :error -> {node, docs}
+        end
 
       node, docs ->
         {node, docs}
@@ -270,6 +273,19 @@ defmodule Sigra.Brand.ClaimsDocsTest do
     |> Enum.reverse()
     |> Enum.join("\n\n")
   end
+
+  defp literal_doc_text(text) when is_binary(text), do: {:ok, text}
+
+  defp literal_doc_text({:<>, _meta, [left, right]}) do
+    with {:ok, left_text} <- literal_doc_text(left),
+         {:ok, right_text} <- literal_doc_text(right) do
+      {:ok, left_text <> right_text}
+    else
+      _ -> :error
+    end
+  end
+
+  defp literal_doc_text(_other), do: :error
 
   # Drops the paragraphs a `{file, substring}` allow-list entry for `file`
   # covers (substring compared after whitespace is collapsed).
@@ -515,15 +531,21 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       assert unbounded_units(claims, @qualifiers) == ["Messages are enumeration-safe."]
     end
 
-    test "a planted single-line public doc claim is caught by the shared claim-unit scanner" do
+    test "planted single-line and concatenated public doc claims are caught by the shared scanner" do
       planted = ~S|defmodule Planted do
   @doc "It prevents user enumeration."
   def action, do: :ok
+
+  @doc "It prevents account " <> "enumeration."
+  def another_action, do: :ok
 end|
 
       claims = library_docs_from_source(planted)
 
-      assert unbounded_units(claims, @qualifiers) == ["It prevents user enumeration."]
+      assert unbounded_units(claims, @qualifiers) == [
+               "It prevents user enumeration.",
+               "It prevents account enumeration."
+             ]
     end
   end
 
