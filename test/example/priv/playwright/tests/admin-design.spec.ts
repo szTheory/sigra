@@ -309,6 +309,18 @@ test.describe('Design gallery board snapshots', () => {
       });
       await expect(brandingLink).toHaveAttribute('aria-current', 'page');
 
+      if (mobile) {
+        // Inactive bottom-nav labels use the muted token too. They must switch
+        // immediately with the panel ground; animating their color can expose
+        // a dark-on-dark frame while changing themes.
+        const bottomNavItems = brandingNavigation.locator('.sg-bottom-nav__item');
+        await expect(bottomNavItems).toHaveCount(4);
+        for (const item of await bottomNavItems.all()) {
+          expect(await item.evaluate((node) => getComputedStyle(node).transitionProperty))
+            .not.toContain('color');
+        }
+      }
+
       // Phase 262 follow-up: keep the real admin controls readable in every
       // resolved theme. The earlier exploratory 2.83:1 result sampled the
       // 140ms color transition, so wait for each control to reach the actual

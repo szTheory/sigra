@@ -1815,7 +1815,8 @@ html[data-sg-admin-page-loading="complete"] .sg-admin-loading-bar::before {
   font-size: var(--sg-text-2xs);
   font-weight: var(--sg-weight-semibold);
   text-decoration: none;
-  transition: var(--sg-transition-tone);
+  /* Theme changes replace the panel ground immediately; animating muted text
+   * can expose a dark-on-dark frame before the foreground catches up. */
 }
 .sg-bottom-nav__item.active,
 .sg-bottom-nav .active {

@@ -2016,7 +2016,9 @@
     font-size: var(--sg-text-2xs);
     font-weight: var(--sg-weight-semibold);
     text-decoration: none;
-    transition: var(--sg-transition-tone);
+    /* Theme tokens can change abruptly while the panel ground changes with
+     * them. Keep the label color immediate so it never passes through a
+     * low-contrast combination on the dark surface. */
   }
 
   .sg-bottom-nav__item.active,
