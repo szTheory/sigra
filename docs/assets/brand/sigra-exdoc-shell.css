@@ -115,6 +115,39 @@ body.dark {
   --autocompleteLabelFont: var(--sigra-doc-page-text);
 }
 
+/* ExDoc's settings toggles hard-code blue and slate instead of using its theme
+   variables. Keep the switch on-brand in both theme modes and preserve its
+   visible keyboard-focus ring. */
+#settings-modal-content .switch-button__checkbox {
+  background-color: var(--sigra-doc-surface-bg);
+  border-color: var(--sigra-doc-control-edge);
+}
+
+#settings-modal-content .switch-button__bg {
+  background-color: var(--sigra-doc-soft);
+  border: 1px solid var(--sigra-doc-control-edge);
+  box-sizing: border-box;
+}
+
+#settings-modal-content .switch-button__checkbox:checked {
+  background-color: var(--sigra-doc-surface-bg);
+  border-color: var(--sigra-doc-surface-bg);
+}
+
+#settings-modal-content .switch-button__checkbox:checked + .switch-button__bg {
+  background-color: var(--sigra-doc-link);
+  border-color: var(--sigra-doc-link);
+}
+
+#settings-modal-content .switch-button__checkbox:focus + .switch-button__bg {
+  outline: 2px solid var(--sigra-doc-focus);
+  outline-offset: 2px;
+}
+
+#settings-modal-content .switch-button__checkbox:focus:not(:focus-visible) + .switch-button__bg {
+  outline: none;
+}
+
 body {
   background-color: var(--sigra-doc-page-bg);
   color: var(--sigra-doc-page-text);

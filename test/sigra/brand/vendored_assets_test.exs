@@ -191,6 +191,46 @@ defmodule Sigra.Brand.VendoredAssetsTest do
 
       assert css_declaration(
                css,
+               "#settings-modal-content .switch-button__checkbox",
+               "background-color"
+             ) == "var(--sigra-doc-surface-bg)"
+
+      assert css_declaration(
+               css,
+               "#settings-modal-content .switch-button__checkbox",
+               "border-color"
+             ) == "var(--sigra-doc-control-edge)"
+
+      assert css_declaration(
+               css,
+               "#settings-modal-content .switch-button__bg",
+               "background-color"
+             ) ==
+               "var(--sigra-doc-soft)"
+
+      assert css_declaration(css, "#settings-modal-content .switch-button__bg", "border") ==
+               "1px solid var(--sigra-doc-control-edge)"
+
+      assert css_declaration(
+               css,
+               "#settings-modal-content .switch-button__checkbox:checked + .switch-button__bg",
+               "background-color"
+             ) == "var(--sigra-doc-link)"
+
+      assert css_declaration(
+               css,
+               "#settings-modal-content .switch-button__checkbox:focus + .switch-button__bg",
+               "outline"
+             ) == "2px solid var(--sigra-doc-focus)"
+
+      assert css_declaration(
+               css,
+               "#settings-modal-content .switch-button__checkbox:focus:not(:focus-visible) + .switch-button__bg",
+               "outline"
+             ) == "none"
+
+      assert css_declaration(
+               css,
                ".top-search .search-bar .search-input::placeholder",
                "color"
              ) == "var(--sigra-doc-muted)"
