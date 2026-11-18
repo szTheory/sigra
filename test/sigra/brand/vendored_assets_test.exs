@@ -102,9 +102,13 @@ defmodule Sigra.Brand.VendoredAssetsTest do
       readme = @root |> Path.join("README.md") |> File.read!()
 
       assert Regex.match?(
-               ~r/<picture>.*?<\/picture>\s*<p><b>Phoenix auth you own and can still update\.<\/b><\/p>\s*<p>Production-minded authentication for Phoenix 1\.8\+<\/p>\s*\*\*\[Install Sigra\]\(guides\/introduction\/installation\.md\)\*\*.*?\n# Sigra\s+\[!\[Hex version\]/s,
+               ~r/^# !\[Sigra\]\(.*#gh-light-mode-only\) !\[Sigra\]\(.*#gh-dark-mode-only\)\s*\n\s*<p><b>Phoenix auth you own and can still update\.<\/b><\/p>\s*<p>Production-minded authentication for Phoenix 1\.8\+<\/p>\s*\*\*\[Install Sigra\]\(guides\/introduction\/installation\.md\)\*\*.*?\n\[!\[Hex version\]/s,
                readme
              )
+
+      assert readme =~ "#gh-light-mode-only"
+      assert readme =~ "#gh-dark-mode-only"
+      refute readme =~ "\n# Sigra\n"
 
       assert readme =~
                "**[Install Sigra](guides/introduction/installation.md)** — add `{:sigra, \"~> 1.7.1\"}` to `mix.exs`"
@@ -141,7 +145,10 @@ defmodule Sigra.Brand.VendoredAssetsTest do
       assert String.contains?(mix_exs, ~s(favicon: "docs/assets/brand/favicon.svg"))
       assert String.contains?(mix_exs, ~s("docs/assets" => "assets"))
       assert String.contains?(mix_exs, ~s("guides/assets" => "assets"))
+      assert String.contains?(mix_exs, ~s({"docs_config.js", ""}))
       assert String.contains?(mix_exs, ~s(href="assets/brand/sigra-exdoc.css"))
+      assert String.contains?(mix_exs, ~s(href="assets/brand/sigra-exdoc-shell.css"))
+      assert File.regular?(Path.join(@root, "docs/assets/brand/sigra-exdoc-shell.css"))
     end
 
     test "the copied stylesheet preserves the brand colors and imports packaged fonts" do
@@ -154,6 +161,49 @@ defmodule Sigra.Brand.VendoredAssetsTest do
       assert String.contains?(css, "'Red Hat Mono', ui-monospace, monospace")
       assert String.contains?(css, "@media (prefers-color-scheme: dark)")
       assert String.contains?(css, "body.dark {")
+    end
+
+    test "ExDoc chrome uses the Sigra type and palette in both theme states" do
+      css = @root |> Path.join("docs/assets/brand/sigra-exdoc-shell.css") |> File.read!()
+
+      assert css_declaration(css, ":root", "--sansFontFamily") ==
+               ~s|"Instrument Sans", system-ui, sans-serif|
+
+      assert css_declaration(css, ":root", "--monoFontFamily") ==
+               ~s|"Red Hat Mono", ui-monospace, monospace|
+
+      for {property, expected} <- [
+            {"--background", "var(--sigra-doc-page-bg)"},
+            {"--sidebarBackground", "var(--sigra-doc-page-bg)"},
+            {"--sidebarHeader", "var(--sigra-doc-soft)"},
+            {"--sidebarItem", "var(--sigra-doc-page-text)"},
+            {"--sidebarActiveItem", "var(--sigra-doc-link)"},
+            {"--searchSearch", "var(--sigra-doc-surface-bg)"},
+            {"--modalBackground", "var(--sigra-doc-surface-bg)"},
+            {"--autocompleteBackground", "var(--sigra-doc-surface-bg)"},
+            {"--link-color", "var(--sigra-doc-link)"}
+          ] do
+        assert css_declaration(css, ":root, body.dark", property) == expected
+      end
+
+      assert css_declaration(css, ":root", "--sigra-doc-page-bg") == "#F7F3EE"
+      assert css_declaration(css, "body.dark", "--sigra-doc-page-bg") == "#17120F"
+
+      assert css_declaration(
+               css,
+               ".top-search .search-bar .search-input::placeholder",
+               "color"
+             ) == "var(--sigra-doc-muted)"
+
+      assert css_declaration(
+               css,
+               ".top-search .search-bar .search-input::placeholder",
+               "opacity"
+             ) == "1"
+
+      assert String.contains?(css, ~S{.top-heading:has(> .copy-markdown[href="readme.md"])})
+      assert String.contains?(css, "> h1 img")
+      assert String.contains?(css, "max-width: min(260px, 100%)")
     end
 
     test "authored typography, colors, and focus meet the approved contract" do

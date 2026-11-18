@@ -1,14 +1,9 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-dark.svg">
-  <img src="https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-light.svg" alt="sigra" width="260">
-</picture>
+# ![Sigra](https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-light.svg#gh-light-mode-only) ![Sigra](https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-dark.svg#gh-dark-mode-only)
 
 <p><b>Phoenix auth you own and can still update.</b></p>
 <p>Production-minded authentication for Phoenix 1.8+</p>
 
 **[Install Sigra](guides/introduction/installation.md)** — add `{:sigra, "~> 1.7.1"}` to `mix.exs`, then run `mix deps.get` and `mix sigra.install Accounts User users`.
-
-# Sigra
 
 [![Hex version](https://img.shields.io/hexpm/v/sigra.svg)](https://hex.pm/packages/sigra)
 [![Docs](https://img.shields.io/badge/hexdocs-api%20%26%20guides-5865F2)](https://hexdocs.pm/sigra)

@@ -219,7 +219,11 @@ defmodule Sigra.MixProject do
       source_url: @source_url,
       favicon: "docs/assets/brand/favicon.svg",
       formatters: ["html", "markdown"],
-      assets: %{"docs/assets" => "assets", "guides/assets" => "assets"},
+      assets: %{
+        "docs/assets" => "assets",
+        "guides/assets" => "assets",
+        [{"docs_config.js", ""}] => "."
+      },
       before_closing_head_tag: &before_closing_head_tag/1,
       before_closing_body_tag: &before_closing_body_tag/1,
       extras: [
@@ -350,6 +354,7 @@ defmodule Sigra.MixProject do
       src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"
     ></script>
     <link rel="stylesheet" href="assets/brand/sigra-exdoc.css" />
+    <link rel="stylesheet" href="assets/brand/sigra-exdoc-shell.css" />
     """
   end
 

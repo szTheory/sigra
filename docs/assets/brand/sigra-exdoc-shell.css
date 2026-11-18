@@ -1,0 +1,299 @@
+/* Project-level ExDoc shell theme. Keep ExDoc's structure and behavior;
+   use Sigra's own palette across the complete reading surface. */
+:root {
+  --sigra-doc-page-bg: #F7F3EE;
+  --sigra-doc-page-text: #1F1A17;
+  --sigra-doc-surface-bg: #FFFFFF;
+  --sigra-doc-surface-text: #1F1A17;
+  --sigra-doc-link: #9A3412;
+  --sigra-doc-focus: #9A3412;
+  --sigra-doc-edge: #DDD3C8;
+  --sigra-doc-muted: #5F554D;
+  --sigra-doc-soft: #EFE9E1;
+  --sigra-doc-selected: #EADFD2;
+  --sigra-doc-control-edge: #857569;
+  --sigra-doc-code-bg: #EFE8DE;
+  --sigra-doc-code-text: #1F1A17;
+
+  --sansFontFamily: "Instrument Sans", system-ui, sans-serif;
+  --monoFontFamily: "Red Hat Mono", ui-monospace, monospace;
+  --baseLineHeight: 1.55em;
+}
+
+body.dark {
+  --sigra-doc-page-bg: #17120F;
+  --sigra-doc-page-text: #F3EEE8;
+  --sigra-doc-surface-bg: #221B17;
+  --sigra-doc-surface-text: #F3EEE8;
+  --sigra-doc-link: #F08A55;
+  --sigra-doc-focus: #F08A55;
+  --sigra-doc-edge: #3A2F28;
+  --sigra-doc-muted: #B8ABA0;
+  --sigra-doc-soft: #221B17;
+  --sigra-doc-selected: #3A2F28;
+  --sigra-doc-control-edge: #8B7D72;
+  --sigra-doc-code-bg: #120E0C;
+  --sigra-doc-code-text: #F3EEE8;
+}
+
+/* ExDoc 0.40.3 theme variables: links, article, search, settings, sidebar,
+   tabs, suggestions, code panels and action controls. Values come from the
+   approved brand tokens or colors derived for their stated roles. */
+:root, body.dark {
+  --main: var(--sigra-doc-link);
+  --mainDark: var(--sigra-doc-link);
+  --mainDarkest: var(--sigra-doc-link);
+  --mainLight: var(--sigra-doc-link);
+  --mainLightest: var(--sigra-doc-link);
+  --searchBarFocusColor: var(--sigra-doc-focus);
+  --searchBarBorderColor: var(--sigra-doc-edge);
+  --link-color: var(--sigra-doc-link);
+  --link-visited-color: var(--sigra-doc-link);
+
+  --background: var(--sigra-doc-page-bg);
+  --contrast: var(--sigra-doc-page-text);
+  --textBody: var(--sigra-doc-page-text);
+  --textHeaders: var(--sigra-doc-page-text);
+  --textColor: var(--sigra-doc-page-text);
+  --textDetailAccent: var(--sigra-doc-link);
+  --textDetailBackground: var(--sigra-doc-soft);
+  --iconAction: var(--sigra-doc-muted);
+  --iconActionHover: var(--sigra-doc-page-text);
+  --blockquoteBackground: var(--sigra-doc-soft);
+  --blockquoteBorder: var(--sigra-doc-edge);
+  --tableHeadBorder: var(--sigra-doc-edge);
+  --tableBodyBorder: var(--sigra-doc-edge);
+
+  --codeBackground: var(--sigra-doc-code-bg);
+  --codeBorder: var(--sigra-doc-edge);
+  --codeScrollThumb: var(--sigra-doc-control-edge);
+  --codeScrollBackground: var(--sigra-doc-edge);
+  --admCodeBackground: var(--sigra-doc-surface-bg);
+  --admCodeBorder: var(--sigra-doc-edge);
+  --admCodeColor: var(--sigra-doc-page-text);
+
+  --tabBorder: var(--sigra-doc-control-edge);
+  --tabBorderTop: var(--sigra-doc-edge);
+  --tabShadow: transparent;
+  --bottomActionsBtnBorder: var(--sigra-doc-edge);
+  --bottomActionsBtnTitle: var(--sigra-doc-link);
+  --modalBackground: var(--sigra-doc-surface-bg);
+  --settingsInput: var(--sigra-doc-page-text);
+  --settingsInputBackground: var(--sigra-doc-surface-bg);
+  --settingsInputBorder: var(--sigra-doc-control-edge);
+  --settingsSectionBorder: var(--sigra-doc-edge);
+  --quickSwitchInput: var(--sigra-doc-page-text);
+  --quickSwitchContour: var(--sigra-doc-control-edge);
+  --progressBarColor: var(--sigra-doc-muted);
+
+  --sidebarAccentMain: var(--sigra-doc-link);
+  --sidebarBackground: var(--sigra-doc-page-bg);
+  --sidebarHeader: var(--sigra-doc-soft);
+  --sidebarMuted: var(--sigra-doc-muted);
+  --sidebarHover: var(--sigra-doc-page-text);
+  --sidebarStaleVersion: var(--sigra-doc-link);
+  --sidebarSubheadings: var(--sigra-doc-muted);
+  --sidebarItem: var(--sigra-doc-page-text);
+  --sidebarInactiveItemBorder: var(--sigra-doc-control-edge);
+  --sidebarInactiveItemMarker: var(--sigra-doc-edge);
+  --sidebarLanguageAccentBar: var(--sigra-doc-link);
+  --sidebarActiveItem: var(--sigra-doc-link);
+
+  --searchBarBorder: var(--sigra-doc-edge);
+  --searchAccentMain: var(--sigra-doc-link);
+  --searchLanguageAccentBar: var(--sigra-doc-link);
+  --searchSearch: var(--sigra-doc-surface-bg);
+  --autocompleteBorder: var(--sigra-doc-edge);
+  --autocompletePreview: var(--sigra-doc-surface-bg);
+  --autocompleteSelected: var(--sigra-doc-selected);
+  --autocompleteHover: var(--sigra-doc-soft);
+  --autocompleteBackground: var(--sigra-doc-surface-bg);
+  --suggestionBorder: var(--sigra-doc-edge);
+  --autocompleteResults: var(--sigra-doc-muted);
+  --autocompleteResultsBold: var(--sigra-doc-page-text);
+  --autocompleteLabelBack: var(--sigra-doc-soft);
+  --autocompleteLabelFont: var(--sigra-doc-page-text);
+}
+
+body {
+  background-color: var(--sigra-doc-page-bg);
+  color: var(--sigra-doc-page-text);
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  caret-color: var(--sigra-doc-focus);
+  scrollbar-color: var(--sigra-doc-control-edge) var(--sigra-doc-page-bg);
+}
+
+body.dark {
+  background-color: var(--sigra-doc-page-bg);
+  color: var(--sigra-doc-page-text);
+  scrollbar-color: var(--sigra-doc-control-edge) var(--sigra-doc-page-bg);
+}
+
+.content .content-inner {
+  background-color: var(--sigra-doc-surface-bg);
+  color: var(--sigra-doc-surface-text);
+}
+
+body a,
+.content-inner a {
+  color: var(--sigra-doc-link);
+  text-decoration-color: currentColor;
+  text-underline-offset: 0.16em;
+  text-decoration-thickness: 0.08em;
+}
+
+.top-search .search-bar .search-input::placeholder {
+  color: var(--sigra-doc-muted);
+  opacity: 1;
+}
+
+:focus-visible {
+  outline: 2px solid var(--sigra-doc-focus);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--sigra-doc-focus);
+  color: var(--sigra-doc-surface-bg);
+}
+
+/* The theme-specific logo images form the README's one visible page heading.
+   ExDoc keeps the textual page title in metadata and navigation. */
+.top-heading:has(> .copy-markdown[href="readme.md"]) {
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.top-heading:has(> .copy-markdown[href="readme.md"]) > h1 {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 auto 0 0;
+  line-height: 1;
+}
+
+.top-heading:has(> .copy-markdown[href="readme.md"]) > h1 img {
+  max-width: min(260px, 100%);
+  height: auto;
+  vertical-align: top;
+}
+
+.tabset-tab[aria-selected="true"]:focus-visible {
+  background-color: var(--sigra-doc-focus);
+  border-color: var(--sigra-doc-focus);
+  color: var(--sigra-doc-surface-bg);
+}
+
+pre code.makeup {
+  background: var(--sigra-doc-code-bg);
+  color: var(--sigra-doc-code-text);
+  font-family: "Red Hat Mono", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  font-variant-ligatures: none;
+}
+
+.makeup .k,
+.makeup .kd,
+.makeup .kn,
+.makeup .kp,
+.makeup .kr,
+.makeup .kt,
+.makeup .ow {
+  color: #9A3412;
+}
+
+body.dark .makeup .k,
+body.dark .makeup .kd,
+body.dark .makeup .kn,
+body.dark .makeup .kp,
+body.dark .makeup .kr,
+body.dark .makeup .kt,
+body.dark .makeup .ow {
+  color: #F4A27C;
+}
+
+.makeup .s,
+.makeup .s1,
+.makeup .s2,
+.makeup .sa,
+.makeup .sb,
+.makeup .sc,
+.makeup .sd,
+.makeup .se,
+.makeup .sh,
+.makeup .si,
+.makeup .sx,
+.makeup .sr,
+.makeup .sl {
+  color: #2C5F9E;
+}
+
+body.dark .makeup .s,
+body.dark .makeup .s1,
+body.dark .makeup .s2,
+body.dark .makeup .sa,
+body.dark .makeup .sb,
+body.dark .makeup .sc,
+body.dark .makeup .sd,
+body.dark .makeup .se,
+body.dark .makeup .sh,
+body.dark .makeup .si,
+body.dark .makeup .sx,
+body.dark .makeup .sr,
+body.dark .makeup .sl {
+  color: #7FB0E8;
+}
+
+.makeup .ss,
+.makeup .na,
+.makeup .no,
+.makeup .m,
+.makeup .mb,
+.makeup .mf,
+.makeup .mh,
+.makeup .mi,
+.makeup .mo,
+.makeup .il {
+  color: #1F6A8A;
+}
+
+body.dark .makeup .ss,
+body.dark .makeup .na,
+body.dark .makeup .no,
+body.dark .makeup .m,
+body.dark .makeup .mb,
+body.dark .makeup .mf,
+body.dark .makeup .mh,
+body.dark .makeup .mi,
+body.dark .makeup .mo,
+body.dark .makeup .il {
+  color: #6FC0E0;
+}
+
+.makeup .nf,
+.makeup .fm,
+.makeup .nc,
+.makeup .nn {
+  color: var(--sigra-doc-code-text);
+}
+
+.makeup .c,
+.makeup .c1,
+.makeup .cm,
+.makeup .cs,
+.makeup .ch,
+.makeup .cp,
+.makeup .cpf {
+  color: #6B6057;
+}
+
+body.dark .makeup .c,
+body.dark .makeup .c1,
+body.dark .makeup .cm,
+body.dark .makeup .cs,
+body.dark .makeup .ch,
+body.dark .makeup .cp,
+body.dark .makeup .cpf {
+  color: #A99C91;
+}
