@@ -283,6 +283,12 @@ test.describe('Design gallery board snapshots', () => {
       const themeRadio = page.getByRole('radio', { name: theme, exact: true });
       await themeRadio.click();
       await expect(themeRadio).toHaveAttribute('aria-checked', 'true');
+      const themeSwitchTransition = await themeRadio.evaluate(
+        (node) => getComputedStyle(node).transitionProperty,
+      );
+      expect(themeSwitchTransition, `${theme} theme switch keeps label contrast during palette changes`)
+        .not.toContain('color');
+      expect(themeSwitchTransition).not.toContain('background-color');
 
       const currentTab = page.locator('.sg-tabs__tab[aria-current="page"]');
       await expect(currentTab).toBeVisible();

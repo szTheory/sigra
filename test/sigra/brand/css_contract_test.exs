@@ -434,6 +434,15 @@ defmodule Sigra.Brand.CssContractTest do
         do: body
   end
 
+  describe "theme switch contrast" do
+    test "theme buttons do not tween text or fill colors while the palette changes", %{css: css} do
+      selector = ".sg-theme-switch__button"
+
+      assert declares?(css, selector, "transition", "var(--sg-transition-press)")
+      refute declares?(css, selector, "transition", "var(--sg-transition-tone)")
+    end
+  end
+
   # True when some rule listing every selector declares `property: value`.
   defp declares?(css, selectors, property, value) do
     css

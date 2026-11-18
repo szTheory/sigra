@@ -665,7 +665,9 @@
     font-weight: var(--sg-weight-bold);
     line-height: 1;
     text-transform: uppercase;
-    transition: var(--sg-transition-tone), var(--sg-transition-press);
+    /* Theme changes are immediate so text never passes through a low-contrast
+     * blend. Keep the short press motion without tweening the label or fill. */
+    transition: var(--sg-transition-press);
   }
 
   /* Active segment: a rail-accent fill with ink text in every theme. The fill
