@@ -511,6 +511,9 @@
   .sg-status-mark[data-status="deleting"] {
     color: var(--sg-status-deleting);
   }
+  .sg-status-mark[data-status="deleted"] {
+    color: var(--sg-status-suspended);
+  }
   .sg-status-mark[data-status="suspended"] {
     color: var(--sg-status-suspended);
   }
@@ -1996,8 +1999,7 @@
     bottom: 0;
     display: flex;
     border-top: 1px solid var(--sg-color-line);
-    background: color-mix(in oklab, var(--sg-color-panel) 94%, transparent);
-    backdrop-filter: blur(16px);
+    background: var(--sg-color-panel);
     z-index: var(--sg-z-nav);
   }
 

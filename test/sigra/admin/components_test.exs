@@ -322,7 +322,8 @@ defmodule Sigra.Admin.ComponentsTest do
             {:active, "Active"},
             {:unconfirmed, "Unconfirmed"},
             {:locked, "Locked"},
-            {:deleting, "Deletion scheduled"}
+            {:deleting, "Deletion scheduled"},
+            {:deleted, "Deleted"}
           ] do
         html = render_component(&Components.status_mark/1, status: status)
         classless_html = Regex.replace(~r/\sclass="[^"]*"/, html, "")
@@ -353,11 +354,11 @@ defmodule Sigra.Admin.ComponentsTest do
                :active
     end
 
-    test "falls back safely when an adopter schema has no scheduled-deletion field" do
+    test "marks finalized deletion when an adopter schema has no scheduled-deletion field" do
       now = ~U[2026-06-04 12:30:00Z]
 
       assert Components.status_for_user(%{deleted_at: now, locked_at: nil, confirmed_at: now}) ==
-               :active
+               :deleted
     end
   end
 

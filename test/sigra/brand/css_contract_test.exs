@@ -224,6 +224,17 @@ defmodule Sigra.Brand.CssContractTest do
     end
   end
 
+  describe "mobile navigation contrast" do
+    test "the bottom navigation uses a solid panel above scrolling content", %{css: css} do
+      assert declares?(css, ".sg-bottom-nav", "background", "var(--sg-color-panel)")
+
+      translucent =
+        ".sg-bottom-nav { background: color-mix(in oklab, var(--sg-color-panel) 94%, transparent); }"
+
+      refute declares?(translucent, ".sg-bottom-nav", "background", "var(--sg-color-panel)")
+    end
+  end
+
   describe "selected and current states (Phase 262)" do
     test "selected command rows use the selected surface and 2px edge tokens", %{css: css} do
       selector = ".sg-cmdk__item[aria-selected=\"true\"]"

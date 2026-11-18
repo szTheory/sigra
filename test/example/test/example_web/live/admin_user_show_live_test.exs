@@ -91,6 +91,31 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
       refute html =~ "unlock below"
     end
 
+    test "finalized deletion is distinct from scheduled deletion", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+      target = user_fixture(%{email: "detail-deleted@example.com", display_name: "Deleted User"})
+
+      Repo.update!(
+        Ecto.Changeset.change(target,
+          deleted_at: DateTime.utc_now() |> DateTime.truncate(:second),
+          scheduled_deletion_at: nil
+        )
+      )
+
+      {:ok, _view, html} =
+        conn
+        |> log_in_user(platform_admin)
+        |> live("/admin/users/#{target.id}")
+
+      assert html =~ ~s(data-status="deleted")
+      assert html =~ ~r/<span class="sg-status-pill" data-tone="risk">\s*Deleted\s*<\/span>/
+
+      refute html =~
+               ~r/<span class="sg-status-pill" data-tone="warn">\s*Deletion scheduled\s*<\/span>/
+
+      refute html =~ ~s(data-status="active")
+    end
+
     test "detail page links out to the scoped sessions surface with the preserved return_to",
          %{
            conn: conn

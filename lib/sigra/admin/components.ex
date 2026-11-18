@@ -1237,7 +1237,7 @@ defmodule Sigra.Admin.Components do
   """
   attr :status, :atom,
     required: true,
-    values: [:active, :unconfirmed, :locked, :deleting, :suspended],
+    values: [:active, :unconfirmed, :locked, :deleting, :deleted, :suspended],
     doc: "the primary user status represented by the mark"
 
   attr :size, :atom,
@@ -1298,6 +1298,23 @@ defmodule Sigra.Admin.Components do
               stroke-width="1.5"
             />
             <path d="M10 3.5h6.5V10H10z" fill="currentColor" />
+          <% :deleted -> %>
+            <rect
+              x="2.75"
+              y="2.75"
+              width="14.5"
+              height="14.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              d="m6.5 6.5 7 7m0-7-7 7"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
           <% :suspended -> %>
             <rect
               x="2.75"
@@ -1320,6 +1337,7 @@ defmodule Sigra.Admin.Components do
   def status_for_user(user) when is_map(user) do
     cond do
       scheduled_deletion?(user) -> :deleting
+      finalized_deletion?(user) -> :deleted
       not is_nil(Map.get(user, :locked_at)) -> :locked
       is_nil(Map.get(user, :confirmed_at)) -> :unconfirmed
       true -> :active
@@ -1331,9 +1349,15 @@ defmodule Sigra.Admin.Components do
       not is_nil(Map.get(user, :scheduled_deletion_at))
   end
 
+  defp finalized_deletion?(user) do
+    not is_nil(Map.get(user, :deleted_at)) and
+      is_nil(Map.get(user, :scheduled_deletion_at))
+  end
+
   defp status_label(:active), do: "Active"
   defp status_label(:unconfirmed), do: "Unconfirmed"
   defp status_label(:locked), do: "Locked"
   defp status_label(:deleting), do: "Deletion scheduled"
+  defp status_label(:deleted), do: "Deleted"
   defp status_label(:suspended), do: "Suspended"
 end
