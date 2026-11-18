@@ -176,9 +176,15 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   end
 
   # Family C: the same promise made without a verb ("indistinguishable",
-  # "regardless of whether the account exists").
+  # "regardless of whether the account exists", or equivalent outcomes for
+  # registered and unknown addresses).
   defp family_c_regexes do
-    [~r/\bindistinguishable\b/i, ~r/\bregardless\s+of\s+whether\b/i]
+    [
+      ~r/\bindistinguishable\b/i,
+      ~r/\bregardless\s+of\s+whether\b/i,
+      ~r/\b(?:responses?|results?|outcomes?|messages?|pages?)\s+(?:(?:are|is|were|was|remain|remains|stay|stays)\s+)?(?:the\s+)?(?:same|identical)\s+(?:for|between|across)\s+(?:registered|existing|known)\s+(?:and|vs\.?|versus)\s+(?:unregistered|unknown|nonexistent)\b/i,
+      ~r/\b(?:the\s+)?(?:same|identical)\s+(?:responses?|results?|outcomes?|messages?|pages?)\s+(?:for|between|across)\s+(?:registered|existing|known)\s+(?:and|vs\.?|versus)\s+(?:unregistered|unknown|nonexistent)\b/i
+    ]
   end
 
   # True when `text` makes an unbounded enumeration claim, whatever else the
@@ -693,10 +699,18 @@ end|
       for text <- [
             "The two responses are indistinguishable.",
             "It answers the same regardless of whether the account exists.",
-            "Regardless of\nwhether the address is registered, the page is the same."
+            "Regardless of\nwhether the address is registered, the page is the same.",
+            "The response is the same for registered and unregistered email addresses.",
+            "The results are identical across existing and unknown accounts.",
+            "Same result for known and unknown users."
           ] do
         assert unbounded?(text), "should have been flagged: #{inspect(text)}"
       end
+
+      qualified =
+        "The response is the same for registered and unregistered email addresses for a single attempt."
+
+      assert unbounded_units(qualified, @qualifiers) == []
     end
 
     test "does not flag threat descriptions or neutral wording" do
@@ -704,6 +718,7 @@ end|
             "Reset requests are a common enumeration vector.",
             "The enumeration boundary needs a generic message.",
             "The page reveals whether the address exists.",
+            "The responses differ for registered and unregistered addresses.",
             "A claim about safety with no enumeration mention."
           ] do
         refute unbounded?(text), "should not have been flagged: #{inspect(text)}"
