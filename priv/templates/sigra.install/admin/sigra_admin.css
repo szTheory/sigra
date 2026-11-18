@@ -838,6 +838,9 @@
     background: var(--sg-color-brand);
     color: var(--sg-color-on-brand);
     box-shadow: 0 12px 24px -18px var(--sg-color-brand);
+    /* Keep on-brand text readable while theme tokens change; tweening the
+     * foreground and fill independently can pass through low-contrast colors. */
+    transition: box-shadow var(--sg-motion-fast) var(--sg-ease), var(--sg-transition-press);
   }
   .sg-btn--primary:hover {
     background: var(--sg-color-brand-fill-hover);
@@ -2015,6 +2018,7 @@
   .sg-bottom-nav__item.active,
   .sg-bottom-nav .active {
     color: var(--sg-color-brand-strong);
+    transition: none;
   }
 
   /* Owns its own responsive hide (later source order than .sg-show-mobile so
@@ -2347,6 +2351,7 @@
     background: var(--sg-color-brand);
     color: var(--sg-color-on-brand);
     box-shadow: 0 10px 20px -16px var(--sg-color-brand);
+    transition: box-shadow var(--sg-motion-fast) var(--sg-ease);
   }
 
   .sg-tabs__tab {

@@ -330,6 +330,18 @@ test.describe('Design gallery board snapshots', () => {
       ).toBeGreaterThanOrEqual(4.5);
 
       const saveButton = page.getByRole('button', { name: 'Save profile' });
+      const brandingTransitions = await brandingLink.evaluate(
+        (node) => getComputedStyle(node).transitionProperty,
+      );
+      const saveButtonTransitions = await saveButton.evaluate(
+        (node) => getComputedStyle(node).transitionProperty,
+      );
+      expect(brandingTransitions, `${theme} active Branding link keeps contrast during theme changes`)
+        .not.toContain('color');
+      expect(brandingTransitions).not.toContain('background-color');
+      expect(saveButtonTransitions, `${theme} Save profile keeps contrast during theme changes`)
+        .not.toContain('color');
+      expect(saveButtonTransitions).not.toContain('background-color');
       const expectedButtonForeground = await tokenColor(saveButton, '--sg-color-on-brand');
       const expectedButtonBackground = await tokenColor(saveButton, '--sg-color-brand');
       await expect.poll(() => saveButton.evaluate((node) => getComputedStyle(node).color))
@@ -344,6 +356,7 @@ test.describe('Design gallery board snapshots', () => {
         contrastRatio(saveButtonColors.foreground, saveButtonColors.background),
         `${theme} Save profile button contrast`,
       ).toBeGreaterThanOrEqual(4.5);
+      await assertNoAxeViolations(page, `${theme} auth branding editor`);
       await page.goto('/admin/_design');
       await waitForLiveViewReady(page);
       await page.getByRole('button', { name: 'Open command palette' }).click();

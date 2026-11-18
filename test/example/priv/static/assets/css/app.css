@@ -1790,6 +1790,7 @@ html[data-sg-admin-page-loading="complete"] .sg-admin-loading-bar::before {
   background: var(--sg-color-brand);
   color: var(--sg-color-on-brand);
   box-shadow: 0 10px 20px -16px var(--sg-color-brand);
+  transition: box-shadow var(--sg-motion-fast) var(--sg-ease);
 }
 
 .sg-bottom-nav {
@@ -1819,6 +1820,7 @@ html[data-sg-admin-page-loading="complete"] .sg-admin-loading-bar::before {
 .sg-bottom-nav__item.active,
 .sg-bottom-nav .active {
   color: var(--sg-color-brand-strong);
+  transition: none;
 }
 /* Owns its own responsive hide (later source order than .sg-show-mobile so
  * it reliably beats the .sg-bottom-nav display:flex rule above on desktop). */
