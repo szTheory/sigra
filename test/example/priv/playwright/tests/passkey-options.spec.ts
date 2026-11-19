@@ -73,12 +73,16 @@ test("enrollment requests real passkey options from the served MFA settings page
     await expect(page).toHaveURL(/\/users\/settings\/mfa/);
     await waitForLiveViewReady(page);
 
-    const [optionsResponse, completionResponse] = await Promise.all([
-      page.waitForResponse(
+    const optionsResponsePromise = page
+      .waitForResponse(
         (response) =>
           response.url().includes("/users/settings/mfa/passkeys/options") &&
           response.request().method() === "POST",
-      ),
+      )
+      .then(async (response) => ({ response, payload: await response.json() }));
+
+    const [optionsResult, completionResponse] = await Promise.all([
+      optionsResponsePromise,
       page.waitForResponse(
         (response) =>
           response.url().includes("/users/settings/mfa/passkeys") &&
@@ -88,8 +92,9 @@ test("enrollment requests real passkey options from the served MFA settings page
       page.locator("#add-passkey-button").click(),
     ]);
 
+    const { response: optionsResponse, payload: optionsPayload } = optionsResult;
     expect(optionsResponse.status()).toBe(200);
-    expect((await optionsResponse.json()).options.authenticatorSelection.residentKey).toBe(
+    expect(optionsPayload.options.authenticatorSelection.residentKey).toBe(
       "required",
     );
     expect(completionResponse.status()).toBe(302);

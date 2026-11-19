@@ -22,7 +22,8 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
 
     assert setup =~ "platform-admin+dg-chromium-"
     assert setup =~ "getByRole('button', { name: /Create an account/ })"
-    assert setup =~ "getByRole('alert')"
+    assert setup =~ "assertGenericRegistrationResponse(page)"
+    assert setup =~ "signInManually(page, email, TEST_PASSWORD)"
     assert setup =~ "mkdir(dirname(statePath), { recursive: true })"
     assert setup =~ "storageState({ path: statePath })"
   end
