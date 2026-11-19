@@ -39,4 +39,42 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGoldenTest do
     assert output =~ "--check"
     refute_received :lifecycle_invoked
   end
+
+  test "unknown switches fail before invoking the lifecycle callback" do
+    assert_invalid_argv(["--unknown"])
+  end
+
+  test "unexpected positionals fail before invoking the lifecycle callback" do
+    assert_invalid_argv(["fixture"])
+  end
+
+  test "help combined with invalid extra input is rejected" do
+    assert_invalid_argv(["--help", "--unknown"])
+    assert_invalid_argv(["--help", "extra"])
+    assert_invalid_argv(["--help", "--check"])
+  end
+
+  test "no arguments and --check select their documented modes" do
+    assert :write ==
+             Mix.Tasks.Sigra.Fixture.ReblessGolden.run_with_lifecycle([], fn mode -> mode end)
+
+    assert :check ==
+             Mix.Tasks.Sigra.Fixture.ReblessGolden.run_with_lifecycle(["--check"], fn mode ->
+               mode
+             end)
+  end
+
+  defp assert_invalid_argv(argv) do
+    parent = self()
+
+    assert_raise Mix.Error, fn ->
+      capture_io(:stderr, fn ->
+        Mix.Tasks.Sigra.Fixture.ReblessGolden.run_with_lifecycle(argv, fn mode ->
+          send(parent, {:lifecycle_invoked, mode})
+        end)
+      end)
+    end
+
+    refute_received {:lifecycle_invoked, _mode}
+  end
 end
