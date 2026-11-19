@@ -33,8 +33,37 @@ type AxeIncompleteInput = {
   }>;
 };
 
-function mapAxeIncompleteNodes(_rules: AxeIncompleteInput[]): AxeIncompleteDiagnostic[] {
-  return [];
+function mapAxeIncompleteNodes(rules: AxeIncompleteInput[]): AxeIncompleteDiagnostic[] {
+  return rules.flatMap((rule) => rule.nodes.flatMap((node) => {
+    const checks: AxeDiagnosticCheck[] = (['any', 'all', 'none'] as const).flatMap((group) =>
+      (node[group] ?? []).map((check) => {
+        let data: unknown;
+        if (check.data !== undefined) {
+          try {
+            data = JSON.parse(JSON.stringify(check.data));
+          } catch {
+            data = undefined;
+          }
+        }
+        const message = check.message ?? null;
+        return {
+          group,
+          id: check.id,
+          message,
+          ...(data === undefined ? {} : { data }),
+          ...(message === null && data === undefined
+            ? { detail: 'axe supplied no check detail' }
+            : {}),
+        };
+      }),
+    );
+
+    return node.target.map((target) => ({
+      rule: rule.id,
+      target,
+      reason: { category: 'axe_could_not_determine', checks },
+    }));
+  }));
 }
 
 test('Phase 264 axe incomplete mapper contract', () => {
@@ -124,7 +153,7 @@ async function waitForLiveViewReady(page: Page) {
  * reached it in the same page state (beforeEach -> `/admin/_design` ->
  * nothing else), so the ~84 calls carried the rule coverage of one.
  */
-async function assertNoAxeViolations(page: Page, label: string) {
+async function assertNoAxeViolations(page: Page, label: string, testInfo?: TestInfo) {
   // Scope to the full WCAG 2.1/2.2 AA tag set (EN 301 549 legal floor) so the
   // gate is literally defensible against modern accessibility standards (D-07).
   // This is a full-document scan: `new AxeBuilder({ page })` below carries no
@@ -144,10 +173,42 @@ async function assertNoAxeViolations(page: Page, label: string) {
   // from the violations or read as a pass.
   // test.info() is the running test's TestInfo, so the call site and the declaration line
   // of the axe test (which contract tests pin verbatim) stay unchanged.
+  const incompleteDiagnostics = mapAxeIncompleteNodes(incomplete);
   test.info().annotations.push({
     type: 'axe-incomplete',
-    description: `${incomplete.length}: ${[...new Set(incomplete.map((rule) => rule.id))].sort().join(', ')}`,
+    description: JSON.stringify(incompleteDiagnostics),
   });
+  if (testInfo) {
+    const project = testInfo.project.name;
+    const theme = project.includes('dark') ? 'Dark' : project.includes('mobile') ? 'System' : 'Light';
+    const diagnosticEvidence = {
+      evidence: 'axe-incomplete-current-state-diagnostics; not a pass',
+      project,
+      theme,
+      surface: label,
+      state: 'rendered',
+      diagnostics: incompleteDiagnostics.map((diagnostic) => ({
+        project,
+        theme,
+        surface: label,
+        control: diagnostic.target,
+        state: 'rendered',
+        axe: diagnostic,
+      })),
+    };
+    const diagnosticsPath = testInfo.outputPath(`phase264-${project}-${theme.toLowerCase()}-admin-design-gallery-rendered-axe-incomplete.json`);
+    await writeFile(diagnosticsPath, JSON.stringify(diagnosticEvidence, null, 2));
+    await testInfo.attach('phase264-axe-incomplete-diagnostics.json', {
+      path: diagnosticsPath,
+      contentType: 'application/json',
+    });
+    const screenshotPath = testInfo.outputPath(`phase264-${project}-${theme.toLowerCase()}-admin-design-gallery-rendered.png`);
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+    await testInfo.attach('phase264-admin-design-gallery-current-state.png', {
+      path: screenshotPath,
+      contentType: 'image/png',
+    });
+  }
   const detail =
     violations.length === 0 ? '' : JSON.stringify(violations).slice(0, 2000);
   expect(violations, `${label}: axe violations\n${detail}`).toHaveLength(0);
@@ -495,8 +556,8 @@ test.describe('Design gallery board snapshots', () => {
   // so it runs on every lane, including PR. What is lost: per-board axe
   // failure attribution in the test name — a violation still names the
   // offending DOM selector, so the board is identifiable from axe's output.
-  test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }) => {
-    await assertNoAxeViolations(page, 'design-gallery');
+  test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }, testInfo) => {
+    await assertNoAxeViolations(page, 'design-gallery', testInfo);
   });
 
   test('Phase 264 audited control affordances', async ({ page }, testInfo) => {
