@@ -1,5 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Locator, type Page, type TestInfo } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
+import { writeFile } from 'node:fs/promises';
 import { contrastRatio } from '../helpers/brandContrast';
 import { assertBrandFontsLoaded } from '../helpers/brandFonts';
 import { hexToRgbString } from '../helpers/brandSource';
@@ -420,6 +422,140 @@ test.describe('Design gallery board snapshots', () => {
   // offending DOM selector, so the board is identifiable from axe's output.
   test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }) => {
     await assertNoAxeViolations(page, 'design-gallery');
+  });
+
+  test('Phase 264 audited control affordances', async ({ page }, testInfo) => {
+    const measurements: Array<Record<string, string | boolean>> = [];
+    const settle = (target: Locator) =>
+      target.evaluate((node) => Promise.all(node.getAnimations().map((animation) => animation.finished.catch(() => null))));
+    const focusByKeyboard = async (target: Locator) => {
+      const handle = await target.elementHandle();
+      expect(handle, 'audited control exists before keyboard focus').not.toBeNull();
+      for (let attempt = 0; attempt < 120; attempt += 1) {
+        await page.keyboard.press('Tab');
+        if (await handle!.evaluate((node) => node === document.activeElement)) return;
+      }
+      throw new Error('Keyboard traversal did not reach the audited control');
+    };
+    const tokenColor = (token: string) =>
+      page.locator('.sg-admin-shell').evaluate((shell, name) => {
+        const probe = document.createElement('span');
+        probe.style.color = `var(${name})`;
+        shell.appendChild(probe);
+        const value = getComputedStyle(probe).color;
+        probe.remove();
+        return value;
+      }, token);
+    const expectedRing = () =>
+      page.locator('.sg-admin-shell').evaluate((shell) => {
+        const probe = document.createElement('span');
+        probe.style.boxShadow = 'var(--sg-focus-ring)';
+        shell.appendChild(probe);
+        const value = getComputedStyle(probe).boxShadow;
+        probe.remove();
+        return value;
+      });
+    const assertFocusRing = async (target: Locator, theme: string, control: string) => {
+      await focusByKeyboard(target);
+      await settle(target);
+      await expect(target, `${theme} ${control} receives keyboard focus`).toBeFocused();
+      expect(await target.evaluate((node) => node.matches(':focus-visible'))).toBe(true);
+      const style = await target.evaluate((node) => {
+        const computed = getComputedStyle(node);
+        return { boxShadow: computed.boxShadow, outlineStyle: computed.outlineStyle };
+      });
+      expect(style.boxShadow, `${theme} ${control} uses the shared focus ring`).toBe(await expectedRing());
+      expect(style.outlineStyle, `${theme} ${control} avoids a conflicting native outline`).toBe('none');
+      measurements.push({
+        surface: 'admin-shell',
+        control,
+        state: 'focus-visible',
+        theme,
+        ring: style.boxShadow,
+        outline: style.outlineStyle,
+        focused: true,
+      });
+    };
+
+    const organizationId = randomUUID().slice(0, 8);
+    const organizationSlug = `phase-264-${organizationId}`;
+    await page.goto('/organizations');
+    await waitForLiveViewReady(page);
+    await page.fill('input[name="organization[name]"]', `Phase 264 ${organizationId}`);
+    await expect(page.locator('#slug-preview')).toHaveText(organizationSlug);
+    await page.getByRole('button', { name: 'Create organization' }).click();
+    await expect(page).toHaveURL(new RegExp(`/organizations/${organizationSlug}/members$`));
+    await waitForLiveViewReady(page);
+
+    for (const theme of ['Light', 'Dark', 'System'] as const) {
+      await page.goto(`/admin/organizations/${organizationSlug}`);
+      await waitForLiveViewReady(page);
+      const themeRadio = page.getByRole('radio', { name: theme, exact: true });
+      await themeRadio.click();
+      await expect(themeRadio).toHaveAttribute('aria-checked', 'true');
+
+      const navLink = page.locator('.sg-nav-link:visible').first();
+      await assertFocusRing(navLink, theme, 'admin-navigation-link');
+
+      const scopeSummary = page.locator('.sg-scope-switch > summary:visible');
+      await expect(scopeSummary, `${theme} scope switch is available`).toBeVisible();
+      await scopeSummary.click();
+      const scopeItem = page.locator('.sg-scope-switch__item:visible').first();
+      await expect(scopeItem, `${theme} scope switch has an option`).toBeVisible();
+      await assertFocusRing(scopeItem, theme, 'admin-scope-switch-item');
+
+      await page.goto('/admin/auth-branding?panel=dark');
+      await waitForLiveViewReady(page);
+      const brandingThemeRadio = page.getByRole('radio', { name: theme, exact: true });
+      await brandingThemeRadio.click();
+      await expect(brandingThemeRadio).toHaveAttribute('aria-checked', 'true');
+
+      const colorInput = page.locator('.sg-color-field__input:visible').first();
+      await expect(colorInput, `${theme} branding color field is visible`).toBeVisible();
+      const colorEdge = await colorInput.evaluate((node) => getComputedStyle(node).borderTopColor);
+      expect(colorEdge, `${theme} branding color field uses the control edge`).toBe(
+        await tokenColor('--sg-color-control-edge'),
+      );
+      measurements.push({
+        surface: 'auth-branding',
+        control: 'branding-color-field',
+        state: 'resting-edge',
+        theme,
+        edge: colorEdge,
+      });
+      await assertFocusRing(colorInput, theme, 'branding-color-field');
+
+      const paletteTrigger = page.getByRole('button', { name: 'Open command palette' });
+      await expect(paletteTrigger, `${theme} command palette trigger is visible`).toBeVisible();
+      const paletteEdge = await paletteTrigger.evaluate((node) => getComputedStyle(node).borderTopColor);
+      expect(paletteEdge, `${theme} command palette uses the control edge`).toBe(
+        await tokenColor('--sg-color-control-edge'),
+      );
+      measurements.push({
+        surface: 'admin-shell',
+        control: 'command-palette-trigger',
+        state: 'resting-edge',
+        theme,
+        edge: paletteEdge,
+      });
+      await assertFocusRing(paletteTrigger, theme, 'command-palette-trigger');
+
+      const image = await page.screenshot({ fullPage: true });
+      const imagePath = testInfo.outputPath(`phase264-${theme.toLowerCase()}-admin-controls.png`);
+      await writeFile(imagePath, image);
+      await testInfo.attach(`phase264-${theme.toLowerCase()}-admin-controls.png`, {
+        path: imagePath,
+        contentType: 'image/png',
+      });
+    }
+
+    const measurementsPath = testInfo.outputPath('phase264-admin-control-measurements.json');
+    const evidence = JSON.stringify({ evidence: 'current-state-capture; no pixel parity claim', measurements }, null, 2);
+    await writeFile(measurementsPath, evidence);
+    await testInfo.attach('phase264-admin-control-measurements.json', {
+      path: measurementsPath,
+      contentType: 'application/json',
+    });
   });
 
   // BTOK-03 (Phase 261): the non-text 3:1 contrast checks axe cannot make. axe
