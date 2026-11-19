@@ -55,16 +55,16 @@ done
 
 TMP_EXISTING_PARENT="$(cd "${TMP_PARENT_PROBE}" && pwd -P)"
 case "${TMP_EXISTING_PARENT}" in
-  /tmp|/tmp/*|/private/tmp|/private/tmp/*) ;;
-  *)
-    echo "FAIL: TMP_APP_DIR parent resolves outside the system temp directory"
+  "${SIGRA_REPO}"|"${SIGRA_REPO}"/*)
+    echo "FAIL: TMP_APP_DIR parent resolves inside the Sigra checkout"
     exit 1
     ;;
 esac
 
 case "${TMP_EXISTING_PARENT}" in
-  "${SIGRA_REPO}"|"${SIGRA_REPO}"/*)
-    echo "FAIL: TMP_APP_DIR parent resolves inside the Sigra checkout"
+  /tmp|/tmp/*|/private/tmp|/private/tmp/*) ;;
+  *)
+    echo "FAIL: TMP_APP_DIR parent resolves outside the system temp directory"
     exit 1
     ;;
 esac
