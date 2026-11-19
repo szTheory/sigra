@@ -240,6 +240,12 @@ jobs:
         run: bash scripts/ci/getting-started-contract.sh
       - name: Phase 34 UAT contracts
         run: scripts/ci/phase34-uat-contracts.sh
+      # Guard scripts already run in mix ci; these hermetic tests verify the
+      # guards themselves early in the fast job, without affecting test-job order.
+      - name: Admin CSS conformance self-test
+        run: bash scripts/ci/admin-css-conformance.test.sh
+      - name: Admin token completeness self-test
+        run: bash scripts/ci/admin-token-completeness.test.sh
       - name: Snapshot drift guard (canary allowlist)
         run: bash scripts/ci/snapshot-canary-guard.sh --base "${{ steps.base.outputs.ref }}"
       - name: Snapshot drift guard — design lane
