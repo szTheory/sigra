@@ -272,7 +272,7 @@ defmodule Sigra.Planning.Phase260PngParkContractTest do
       spec = File.read!(@design_spec)
 
       assert spec =~
-               "test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }) => {"
+               "test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }"
     end
   end
 
