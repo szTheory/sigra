@@ -304,16 +304,15 @@ test.describe("passkey-primary login fallback smoke", () => {
         hasAuthenticateHook: true,
       });
 
-      const optionsResponsePromise = page
-        .waitForResponse(
+      // The controller tests own the allowCredentials payload contract. Keep
+      // this browser check on the real request/response flow: Chromium can
+      // release a fetch response body through CDP during the completion redirect.
+      const [optionsResponse, completionResponse] = await Promise.all([
+        page.waitForResponse(
           (response) =>
             response.url().includes("/users/log_in/passkey/options") &&
             response.request().method() === "POST",
-        )
-        .then(async (response) => ({ response, body: await response.json() }));
-
-      const [optionsResult, completionResponse] = await Promise.all([
-        optionsResponsePromise,
+        ),
         page.waitForResponse(
           (response) =>
             response.url().includes("/users/log_in/passkey") &&
@@ -323,10 +322,8 @@ test.describe("passkey-primary login fallback smoke", () => {
         page.locator("#passkey_login_button").click(),
       ]);
 
-      const { response: optionsResponse, body: optionsJSON } = optionsResult;
       expect(optionsResponse.status()).toBe(200);
       expect(optionsResponse.request().postData()).not.toContain(email);
-      expect(optionsJSON.options.allowCredentials).toEqual([]);
       expect(loginOptionsRequests).toHaveLength(1);
       expect(completionResponse.status()).toBe(302);
       expect(completionResponse.headers()["location"] || "").not.toContain(
