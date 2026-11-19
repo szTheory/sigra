@@ -7,6 +7,10 @@ import { contrastRatio, rgbChannels } from "../helpers/brandContrast";
 import { assertBrandFontsLoaded } from "../helpers/brandFonts";
 import { brandTokensJson, repoRoot, tokenValue } from "../helpers/brandSource";
 import { TEST_PASSWORD } from "../helpers/fixtures";
+import {
+  assertGenericRegistrationResponse,
+  signInManually,
+} from "../helpers/registration";
 
 const DESKTOP_VIEWPORT = { width: 1280, height: 900 };
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
@@ -224,7 +228,8 @@ async function registerUser(page: Page, email: string, password: string) {
     .evaluate((form) => {
       (form as HTMLFormElement).requestSubmit();
     });
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
+  await signInManually(page, email, password);
 }
 
 async function logInAsPlatformAdmin(page: Page) {

@@ -28,6 +28,10 @@ import { execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { assertBrandFontsLoaded } from '../helpers/brandFonts';
 import { TEST_PASSWORD } from '../helpers/fixtures';
+import {
+  assertGenericRegistrationResponse,
+  signInManually,
+} from '../helpers/registration';
 import { renderSha256 } from '../lib/eval/canonicalize.ts';
 import {
   runAllProbes,
@@ -194,13 +198,8 @@ async function registerUser(page: Page, email: string, password: string) {
   page.on('requestfailed', captureRegistrationRequestFailure);
   page.on('response', captureRegistrationPost);
   try {
-    await Promise.all([
-      page.waitForURL((url) => !url.pathname.endsWith('/users/register'), {
-        timeout: 10_000,
-        waitUntil: 'domcontentloaded',
-      }),
-      page.getByRole('button', { name: /Create an account/ }).click(),
-    ]);
+    await page.getByRole('button', { name: /Create an account/ }).click();
+    await assertGenericRegistrationResponse(page);
   } catch (error) {
     const pageState = await page.evaluate(() => {
       const form = document.querySelector<HTMLFormElement>('#registration_form');
@@ -224,12 +223,10 @@ async function registerUser(page: Page, email: string, password: string) {
   page.off('request', captureRegistrationRequest);
   page.off('requestfailed', captureRegistrationRequestFailure);
   page.off('response', captureRegistrationPost);
-  // The success flash proves the server accepted registration; validation
-  // responses retain a different alert and fail this assertion.
-  await expect(page.getByRole('alert')).toContainText('Account created successfully!');
-  await expect(page).not.toHaveURL(/\/users\/register(?:\?.*)?$/);
-  // Check the short-lived success flash before waiting on web fonts; LiveView
-  // readiness is still required before the caller navigates into the admin UI.
+  expect(registrationRequest).toBeNull();
+  expect(registrationPost).toBeNull();
+  expect(registrationRequestFailure).toBeNull();
+  await signInManually(page, email, password);
   await waitForLiveViewReady(page);
 }
 

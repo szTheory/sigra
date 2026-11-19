@@ -2,6 +2,10 @@ import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "fs";
 import path from "path";
 import { TEST_PASSWORD } from "../helpers/fixtures";
+import {
+  assertGenericRegistrationResponse,
+  signInManually,
+} from "../helpers/registration";
 
 // Phase 159 Plan 4: admin coherence filmstrip spec.
 //
@@ -48,7 +52,8 @@ async function registerUser(page: Page, email: string, password: string) {
     .evaluate((form) => {
       (form as HTMLFormElement).requestSubmit();
     });
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
+  await signInManually(page, email, password);
 }
 
 async function clearBrowserSession(page: Page) {

@@ -16,6 +16,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { extractConfirmationLink } from '../fixtures/mailbox';
 import { loginSubmit } from '../helpers/loginSubmit';
+import { assertGenericRegistrationResponse } from '../helpers/registration';
 
 const EXAMPLE_BASE_URL = process.env.SIGRA_EXAMPLE_URL ?? 'http://localhost:4000';
 
@@ -71,7 +72,7 @@ async function registerAndConfirmUser(
   // Wait for the server-rendered strength label so the phx-change validation has landed before submit.
   await expect(page.getByRole('status')).toBeVisible();
   await page.click('button:has-text("Create an account")');
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
   await logInIfNeeded(page, email, password);
 }
 
@@ -219,7 +220,7 @@ test('phase 16 organizations UX: register → branch A → create → settings �
   // Wait for the server-rendered strength label so the phx-change validation has landed before submit.
   await expect(page.getByRole('status')).toBeVisible();
   await page.click('button:has-text("Create an account")');
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
 
   // --- Step 2: Confirm via dev mailbox ---
   const confirmHref = await extractConfirmationLink(page, email);

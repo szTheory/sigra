@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { extractConfirmationLink } from "../fixtures/mailbox";
+import { assertGenericRegistrationResponse } from "../helpers/registration";
 
 async function waitForLiveViewReady(page: Parameters<typeof test>[0]["page"]) {
   await page.waitForSelector("[data-phx-session].phx-connected", {
@@ -19,7 +20,7 @@ async function registerUserForPasskeyBootstrap(
   await page.fill('input[name="user[password]"]', password);
   await page.check('input[name="user[enroll_passkey]"]');
   await page.click('button:has-text("Create an account")');
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
 }
 
 async function confirmSignupForPasskeyBootstrap(

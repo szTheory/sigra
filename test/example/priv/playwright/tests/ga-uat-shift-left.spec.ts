@@ -6,6 +6,7 @@ import { test, expect } from '@playwright/test';
 import { generate } from 'otplib';
 import { extractConfirmationLink } from '../fixtures/mailbox';
 import { loginSubmit } from '../helpers/loginSubmit';
+import { assertGenericRegistrationResponse } from '../helpers/registration';
 
 const baseURL = process.env.SIGRA_EXAMPLE_URL ?? 'http://localhost:4000';
 
@@ -27,7 +28,7 @@ async function registerAndConfirm(
   // Wait for the server-rendered strength label so the phx-change validation has landed before submit.
   await expect(page.getByRole('status')).toBeVisible();
   await page.click('button:has-text("Create an account")');
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
   const confirmHref = await extractConfirmationLink(page, email);
   await page.goto(confirmHref);
   await expect(page).not.toHaveURL(/\/users\/confirm\//);

@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { loginSubmit } from "../helpers/loginSubmit";
+import { assertGenericRegistrationResponse } from "../helpers/registration";
 
 async function waitForLiveViewReady(page: Parameters<typeof test>[0]["page"]) {
   await page.waitForSelector("[data-phx-session].phx-connected", {
@@ -17,7 +18,7 @@ async function registerAndAuthenticateUser(
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
   await page.click('button:has-text("Create an account")');
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
 
   await page.goto("/users/log_in");
 

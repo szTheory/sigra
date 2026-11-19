@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import {
+  assertGenericRegistrationResponse,
+  signInManually,
+} from "../helpers/registration";
 
 type MailboxMessage = {
   html_body: string | null;
@@ -81,7 +85,8 @@ test("generated confirmation accepts the literal email code paste and announces 
   await page.getByRole("textbox", { name: "Email" }).fill(email);
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Create an account" }).click();
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
+  await signInManually(page, email, password);
 
   const confirmationCode = await confirmationCodeFromMailbox(page, email);
   expect(confirmationCode).toMatch(/^[0-9](?: [0-9]){5}$/);
