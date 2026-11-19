@@ -16,17 +16,19 @@ type AxeDiagnosticCheck = {
 
 type AxeIncompleteDiagnostic = {
   rule: string;
-  target: string;
+  target: AxeSelector;
   reason: {
     category: 'axe_could_not_determine';
     checks: AxeDiagnosticCheck[];
   };
 };
 
+type AxeSelector = string | string[];
+
 type AxeIncompleteInput = {
   id: string;
   nodes: Array<{
-    target: string[];
+    target: AxeSelector[];
     any?: Array<{ id: string; message?: string; data?: unknown }>;
     all?: Array<{ id: string; message?: string; data?: unknown }>;
     none?: Array<{ id: string; message?: string; data?: unknown }>;
@@ -108,6 +110,17 @@ test('Phase 264 axe incomplete mapper contract', () => {
       },
     },
   ]);
+
+  const nestedTargetRecords = mapAxeIncompleteNodes([{
+    id: 'aria-prohibited-attr',
+    nodes: [{ target: [['iframe#admin-preview', 'body', '.nested-branding']] }],
+  }]);
+
+  expect(nestedTargetRecords).toEqual([{
+    rule: 'aria-prohibited-attr',
+    target: ['iframe#admin-preview', 'body', '.nested-branding'],
+    reason: { category: 'axe_could_not_determine', checks: [] },
+  }]);
 });
 
 // Phase 185 (AUDIT-INFRA): admin-design board-snapshot spec.
@@ -558,6 +571,29 @@ test.describe('Design gallery board snapshots', () => {
   // offending DOM selector, so the board is identifiable from axe's output.
   test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }, testInfo) => {
     await assertNoAxeViolations(page, 'design-gallery', testInfo);
+  });
+
+  test('Phase 264 mobile bottom navigation is Tab reachable', async ({ page }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'admin-design-chromium',
+      'Exercise the mobile layout in Chromium, where browser Tab traversal is available.',
+    );
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    const firstBottomNavLink = page.locator('.sg-bottom-nav__item').first();
+    await expect(firstBottomNavLink).toBeVisible();
+    const handle = await firstBottomNavLink.elementHandle();
+    expect(handle, 'first mobile navigation item exists').not.toBeNull();
+
+    for (let i = 0; i < 120; i += 1) {
+      await page.keyboard.press('Tab');
+      if (await handle!.evaluate((node) => document.activeElement === node)) {
+        expect(await handle!.evaluate((node) => node.matches(':focus-visible'))).toBe(true);
+        return;
+      }
+    }
+
+    throw new Error('Tab traversal did not reach the first mobile bottom-navigation link');
   });
 
   test('Phase 264 audited control affordances', async ({ page }, testInfo) => {

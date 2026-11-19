@@ -1983,10 +1983,6 @@
     box-shadow: var(--sg-focus-ring);
   }
 
-  .sg-scope-switch__item:focus-visible {
-    box-shadow: var(--sg-focus-ring);
-  }
-
   .sg-scope-switch__item[aria-current="true"] {
     background: var(--sg-color-panel-alt);
     color: var(--sg-color-muted);
@@ -2366,10 +2362,6 @@
     background: var(--sg-color-brand-soft);
     color: var(--sg-color-brand-strong);
     outline: none;
-    box-shadow: var(--sg-focus-ring);
-  }
-
-  .sg-nav-link:focus-visible {
     box-shadow: var(--sg-focus-ring);
   }
 
