@@ -53,20 +53,45 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGolden do
         Mix.shell().info(@usage)
         :ok
 
-      {:run, check?} ->
-        lifecycle.(check?)
+      {:run, mode} ->
+        lifecycle.(mode)
+
+      {:error, message} ->
+        Mix.raise(message <> "\n\n" <> @usage)
     end
   end
 
   defp parse_args(argv) do
-    {opts, _, _} = OptionParser.parse(argv, strict: [check: :boolean, help: :boolean])
+    {opts, args, invalid} =
+      OptionParser.parse(argv, strict: [check: :boolean, help: :boolean])
 
-    if Keyword.get(opts, :help, false),
-      do: {:help, argv},
-      else: {:run, Keyword.get(opts, :check, false)}
+    cond do
+      invalid != [] ->
+        flags = Enum.map_join(invalid, ", ", fn {flag, _value} -> flag end)
+        {:error, "Unknown option(s): #{flags}."}
+
+      args != [] ->
+        {:error, "Unexpected argument(s): #{Enum.join(args, ", ")}."}
+
+      Keyword.get(opts, :help, false) and argv == ["--help"] ->
+        {:help, argv}
+
+      Keyword.get(opts, :help, false) ->
+        {:error, "--help must be used by itself."}
+
+      opts == [] ->
+        {:run, :write}
+
+      opts == [check: true] ->
+        {:run, :check}
+
+      true ->
+        {:error, "Unsupported option combination."}
+    end
   end
 
-  defp run_lifecycle(check?) do
+  defp run_lifecycle(mode) do
+    check? = mode == :check
     Mix.env(:test)
     Mix.Task.run("loadpaths")
     Mix.Task.run("compile")
