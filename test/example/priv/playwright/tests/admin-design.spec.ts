@@ -6,6 +6,81 @@ import { contrastRatio } from '../helpers/brandContrast';
 import { assertBrandFontsLoaded } from '../helpers/brandFonts';
 import { hexToRgbString } from '../helpers/brandSource';
 
+type AxeDiagnosticCheck = {
+  group: 'any' | 'all' | 'none';
+  id: string;
+  message: string | null;
+  data?: unknown;
+  detail?: string;
+};
+
+type AxeIncompleteDiagnostic = {
+  rule: string;
+  target: string;
+  reason: {
+    category: 'axe_could_not_determine';
+    checks: AxeDiagnosticCheck[];
+  };
+};
+
+type AxeIncompleteInput = {
+  id: string;
+  nodes: Array<{
+    target: string[];
+    any?: Array<{ id: string; message?: string; data?: unknown }>;
+    all?: Array<{ id: string; message?: string; data?: unknown }>;
+    none?: Array<{ id: string; message?: string; data?: unknown }>;
+  }>;
+};
+
+function mapAxeIncompleteNodes(_rules: AxeIncompleteInput[]): AxeIncompleteDiagnostic[] {
+  return [];
+}
+
+test('Phase 264 axe incomplete mapper contract', () => {
+  const records = mapAxeIncompleteNodes([{
+    id: 'color-contrast',
+    nodes: [{
+      target: ['#branding-link', '.active-branding'],
+      any: [
+        { id: 'foreground', message: 'Text contrast could not be determined', data: { fgColor: '#777777' } },
+        { id: 'background', data: { bgColor: '#ffffff' } },
+      ],
+      all: [{ id: 'visible-text', message: 'Text was not visible' }],
+      none: [{ id: 'non-text-contrast' }],
+    }],
+  }]);
+
+  expect(records).toEqual([
+    {
+      rule: 'color-contrast',
+      target: '#branding-link',
+      reason: {
+        category: 'axe_could_not_determine',
+        checks: [
+          { group: 'any', id: 'foreground', message: 'Text contrast could not be determined', data: { fgColor: '#777777' } },
+          { group: 'any', id: 'background', message: null, data: { bgColor: '#ffffff' } },
+          { group: 'all', id: 'visible-text', message: 'Text was not visible' },
+          { group: 'none', id: 'non-text-contrast', message: null, detail: 'axe supplied no check detail' },
+        ],
+      },
+    },
+    {
+      rule: 'color-contrast',
+      target: '.active-branding',
+      reason: {
+        category: 'axe_could_not_determine',
+        checks: [
+          { group: 'any', id: 'foreground', message: 'Text contrast could not be determined', data: { fgColor: '#777777' } },
+          { group: 'any', id: 'background', message: null, data: { bgColor: '#ffffff' } },
+          { group: 'all', id: 'visible-text', message: 'Text was not visible' },
+          { group: 'none', id: 'non-text-contrast', message: null, detail: 'axe supplied no check detail' },
+        ],
+      },
+    },
+  ]);
+});
+
 // Phase 185 (AUDIT-INFRA): admin-design board-snapshot spec.
 //
 // Captures every Sigra.Admin.Components board from the design gallery
