@@ -19,6 +19,14 @@ defmodule ExampleWeb.SettingsLive do
   alias Example.Organizations
   alias ExampleWeb.Layouts
 
+  @dev_routes? Application.compile_env(:example, :dev_routes, false)
+
+  if @dev_routes? do
+    defp dev_mailbox_path, do: ~p"/dev/mailbox"
+  else
+    defp dev_mailbox_path, do: nil
+  end
+
   @impl true
   def mount(_params, _session, socket) do
     user = socket.assigns.current_scope.user
@@ -32,6 +40,7 @@ defmodule ExampleWeb.SettingsLive do
        scheduled_deletion_date: scheduled_deletion_date(user),
        has_password?: user.hashed_password != nil,
        force_password_change?: Auth.must_change_password?(user),
+       dev_mailbox_path: dev_mailbox_path(),
        user_organizations: Organizations.list_organizations_for_user(user),
        profile_form: to_form(Auth.change_display_name(user), as: "profile"),
        email_form: to_form(%{"email" => ""}, as: "email"),
@@ -129,8 +138,14 @@ defmodule ExampleWeb.SettingsLive do
                 <strong>Changing to {@current_scope.user.pending_email}</strong>
                 <p class="vt-copy">
                   We sent a confirmation link to {@current_scope.user.pending_email}. Your current
-                  email stays active until you confirm (check the
-                  <a href={~p"/dev/mailbox"} class="vt-link">dev mailbox</a>).
+                  email stays active until you confirm.
+                  <span :if={@dev_mailbox_path}>
+                    Check the <a href={@dev_mailbox_path} class="vt-link">dev mailbox</a> for the
+                    confirmation email.
+                  </span>
+                  <span :if={!@dev_mailbox_path}>
+                    Check your email inbox for the confirmation email.
+                  </span>
                 </p>
                 <button type="button" phx-click="cancel_email_change" class="vt-btn vt-btn--ghost">
                   Cancel email change

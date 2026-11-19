@@ -62,6 +62,8 @@ defmodule ExampleWeb.SettingsLiveTest do
       assert html =~ ~s(data-testid="settings-email-pending")
       assert html =~ "Changing to #{target}"
       assert html =~ "confirmation link to #{target}"
+      assert html =~ "Check your email inbox"
+      refute html =~ ~s(href="/dev/mailbox")
     end
   end
 end
