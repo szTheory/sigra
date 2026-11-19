@@ -2028,6 +2028,11 @@
      * low-contrast combination on the dark surface. */
   }
 
+  .sg-bottom-nav__item:focus-visible {
+    outline: none;
+    box-shadow: var(--sg-focus-ring);
+  }
+
   .sg-bottom-nav__item.active,
   .sg-bottom-nav .active {
     color: var(--sg-color-brand-strong);

@@ -203,7 +203,7 @@ async function assertNoAxeViolations(page: Page, label: string, testInfo?: TestI
       contentType: 'application/json',
     });
     const screenshotPath = testInfo.outputPath(`phase264-${project}-${theme.toLowerCase()}-admin-design-gallery-rendered.png`);
-    await page.screenshot({ path: screenshotPath, fullPage: true });
+    await page.screenshot({ path: screenshotPath });
     await testInfo.attach('phase264-admin-design-gallery-current-state.png', {
       path: screenshotPath,
       contentType: 'image/png',
@@ -567,6 +567,16 @@ test.describe('Design gallery board snapshots', () => {
     const focusByKeyboard = async (target: Locator) => {
       const handle = await target.elementHandle();
       expect(handle, 'audited control exists before keyboard focus').not.toBeNull();
+      if (testInfo.project.name.includes('mobile')) {
+        // The iPhone WebKit preset excludes links from default Tab traversal
+        // unless the OS-level Full Keyboard Access setting is enabled. Enter
+        // keyboard modality, then focus the mobile link directly so this lane
+        // still verifies its :focus-visible ring without claiming to test the
+        // platform's keyboard traversal setting.
+        await page.keyboard.press('Tab');
+        await target.focus();
+        return;
+      }
       for (let attempt = 0; attempt < 120; attempt += 1) {
         await page.keyboard.press('Tab');
         if (await handle!.evaluate((node) => node === document.activeElement)) return;
@@ -630,12 +640,24 @@ test.describe('Design gallery board snapshots', () => {
       await themeRadio.click();
       await expect(themeRadio).toHaveAttribute('aria-checked', 'true');
 
-      const navLink = page.locator('.sg-nav-link:visible').first();
-      await assertFocusRing(navLink, theme, 'admin-navigation-link');
+      const mobileProject = testInfo.project.name.includes('mobile');
+      const navigationSelector = mobileProject
+        ? '.sg-bottom-nav__item:visible'
+        : '.sg-nav-link:visible';
+      const navLink = page.locator(navigationSelector).first();
+      const navigationControl = mobileProject
+        ? 'mobile-admin-navigation-link'
+        : 'admin-navigation-link';
+      await assertFocusRing(navLink, theme, navigationControl);
 
       const scopeSummary = page.locator('.sg-scope-switch > summary:visible');
       await expect(scopeSummary, `${theme} scope switch is available`).toBeVisible();
-      await scopeSummary.click();
+      if (mobileProject) {
+        await focusByKeyboard(scopeSummary);
+        await page.keyboard.press('Enter');
+      } else {
+        await scopeSummary.click();
+      }
       const scopeItem = page.locator('.sg-scope-switch__item:visible').first();
       await expect(scopeItem, `${theme} scope switch has an option`).toBeVisible();
       await assertFocusRing(scopeItem, theme, 'admin-scope-switch-item');
@@ -676,7 +698,7 @@ test.describe('Design gallery board snapshots', () => {
       });
       await assertFocusRing(paletteTrigger, theme, 'command-palette-trigger');
 
-      const image = await page.screenshot({ fullPage: true });
+      const image = await page.screenshot();
       const imagePath = testInfo.outputPath(`phase264-${theme.toLowerCase()}-admin-controls.png`);
       await writeFile(imagePath, image);
       await testInfo.attach(`phase264-${theme.toLowerCase()}-admin-controls.png`, {
