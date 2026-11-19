@@ -28,9 +28,9 @@ defmodule Sigra.Install.GeneratorResetTest do
     test "renders module name from assigns", %{rendered: result} do
       assert result =~ "defmodule MyAppWeb.ResetPasswordController do"
       assert result =~ "use MyAppWeb, :controller"
-      # Plan 10.1-02 fix #7 dropped the unused `alias <%= context_module %>`
-      # from this template; calls are fully qualified instead.
-      assert result =~ "MyApp.Auth.get_user_by_email"
+      # The request accepts the submitted email so generated contexts can
+      # apply rate limits before account lookup.
+      assert result =~ "MyApp.Auth.deliver_user_reset_password_instructions(\n        email,"
       refute result =~ ~r/^\s*alias MyApp\.Auth\s*$/m
     end
 

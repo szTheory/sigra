@@ -21,12 +21,11 @@ defmodule <%= web_module %>.ResetPasswordController do
   regardless of whether the email exists — enumeration prevention.
   """
   def create(conn, %{"user" => %{"email" => email}}) do
-    if user = <%= context_module %>.get_user_by_email(email) do
+    _ =
       <%= context_module %>.deliver_user_reset_password_instructions(
-        user,
+        email,
         &url(conn, ~p"/users/reset-password/#{&1}")
       )
-    end
 
     conn
     |> put_flash(:info, dgettext("sigra", "If your email is in our system, you will receive reset instructions shortly."))

@@ -7,6 +7,7 @@ defmodule Sigra.Install.Features.AdminTest do
     only: [extract_css_block: 2, extract_css_blocks: 2, extract_sg_declarations: 1]
 
   alias Sigra.Install.Features.Admin
+  alias Sigra.Branding.Contrast
 
   describe "enabled?/1" do
     test "returns true by default" do
@@ -413,6 +414,16 @@ defmodule Sigra.Install.Features.AdminTest do
     end
   end
 
+  describe "DIST-05 example≡template byte-parity (sigra_auth.css)" do
+    test "the example auth stylesheet is byte-identical to the installer template" do
+      template = File.read!("priv/templates/sigra.install/core/sigra_auth.css")
+      example = File.read!("test/example/priv/static/assets/sigra_auth.css")
+
+      assert example == template,
+             "example auth CSS has drifted from the installer template; resync the generated copy"
+    end
+  end
+
   describe "D-11 System↔explicit-toggle dark-block parity" do
     test "admin dark @media block and the shipped explicit-toggle dark block declare identical --sg-* values" do
       # Both blocks are read from the SHIPPED stylesheet: a generated host has no
@@ -508,6 +519,32 @@ defmodule Sigra.Install.Features.AdminTest do
                  "#{inspect(admin_dark)} != #{inspect(auth_dark)} — " <>
                  "update sigra_auth.css to restore ember parity with admin dark tokens"
       end
+    end
+
+    test "dark auth fallback action colors meet AA and match the brand book" do
+      auth_css = File.read!("priv/templates/sigra.install/core/sigra_auth.css")
+
+      accent_fallbacks =
+        Regex.scan(
+          ~r/--sigra-auth-accent:\s*var\(--sigra-auth-dark-accent,\s*(#[0-9A-Fa-f]{6})\)/,
+          auth_css,
+          capture: :all_but_first
+        )
+        |> List.flatten()
+
+      foreground_fallbacks =
+        Regex.scan(
+          ~r/--sigra-auth-on-accent:\s*var\(--sigra-auth-dark-on-accent,\s*(#[0-9A-Fa-f]{6})\)/,
+          auth_css,
+          capture: :all_but_first
+        )
+        |> List.flatten()
+
+      assert Enum.map(accent_fallbacks, &String.upcase/1) == ["#F08A55", "#F08A55"]
+      assert Enum.map(foreground_fallbacks, &String.upcase/1) == ["#17120F", "#17120F"]
+
+      assert Contrast.contrast_ratio("#17120F", "#F08A55") >= 4.5,
+             "dark auth button label must meet WCAG AA on Kiln Bright"
     end
 
     test "admin token reference documents every canonical :root --sg-* token" do

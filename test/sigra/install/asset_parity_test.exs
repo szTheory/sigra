@@ -146,7 +146,7 @@ defmodule Sigra.Install.AssetParityTest do
         "function safeLoginStatus(",
         "function updateLoginStatus(",
         "function clearLoginStatus(",
-        "function findEmailInput(",
+        "function fetchLoginOptions()",
         "async function fetchAuthenticationOptions(",
         "function submitPasskeyLogin(",
         "export async function conditionalMediationAvailable(",

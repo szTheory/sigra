@@ -1,3 +1,11 @@
+defmodule ExampleWeb.EnumerationParityTest.DenyRateLimiter do
+  @moduledoc false
+  @behaviour Sigra.RateLimiter
+
+  @impl true
+  def check_rate(_key, _limit, _window_ms), do: {:deny, 60_000}
+end
+
 defmodule ExampleWeb.EnumerationParityTest do
   @moduledoc """
   Enumeration-boundary parity harness for the pre-auth surfaces (BCOPY-03).
@@ -26,12 +34,12 @@ defmodule ExampleWeb.EnumerationParityTest do
   response, because the leak is applied after the response was captured.
 
   A second rule closes that gap: a `parity` row must not be empty-versus-empty.
-  Each parity probe must capture a non-empty value for every content dimension
-  (`flash`, `body`) its row lists, and the flash it captures is asserted against
-  the message the surface really shows. If a probe stopped observing its surface
-  (a LiveView assign moved, a redirect stopped carrying its flash), both sides
-  would capture the same empty value and compare `:same`; this rule turns that
-  into a failure.
+  Each HTML/LiveView parity probe must capture a non-empty value for every content
+  dimension (`flash`, `body`) its row lists, and the flash it captures is asserted
+  against the message the surface really shows. A JSON probe must capture a
+  non-empty key set. If a probe stopped observing its surface, both sides would
+  capture the same empty value and compare `:same`; this rule turns that into a
+  failure.
 
   A third rule pins what the published docs rely on. The README and the guides say
   the account-existence screens return "the same status, redirect, flash message and
@@ -67,9 +75,9 @@ defmodule ExampleWeb.EnumerationParityTest do
   These tests run in the example host (`test/example`), a hand-maintained copy
   of the generated host that already drifts from the generated templates. Only
   `install_smoke` proves a generated host. A `parity` row is bounded to the
-  dimensions it lists, for one request, and is not a claim that a surface is
-  enumeration-safe in general (timing, repeat attempts and account states that
-  are not listed are not compared).
+  dimensions and request sequence it lists. Repeat attempts and limiter-denied
+  requests have separate rows; no row establishes timing equivalence or behavior
+  for account states it does not name.
   """
   use ExampleWeb.ConnCase, async: false
 
@@ -140,45 +148,22 @@ defmodule ExampleWeb.EnumerationParityTest do
   @content_dimensions [:flash, :body]
 
   # The leaks that exist today. None of them may ever be registered as parity.
-  @named_leak_ids ~w(passkey-signin-options registration password-signin-repeat-attempts magic-link-rate-limit password-reset-rate-limit)
+  @named_leak_ids ~w(registration)
 
   # The exact todo path each row carries (single path per row, every other row
-  # null). This pins only the open follow-up todos; prose-only library wording
-  # work is complete and no longer has a registry row.
-  @expected_todos %{
-    "passkey-signin-options" =>
-      ".planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md",
-    "password-reset-request" =>
-      ".planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md",
-    "password-signin-repeat-attempts" =>
-      ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
-    "magic-link-rate-limit" =>
-      ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
-    "password-reset-rate-limit" =>
-      ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
-    "registration" =>
-      ".planning/todos/pending/2026-11-13-duplicate-registration-timing-oracle.md",
-    "confirmation-resend" =>
-      ".planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md"
-  }
+  # null). This pins only open follow-up work; resolved generated-host and
+  # registration-timing records are kept in the resolved archive.
+  @expected_todos %{}
 
-  # The three open fix-tracking todos filed for the known divergences and the
-  # generated host's reset request page (a parity row here covers the example
-  # host only). Named here independently of
+  # The remaining open fix-tracking todo is named independently of
   # @expected_todos so that a registry edit which drops a reference to one of them
   # goes red.
-  @new_todo_paths [
-    ".planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md",
-    ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
-    ".planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md"
-  ]
+  @new_todo_paths []
 
   # Dimensions on which each known divergence differs today. Asserted exactly, so
   # a partial fix also forces the registry row to be updated.
   @expected_divergence_dims %{
-    "registration" => [:body, :flash],
-    "passkey-signin-options" => [:json_keys],
-    "password-signin-repeat-attempts" => [:result]
+    "registration" => [:body, :flash]
   }
 
   # by_design rows that have a documented-behaviour assertion below.
@@ -412,10 +397,8 @@ defmodule ExampleWeb.EnumerationParityTest do
       end
     end
 
-    test "every non-null registry todo path is a real file, and the three open todos are referenced" do
+    test "every non-null registry todo path is a real file" do
       todos = for %{"todo" => todo} when is_binary(todo) <- surfaces(), do: todo
-
-      assert todos != [], "no registry row carries a todo path"
 
       assert missing_files(todos) == [],
              "registry todo paths that are not files under the repo root: " <>
@@ -559,26 +542,43 @@ defmodule ExampleWeb.EnumerationParityTest do
         id = row["id"]
         listed = dimensions(row)
 
-        {key, expected} =
-          expected_parity_flash(id) ||
-            flunk("parity row #{id} has no expected flash in expected_parity_flash/1")
-
-        assert Enum.any?(listed, &(&1 in @content_dimensions)),
-               "parity row #{id} lists no content dimension (flash or body), so :same proves nothing"
-
         {existing, unknown} = probe_pair(id)
 
-        for {identity, response} <- [existing: existing, unknown: unknown] do
-          assert empty_content_dimensions(response, listed) == [],
-                 "#{id}: the #{identity} probe captured an empty " <>
-                   inspect(empty_content_dimensions(response, listed)) <>
-                   ", so a :same result would be empty-versus-empty"
+        cond do
+          Enum.any?(listed, &(&1 in @content_dimensions)) ->
+            {key, expected} =
+              expected_parity_flash(id) ||
+                flunk("parity row #{id} has no expected flash in expected_parity_flash/1")
 
-          text = Map.get(response.flash, key)
+            for {identity, response} <- [existing: existing, unknown: unknown] do
+              assert empty_content_dimensions(response, listed) == [],
+                     "#{id}: the #{identity} probe captured an empty " <>
+                       inspect(empty_content_dimensions(response, listed)) <>
+                       ", so a :same result would be empty-versus-empty"
 
-          assert is_binary(text) and text =~ expected,
-                 "#{id}: the #{identity} probe captured flash #{inspect(response.flash)}, " <>
-                   "expected #{key} matching #{inspect(expected)}"
+              text = Map.get(response.flash, key)
+
+              assert is_binary(text) and text =~ expected,
+                     "#{id}: the #{identity} probe captured flash #{inspect(response.flash)}, " <>
+                       "expected #{key} matching #{inspect(expected)}"
+            end
+
+          :json_keys in listed ->
+            for {identity, response} <- [existing: existing, unknown: unknown] do
+              assert is_list(response.json_keys) and response.json_keys != [],
+                     "#{id}: the #{identity} probe captured no JSON keys, " <>
+                       "so a :same result would be empty-versus-empty"
+            end
+
+          :result in listed ->
+            for {identity, response} <- [existing: existing, unknown: unknown] do
+              assert response.result not in [nil, %{}, ""],
+                     "#{id}: the #{identity} probe captured no result, " <>
+                       "so a :same result would be empty-versus-empty"
+            end
+
+          true ->
+            flunk("parity row #{id} has no content dimension, JSON key or result observation")
         end
       end
     end
@@ -592,12 +592,20 @@ defmodule ExampleWeb.EnumerationParityTest do
       assert empty_content_dimensions(observed, [:status, :flash, :body]) == []
       # Only the content dimensions count: a constant status or a nil redirect is not content.
       assert empty_content_dimensions(nothing, [:status, :location]) == []
+      refute nothing.result
+
+      assert response(result: %{reason: :invalid_credentials}).result == %{
+               reason: :invalid_credentials
+             }
     end
 
-    test "the expected-flash table names exactly the parity rows, so a new parity row must state its flash" do
-      parity_ids = for %{"state" => "parity", "id" => id} <- surfaces(), do: id
+    test "the expected-flash table names exactly the content parity rows" do
+      content_parity_ids =
+        for %{"state" => "parity", "id" => id} = row <- surfaces(),
+            Enum.any?(dimensions(row), &(&1 in @content_dimensions)),
+            do: id
 
-      assert Enum.sort(parity_ids) ==
+      assert Enum.sort(content_parity_ids) ==
                Enum.sort(Enum.filter(@named_parity_ids, &expected_parity_flash/1))
     end
   end
@@ -631,9 +639,9 @@ defmodule ExampleWeb.EnumerationParityTest do
       end
     end
 
-    test "the lockout divergence is masked at the example sign-in controller" do
-      # The library result differs (asserted above); the example controller maps
-      # every error to one flash, so the HTTP response does not expose it.
+    test "locked and unknown sign-ins keep the same generic response" do
+      # The library result is also generic now; keep the HTTP response contract
+      # pinned so generated/example controllers cannot reintroduce the leak.
       attempts = lockout_attempts()
 
       masked =
@@ -725,6 +733,30 @@ defmodule ExampleWeb.EnumerationParityTest do
       assert [%{sent_to: sent_to}] = reset_tokens(user_id: user.id)
       assert sent_to == user.email
       assert reset_tokens(sent_to: unknown_email) == []
+    end
+  end
+
+  describe "configured email rate limits reach the account helpers" do
+    @tag :email_rate_limit_config
+    test "magic-link and reset helpers deny known and unknown addresses equally" do
+      user = user_fixture()
+
+      for email <- [user.email, "unknown-rate-limit@example.com"] do
+        assert {:error, :rate_limited} =
+                 with_email_rate_limit_config(fn ->
+                   Example.Accounts.request_magic_link(email, fn _token ->
+                     "https://example.com/magic"
+                   end)
+                 end)
+
+        assert {:error, :rate_limited} =
+                 with_email_rate_limit_config(fn ->
+                   Example.Accounts.deliver_user_reset_password_instructions(
+                     email,
+                     &"https://example.com/reset/#{&1}"
+                   )
+                 end)
+      end
     end
   end
 
@@ -948,7 +980,8 @@ defmodule ExampleWeb.EnumerationParityTest do
       response
       | body: response.body <> "\n" <> text,
         flash: Map.put(response.flash, "leak", text),
-        json_keys: response.json_keys && response.json_keys ++ [text]
+        json_keys: response.json_keys && response.json_keys ++ [text],
+        result: if(is_nil(response.result), do: nil, else: {response.result, text})
     }
   end
 
@@ -1128,6 +1161,31 @@ defmodule ExampleWeb.EnumerationParityTest do
     |> put_passkey_json_headers()
     |> post(~p"/users/log_in/passkey/options", %{"user" => %{"email" => email}})
     |> capture_json(email)
+  end
+
+  defp probe("magic-link-rate-limit", identity, _ctx) do
+    email = identity_email(identity)
+
+    result =
+      with_email_rate_limit_config(fn ->
+        Example.Accounts.request_magic_link(email, fn _token -> "https://example.com/magic" end)
+      end)
+
+    response(result: result)
+  end
+
+  defp probe("password-reset-rate-limit", identity, _ctx) do
+    email = identity_email(identity)
+
+    result =
+      with_email_rate_limit_config(fn ->
+        Example.Accounts.deliver_user_reset_password_instructions(
+          email,
+          &"https://example.com/reset/#{&1}"
+        )
+      end)
+
+    response(result: result)
   end
 
   # Library level: the same wrong password repeated past the lockout threshold.
@@ -1394,6 +1452,25 @@ defmodule ExampleWeb.EnumerationParityTest do
     end)
 
     :ok
+  end
+
+  defp with_email_rate_limit_config(fun) when is_function(fun, 0) do
+    old_config = Application.get_env(:example, :sigra_config)
+
+    Application.put_env(
+      :example,
+      :sigra_config,
+      (old_config || [])
+      |> Keyword.put(:rate_limiting, limiter: __MODULE__.DenyRateLimiter)
+      |> Keyword.put(:magic_link, max_requests: 3, window_seconds: 900)
+      |> Keyword.put(:reset, max_requests: 3, window_seconds: 900)
+    )
+
+    try do
+      fun.()
+    after
+      restore_env(:example, :sigra_config, old_config)
+    end
   end
 
   defp restore_env(app, key, nil), do: Application.delete_env(app, key)

@@ -56,6 +56,26 @@ defmodule Sigra.Install.GeneratorWiringTest do
   end
 
   describe "auth.ex template wiring" do
+    test "email request helpers receive configured limiter and per-flow windows" do
+      content = render_template("auth.ex")
+
+      assert content =~ "rate_limiter: Keyword.get(config.rate_limiting, :limiter)"
+      assert content =~ "max_requests: Keyword.get(config.magic_link, :max_requests, 3)"
+      assert content =~ "window_ms: Keyword.get(config.magic_link, :window_seconds, 900) * 1_000"
+      assert content =~ "max_requests: Keyword.get(config.reset, :max_requests, 3)"
+      assert content =~ "window_ms: Keyword.get(config.reset, :window_seconds, 900) * 1_000"
+      assert content =~ "magic_link_ttl: Keyword.get(config.magic_link, :ttl, 600)"
+
+      assert content =~
+               "reset_ttl = Keyword.get(sigra_config().token_ttl, :reset_password, 3_600)"
+
+      assert content =~ "reset_ttl: reset_ttl"
+      assert content =~ "rate_limiting: Keyword.get(runtime_config, :rate_limiting"
+      assert content =~ "token_ttl: Keyword.get(runtime_config, :token_ttl"
+      assert content =~ "magic_link: Keyword.get(runtime_config, :magic_link"
+      assert content =~ "reset: Keyword.get(runtime_config, :reset"
+    end
+
     test "contains Sigra.Auth.generate_confirmation_token call" do
       content = render_template("auth.ex")
       assert content =~ "Sigra.Auth.generate_confirmation_token(Repo, user,"
@@ -123,6 +143,40 @@ defmodule Sigra.Install.GeneratorWiringTest do
     end
   end
 
+  describe "password reset request wiring" do
+    test "live and controller templates pass the raw email to the enumeration-safe context" do
+      live = render_template("reset_password_live.ex")
+      controller = render_template("reset_password_controller.ex")
+
+      assert live =~ "deliver_user_reset_password_instructions(\n        email,"
+      assert controller =~ "deliver_user_reset_password_instructions(\n        email,"
+      refute live =~ "get_user_by_email(email)"
+      refute controller =~ "get_user_by_email(email)"
+    end
+  end
+
+  describe "controller confirmation request wiring" do
+    test "code and resend actions handle anonymous visitors without dereferencing a missing scope" do
+      content = render_template("confirmation_controller.ex")
+
+      assert content =~ "case conn.assigns[:current_scope] do"
+      assert content =~ "Please sign in to confirm your email."
+      refute content =~ "conn.assigns.current_scope.user"
+    end
+  end
+
+  describe "registration changeset timing" do
+    test "registration hashes before the database uniqueness constraint" do
+      content = render_template("user.ex")
+      registration = content |> String.split("def registration_changeset", parts: 2) |> Enum.at(1)
+      registration = registration |> String.split("defp validate_email", parts: 2) |> hd()
+
+      assert registration =~ "validate_email(opts, false)"
+      assert content =~ "unique_constraint(changeset, :email, name: :users_email_active_index)"
+      assert content =~ "unsafe_validate_unique(changeset, :email, MyApp.Repo)"
+    end
+  end
+
   describe "user_token.ex template wiring" do
     test "contains build_confirmation_code_token function" do
       content = render_template("user_token.ex")
@@ -187,7 +241,7 @@ defmodule Sigra.Install.GeneratorWiringTest do
 
     test "LiveView routes include reset password paths" do
       source = File.read!(@features_core_path)
-      assert source =~ ~s(live "/reset-password", ResetPasswordLive)
+      assert source =~ ~s(live "/reset-password", ResetPasswordLive, :new)
       assert source =~ ~s(live "/reset-password/:token", ResetPasswordLive, :edit)
     end
   end

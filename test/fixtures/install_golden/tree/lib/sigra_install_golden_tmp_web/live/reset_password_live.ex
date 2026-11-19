@@ -152,12 +152,11 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordLive do
   end
 
   def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do
-    if user = SigraInstallGoldenTmp.Accounts.get_user_by_email(email) do
+    _ =
       SigraInstallGoldenTmp.Accounts.deliver_user_reset_password_instructions(
-        user,
+        email,
         &url(socket, ~p"/users/reset-password/#{&1}")
       )
-    end
 
     {:noreply,
      socket

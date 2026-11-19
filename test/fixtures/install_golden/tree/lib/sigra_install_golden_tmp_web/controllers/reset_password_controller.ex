@@ -21,12 +21,11 @@ defmodule SigraInstallGoldenTmpWeb.ResetPasswordController do
   regardless of whether the email exists — enumeration prevention.
   """
   def create(conn, %{"user" => %{"email" => email}}) do
-    if user = SigraInstallGoldenTmp.Accounts.get_user_by_email(email) do
+    _ =
       SigraInstallGoldenTmp.Accounts.deliver_user_reset_password_instructions(
-        user,
+        email,
         &url(conn, ~p"/users/reset-password/#{&1}")
       )
-    end
 
     conn
     |> put_flash(:info, dgettext("sigra", "If your email is in our system, you will receive reset instructions shortly."))

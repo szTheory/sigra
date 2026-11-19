@@ -8,8 +8,8 @@ Sigra's password reset flow uses a one-time, HMAC-signed token with a 60-minute 
 - **`MyApp.Accounts.deliver_user_reset_password_instructions/2`** — generates a reset token, stores its hash in `auth.user_tokens` on Postgres installs, sends the email.
 - **`MyApp.Accounts.get_user_by_reset_password_token/1`** — verifies the token (HMAC, hash lookup, TTL) and returns the user.
 - **`MyApp.Accounts.reset_user_password/2`** — updates the password, deletes the reset token, and invalidates every session and token for that user.
-- **`Sigra.Auth.request_password_reset/3`** — library primitive. For an address with no account it returns `{:ok, :sent}`; for an account it returns the signed token and URL, and the generated `deliver_user_reset_password_instructions/2` returns `{:ok, :sent}` in both cases.
-- **`Sigra.Auth.reset_password/4`** — library primitive. Verifies the HMAC, looks up the token by hash, enforces the 60-minute TTL.
+- **`Sigra.Auth.request_password_reset/3`** — library primitive. For an address with no account it returns `{:ok, :sent}`; for an account it returns the signed token and URL. The generated `deliver_user_reset_password_instructions/2` normalizes both to `{:ok, :sent}`, or returns `{:error, :rate_limited}` when the configured limiter denies the request.
+- **`Sigra.Auth.reset_password/4`** — library primitive. Verifies the HMAC, looks up the token by hash, and enforces the configured reset TTL (60 minutes by default).
 
 ## Happy path
 
@@ -33,13 +33,13 @@ The generated `ResetPasswordLive` renders a form with one field: email. Submitti
        |> redirect(to: ~p"/users/log_in")}
     end
 
-The snippet above is the corrected shape. The generated context's `deliver_user_reset_password_instructions/2` takes the email address as a string (its only function head requires a binary), so pass the submitted email rather than a looked-up user. A call that looks the account up first and passes the user fails with a `FunctionClauseError` for an address that has an account and returns normally for one that does not, which tells a visitor which addresses are registered. The request view and the request controller that Sigra currently generates into a new app still look the user up with `get_user_by_email` and pass the struct, so a freshly generated app has this defect until the generated code is fixed. Compare the call in the code generated into your app with the snippet above, and change it to pass the email.
+The generated LiveView and controller both pass the submitted email string to the context. The context checks its configured email limiter before looking up the address, then normalizes the result before returning to the request page. The generated-host install smoke submits an existing and an unknown address and checks the same redirect and flash, plus token creation only for the existing account.
 
 `deliver_user_reset_password_instructions/2` generates a 32-byte random token, signs its hash with HMAC using your app's `secret_key_base`, stores the row in `auth.user_tokens` with `context: "reset_password"`, and renders the email template.
 
 **Recommendation:** render the same flash message whether the email exists or not, so the form does not tell a visitor which addresses have an account.
 
-**Scope of this claim:** the request form is written to show one message for any address, and the context returns the same `{:ok, :sent}` for an address with an account and one without, so the form is meant to show a visitor the same message for a single attempt. Sigra's own tests compare the request screen for an existing and an unknown address (same response status, redirect, flash and page) for a single attempt in its example application only, which is a hand-maintained copy and not the code generated into your app, so check the request page in your application. Not covered: response timing; and repeated requests, because the optional rate limiter only counts addresses that have an account.
+**Scope of this claim:** the example app compares status, redirect, flash, and page for one request; a generated-host smoke checks the same redirect and flash plus the token-count result. When configured, the email limiter checks a normalized email key before account lookup, so a denied request returns the same `:rate_limited` result for an existing or unknown address. The limiter is disabled by default. These checks do not establish timing equivalence, the production limiter's behavior, or parity of internal library results when a request is allowed.
 
 ### Step 2: Click the email link
 
@@ -68,9 +68,9 @@ The visible portion after `/users/reset-password/` is the HMAC-signed token. Whe
 
 1. The HMAC signature (rejects tampered tokens).
 2. The hash exists in `auth.user_tokens` (rejects fabricated or already-used tokens).
-3. `inserted_at + 60 minutes > now` (rejects expired tokens).
+3. `inserted_at + configured TTL > now` (60 minutes by default; rejects expired tokens).
 
-All three checks run in constant time where relevant.
+The signature rejects tampering, the stored hash rejects fabricated or consumed tokens, and the TTL rejects expired links. These checks do not establish timing equivalence for reset requests.
 
 ### Step 3: Enter new password
 
@@ -109,21 +109,24 @@ Note: `by_user_and_contexts_query(user, :all)` deletes **every** token for that 
 The reset token TTL is 60 minutes by default. To change it:
 
     # config/config.exs
-    config :my_app, MyApp.Auth.Config,
-      reset: [token_ttl: 30 * 60]  # 30 minutes, in seconds
+    config :my_app, :sigra_config,
+      token_ttl: [reset_password: 30 * 60]  # 30 minutes, in seconds
 
 Shorter is safer (smaller attack window) but worsens UX if the email is delayed.
 
 ## Rate limiting
 
-Reset requests are a common enumeration vector and an email-bomb vector. Sigra honors Hammer-backed rate limiting on `deliver_user_reset_password_instructions/2` when you configure it:
+Reset requests are a common enumeration vector and an email-bomb vector. Generated account helpers read the limiter and reset-request settings from `:sigra_config`:
 
-    config :my_app, MyApp.Auth.Config,
-      rate_limiting: [
-        reset_password: [scale_ms: 60_000, limit: 3]  # 3 per minute per email
-      ]
+    config :my_app, :sigra_config,
+      rate_limiting: [limiter: Sigra.RateLimiters.Hammer],
+      reset: [max_requests: 3, window_seconds: 60]
 
-With this config, the 4th reset request for the same email within 60 seconds is throttled: it never enqueues the email, and the library reports `{:error, :rate_limited}`. The limiter only counts addresses that have an account, so an unknown address is never throttled and the number of requests that get through can differ between an existing and an unknown address.
+    config :sigra, :hammer_module, MyApp.RateLimit
+
+The host must add the optional `:hammer` dependency, define and supervise the Hammer module, or supply its own module implementing `Sigra.RateLimiter`. `nil` (the default) disables rate limiting.
+
+With this config, the fourth request for the same normalized email within 60 seconds is throttled before account lookup. A denied request returns `{:error, :rate_limited}` for both registered and unknown addresses, and does not enqueue a reset email. The same settings are available for magic links under `magic_link: [max_requests: 3, window_seconds: 900]`. When the limiter allows a request, internal library results and timing are not identical for registered and unknown addresses; the generated page normalizes the user-facing response. Timing equivalence is not established.
 
 ## Why all sessions are invalidated
 

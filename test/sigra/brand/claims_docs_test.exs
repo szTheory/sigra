@@ -477,8 +477,8 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
       # The row still lists what is not compared.
       assert not_covered =~ "timing"
-      assert not_covered =~ "passkey sign-in"
-      assert not_covered =~ "generated into your own application"
+      assert not_covered =~ "passkey sign-in completion"
+      assert not_covered =~ "generated-host behavior"
     end
 
     test "positive control: the Not covered split reports a reset request left in the list" do
@@ -575,7 +575,10 @@ end|
         [paragraph] = scope_paragraphs(read!(file))
 
         assert paragraph =~ ~r/timing/i, "#{file}: scope paragraph does not mention timing"
-        assert paragraph =~ ~r/not covered/i, "#{file}: scope paragraph has no 'not covered'"
+
+        assert paragraph =~
+                 ~r/(?:not|don't|do not).{0,50}(?:timing|response time|wall-clock)|(?:timing|response time|wall-clock).{0,50}(?:not|don't|do not)/i,
+               "#{file}: scope paragraph must say timing equivalence is not established"
       end
     end
 
@@ -584,22 +587,22 @@ end|
 
       assert paragraph =~ ~r/duplicate/i
       assert paragraph =~ ~r/signs? the (new )?user in/i
-      assert paragraph =~ ~r/flash/i
+      assert paragraph =~ ~r/(?:re-renders the form|visitor sees)/i
     end
 
     test "the password reset scope bounds the claim to one attempt and names rate limits" do
       [paragraph] = scope_paragraphs(read!(@password_reset))
 
-      assert paragraph =~ "single attempt"
-      assert paragraph =~ ~r/rate limit/i
+      assert paragraph =~ ~r/(?:single|one) request/i
+      assert paragraph =~ ~r/(?:rate limit|email limiter)/i
     end
 
     test "the password reset scope bounds the comparison to the example application" do
       [paragraph] = scope_paragraphs(read!(@password_reset))
 
-      assert paragraph =~ "example application"
-      assert paragraph =~ "single attempt"
-      assert paragraph =~ "generated into your app"
+      assert paragraph =~ ~r/example (?:application|app)/i
+      assert paragraph =~ ~r/(?:single|one) request/i
+      assert paragraph =~ ~r/generated[- ]host/i
       refute paragraph =~ @retired_false_clause
     end
 
@@ -614,7 +617,7 @@ end|
     test "the sign-in scope bounds the claim to one attempt and names lockout" do
       [paragraph] = scope_paragraphs(read!(@login_logout))
 
-      assert paragraph =~ "single attempt"
+      assert paragraph =~ ~r/(?:single|one) failed attempt/i
       assert paragraph =~ ~r/lockout/i
     end
 

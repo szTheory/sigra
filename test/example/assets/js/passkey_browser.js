@@ -97,13 +97,6 @@ function csrfToken() {
 }
 
 function safeLoginStatus(error) {
-  if (error === "email_required") {
-    return {
-      status: "email_required",
-      message: "Enter your email to continue with a passkey.",
-    };
-  }
-
   if (
     error?.code === ERROR_PASSKEY_UNSUPPORTED ||
     error?.name === "NotSupportedError"
@@ -169,21 +162,6 @@ function clearLoginStatus(form) {
   statusElement.textContent = "";
 }
 
-function findEmailInput(form, options) {
-  if (options.emailInput) {
-    return options.emailInput;
-  }
-
-  return (
-    (form.dataset.emailInput
-      ? document.querySelector(form.dataset.emailInput)
-      : null) ||
-    form.querySelector(
-      "input[name='user[email]']:not([data-passkey-email-shadow])",
-    )
-  );
-}
-
 async function fetchAuthenticationOptions(optionsUrl, body) {
   const response = await fetch(optionsUrl, {
     method: "POST",
@@ -206,6 +184,9 @@ async function fetchAuthenticationOptions(optionsUrl, body) {
 function submitPasskeyLogin(form, completeUrl, responseInput, response) {
   responseInput.value = JSON.stringify(response);
   form.action = completeUrl;
+  form.querySelectorAll("input[name='user[email]']").forEach((input) => {
+    input.disabled = true;
+  });
   HTMLFormElement.prototype.submit.call(form);
 }
 
@@ -294,8 +275,6 @@ export function attachPasskeyLogin(options = {}) {
     return { attached: false };
   }
 
-  const emailInput = findEmailInput(form, options);
-  const emailShadowInput = form.querySelector("[data-passkey-email-shadow]");
   const responseInput = form.querySelector("input[name='passkey[response]']");
 
   if (!responseInput) {
@@ -310,34 +289,56 @@ export function attachPasskeyLogin(options = {}) {
   const completeUrl =
     options.completeUrl || form.action || "/users/log_in/passkey";
 
+  let loginAttemptId = 0;
+  let activeController = null;
+  let authenticationOptionsPromise = null;
+
+  function fetchLoginOptions() {
+    if (!authenticationOptionsPromise) {
+      authenticationOptionsPromise = fetchAuthenticationOptions(
+        optionsUrl,
+        {},
+      ).catch((error) => {
+        authenticationOptionsPromise = null;
+        throw error;
+      });
+    }
+
+    return authenticationOptionsPromise;
+  }
+
   async function authenticateExplicit(event) {
     event.preventDefault();
-
-    const email = (emailInput?.value || "").trim();
-
-    if (!email) {
-      updateLoginStatus(form, "email_required");
-      return;
-    }
+    const operationId = ++loginAttemptId;
+    activeController?.abort();
+    const controller = new AbortController();
+    activeController = controller;
 
     try {
       clearLoginStatus(form);
 
-      const optionsJSON = await fetchAuthenticationOptions(optionsUrl, {
-        user: { email },
-      });
+      const optionsJSON = await fetchLoginOptions();
+      if (operationId !== loginAttemptId) return;
 
       const response = await startAuthentication({
         optionsJSON,
         useBrowserAutofill: false,
+        signal: controller.signal,
       });
 
-      if (emailShadowInput) {
-        emailShadowInput.value = email;
+      if (operationId !== loginAttemptId || controller.signal.aborted) return;
+
+      if (activeController === controller) {
+        activeController = null;
       }
 
       submitPasskeyLogin(form, completeUrl, responseInput, response);
     } catch (error) {
+      if (operationId !== loginAttemptId) return;
+      if (activeController === controller) {
+        activeController = null;
+      }
+      authenticationOptionsPromise = null;
       updateLoginStatus(form, error);
     }
   }
@@ -348,26 +349,58 @@ export function attachPasskeyLogin(options = {}) {
   const ready =
     options.enableConditionalUI === true
       ? (async () => {
+          const operationId = loginAttemptId;
+          let controller = null;
+
           try {
             if (!(await conditionalMediationAvailable())) {
               throw new WebAuthnError("unsupported", ERROR_PASSKEY_UNSUPPORTED);
             }
 
-            const optionsJSON = await fetchAuthenticationOptions(optionsUrl, {
-              conditional: "true",
-            });
+            if (operationId !== loginAttemptId) return;
+
+            controller = new AbortController();
+            activeController = controller;
+            const optionsJSON = await fetchLoginOptions();
+
+            if (
+              operationId !== loginAttemptId ||
+              controller.signal.aborted
+            ) {
+              return;
+            }
 
             const response = await startAuthentication({
               optionsJSON,
               useBrowserAutofill: true,
+              signal: controller.signal,
             });
+
+            if (
+              operationId !== loginAttemptId ||
+              controller.signal.aborted
+            ) {
+              return;
+            }
 
             submitPasskeyLogin(form, completeUrl, responseInput, response);
           } catch (error) {
+            if (
+              operationId !== loginAttemptId ||
+              controller?.signal.aborted
+            ) {
+              return;
+            }
+            authenticationOptionsPromise = null;
+
             if (options.silentConditionalErrors === false) {
               updateLoginStatus(form, error);
             } else {
               clearLoginStatus(form);
+            }
+          } finally {
+            if (activeController === controller) {
+              activeController = null;
             }
           }
         })()

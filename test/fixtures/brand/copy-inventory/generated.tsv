@@ -56,6 +56,7 @@ core/api_token_created_email.ex	msgid	Scopes:
 core/api_token_created_email.ex	msgid	Token name:
 core/confirmation_controller.ex	msgid	A new confirmation email has been sent.
 core/confirmation_controller.ex	msgid	Invalid confirmation code. Please try again.
+core/confirmation_controller.ex	msgid	Please sign in to confirm your email.
 core/confirmation_controller.ex	msgid	This confirmation link is invalid or has expired.
 core/confirmation_controller.ex	msgid	Too many attempts. Please wait a few minutes before trying again.
 core/confirmation_controller.ex	msgid	Your email has been confirmed.

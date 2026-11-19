@@ -562,12 +562,26 @@ defmodule Sigra.AuthTest do
       assert {:ok, :sent} = result
     end
 
+    test "rate limits unknown addresses before checking whether they exist" do
+      Sigra.MockRateLimiter
+      |> expect(:check_rate, fn "magic_link:nobody@example.com", 3, 900_000 ->
+        {:deny, 60_000}
+      end)
+
+      result =
+        Auth.request_magic_link(
+          Sigra.MockRepo,
+          "nobody@example.com",
+          user_schema: TestUser,
+          user_token_schema: TestUserToken,
+          url_fun: fn _t -> "" end,
+          rate_limiter: Sigra.MockRateLimiter
+        )
+
+      assert {:error, :rate_limited} = result
+    end
+
     test "when rate limited returns {:error, :rate_limited}" do
-      user = %TestUser{id: 1, email: "user@example.com"}
-
-      Sigra.MockRepo
-      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
-
       Sigra.MockRateLimiter
       |> expect(:check_rate, fn "magic_link:user@example.com", 3, 900_000 -> {:deny, 60_000} end)
 
@@ -1045,12 +1059,25 @@ defmodule Sigra.AuthTest do
       assert {:ok, :sent} = result
     end
 
+    test "rate limits unknown addresses before checking whether they exist" do
+      Sigra.MockRateLimiter
+      |> expect(:check_rate, fn "sigra:reset:nobody@example.com", 3, 900_000 ->
+        {:deny, 60_000}
+      end)
+
+      result =
+        Auth.request_password_reset(Sigra.MockRepo, "nobody@example.com",
+          user_schema: TestUser,
+          user_token_schema: TestUserToken,
+          secret_key_base: @secret_key_base,
+          url_fun: fn _t -> "" end,
+          rate_limiter: Sigra.MockRateLimiter
+        )
+
+      assert {:error, :rate_limited} = result
+    end
+
     test "with rate limiting returns {:error, :rate_limited}" do
-      user = %TestUser{id: 1, email: "user@example.com"}
-
-      Sigra.MockRepo
-      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
-
       Sigra.MockRateLimiter
       |> expect(:check_rate, fn "sigra:reset:" <> _, 3, 900_000 -> {:deny, 60_000} end)
 
@@ -1424,7 +1451,7 @@ defmodule Sigra.AuthTest do
   }
 
   describe "authenticate/2 (config-based)" do
-    test "returns {:error, :account_locked} when user is locked (before hash check)" do
+    test "returns generic credentials failure for a locked user before hash check" do
       locked_at = DateTime.utc_now() |> DateTime.add(-100, :second)
 
       user = %TestUser{
@@ -1447,7 +1474,39 @@ defmodule Sigra.AuthTest do
           "password" => "any_password"
         })
 
-      assert {:error, :account_locked} = result
+      assert {:error, :invalid_credentials} = result
+    end
+
+    test "locked and unknown accounts return the same credentials failure" do
+      locked_at = DateTime.utc_now() |> DateTime.add(-100, :second)
+
+      locked_user = %TestUser{
+        id: 1,
+        email: "locked@example.com",
+        hashed_password: "should_not_be_checked",
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 5,
+        locked_at: locked_at
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "locked@example.com"] -> locked_user end)
+      |> expect(:get_by, fn TestUser, [email: "unknown@example.com"] -> nil end)
+
+      locked_result =
+        Auth.authenticate(@auth_config, %{
+          "email" => "locked@example.com",
+          "password" => "any_password"
+        })
+
+      unknown_result =
+        Auth.authenticate(@auth_config, %{
+          "email" => "unknown@example.com",
+          "password" => "any_password"
+        })
+
+      assert locked_result == unknown_result
+      assert {:error, :invalid_credentials} = locked_result
     end
 
     test "increments failed_login_attempts on wrong password" do
@@ -1517,7 +1576,7 @@ defmodule Sigra.AuthTest do
           "password" => "wrong_password"
         })
 
-      assert {:error, :account_locked} = result
+      assert {:error, :invalid_credentials} = result
     end
 
     test "emits [:sigra, :security, :lockout] telemetry when lockout triggered" do

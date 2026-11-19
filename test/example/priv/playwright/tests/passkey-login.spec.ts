@@ -257,6 +257,15 @@ test.describe("passkey-primary login fallback smoke", () => {
       await enrollPasskeyFromSettings(page, password);
 
       await page.context().clearCookies();
+      const loginOptionsRequests: string[] = [];
+      page.on("request", (request) => {
+        if (
+          request.url().includes("/users/log_in/passkey/options") &&
+          request.method() === "POST"
+        ) {
+          loginOptionsRequests.push(request.postData() || "");
+        }
+      });
       await page.goto("/users/log_in");
 
       const runtimeState = await page.evaluate(() => {
@@ -294,20 +303,35 @@ test.describe("passkey-primary login fallback smoke", () => {
         hasAuthenticateHook: true,
       });
 
-      await page.locator('input[autocomplete="username webauthn"]').fill(email);
-
-      const [optionsResponse] = await Promise.all([
-        page.waitForResponse(
+      const optionsResponsePromise = page
+        .waitForResponse(
           (response) =>
             response.url().includes("/users/log_in/passkey/options") &&
-            response.request().method() === "POST" &&
-            response.request().postData()?.includes(email) === true,
+            response.request().method() === "POST",
+        )
+        .then(async (response) => ({ response, body: await response.json() }));
+
+      const [optionsResult, completionResponse] = await Promise.all([
+        optionsResponsePromise,
+        page.waitForResponse(
+          (response) =>
+            response.url().includes("/users/log_in/passkey") &&
+            !response.url().includes("/options") &&
+            response.request().method() === "POST",
         ),
         page.locator("#passkey_login_button").click(),
       ]);
 
+      const { response: optionsResponse, body: optionsJSON } = optionsResult;
       expect(optionsResponse.status()).toBe(200);
-      expect(optionsResponse.request().postData()).toContain(email);
+      expect(optionsResponse.request().postData()).not.toContain(email);
+      expect(optionsJSON.options.allowCredentials).toEqual([]);
+      expect(loginOptionsRequests).toHaveLength(1);
+      expect(completionResponse.status()).toBe(302);
+      expect(completionResponse.headers()["location"] || "").not.toContain(
+        "/users/log_in",
+      );
+      await expect(page).toHaveURL(/\/app$/);
 
       await expect(page.getByText(/AbortError|NotAllowedError/)).toHaveCount(0);
     } finally {

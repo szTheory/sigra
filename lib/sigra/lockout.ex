@@ -11,8 +11,12 @@ defmodule Sigra.Lockout do
 
   - Lockout check happens before password hash verification (saves CPU).
   - `Sigra.Error.safe_message/1` maps a given error to generic text. Lockout
-    outcomes still differ: a locked user receives `:account_locked` with
-    remaining seconds, while a `nil` user receives `:ok`.
+    state from this helper still differs: a locked user receives
+    `:account_locked` with remaining seconds, while a `nil` user receives `:ok`.
+    Public password sign-in should use `Sigra.Auth.authenticate/2`, which keeps
+    this detail in audit and telemetry and returns `:invalid_credentials` for
+    both locked and unknown accounts. Do not expose this helper's result from a
+    public login endpoint.
   - Counter resets on successful login.
   - Auto-unlocks after duration expires.
   - Hooks via telemetry only (`[:sigra, :security, :lockout]`).

@@ -28,6 +28,8 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       assert options["rp"]["id"] == "localhost"
       assert options["user"]["name"] == user.email
       assert is_list(options["excludeCredentials"])
+      assert options["authenticatorSelection"]["residentKey"] == "required"
+      assert options["authenticatorSelection"]["requireResidentKey"] == true
 
       assert %{"token" => token} =
                Plug.Conn.get_session(conn, "sigra_passkey_registration_challenge")
@@ -73,7 +75,7 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       assert options["useBrowserAutofill"] == true
     end
 
-    test "POST /users/log_in/passkey/options email flow returns credential allow list", %{
+    test "POST /users/log_in/passkey/options never returns account-specific options", %{
       conn: conn
     } do
       user =
@@ -84,32 +86,41 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       passkey = passkey_fixture(user)
       credential_id = passkey.credential_id
 
-      conn =
+      existing_response =
         conn
         |> put_passkey_json_headers()
         |> post(~p"/users/log_in/passkey/options", %{
           "user" => %{"email" => user.email}
         })
+        |> json_response(200)
 
-      options = json_response(conn, 200)["options"]
-
-      assert_non_empty_challenge(options)
-      assert options["rpId"] == "localhost"
-      assert [%{"id" => encoded_id, "type" => "public-key"}] = options["allowCredentials"]
-      assert {:ok, ^credential_id} = Base.url_decode64(encoded_id, padding: false)
-    end
-
-    test "POST /users/log_in/passkey/options unknown email stays on JSON unavailable branch", %{
-      conn: conn
-    } do
-      conn =
-        conn
+      unknown_response =
+        build_conn()
         |> put_passkey_json_headers()
         |> post(~p"/users/log_in/passkey/options", %{
           "user" => %{"email" => "missing@example.com"}
         })
+        |> json_response(200)
 
-      assert json_response(conn, 200) == %{"error" => "unavailable"}
+      no_identity_response =
+        build_conn()
+        |> put_passkey_json_headers()
+        |> post(~p"/users/log_in/passkey/options", %{})
+        |> json_response(200)
+
+      existing_options = existing_response["options"]
+      unknown_options = unknown_response["options"]
+      no_identity_options = no_identity_response["options"]
+
+      for options <- [existing_options, unknown_options, no_identity_options] do
+        assert_non_empty_challenge(options)
+        assert options["rpId"] == "localhost"
+        assert options["allowCredentials"] == []
+        refute inspect(options) =~ Base.url_encode64(credential_id, padding: false)
+      end
+
+      assert Enum.sort(Map.keys(existing_response)) == Enum.sort(Map.keys(unknown_response))
+      assert Enum.sort(Map.keys(existing_options)) == Enum.sort(Map.keys(unknown_options))
     end
 
     test "POST /users/mfa/passkey/options without mfa_pending stays on JSON unavailable branch",
@@ -142,7 +153,13 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       assert body =~ "Use a passkey"
       assert body =~ "Email me a magic link"
       assert body =~ "Enterprise SSO"
-      assert body =~ ~s(data-email-input=)
+      refute body =~ ~s(data-email-input=)
+
+      passkey_form =
+        Regex.run(~r/<form[^>]*id="passkey_login_form".*?<\/form>/s, body, capture: :first)
+        |> hd()
+
+      refute passkey_form =~ ~s(name="user[email]")
       assert body =~ ~s(data-passkey-login-status)
       assert body =~ ~s(autocomplete="username webauthn")
     end
@@ -161,16 +178,20 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       conn = issue_passkey_challenge(conn, :authentication)
 
       stub_passkey_ceremony(fn
-        {:authenticate, authenticated_user, _response, _opts} ->
+        {:authenticate, authenticated_user, response, _opts} ->
           assert authenticated_user.id == user.id
+          assert response.user_handle == to_string(user.id)
           {:ok, authenticated_user, passkey}
       end)
 
       conn =
         post(conn, ~p"/users/log_in/passkey", %{
-          "user" => %{"email" => user.email},
           "passkey" => %{
-            "response" => encoded_passkey_response(%{credential_id: passkey.credential_id})
+            "response" =>
+              encoded_passkey_response(%{
+                credential_id: passkey.credential_id,
+                user_handle: user.id
+              })
           }
         })
 
@@ -216,6 +237,7 @@ defmodule ExampleWeb.PasskeySessionControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "We couldn't finish passkey sign-in. Try again or use another way to continue."
 
+      refute Phoenix.Flash.get(conn.assigns.flash, :email)
       refute Plug.Conn.get_session(conn, :user_token)
     end
   end

@@ -36,7 +36,7 @@ The generated login page includes:
 - **Use password instead**
 - **Email me a magic link**
 
-When a known email is supplied, the browser requests options from:
+The browser requests discoverable authentication options without sending an email or other account identifier:
 
     /users/log_in/passkey/options
 
@@ -45,6 +45,8 @@ Then it posts the signed assertion to:
     /users/log_in/passkey
 
 This matters operationally: passkey-primary does not mean passkey-only. Sigra keeps recovery posture visible on the real login page.
+
+New passkeys are registered as discoverable credentials so the authenticator can find the account during identifier-free sign-in. A non-discoverable passkey enrolled before this change cannot be selected by passkey-primary sign-in. Sign in with a password or magic link, enroll a replacement passkey, verify that it works, then remove the old credential if you no longer need it. Existing passkeys can still be used for user-scoped MFA.
 
 ## The config gate: `passkey_primary_enabled`
 

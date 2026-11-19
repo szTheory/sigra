@@ -88,6 +88,9 @@ test("enrollment requests real passkey options from the served MFA settings page
     ]);
 
     expect(optionsResponse.status()).toBe(200);
+    expect((await optionsResponse.json()).options.authenticatorSelection.residentKey).toBe(
+      "required",
+    );
     expect(completionResponse.status()).toBe(302);
     expect(optionsResponse.request().method()).toBe("POST");
     expect(optionsResponse.headers()["content-type"] || "").toContain(

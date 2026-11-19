@@ -2,6 +2,7 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
   use <%= app_module %>Web.ConnCase, async: false
 
   import Phoenix.LiveViewTest
+  import Ecto.Query, only: [from: 2]
 
   alias <%= app_module %>.Accounts.{User, UserSession, UserToken}
   alias <%= app_module %>.Accounts, as: Auth
@@ -105,6 +106,107 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
     assert session_user.id == visitor.id
     assert Repo.aggregate(UserSession, :count, :id) == 1
     IO.puts("PASS confirmation probe: signed-in visitor session remained bound to visitor")
+  end
+
+  test "generated controller confirms links from anonymous and signed-in sessions", %{conn: conn} do
+    anonymous_conn = controller_conn(conn)
+
+    for session_state <- [:anonymous, :signed_in] do
+      owner = AccountsFixtures.user_fixture()
+
+      {signed_token, _code, link_token, code_token} =
+        Sigra.Auth.generate_confirmation_token(Repo, owner,
+          secret_key_base: <%= app_module %>Web.Endpoint.config(:secret_key_base),
+          user_token_schema: UserToken
+        )
+
+      Repo.insert!(link_token)
+      Repo.insert!(code_token)
+
+      visitor_conn =
+        case session_state do
+          :anonymous ->
+            anonymous_conn
+
+          :signed_in ->
+            visitor =
+              AccountsFixtures.user_fixture()
+              |> Ecto.Changeset.change(
+                confirmed_at: DateTime.utc_now() |> DateTime.truncate(:second)
+              )
+              |> Repo.update!()
+
+            conn
+            |> log_in_user(visitor)
+            |> Phoenix.Controller.fetch_flash()
+        end
+
+      assert is_nil(Repo.get!(User, owner.id).confirmed_at)
+
+      response =
+        <%= app_module %>Web.ConfirmationController.confirm(visitor_conn, %{
+          "token" => signed_token
+        })
+
+      assert Phoenix.ConnTest.redirected_to(response) == "/"
+      assert Repo.get!(User, owner.id).confirmed_at
+      IO.puts("PASS confirmation probe: generated controller confirmed link for #{session_state}")
+    end
+  end
+
+  test "generated controller code and resend actions safely reject anonymous visitors", %{
+    conn: conn
+  } do
+    user = AccountsFixtures.user_fixture()
+
+    {_signed_token, code, link_token, code_token} =
+      Sigra.Auth.generate_confirmation_token(Repo, user,
+        secret_key_base: <%= app_module %>Web.Endpoint.config(:secret_key_base),
+        user_token_schema: UserToken
+      )
+
+    Repo.insert!(link_token)
+    Repo.insert!(code_token)
+
+    anonymous_conn =
+      conn
+      |> controller_conn()
+      |> Plug.Conn.assign(:current_scope, nil)
+
+    code_response =
+      <%= app_module %>Web.ConfirmationController.create(anonymous_conn, %{"code" => code})
+
+    assert Phoenix.ConnTest.redirected_to(code_response) == "/users/log_in"
+    assert is_nil(Repo.get!(User, user.id).confirmed_at)
+
+    resend_response =
+      <%= app_module %>Web.ConfirmationController.resend(anonymous_conn, %{})
+
+    assert Phoenix.ConnTest.redirected_to(resend_response) == "/users/log_in"
+    assert is_nil(Repo.get!(User, user.id).confirmed_at)
+
+    signed_user = AccountsFixtures.user_fixture()
+
+    {_signed_token, signed_code, signed_link_token, signed_code_token} =
+      Sigra.Auth.generate_confirmation_token(Repo, signed_user,
+        secret_key_base: <%= app_module %>Web.Endpoint.config(:secret_key_base),
+        user_token_schema: UserToken
+      )
+
+    Repo.insert!(signed_link_token)
+    Repo.insert!(signed_code_token)
+
+    signed_conn =
+      conn
+      |> controller_conn()
+      |> Plug.Conn.assign(:current_scope, %{user: signed_user})
+    signed_response =
+      <%= app_module %>Web.ConfirmationController.create(signed_conn, %{
+        "code" => signed_code
+      })
+
+    assert Phoenix.ConnTest.redirected_to(signed_response) == "/"
+    assert Repo.get!(User, signed_user.id).confirmed_at
   end
 
   test "anonymous code and resend events show sign-in guidance without changing an account", %{conn: conn} do
@@ -271,5 +373,71 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
     assert Repo.get_by(UserToken, user_id: owner.id, context: "confirm_code") == nil
     assert Repo.get_by(UserToken, user_id: owner.id, context: "confirm") == nil
     IO.puts("PASS confirmation probe: owner accepted the spaced code and consumed confirmation credentials")
+  end
+
+  test "generated reset request page handles existing and unknown addresses safely", %{
+    conn: conn
+  } do
+    user = AccountsFixtures.user_fixture()
+    generic_flash = "If your email is in our system, you will receive reset instructions shortly."
+
+    assert Repo.all(
+             from token in UserToken,
+               where: token.user_id == ^user.id and token.context == "reset_password"
+           ) == []
+
+    {:ok, existing_view, existing_html} = live(conn, "/users/reset-password")
+    assert existing_html =~ ~s(id="reset_password_request_form")
+
+    existing_view
+    |> form("#reset_password_request_form", user: %{email: user.email})
+    |> render_submit()
+
+    existing_flash = assert_redirect(existing_view, "/users/log_in")
+    assert existing_flash["info"] == generic_flash
+
+    assert [%{sent_to: sent_to}] =
+             Repo.all(
+               from token in UserToken,
+                 where: token.user_id == ^user.id and token.context == "reset_password"
+             )
+
+    assert sent_to == user.email
+
+    unknown_email = "nobody-#{System.unique_integer([:positive])}@example.test"
+
+    {:ok, unknown_view, _unknown_html} = live(build_conn(), "/users/reset-password")
+
+    unknown_view
+    |> form("#reset_password_request_form", user: %{email: unknown_email})
+    |> render_submit()
+
+    unknown_flash = assert_redirect(unknown_view, "/users/log_in")
+    assert unknown_flash["info"] == generic_flash
+
+    assert Repo.aggregate(
+             from(token in UserToken, where: token.context == "reset_password"),
+             :count,
+             :id
+           ) == 1
+    IO.puts(
+      "PASS reset probe: generated request page treats existing and unknown addresses alike"
+    )
+  end
+
+  test "generated duplicate registration hashes before the database rejects it" do
+    existing = AccountsFixtures.user_fixture()
+    attrs = %{"email" => existing.email, "password" => "hello world!!"}
+    changeset = User.registration_changeset(%User{}, attrs)
+
+    assert changeset.valid?
+    assert is_binary(changeset.changes.hashed_password)
+    assert {:error, :email_taken} = Auth.register_user(attrs)
+  end
+
+  defp controller_conn(conn) do
+    conn
+    |> Phoenix.ConnTest.init_test_session(%{})
+    |> Phoenix.Controller.fetch_flash()
   end
 end

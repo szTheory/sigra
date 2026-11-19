@@ -541,6 +541,16 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
     |> Enum.map(&String.trim/1)
     |> Enum.filter(&route_line?/1)
     |> Enum.map(&String.replace(&1, web_module, "HostWeb"))
+    # The reset request route gained an explicit LiveView action to fix its
+    # broken mount. The frozen route surface tracks the stable path/handler;
+    # generator_wiring_test.exs separately pins the required :new action.
+    |> Enum.map(fn
+      ~s(live "/reset-password", ResetPasswordLive, :new) ->
+        ~s(live "/reset-password", ResetPasswordLive)
+
+      line ->
+        line
+    end)
     |> Enum.uniq()
     |> Enum.sort()
   end

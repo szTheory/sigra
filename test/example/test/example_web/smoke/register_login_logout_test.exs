@@ -32,6 +32,17 @@ defmodule Example.RegisterLoginLogoutTest do
     assert {:error, :email_taken} = Accounts.register_user(attrs)
   end
 
+  test "duplicate email registration still hashes the password before the database rejects it" do
+    existing = user_fixture()
+    attrs = %{email: existing.email, password: valid_user_password()}
+
+    changeset = Example.Accounts.User.registration_changeset(%Example.Accounts.User{}, attrs)
+
+    assert changeset.valid?
+    assert is_binary(changeset.changes.hashed_password)
+    assert {:error, :email_taken} = Accounts.register_user(attrs)
+  end
+
   test "get_user_by_email_and_password returns user with valid credentials" do
     attrs = valid_user_attributes()
     {:ok, user} = Accounts.register_user(attrs)

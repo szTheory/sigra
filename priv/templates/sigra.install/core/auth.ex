@@ -128,17 +128,17 @@ defmodule <%= context_module %> do
 
   ## Magic link
 
-  @doc """
-  Requests a magic link for the given email.
-
-  Returns `{:ok, {raw_token, url}}` for existing users, `{:ok, :sent}`
-  for non-existent emails (enumeration-safe), or `{:error, :rate_limited}`.
-  """
+  @doc "Requests a magic link. Normalize the result before displaying it because library outcomes differ for existing and unknown addresses."
   def request_magic_link(email, url_fun) when is_binary(email) and is_function(url_fun, 1) do
+    config = sigra_config()
+
     SigraAuth.request_magic_link(Repo, email,
       user_schema: <%= schema_alias %>,
       user_token_schema: UserToken,
-      url_fun: url_fun
+      url_fun: url_fun,
+      rate_limiter: Keyword.get(config.rate_limiting, :limiter),
+      max_requests: Keyword.get(config.magic_link, :max_requests, 3),
+      window_ms: Keyword.get(config.magic_link, :window_seconds, 900) * 1_000
     )
   end
 
@@ -149,10 +149,12 @@ defmodule <%= context_module %> do
   Also confirms unconfirmed users.
   """
   def verify_magic_link(token) when is_binary(token) do
+    config = sigra_config()
+
     SigraAuth.verify_magic_link(Repo, token,
       user_schema: <%= schema_alias %>,
       user_token_schema: UserToken,
-      magic_link_ttl: 600
+      magic_link_ttl: Keyword.get(config.magic_link, :ttl, 600)
     )
   end
 
@@ -418,23 +420,19 @@ defmodule <%= context_module %> do
 
   ## Reset password
 
-  @doc """
-  Delivers the reset password email to the given email address.
-
-  Enumeration-safe: always returns `{:ok, :sent}` regardless of whether
-  the email exists. A dummy hash operation matches timing for non-existent
-  emails.
-  """
+  @doc "Requests reset instructions. The generated page normalizes the result; unknown-address requests perform a dummy hash without guaranteeing timing equivalence."
   def deliver_user_reset_password_instructions(email, reset_password_url_fun)
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
-    user = get_user_by_email(email)
-<%= if organizations?, do: "    auth_policy = user && #{app_module}.Organizations.local_auth_policy_for(user)", else: "    auth_policy = nil" %>
+    config = sigra_config()
 
     case Sigra.Auth.request_password_reset(Repo, email,
            user_schema: <%= schema_alias %>,
            user_token_schema: UserToken,
            secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
-           url_fun: reset_password_url_fun<%= if organizations?, do: ",\n           enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
+           url_fun: reset_password_url_fun,
+           rate_limiter: Keyword.get(config.rate_limiting, :limiter),
+           max_requests: Keyword.get(config.reset, :max_requests, 3),
+           window_ms: Keyword.get(config.reset, :window_seconds, 900) * 1_000<%= if organizations?, do: ",\n           enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
          ) do
       {:ok, {signed_token, url}} ->
         user = get_user_by_email(email)
@@ -455,11 +453,15 @@ defmodule <%= context_module %> do
         {:ok, :sent}
 
       {:ok, :sent} ->
-        if user && local_password_reset_denied?(auth_policy) do
-          maybe_deliver_enterprise_reset_guidance(user, auth_policy)
+        if user = get_user_by_email(email) do
+          auth_policy = <%= if organizations?, do: "#{app_module}.Organizations.local_auth_policy_for(user)", else: "%{}" %>
+
+          if local_password_reset_denied?(auth_policy) do
+            maybe_deliver_enterprise_reset_guidance(user, auth_policy)
+          end
         end
 
-        # Non-existent email -- enumeration safe
+        # Normalize the result returned to the generated request page.
         {:ok, :sent}
 
       {:error, :rate_limited} ->
@@ -483,9 +485,10 @@ defmodule <%= context_module %> do
   """
   def get_user_by_reset_password_token(signed_token) do
     secret_key_base = <%= web_module %>.Endpoint.config(:secret_key_base)
+    reset_ttl = Keyword.get(sigra_config().token_ttl, :reset_password, 3_600)
 
     with {:ok, signed} <- Base.url_decode64(signed_token, padding: false),
-         {:ok, raw_token} <- Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: 3600) do
+         {:ok, raw_token} <- Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: reset_ttl) do
       hashed_token = Sigra.Token.hash_token(raw_token)
 
       Repo.one(
@@ -514,12 +517,14 @@ defmodule <%= context_module %> do
 
   """
   def reset_user_password(signed_token, attrs) when is_binary(signed_token) do
+    reset_ttl = Keyword.get(sigra_config().token_ttl, :reset_password, 3_600)
+
     Sigra.Auth.reset_password(Repo, signed_token, attrs,
       secret_key_base: <%= web_module %>.Endpoint.config(:secret_key_base),
       user_token_schema: UserToken,
       user_schema: <%= schema_alias %>,
       changeset_fn: &<%= schema_alias %>.password_changeset/2,
-      reset_ttl: 3600<%= if organizations?, do: ",\n      enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
+      reset_ttl: reset_ttl<%= if organizations?, do: ",\n      enterprise_auth_policy: #{app_module}.Organizations", else: "" %>
     )
   end
 
@@ -572,6 +577,10 @@ defmodule <%= context_module %> do
         threshold: 5,
         duration: 900
       ],
+      token_ttl: Keyword.get(runtime_config, :token_ttl, Keyword.get(legacy_config, :token_ttl, [])),
+      magic_link: Keyword.get(runtime_config, :magic_link, Keyword.get(legacy_config, :magic_link, [])),
+      reset: Keyword.get(runtime_config, :reset, Keyword.get(legacy_config, :reset, [])),
+      rate_limiting: Keyword.get(runtime_config, :rate_limiting, Keyword.get(legacy_config, :rate_limiting, [])),
       mfa: Keyword.get(runtime_config, :mfa, Keyword.get(legacy_config, :mfa, [])),
       passkeys:
         Keyword.get(runtime_config, :passkeys, Keyword.get(legacy_config, :passkeys, [])),

@@ -21,12 +21,11 @@ defmodule ExampleWeb.ResetPasswordController do
   regardless of whether the email exists — enumeration prevention.
   """
   def create(conn, %{"user" => %{"email" => email}}) do
-    if user = Example.Accounts.get_user_by_email(email) do
+    _ =
       Example.Accounts.deliver_user_reset_password_instructions(
-        user,
+        email,
         &url(conn, ~p"/users/reset-password/#{&1}")
       )
-    end
 
     conn
     |> put_flash(

@@ -138,23 +138,12 @@ defmodule <%= web_module %>.SessionController do
     json(conn, %{options: conditional_passkey_authentication_options_json(challenge, config)})
   end
 
-  def passkey_authentication_options(conn, %{"user" => %{"email" => email}}) do
+  def passkey_authentication_options(conn, _params) do
     config = Sigra.Passkeys.config()
+    {conn, challenge} = Sigra.Plug.PasskeyChallenge.issue(conn, :authentication, config)
 
-    case Auth.get_user_by_email(email) do
-      nil ->
-        json(conn, %{error: "unavailable"})
-
-      user ->
-        {conn, challenge} = Sigra.Plug.PasskeyChallenge.issue(conn, :authentication, config)
-
-        json(conn, %{
-          options: passkey_authentication_options_json(user, challenge, Auth.passkeys_for_user(user), config)
-        })
-    end
+    json(conn, %{options: discoverable_passkey_authentication_options_json(challenge, config)})
   end
-
-  def passkey_authentication_options(conn, _params), do: json(conn, %{error: "unavailable"})
 
   def passkey_mfa_options(conn, _params) do
     if get_session(conn, :mfa_pending) == true do
@@ -205,27 +194,6 @@ defmodule <%= web_module %>.SessionController do
     end
   end
 
-  def complete_passkey(conn, %{"user" => %{"email" => email}, "passkey" => passkey_params}) do
-    user = Auth.get_user_by_email(email)
-
-    with {:ok, decoded_response} <- decode_passkey_response(passkey_params),
-         %{} <- user,
-         :ok <- Auth.ensure_passkey_primary_user_eligible(user),
-         {:ok, conn, _credential} <-
-           Sigra.Plug.PasskeyChallenge.verify(conn, :authentication, Sigra.Passkeys.config(), [], fn challenge ->
-             Auth.authenticate_passkey(user, Map.put(decoded_response, "challenge", challenge))
-           end) do
-      conn
-      |> put_flash(:info, dgettext("sigra", "Welcome back!"))
-      |> UserAuth.log_in_user(user, %{})
-    else
-      {:error, :email_not_confirmed} ->
-        passkey_login_failed(conn, email)
-
-      _ -> passkey_login_failed(conn, email)
-    end
-  end
-
   def complete_passkey(conn, %{"passkey" => passkey_params}) do
     with {:ok, decoded_response} <- decode_passkey_response(passkey_params),
          {:ok, conn, {user, _credential}} <-
@@ -240,15 +208,12 @@ defmodule <%= web_module %>.SessionController do
       |> put_flash(:info, dgettext("sigra", "Welcome back!"))
       |> UserAuth.log_in_user(user, %{})
     else
-      {:error, :email_not_confirmed} -> passkey_login_failed(conn, nil)
-      _ -> passkey_login_failed(conn, nil)
+      {:error, :email_not_confirmed} -> passkey_login_failed(conn)
+      _ -> passkey_login_failed(conn)
     end
   end
 
-  def complete_passkey(conn, params) do
-    email = get_in(params, ["user", "email"])
-    passkey_login_failed(conn, email)
-  end
+  def complete_passkey(conn, _params), do: passkey_login_failed(conn)
 
   def complete_mfa_passkey(conn, %{"passkey" => passkey_params}) do
     return_to = get_session(conn, :mfa_return_to) || ~p"/"
@@ -355,6 +320,8 @@ defmodule <%= web_module %>.SessionController do
       timeout: Keyword.get(config.passkeys, :timeout_ms, 60_000),
       attestation: to_string(Keyword.get(config.passkeys, :attestation, :none)),
       authenticatorSelection: %{
+        residentKey: "required",
+        requireResidentKey: true,
         userVerification: to_string(Keyword.get(config.passkeys, :user_verification, :preferred))
       },
       excludeCredentials: passkey_credentials_json(passkeys)
@@ -379,6 +346,16 @@ defmodule <%= web_module %>.SessionController do
       userVerification: to_string(Keyword.get(config.passkeys, :user_verification, :preferred)),
       allowCredentials: [],
       useBrowserAutofill: true
+    }
+  end
+
+  defp discoverable_passkey_authentication_options_json(challenge, config) do
+    %{
+      challenge: Base.url_encode64(challenge.bytes, padding: false),
+      rpId: challenge.rp_id,
+      timeout: Keyword.get(config.passkeys, :timeout_ms, 60_000),
+      userVerification: to_string(Keyword.get(config.passkeys, :user_verification, :preferred)),
+      allowCredentials: []
     }
   end
 
@@ -407,17 +384,10 @@ defmodule <%= web_module %>.SessionController do
     }
   end
 
-  defp passkey_login_failed(conn, email) do
+  defp passkey_login_failed(conn) do
     conn
     |> put_flash(:error, dgettext("sigra", "We couldn't finish passkey sign-in. Try again or use another way to continue."))
-    |> maybe_put_passkey_email(email)
     |> redirect(to: ~p"/users/log_in")
   end
-
-  defp maybe_put_passkey_email(conn, email) when is_binary(email) do
-    put_flash(conn, :email, String.slice(to_string(email), 0, 160))
-  end
-
-  defp maybe_put_passkey_email(conn, _email), do: conn
 <% end %>
 end

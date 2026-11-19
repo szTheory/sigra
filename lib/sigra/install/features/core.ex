@@ -398,16 +398,24 @@ defmodule Sigra.Install.Features.Core do
             end
         """
       else
-        ""
+        """
+
+            scope "/users", #{web_module} do
+              pipe_through [:browser]
+        #{String.trim_trailing(confirmation_routes)}
+            end
+        """
       end
 
-    redirect_scope_confirmation_routes = if live?, do: "", else: confirmation_routes
+    # Confirmation routes must remain reachable for signed-in users and must
+    # handle anonymous users without assuming a scope exists.
+    redirect_scope_confirmation_routes = ""
 
     reset_routes =
       if live? do
         """
 
-            live "/reset-password", ResetPasswordLive
+            live "/reset-password", ResetPasswordLive, :new
             live "/reset-password/:token", ResetPasswordLive, :edit
         """
       else

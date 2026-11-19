@@ -567,7 +567,7 @@ defmodule Sigra.Install.Features.CoreTest do
       assert router_inj.content =~ "post \"/register\", RegistrationController, :create"
     end
 
-    test "--no-live confirmation routes remain controller routes without a LiveView scope" do
+    test "--no-live confirmation routes use the browser scope outside the auth redirect" do
       binding = Keyword.put(@binding, :opts, live: false, api: false, jwt: false)
 
       [router_inj] =
@@ -577,8 +577,16 @@ defmodule Sigra.Install.Features.CoreTest do
 
       assert router_inj.content =~ "get \"/confirm\", ConfirmationController, :new"
       assert router_inj.content =~ "get \"/confirm/:token\", ConfirmationController, :confirm"
+      assert router_inj.content =~ "pipe_through [:browser]"
       refute router_inj.content =~ "live_session :sigra_confirmation"
       refute router_inj.content =~ "ConfirmationLive"
+
+      redirect_scope =
+        router_inj.content
+        |> String.split("pipe_through [:browser, :redirect_if_user_is_authenticated]", parts: 2)
+        |> List.last()
+
+      refute redirect_scope =~ "ConfirmationController"
     end
 
     test "config injection contains Sigra config block with host otp_app" do

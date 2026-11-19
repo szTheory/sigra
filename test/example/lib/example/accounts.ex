@@ -135,13 +135,20 @@ defmodule Example.Accounts do
   Requests a magic link for the given email.
 
   Returns `{:ok, {raw_token, url}}` for existing users, `{:ok, :sent}`
-  for non-existent emails (enumeration-safe), or `{:error, :rate_limited}`.
+  for non-existent emails, or `{:error, :rate_limited}`. The host-facing
+  controller must normalize these outcomes; the library return values differ
+  when the limiter allows the request.
   """
   def request_magic_link(email, url_fun) when is_binary(email) and is_function(url_fun, 1) do
+    config = sigra_config()
+
     SigraAuth.request_magic_link(Repo, email,
       user_schema: User,
       user_token_schema: UserToken,
-      url_fun: url_fun
+      url_fun: url_fun,
+      rate_limiter: Keyword.get(config.rate_limiting, :limiter),
+      max_requests: Keyword.get(config.magic_link, :max_requests, 3),
+      window_ms: Keyword.get(config.magic_link, :window_seconds, 900) * 1_000
     )
   end
 
@@ -152,10 +159,12 @@ defmodule Example.Accounts do
   Also confirms unconfirmed users.
   """
   def verify_magic_link(token) when is_binary(token) do
+    config = sigra_config()
+
     SigraAuth.verify_magic_link(Repo, token,
       user_schema: User,
       user_token_schema: UserToken,
-      magic_link_ttl: 600
+      magic_link_ttl: Keyword.get(config.magic_link, :ttl, 600)
     )
   end
 
@@ -451,20 +460,23 @@ defmodule Example.Accounts do
   @doc """
   Delivers the reset password email to the given email address.
 
-  Enumeration-safe: always returns `{:ok, :sent}` regardless of whether
-  the email exists. A dummy hash operation matches timing for non-existent
-  emails.
+  The generated request page normalizes the result into one response. The
+  library return values differ when the limiter allows the request. For an
+  unknown address, the library performs a dummy hash; this does not establish
+  timing equivalence.
   """
   def deliver_user_reset_password_instructions(email, reset_password_url_fun)
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
-    user = get_user_by_email(email)
-    auth_policy = user && Example.Organizations.local_auth_policy_for(user)
+    config = sigra_config()
 
     case Sigra.Auth.request_password_reset(Repo, email,
            user_schema: User,
            user_token_schema: UserToken,
            secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
            url_fun: reset_password_url_fun,
+           rate_limiter: Keyword.get(config.rate_limiting, :limiter),
+           max_requests: Keyword.get(config.reset, :max_requests, 3),
+           window_ms: Keyword.get(config.reset, :window_seconds, 900) * 1_000,
            enterprise_auth_policy: Example.Organizations
          ) do
       {:ok, {signed_token, url}} ->
@@ -490,11 +502,15 @@ defmodule Example.Accounts do
         {:ok, :sent}
 
       {:ok, :sent} ->
-        if user && local_password_reset_denied?(auth_policy) do
-          maybe_deliver_enterprise_reset_guidance(user, auth_policy)
+        if user = get_user_by_email(email) do
+          auth_policy = Example.Organizations.local_auth_policy_for(user)
+
+          if local_password_reset_denied?(auth_policy) do
+            maybe_deliver_enterprise_reset_guidance(user, auth_policy)
+          end
         end
 
-        # Non-existent email -- enumeration safe
+        # Normalize the result returned to the generated request page.
         {:ok, :sent}
 
       {:error, :rate_limited} ->
@@ -518,10 +534,11 @@ defmodule Example.Accounts do
   """
   def get_user_by_reset_password_token(signed_token) do
     secret_key_base = ExampleWeb.Endpoint.config(:secret_key_base)
+    reset_ttl = Keyword.get(sigra_config().token_ttl, :reset_password, 3_600)
 
     with {:ok, signed} <- Base.url_decode64(signed_token, padding: false),
          {:ok, raw_token} <-
-           Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: 3600) do
+           Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: reset_ttl) do
       hashed_token = Sigra.Token.hash_token(raw_token)
 
       Repo.one(
@@ -550,12 +567,14 @@ defmodule Example.Accounts do
 
   """
   def reset_user_password(signed_token, attrs) when is_binary(signed_token) do
+    reset_ttl = Keyword.get(sigra_config().token_ttl, :reset_password, 3_600)
+
     Sigra.Auth.reset_password(Repo, signed_token, attrs,
       secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
       user_token_schema: UserToken,
       user_schema: User,
       changeset_fn: &User.password_changeset/2,
-      reset_ttl: 3600,
+      reset_ttl: reset_ttl,
       enterprise_auth_policy: Example.Organizations
     )
   end
@@ -588,6 +607,8 @@ defmodule Example.Accounts do
   configuration to Sigra library functions.
   """
   def sigra_config do
+    runtime_config = Application.get_env(:example, :sigra_config, [])
+
     Sigra.Config.new!(
       repo: Example.Repo,
       user_schema: User,
@@ -614,6 +635,10 @@ defmodule Example.Accounts do
         threshold: 5,
         duration: 900
       ],
+      token_ttl: Keyword.get(runtime_config, :token_ttl, []),
+      magic_link: Keyword.get(runtime_config, :magic_link, []),
+      reset: Keyword.get(runtime_config, :reset, []),
+      rate_limiting: Keyword.get(runtime_config, :rate_limiting, []),
       # Activate Sigra's built-in audit integration. Without this wiring,
       # Sigra.Audit.log_safe/2 is a silent no-op and no audit rows are
       # written for session.create, auth.login.*, etc. Keep this forwarder

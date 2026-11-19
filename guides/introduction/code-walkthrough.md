@@ -117,6 +117,8 @@ will have its own module names and may choose fewer integrations.
 
 ```elixir
 def sigra_config do
+  runtime_config = Application.get_env(:example, :sigra_config, [])
+
   Sigra.Config.new!(
     repo: Example.Repo,
     user_schema: User,
@@ -217,41 +219,37 @@ and checks lockout before invoking the password hasher. A missing user still rea
 `Crypto.verify_with_upgrade/2` with a nil hash so the public path does comparable work.
 
 ```elixir
-defp authenticate_with_config(config, params) do
-  # ...
-  email =
-    (params["email"] || params[:email] || "")
-    |> Email.normalize()
-  # ...
-  user = repo.get_by(user_schema, email: email)
-  # ...
-
+# ...
   case Sigra.Lockout.check(user, lockout_opts) do
     {:error, :account_locked, _remaining} ->
-      # ...
-      {:error, :account_locked}
+      # D-26: security audit row (standalone, D-28).
+      # D-28 Category 2: known-user pre-org-selection — build a user-only
+      # scope (org intentionally nil) and set target_id: user.id.
+      user_scope = Sigra.Scope.from_config(config, user)
 
+      Audit.log_safe(
+        "security.lockout",
+        user_scope,
+        Keyword.merge(audit_opts,
+          actor_id: user && user.id,
+          target_id: user && user.id,
+          outcome: "failure",
+          metadata: %{reason: "account_locked"}
+        )
+      )
+
+      # ...
+      {:error, :invalid_credentials}
+
+      # ...
     :ok ->
       password = params["password"] || params[:password] || ""
       hashed_password = user && Map.get(user, :hashed_password)
 
       case Crypto.verify_with_upgrade(password, hashed_password) do
-        {:ok, :valid} ->
-          handle_enterprise_password_login(
-            config,
-            repo,
-            user,
-            require_confirmation,
-            audit_opts,
-            login_ip,
-            %{},
-            %{method: "password"}
-          )
-
         # ...
       end
   end
-end
 ```
 
 The full branch turns verification results into enterprise-policy decisions and typed

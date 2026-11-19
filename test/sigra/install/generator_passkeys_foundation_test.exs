@@ -143,6 +143,32 @@ defmodule Sigra.Install.GeneratorPasskeysFoundationTest do
         assert content =~ expected
       end
     end
+
+    test "primary sign-in is discoverable and new credentials require resident storage" do
+      content = read_core_template("session_controller.ex")
+
+      options_handler =
+        content
+        |> String.split("def passkey_authentication_options(conn, _params)", parts: 2)
+        |> Enum.at(1)
+        |> String.split("def passkey_mfa_options", parts: 2)
+        |> hd()
+
+      registration_options =
+        content
+        |> String.split("defp passkey_registration_options_json", parts: 2)
+        |> Enum.at(1)
+        |> String.split("defp passkey_authentication_options_json", parts: 2)
+        |> hd()
+
+      assert options_handler =~
+               "discoverable_passkey_authentication_options_json(challenge, config)"
+
+      refute options_handler =~ "get_user_by_email"
+      refute options_handler =~ "params[\"user\"]"
+      assert registration_options =~ "residentKey: \"required\""
+      assert registration_options =~ "requireResidentKey: true"
+    end
   end
 
   describe "router injection passkey controller routes" do

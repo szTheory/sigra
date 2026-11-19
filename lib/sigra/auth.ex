@@ -334,6 +334,8 @@ defmodule Sigra.Auth do
   Returns `{:ok, user}` on success with failed attempts reset to 0,
   `{:error, :invalid_credentials}` on failure, or `{:error, :unconfirmed}`
   when confirmation is required and the user has not confirmed their email.
+  Locked-account denials also return `:invalid_credentials`; lockout details
+  remain available through the audit and telemetry events.
 
   ## Options
 
@@ -349,7 +351,7 @@ defmodule Sigra.Auth do
   @spec authenticate(module() | Sigra.Config.t(), map(), keyword()) ::
           {:ok, struct()}
           | {:ok, struct(), map()}
-          | {:error, :invalid_credentials | :unconfirmed | :account_locked}
+          | {:error, :invalid_credentials | :unconfirmed}
   def authenticate(repo_or_config, params, opts \\ [])
 
   def authenticate(%Sigra.Config{} = config, params, _opts) do
@@ -537,7 +539,9 @@ defmodule Sigra.Auth do
           )
         )
 
-        {:error, :account_locked}
+        # Keep lockout state in audit/telemetry, but do not let the login
+        # result reveal that this email belongs to a locked account.
+        {:error, :invalid_credentials}
 
       :ok ->
         password = params["password"] || params[:password] || ""
@@ -619,8 +623,10 @@ defmodule Sigra.Auth do
   `{:ok, {raw_token, url}}`. If the user does not exist, returns `{:ok, :sent}`.
   These library return values differ. The example application's single-request
   comparison covers status, redirect, flash and response body; it does not
-  compare this function's return values, timing or repeated requests. The
-  optional rate limiter is applied only to the existing-user path.
+  compare this function's return values, timing or repeated requests. When a
+  rate limiter is configured, it is checked against the normalized email
+  before user lookup, so the throttle applies equally to existing and unknown
+  addresses.
 
   ## Options
 
@@ -643,62 +649,64 @@ defmodule Sigra.Auth do
     window_ms = Keyword.get(opts, :window_ms, 900_000)
 
     normalized_email = Email.normalize(email)
-    user = repo.get_by(user_schema, email: normalized_email)
 
-    cond do
-      is_nil(user) ->
-        # Enumeration-safe: return generic response without DB write
-        {:ok, :sent}
+    if rate_limiter &&
+         rate_limited?(rate_limiter, "magic_link:#{normalized_email}", max_requests, window_ms) do
+      {:error, :rate_limited}
+    else
+      user = repo.get_by(user_schema, email: normalized_email)
 
-      rate_limiter &&
-          rate_limited?(rate_limiter, "magic_link:#{normalized_email}", max_requests, window_ms) ->
-        {:error, :rate_limited}
+      cond do
+        is_nil(user) ->
+          # Return the same HTTP-facing response without writing a token.
+          {:ok, :sent}
 
-      true ->
-        {raw_token, hashed_token} = Token.generate_hashed_token()
+        true ->
+          {raw_token, hashed_token} = Token.generate_hashed_token()
 
-        token_struct =
-          struct!(user_token_schema, %{
-            token: hashed_token,
-            context: "magic_link",
-            sent_to: user.email,
-            user_id: user.id
-          })
+          token_struct =
+            struct!(user_token_schema, %{
+              token: hashed_token,
+              context: "magic_link",
+              sent_to: user.email,
+              user_id: user.id
+            })
 
-        audit_opts =
-          audit_opts_from_keyword(opts)
-          |> Keyword.put(:repo, repo)
-          |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, user)))
+          audit_opts =
+            audit_opts_from_keyword(opts)
+            |> Keyword.put(:repo, repo)
+            |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, user)))
 
-        multi =
-          Multi.new()
-          |> Multi.insert(:magic_link_token, token_struct)
+          multi =
+            Multi.new()
+            |> Multi.insert(:magic_link_token, token_struct)
 
-        multi =
-          if Keyword.get(audit_opts, :audit_schema) do
-            Audit.log_multi_safe(
-              multi,
-              "auth.magic_link_request",
-              Keyword.merge(audit_opts,
-                actor_resolver: fn %{magic_link_token: t} -> t.user_id end,
-                target_resolver: fn %{magic_link_token: t} -> t.user_id end,
-                metadata: %{}
+          multi =
+            if Keyword.get(audit_opts, :audit_schema) do
+              Audit.log_multi_safe(
+                multi,
+                "auth.magic_link_request",
+                Keyword.merge(audit_opts,
+                  actor_resolver: fn %{magic_link_token: t} -> t.user_id end,
+                  target_resolver: fn %{magic_link_token: t} -> t.user_id end,
+                  metadata: %{}
+                )
               )
-            )
-          else
-            multi
+            else
+              multi
+            end
+
+          case repo.transact(multi) do
+            {:ok, changes} ->
+              Audit.emit_telemetry_from_changes(changes)
+              url = url_fun.(raw_token)
+              {:ok, {raw_token, url}}
+
+            {:error, failed, reason, _changes} ->
+              raise "unexpected Ecto.Multi failure from Sigra.Auth.request_magic_link/3: " <>
+                      "#{inspect(failed)} => #{inspect(reason)}"
           end
-
-        case repo.transact(multi) do
-          {:ok, changes} ->
-            Audit.emit_telemetry_from_changes(changes)
-            url = url_fun.(raw_token)
-            {:ok, {raw_token, url}}
-
-          {:error, failed, reason, _changes} ->
-            raise "unexpected Ecto.Multi failure from Sigra.Auth.request_magic_link/3: " <>
-                    "#{inspect(failed)} => #{inspect(reason)}"
-        end
+      end
     end
   end
 
@@ -1105,10 +1113,11 @@ defmodule Sigra.Auth do
   Requests a password reset for the given email.
 
   For a non-existent email this function returns `{:ok, :sent}` after a dummy
-  hash operation. Timing equivalence is not established by that operation; the
-  optional rate limiter is applied only to the existing-user path. The example
-  application's single-request comparison covers status, redirect, flash and
-  response body, not timing or repeated requests.
+  hash operation. Timing equivalence is not established by that operation. When
+  a rate limiter is configured, it is checked against the normalized email
+  before user lookup, so the throttle applies equally to existing and unknown
+  addresses. The example application's single-request comparison covers
+  status, redirect, flash and response body, not timing or repeated requests.
 
   ## Options
 
@@ -1133,69 +1142,72 @@ defmodule Sigra.Auth do
     window_ms = Keyword.get(opts, :window_ms, 900_000)
 
     normalized_email = Email.normalize(email)
-    user = repo.get_by(user_schema, email: normalized_email)
 
-    cond do
-      is_nil(user) ->
-        # Enumeration-safe: dummy hash to match timing
-        Crypto.hash_password("dummy_password_for_timing")
-        {:ok, :sent}
+    if rate_limiter &&
+         rate_limited?(rate_limiter, "sigra:reset:#{normalized_email}", max_requests, window_ms) do
+      {:error, :rate_limited}
+    else
+      user = repo.get_by(user_schema, email: normalized_email)
 
-      rate_limiter &&
-          rate_limited?(rate_limiter, "sigra:reset:#{normalized_email}", max_requests, window_ms) ->
-        {:error, :rate_limited}
+      cond do
+        is_nil(user) ->
+          # Keep the unknown-address branch from returning before the
+          # password-hash work; this does not establish timing equivalence.
+          Crypto.hash_password("dummy_password_for_timing")
+          {:ok, :sent}
 
-      match?({:deny, _, _}, EnterpriseAuthPolicy.password_reset_allowed?(opts, user, opts)) ->
-        {:ok, :sent}
+        match?({:deny, _, _}, EnterpriseAuthPolicy.password_reset_allowed?(opts, user, opts)) ->
+          {:ok, :sent}
 
-      true ->
-        {raw_token, hashed_token} = Token.generate_hashed_token()
-        signed = Plug.Crypto.sign(secret_key_base, "sigra-reset-token", raw_token)
-        encoded_token = Base.url_encode64(signed, padding: false)
+        true ->
+          {raw_token, hashed_token} = Token.generate_hashed_token()
+          signed = Plug.Crypto.sign(secret_key_base, "sigra-reset-token", raw_token)
+          encoded_token = Base.url_encode64(signed, padding: false)
 
-        token_struct =
-          struct!(user_token_schema, %{
-            token: hashed_token,
-            context: "reset_password",
-            sent_to: user.email,
-            user_id: user.id
-          })
+          token_struct =
+            struct!(user_token_schema, %{
+              token: hashed_token,
+              context: "reset_password",
+              sent_to: user.email,
+              user_id: user.id
+            })
 
-        audit_opts =
-          audit_opts_from_keyword(opts)
-          |> Keyword.put(:repo, repo)
-          |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, user)))
+          audit_opts =
+            audit_opts_from_keyword(opts)
+            |> Keyword.put(:repo, repo)
+            |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, user)))
 
-        multi =
-          Multi.new()
-          |> Multi.insert(:password_reset_token, token_struct)
+          multi =
+            Multi.new()
+            |> Multi.insert(:password_reset_token, token_struct)
 
-        multi =
-          if Keyword.get(audit_opts, :audit_schema) do
-            Audit.log_multi_safe(
-              multi,
-              "auth.password_reset_request",
-              Keyword.merge(audit_opts,
-                actor_resolver: fn %{password_reset_token: t} -> t.user_id end,
-                target_resolver: fn %{password_reset_token: t} -> t.user_id end,
-                metadata: %{}
+          multi =
+            if Keyword.get(audit_opts, :audit_schema) do
+              Audit.log_multi_safe(
+                multi,
+                "auth.password_reset_request",
+                Keyword.merge(audit_opts,
+                  actor_resolver: fn %{password_reset_token: t} -> t.user_id end,
+                  target_resolver: fn %{password_reset_token: t} -> t.user_id end,
+                  metadata: %{}
+                )
               )
-            )
-          else
-            multi
+            else
+              multi
+            end
+
+          case repo.transact(multi) do
+            {:ok, changes} ->
+              Audit.emit_telemetry_from_changes(changes)
+              Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: user.id})
+              url = url_fun.(encoded_token)
+              {:ok, {encoded_token, url}}
+
+            {:error, failed, reason, _changes} ->
+              raise "unexpected Ecto.Multi failure from Sigra.Auth.request_password_reset/3: " <>
+                      "#{inspect(failed)} => #{inspect(reason)}"
           end
-
-        case repo.transact(multi) do
-          {:ok, changes} ->
-            Audit.emit_telemetry_from_changes(changes)
-            Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: user.id})
-            url = url_fun.(encoded_token)
-            {:ok, {encoded_token, url}}
-
-          {:error, failed, reason, _changes} ->
-            raise "unexpected Ecto.Multi failure from Sigra.Auth.request_password_reset/3: " <>
-                    "#{inspect(failed)} => #{inspect(reason)}"
-        end
+      end
     end
   end
 
@@ -2132,7 +2144,7 @@ defmodule Sigra.Auth do
               })
 
               maybe_deliver_lockout_email(config, updated_user, %{ip: login_ip})
-              {:error, :account_locked}
+              {:error, :invalid_credentials}
 
             true ->
               {:error, :invalid_credentials}
@@ -2176,7 +2188,7 @@ defmodule Sigra.Auth do
         )
 
         maybe_deliver_lockout_email(config, user, %{ip: login_ip})
-        {:error, :account_locked}
+        {:error, :invalid_credentials}
       else
         {:error, :invalid_credentials}
       end
