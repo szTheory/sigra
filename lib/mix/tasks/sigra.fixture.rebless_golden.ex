@@ -36,12 +36,37 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGolden do
   @fixture_dir "test/fixtures/install_golden"
   @fixture_tree_dir Path.join(@fixture_dir, "tree")
   @fixture_stdout Path.join(@fixture_dir, "STDOUT.txt")
+  @usage """
+  Usage: MIX_ENV=test mix sigra.fixture.rebless_golden [--help | --check]
+
+  With no arguments, regenerate the golden fixture. Use --check to compare
+  a fresh fixture against the committed baseline without changing it.
+  """
 
   @impl Mix.Task
-  def run(argv) do
-    {opts, _, _} = OptionParser.parse(argv, strict: [check: :boolean])
-    check? = Keyword.get(opts, :check, false)
+  def run(argv), do: run_with_lifecycle(argv, &run_lifecycle/1)
 
+  @doc false
+  def run_with_lifecycle(argv, lifecycle) when is_list(argv) and is_function(lifecycle, 1) do
+    case parse_args(argv) do
+      {:help, _argv} ->
+        Mix.shell().info(@usage)
+        :ok
+
+      {:run, check?} ->
+        lifecycle.(check?)
+    end
+  end
+
+  defp parse_args(argv) do
+    {opts, _, _} = OptionParser.parse(argv, strict: [check: :boolean, help: :boolean])
+
+    if Keyword.get(opts, :help, false),
+      do: {:help, argv},
+      else: {:run, Keyword.get(opts, :check, false)}
+  end
+
+  defp run_lifecycle(check?) do
     Mix.env(:test)
     Mix.Task.run("loadpaths")
     Mix.Task.run("compile")

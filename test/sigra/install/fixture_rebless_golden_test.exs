@@ -1,14 +1,16 @@
 defmodule Mix.Tasks.Sigra.Fixture.ReblessGoldenTest do
   use ExUnit.Case, async: true
 
+  import ExUnit.CaptureIO
+
   @task_source "lib/mix/tasks/sigra.fixture.rebless_golden.ex"
 
   test "help is recognized and branched before any writer lifecycle operation" do
     source = File.read!(@task_source)
 
-    assert source =~ "{:help, argv}", "expected an explicit read-only help branch"
+    assert source =~ "{:help, _argv}", "expected an explicit read-only help branch"
 
-    help_branch = :binary.match(source, "{:help, argv}") |> elem(0)
+    help_branch = :binary.match(source, "{:help, _argv}") |> elem(0)
 
     for lifecycle_call <- [
           "Mix.env(:test)",
@@ -17,8 +19,24 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGoldenTest do
           "InstallFixture.setup_tmp_app()",
           "File.write!(target_stdout, stdout)"
         ] do
-      assert help_branch < (:binary.match(source, lifecycle_call) |> elem(0)),
+      assert help_branch < :binary.match(source, lifecycle_call) |> elem(0),
              "expected --help to branch before #{lifecycle_call}"
     end
+  end
+
+  test "help prints usage and does not invoke the lifecycle callback" do
+    parent = self()
+
+    output =
+      capture_io(fn ->
+        assert :ok ==
+                 Mix.Tasks.Sigra.Fixture.ReblessGolden.run_with_lifecycle(["--help"], fn _mode ->
+                   send(parent, :lifecycle_invoked)
+                 end)
+      end)
+
+    assert output =~ "Usage: MIX_ENV=test mix sigra.fixture.rebless_golden"
+    assert output =~ "--check"
+    refute_received :lifecycle_invoked
   end
 end
