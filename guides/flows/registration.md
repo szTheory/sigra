@@ -21,28 +21,7 @@ The generator produces this in `lib/my_app/accounts.ex`:
       )
     end
 
-And this in `lib/my_app_web/live/user_registration_live.ex`:
-
-    def handle_event("save", %{"user" => user_params}, socket) do
-      case Accounts.register_user(user_params) do
-        {:ok, user} ->
-          {:ok, _} =
-            Accounts.deliver_user_confirmation_instructions(
-              user,
-              &url(~p"/users/confirm/#{&1}")
-            )
-
-          {:noreply,
-           socket
-           |> put_flash(:info, "Check your email to confirm your account.")
-           |> push_navigate(to: ~p"/users/log-in")}
-
-        {:error, %Ecto.Changeset{} = changeset} ->
-          {:noreply, assign(socket, form: to_form(changeset))}
-      end
-    end
-
-That's the whole flow. Hashing, validation, and audit logging are handled for you; what a visitor is shown for a duplicate address is your decision (see below).
+The generated LiveView sends confirmation instructions after a successful insert, then renders the same generic response used for a duplicate address. It does not sign the visitor in automatically; they sign in manually after registration, and confirm their email first when confirmation is required.
 
 ## Handling a duplicate email
 
@@ -52,9 +31,9 @@ That's the whole flow. Hashing, validation, and audit logging are handled for yo
 - `{:error, %Ecto.Changeset{}}` — validation error (format, length, confirmation mismatch)
 - `{:error, :email_taken}` — the email is already registered
 
-**Your choice:** if an attacker can see the response, a duplicate address that gets its own message tells them the address is registered. One pattern is to show the same message for `:email_taken` as for "email was sent", for example "If an account exists, we sent a confirmation email" on both branches. The other is to accept the tradeoff and show "Email is already taken", and add rate limiting to the registration route yourself.
+The generated LiveView handles `{:ok, user}` and `{:error, :email_taken}` with the same visible flash and page: "If an account can be created for this email, check for any confirmation instructions, then sign in." Successful registration still sends confirmation instructions, but the message does not claim delivery for a duplicate address. The visitor signs in manually after either response.
 
-**Scope of this claim:** a valid new registration and a valid duplicate-address attempt both compute the Argon2id password hash before the database accepts or rejects the insert. This closes the earlier fast duplicate path; Sigra does not claim constant response time or measure wall-clock equality. Timing equivalence is not established. A successful registration signs the new user in, while a duplicate address re-renders the form, so the two outcomes still differ in what the visitor sees whichever message you pick. How the duplicate case is presented, and whether to throttle it, is a decision for your application.
+**Scope of this claim:** a valid new registration and a valid duplicate-address attempt are compared in the example application for the same status, redirect, flash and page. Both paths compute the Argon2id password hash before the database accepts or rejects the insert. The comparison does not establish timing equivalence, confirmation-email delivery equivalence, behavior for invalid submissions, or response parity in an adopter's generated host.
 
 ## Requiring confirmation before login
 

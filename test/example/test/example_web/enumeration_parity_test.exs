@@ -50,9 +50,9 @@ defmodule ExampleWeb.EnumerationParityTest do
   every claim saying the flash is compared. A planted control drops each pinned
   dimension in turn and proves the rule goes red.
 
-  ## The five named surfaces
+  ## The six named surfaces
 
-  BCOPY-03 names five surfaces and all five are `parity` rows. They are three
+  BCOPY-03 names six surfaces and all six are `parity` rows. They are three
   different kinds of probe and are counted apart (`named_surface_violations/1`
   judges each id on its own, so no total can hide a failure):
 
@@ -105,11 +105,11 @@ defmodule ExampleWeb.EnumerationParityTest do
   @leak_text "No account found for"
   @blocker_shape ~r/[\w.\/-]+:\d+/
   @citation_shape ~r/([\w.\/-]+\.\w+):(\d+)/
-  # BCOPY-03 requires these five surfaces by name, and every one is a parity row.
+  # BCOPY-03 requires these six surfaces by name, and every one is a parity row.
   # They are three different kinds of probe and are judged apart, never pooled:
   #
   #   * account-existence ids vary whether the submitted address has an account. Only
-  #     these three are enumeration probes in the strict sense.
+  #     these four are enumeration probes in the strict sense.
   #   * payload-ignored ids prove a value a visitor puts in an event payload is
   #     ignored (the resend handler never reads its params).
   #   * code-kind ids vary which authenticator was used (a wrong authenticator code
@@ -117,12 +117,12 @@ defmodule ExampleWeb.EnumerationParityTest do
   #
   # The last two are counted separately and can never stand in for an
   # account-existence surface (see named_surface_violations/1).
-  @account_existence_ids ~w(password-signin magic-link-request password-reset-request)
+  @account_existence_ids ~w(password-signin magic-link-request password-reset-request registration)
   @payload_ignored_ids ~w(confirmation-resend)
   @code_kind_ids ~w(mfa-challenge)
   @named_parity_ids @account_existence_ids ++ @payload_ignored_ids ++ @code_kind_ids
   # The compare dimensions each named row must keep, because the published docs claim
-  # them: the README and the guides state that the three account-existence screens
+  # them: the README and the guides state that the four account-existence screens
   # return the same status, redirect, flash message and page. `confirmation-resend`
   # also counts the confirmation tokens created (`result`), and `mfa-challenge`
   # never compares the body (the authenticator and backup panels differ by design).
@@ -131,6 +131,7 @@ defmodule ExampleWeb.EnumerationParityTest do
     "password-signin" => ~w(status redirect flash body),
     "magic-link-request" => ~w(status redirect flash body),
     "password-reset-request" => ~w(status redirect flash body),
+    "registration" => ~w(status redirect flash body),
     "confirmation-resend" => ~w(status redirect flash body result),
     "mfa-challenge" => ~w(status redirect flash)
   }
@@ -147,9 +148,6 @@ defmodule ExampleWeb.EnumerationParityTest do
   # cannot show that a probe observed anything.
   @content_dimensions [:flash, :body]
 
-  # The leaks that exist today. None of them may ever be registered as parity.
-  @named_leak_ids ~w(registration)
-
   # The exact todo path each row carries (single path per row, every other row
   # null). This pins only open follow-up work; resolved generated-host and
   # registration-timing records are kept in the resolved archive.
@@ -160,11 +158,9 @@ defmodule ExampleWeb.EnumerationParityTest do
   # goes red.
   @new_todo_paths []
 
-  # Dimensions on which each known divergence differs today. Asserted exactly, so
-  # a partial fix also forces the registry row to be updated.
-  @expected_divergence_dims %{
-    "registration" => [:body, :flash]
-  }
+  # There are no known public-response divergences after the registration fix.
+  # Keeping this empty pins that state and makes any new divergence require review.
+  @expected_divergence_dims %{}
 
   # by_design rows that have a documented-behaviour assertion below.
   @by_design_ids ~w(invitation-accept enterprise-sso-discovery)
@@ -321,7 +317,7 @@ defmodule ExampleWeb.EnumerationParityTest do
                "#{id}: the pin lists unknown dimension #{inspect(dimension)}"
       end
 
-      # The three account-existence screens are the ones the docs claim "the same
+      # The four account-existence screens are the ones the docs claim "the same
       # status, redirect, flash message and page" for: the pin may not be weakened for them.
       for id <- @account_existence_ids do
         assert ~w(status redirect flash body) -- Map.fetch!(@required_dimensions, id) == [],
@@ -368,17 +364,11 @@ defmodule ExampleWeb.EnumerationParityTest do
       assert by_id |> Map.delete("password-signin") |> dropped_dimension_violations() == []
     end
 
-    test "the leaks that exist today are never registered as parity" do
+    test "known divergences stay empty after the registration fix" do
       by_id = Map.new(surfaces(), &{&1["id"], &1})
 
-      for id <- @named_leak_ids do
-        assert Map.has_key?(by_id, id), "leak row #{id} is missing from the registry"
-
-        assert by_id[id]["state"] != "parity",
-               "#{id} is a known leak and must not be registered as parity"
-
-        assert by_id[id]["state"] in ~w(known_divergence not_proven)
-      end
+      assert @expected_divergence_dims == %{}
+      assert Enum.all?(by_id, fn {_id, row} -> row["state"] != "known_divergence" end)
     end
 
     test "rows carry exactly the fixed todo paths, every other row carries null" do
@@ -807,7 +797,7 @@ defmodule ExampleWeb.EnumerationParityTest do
 
       # Non-vacuity: "the others stay same" must be about real rows, never an empty
       # or tiny list. Every named surface is a parity row, so leaking one leaves at
-      # least the other four named rows to be compared.
+      # least the other five named rows to be compared.
       others = for {id, result} <- leaked, id != "password-signin", do: {id, result}
 
       assert length(others) >= length(@named_parity_ids) - 1,
@@ -822,7 +812,7 @@ defmodule ExampleWeb.EnumerationParityTest do
       parity_ids = for %{"state" => "parity", "id" => id} <- registry["surfaces"], do: id
 
       # Every named surface is a parity row (extra parity rows are allowed), so this
-      # loop covers all five and cannot shrink to a subset without a red test.
+      # loop covers all six and cannot shrink to a subset without a red test.
       assert @named_parity_ids -- parity_ids == [],
              "named surfaces that are not parity rows: #{inspect(@named_parity_ids -- parity_ids)}"
 
@@ -1027,6 +1017,11 @@ defmodule ExampleWeb.EnumerationParityTest do
     do:
       {"info",
        ~r/\AIf your email is in our system, you will receive reset instructions shortly\.\z/}
+
+  defp expected_parity_flash("registration"),
+    do:
+      {"info",
+       ~r/\AIf an account can be created for this email, check for any confirmation instructions, then sign in\.\z/}
 
   defp expected_parity_flash("confirmation-resend"),
     do: {"error", ~r/\ALog in to request a new confirmation email\.\z/}

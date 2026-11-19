@@ -393,7 +393,7 @@ core/registration_live.ex	msgid	Create an account
 core/registration_live.ex	msgid	Creating account...
 core/registration_live.ex	msgid	Email
 core/registration_live.ex	msgid	Fair
-core/registration_live.ex	msgid	If this email is available, your account has been created. Please check your email.
+core/registration_live.ex	msgid	If an account can be created for this email, check for any confirmation instructions, then sign in.
 core/registration_live.ex	msgid	Password
 core/registration_live.ex	msgid	Register
 core/registration_live.ex	msgid	Sign in

@@ -263,11 +263,13 @@ defmodule Sigra.Install.AuthUIContractTest do
     refute confirmation =~ "JS.focus"
   end
 
-  test "registration renders flash so the enumeration-safe duplicate-email message is visible" do
+  test "registration renders the same generic response for new and duplicate addresses" do
     registration = File.read!("priv/templates/sigra.install/core/registration_live.ex")
 
     assert registration =~ "<.sigra_auth_page flash={@flash}>"
-    assert registration =~ "If this email is available, your account has been created."
+    assert registration =~ "registration_response(socket)"
+    assert registration =~ "If an account can be created for this email"
+    refute registration =~ "assign(trigger_submit: true)"
   end
 
   test "registration copy uses the sigra domain and the approved sign-in wording" do
@@ -289,7 +291,7 @@ defmodule Sigra.Install.AuthUIContractTest do
     registration = File.read!("priv/templates/sigra.install/core/registration_live.ex")
 
     assert registration =~
-             "dgettext(\"sigra\", \"If this email is available, your account has been created. Please check your email.\")"
+             "If an account can be created for this email, check for any confirmation instructions, then sign in."
   end
 
   test "confirmation and reset copy uses the approved sign-in wording" do
@@ -316,7 +318,7 @@ defmodule Sigra.Install.AuthUIContractTest do
 
     # These generic responses deliberately do not distinguish known from unknown identities.
     assert File.read!("priv/templates/sigra.install/core/registration_live.ex") =~
-             "If this email is available, your account has been created. Please check your email."
+             "If an account can be created for this email, check for any confirmation instructions, then sign in."
 
     assert reset_live =~
              "If your email is in our system, you will receive reset instructions shortly."

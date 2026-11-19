@@ -72,6 +72,29 @@ defmodule ExampleWeb.RegistrationLiveTest do
   end
 
   describe "duplicate email registration" do
+    @tag :registration_response_parity
+    test "creates a new account without auto-signing in and shows the generic response", %{
+      conn: conn
+    } do
+      email = "new-#{System.unique_integer([:positive])}@example.com"
+      password = "hello world!!"
+
+      {:ok, view, _html} = live(conn, "/users/register")
+
+      html =
+        view
+        |> form("#registration_form", user: %{email: email, password: password})
+        |> render_submit()
+
+      assert html =~
+               "If an account can be created for this email, check for any confirmation instructions, then sign in."
+
+      refute html =~ ~s(phx-trigger-action="true")
+
+      assert %Example.Accounts.User{} =
+               Example.Accounts.get_user_by_email_and_password(email, password)
+    end
+
     test "shows the generic enumeration-safe message and never 'has already been taken'", %{
       conn: conn
     } do
@@ -88,8 +111,9 @@ defmodule ExampleWeb.RegistrationLiveTest do
         |> render_submit()
 
       assert html =~
-               "If this email is available, your account has been created. Please check your email."
+               "If an account can be created for this email, check for any confirmation instructions, then sign in."
 
+      refute html =~ ~s(phx-trigger-action="true")
       refute html =~ "has already been taken"
     end
 

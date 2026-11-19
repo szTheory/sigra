@@ -129,20 +129,10 @@ defmodule ExampleWeb.RegistrationLive do
           {:error, :already_confirmed} -> :ok
         end
 
-        changeset = Example.Accounts.change_user_registration(user)
-        {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
+        registration_response(socket)
 
       {:error, :email_taken} ->
-        # Enumeration-safe: show generic message
-        changeset = Example.Accounts.change_user_registration(%User{})
-
-        {:noreply,
-         socket
-         |> put_flash(
-           :info,
-           "If this email is available, your account has been created. Please check your email."
-         )
-         |> assign_form(changeset)}
+        registration_response(socket)
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
@@ -165,6 +155,19 @@ defmodule ExampleWeb.RegistrationLive do
      |> assign(password_strength: strength, password_suggestions: suggestions)
      |> assign(enroll_passkey_after_signup: enroll_passkey)
      |> assign_form(Map.put(changeset, :action, :validate))}
+  end
+
+  defp registration_response(socket) do
+    changeset = Example.Accounts.change_user_registration(%User{})
+
+    {:noreply,
+     socket
+     |> assign(trigger_submit: false, check_errors: false)
+     |> put_flash(
+       :info,
+       "If an account can be created for this email, check for any confirmation instructions, then sign in."
+     )
+     |> assign_form(changeset)}
   end
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do

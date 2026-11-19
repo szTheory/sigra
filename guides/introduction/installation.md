@@ -122,7 +122,7 @@ Start the server:
 
     mix phx.server
 
-Visit <http://localhost:4000/users/register>. You should see the generated registration LiveView. Fill in an email and password — the user should be created and you should be signed in.
+Visit <http://localhost:4000/users/register>. You should see the generated registration LiveView. Fill in an email and password. Sigra creates the account, sends confirmation instructions, and shows a generic response; then sign in manually. If email confirmation is required by your configuration, confirm the address first.
 
 If that worked, you're ready. Continue with [Getting Started](getting-started.html) for the full walkthrough including sign in, sign out, and password reset.
 

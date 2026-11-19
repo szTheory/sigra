@@ -6,10 +6,10 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   the enumeration parity harness proves:
   an existing and an unknown address get the same status, redirect, flash and
   page for ONE attempt on the sign-in, magic-link and password reset request
-  screens, in Sigra's example application. Timing, repeated attempts (lockout
-  and rate-limit state), registration success versus a duplicate, passkey
-  sign-in and the code generated into an adopter's own application are not
-  covered, and the docs must say so instead of promising safety.
+  screens, plus one valid registration versus a duplicate, in Sigra's example
+  application. Timing, repeated attempts (lockout and rate-limit state),
+  confirmation-email delivery equivalence, passkey sign-in and the code generated
+  into an adopter's own application are not covered, and the docs must say so.
 
   This module holds five kinds of checks, each with a planted control so it can
   go red:
@@ -459,7 +459,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       assert row =~ "Not covered"
     end
 
-    test "the README row names password-reset requests as tested, not under Not covered" do
+    test "the README row names registration and password-reset parity as tested" do
       row =
         @readme
         |> read!()
@@ -470,10 +470,12 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       not_covered = not_covered_list(after_marker)
 
       assert tested =~ "password-reset requests"
+      assert tested =~ "valid registration"
       assert tested =~ "example application"
       # What is claimed is what the harness compares, not that a message is visible.
       assert tested =~ "the same status, redirect, flash message and page"
       refute not_covered =~ ~r/password[\s-]reset/i
+      refute not_covered =~ ~r/registration response parity/i
 
       # The row still lists what is not compared.
       assert not_covered =~ "timing"
@@ -582,12 +584,13 @@ end|
       end
     end
 
-    test "the registration scope says a duplicate differs from a successful sign-in" do
+    test "the registration scope bounds its parity claim and excludes timing" do
       [paragraph] = scope_paragraphs(read!(@registration))
 
       assert paragraph =~ ~r/duplicate/i
-      assert paragraph =~ ~r/signs? the (new )?user in/i
-      assert paragraph =~ ~r/(?:re-renders the form|visitor sees)/i
+      assert paragraph =~ "same status, redirect, flash and page"
+      assert paragraph =~ "does not establish timing equivalence"
+      assert paragraph =~ "confirmation-email delivery equivalence"
     end
 
     test "the password reset scope bounds the claim to one attempt and names rate limits" do
