@@ -212,16 +212,19 @@ end
 That discarded value matters in step 10. It is documented current implementation
 drift, not a public return-shape recommendation.
 
-## 7. Lockout precedes password verification
+## 7. Lockout skips the stored password hash
 
 The config path normalizes the identifier, loads the host user, derives audit context,
-and checks lockout before invoking the password hasher. A missing user still reaches
-`Crypto.verify_with_upgrade/2` with a nil hash so the public path does comparable work.
+and checks lockout before using the stored password hash. Locked and unknown addresses
+both run the configured dummy-password verifier before the generic failure. This makes
+the password-work step match; it does not establish equal end-to-end response timing.
 
 ```elixir
 # ...
   case Sigra.Lockout.check(user, lockout_opts) do
     {:error, :account_locked, _remaining} ->
+      {:error, :invalid} = Crypto.verify_with_upgrade(password, nil, password_opts)
+
       # D-26: security audit row (standalone, D-28).
       # D-28 Category 2: known-user pre-org-selection — build a user-only
       # scope (org intentionally nil) and set target_id: user.id.
@@ -243,10 +246,9 @@ and checks lockout before invoking the password hasher. A missing user still rea
 
       # ...
     :ok ->
-      password = params["password"] || params[:password] || ""
       hashed_password = user && Map.get(user, :hashed_password)
 
-      case Crypto.verify_with_upgrade(password, hashed_password) do
+      case Crypto.verify_with_upgrade(password, hashed_password, password_opts) do
         # ...
       end
   end

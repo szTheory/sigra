@@ -36,7 +36,7 @@ The generated `SessionController.create/2` (or its LiveView equivalent) calls:
 3. Writes the raw token to the Phoenix session under `:user_token`.
 4. If `params["user"]["remember_me"] == "true"`, sets the signed remember-me cookie with the same token.
 
-**Scope of this claim:** for one failed attempt, Sigra's example application is tested for the same response status, redirect, flash and page for a wrong password and an unknown email; your generated copy is yours to check. After the lockout threshold, `Sigra.Auth.authenticate/2` also returns the same `:invalid_credentials` result for a locked account and an unknown email. Lockout details remain in audit and telemetry. The lower-level `Sigra.Lockout.check/2` reports lock state and must not be returned directly from a public login endpoint. Timing and other account states are not compared.
+**Scope of this claim:** for one failed attempt, Sigra's example application is tested for the same response status, redirect, flash and page for a wrong password and an unknown email; your generated copy is yours to check. After the lockout threshold, `Sigra.Auth.authenticate/2` returns the same `:invalid_credentials` result for a locked account and an unknown email. A separate unit test verifies that both paths run the configured dummy-password verifier once without checking the locked account's stored hash. Lockout details remain in audit and telemetry. The lower-level `Sigra.Lockout.check/2` reports lock state and must not be returned directly from a public login endpoint. This does not prove equal end-to-end timing, and other account states are not compared.
 
 ## Remember-me
 

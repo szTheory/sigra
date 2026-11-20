@@ -512,6 +512,14 @@ defmodule Sigra.Brand.ClaimsDocsTest do
              "Retired library doc claims are back:\n#{Enum.join(offenders, "\n")}"
     end
 
+    test "lockout documentation bounds dummy-work evidence without promising equal timing" do
+      docs = "lib/sigra/lockout.ex" |> library_docs!() |> collapse()
+
+      assert docs =~ "same configured dummy-password work"
+      assert docs =~ "does not establish equal end-to-end response timing"
+      refute docs =~ ~r/constant[- ]time|equal response time/i
+    end
+
     test "positive control: every retired library claim is detected in planted docstrings" do
       for {file, phrases} <- @retired_library_claims do
         planted = "@moduledoc \"\"\"\n" <> Enum.join(phrases, " and ") <> "\n\"\"\""
@@ -622,6 +630,9 @@ end|
 
       assert paragraph =~ ~r/(?:single|one) failed attempt/i
       assert paragraph =~ ~r/lockout/i
+      assert paragraph =~ "configured dummy-password verifier once"
+      assert paragraph =~ "does not prove equal end-to-end timing"
+      refute paragraph =~ ~r/constant[- ]time|equal response time/i
     end
 
     test "positive control: a planted file without the opener has no scope paragraph" do

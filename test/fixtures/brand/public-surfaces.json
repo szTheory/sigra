@@ -85,7 +85,7 @@
         "result"
       ],
       "state": "parity",
-      "note": "Identity = whether the submitted email belongs to an account, over repeated attempts. After the configured lockout threshold, the library returns the same invalid_credentials result and safe message for a locked existing account and an unknown email; lockout details remain in audit and telemetry. The example sign-in controller also returns the same response. The probe compares the library result after the configured number of wrong-password attempts; timing and other account states are not compared.",
+      "note": "Identity = whether the submitted email belongs to an account, over repeated attempts. After the configured lockout threshold, the library returns the same invalid_credentials result and safe message for a locked existing account and an unknown email; lockout details remain in audit and telemetry. The example sign-in controller also returns the same response. A separate auth unit test proves both config-based paths invoke the configured no-user verifier once; this probe compares only the library result after the configured number of wrong-password attempts. End-to-end timing and other account states are not compared.",
       "todo": null,
       "blocker": null
     },

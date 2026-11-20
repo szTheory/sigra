@@ -517,12 +517,18 @@ defmodule Sigra.Auth do
 
     login_ip = params["ip"] || params[:ip]
     user_agent = params["user_agent"] || params[:user_agent]
+    password = params["password"] || params[:password] || ""
+    password_opts = [hasher: Keyword.get(config.password || [], :hasher, Sigra.Hashers.Argon2)]
     user = repo.get_by(user_schema, email: email)
     audit_opts = audit_opts_from_config(config, ip_address: login_ip, user_agent: user_agent)
 
-    # Step 1: Check lockout BEFORE password verification (D-29)
+    # Check lockout before using the stored hash. Keep the password work equal
+    # to the unknown-user path without checking whether the submitted password
+    # matches a locked account's stored hash.
     case Sigra.Lockout.check(user, lockout_opts) do
       {:error, :account_locked, _remaining} ->
+        {:error, :invalid} = Crypto.verify_with_upgrade(password, nil, password_opts)
+
         # D-26: security audit row (standalone, D-28).
         # D-28 Category 2: known-user pre-org-selection — build a user-only
         # scope (org intentionally nil) and set target_id: user.id.
@@ -544,10 +550,9 @@ defmodule Sigra.Auth do
         {:error, :invalid_credentials}
 
       :ok ->
-        password = params["password"] || params[:password] || ""
         hashed_password = user && Map.get(user, :hashed_password)
 
-        case Crypto.verify_with_upgrade(password, hashed_password) do
+        case Crypto.verify_with_upgrade(password, hashed_password, password_opts) do
           {:ok, :valid} ->
             handle_enterprise_password_login(
               config,

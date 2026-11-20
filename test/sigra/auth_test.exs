@@ -63,6 +63,25 @@ defmodule Sigra.AuthTest do
     end
   end
 
+  defmodule TimingHasher do
+    @behaviour Sigra.Hasher
+
+    @impl true
+    def hash_password(_password), do: "test-hash"
+
+    @impl true
+    def verify_password(_password, hashed_password) do
+      send(self(), {:stored_hash_checked, hashed_password})
+      false
+    end
+
+    @impl true
+    def no_user_verify do
+      send(self(), :dummy_password_work)
+      :ok
+    end
+  end
+
   describe "register/3" do
     test "with valid attrs returns {:ok, user}" do
       user = %TestUser{id: 1, email: "user@example.com", hashed_password: "$argon2id$..."}
@@ -1451,7 +1470,7 @@ defmodule Sigra.AuthTest do
   }
 
   describe "authenticate/2 (config-based)" do
-    test "returns generic credentials failure for a locked user before hash check" do
+    test "returns generic credentials failure after dummy hash work for a locked user" do
       locked_at = DateTime.utc_now() |> DateTime.add(-100, :second)
 
       user = %TestUser{
@@ -1466,18 +1485,20 @@ defmodule Sigra.AuthTest do
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
 
-      # No password verification should happen -- Mox will fail if Crypto is called
+      config = %{@auth_config | password: [hasher: TimingHasher]}
 
       result =
-        Auth.authenticate(@auth_config, %{
+        Auth.authenticate(config, %{
           "email" => "user@example.com",
           "password" => "any_password"
         })
 
       assert {:error, :invalid_credentials} = result
+      assert_received :dummy_password_work
+      refute_received {:stored_hash_checked, _}
     end
 
-    test "locked and unknown accounts return the same credentials failure" do
+    test "locked and unknown accounts use the same dummy password work and return the same failure" do
       locked_at = DateTime.utc_now() |> DateTime.add(-100, :second)
 
       locked_user = %TestUser{
@@ -1493,20 +1514,25 @@ defmodule Sigra.AuthTest do
       |> expect(:get_by, fn TestUser, [email: "locked@example.test"] -> locked_user end)
       |> expect(:get_by, fn TestUser, [email: "unknown@example.test"] -> nil end)
 
+      config = %{@auth_config | password: [hasher: TimingHasher]}
+
       locked_result =
-        Auth.authenticate(@auth_config, %{
+        Auth.authenticate(config, %{
           "email" => "locked@example.test",
           "password" => "any_password"
         })
 
       unknown_result =
-        Auth.authenticate(@auth_config, %{
+        Auth.authenticate(config, %{
           "email" => "unknown@example.test",
           "password" => "any_password"
         })
 
       assert locked_result == unknown_result
       assert {:error, :invalid_credentials} = locked_result
+      assert_received :dummy_password_work
+      assert_received :dummy_password_work
+      refute_received {:stored_hash_checked, _}
     end
 
     test "increments failed_login_attempts on wrong password" do

@@ -9,7 +9,10 @@ defmodule Sigra.Lockout do
 
   ## Security Properties
 
-  - Lockout check happens before password hash verification (saves CPU).
+  - The public sign-in path checks lockout before using the stored password
+    hash. A locked account and an unknown address both perform the same
+    configured dummy-password work before returning a generic failure; this does not
+    establish equal end-to-end response timing.
   - `Sigra.Error.safe_message/1` maps a given error to generic text. Lockout
     state from this helper still differs: a locked user receives
     `:account_locked` with remaining seconds, while a `nil` user receives `:ok`.
@@ -31,8 +34,8 @@ defmodule Sigra.Lockout do
   ## Examples
 
       case Sigra.Lockout.check(user) do
-        :ok -> # proceed to password verification
-        {:error, :account_locked, remaining} -> # account is locked
+        :ok -> # proceed to stored-hash verification
+        {:error, :account_locked, remaining} -> # keep lockout detail internal
       end
 
   """

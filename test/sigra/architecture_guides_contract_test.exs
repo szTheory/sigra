@@ -271,18 +271,29 @@ defmodule Sigra.ArchitectureGuidesContractTest do
     end)
   end
 
-  test "lockout remains before password verification in source and walkthrough" do
+  test "locked sign-in uses dummy work before the generic failure in source and walkthrough" do
     source = File.read!("lib/sigra/auth.ex")
     [_before, config_path] = String.split(source, "defp authenticate_with_config", parts: 2)
     walkthrough = File.read!(@walkthrough)
 
-    assert byte_index!(config_path, "Sigra.Lockout.check(user, lockout_opts)") <
-             byte_index!(config_path, "Crypto.verify_with_upgrade(password, hashed_password)"),
-           "config authentication must check lockout before password verification"
+    for excerpt <- [config_path, walkthrough] do
+      lockout_check = byte_index!(excerpt, "Sigra.Lockout.check(user, lockout_opts)")
 
-    assert byte_index!(walkthrough, "Sigra.Lockout.check(user, lockout_opts)") <
-             byte_index!(walkthrough, "Crypto.verify_with_upgrade(password, hashed_password)"),
-           "walkthrough must preserve lockout-before-password ordering"
+      dummy_work =
+        byte_index!(excerpt, "Crypto.verify_with_upgrade(password, nil, password_opts)")
+
+      stored_hash_work =
+        byte_index!(
+          excerpt,
+          "Crypto.verify_with_upgrade(password, hashed_password, password_opts)"
+        )
+
+      assert lockout_check < dummy_work,
+             "locked sign-in must check lockout before dummy password work"
+
+      assert dummy_work < stored_hash_work,
+             "locked sign-in must run dummy work before the unlocked stored-hash branch"
+    end
   end
 
   test "documented double-session seam remains anchored to generated-host evidence" do
