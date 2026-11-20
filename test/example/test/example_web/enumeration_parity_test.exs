@@ -6,6 +6,14 @@ defmodule ExampleWeb.EnumerationParityTest.DenyRateLimiter do
   def check_rate(_key, _limit, _window_ms), do: {:deny, 60_000}
 end
 
+defmodule ExampleWeb.EnumerationParityTest.RepoQueryCapture do
+  @moduledoc false
+
+  def handle_event(_event, _measurements, metadata, {owner, ref}) do
+    send(owner, {ref, metadata})
+  end
+end
+
 defmodule ExampleWeb.EnumerationParityTest do
   @moduledoc """
   Enumeration-boundary parity harness for the pre-auth surfaces (BCOPY-03).
@@ -84,6 +92,7 @@ defmodule ExampleWeb.EnumerationParityTest do
   import Ecto.Query, only: [from: 2]
   import Example.AccountsFixtures
   import Phoenix.LiveViewTest
+  import Swoosh.TestAssertions
 
   @moduletag :example_app
 
@@ -720,11 +729,24 @@ defmodule ExampleWeb.EnumerationParityTest do
       unknown_email = unique_user_email()
       assert reset_tokens(user_id: user.id) == [], "setup: the account starts with no reset token"
 
-      {_view, existing_outcome} = submit_reset_request(user.email)
-      {_view, unknown_outcome} = submit_reset_request(unknown_email)
+      {existing_outcome, existing_queries} =
+        capture_repo_queries(fn ->
+          {_view, outcome} = submit_reset_request(user.email)
+          outcome
+        end)
+
+      {unknown_outcome, unknown_queries} =
+        capture_repo_queries(fn ->
+          {_view, outcome} = submit_reset_request(unknown_email)
+          outcome
+        end)
 
       assert {:error, {:redirect, %{to: "/users/log_in"}}} = existing_outcome
       assert {:error, {:redirect, %{to: "/users/log_in"}}} = unknown_outcome
+      assert existing_queries != [], "the repo-query capture must observe the live request"
+      assert unknown_queries != [], "the repo-query capture must observe the live request"
+      assert_no_submission_email_query(existing_queries, user.email)
+      assert_no_submission_email_query(unknown_queries, unknown_email)
 
       assert reset_tokens(user_id: user.id) == []
       assert reset_tokens(sent_to: unknown_email) == []
@@ -753,6 +775,54 @@ defmodule ExampleWeb.EnumerationParityTest do
                  address
                end)
              ) == Enum.sort([user.email, unknown_email])
+
+      assert recovery_request_audit_count() == 0
+      refute_email_sent()
+    end
+  end
+
+  describe "magic-link request uses durable queue admission" do
+    test "known and unknown emails queue encrypted requests before account lookup" do
+      user = user_fixture()
+      unknown_email = unique_user_email()
+
+      {existing_response, existing_queries} =
+        capture_repo_queries(fn -> submit_magic_link_request(user.email) end)
+
+      {unknown_response, unknown_queries} =
+        capture_repo_queries(fn -> submit_magic_link_request(unknown_email) end)
+
+      row = Enum.find(surfaces(), &(&1["id"] == "magic-link-request"))
+      assert compare(existing_response, unknown_response, dimensions(row)) == :same
+      assert existing_response.flash["info"] =~ "If your email is registered"
+      assert existing_queries != [], "the repo-query capture must observe the controller request"
+      assert unknown_queries != [], "the repo-query capture must observe the controller request"
+      assert_no_submission_email_query(existing_queries, user.email)
+      assert_no_submission_email_query(unknown_queries, unknown_email)
+
+      assert recovery_tokens("magic_link", user_id: user.id) == []
+      assert recovery_tokens("magic_link", sent_to: unknown_email) == []
+
+      jobs = recovery_jobs()
+      assert length(jobs) == 2
+      refute Enum.any?(jobs, &Map.has_key?(&1.args, "email"))
+      refute Enum.any?(jobs, &Map.has_key?(&1.args, "token"))
+
+      assert Enum.sort(
+               Enum.map(jobs, fn job ->
+                 assert {:ok, {:magic_link, address}} =
+                          Sigra.Recovery.decrypt_envelope(
+                            job.args["envelope"],
+                            "example",
+                            Example.Accounts.recovery_secret_key_base()
+                          )
+
+                 address
+               end)
+             ) == Enum.sort([user.email, unknown_email])
+
+      assert recovery_request_audit_count() == 0
+      refute_email_sent()
     end
   end
 
@@ -1284,6 +1354,77 @@ defmodule ExampleWeb.EnumerationParityTest do
         where: ^filter
       )
     )
+  end
+
+  defp recovery_tokens(context, filter) do
+    Example.Repo.all(
+      from(t in Example.Accounts.UserToken,
+        where: t.context == ^context,
+        where: ^filter
+      )
+    )
+  end
+
+  defp recovery_jobs do
+    Example.Repo.all(
+      from(job in Oban.Job,
+        where: job.worker == "Sigra.Workers.RecoveryRequest",
+        where: job.queue == "sigra_recovery"
+      )
+    )
+  end
+
+  defp recovery_request_audit_count do
+    Example.Repo.aggregate(
+      from(event in Example.Accounts.AuditEvent,
+        where: event.action in ["auth.password_reset_request", "auth.magic_link_request"]
+      ),
+      :count
+    )
+  end
+
+  defp capture_repo_queries(fun) when is_function(fun, 0) do
+    ref = make_ref()
+    handler_id = {__MODULE__, ref}
+
+    :ok =
+      :telemetry.attach(
+        handler_id,
+        [:example, :repo, :query],
+        &ExampleWeb.EnumerationParityTest.RepoQueryCapture.handle_event/4,
+        {self(), ref}
+      )
+
+    try do
+      result = fun.()
+      {result, take_repo_queries(ref, [])}
+    after
+      :telemetry.detach(handler_id)
+      _ = take_repo_queries(ref, [])
+    end
+  end
+
+  defp take_repo_queries(ref, acc) do
+    receive do
+      {^ref, metadata} -> take_repo_queries(ref, [metadata | acc])
+    after
+      0 -> Enum.reverse(acc)
+    end
+  end
+
+  defp assert_no_submission_email_query(metadata, email) do
+    refute Enum.any?(metadata, fn query ->
+             String.contains?(inspect(Map.get(query, :params, [])), email)
+           end),
+           "a request-path repository query contained the submitted email"
+  end
+
+  defp submit_magic_link_request(email) do
+    conn =
+      build_conn()
+      |> post(~p"/users/log_in", %{"_action" => "magic_link", "user" => %{"email" => email}})
+
+    capture_redirect(conn, email)
   end
 
   # The confirmation tokens (link and code) stored for one address (`sent_to`). Queried
