@@ -234,6 +234,24 @@ defmodule Sigra.Brand.PolicyDocsTest do
 
       assert missing_terms(slice, expected) == []
     end
+
+    test "records shipped v1.51 changes and links to the detailed migration tables" do
+      guide = read!(@guide)
+      slice = section_slice(guide, "### 5. Visual and copy changes")
+      rows = table_data_rows(slice)
+
+      assert guide =~ "The first shipped adoption under this policy is v1.51"
+      assert slice =~ "../introduction/upgrading-to-v1.51.html"
+
+      assert Enum.map(rows, &hd/1) == [
+               "Admin theme values and lockups",
+               "Authentication and email wording",
+               "README, HexDocs and package identity"
+             ]
+
+      assert Enum.map(rows, fn row -> Enum.at(row, 1) end) ==
+               ["Host-owned", "Generated", "Library-owned"]
+    end
   end
 
   describe "v1.51 upgrade guide" do
