@@ -46,6 +46,7 @@ const DEMO_SHOWCASE_SPEC = /demo-showcase\.spec\.ts/;
 // (iPhone 13, warn-only), admin-eval-dark (colorScheme:'dark', warn-only).
 // D-15: geometry probes hard-gate only in admin-eval (chromium DPR1).
 const ADMIN_EVAL_SPEC = /admin-eval\.spec\.ts/;
+const ADMIN_EVAL_SETUP_SPEC = /admin-eval\.setup\.ts/;
 
 // GitHub Pages publish job sets SIGRA_PLAYWRIGHT_PAGES_PUBLISH=1 so reviewer
 // videos are retained on green runs (default CI keeps video on failure only).
@@ -245,13 +246,26 @@ export default defineConfig({
         storageState: 'test-results/.auth/admin-design-dark.json',
       },
     },
+    // Phase 267: each eval project gets one setup dependency and its own auth state.
+    // Keep `retries: 0` above, the ADMIN_EVAL_SPEC matcher, full matrix, and
+    // non-gating CI status intact as the additional project states are added.
+    {
+      name: 'admin-eval-setup',
+      testMatch: ADMIN_EVAL_SETUP_SPEC,
+      grep: /authenticate admin eval desktop/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     // Admin eval lane (Desktop Chrome DPR1): render matrix + probes + bundle writes.
     // This is the HARD-GATE geometry project (D-15): gate-severity probe findings
     // fail the test. Geometry probes run at capture via page.evaluate (D-11).
     {
       name: 'admin-eval',
       testMatch: ADMIN_EVAL_SPEC,
-      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['admin-eval-setup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'test-results/.auth/admin-eval-desktop.json',
+      },
     },
     // Admin eval lane (mobile): iPhone 13 render + probe capture, warn-only (D-15).
     // Geometry probes collect findings but do not fail (mobile metrics vary by OS).

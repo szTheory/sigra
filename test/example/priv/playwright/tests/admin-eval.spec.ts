@@ -412,8 +412,11 @@ test.beforeAll(() => {
 
 test.describe('Admin eval — render matrix, probes, bundles', () => {
   test.beforeEach(async ({ page }, testInfo) => {
-    const adminEmail = adminEvalEmail(testInfo);
-    await registerUser(page, adminEmail, TEST_PASSWORD);
+    if (testInfo.project.name !== 'admin-eval') {
+      // Mobile and dark retain isolated registration until their setup states land.
+      const adminEmail = adminEvalEmail(testInfo);
+      await registerUser(page, adminEmail, TEST_PASSWORD);
+    }
     // D-09: waitUntil:'domcontentloaded' + explicit waitForLiveViewReady gate.
     // Primary flake site — 16 first-nav hangs observed in 216-09 on this goto.
     await page.goto('/admin/_design', { waitUntil: 'domcontentloaded' });
