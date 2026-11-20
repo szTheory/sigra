@@ -15,7 +15,7 @@ defmodule ExampleWeb.SessionControllerTest do
     4. `POST /users/log_in` with `_action=magic_link` returns the
        enumeration-safe info flash.
   """
-  use ExampleWeb.ConnCase, async: true
+  use ExampleWeb.ConnCase, async: false
   import Ecto.Query
   import Example.AccountsFixtures
 
@@ -218,6 +218,33 @@ defmodule ExampleWeb.SessionControllerTest do
       assert redirected_to(conn) == ~p"/users/log_in"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "magic link"
       refute Phoenix.Flash.get(conn.assigns.flash, :error)
+    end
+
+    test "unavailable dispatch gives known and unknown addresses the same service error", %{
+      conn: conn,
+      user: user
+    } do
+      unknown_email = unique_user_email()
+
+      flashes =
+        for email <- [user.email, unknown_email] do
+          response =
+            post(conn, ~p"/users/log_in", %{
+              "_action" => "magic_link",
+              "user" => %{"email" => email}
+            })
+
+          assert redirected_to(response) == ~p"/users/log_in"
+          assert Phoenix.Flash.get(response.assigns.flash, :info) == nil
+
+          error = Phoenix.Flash.get(response.assigns.flash, :error)
+          assert error == "We couldn't send your request right now. Please try again later."
+          error
+        end
+
+      assert Enum.uniq(flashes) == [
+               "We couldn't send your request right now. Please try again later."
+             ]
     end
 
     test "a redeemed magic link sends enrolled users to the MFA challenge", %{conn: conn} do

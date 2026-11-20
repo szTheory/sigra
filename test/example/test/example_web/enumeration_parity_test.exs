@@ -87,6 +87,14 @@ defmodule ExampleWeb.EnumerationParityTest do
 
   @moduletag :example_app
 
+  setup do
+    start_supervised!(
+      {Oban, name: Oban, repo: Example.Repo, queues: false, plugins: false, testing: :manual}
+    )
+
+    :ok
+  end
+
   @registry_path Path.expand("../../../fixtures/brand/public-surfaces.json", __DIR__)
   # __DIR__ is <root>/test/example/test/example_web: four levels up is the repo root.
   @repo_root Path.expand("../../../..", __DIR__)
@@ -706,8 +714,8 @@ defmodule ExampleWeb.EnumerationParityTest do
     end
   end
 
-  describe "password-reset-request reaches the library" do
-    test "an existing email writes one reset token for that account, an unknown email writes none" do
+  describe "password-reset-request uses durable queue admission" do
+    test "known and unknown emails receive the same response without account work in the request process" do
       user = user_fixture()
       unknown_email = unique_user_email()
       assert reset_tokens(user_id: user.id) == [], "setup: the account starts with no reset token"
@@ -715,14 +723,36 @@ defmodule ExampleWeb.EnumerationParityTest do
       {_view, existing_outcome} = submit_reset_request(user.email)
       {_view, unknown_outcome} = submit_reset_request(unknown_email)
 
-      # Both requests are accepted the same way (a redirect), so the difference
-      # below is the library path being reached, not a rejected request.
       assert {:error, {:redirect, %{to: "/users/log_in"}}} = existing_outcome
       assert {:error, {:redirect, %{to: "/users/log_in"}}} = unknown_outcome
 
-      assert [%{sent_to: sent_to}] = reset_tokens(user_id: user.id)
-      assert sent_to == user.email
+      assert reset_tokens(user_id: user.id) == []
       assert reset_tokens(sent_to: unknown_email) == []
+
+      jobs =
+        Example.Repo.all(
+          from(job in Oban.Job,
+            where: job.worker == "Sigra.Workers.RecoveryRequest",
+            where: job.queue == "sigra_recovery"
+          )
+        )
+
+      assert length(jobs) == 2
+      refute Enum.any?(jobs, &Map.has_key?(&1.args, "email"))
+      refute Enum.any?(jobs, &Map.has_key?(&1.args, "token"))
+
+      assert Enum.sort(
+               Enum.map(jobs, fn job ->
+                 assert {:ok, {:reset, address}} =
+                          Sigra.Recovery.decrypt_envelope(
+                            job.args["envelope"],
+                            "example",
+                            Example.Accounts.recovery_secret_key_base()
+                          )
+
+                 address
+               end)
+             ) == Enum.sort([user.email, unknown_email])
     end
   end
 

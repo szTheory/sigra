@@ -34,7 +34,10 @@ defmodule ExampleWeb.ResetPasswordLive do
           required
         />
 
-        <.button phx-disable-with={dgettext("sigra", "Sending...")} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
+        <.button
+          phx-disable-with={dgettext("sigra", "Sending...")}
+          class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
+        >
           {dgettext("sigra", "Send reset instructions")} <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
@@ -67,7 +70,10 @@ defmodule ExampleWeb.ResetPasswordLive do
         </.header>
 
         <div class="mt-6">
-          <.link navigate={~p"/users/reset-password"} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
+          <.link
+            navigate={~p"/users/reset-password"}
+            class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
+          >
             {dgettext("sigra", "Request new reset email")}
           </.link>
         </div>
@@ -127,7 +133,10 @@ defmodule ExampleWeb.ResetPasswordLive do
           required
         />
 
-        <.button phx-disable-with={dgettext("sigra", "Resetting...")} class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block">
+        <.button
+          phx-disable-with={dgettext("sigra", "Resetting...")}
+          class="sigra-auth-action sigra-auth-action--primary sigra-auth-action--block"
+        >
           {dgettext("sigra", "Reset password")} <span aria-hidden="true">&rarr;</span>
         </.button>
       </.form>
@@ -166,25 +175,22 @@ defmodule ExampleWeb.ResetPasswordLive do
   end
 
   def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do
-    # The context function is the enumeration-safe entry point: it looks the account up
-    # itself and answers {:ok, :sent} for an unknown address, so the view must not branch
-    # on existence. A rate-limited result shows the same flash.
-    _ =
-      Example.Accounts.deliver_user_reset_password_instructions(
-        email,
-        &url(socket, ~p"/users/reset-password/#{&1}")
-      )
+    case Example.Accounts.enqueue_recovery_request(:reset, email) do
+      {:ok, _} ->
+        {:noreply, recovery_request_ack(socket)}
 
-    {:noreply,
-     socket
-     |> put_flash(
-       :info,
-       dgettext(
-         "sigra",
-         "If your email is in our system, you will receive reset instructions shortly."
-       )
-     )
-     |> redirect(to: ~p"/users/log_in")}
+      {:error, reason} when reason in [:rate_limited, :invalid_request] ->
+        {:noreply, recovery_request_ack(socket)}
+
+      {:error, _reason} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :error,
+           dgettext("sigra", "We couldn't send your request right now. Please try again later.")
+         )
+         |> redirect(to: ~p"/users/log_in")}
+    end
   end
 
   def handle_event("validate", %{"user" => user_params}, socket) do
@@ -217,6 +223,18 @@ defmodule ExampleWeb.ResetPasswordLive do
       {:error, changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
     end
+  end
+
+  defp recovery_request_ack(socket) do
+    socket
+    |> put_flash(
+      :info,
+      dgettext(
+        "sigra",
+        "If your email is in our system, you will receive reset instructions shortly."
+      )
+    )
+    |> redirect(to: ~p"/users/log_in")
   end
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do

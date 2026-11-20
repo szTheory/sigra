@@ -21,12 +21,24 @@ defmodule ExampleWeb.ResetPasswordController do
   regardless of whether the email exists — enumeration prevention.
   """
   def create(conn, %{"user" => %{"email" => email}}) do
-    _ =
-      Example.Accounts.deliver_user_reset_password_instructions(
-        email,
-        &url(conn, ~p"/users/reset-password/#{&1}")
-      )
+    case Example.Accounts.enqueue_recovery_request(:reset, email) do
+      {:ok, _} ->
+        recovery_request_ack(conn)
 
+      {:error, reason} when reason in [:rate_limited, :invalid_request] ->
+        recovery_request_ack(conn)
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(
+          :error,
+          dgettext("sigra", "We couldn't send your request right now. Please try again later.")
+        )
+        |> redirect(to: ~p"/users/log_in")
+    end
+  end
+
+  defp recovery_request_ack(conn) do
     conn
     |> put_flash(
       :info,
