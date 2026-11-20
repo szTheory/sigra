@@ -5,7 +5,8 @@ Sigra's password reset flow uses a one-time, HMAC-signed token with a 60-minute 
 ## What Sigra gives you
 
 - **`MyAppWeb.ResetPasswordLive`** — two LiveViews: one for "request a reset" and one for "enter your new password."
-- **`MyApp.Accounts.deliver_user_reset_password_instructions/2`** — generates a reset token, stores its hash in `auth.user_tokens` on Postgres installs, sends the email.
+- **`MyApp.Accounts.queue_recovery_request/2`** — generated public request entry point. It checks the configured limiter and durably queues an encrypted request before account lookup.
+- **`MyApp.Accounts.deliver_user_reset_password_instructions/2`** — synchronous compatibility helper for trusted internal callers; generated public forms do not call it.
 - **`MyApp.Accounts.get_user_by_reset_password_token/1`** — verifies the token (HMAC, hash lookup, TTL) and returns the user.
 - **`MyApp.Accounts.reset_user_password/2`** — updates the password, deletes the reset token, and invalidates every session and token for that user.
 - **`Sigra.Auth.request_password_reset/3`** — library primitive. For an address with no account it returns `{:ok, :sent}`; for an account it returns the signed token and URL. The generated `deliver_user_reset_password_instructions/2` normalizes both to `{:ok, :sent}`, or returns `{:error, :rate_limited}` when the configured limiter denies the request.
@@ -17,29 +18,79 @@ Sigra's password reset flow uses a one-time, HMAC-signed token with a 60-minute 
 
 The generated `ResetPasswordLive` renders a form with one field: email. Submitting it calls:
 
-    def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do
-      # The context looks the account up itself and returns {:ok, :sent} for an
-      # unknown address, so the view passes the submitted email and does not branch.
-      _ =
-        Accounts.deliver_user_reset_password_instructions(
-          email,
-          &url(~p"/users/reset-password/#{&1}")
-        )
+    Accounts.queue_recovery_request(:reset, email)
 
-      # Same flash message whether or not the email exists
-      {:noreply,
-       socket
-       |> put_flash(:info, "If your email is in our system, you will receive reset instructions shortly.")
-       |> redirect(to: ~p"/users/log_in")}
+The generated LiveView and controller call `queue_recovery_request(:reset, email)`. The context checks the configured limiter before queue admission. A valid request is encrypted and persisted by the dispatcher; account lookup, token and audit writes, URL construction, and delivery happen later in the worker. A successful admission and a rate-limited or malformed address receive the same generic acknowledgment. A dispatcher failure receives the same generic service error for registered and unknown addresses; there is no synchronous fallback. The generated-host install smoke submits an existing and an unknown address and checks the same public response, plus token creation only for the existing account.
+
+The worker generates a 32-byte random token, signs the raw token with HMAC using the app's `secret_key_base`, stores the token hash in `auth.user_tokens` with `context: "reset_password"`, and renders the email template. The generated public request path does not call `deliver_user_reset_password_instructions/2`.
+
+### Configure durable dispatch
+
+The installer adds the host registry and default dispatcher settings to `config/config.exs`. Oban is optional. To use the built-in dispatcher, add Oban as a host dependency and fetch it:
+
+    # mix.exs
+    def deps do
+      [
+        {:oban, "~> 2.17"}
+      ]
     end
 
-The generated LiveView and controller both pass the submitted email string to the context. The context checks its configured email limiter before looking up the address, then normalizes the result before returning to the request page. The generated-host install smoke submits an existing and an unknown address and checks the same redirect and flash, plus token creation only for the existing account.
+Fetch the dependency:
 
-`deliver_user_reset_password_instructions/2` generates a 32-byte random token, signs its hash with HMAC using your app's `secret_key_base`, stores the row in `auth.user_tokens` with `context: "reset_password"`, and renders the email template.
+    mix deps.get
 
-**Recommendation:** render the same flash message whether the email exists or not, so the form does not tell a visitor which addresses have an account.
+Create a migration:
 
-**Scope of this claim:** the example app compares status, redirect, flash, and page for one request; a generated-host smoke checks the same redirect and flash plus the token-count result. When configured, the email limiter checks a normalized email key before account lookup, so a denied request returns the same `:rate_limited` result for an existing or unknown address. The limiter is disabled by default. These checks do not establish timing equivalence, the production limiter's behavior, or parity of internal library results when a request is allowed.
+    mix ecto.gen.migration add_oban_jobs_table
+
+Use Oban's version-aware migration API in the generated migration:
+
+    defmodule MyApp.Repo.Migrations.AddObanJobsTable do
+      use Ecto.Migration
+
+      def up, do: Oban.Migration.up()
+      def down, do: Oban.Migration.down()
+    end
+
+Then apply the migration:
+
+    mix ecto.migrate
+
+If Oban is already installed and migrated, keep its existing dependency and migration. Add the recovery queue to your existing Oban configuration, preserving its other queues, and supervise Oban in the host application:
+
+    # config/config.exs
+    config :my_app, Oban,
+      repo: MyApp.Repo,
+      queues: [default: 10, sigra_recovery: 10]
+
+Include `{Oban, Application.fetch_env!(:my_app, Oban)}` in the existing application supervision tree.
+
+See the [Oban 2.17 installation guide](https://oban.hexdocs.pm/2.17.11/installation.html) for the complete dependency, migration, and supervision setup.
+
+The generated settings are equivalent to:
+
+    config :sigra, :recovery_hosts, %{"my_app" => MyApp.Accounts}
+    config :my_app, :sigra_recovery,
+      host_id: "my_app",
+      dispatcher: Sigra.Workers.RecoveryRequest,
+      dispatch_opts: [queue: :sigra_recovery]
+
+The queue name must match `dispatch_opts` and the Oban queue. After deploy or a queue config change, check that the Oban instance and its configured queue producer are available:
+
+    Oban.whereis(Oban)
+    Oban.check_queue(queue: :sigra_recovery)
+
+The first call checks the default Oban supervisor; the second inspects the configured local queue producer on that node. It does not prove that every node in a cluster has the queue. Oban's response for a missing or unconfigured queue varies across supported versions, so handle the installed version's result or exception and treat an absent producer as unavailable. Monitor the queue's available, executing, retryable, and discarded jobs across your deployment using your normal Oban operational tooling. If queue supervision or insertion is unavailable, the public endpoint returns its generic service error and does no synchronous account lookup or delivery.
+
+Oban is not required. A host adapter configured as `dispatcher:` must implement `Sigra.Recovery.enqueue/3` and `Sigra.Recovery.checkpoint_once/4`. `enqueue/3` must persist the encrypted envelope and return success only after it is durable. `checkpoint_once/4` must run the supplied `prepare` callback and persist its encrypted outcome in one transaction tied to a stable job reference. This makes token and audit writes idempotent across worker retries. Do not write a queue adapter that acknowledges before durable persistence.
+
+Recovery jobs contain a host identifier and encrypted request envelope; the worker checkpoint is encrypted too. The envelope and checkpoint use the host endpoint's `secret_key_base` and are valid for at most 24 hours. Restrict access to Oban job rows, database backups, and any operational tooling that exposes job metadata; configure Oban's successful and failed job retention separately from this cryptographic expiry. Drain the recovery queue before rotating `secret_key_base` so pending jobs and checkpoints remain decryptable. If delivery fails after checkpointing, retries reuse the same prepared link (reset links expire after 60 minutes by default; magic links after 10 minutes), for up to three Oban attempts. A mail provider may accept a message just before a worker crash, so delivery is at least once and a retry can send the same link again. Worker failures use the fixed `:recovery_failed` category; generated public responses do not include internal error details.
+
+Hosts generated before queued recovery was added own their emitted controllers and context code. Updating the `:sigra` dependency does not rewrite those files: port the current `queue_recovery_request/2` helper and recovery worker callbacks into the host's generated Auth/Accounts module, change both reset request handlers and the magic-link request handler to queue-only admission, then add the host registry, `:sigra_recovery` configuration, and running queue. Keep existing synchronous `Sigra.Auth.request_password_reset/3`, `request_magic_link/3`, and `Accounts.deliver_user_reset_password_instructions/2` for trusted internal compatibility callers; never expose their account-dependent results from a public endpoint.
+
+For magic links, the generated redemption path rechecks that the mailbox is still current and that magic-link sign-in and host policy allow access before consuming the token. Users with MFA enabled enter the MFA-pending flow instead of receiving a fully authenticated session directly.
+
+**Scope of this claim:** the example app compares status, redirect, flash, and page for one request; a generated-host smoke checks the same public response plus the token-count result. When configured, the email limiter checks a normalized email key before queue admission, so a denied request returns the same `:rate_limited` result for an existing or unknown address and creates no job. The limiter is disabled by default. These checks do not establish timing equivalence, the production limiter's behavior, or parity of internal library results after admission.
 
 ### Step 2: Click the email link
 
@@ -126,7 +177,7 @@ Reset requests are a common enumeration vector and an email-bomb vector. Generat
 
 The host must add the optional `:hammer` dependency, define and supervise the Hammer module, or supply its own module implementing `Sigra.RateLimiter`. `nil` (the default) disables rate limiting.
 
-With this config, the fourth request for the same normalized email within 60 seconds is throttled before account lookup. A denied request returns `{:error, :rate_limited}` for both registered and unknown addresses, and does not enqueue a reset email. The same settings are available for magic links under `magic_link: [max_requests: 3, window_seconds: 900]`. When the limiter allows a request, internal library results and timing are not identical for registered and unknown addresses; the generated page normalizes the user-facing response. Timing equivalence is not established.
+With this config, the fourth request for the same normalized email within 60 seconds is throttled before queue admission. A denied request returns `{:error, :rate_limited}` for either address and creates no recovery job. The same settings are available for magic links under `magic_link: [max_requests: 3, window_seconds: 900]`. When the limiter allows a request, the generated public endpoint returns after queue admission; the worker later performs account-specific work. The synchronous compatibility APIs still have account-dependent results and behavior. These facts do not establish timing equivalence.
 
 ## Why all sessions are invalidated
 

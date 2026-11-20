@@ -984,6 +984,49 @@ end|
 
   # --- the reset call shape in published code samples ---------------------
 
+  describe "durable recovery guidance" do
+    test "adopter setup matches the generated queue, adapter and retry contracts" do
+      reset = read!(@password_reset)
+      login = read!(@login_logout)
+      getting_started = read!(@getting_started)
+      auth_template = read!("priv/templates/sigra.install/core/auth.ex")
+      worker = read!("lib/sigra/workers/recovery_request.ex")
+      recovery = read!("lib/sigra/recovery.ex")
+
+      assert reset =~ "queue_recovery_request(:reset, email)"
+      assert reset =~ "config :my_app, :sigra_recovery"
+      assert reset =~ "{:oban, \"~> 2.17\"}"
+      assert reset =~ "Oban.Migration.up()"
+      assert reset =~ "Oban.Migration.down()"
+      assert reset =~ "{Oban, Application.fetch_env!(:my_app, Oban)}"
+      assert reset =~ "sigra_recovery: 10"
+      assert reset =~ "Oban.check_queue(queue: :sigra_recovery)"
+      assert reset =~ "Oban.whereis(Oban)"
+      assert reset =~ "It does not prove that every node in a cluster has the queue"
+      assert reset =~ "handle the installed version's result or exception"
+      assert reset =~ "Sigra.Recovery.enqueue/3"
+      assert reset =~ "Sigra.Recovery.checkpoint_once/4"
+      assert reset =~ "24 hours"
+      assert reset =~ "Drain the recovery queue before rotating `secret_key_base`"
+      assert reset =~ "the same prepared link"
+      assert reset =~ "the fixed `:recovery_failed` category"
+      assert reset =~ "before queue admission"
+      assert reset =~ "do not establish timing equivalence"
+      assert reset =~ "signs the raw token with HMAC"
+      assert reset =~ "stores the token hash"
+
+      assert login =~ "queue_recovery_request(:magic_link, email)"
+      assert login =~ "MFA-pending session"
+      assert getting_started =~ "Oban.whereis(Oban)"
+      assert getting_started =~ "Oban.check_queue(queue: :sigra_recovery)"
+      assert getting_started =~ "queue_recovery_request(:reset, email)"
+
+      assert auth_template =~ "dispatcher: dispatcher"
+      assert worker =~ "queue: :sigra_recovery, max_attempts: 3"
+      assert recovery =~ "@max_age 86_400"
+    end
+  end
+
   describe "reset instructions call shape" do
     test "no published guide passes a user struct to deliver_user_reset_password_instructions" do
       offenders =
@@ -1002,10 +1045,10 @@ end|
              """
     end
 
-    test "the check sees the samples: the password reset guide passes the email in both of its calls" do
+    test "the check sees the sample: the password reset guide passes an email address" do
       args = reset_call_args(read!(@password_reset))
 
-      assert args == ["email", "user.email"]
+      assert args == ["user.email"]
       refute Enum.any?(args, &user_struct_arg?/1)
     end
 

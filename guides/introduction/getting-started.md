@@ -162,14 +162,13 @@ Confirm: open devtools → Cookies. The `_my_app_key` value should have changed 
 
 ## 7. Request a password reset
 
-Visit <http://localhost:4000/users/reset-password>. Enter `alice@example.com` and submit. The reset request page hands the submitted address to the context, which looks the account up itself:
+Before trying recovery, configure a durable dispatcher. A new install includes the Oban dispatcher settings and the `:sigra, :recovery_hosts` registry; add the `sigra_recovery` queue to your existing Oban configuration and run Oban as a supervised process. Oban is optional. If you use another durable queue, configure a host adapter implementing `Sigra.Recovery.enqueue/3` and `checkpoint_once/4`; without a running dispatcher, recovery requests fail closed with a generic service error.
 
-    Accounts.deliver_user_reset_password_instructions(
-      email,
-      &url(~p"/users/reset-password/#{&1}")
-    )
+Visit <http://localhost:4000/users/reset-password>. Enter `alice@example.test` and submit. The generated request handler queues the submitted address without looking up the account:
 
-This generates an HMAC-signed reset token, stores its hash in `auth.user_tokens` with a 60-minute TTL, and sends the email via the configured mailer. **By design, the form shows the same success message whether or not the email exists in your database**, so the message itself does not tell a visitor which addresses have an account. That covers the message for a single attempt; timing and repeated-request behaviour are described in the [Password Reset](../flows/password-reset.html) guide.
+    Accounts.queue_recovery_request(:reset, email)
+
+After durable admission, a worker looks up the account, applies existing account policy, creates and audits a reset token, and sends the message. The form shows a generic acknowledgment after enqueue, whether the address is registered or not; when dispatch is unavailable it shows the same generic service error for either address and does not fall back to synchronous delivery. Check `Oban.whereis(Oban)` for the supervisor and `Oban.check_queue(queue: :sigra_recovery)` for its configured producer; handle missing-queue results according to your installed Oban version. The detailed queue setup, retry behavior, and claim limits are in the [Password Reset](../flows/password-reset.html) guide.
 
 Check <http://localhost:4000/dev/mailbox> again. You'll see a new message: **"Reset password instructions"**. The body contains a link like:
 
