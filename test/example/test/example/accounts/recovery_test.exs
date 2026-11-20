@@ -375,6 +375,53 @@ defmodule Example.Accounts.RecoveryTest do
     refute_received {:recovery_mailer, :accepted, _, _, _}
   end
 
+  test "a magic link is not consumed after the account requires SSO" do
+    user = user_fixture()
+    owner = user_fixture()
+    organization = create_organization(%{name: "Acme Magic Link", slug: "acme-magic-link"})
+    create_membership(owner, organization, :owner)
+    create_membership(user, organization, :member)
+
+    assert {:ok, {raw_token, _url}} =
+             Accounts.request_magic_link(user.email, &"https://example.test/magic/#{&1}")
+
+    {:ok, decoded_token} = Base.url_decode64(raw_token, padding: false)
+    hashed_token = Sigra.Token.hash_token(decoded_token)
+
+    assert Repo.get_by(UserToken, token: hashed_token, context: "magic_link")
+
+    assert {:ok, _policy_state} =
+             Example.Organizations.enable_sso_only(
+               %Scope{user: owner, active_organization: organization},
+               [owner.id]
+             )
+
+    assert {:error, :invalid} = Accounts.verify_magic_link(raw_token)
+    assert Repo.get_by(UserToken, token: hashed_token, context: "magic_link")
+
+    refute Repo.get_by(AuditEvent,
+             target_id: user.id,
+             action: "auth.magic_link_verify.success"
+           )
+  end
+
+  test "a magic link sent to an old mailbox is not consumed" do
+    user = user_fixture()
+
+    assert {:ok, {raw_token, _url}} =
+             Accounts.request_magic_link(user.email, &"https://example.test/magic/#{&1}")
+
+    {:ok, decoded_token} = Base.url_decode64(raw_token, padding: false)
+    hashed_token = Sigra.Token.hash_token(decoded_token)
+
+    user
+    |> Ecto.Changeset.change(email: "changed-#{System.unique_integer([:positive])}@example.test")
+    |> Repo.update!()
+
+    assert {:error, :invalid} = Accounts.verify_magic_link(raw_token)
+    assert Repo.get_by(UserToken, token: hashed_token, context: "magic_link")
+  end
+
   @tag :recovery_oban
   test "a mail retry reuses the checkpointed link and does not replace a redeemed token" do
     user = user_fixture()
