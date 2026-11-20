@@ -36,17 +36,16 @@ defmodule <%= web_module %>.SessionController do
   end
 
   def create(conn, %{"_action" => "magic_link", "user" => %{"email" => email}}) do
-    url_fun = fn token -> url(conn, ~p"/users/log_in/#{token}") end
+    case Auth.queue_recovery_request(:magic_link, email) do
+      {:ok, _} ->
+        recovery_request_ack(conn)
 
-    case Auth.request_magic_link(email, url_fun) do
-      {:ok, _} -> :ok
-      {:error, :rate_limited} -> :ok
+      {:error, reason} when reason in [:rate_limited, :invalid_request] ->
+        recovery_request_ack(conn)
+
+      {:error, _reason} ->
+        recovery_request_unavailable(conn)
     end
-
-    # Always show same message for enumeration prevention
-    conn
-    |> put_flash(:info, dgettext("sigra", "If your email is registered, you will receive a magic link shortly."))
-    |> redirect(to: ~p"/users/log_in")
   end
 <%= if organizations? do %>
   def create(conn, %{"_action" => "enterprise", "user" => %{"email" => email}}) do
@@ -106,12 +105,34 @@ defmodule <%= web_module %>.SessionController do
     end
   end
 
+  defp recovery_request_ack(conn) do
+    conn
+    |> put_flash(:info, dgettext("sigra", "If your email is registered, you will receive a magic link shortly."))
+    |> redirect(to: ~p"/users/log_in")
+  end
+
+  defp recovery_request_unavailable(conn) do
+    conn
+    |> put_flash(:error, dgettext("sigra", "We couldn't send your request right now. Please try again later."))
+    |> redirect(to: ~p"/users/log_in")
+  end
+
   def magic_link(conn, %{"token" => token}) do
     case Auth.verify_magic_link(token) do
       {:ok, user} ->
-        conn
-        |> put_flash(:info, dgettext("sigra", "Welcome!"))
-        |> UserAuth.log_in_user(user)
+        if Auth.mfa_enabled?(user) do
+          session_token = Auth.generate_user_session_token(user, type: :mfa_pending)
+
+          conn
+          |> UserAuth.put_user_session_token(session_token)
+          |> put_session(:mfa_pending, true)
+          |> put_session(:mfa_return_to, ~p"/")
+          |> redirect(to: ~p"/users/mfa")
+        else
+          conn
+          |> put_flash(:info, dgettext("sigra", "Welcome!"))
+          |> UserAuth.log_in_user(user)
+        end
 
       {:error, _} ->
         conn

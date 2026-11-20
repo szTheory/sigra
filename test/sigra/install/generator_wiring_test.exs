@@ -106,6 +106,29 @@ defmodule Sigra.Install.GeneratorWiringTest do
       assert content =~ "Sigra.Auth.request_password_reset(Repo, email,"
     end
 
+    test "durable recovery helper uses the trusted configured dispatcher" do
+      content = render_template("auth.ex")
+
+      assert content =~ "def queue_recovery_request(operation, email)"
+      assert content =~ "Application.get_env(:my_app, :sigra_recovery, [])"
+      assert content =~ "dispatcher: dispatcher"
+      assert content =~ "Sigra.Recovery.enqueue(operation, email"
+      assert content =~ "def prepare_recovery_request(operation, address)"
+      assert content =~ "def deliver_recovery_request(%{email_type: email_type} = descriptor)"
+      assert content =~ "Sigra.Delivery.deliver_sync(email_type, descriptor"
+      assert content =~ "def recovery_secret_key_base"
+    end
+
+    test "magic-link verification rechecks current policy and MFA schema" do
+      content = render_template("auth.ex")
+
+      assert content =~ "authorize_fun: authorize_fun"
+      assert content =~ "password_login_allowed?"
+
+      assert content =~
+               "Sigra.MFA.enabled?(sigra_config(), user, mfa_credential_schema: UserMFACredential)"
+    end
+
     test "register_user triggers confirmation email" do
       content = render_template("auth.ex")
       assert content =~ "deliver_user_confirmation_instructions(user, confirmation_url_fun)"
@@ -144,14 +167,64 @@ defmodule Sigra.Install.GeneratorWiringTest do
   end
 
   describe "password reset request wiring" do
-    test "live and controller templates pass the raw email to the enumeration-safe context" do
+    test "live and controller templates use queue-only admission and preserve the public response" do
       live = render_template("reset_password_live.ex")
       controller = render_template("reset_password_controller.ex")
 
-      assert live =~ "deliver_user_reset_password_instructions(\n        email,"
-      assert controller =~ "deliver_user_reset_password_instructions(\n        email,"
+      assert live =~ "queue_recovery_request(:reset, email)"
+      assert controller =~ "queue_recovery_request(:reset, email)"
+      assert live =~ "invalid_request"
+      assert controller =~ "invalid_request"
+      assert live =~ "We couldn't send your request right now. Please try again later."
+      assert controller =~ "We couldn't send your request right now. Please try again later."
+      refute live =~ "deliver_user_reset_password_instructions("
+      refute controller =~ "deliver_user_reset_password_instructions("
       refute live =~ "get_user_by_email(email)"
       refute controller =~ "get_user_by_email(email)"
+    end
+  end
+
+  describe "generated recovery dispatcher contract" do
+    test "generated host variants parse with and without optional modules" do
+      templates = [
+        "auth.ex",
+        "session_controller.ex",
+        "reset_password_controller.ex",
+        "reset_password_live.ex"
+      ]
+
+      for options <- [
+            [organizations?: true, passkeys?: true],
+            [organizations?: false, passkeys?: false]
+          ],
+          name <- templates do
+        content = render_template(name, options)
+        assert {:ok, _ast} = Code.string_to_quoted(content), name
+
+        if options[:organizations?] and name in ["auth.ex", "session_controller.ex"] do
+          assert content =~ "MyApp.Organizations", name
+        else
+          refute content =~ "MyApp.Organizations", name
+        end
+      end
+    end
+
+    test "config and public magic-link route call durable dispatch and keep failure generic" do
+      auth = render_template("auth.ex")
+      session = render_template("session_controller.ex")
+
+      features_core =
+        File.read!(Path.join([File.cwd!(), "lib", "sigra", "install", "features", "core.ex"]))
+
+      assert session =~ "Auth.queue_recovery_request(:magic_link, email)"
+      assert session =~ "invalid_request"
+      assert session =~ "We couldn't send your request right now. Please try again later."
+      refute session =~ "Auth.request_magic_link(email, url_fun)"
+      assert auth =~ "def queue_recovery_request(operation, email)"
+      assert features_core =~ ":sigra_recovery"
+      assert features_core =~ ":recovery_hosts"
+      assert features_core =~ "Sigra.Recovery"
+      assert features_core =~ "sigra_recovery: 10"
     end
   end
 
@@ -284,8 +357,8 @@ defmodule Sigra.Install.GeneratorWiringTest do
 
   # -- Helpers --
 
-  defp render_template(name) do
+  defp render_template(name, overrides \\ []) do
     path = Path.join(@template_dir, name)
-    EEx.eval_file(path, @base_binding)
+    EEx.eval_file(path, Keyword.merge(@base_binding, overrides))
   end
 end

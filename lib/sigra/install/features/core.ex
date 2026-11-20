@@ -141,7 +141,7 @@ defmodule Sigra.Install.Features.Core do
     # trailing newlines line up with the pre-refactor STDOUT fixture.
     oban_instructions(otp_app_str) ++
       swoosh_instructions(otp_app_str, app_module) ++
-      [base_instruction_block(opts)]
+      [base_instruction_block(opts, otp_app_str)]
   end
 
   # ──────────────────────────────────────────────────────────────────────────
@@ -605,6 +605,15 @@ defmodule Sigra.Install.Features.Core do
       mfa: [enabled: true],
       enterprise: [enabled: true]
 
+    # Public recovery requests require durable dispatch. The default adapter is
+    # Oban; replace :dispatcher with a host adapter implementing Sigra.Recovery
+    # when using another durable queue.
+    config :sigra, :recovery_hosts, %{"#{otp_app}" => #{context_module}}
+    config :#{otp_app}, :sigra_recovery,
+      host_id: "#{otp_app}",
+      dispatcher: Sigra.Workers.RecoveryRequest,
+      dispatch_opts: [queue: :sigra_recovery]
+
     # Sigra worker runtime config (used by Oban workers)
     config :sigra,
       otp_app: :#{otp_app},
@@ -754,7 +763,7 @@ defmodule Sigra.Install.Features.Core do
   # monolith's `print_instructions/1` heredoc. Returns ONE binary (one
   # `Mix.shell().info/1` call) so Mix.shell's automatic trailing-newline
   # matches the pre-refactor STDOUT byte-for-byte.
-  defp base_instruction_block(opts) do
+  defp base_instruction_block(opts, otp_app) do
     live_line =
       if Keyword.get(opts, :live, true) do
         "  LiveView pages were generated for login, registration, and session management.\n"
@@ -810,6 +819,16 @@ defmodule Sigra.Install.Features.Core do
                use Hammer, backend: :ets
              end
 
+      5. Configure durable public recovery delivery:
+
+             # Add this queue to your existing Oban configuration:
+             config :#{otp_app}, Oban, queues: [sigra_recovery: 10]
+
+         Public reset and magic-link requests are queued before account lookup. You can instead set
+         :dispatcher in :sigra_recovery to a host module implementing Sigra.Recovery. Without a
+         durable dispatcher these endpoints return a service error and never deliver synchronously.
+         Ordinary confirmation and notification email delivery uses the separate :sigra_mailer queue.
+
     #{live_line}#{passkeys_line}
     #{api_line}#{jwt_line}
     """
@@ -833,16 +852,16 @@ defmodule Sigra.Install.Features.Core do
     if target do
       content = File.read!(target)
 
-      if content =~ "sigra_mailer" do
-        [[:yellow, "* already configured ", :reset, "Oban sigra_mailer queue"]]
+      if content =~ "sigra_recovery" do
+        [[:yellow, "* already configured ", :reset, "Oban sigra_recovery queue"]]
       else
         [
           [:green, "* detected Oban config in ", :reset, target],
           [
             :yellow,
-            "  Add the sigra_mailer queue to your Oban config:\n",
+            "  Add the sigra_recovery queue to your existing Oban config:\n",
             :reset,
-            "    config :#{otp_app}, Oban, queues: [sigra_mailer: 10]\n"
+            "    config :#{otp_app}, Oban, queues: [sigra_recovery: 10]\n"
           ]
         ]
       end
@@ -852,8 +871,8 @@ defmodule Sigra.Install.Features.Core do
           :yellow,
           "* Oban not detected. ",
           :reset,
-          "Email delivery will use synchronous mode.\n",
-          "  To enable async delivery, add Oban and configure the sigra_mailer queue."
+          "Ordinary email delivery will use synchronous mode.\n",
+          "  Public reset and magic-link requests fail closed until you configure the sigra_recovery queue or a host dispatcher."
         ]
       ]
     end
