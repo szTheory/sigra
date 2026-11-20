@@ -63,7 +63,11 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
 
     assert length(Regex.scan(~r/name: 'admin-design-setup-[^']+'/, config)) == 3
 
-    states = Regex.scan(~r/storageState: '([^']+)'/, config, capture: :all_but_first)
+    states =
+      Regex.scan(~r/storageState: '(test-results\/.auth\/admin-design-[^']+)'/, config,
+        capture: :all_but_first
+      )
+
     assert states |> List.flatten() |> Enum.uniq() |> length() == 3
 
     assert config =~ "use: { ...devices['iPhone 13'] }"
