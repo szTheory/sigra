@@ -309,6 +309,13 @@ elixir -e '
   rendered = EEx.eval_string(source, app_module: app_module)
   File.write!("test/generated_confirmation_probe_test.exs", rendered)
 ' "${SIGRA_REPO}/scripts/ci/generated-confirmation-probe.exs" "${APP}"
-MIX_ENV=test mix test test/generated_capability_gate_probe_test.exs test/generated_confirmation_probe_test.exs
+elixir -e '
+  [probe_path, app_name] = System.argv()
+  app_module = Macro.camelize(app_name)
+  source = File.read!(probe_path)
+  rendered = EEx.eval_string(source, app_module: app_module)
+  File.write!("test/generated_reset_password_probe_test.exs", rendered)
+' "${SIGRA_REPO}/scripts/ci/generated-reset-password-probe.exs" "${APP}"
+MIX_ENV=test mix test test/generated_capability_gate_probe_test.exs test/generated_confirmation_probe_test.exs test/generated_reset_password_probe_test.exs
 
 echo "==> install-smoke: done; tmp_app generated + sigra-installed + compiled clean"
