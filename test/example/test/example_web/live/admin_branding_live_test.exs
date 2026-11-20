@@ -57,6 +57,30 @@ defmodule ExampleWeb.AdminBrandingLiveTest do
       end
     end
 
+    test "invalid accent keeps the complete palette and actionable alert", %{conn: conn} do
+      platform_admin = platform_admin_fixture()
+
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(platform_admin)
+        |> live(~p"/admin/auth-branding")
+
+      html =
+        view
+        |> form("#auth-branding-form", %{
+          "branding" => Map.put(brand_attrs("light"), "accent_color", "invalid")
+        })
+        |> render_change()
+
+      assert html =~ ~s(role="alert")
+      assert html =~ "accent_color must be a 6-digit hex color like #c2410c"
+      assert length(Regex.scan(~r/<input[^>]+type="color"/, html)) == 14
+
+      for name <- color_field_names() do
+        assert html =~ ~s(name="branding[#{name}]")
+      end
+    end
+
     test "theme picker drives details preview before save", %{conn: conn} do
       platform_admin = platform_admin_fixture()
 
