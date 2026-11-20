@@ -37,6 +37,7 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
   @auth_css "priv/templates/sigra.install/core/sigra_auth.css"
   @config_source "lib/sigra/config.ex"
   @router_glob "test/fixtures/install_golden/tree/lib/*_web/router.ex"
+  @recovery_url_builder_pattern ~r/defp recovery_email_url\(:(?:reset|magic_link), token\),\s*do:\s*<%=\s*web_module\s*%>\.Endpoint\.url\(\)\s*<>\s*"([^"]+)"/
 
   # Roots scanned for markup, helpers and test ids. Directories are walked with
   # a wildcard; binaries (svg, png) and non-UTF-8 files are skipped.
@@ -59,7 +60,7 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
     installer_targets
     profile_defaults
     routes
-    verified_route_helpers
+  verified_route_helpers
   )
 
   # Written once through the opt-in path, before any test reads the baseline.
@@ -208,6 +209,29 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
   end
 
   describe "ratchet" do
+    test "durable recovery URL builders match routes in the generated host" do
+      auth = read_repo!("priv/templates/sigra.install/core/auth.ex")
+      core = read_repo!("lib/sigra/install/features/core.ex")
+      [router_path] = Path.wildcard(Path.join(@root, @router_glob))
+      router_lines = router_path |> File.read!() |> route_lines()
+
+      builder_paths =
+        auth
+        |> capture_all(@recovery_url_builder_pattern)
+        |> Enum.map(&normalize_route_token/1)
+        |> Enum.sort()
+
+      assert builder_paths == [
+               ~S|/users/log_in/#{:token}|,
+               ~S|/users/reset-password/#{:token}|
+             ]
+
+      assert ~s(scope "/users", HostWeb do) in router_lines
+      assert ~s(get "/log_in/:token", SessionController, :magic_link) in router_lines
+      assert ~s(live "/reset-password/:token", ResetPasswordLive, :edit) in router_lines
+      assert core =~ ~s(get "/reset-password/:token", ResetPasswordController, :edit)
+    end
+
     test "the baseline file exists, carries the schema version and the known categories" do
       baseline = read_baseline!()
 
@@ -377,9 +401,15 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
   end
 
   defp extract("verified_route_helpers") do
-    @template_roots
-    |> repo_texts()
-    |> Enum.flat_map(&capture_all(&1, ~r/~p"([^"]*)"/))
+    texts = repo_texts(@template_roots)
+
+    verified_routes = Enum.flat_map(texts, &capture_all(&1, ~r/~p"([^"]*)"/))
+
+    recovery_url_builders =
+      Enum.flat_map(texts, &capture_all(&1, @recovery_url_builder_pattern))
+
+    (verified_routes ++ recovery_url_builders)
+    |> Enum.map(&normalize_route_token/1)
     |> Enum.uniq()
     |> Enum.sort()
   end
@@ -454,6 +484,10 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
   defp encode_default(key, value), do: "#{key}=" <> inspect(value)
 
   # -- extraction helpers ----------------------------------------------------
+
+  defp normalize_route_token(path) do
+    Regex.replace(~r/#\{[^}]+\}/, path, fn _ -> ~S|#{:token}| end)
+  end
 
   defp scan(text, regex) do
     regex
@@ -650,8 +684,14 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
     baseline = read_baseline!()
 
     case get_in(baseline, ["categories", category]) do
-      names when is_list(names) -> names
-      _ -> flunk("baseline has no category #{category}; extend it with: #{@extend_command}")
+      names when is_list(names) and category == "verified_route_helpers" ->
+        Enum.map(names, &normalize_route_token/1)
+
+      names when is_list(names) ->
+        names
+
+      _ ->
+        flunk("baseline has no category #{category}; extend it with: #{@extend_command}")
     end
   end
 

@@ -138,8 +138,11 @@ core/auth.ex	source_token	, password_confirmation:
 core/auth.ex	source_token	,\\n           enterprise_auth_policy: #{app_module}.Organizations
 core/auth.ex	source_token	,\\n      enterprise_auth_policy: #{app_module}.Organizations
 core/auth.ex	source_token	/organizations/#{slug}/sso
+core/auth.ex	source_token	/users/log_in/#{token}
+core/auth.ex	source_token	/users/reset-password/#{token}
 core/auth.ex	source_token	<%= app_name %>
 core/auth.ex	source_token	<%= from_email %>
+core/auth.ex	source_token	<%= otp_app %>
 core/auth.ex	source_token	Authenticate a discoverable passkey without a typed email address.
 core/auth.ex	source_token	Authenticate a passkey for a known user.
 core/auth.ex	source_token	Authenticates a user and preserves typed denial results for controller handling.
@@ -153,6 +156,7 @@ core/auth.ex	source_token	Count passkeys for a user.
 core/auth.ex	source_token	Delete a passkey.
 core/auth.ex	source_token	Delivers a passkey registration notification email.
 core/auth.ex	source_token	Disable MFA for a user. Requires valid TOTP or backup code.
+core/auth.ex	source_token	Enqueues a lookup-free reset or magic-link request through the configured durable dispatcher.
 core/auth.ex	source_token	Get MFA status for a user (enrollment state, backup code count, etc.).
 core/auth.ex	source_token	Get lock status for a user.
 core/auth.ex	source_token	List all active sessions for a user.
@@ -189,6 +193,7 @@ core/auth.ex	source_token	device_hint
 core/auth.ex	source_token	email
 core/auth.ex	source_token	failure
 core/auth.ex	source_token	id
+core/auth.ex	source_token	magic_link
 core/auth.ex	source_token	mfa.disable
 core/auth.ex	source_token	mfa.regenerate_backup_codes
 core/auth.ex	source_token	nickname
@@ -196,6 +201,7 @@ core/auth.ex	source_token	passkey.delete
 core/auth.ex	source_token	passkey.register
 core/auth.ex	source_token	passkey.rename
 core/auth.ex	source_token	password
+core/auth.ex	source_token	public
 core/auth.ex	source_token	rawId
 core/auth.ex	source_token	reset_password
 core/auth.ex	source_token	response
@@ -1381,8 +1387,8 @@ core/reset_password_controller.ex	source_token	\n  Renders the
 core/reset_password_controller.ex	source_token	\n  Renders the new password form for a valid reset token.\n  Shows the expired page if the token is invalid or expired.\n  
 core/reset_password_controller.ex	source_token	 form where the user enters their email.\n  
 core/reset_password_controller.ex	source_token	/users/log_in
-core/reset_password_controller.ex	source_token	/users/reset-password/#{&1}
 core/reset_password_controller.ex	source_token	If your email is in our system, you will receive reset instructions shortly.
+core/reset_password_controller.ex	source_token	We couldn't send your request right now. Please try again later.
 core/reset_password_controller.ex	source_token	Your password has been reset.
 core/reset_password_controller.ex	source_token	email
 core/reset_password_controller.ex	source_token	sigra
@@ -1446,7 +1452,6 @@ core/reset_password_live.ex	source_token	)} class=
 core/reset_password_live.ex	source_token	,\n                  password_strength_color(@password_strength)\n                ]}\n                style={
 core/reset_password_live.ex	source_token	, 
 core/reset_password_live.ex	source_token	/users/log_in
-core/reset_password_live.ex	source_token	/users/reset-password/#{&1}
 core/reset_password_live.ex	source_token	>\n              <div\n                class={[\n                  
 core/reset_password_live.ex	source_token	>\n            <div class=
 core/reset_password_live.ex	source_token	>\n            <li :for={suggestion <- @password_suggestions}>{suggestion}</li>\n          </ul>\n        </div>\n\n        <.input field={f[:password_confirmation]} type=
@@ -1461,6 +1466,7 @@ core/reset_password_live.ex	source_token	>&rarr;</span>\n        </.sigra_auth_b
 core/reset_password_live.ex	source_token	Fair
 core/reset_password_live.ex	source_token	If your email is in our system, you will receive reset instructions shortly.
 core/reset_password_live.ex	source_token	Strong
+core/reset_password_live.ex	source_token	We couldn't send your request right now. Please try again later.
 core/reset_password_live.ex	source_token	Weak
 core/reset_password_live.ex	source_token	Your password has been reset.
 core/reset_password_live.ex	source_token	email
@@ -1491,7 +1497,6 @@ core/session_controller.ex	source_token
 core/session_controller.ex	source_token	/
 core/session_controller.ex	source_token	/organizations/#{slug}/sso?#{%{routing_source: 
 core/session_controller.ex	source_token	/users/log_in
-core/session_controller.ex	source_token	/users/log_in/#{token}
 core/session_controller.ex	source_token	/users/mfa
 core/session_controller.ex	source_token	/users/settings/mfa#passkeys
 core/session_controller.ex	source_token	Account created successfully!
@@ -1514,6 +1519,7 @@ core/session_controller.ex	source_token	We couldn't determine your organization 
 core/session_controller.ex	source_token	We couldn't find an enterprise sign-in route for that work email. Check your organization details and try again.
 core/session_controller.ex	source_token	We couldn't finish adding this passkey. Try again or use another way to continue.
 core/session_controller.ex	source_token	We couldn't finish passkey sign-in. Try again or use another way to continue.
+core/session_controller.ex	source_token	We couldn't send your request right now. Please try again later.
 core/session_controller.ex	source_token	Welcome back!
 core/session_controller.ex	source_token	Welcome!
 core/session_controller.ex	source_token	You can't change account security settings while impersonating.

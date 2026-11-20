@@ -16,7 +16,9 @@ defmodule Sigra.Install.GeneratedCapabilityGatesTest do
     assert source =~ "Sigra.Config.passkeys_enabled?(sigra_config())"
     assert source =~ "Sigra.Config.enterprise_enabled?(sigra_config())"
     assert source =~ "Keyword.get(legacy_config, :oauth, [])"
-    assert source =~ "mfa_capability_enabled?() and Sigra.MFA.enabled?"
+    assert source =~ "mfa_capability_enabled?() and"
+    assert source =~ "Sigra.MFA.enabled?(sigra_config(), user,"
+    assert source =~ "mfa_credential_schema: UserMFACredential"
     assert source =~ "passkeys_enabled?() and"
   end
 

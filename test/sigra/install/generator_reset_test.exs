@@ -28,9 +28,9 @@ defmodule Sigra.Install.GeneratorResetTest do
     test "renders module name from assigns", %{rendered: result} do
       assert result =~ "defmodule MyAppWeb.ResetPasswordController do"
       assert result =~ "use MyAppWeb, :controller"
-      # The request accepts the submitted email so generated contexts can
-      # apply rate limits before account lookup.
-      assert result =~ "MyApp.Auth.deliver_user_reset_password_instructions(\n        email,"
+      # Public recovery requests queue before the worker performs account lookup.
+      assert result =~ "MyApp.Auth.queue_recovery_request(:reset, email)"
+      refute result =~ "MyApp.Auth.deliver_user_reset_password_instructions("
       refute result =~ ~r/^\s*alias MyApp\.Auth\s*$/m
     end
 
