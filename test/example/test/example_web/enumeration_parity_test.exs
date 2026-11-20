@@ -731,7 +731,7 @@ defmodule ExampleWeb.EnumerationParityTest do
     test "magic-link and reset helpers deny known and unknown addresses equally" do
       user = user_fixture()
 
-      for email <- [user.email, "unknown-rate-limit@example.com"] do
+      for email <- [user.email, "unknown-rate-limit@example.test"] do
         assert {:error, :rate_limited} =
                  with_email_rate_limit_config(fn ->
                    Example.Accounts.request_magic_link(email, fn _token ->

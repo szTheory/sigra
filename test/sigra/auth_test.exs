@@ -564,14 +564,14 @@ defmodule Sigra.AuthTest do
 
     test "rate limits unknown addresses before checking whether they exist" do
       Sigra.MockRateLimiter
-      |> expect(:check_rate, fn "magic_link:nobody@example.com", 3, 900_000 ->
+      |> expect(:check_rate, fn "magic_link:nobody@example.test", 3, 900_000 ->
         {:deny, 60_000}
       end)
 
       result =
         Auth.request_magic_link(
           Sigra.MockRepo,
-          "nobody@example.com",
+          "nobody@example.test",
           user_schema: TestUser,
           user_token_schema: TestUserToken,
           url_fun: fn _t -> "" end,
@@ -1061,12 +1061,12 @@ defmodule Sigra.AuthTest do
 
     test "rate limits unknown addresses before checking whether they exist" do
       Sigra.MockRateLimiter
-      |> expect(:check_rate, fn "sigra:reset:nobody@example.com", 3, 900_000 ->
+      |> expect(:check_rate, fn "sigra:reset:nobody@example.test", 3, 900_000 ->
         {:deny, 60_000}
       end)
 
       result =
-        Auth.request_password_reset(Sigra.MockRepo, "nobody@example.com",
+        Auth.request_password_reset(Sigra.MockRepo, "nobody@example.test",
           user_schema: TestUser,
           user_token_schema: TestUserToken,
           secret_key_base: @secret_key_base,
@@ -1482,7 +1482,7 @@ defmodule Sigra.AuthTest do
 
       locked_user = %TestUser{
         id: 1,
-        email: "locked@example.com",
+        email: "locked@example.test",
         hashed_password: "should_not_be_checked",
         confirmed_at: ~U[2024-01-01 00:00:00Z],
         failed_login_attempts: 5,
@@ -1490,18 +1490,18 @@ defmodule Sigra.AuthTest do
       }
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUser, [email: "locked@example.com"] -> locked_user end)
-      |> expect(:get_by, fn TestUser, [email: "unknown@example.com"] -> nil end)
+      |> expect(:get_by, fn TestUser, [email: "locked@example.test"] -> locked_user end)
+      |> expect(:get_by, fn TestUser, [email: "unknown@example.test"] -> nil end)
 
       locked_result =
         Auth.authenticate(@auth_config, %{
-          "email" => "locked@example.com",
+          "email" => "locked@example.test",
           "password" => "any_password"
         })
 
       unknown_result =
         Auth.authenticate(@auth_config, %{
-          "email" => "unknown@example.com",
+          "email" => "unknown@example.test",
           "password" => "any_password"
         })
 

@@ -93,7 +93,7 @@ defmodule ExampleWeb.AdminUserShowLiveTest do
 
     test "finalized deletion is distinct from scheduled deletion", %{conn: conn} do
       platform_admin = platform_admin_fixture()
-      target = user_fixture(%{email: "detail-deleted@example.com", display_name: "Deleted User"})
+      target = user_fixture(%{email: "detail-deleted@example.test", display_name: "Deleted User"})
 
       Repo.update!(
         Ecto.Changeset.change(target,
