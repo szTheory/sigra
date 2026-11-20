@@ -537,6 +537,9 @@
     color: var(--sg-color-brand-strong);
     box-shadow: inset 0 0 0 1px
       color-mix(in oklab, var(--sg-color-brand) 22%, transparent);
+    max-inline-size: min(24rem, calc(100vw - var(--sg-space-4) - var(--sg-space-4)));
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .sg-scope-pill__tenant {
@@ -1951,6 +1954,7 @@
     display: grid;
     gap: var(--sg-space-1);
     min-width: 13rem;
+    max-inline-size: min(24rem, calc(100vw - var(--sg-space-4) - var(--sg-space-4)));
     padding: var(--sg-space-2);
     border-radius: var(--sg-radius-md);
     background: var(--sg-color-panel);
@@ -1962,6 +1966,7 @@
     align-items: center;
     gap: var(--sg-space-2);
     min-height: var(--sg-control-sm);
+    min-width: 0;
     padding-inline: var(--sg-space-3);
     border-radius: var(--sg-radius-sm);
     color: var(--sg-color-ink);
@@ -1969,6 +1974,7 @@
     font-weight: var(--sg-weight-medium);
     text-decoration: none;
     transition: var(--sg-transition-tone);
+    overflow-wrap: anywhere;
   }
 
   .sg-scope-switch__item:hover {
@@ -2525,11 +2531,13 @@
     display: flex;
     align-items: center;
     gap: var(--sg-space-2);
+    min-width: 0;
     padding: var(--sg-space-2) var(--sg-space-3);
     border-radius: var(--sg-radius-sm);
     color: var(--sg-color-ink);
     font-size: var(--sg-text-sm);
     cursor: pointer;
+    overflow-wrap: anywhere;
   }
 
   .sg-cmdk__item.is-active,

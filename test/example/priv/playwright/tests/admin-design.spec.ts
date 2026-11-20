@@ -158,6 +158,92 @@ async function waitForLiveViewReady(page: Page) {
   await assertBrandFontsLoaded(page);
 }
 
+async function createLongOrganization(page: Page) {
+  const id = randomUUID().slice(0, 8);
+  const slug = `phase-264-${id}`;
+  const prefix = `Phase 264 ${id} `;
+  const name = prefix + '🚀'.repeat(255 - Array.from(prefix).length);
+  expect(Array.from(name).length).toBe(255);
+
+  await page.goto('/organizations');
+  await waitForLiveViewReady(page);
+  const nameInput = page.locator('input[name="organization[name]"]');
+  if ((await nameInput.count()) === 0) {
+    const newOrganization = page.getByRole('link', { name: 'New organization' });
+    if ((await newOrganization.count()) === 1) {
+      await newOrganization.click();
+      await waitForLiveViewReady(page);
+    } else {
+      const createDisclosure = page.getByText('Or create your own organization →', { exact: true });
+      await createDisclosure.click();
+    }
+  }
+  await expect(nameInput).toHaveCount(1);
+  await nameInput.fill(name);
+  await expect(page.locator('#slug-preview')).toHaveText(slug);
+  await page.getByRole('button', { name: 'Create organization' }).click();
+  await expect(page).toHaveURL(new RegExp(`/organizations/${slug}/members$`));
+  await waitForLiveViewReady(page);
+  await page.goto(`/admin/organizations/${slug}`);
+  await waitForLiveViewReady(page);
+  return { id, slug, name };
+}
+
+async function measureAdminGeometry(page: Page) {
+  return page.evaluate(() => {
+    const read = (node: Element | null) => {
+      if (!node) return null;
+      const rect = node.getBoundingClientRect();
+      return {
+        clientWidth: node.clientWidth,
+        scrollWidth: node.scrollWidth,
+        rectWidth: Math.round(rect.width),
+      };
+    };
+    const shell = document.querySelector('.sg-admin-shell');
+    const nav = document.querySelector('.sg-admin-sidebar')?.clientWidth
+      ? document.querySelector('.sg-admin-sidebar')
+      : document.querySelector('.sg-bottom-nav');
+    const dialog = document.querySelector('.sg-cmdk__dialog');
+    const list = document.querySelector('.sg-cmdk__list');
+    return {
+      document: { clientWidth: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth },
+      shell: read(shell),
+      navigation: read(nav),
+      scopeSwitch: read(document.querySelector('.sg-scope-switch')),
+      dialog: read(dialog),
+      list: read(list),
+    };
+  });
+}
+
+async function attachStateCoverage(
+  testInfo: TestInfo,
+  id: string,
+  observation: Record<string, unknown>,
+) {
+  const evidence = {
+    id,
+    test_ref: `test/example/priv/playwright/tests/admin-design.spec.ts#${testInfo.title}`,
+    project: testInfo.project.name,
+    viewport: testInfo.project.name === 'admin-design-mobile' ? 'mobile' : 'desktop',
+    ...observation,
+  };
+  await testInfo.attach(`phase264-coverage-${id}.json`, {
+    body: JSON.stringify(evidence, null, 2),
+    contentType: 'application/json',
+  });
+}
+
+function assertNoHorizontalOverflow(geometry: Awaited<ReturnType<typeof measureAdminGeometry>>) {
+  for (const [surface, measurement] of Object.entries(geometry)) {
+    if (!measurement) continue;
+    expect(measurement.scrollWidth, `${surface} horizontal overflow`).toBeLessThanOrEqual(
+      measurement.clientWidth + 1,
+    );
+  }
+}
+
 /**
  * Phase 35: axe a11y gate.
  * Phase 230 (FAST-02 / D-01): called once per design project from the
@@ -413,6 +499,190 @@ test.describe('Design gallery board snapshots', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/admin/_design');
     await waitForLiveViewReady(page);
+  });
+
+  test('Phase 264 UI state coverage: route loading and error stay shell-owned', async ({ page }, testInfo) => {
+    await createLongOrganization(page);
+    const mobile = testInfo.project.name === 'admin-design-mobile';
+    const navigation = page.getByRole('navigation', {
+      name: mobile ? 'Admin bottom nav' : 'Admin navigation',
+    });
+    const navigationLink = navigation.getByRole('link').first();
+    const scopeSummary = page.locator('.sg-scope-switch > summary');
+    const shell = page.locator('.sg-admin-shell');
+
+    await page.evaluate(() => window.dispatchEvent(
+      new CustomEvent('phx:page-loading-start', { detail: { kind: 'redirect' } }),
+    ));
+    await expect.poll(() => shell.getAttribute('aria-busy')).toBe('true');
+    await expect.poll(() => page.locator('html').getAttribute('data-sg-admin-page-loading'))
+      .toBe('true');
+    await expect(navigationLink).toBeVisible();
+    await expect(scopeSummary).toBeVisible();
+    expect(await navigationLink.getAttribute('aria-busy')).toBeNull();
+    expect(await scopeSummary.evaluate((node) => node.tagName.toLowerCase())).toBe('summary');
+    await attachStateCoverage(testInfo, 'UI-01', {
+      state: 'route-loading',
+      shell_busy: await shell.getAttribute('aria-busy'),
+      loading_root: await page.locator('html').getAttribute('data-sg-admin-page-loading'),
+      loading_rail_count: await page.locator('[data-sg-admin-loading-bar]').count(),
+      navigation_control: await navigationLink.innerText(),
+    });
+    await attachStateCoverage(testInfo, 'UI-05', {
+      state: 'route-loading',
+      shell_busy: await shell.getAttribute('aria-busy'),
+      scope_control: await scopeSummary.innerText(),
+      scope_control_role: 'summary',
+    });
+
+    await page.evaluate(() => window.dispatchEvent(
+      new CustomEvent('phx:page-loading-stop', { detail: { kind: 'patch' } }),
+    ));
+    await expect.poll(() => shell.getAttribute('aria-busy')).toBeNull();
+    await page.evaluate(() => window.dispatchEvent(
+      new CustomEvent('phx:page-loading-start', { detail: { kind: 'patch' } }),
+    ));
+    await expect.poll(() => shell.getAttribute('aria-busy')).toBe('true');
+    await page.evaluate(() => window.dispatchEvent(
+      new CustomEvent('phx:page-loading-stop', { detail: { kind: 'error' } }),
+    ));
+    await expect.poll(() => shell.getAttribute('aria-busy')).toBeNull();
+    await expect.poll(() => page.locator('html').getAttribute('data-sg-admin-page-loading'))
+      .toBeNull();
+    await expect(navigationLink).toBeVisible();
+    await expect(scopeSummary).toBeVisible();
+    expect(await navigationLink.isEnabled()).toBe(true);
+    expect(await scopeSummary.evaluate((node) => node.tagName.toLowerCase())).toBe('summary');
+    const scopeMenu = page.locator('.sg-scope-switch__menu');
+    await expect(scopeMenu).toBeHidden();
+    await attachStateCoverage(testInfo, 'UI-02', {
+      state: 'route-error-reset',
+      shell_busy: await shell.getAttribute('aria-busy'),
+      loading_root: await page.locator('html').getAttribute('data-sg-admin-page-loading'),
+      navigation_control: await navigationLink.innerText(),
+      navigation_enabled: await navigationLink.isEnabled(),
+    });
+    await attachStateCoverage(testInfo, 'UI-06', {
+      state: 'route-error-reset',
+      shell_busy: await shell.getAttribute('aria-busy'),
+      scope_control: await scopeSummary.innerText(),
+      scope_control_role: 'summary',
+      scope_menu_hidden: await scopeMenu.isHidden(),
+    });
+  });
+
+  test('Phase 264 UI state coverage: long organization labels fit navigation and scope', async ({ page }, testInfo) => {
+    const { name } = await createLongOrganization(page);
+    const geometry = await measureAdminGeometry(page);
+    assertNoHorizontalOverflow(geometry);
+    const scopeSummary = page.locator('.sg-scope-switch > summary');
+    await expect(scopeSummary).toContainText(name);
+    const accessibleName = await scopeSummary.getAttribute('aria-label');
+    const summaryText = (await scopeSummary.innerText()).replace(/^⌂\s*/, '').trim();
+    expect(accessibleName ?? summaryText).toContain(name);
+    await attachStateCoverage(testInfo, 'UI-03', {
+      state: 'long-organization-navigation-geometry',
+      organization_name_length: Array.from(name).length,
+      geometry,
+    });
+    await attachStateCoverage(testInfo, 'UI-04', {
+      state: 'long-organization-accessible-context',
+      accessible_name: accessibleName ?? summaryText,
+      complete_name_preserved: (accessibleName ?? summaryText).includes(name),
+      geometry,
+    });
+
+    if (testInfo.project.name === 'admin-design-mobile') {
+      await scopeSummary.focus();
+      await page.keyboard.press('Enter');
+    } else {
+      await scopeSummary.click();
+    }
+    const scopeMenu = page.locator('.sg-scope-switch__menu');
+    await expect(scopeMenu).toBeVisible();
+    const currentTarget = scopeMenu.getByRole('link', { name: new RegExp(name) });
+    await expect(currentTarget).toBeVisible();
+    await expect(currentTarget).toContainText(name);
+    const scopeGeometry = await measureAdminGeometry(page);
+    assertNoHorizontalOverflow(scopeGeometry);
+    await attachStateCoverage(testInfo, 'UI-07', {
+      state: 'long-organization-scope-switch',
+      accessible_name: await currentTarget.innerText(),
+      complete_name_preserved: (await currentTarget.innerText()).includes(name),
+      geometry: scopeGeometry,
+      keyboard_outcome: testInfo.project.name === 'admin-design-mobile' ? 'Enter opened scope menu' : 'mouse opened scope menu',
+    });
+  });
+
+  test('Phase 264 UI state coverage: command palette cardinality and long-label keyboard selection', async ({ page }, testInfo) => {
+    const { name, slug } = await createLongOrganization(page);
+    const paletteTrigger = page.getByRole('button', { name: 'Open command palette' });
+    if (testInfo.project.name === 'admin-design-mobile') {
+      await paletteTrigger.focus();
+      await page.keyboard.press('Enter');
+    } else {
+      await paletteTrigger.click();
+    }
+    const dialog = page.getByRole('dialog', { name: 'Command palette' });
+    const input = dialog.getByRole('textbox', { name: 'Find a user or jump to a page' });
+    const options = dialog.getByRole('option');
+    await expect(options).toHaveCount(3);
+    await expect(dialog.locator('[role="option"][aria-selected="true"]')).toHaveCount(1);
+    const threeResultLabels = await options.allInnerTexts();
+    await attachStateCoverage(testInfo, 'UI-16', {
+      state: 'command-palette-populated',
+      option_count: await options.count(),
+      selected_count: await dialog.locator('[role="option"][aria-selected="true"]').count(),
+    });
+
+    await input.fill('Investigate audit');
+    await expect(options).toHaveCount(1);
+    await expect(dialog.locator('[role="option"][aria-selected="true"]')).toHaveCount(1);
+    const oneMatch = await options.first().innerText();
+    await input.fill('no-such-phase264-command');
+    await expect(options).toHaveCount(0);
+    const emptyRow = dialog.locator('.sg-cmdk__empty');
+    await expect(emptyRow).toHaveText('Press Enter to find users matching "no-such-phase264-command"');
+    await attachStateCoverage(testInfo, 'UI-13', {
+      state: 'command-palette-zero-results',
+      option_count: await options.count(),
+      empty_row: await emptyRow.innerText(),
+    });
+
+    await input.fill('Review');
+    await expect(options).toHaveCount(1);
+    await expect(dialog.locator('[role="option"][aria-selected="true"]')).toHaveCount(1);
+    await attachStateCoverage(testInfo, 'UI-19', {
+      state: 'command-palette-zero-one-three',
+      counts: { zero: 0, one: 1, three: 3 },
+      one_match: oneMatch,
+      three_result_labels: threeResultLabels,
+    });
+
+    const commandLabel = `Review ${name} overview`;
+    await input.fill(commandLabel);
+    await expect(options).toHaveCount(1);
+    const overviewOption = dialog.getByRole('option', { name: commandLabel, exact: true });
+    await expect(overviewOption).toBeVisible();
+    await expect(overviewOption).toHaveText(commandLabel);
+    const geometry = await measureAdminGeometry(page);
+    assertNoHorizontalOverflow(geometry);
+    await attachStateCoverage(testInfo, 'UI-18', {
+      state: 'long-command-label-geometry',
+      accessible_name: await overviewOption.innerText(),
+      geometry,
+    });
+    await input.focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(new RegExp(`/admin/organizations/${slug}$`));
+    await waitForLiveViewReady(page);
+    await attachStateCoverage(testInfo, 'UI-20', {
+      state: 'long-command-keyboard-selection',
+      accessible_name: commandLabel,
+      complete_name_preserved: commandLabel.includes(name),
+      keyboard_outcome: 'Enter navigated to organization overview',
+      geometry,
+    });
   });
 
   test('selected command rows and current tabs use the brand tokens in every theme', async ({
