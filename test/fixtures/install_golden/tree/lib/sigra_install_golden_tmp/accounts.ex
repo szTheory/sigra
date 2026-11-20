@@ -228,10 +228,10 @@ defmodule SigraInstallGoldenTmp.Accounts do
   end
 
   defp recovery_email_url(:reset, token),
-    do: SigraInstallGoldenTmpWeb.Endpoint.url() <> "/users/reset-password/#{token}"
+    do: {:reset_password_email, SigraInstallGoldenTmpWeb.Endpoint.url() <> "/users/reset-password/#{token}"}
 
   defp recovery_email_url(:magic_link, token),
-    do: SigraInstallGoldenTmpWeb.Endpoint.url() <> "/users/log_in/#{token}"
+    do: {:magic_link_email, SigraInstallGoldenTmpWeb.Endpoint.url() <> "/users/log_in/#{token}"}
 
 
   defp recovery_delivery_current?(%{

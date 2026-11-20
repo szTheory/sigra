@@ -228,10 +228,10 @@ defmodule <%= context_module %> do
   end
 
   defp recovery_email_url(:reset, token),
-    do: <%= web_module %>.Endpoint.url() <> "/users/reset-password/#{token}"
+    do: {:reset_password_email, <%= web_module %>.Endpoint.url() <> "/users/reset-password/#{token}"}
 
   defp recovery_email_url(:magic_link, token),
-    do: <%= web_module %>.Endpoint.url() <> "/users/log_in/#{token}"
+    do: {:magic_link_email, <%= web_module %>.Endpoint.url() <> "/users/log_in/#{token}"}
 
 <%= if organizations? do %>
   defp recovery_delivery_current?(%{

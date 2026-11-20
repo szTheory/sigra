@@ -162,7 +162,7 @@ Confirm: open devtools → Cookies. The `_my_app_key` value should have changed 
 
 ## 7. Request a password reset
 
-Before trying recovery, configure a durable dispatcher. A new install includes the Oban dispatcher settings and the `:sigra, :recovery_hosts` registry; add the `sigra_recovery` queue to your existing Oban configuration and run Oban as a supervised process. Oban is optional. If you use another durable queue, configure a host adapter implementing `Sigra.Recovery.enqueue/3` and `checkpoint_once/4`; without a running dispatcher, recovery requests fail closed with a generic service error.
+Before trying recovery, configure a durable dispatcher. A new install includes the Oban dispatcher settings and the `:sigra, :recovery_hosts` registry; add the `sigra_recovery` queue to your existing Oban configuration and run Oban as a supervised process. Oban is optional. If you use another durable queue, configure a host adapter implementing the `enqueue/3` and `checkpoint_once/4` callbacks declared by `Sigra.Recovery`; without a running dispatcher, recovery requests fail closed with a generic service error.
 
 Visit <http://localhost:4000/users/reset-password>. Enter `alice@example.test` and submit. The generated request handler queues the submitted address without looking up the account:
 

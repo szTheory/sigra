@@ -228,6 +228,7 @@ wax_ via `Wax.AttestedCredentialData.credential_public_key`).
 - [Sigra.RateLimiter](Sigra.RateLimiter.md): Behaviour for rate limiting implementations.
 - [Sigra.RateLimiters.Hammer](Sigra.RateLimiters.Hammer.md): Hammer 7.x rate limiter implementation.
 - [Sigra.RateLimiters.Noop](Sigra.RateLimiters.Noop.md): No-op rate limiter that always allows requests.
+- [Sigra.Recovery](Sigra.Recovery.md): Lookup-free, durable ingress for password-reset and magic-link requests.
 - [Sigra.Scope](Sigra.Scope.md): Library-side scope helpers. The `%Scope{}` struct itself is generated
 into the host app — this module only provides constructors that work
 via `struct/2` reflection on the host's module.
@@ -253,6 +254,7 @@ retention window (D-10 retention cleanup for AUDIT-03).
 - [Sigra.Workers.CleanupExpiredInvitations](Sigra.Workers.CleanupExpiredInvitations.md): Optional Oban worker that hard-deletes expired, unaccepted invitation
 rows past the configured retention window (D-11).
 - [Sigra.Workers.EmailDelivery](Sigra.Workers.EmailDelivery.md): Oban worker for asynchronous email delivery.
+- [Sigra.Workers.RecoveryRequest](Sigra.Workers.RecoveryRequest.md): Durable Oban adapter for `Sigra.Recovery` requests.
 - [Sigra.Workers.TokenCleanup](Sigra.Workers.TokenCleanup.md): Oban cron worker for cleaning up expired tokens.
 
 - Core

@@ -37,7 +37,7 @@ defmodule Sigra.Brand.FrozenSurfaceTest do
   @auth_css "priv/templates/sigra.install/core/sigra_auth.css"
   @config_source "lib/sigra/config.ex"
   @router_glob "test/fixtures/install_golden/tree/lib/*_web/router.ex"
-  @recovery_url_builder_pattern ~r/defp recovery_email_url\(:(?:reset|magic_link), token\),\s*do:\s*<%=\s*web_module\s*%>\.Endpoint\.url\(\)\s*<>\s*"([^"]+)"/
+  @recovery_url_builder_pattern ~r/defp recovery_email_url\(:(?:reset|magic_link), token\),\s*do:\s*\{:(?:reset_password_email|magic_link_email),\s*<%=\s*web_module\s*%>\.Endpoint\.url\(\)\s*<>\s*"([^"]+)"\}/
 
   # Roots scanned for markup, helpers and test ids. Directories are walked with
   # a wildcard; binaries (svg, png) and non-UTF-8 files are skipped.

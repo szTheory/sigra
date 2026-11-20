@@ -1004,8 +1004,10 @@ end|
       assert reset =~ "Oban.whereis(Oban)"
       assert reset =~ "It does not prove that every node in a cluster has the queue"
       assert reset =~ "handle the installed version's result or exception"
-      assert reset =~ "Sigra.Recovery.enqueue/3"
-      assert reset =~ "Sigra.Recovery.checkpoint_once/4"
+
+      assert reset =~
+               "the `enqueue/3` and `checkpoint_once/4` callbacks declared by `Sigra.Recovery`"
+
       assert reset =~ "24 hours"
       assert reset =~ "Drain the recovery queue before rotating `secret_key_base`"
       assert reset =~ "the same prepared link"

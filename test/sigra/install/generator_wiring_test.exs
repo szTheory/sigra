@@ -21,6 +21,10 @@ defmodule Sigra.Install.GeneratorWiringTest do
     passkeys?: true
   ]
 
+  defmodule RecoveryUrlEndpoint do
+    def url, do: "https://app.example.test"
+  end
+
   describe "generator file list includes Phase 3 templates" do
     test "emails.ex template exists" do
       assert File.exists?(Path.join(@template_dir, "emails.ex"))
@@ -117,6 +121,17 @@ defmodule Sigra.Install.GeneratorWiringTest do
       assert content =~ "def deliver_recovery_request(%{email_type: email_type} = descriptor)"
       assert content =~ "Sigra.Delivery.deliver_sync(email_type, descriptor"
       assert content =~ "def recovery_secret_key_base"
+    end
+
+    test "recovery URLs map both operations to their email functions and existing paths" do
+      auth = render_template("auth.ex")
+      probe = compile_recovery_url_probe!(auth)
+
+      assert apply(probe, :url_for, [:reset, "token-123"]) ==
+               {:reset_password_email, "https://app.example.test/users/reset-password/token-123"}
+
+      assert apply(probe, :url_for, [:magic_link, "token-456"]) ==
+               {:magic_link_email, "https://app.example.test/users/log_in/token-456"}
     end
 
     test "magic-link verification rechecks current policy and MFA schema" do
@@ -360,5 +375,34 @@ defmodule Sigra.Install.GeneratorWiringTest do
   defp render_template(name, overrides \\ []) do
     path = Path.join(@template_dir, name)
     EEx.eval_file(path, Keyword.merge(@base_binding, overrides))
+  end
+
+  defp compile_recovery_url_probe!(source) do
+    definitions =
+      Regex.scan(~r/^  defp recovery_email_url\([^\n]+\),\n    do: [^\n]+/m, source)
+      |> Enum.map(&List.first/1)
+      |> Enum.map(fn definition ->
+        String.replace(
+          definition,
+          "MyAppWeb.Endpoint",
+          "Elixir.Sigra.Install.GeneratorWiringTest.RecoveryUrlEndpoint"
+        )
+      end)
+
+    if length(definitions) != 2 do
+      raise "expected both generated recovery_email_url/2 clauses"
+    end
+
+    probe = Module.concat(__MODULE__, "RecoveryUrlProbe#{System.unique_integer([:positive])}")
+
+    Code.compile_string("""
+    defmodule #{inspect(probe)} do
+      #{Enum.join(definitions, "\n")}
+
+      def url_for(operation, token), do: recovery_email_url(operation, token)
+    end
+    """)
+
+    probe
   end
 end

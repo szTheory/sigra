@@ -7,9 +7,9 @@ defmodule Sigra.Recovery do
   the encrypted envelope before returning success. It must never fall back to
   synchronous account lookup or delivery.
 
-  Dispatchers implement `enqueue/3` and `checkpoint_once/3`. The checkpoint
-  callback must execute `prepare` inside the same transaction that serializes
-  the stable job identity and persists its encrypted outcome.
+  Dispatchers implement the `enqueue/3` and `checkpoint_once/4` callbacks. The
+  checkpoint callback must execute `prepare` inside the same transaction that
+  serializes the stable job identity and persists its encrypted outcome.
   """
 
   @envelope_salt "sigra-recovery-request-v1"
