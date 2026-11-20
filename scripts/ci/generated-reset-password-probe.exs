@@ -172,6 +172,14 @@ defmodule <%= app_module %>.GeneratedResetPasswordProbeTest do
     reset_token = email_token(reset_email, "/users/reset-password/")
     magic_link = email_token(magic_email, "/users/log_in/")
 
+    # Password reset revokes every outstanding credential for the user, so
+    # redeem the magic link first. This proves each independently delivered
+    # URL works without weakening the cross-token revocation behavior.
+    magic_conn = get(build_conn(), "/users/log_in/#{magic_link}")
+    assert redirected_to(magic_conn) == "/"
+    assert get_session(magic_conn, :user_token)
+    refute Repo.get(UserToken, magic_token.id)
+
     {:ok, reset_view, reset_html} = live(build_conn(), "/users/reset-password/#{reset_token}")
     assert reset_html =~ ~s(id="reset_password_form")
     assert has_element?(reset_view, "#reset_password_form")
@@ -187,11 +195,6 @@ defmodule <%= app_module %>.GeneratedResetPasswordProbeTest do
     assert replay_html =~ "This password reset link has expired or was already used."
     assert has_element?(replay_view, ~s(a[href="/users/reset-password"]))
     refute has_element?(replay_view, "#reset_password_form")
-
-    magic_conn = get(build_conn(), "/users/log_in/#{magic_link}")
-    assert redirected_to(magic_conn) == "/"
-    assert get_session(magic_conn, :user_token)
-    refute Repo.get(UserToken, magic_token.id)
   end
 
   test "generated reset controller action uses the durable dispatcher", %{conn: conn} do
