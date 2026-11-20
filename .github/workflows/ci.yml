@@ -623,6 +623,7 @@ jobs:
         run: mix deps.get
       - name: Run contributor CI gate
         env:
+          SIGRA_CI_REQUIRED: "1"
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
