@@ -72,6 +72,15 @@ config :sigra_install_golden_tmp, :sigra_config,
   mfa: [enabled: true],
   enterprise: [enabled: true]
 
+# Public recovery requests require durable dispatch. The default adapter is
+# Oban; replace :dispatcher with a host adapter implementing Sigra.Recovery
+# when using another durable queue.
+config :sigra, :recovery_hosts, %{"sigra_install_golden_tmp" => SigraInstallGoldenTmp.Accounts}
+config :sigra_install_golden_tmp, :sigra_recovery,
+  host_id: "sigra_install_golden_tmp",
+  dispatcher: Sigra.Workers.RecoveryRequest,
+  dispatch_opts: [queue: :sigra_recovery]
+
 # Sigra worker runtime config (used by Oban workers)
 config :sigra,
   otp_app: :sigra_install_golden_tmp,
