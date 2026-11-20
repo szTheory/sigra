@@ -1535,6 +1535,61 @@ defmodule Sigra.AuthTest do
       refute_received {:stored_hash_checked, _}
     end
 
+    test "locked sign-in keeps the same dummy work across stored hashes and lockout durations" do
+      locked_at = DateTime.utc_now() |> DateTime.add(-100, :second)
+
+      locked_users = [
+        %TestUser{
+          id: 1,
+          email: "locked@example.test",
+          hashed_password: "first-stored-hash",
+          confirmed_at: ~U[2024-01-01 00:00:00Z],
+          failed_login_attempts: 5,
+          locked_at: locked_at
+        },
+        %TestUser{
+          id: 2,
+          email: "locked@example.test",
+          hashed_password: "different-stored-hash",
+          confirmed_at: ~U[2024-01-01 00:00:00Z],
+          failed_login_attempts: 5,
+          locked_at: locked_at
+        }
+      ]
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "locked@example.test"] -> hd(locked_users) end)
+      |> expect(:get_by, fn TestUser, [email: "locked@example.test"] ->
+        List.last(locked_users)
+      end)
+
+      configs = [
+        %{
+          @auth_config
+          | password: [hasher: TimingHasher],
+            lockout: [threshold: 5, duration: 900, notify: true]
+        },
+        %{
+          @auth_config
+          | password: [hasher: TimingHasher],
+            lockout: [threshold: 5, duration: 3_600, notify: true]
+        }
+      ]
+
+      results =
+        Enum.map(configs, fn config ->
+          Auth.authenticate(config, %{
+            "email" => "locked@example.test",
+            "password" => "same-password"
+          })
+        end)
+
+      assert results == [{:error, :invalid_credentials}, {:error, :invalid_credentials}]
+      assert_received :dummy_password_work
+      assert_received :dummy_password_work
+      refute_received {:stored_hash_checked, _}
+    end
+
     test "increments failed_login_attempts on wrong password" do
       hashed = Sigra.Crypto.hash_password("correct_password")
 
