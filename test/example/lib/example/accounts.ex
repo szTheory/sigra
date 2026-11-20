@@ -152,6 +152,114 @@ defmodule Example.Accounts do
     )
   end
 
+  @doc "Enqueues a generic recovery request through the configured durable dispatcher."
+  def enqueue_recovery_request(operation, email)
+      when operation in [:reset, :magic_link] and is_binary(email) do
+    config = sigra_config()
+    limits = if operation == :magic_link, do: config.magic_link, else: config.reset
+
+    Sigra.Recovery.enqueue(operation, email,
+      host_id: "example",
+      secret_key_base: recovery_secret_key_base(),
+      dispatcher: Sigra.Workers.RecoveryRequest,
+      rate_limiter: Keyword.get(config.rate_limiting, :limiter),
+      max_requests: Keyword.get(limits, :max_requests, 3),
+      window_ms: Keyword.get(limits, :window_seconds, 900) * 1_000,
+      dispatch_opts: [queue: :sigra_recovery]
+    )
+  end
+
+  @doc false
+  def recovery_secret_key_base, do: ExampleWeb.Endpoint.config(:secret_key_base)
+
+  @doc false
+  def recovery_repo, do: Repo
+
+  @doc false
+  def recovery_oban_prefix, do: "public"
+
+  @doc false
+  def prepare_recovery_request(operation, address) when operation in [:reset, :magic_link] do
+    auth_opts = [
+      user_schema: User,
+      user_token_schema: UserToken,
+      secret_key_base: recovery_secret_key_base(),
+      audit_schema: Example.Accounts.AuditEvent,
+      enterprise_auth_policy: Example.Organizations
+    ]
+
+    case SigraAuth.prepare_recovery(Repo, operation, address, auth_opts) do
+      {:ok, :no_delivery} ->
+        {:ok, %{descriptor: %{delivery: nil}, audit_changes: %{}}}
+
+      {:ok, %{user: user, token: token, token_hash: token_hash, changes: changes}} ->
+        {email_type, url} = recovery_email_url(operation, token)
+        email = apply(Emails, email_type, [user, url])
+
+        descriptor = %{
+          delivery: %{
+            email_type: email_type,
+            to: user.email,
+            user_id: user.id,
+            token_hash: token_hash,
+            context: if(operation == :magic_link, do: "magic_link", else: "reset_password"),
+            subject: email.subject,
+            body: %{html: email.html_body, text: email.text_body}
+          },
+          telemetry: if(operation == :reset, do: {:reset, user.id}, else: nil)
+        }
+
+        {:ok, %{descriptor: descriptor, audit_changes: changes}}
+
+      {:error, _reason} ->
+        {:error, :recovery_failed}
+    end
+  end
+
+  @doc false
+  def deliver_recovery_request(%{email_type: email_type} = descriptor) do
+    if recovery_delivery_current?(descriptor) do
+      Sigra.Delivery.deliver_sync(email_type, descriptor, mailer: Example.Accounts.Mailer)
+    else
+      {:ok, :suppressed}
+    end
+  end
+
+  defp recovery_email_url(:reset, token),
+    do: {:reset_password_email, ExampleWeb.Endpoint.url() <> "/users/reset-password/#{token}"}
+
+  defp recovery_email_url(:magic_link, token),
+    do: {:magic_link_email, ExampleWeb.Endpoint.url() <> "/users/log_in/#{token}"}
+
+  defp recovery_delivery_current?(%{
+         user_id: user_id,
+         to: to,
+         token_hash: token_hash,
+         context: context
+       }) do
+    token =
+      Repo.get_by(UserToken,
+        token: token_hash,
+        context: context,
+        user_id: user_id,
+        sent_to: to
+      )
+
+    user = Repo.get(User, user_id)
+    ttl = recovery_token_ttl(context)
+
+    not is_nil(token) and not is_nil(user) and user.email == to and is_nil(user.deleted_at) and
+      DateTime.diff(DateTime.utc_now(), token.inserted_at, :second) <= ttl
+  end
+
+  defp recovery_delivery_current?(_), do: false
+
+  defp recovery_token_ttl("magic_link"),
+    do: Keyword.get(sigra_config().magic_link, :ttl, 600)
+
+  defp recovery_token_ttl("reset_password"),
+    do: Keyword.get(sigra_config().token_ttl, :reset_password, 3_600)
+
   @doc """
   Verifies a magic link token.
 
