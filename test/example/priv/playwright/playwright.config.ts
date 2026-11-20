@@ -246,14 +246,29 @@ export default defineConfig({
         storageState: 'test-results/.auth/admin-design-dark.json',
       },
     },
-    // Phase 267: each eval project gets one setup dependency and its own auth state.
-    // Keep `retries: 0` above, the ADMIN_EVAL_SPEC matcher, full matrix, and
-    // non-gating CI status intact as the additional project states are added.
+    // Phase 267 invariant: exactly three setup projects, one unique account and
+    // one distinct storageState file per eval project. Keep `retries: 0` above,
+    // the ADMIN_EVAL_SPEC matcher, complete matrix, and non-gating CI status intact.
     {
       name: 'admin-eval-setup',
       testMatch: ADMIN_EVAL_SETUP_SPEC,
       grep: /authenticate admin eval desktop/,
       use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'admin-eval-setup-mobile',
+      testMatch: ADMIN_EVAL_SETUP_SPEC,
+      grep: /authenticate admin eval mobile/,
+      use: { ...devices['iPhone 13'] },
+    },
+    {
+      name: 'admin-eval-setup-dark',
+      testMatch: ADMIN_EVAL_SETUP_SPEC,
+      grep: /authenticate admin eval dark/,
+      use: {
+        ...devices['Desktop Chrome'],
+        colorScheme: 'dark',
+      },
     },
     // Admin eval lane (Desktop Chrome DPR1): render matrix + probes + bundle writes.
     // This is the HARD-GATE geometry project (D-15): gate-severity probe findings
@@ -272,16 +287,22 @@ export default defineConfig({
     {
       name: 'admin-eval-mobile',
       testMatch: ADMIN_EVAL_SPEC,
-      use: { ...devices['iPhone 13'] },
+      dependencies: ['admin-eval-setup-mobile'],
+      use: {
+        ...devices['iPhone 13'],
+        storageState: 'test-results/.auth/admin-eval-mobile.json',
+      },
     },
     // Admin eval lane (dark theme): dark-mode render + probe capture, warn-only (D-15).
     // Geometry/color probes collect findings but do not fail in dark-mode runs.
     {
       name: 'admin-eval-dark',
       testMatch: ADMIN_EVAL_SPEC,
+      dependencies: ['admin-eval-setup-dark'],
       use: {
         ...devices['Desktop Chrome'],
         colorScheme: 'dark',
+        storageState: 'test-results/.auth/admin-eval-dark.json',
       },
     },
   ],

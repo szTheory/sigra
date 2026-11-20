@@ -44,3 +44,19 @@ setup('authenticate admin eval desktop', async ({ page }) => {
     desktopStatePath,
   );
 });
+
+setup('authenticate admin eval mobile', async ({ page }) => {
+  await persistEvalAdmin(
+    page,
+    `platform-admin+eval-mobile-${randomUUID()}@example.test`,
+    'test-results/.auth/admin-eval-mobile.json',
+  );
+});
+
+setup('authenticate admin eval dark', async ({ page }) => {
+  await persistEvalAdmin(
+    page,
+    `platform-admin+eval-dark-${randomUUID()}@example.test`,
+    'test-results/.auth/admin-eval-dark.json',
+  );
+});

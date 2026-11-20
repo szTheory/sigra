@@ -21,17 +21,12 @@
  */
 
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, type Page, type Request, type Response, type TestInfo } from '@playwright/test';
+import { test, expect, type Page, type TestInfo } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { assertBrandFontsLoaded } from '../helpers/brandFonts';
-import { TEST_PASSWORD } from '../helpers/fixtures';
-import {
-  assertGenericRegistrationResponse,
-  signInManually,
-} from '../helpers/registration';
 import { renderSha256 } from '../lib/eval/canonicalize.ts';
 import {
   runAllProbes,
@@ -152,102 +147,6 @@ async function waitForLiveViewReady(page: Page) {
   // Mono) are loaded. It forces the load and reads the FontFace status because
   // fonts.check() is vacuously true for a face that was never declared.
   await assertBrandFontsLoaded(page);
-}
-
-// ── Admin registration (platform-admin+…@example.test prefix) ─────────────────
-
-async function registerUser(page: Page, email: string, password: string) {
-  // D-09: waitUntil:'domcontentloaded' on first-nav goto prevents the ~16min hung-on-load
-  // flake (16 first-nav failures observed in 216-09). waitForLiveViewReady gates on
-  // phx-connected + both brand faces loaded after each goto.
-  await page.goto('/users/register', { waitUntil: 'domcontentloaded' });
-  await waitForLiveViewReady(page);
-  await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(password);
-  // `fill()` dispatches phx-change asynchronously. Wait for the server-rendered
-  // strength label before submitting so LiveView does not have a validation diff
-  // and the submit event in flight at the same time under CI load.
-  await expect(page.getByRole('status')).toBeVisible();
-  let registrationRequest: { method: string; path: string } | null = null;
-  let registrationPost: { path: string; status: number; redirectPath: string | null } | null = null;
-  let registrationRequestFailure: string | null = null;
-  const captureRegistrationRequest = (request: Request) => {
-    const requestUrl = new URL(request.url());
-    if (request.method() === 'POST' && requestUrl.pathname === '/users/log_in') {
-      registrationRequest = { method: request.method(), path: requestUrl.pathname };
-    }
-  };
-  const captureRegistrationRequestFailure = (request: Request) => {
-    const requestUrl = new URL(request.url());
-    if (request.method() === 'POST' && requestUrl.pathname === '/users/log_in') {
-      registrationRequestFailure = request.failure()?.errorText ?? 'request failed without a browser error';
-    }
-  };
-  const captureRegistrationPost = (response: Response) => {
-    const request = response.request();
-    const responseUrl = new URL(response.url());
-    if (request.method() !== 'POST' || responseUrl.pathname !== '/users/log_in') return;
-    const location = response.headers()['location'];
-    registrationPost = {
-      path: responseUrl.pathname,
-      status: response.status(),
-      redirectPath: location ? new URL(location, response.url()).pathname : null,
-    };
-  };
-  page.on('request', captureRegistrationRequest);
-  page.on('requestfailed', captureRegistrationRequestFailure);
-  page.on('response', captureRegistrationPost);
-  try {
-    await page.getByRole('button', { name: /Create an account/ }).click();
-    await assertGenericRegistrationResponse(page);
-  } catch (error) {
-    const pageState = await page.evaluate(() => {
-      const form = document.querySelector<HTMLFormElement>('#registration_form');
-      const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
-      return {
-        finalUrl: location.href,
-        liveViewConnected: Boolean(document.querySelector('[data-phx-session].phx-connected')),
-        formPresent: Boolean(form),
-        formAction: form?.getAttribute('action') ?? null,
-        triggerSubmit: form?.getAttribute('phx-trigger-action') ?? null,
-        submitDisabled: submit?.disabled ?? null,
-        validationSummary: form?.querySelector('[role="alert"], .alert')?.textContent?.trim().slice(0, 240) ?? null,
-      };
-    }).catch((stateError: unknown) => ({ stateCaptureError: String(stateError) }));
-    page.off('request', captureRegistrationRequest);
-    page.off('requestfailed', captureRegistrationRequestFailure);
-    page.off('response', captureRegistrationPost);
-    const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`${message}; registration diagnostics=${JSON.stringify({ registrationRequest, registrationPost, registrationRequestFailure, pageState })}`);
-  }
-  page.off('request', captureRegistrationRequest);
-  page.off('requestfailed', captureRegistrationRequestFailure);
-  page.off('response', captureRegistrationPost);
-  expect(registrationRequest).toBeNull();
-  expect(registrationPost).toBeNull();
-  expect(registrationRequestFailure).toBeNull();
-  await signInManually(page, email, password);
-  await waitForLiveViewReady(page);
-}
-
-let registrationSequence = 0;
-
-function adminEvalEmail(testInfo: TestInfo) {
-  // Example.SigraAdminPolicy requires this prefix for global admin access.
-  const project = testInfo.project.name
-    .replace(/^admin-eval-?/, '')
-    .replace(/[^a-z0-9]+/gi, '')
-    .slice(0, 8);
-  const sequence = (++registrationSequence).toString(36);
-  const timestamp = Date.now().toString(36);
-  // WR-06: registrationSequence resets per worker, so two parallel workers can
-  // reach the same (timestamp, sequence, retry) tuple and collide on the
-  // unique-email constraint. Add worker-unique entropy — testInfo.workerIndex
-  // plus a short random suffix — so same-millisecond collisions across
-  // workers are no longer possible.
-  const worker = testInfo.workerIndex.toString(36);
-  const rand = Math.random().toString(36).slice(2, 6);
-  return `platform-admin+ev-${timestamp}-${project}-${sequence}-${testInfo.retry}-w${worker}${rand}@example.test`;
 }
 
 // ── Gate/warn project detection (D-15) ────────────────────────────────────────
@@ -402,8 +301,8 @@ async function captureSurface(
 
 // ── D-08 gap #1 fix: wire probeIdsDriftCheck() so PROBE_IDS drift actually fails the suite ────
 // probeIdsDriftCheck() only reads files and deep-compares arrays (no `page`), so this
-// top-level beforeAll needs no server and runs before the describe/beforeEach below that
-// registers a user and navigates.
+// top-level beforeAll needs no server and runs before the describe/beforeEach that
+// navigates to the gallery with authenticated state from the matching setup project.
 test.beforeAll(() => {
   probeIdsDriftCheck();
 });
@@ -411,14 +310,7 @@ test.beforeAll(() => {
 // ── Main eval spec ─────────────────────────────────────────────────────────────
 
 test.describe('Admin eval — render matrix, probes, bundles', () => {
-  test.beforeEach(async ({ page }, testInfo) => {
-    if (testInfo.project.name !== 'admin-eval') {
-      // Mobile and dark retain isolated registration until their setup states land.
-      const adminEmail = adminEvalEmail(testInfo);
-      await registerUser(page, adminEmail, TEST_PASSWORD);
-    }
-    // D-09: waitUntil:'domcontentloaded' + explicit waitForLiveViewReady gate.
-    // Primary flake site — 16 first-nav hangs observed in 216-09 on this goto.
+  test.beforeEach(async ({ page }) => {
     await page.goto('/admin/_design', { waitUntil: 'domcontentloaded' });
     await waitForLiveViewReady(page);
   });
