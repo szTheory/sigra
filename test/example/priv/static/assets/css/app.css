@@ -1830,10 +1830,6 @@ html[data-sg-admin-page-loading="complete"] .sg-admin-loading-bar::before {
   /* Theme changes replace the panel ground immediately; animating muted text
    * can expose a dark-on-dark frame before the foreground catches up. */
 }
-.sg-bottom-nav__item:focus-visible {
-  outline: none;
-  box-shadow: var(--sg-focus-ring);
-}
 .sg-bottom-nav__item.active,
 .sg-bottom-nav .active {
   color: var(--sg-color-brand-strong);
