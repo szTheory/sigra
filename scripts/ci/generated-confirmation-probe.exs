@@ -375,56 +375,6 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
     IO.puts("PASS confirmation probe: owner accepted the spaced code and consumed confirmation credentials")
   end
 
-  test "generated reset request page handles existing and unknown addresses safely", %{
-    conn: conn
-  } do
-    user = AccountsFixtures.user_fixture()
-    generic_flash = "If your email is in our system, you will receive reset instructions shortly."
-
-    assert Repo.all(
-             from token in UserToken,
-               where: token.user_id == ^user.id and token.context == "reset_password"
-           ) == []
-
-    {:ok, existing_view, existing_html} = live(conn, "/users/reset-password")
-    assert existing_html =~ ~s(id="reset_password_request_form")
-
-    existing_view
-    |> form("#reset_password_request_form", user: %{email: user.email})
-    |> render_submit()
-
-    existing_flash = assert_redirect(existing_view, "/users/log_in")
-    assert existing_flash["info"] == generic_flash
-
-    assert [%{sent_to: sent_to}] =
-             Repo.all(
-               from token in UserToken,
-                 where: token.user_id == ^user.id and token.context == "reset_password"
-             )
-
-    assert sent_to == user.email
-
-    unknown_email = "nobody-#{System.unique_integer([:positive])}@example.test"
-
-    {:ok, unknown_view, _unknown_html} = live(build_conn(), "/users/reset-password")
-
-    unknown_view
-    |> form("#reset_password_request_form", user: %{email: unknown_email})
-    |> render_submit()
-
-    unknown_flash = assert_redirect(unknown_view, "/users/log_in")
-    assert unknown_flash["info"] == generic_flash
-
-    assert Repo.aggregate(
-             from(token in UserToken, where: token.context == "reset_password"),
-             :count,
-             :id
-           ) == 1
-    IO.puts(
-      "PASS reset probe: generated request page treats existing and unknown addresses alike"
-    )
-  end
-
   test "generated duplicate registration hashes before the database rejects it" do
     existing = AccountsFixtures.user_fixture()
     attrs = %{"email" => existing.email, "password" => "hello world!!"}

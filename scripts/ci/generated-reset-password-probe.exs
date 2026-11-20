@@ -185,7 +185,8 @@ defmodule <%= app_module %>.GeneratedResetPasswordProbeTest do
     assert reset_tokens_for(user.id) == []
     {:ok, replay_view, replay_html} = live(build_conn(), "/users/reset-password/#{reset_token}")
     assert replay_html =~ "This password reset link has expired or was already used."
-    assert has_element?(replay_view, ".sigra-auth-notice--danger")
+    assert has_element?(replay_view, ~s(a[href="/users/reset-password"]))
+    refute has_element?(replay_view, "#reset_password_form")
 
     magic_conn = get(build_conn(), "/users/log_in/#{magic_link}")
     assert redirected_to(magic_conn) == "/"
