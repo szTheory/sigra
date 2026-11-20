@@ -158,12 +158,14 @@ async function waitForLiveViewReady(page: Page) {
   await assertBrandFontsLoaded(page);
 }
 
-async function createLongOrganization(page: Page) {
+async function createOrganization(page: Page, longLabel: boolean) {
   const id = randomUUID().slice(0, 8);
   const slug = `phase-264-${id}`;
   const prefix = `Phase 264 ${id} `;
-  const name = prefix + '🚀'.repeat(255 - Array.from(prefix).length);
-  expect(Array.from(name).length).toBe(255);
+  const name = longLabel
+    ? prefix + '🚀'.repeat(255 - Array.from(prefix).length)
+    : prefix.trimEnd();
+  if (longLabel) expect(Array.from(name).length).toBe(255);
 
   await page.goto('/organizations');
   await waitForLiveViewReady(page);
@@ -187,6 +189,10 @@ async function createLongOrganization(page: Page) {
   await page.goto(`/admin/organizations/${slug}`);
   await waitForLiveViewReady(page);
   return { id, slug, name };
+}
+
+async function createLongOrganization(page: Page) {
+  return createOrganization(page, true);
 }
 
 async function measureAdminGeometry(page: Page) {
@@ -929,15 +935,10 @@ test.describe('Design gallery board snapshots', () => {
       });
     };
 
-    const organizationId = randomUUID().slice(0, 8);
-    const organizationSlug = `phase-264-${organizationId}`;
-    await page.goto('/organizations');
-    await waitForLiveViewReady(page);
-    await page.fill('input[name="organization[name]"]', `Phase 264 ${organizationId}`);
-    await expect(page.locator('#slug-preview')).toHaveText(organizationSlug);
-    await page.getByRole('button', { name: 'Create organization' }).click();
-    await expect(page).toHaveURL(new RegExp(`/organizations/${organizationSlug}/members$`));
-    await waitForLiveViewReady(page);
+    // The example DB can already give this user an organization. Reuse the
+    // shared setup helper so the audit works from the picker, invitation, and
+    // first-organization branches instead of assuming an empty account.
+    const { slug: organizationSlug } = await createOrganization(page, false);
 
     for (const theme of ['Light', 'Dark', 'System'] as const) {
       await page.goto(`/admin/organizations/${organizationSlug}`);
