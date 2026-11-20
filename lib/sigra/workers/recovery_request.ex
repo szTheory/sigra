@@ -12,7 +12,7 @@ if Code.ensure_loaded?(Oban.Worker) do
 
     import Ecto.Query
 
-    alias Sigra.{Audit, Recovery}
+    alias Sigra.Recovery
 
     @checkpoint_key "sigra_recovery_v1"
 
@@ -21,23 +21,24 @@ if Code.ensure_loaded?(Oban.Worker) do
         when is_binary(host_id) and is_binary(envelope) do
       with {:ok, handler} <- resolve_handler(host_id),
            secret when is_binary(secret) <- handler.recovery_secret_key_base(),
-           {:ok, {operation, address}} <- Recovery.decrypt_envelope(envelope, host_id, secret),
            repo when is_atom(repo) <- handler.recovery_repo(),
-           {:ok, result, fresh?, audit_changes} <-
-             checkpoint_once(
+           result <-
+             Recovery.process_request(
                job.id,
-               repo,
-               fn -> handler.prepare_recovery_request(operation, address) end,
-               host_id: host_id,
+               host_id,
+               envelope,
+               handler: handler,
+               dispatcher: __MODULE__,
+               repo: repo,
                secret_key_base: secret,
                prefix: handler.recovery_oban_prefix()
              ) do
-        if fresh? do
-          Audit.emit_telemetry_from_changes(audit_changes)
-          emit_recovery_telemetry(result)
+        case result do
+          {:ok, :no_delivery} -> {:ok, :no_delivery}
+          {:ok, :delivered} -> {:ok, :delivered}
+          {:error, :invalid_envelope} -> {:cancel, :invalid_request}
+          {:error, _} -> {:error, :recovery_failed}
         end
-
-        deliver(result, handler)
       else
         {:error, :invalid_envelope} -> {:cancel, :invalid_request}
         {:error, :invalid_checkpoint} -> {:cancel, :invalid_request}
@@ -161,23 +162,5 @@ if Code.ensure_loaded?(Oban.Worker) do
           {:error, :invalid_host}
       end
     end
-
-    defp deliver(%{delivery: nil}, _handler), do: {:ok, :no_delivery}
-
-    defp deliver(%{delivery: descriptor}, handler) do
-      case handler.deliver_recovery_request(descriptor) do
-        {:ok, _} -> {:ok, :delivered}
-        {:error, _} -> {:error, :delivery_failed}
-        _ -> {:error, :delivery_failed}
-      end
-    rescue
-      _ -> {:error, :delivery_failed}
-    end
-
-    defp emit_recovery_telemetry(%{telemetry: {:reset, user_id}}) do
-      Sigra.Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: user_id})
-    end
-
-    defp emit_recovery_telemetry(_), do: :ok
   end
 end

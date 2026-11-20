@@ -192,6 +192,15 @@ defmodule Example.Accounts do
       {:ok, :no_delivery} ->
         {:ok, %{descriptor: %{delivery: nil}, audit_changes: %{}}}
 
+      {:ok, {:policy_denied, user}} ->
+        policy = Example.Organizations.local_auth_policy_for(user)
+
+        {:ok,
+         %{
+           descriptor: %{delivery: enterprise_reset_guidance_descriptor(user, policy)},
+           audit_changes: %{}
+         }}
+
       {:ok, %{user: user, token: token, token_hash: token_hash, changes: changes}} ->
         {email_type, url} = recovery_email_url(operation, token)
         email = apply(Emails, email_type, [user, url])
@@ -219,7 +228,8 @@ defmodule Example.Accounts do
   @doc false
   def deliver_recovery_request(%{email_type: email_type} = descriptor) do
     if recovery_delivery_current?(descriptor) do
-      Sigra.Delivery.deliver_sync(email_type, descriptor, mailer: Example.Accounts.Mailer)
+      mailer = Application.get_env(:example, :recovery_mailer, Example.Accounts.Mailer)
+      Sigra.Delivery.deliver_sync(email_type, descriptor, mailer: mailer)
     else
       {:ok, :suppressed}
     end
@@ -230,6 +240,25 @@ defmodule Example.Accounts do
 
   defp recovery_email_url(:magic_link, token),
     do: {:magic_link_email, ExampleWeb.Endpoint.url() <> "/users/log_in/#{token}"}
+
+  defp recovery_delivery_current?(%{
+         email_type: :reset_password_guidance,
+         user_id: user_id,
+         to: to,
+         organization_slug: organization_slug
+       }) do
+    case Repo.get(User, user_id) do
+      %User{} = user ->
+        policy = Example.Organizations.local_auth_policy_for(user)
+
+        user.email == to and is_nil(user.deleted_at) and
+          local_password_reset_denied?(policy) and
+          policy[:organization_slug] == organization_slug
+
+      _ ->
+        false
+    end
+  end
 
   defp recovery_delivery_current?(%{
          user_id: user_id,
@@ -849,23 +878,35 @@ defmodule Example.Accounts do
   defp local_password_reset_denied?(_policy), do: false
 
   defp maybe_deliver_enterprise_reset_guidance(user, auth_policy) do
-    if slug = auth_policy[:organization_slug] do
-      url = ExampleWeb.Endpoint.url() <> "/organizations/#{slug}/sso"
-
-      email =
-        Emails.enterprise_sso_reset_email(user, auth_policy[:organization_name] || slug, url)
-
+    if descriptor = enterprise_reset_guidance_descriptor(user, auth_policy) do
       Sigra.Delivery.deliver(
-        :reset_password_guidance,
+        descriptor.email_type,
+        Map.take(descriptor, [:user_id, :to, :subject, :body, :url]),
+        delivery_opts()
+      )
+    end
+  end
+
+  defp enterprise_reset_guidance_descriptor(user, auth_policy) do
+    case auth_policy do
+      %{password_reset: :deny, organization_slug: slug} when is_binary(slug) ->
+        url = ExampleWeb.Endpoint.url() <> "/organizations/#{slug}/sso"
+
+        email =
+          Emails.enterprise_sso_reset_email(user, auth_policy[:organization_name] || slug, url)
+
         %{
+          email_type: :reset_password_guidance,
           user_id: user.id,
           to: user.email,
           subject: email.subject,
           body: %{html: email.html_body, text: email.text_body},
-          url: url
-        },
-        delivery_opts()
-      )
+          url: url,
+          organization_slug: slug
+        }
+
+      _ ->
+        nil
     end
   end
 

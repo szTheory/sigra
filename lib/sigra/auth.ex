@@ -674,7 +674,10 @@ defmodule Sigra.Auth do
 
   @doc false
   @spec prepare_recovery(module(), :reset | :magic_link, String.t(), keyword()) ::
-          {:ok, :no_delivery | %{user: struct(), token: String.t(), changes: map()}}
+          {:ok,
+           :no_delivery
+           | {:policy_denied, struct()}
+           | %{user: struct(), token: String.t(), changes: map()}}
           | {:error, term()}
   def prepare_recovery(repo, operation, email, opts \\ [])
       when operation in [:reset, :magic_link] and is_binary(email) do
@@ -693,7 +696,7 @@ defmodule Sigra.Auth do
 
       operation == :reset and
           match?({:deny, _, _}, EnterpriseAuthPolicy.password_reset_allowed?(opts, user, opts)) ->
-        {:ok, :no_delivery}
+        {:ok, {:policy_denied, user}}
 
       true ->
         prepare_recovery_token(repo, operation, user, user_token_schema, opts)
@@ -701,14 +704,85 @@ defmodule Sigra.Auth do
   end
 
   defp run_prepared_recovery(repo, operation, email, opts) do
-    case repo.transact(fn -> prepare_recovery(repo, operation, email, opts) end) do
-      {:ok, result} -> result
-      {:error, {failed, reason}} -> {:error, failed, reason}
-      {:error, reason} -> {:error, :recovery, reason}
+    user_schema = Keyword.fetch!(opts, :user_schema)
+    user_token_schema = Keyword.fetch!(opts, :user_token_schema)
+    normalized_email = Sigra.Email.normalize(email)
+    user = repo.get_by(user_schema, email: normalized_email)
+
+    cond do
+      is_nil(user) and operation == :reset ->
+        Crypto.hash_password("dummy_password_for_timing")
+        {:ok, :no_delivery}
+
+      is_nil(user) ->
+        {:ok, :no_delivery}
+
+      operation == :reset and
+          match?({:deny, _, _}, EnterpriseAuthPolicy.password_reset_allowed?(opts, user, opts)) ->
+        {:ok, :no_delivery}
+
+      true ->
+        issuance = build_recovery_issuance(repo, operation, user, user_token_schema, opts)
+        multi = Multi.new() |> Multi.insert(issuance.token_step, issuance.token_struct)
+
+        multi =
+          if Keyword.get(issuance.audit_opts, :audit_schema) do
+            Audit.log_multi_safe(
+              multi,
+              issuance.audit_action,
+              Keyword.merge(issuance.audit_opts,
+                actor_resolver: fn changes -> Map.fetch!(changes, issuance.token_step).user_id end,
+                target_resolver: fn changes ->
+                  Map.fetch!(changes, issuance.token_step).user_id
+                end,
+                metadata: %{}
+              )
+            )
+          else
+            multi
+          end
+
+        case repo.transact(multi) do
+          {:ok, changes} ->
+            {:ok,
+             %{
+               user: user,
+               token: issuance.encoded_token,
+               token_hash: issuance.token_hash,
+               changes: changes
+             }}
+
+          {:error, failed, reason, _changes} ->
+            {:error, failed, reason}
+        end
     end
   end
 
   defp prepare_recovery_token(repo, operation, user, user_token_schema, opts) do
+    issuance = build_recovery_issuance(repo, operation, user, user_token_schema, opts)
+
+    with {:ok, inserted_token} <- repo.insert(issuance.token_struct),
+         {:ok, audit_event} <-
+           insert_recovery_audit(repo, issuance.audit_action, user, issuance.audit_opts) do
+      changes =
+        %{issuance.token_step => inserted_token}
+        |> then(fn values ->
+          if audit_event, do: Map.put(values, :audit, audit_event), else: values
+        end)
+
+      {:ok,
+       %{
+         user: user,
+         token: issuance.encoded_token,
+         token_hash: issuance.token_hash,
+         changes: changes
+       }}
+    else
+      {:error, reason} -> {:error, {issuance.token_step, reason}}
+    end
+  end
+
+  defp build_recovery_issuance(repo, operation, user, user_token_schema, opts) do
     {_raw_token, encoded_token, hashed_token} =
       case operation do
         :magic_link ->
@@ -728,38 +802,28 @@ defmodule Sigra.Auth do
 
     context = if operation == :magic_link, do: "magic_link", else: "reset_password"
 
-    token_struct =
-      struct!(user_token_schema, %{
-        token: hashed_token,
-        context: context,
-        sent_to: user.email,
-        user_id: user.id
-      })
-
-    audit_opts =
-      audit_opts_from_keyword(opts)
-      |> Keyword.put(:repo, repo)
-      |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, user)))
-
-    token_step = if operation == :magic_link, do: :magic_link_token, else: :password_reset_token
-
-    audit_action =
-      if operation == :magic_link,
-        do: "auth.magic_link_request",
-        else: "auth.password_reset_request"
-
-    with {:ok, inserted_token} <- repo.insert(token_struct),
-         {:ok, audit_event} <- insert_recovery_audit(repo, audit_action, user, audit_opts) do
-      changes =
-        %{token_step => inserted_token}
-        |> then(fn values ->
-          if audit_event, do: Map.put(values, :audit, audit_event), else: values
-        end)
-
-      {:ok, %{user: user, token: encoded_token, token_hash: hashed_token, changes: changes}}
-    else
-      {:error, reason} -> {:error, {token_step, reason}}
-    end
+    %{
+      encoded_token: encoded_token,
+      token_hash: hashed_token,
+      token_struct:
+        struct!(user_token_schema, %{
+          token: hashed_token,
+          context: context,
+          sent_to: user.email,
+          user_id: user.id
+        }),
+      audit_opts:
+        audit_opts_from_keyword(opts)
+        |> Keyword.put(:repo, repo)
+        |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, user))),
+      token_step:
+        if(operation == :magic_link, do: :magic_link_token, else: :password_reset_token),
+      audit_action:
+        if(operation == :magic_link,
+          do: "auth.magic_link_request",
+          else: "auth.password_reset_request"
+        )
+    }
   end
 
   defp insert_recovery_audit(_repo, _action, _user, audit_opts)

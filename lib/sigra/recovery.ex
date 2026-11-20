@@ -22,7 +22,7 @@ defmodule Sigra.Recovery do
 
   @callback enqueue(binary(), binary(), keyword()) :: {:ok, term()} | {:error, term()}
   @callback checkpoint_once(term(), module(), (-> term()), keyword()) ::
-              {:ok, term(), boolean()} | {:error, term()}
+              {:ok, term(), boolean(), map()} | {:error, term()}
 
   @doc "Durably admits a reset or magic-link request without account lookup."
   @spec enqueue(:reset | :magic_link, binary(), keyword()) ::
@@ -34,7 +34,7 @@ defmodule Sigra.Recovery do
          :ok <- Sigra.Email.validate_format(normalized),
          :ok <- check_rate_limit(operation, normalized, opts),
          {:ok, dispatcher, host_id, secret} <- dispatcher_config(opts),
-         {:ok, envelope} <- encrypt_envelope(operation, normalized, host_id, secret),
+         {:ok, envelope} <- encrypt_envelope(operation, normalized, host_id, secret, opts),
          {:ok, _job} <-
            dispatcher.enqueue(host_id, envelope, Keyword.get(opts, :dispatch_opts, [])) do
       {:ok, :accepted}
@@ -113,6 +113,52 @@ defmodule Sigra.Recovery do
 
   def decrypt_checkpoint(_, _, _, _), do: {:error, :invalid_checkpoint}
 
+  @doc """
+  Processes an encrypted request using the host's configured durable adapter.
+
+  Host-owned workers call this after loading their configured handler and
+  durable job identity. The adapter must commit `prepare` and its encrypted
+  checkpoint atomically before this function allows delivery.
+  """
+  @spec process_request(term(), binary(), binary(), keyword()) ::
+          {:ok, :no_delivery | :delivered} | {:error, :invalid_envelope | :recovery_failed}
+  def process_request(job_ref, host_id, envelope, opts)
+      when is_binary(host_id) and is_binary(envelope) and is_list(opts) do
+    with handler when is_atom(handler) <- Keyword.get(opts, :handler),
+         dispatcher when is_atom(dispatcher) <- Keyword.get(opts, :dispatcher),
+         repo when is_atom(repo) <- Keyword.get(opts, :repo),
+         secret when is_binary(secret) <- Keyword.get(opts, :secret_key_base),
+         true <- Code.ensure_loaded?(handler),
+         true <- function_exported?(handler, :prepare_recovery_request, 2),
+         true <- function_exported?(handler, :deliver_recovery_request, 1),
+         true <- Code.ensure_loaded?(dispatcher),
+         true <- function_exported?(dispatcher, :checkpoint_once, 4),
+         {:ok, {operation, address}} <- decrypt_envelope(envelope, host_id, secret),
+         {:ok, result, fresh?, audit_changes} <-
+           dispatcher.checkpoint_once(
+             job_ref,
+             repo,
+             fn -> handler.prepare_recovery_request(operation, address) end,
+             Keyword.put(opts, :host_id, host_id)
+           ) do
+      if fresh? do
+        Sigra.Audit.emit_telemetry_from_changes(audit_changes)
+        emit_recovery_telemetry(result)
+      end
+
+      deliver_prepared(result, handler)
+    else
+      {:error, :invalid_envelope} -> {:error, :invalid_envelope}
+      _ -> {:error, :recovery_failed}
+    end
+  rescue
+    _ -> {:error, :recovery_failed}
+  catch
+    _, _ -> {:error, :recovery_failed}
+  end
+
+  def process_request(_, _, _, _), do: {:error, :invalid_envelope}
+
   defp check_rate_limit(operation, normalized, opts) do
     case Keyword.get(opts, :rate_limiter) do
       nil ->
@@ -150,7 +196,7 @@ defmodule Sigra.Recovery do
     end
   end
 
-  defp encrypt_envelope(operation, address, host_id, secret) do
+  defp encrypt_envelope(operation, address, host_id, secret, opts) do
     payload = %{
       "version" => 1,
       "operation" => Atom.to_string(operation),
@@ -158,8 +204,31 @@ defmodule Sigra.Recovery do
       "host_id" => host_id
     }
 
-    {:ok, Plug.Crypto.encrypt(secret, @envelope_salt, payload)}
+    crypto_opts =
+      case Keyword.fetch(opts, :issued_at) do
+        {:ok, issued_at} -> [signed_at: issued_at]
+        :error -> []
+      end
+
+    {:ok, Plug.Crypto.encrypt(secret, @envelope_salt, payload, crypto_opts)}
   rescue
     _ -> {:error, :encryption_failed}
   end
+
+  defp deliver_prepared(%{delivery: nil}, _handler), do: {:ok, :no_delivery}
+
+  defp deliver_prepared(%{delivery: descriptor}, handler) do
+    case handler.deliver_recovery_request(descriptor) do
+      {:ok, _} -> {:ok, :delivered}
+      _ -> {:error, :recovery_failed}
+    end
+  rescue
+    _ -> {:error, :recovery_failed}
+  end
+
+  defp emit_recovery_telemetry(%{telemetry: {:reset, user_id}}) do
+    Sigra.Telemetry.event([:sigra, :reset, :requested], %{}, %{user_id: user_id})
+  end
+
+  defp emit_recovery_telemetry(_), do: :ok
 end
