@@ -216,6 +216,18 @@ jobs:
           else
             echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
           fi
+      - name: Tracked privacy guard syntax
+        run: |
+          set -euo pipefail
+          perl -c scripts/ci/tracked-privacy-guard.pl
+          bash -n scripts/ci/tracked-privacy-guard.test.sh
+      - name: Tracked privacy guard self-test
+        run: bash scripts/ci/tracked-privacy-guard.test.sh
+      - name: Tracked privacy tree scan
+        run: >-
+          perl scripts/ci/tracked-privacy-guard.pl --root .
+          --base "${{ steps.base.outputs.ref }}"
+          --baseline test/fixtures/ci/tracked-privacy-exceptions.tsv
       - name: Milestone verification gate
         run: bash scripts/ci/milestone-verification-gate.sh
       - name: Detect installer-related changes (PRs only)
