@@ -698,6 +698,10 @@ defmodule Sigra.Auth do
           match?({:deny, _, _}, EnterpriseAuthPolicy.password_reset_allowed?(opts, user, opts)) ->
         {:ok, {:policy_denied, user}}
 
+      operation == :magic_link and
+          match?({:deny, _, _}, EnterpriseAuthPolicy.password_login_allowed?(opts, user, opts)) ->
+        {:ok, :no_delivery}
+
       true ->
         prepare_recovery_token(repo, operation, user, user_token_schema, opts)
     end
@@ -719,6 +723,10 @@ defmodule Sigra.Auth do
 
       operation == :reset and
           match?({:deny, _, _}, EnterpriseAuthPolicy.password_reset_allowed?(opts, user, opts)) ->
+        {:ok, :no_delivery}
+
+      operation == :magic_link and
+          match?({:deny, _, _}, EnterpriseAuthPolicy.password_login_allowed?(opts, user, opts)) ->
         {:ok, :no_delivery}
 
       true ->
@@ -892,66 +900,109 @@ defmodule Sigra.Auth do
     if is_nil(hashed_token) do
       {:error, :invalid}
     else
-      case repo.get_by(user_token_schema, token: hashed_token, context: "magic_link") do
-        nil ->
+      import Ecto.Query
+
+      multi =
+        Multi.new()
+        |> Multi.run(:magic_link_user, fn r, _changes ->
+          token_query =
+            from token in user_token_schema,
+              where: token.token == ^hashed_token,
+              where: token.context == "magic_link",
+              lock: "FOR UPDATE"
+
+          case r.one(token_query) do
+            nil ->
+              {:error, :invalid}
+
+            token_record ->
+              inserted_at =
+                case token_record.inserted_at do
+                  %DateTime{} = dt -> dt
+                  %NaiveDateTime{} = ndt -> DateTime.from_naive!(ndt, "Etc/UTC")
+                end
+
+              if DateTime.diff(DateTime.utc_now(), inserted_at, :second) > magic_link_ttl do
+                {:error, :expired}
+              else
+                user = r.get!(user_schema, token_record.user_id)
+
+                with true <- user.email == token_record.sent_to,
+                     :ok <- authorize_magic_link(opts, user, token_record),
+                     {:ok, _deleted} <- r.delete(token_record) do
+                  {:ok, maybe_confirm_user(r, user)}
+                else
+                  _ -> {:error, :invalid}
+                end
+              end
+          end
+        end)
+
+      audit_opts = audit_opts_from_keyword(opts) |> Keyword.put(:repo, repo)
+
+      multi =
+        if Keyword.get(audit_opts, :audit_schema) do
+          scope_for_changes = fn changes ->
+            Sigra.Scope.from_opts(opts, Map.fetch!(changes, :magic_link_user))
+          end
+
+          Audit.log_multi_safe(
+            multi,
+            "auth.magic_link_verify.success",
+            Keyword.merge(audit_opts,
+              actor_resolver: fn changes -> Map.fetch!(changes, :magic_link_user).id end,
+              target_resolver: fn changes -> Map.fetch!(changes, :magic_link_user).id end,
+              organization_id_resolver: fn changes ->
+                scope = scope_for_changes.(changes)
+                organization = scope && Map.get(scope, :active_organization)
+                organization && organization.id
+              end,
+              effective_user_id_resolver: fn changes ->
+                scope = scope_for_changes.(changes)
+                user = scope && Map.get(scope, :user)
+                user && user.id
+              end,
+              metadata: %{}
+            )
+          )
+        else
+          multi
+        end
+
+      case repo.transact(multi) do
+        {:ok, %{magic_link_user: user} = changes} ->
+          Audit.emit_telemetry_from_changes(changes)
+          {:ok, user}
+
+        {:error, :magic_link_user, :expired, _changes} ->
+          {:error, :expired}
+
+        {:error, :magic_link_user, _reason, _changes} ->
           {:error, :invalid}
 
-        token_record ->
-          # Check TTL (DB adapters may return :utc_datetime or :naive_datetime)
-          inserted_at =
-            case token_record.inserted_at do
-              %DateTime{} = dt -> dt
-              %NaiveDateTime{} = ndt -> DateTime.from_naive!(ndt, "Etc/UTC")
-            end
-
-          age_seconds = DateTime.diff(DateTime.utc_now(), inserted_at, :second)
-
-          if age_seconds > magic_link_ttl do
-            {:error, :expired}
-          else
-            scope_user = repo.get!(user_schema, token_record.user_id)
-
-            audit_opts =
-              audit_opts_from_keyword(opts)
-              |> Keyword.put(:repo, repo)
-              |> Keyword.merge(audit_scope_column_opts(Sigra.Scope.from_opts(opts, scope_user)))
-
-            multi =
-              Multi.new()
-              |> Multi.run(:magic_link_user, fn r, _changes ->
-                u = r.get!(user_schema, token_record.user_id)
-                _ = r.delete!(token_record)
-                u = maybe_confirm_user(r, u)
-                {:ok, u}
-              end)
-
-            multi =
-              if Keyword.get(audit_opts, :audit_schema) do
-                Audit.log_multi_safe(
-                  multi,
-                  "auth.magic_link_verify.success",
-                  Keyword.merge(audit_opts,
-                    actor_resolver: fn %{magic_link_user: u} -> u.id end,
-                    target_resolver: fn %{magic_link_user: u} -> u.id end,
-                    metadata: %{}
-                  )
-                )
-              else
-                multi
-              end
-
-            case repo.transact(multi) do
-              {:ok, %{magic_link_user: user} = changes} ->
-                Audit.emit_telemetry_from_changes(changes)
-                {:ok, user}
-
-              {:error, failed, reason, _changes} ->
-                raise "unexpected Ecto.Multi failure from Sigra.Auth.verify_magic_link/3: " <>
-                        "#{inspect(failed)} => #{inspect(reason)}"
-            end
-          end
+        {:error, failed, reason, _changes} ->
+          raise "unexpected Ecto.Multi failure from Sigra.Auth.verify_magic_link/3: " <>
+                  "#{inspect(failed)} => #{inspect(reason)}"
       end
     end
+  end
+
+  defp authorize_magic_link(opts, user, token_record) do
+    case Keyword.get(opts, :authorize_fun) do
+      nil ->
+        :ok
+
+      authorize_fun when is_function(authorize_fun, 2) ->
+        case authorize_fun.(user, token_record) do
+          :ok -> :ok
+          _ -> {:error, :invalid}
+        end
+
+      _ ->
+        {:error, :invalid}
+    end
+  rescue
+    _ -> {:error, :invalid}
   end
 
   @doc """

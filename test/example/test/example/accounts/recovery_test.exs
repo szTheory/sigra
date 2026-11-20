@@ -200,6 +200,37 @@ defmodule Example.Accounts.RecoveryTest do
     assert Accounts.get_user_by_reset_password_token(signed_token).id == user.id
   end
 
+  @tag :recovery_oban
+  test "a persisted magic-link request delivers a single-use link only after the worker runs" do
+    user = user_fixture()
+
+    assert {:ok, :accepted} = Accounts.enqueue_recovery_request(:magic_link, user.email)
+
+    job =
+      Repo.one!(
+        from job in Oban.Job,
+          where: job.worker == "Sigra.Workers.RecoveryRequest",
+          where: job.queue == "sigra_recovery"
+      )
+
+    refute Repo.get_by(UserToken, user_id: user.id, context: "magic_link")
+    assert {:ok, :delivered} = RecoveryRequest.perform(job)
+
+    assert_email_sent(fn email ->
+      send(self(), {:magic_link_email, email})
+      email.subject == "Log in to Example"
+    end)
+
+    assert_received {:magic_link_email, email}
+    assert email.to == [{"", user.email}]
+
+    assert [_, raw_token] = Regex.run(~r{/users/log_in/([A-Za-z0-9_-]+)}, email.text_body)
+    assert {:ok, redeemed_user} = Accounts.verify_magic_link(raw_token)
+    assert redeemed_user.id == user.id
+    refute Repo.get_by(UserToken, user_id: user.id, context: "magic_link")
+    assert {:error, :invalid} = Accounts.verify_magic_link(raw_token)
+  end
+
   test "a host database dispatcher works without starting Oban" do
     user = user_fixture()
     assert Oban.whereis(Oban) == nil

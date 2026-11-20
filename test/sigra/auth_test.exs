@@ -620,24 +620,12 @@ defmodule Sigra.AuthTest do
 
   describe "verify_magic_link/3" do
     test "valid token returns {:ok, user} and deletes token" do
-      {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+      {raw_token, _hashed_token} = Sigra.Token.generate_hashed_token()
       user = %TestUser{id: 1, email: "user@example.com", confirmed_at: ~U[2024-01-01 00:00:00Z]}
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-      token_struct = %TestUserToken{
-        token: hashed_token,
-        context: "magic_link",
-        sent_to: "user@example.com",
-        user_id: 1,
-        inserted_at: now
-      }
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
-        token_struct
-      end)
-      |> expect(:get!, fn TestUser, 1 -> user end)
-      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        assert [:magic_link_user] == Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
         {:ok, %{magic_link_user: user}}
       end)
 
@@ -654,22 +642,13 @@ defmodule Sigra.AuthTest do
     end
 
     test "expired token returns {:error, :expired}" do
-      {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+      {raw_token, _hashed_token} = Sigra.Token.generate_hashed_token()
       # Token inserted 20 minutes ago (past 10-minute TTL)
-      inserted_at =
-        DateTime.utc_now() |> DateTime.add(-1200, :second) |> DateTime.truncate(:second)
-
-      token_struct = %TestUserToken{
-        token: hashed_token,
-        context: "magic_link",
-        sent_to: "user@example.com",
-        user_id: 1,
-        inserted_at: inserted_at
-      }
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
-        token_struct
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        assert [:magic_link_user] == Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
+        {:error, :magic_link_user, :expired, %{}}
       end)
 
       result =
@@ -685,11 +664,12 @@ defmodule Sigra.AuthTest do
     end
 
     test "already-used token returns {:error, :invalid}" do
-      {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+      {raw_token, _hashed_token} = Sigra.Token.generate_hashed_token()
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
-        nil
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        assert [:magic_link_user] == Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
+        {:error, :magic_link_user, :invalid, %{}}
       end)
 
       result =
@@ -705,27 +685,15 @@ defmodule Sigra.AuthTest do
     end
 
     test "confirms unconfirmed user" do
-      {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+      {raw_token, _hashed_token} = Sigra.Token.generate_hashed_token()
       user = %TestUser{id: 1, email: "user@example.com", confirmed_at: nil}
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-      token_struct = %TestUserToken{
-        token: hashed_token,
-        context: "magic_link",
-        sent_to: "user@example.com",
-        user_id: 1,
-        inserted_at: now
-      }
 
       confirmed_at = DateTime.utc_now() |> DateTime.truncate(:second)
       confirmed_user = Map.put(user, :confirmed_at, confirmed_at)
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
-        token_struct
-      end)
-      |> expect(:get!, fn TestUser, 1 -> user end)
-      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        assert [:magic_link_user] == Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
         {:ok, %{magic_link_user: confirmed_user}}
       end)
 

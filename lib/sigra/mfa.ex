@@ -928,12 +928,12 @@ defmodule Sigra.MFA do
   - `:mfa_credential_schema` - The generated MFA credential Ecto schema module
   """
   @doc since: "0.6.0"
-  @spec enabled?(Sigra.Config.t(), struct()) :: boolean()
-  def enabled?(%Sigra.Config{} = config, user) do
+  @spec enabled?(Sigra.Config.t(), struct(), keyword()) :: boolean()
+  def enabled?(%Sigra.Config{} = config, user, opts \\ []) do
     import Ecto.Query
 
     mfa_credential_schema =
-      Keyword.get(config.mfa, :mfa_credential_schema)
+      Keyword.get(opts, :mfa_credential_schema) || Keyword.get(config.mfa, :mfa_credential_schema)
 
     if mfa_credential_schema do
       query =

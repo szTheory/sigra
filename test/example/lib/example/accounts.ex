@@ -148,25 +148,30 @@ defmodule Example.Accounts do
       url_fun: url_fun,
       rate_limiter: Keyword.get(config.rate_limiting, :limiter),
       max_requests: Keyword.get(config.magic_link, :max_requests, 3),
-      window_ms: Keyword.get(config.magic_link, :window_seconds, 900) * 1_000
+      window_ms: Keyword.get(config.magic_link, :window_seconds, 900) * 1_000,
+      enterprise_auth_policy: Example.Organizations
     )
   end
 
   @doc "Enqueues a generic recovery request through the configured durable dispatcher."
   def enqueue_recovery_request(operation, email)
       when operation in [:reset, :magic_link] and is_binary(email) do
-    config = sigra_config()
-    limits = if operation == :magic_link, do: config.magic_link, else: config.reset
+    if operation == :magic_link and not magic_link_recovery_available?() do
+      {:error, :recovery_unavailable}
+    else
+      config = sigra_config()
+      limits = if operation == :magic_link, do: config.magic_link, else: config.reset
 
-    Sigra.Recovery.enqueue(operation, email,
-      host_id: "example",
-      secret_key_base: recovery_secret_key_base(),
-      dispatcher: Sigra.Workers.RecoveryRequest,
-      rate_limiter: Keyword.get(config.rate_limiting, :limiter),
-      max_requests: Keyword.get(limits, :max_requests, 3),
-      window_ms: Keyword.get(limits, :window_seconds, 900) * 1_000,
-      dispatch_opts: [queue: :sigra_recovery]
-    )
+      Sigra.Recovery.enqueue(operation, email,
+        host_id: "example",
+        secret_key_base: recovery_secret_key_base(),
+        dispatcher: Sigra.Workers.RecoveryRequest,
+        rate_limiter: Keyword.get(config.rate_limiting, :limiter),
+        max_requests: Keyword.get(limits, :max_requests, 3),
+        window_ms: Keyword.get(limits, :window_seconds, 900) * 1_000,
+        dispatch_opts: [queue: :sigra_recovery]
+      )
+    end
   end
 
   @doc false
@@ -296,13 +301,28 @@ defmodule Example.Accounts do
   Also confirms unconfirmed users.
   """
   def verify_magic_link(token) when is_binary(token) do
-    config = sigra_config()
+    if magic_link_recovery_available?() do
+      config = sigra_config()
+      auth_opts = [enterprise_auth_policy: Example.Organizations]
 
-    SigraAuth.verify_magic_link(Repo, token,
-      user_schema: User,
-      user_token_schema: UserToken,
-      magic_link_ttl: Keyword.get(config.magic_link, :ttl, 600)
-    )
+      authorize_fun = fn user, _token_record ->
+        case Sigra.EnterpriseAuthPolicy.password_login_allowed?(auth_opts, user) do
+          :allow -> :ok
+          _ -> {:error, :invalid}
+        end
+      end
+
+      SigraAuth.verify_magic_link(Repo, token,
+        user_schema: User,
+        user_token_schema: UserToken,
+        magic_link_ttl: Keyword.get(config.magic_link, :ttl, 600),
+        audit_schema: Example.Accounts.AuditEvent,
+        authorize_fun: authorize_fun,
+        enterprise_auth_policy: Example.Organizations
+      )
+    else
+      {:error, :invalid}
+    end
   end
 
   ## Settings
@@ -772,6 +792,7 @@ defmodule Example.Accounts do
         threshold: 5,
         duration: 900
       ],
+      mfa: [enabled: true],
       token_ttl: Keyword.get(runtime_config, :token_ttl, []),
       magic_link: Keyword.get(runtime_config, :magic_link, []),
       reset: Keyword.get(runtime_config, :reset, []),
@@ -1039,7 +1060,7 @@ defmodule Example.Accounts do
 
   @doc "Check if a user has MFA enabled."
   def mfa_enabled?(user) do
-    Sigra.MFA.enabled?(sigra_config(), user)
+    Sigra.MFA.enabled?(sigra_config(), user, mfa_credential_schema: UserMFACredential)
   end
 
   @doc "Upgrade an MFA-pending Sigra session after second-factor verification."

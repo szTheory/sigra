@@ -26,27 +26,33 @@ defmodule Sigra.Recovery do
 
   @doc "Durably admits a reset or magic-link request without account lookup."
   @spec enqueue(:reset | :magic_link, binary(), keyword()) ::
-          {:ok, :accepted} | {:error, :rate_limited | :recovery_unavailable}
+          {:ok, :accepted} | {:error, :invalid_request | :rate_limited | :recovery_unavailable}
   def enqueue(operation, address, opts)
       when operation in [:reset, :magic_link] and is_binary(address) do
-    with true <- byte_size(address) <= @max_raw_bytes,
-         normalized <- Sigra.Email.normalize(address),
-         :ok <- Sigra.Email.validate_format(normalized),
-         :ok <- check_rate_limit(operation, normalized, opts),
-         {:ok, dispatcher, host_id, secret} <- dispatcher_config(opts),
-         {:ok, envelope} <- encrypt_envelope(operation, normalized, host_id, secret, opts),
-         {:ok, _job} <-
-           dispatcher.enqueue(host_id, envelope, Keyword.get(opts, :dispatch_opts, [])) do
-      {:ok, :accepted}
+    normalized = Sigra.Email.normalize(address)
+
+    if byte_size(address) <= @max_raw_bytes and Sigra.Email.validate_format(normalized) == :ok do
+      with :ok <- check_rate_limit(operation, normalized, opts),
+           {:ok, dispatcher, host_id, secret} <- dispatcher_config(opts),
+           {:ok, envelope} <- encrypt_envelope(operation, normalized, host_id, secret, opts),
+           {:ok, _job} <-
+             dispatcher.enqueue(host_id, envelope, Keyword.get(opts, :dispatch_opts, [])) do
+        {:ok, :accepted}
+      else
+        {:error, :rate_limited} -> {:error, :rate_limited}
+        _ -> {:error, :recovery_unavailable}
+      end
     else
-      {:error, :rate_limited} -> {:error, :rate_limited}
-      _ -> {:error, :recovery_unavailable}
+      {:error, :invalid_request}
     end
   rescue
     _ -> {:error, :recovery_unavailable}
   catch
     _, _ -> {:error, :recovery_unavailable}
   end
+
+  def enqueue(operation, _address, _opts) when operation in [:reset, :magic_link],
+    do: {:error, :invalid_request}
 
   def enqueue(_, _, _), do: {:error, :recovery_unavailable}
 

@@ -98,6 +98,15 @@ defmodule Sigra.RecoveryTest do
     refute_received {:recovery_enqueued, _, _}
   end
 
+  test "malformed addresses are distinguished without dispatch or account lookup" do
+    assert {:error, :invalid_request} = Recovery.enqueue(:reset, "not-an-email", [])
+
+    assert {:error, :invalid_request} =
+             Recovery.enqueue(:magic_link, String.duplicate("a", 513), [])
+
+    refute_received {:recovery_enqueued, _, _}
+  end
+
   test "tampered and wrong-host envelopes are rejected" do
     assert {:ok, :accepted} = enqueue("known@example.test", owner: self())
     assert_received {:recovery_enqueued, "test-host", envelope}
