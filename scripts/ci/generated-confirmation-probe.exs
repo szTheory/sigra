@@ -2,7 +2,6 @@ defmodule <%= app_module %>.GeneratedConfirmationProbeTest do
   use <%= app_module %>Web.ConnCase, async: false
 
   import Phoenix.LiveViewTest
-  import Ecto.Query, only: [from: 2]
 
   alias <%= app_module %>.Accounts.{User, UserSession, UserToken}
   alias <%= app_module %>.Accounts, as: Auth
