@@ -5,6 +5,7 @@ defmodule Sigra.Brand.PolicyDocsTest do
   @guide "guides/reference/brand-compatibility.md"
   @upgrade_guide "guides/introduction/upgrading-to-v1.51.md"
   @contract "guides/introduction/contract.md"
+  @token_reference "guides/reference/admin-token-reference.md"
 
   @adr_headings [
     "Owner decision table",
@@ -84,6 +85,25 @@ defmodule Sigra.Brand.PolicyDocsTest do
   # Pure helper: trimmed cells of one markdown table line.
   defp cells(line) do
     line |> String.trim() |> String.trim("|") |> String.split("|") |> Enum.map(&String.trim/1)
+  end
+
+  # Pure helper: true when a dotted reference resolves in the vendored token JSON.
+  defp brand_token_path?(tokens, dotted_path) do
+    case Enum.reduce_while(String.split(dotted_path, "."), {:ok, tokens}, fn key, {:ok, node} ->
+           case node do
+             %{} ->
+               case Map.fetch(node, key) do
+                 {:ok, value} -> {:cont, {:ok, value}}
+                 :error -> {:halt, :error}
+               end
+
+             _ ->
+               {:halt, :error}
+           end
+         end) do
+      {:ok, _value} -> true
+      :error -> false
+    end
   end
 
   # Pure helper: byte offset of `needle` in `body`; fails the test by name when absent.
@@ -179,6 +199,34 @@ defmodule Sigra.Brand.PolicyDocsTest do
       assert Enum.all?(owners, &(&1 in ["Sigra", "host"]))
       assert "Sigra" in owners
       assert "host" in owners
+    end
+  end
+
+  describe "admin token reference" do
+    test "every path-like Brand Ref points into the vendored token JSON" do
+      assert File.regular?(path(@token_reference)), "missing #{@token_reference}"
+
+      tokens = read!("brand/tokens.json") |> Jason.decode!()
+
+      references =
+        read!(@token_reference)
+        |> String.split("\n")
+        |> Enum.filter(fn line ->
+          String.starts_with?(line, "| ") and String.contains?(line, "--sg-")
+        end)
+        |> Enum.flat_map(fn line ->
+          [_, _, _, brand_ref] = cells(line)
+
+          Regex.scan(
+            ~r/\b(?:color|font|type|space|typography|radius|shadow|motion)\.[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*/,
+            brand_ref
+          )
+          |> Enum.map(&hd/1)
+        end)
+
+      invalid = Enum.reject(references, &brand_token_path?(tokens, &1))
+
+      assert invalid == [], "Brand Ref paths should all exist in brand/tokens.json"
     end
   end
 

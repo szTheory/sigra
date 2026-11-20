@@ -6,7 +6,7 @@ Per-token rationale and brand reference for every `--sg-*` custom property in th
 
 ## Color — Neutrals
 
-Light-mode values from `:root`. Dark-mode overrides noted inline. The Brand Ref column names paths in `brand/tokens.json` (the Kiln brand book, v2.0); a row marked "kept, no book equivalent" keeps its pre-Kiln value because the book has no token for it.
+Light-mode values from `:root`. Dark-mode overrides noted inline. The Brand Ref column names paths in `brand/tokens.json` when a matching token exists. `brand/brand.json` holds the selected-row and focus contrast-pair records; `admin-layer decision` marks values with no matching brand token.
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
@@ -57,7 +57,7 @@ Added by the Kiln migration. Each is a literal hex declared in all four token bl
 | `--sg-status-locked` | `#7A5F00` (light) / `#D6B957` (dark) | Status word, Locked (ochre) | `color.status.locked-text-light` / `color.status.locked-text-dark` |
 | `--sg-status-deleting` | `#7A5F00` (light) / `#D6B957` (dark) | Status word, Deleting (ochre) | `color.status.deleting-text-light` / `color.status.deleting-text-dark` |
 | `--sg-status-suspended` | `#5F554D` (light) / `#B8ABA0` (dark) | Status word, Suspended (muted) | `color.status.suspended-text-light` / `color.status.suspended-text-dark` |
-| `--sg-color-selected` | `#EADFD2` (light) / `#33281F` (dark) | Ground of the selected row, darker than the page so the row is plainly picked out | `color.secondary.selected-paper` (light); dark from `brand.json` `contrastPairs[selected-row]` (tokens.json has no entry) |
+| `--sg-color-selected` | `#EADFD2` (light) / `#33281F` (dark) | Ground of the selected row, darker than the page so the row is plainly picked out | `color.secondary.selected-paper` (light); dark from `brand/brand.json`, contrastPairs row “selected-row” |
 | `--sg-color-selected-edge` | `#C2410C` (light) / `#F08A55` (dark) | The 2px rule on the selected row and the 8px square before the current tab's name | `color.light.kiln` / `color.dark.kiln-bright` |
 | `--sg-color-current-tab` | `#9A3412` (light) / `#F08A55` (dark) | Current-tab label; text-grade accent | `color.secondary.kiln-deep` / `color.dark.kiln-bright` |
 | `--sg-color-sunken` | `#EFE9E1` (light) / `#120E0C` (dark) | Table-header ground; opaque so a sticky header stays solid over scrolling rows | `color.secondary.sunken-paper` / `color.code.ground-dark` |
@@ -88,16 +88,16 @@ Light-mode values from `:root`. Dark overrides noted. These eight generic admin 
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
-| `--sg-space-1` | `0.25rem` | 4px — micro gap between icon and label, pill padding | `space.1` |
-| `--sg-space-2` | `0.5rem` | 8px — tight intra-component gap (e.g. button icon-to-text) | `space.2` |
-| `--sg-space-3` | `0.75rem` | 12px — compact padding within list rows and small cards | `space.3` |
-| `--sg-space-4` | `1rem` | 16px — standard section padding and card internal spacing | `space.4` |
-| `--sg-space-5` | `1.25rem` | 20px — comfortable spacing between sibling controls | `space.5` |
-| `--sg-space-6` | `1.5rem` | 24px — major intra-section gap; separator between heading and content | `space.6` |
+| `--sg-space-1` | `0.25rem` | 4px — micro gap between icon and label, pill padding | `admin-layer decision` |
+| `--sg-space-2` | `0.5rem` | 8px — tight intra-component gap (e.g. button icon-to-text) | `admin-layer decision` |
+| `--sg-space-3` | `0.75rem` | 12px — compact padding within list rows and small cards | `admin-layer decision` |
+| `--sg-space-4` | `1rem` | 16px — standard section padding and card internal spacing | `admin-layer decision` |
+| `--sg-space-5` | `1.25rem` | 20px — comfortable spacing between sibling controls | `admin-layer decision` |
+| `--sg-space-6` | `1.5rem` | 24px — major intra-section gap; separator between heading and content | `admin-layer decision` |
 | `--sg-space-7` | `1.75rem` | 28px — generous top/bottom padding on large sections (no direct tokens.json match) | `admin-layer decision` |
-| `--sg-space-8` | `2rem` | 32px — between major page sections | `space.8` |
-| `--sg-space-10` | `2.5rem` | 40px — between grouped top-level sections | `space.10` |
-| `--sg-space-12` | `3rem` | 48px — page top padding and hero-level gaps | `space.12` |
+| `--sg-space-8` | `2rem` | 32px — between major page sections | `admin-layer decision` |
+| `--sg-space-10` | `2.5rem` | 40px — between grouped top-level sections | `admin-layer decision` |
+| `--sg-space-12` | `3rem` | 48px — page top padding and hero-level gaps | `admin-layer decision` |
 
 ---
 
@@ -108,21 +108,21 @@ Sizes follow a ~1.2 minor-third modular scale. The book allows weights 400, 600 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
 | `--sg-text-2xs` | `0.6875rem` | 11px — legal footnotes, timestamps in dense audit rows | `admin-layer decision` |
-| `--sg-text-xs` | `0.75rem` | 12px — captions, filter chip labels | `typography.size.xs` |
-| `--sg-text-sm` | `0.875rem` | 14px — body text in secondary content areas, table cells | `typography.size.sm` |
-| `--sg-text-base` | `1rem` | 16px — default body text | `typography.size.base` |
-| `--sg-text-md` | `1.125rem` | 18px — card headings and prominent labels | `typography.size.md` |
-| `--sg-text-lg` | `1.45rem` | ~23px — page section headings (H2) | `typography.size.lg` |
-| `--sg-text-xl` | `1.875rem` | 30px — page title (H1) | `typography.size.xl` |
+| `--sg-text-xs` | `0.75rem` | 12px — captions, filter chip labels | `type.label` |
+| `--sg-text-sm` | `0.875rem` | 14px — body text in secondary content areas, table cells | `type.dense-text` (closest book size: 13px) |
+| `--sg-text-base` | `1rem` | 16px — default body text | `type.body` |
+| `--sg-text-md` | `1.125rem` | 18px — card headings and prominent labels | `admin-layer decision` |
+| `--sg-text-lg` | `1.45rem` | ~23px — page section headings (H2) | `admin-layer decision` |
+| `--sg-text-xl` | `1.875rem` | 30px — page title (H1) | `type.heading` (closest book size: 28px) |
 | `--sg-text-2xl` | `clamp(1.6rem, 2.3vw, 2.4rem)` | Fluid display heading for dashboards; clamp constrains to readable range | `admin-layer decision` |
 | `--sg-weight-regular` | `400` | Default text weight; the book allows 400, 600 and 700 only (it was 450) | book type rules; no weight token in `brand/tokens.json` |
-| `--sg-weight-medium` | `600` | Strong body emphasis and table headers | `typography.weight.medium` |
-| `--sg-weight-semibold` | `700` | Section headings and active navigation labels | `typography.weight.semibold` |
+| `--sg-weight-medium` | `600` | Strong body emphasis and table headers | `type.label` |
+| `--sg-weight-semibold` | `700` | Section headings and active navigation labels | `type.heading` |
 | `--sg-weight-bold` | `700` | Display/hero numbers, page titles and labels; shares 700 with semibold and both names are kept (it was 800) | book type rules; no weight token in `brand/tokens.json` |
-| `--sg-leading-tight` | `1.1` | Dense display text; headings benefit from tighter leading | `typography.lineHeight.tight` |
-| `--sg-leading-snug` | `1.3` | Condensed body — audit rows, chip labels | `typography.lineHeight.snug` |
-| `--sg-leading-normal` | `1.5` | Default body line height for comfortable reading | `typography.lineHeight.normal` |
-| `--sg-leading-relaxed` | `1.6` | Prose paragraphs and instructional copy | `typography.lineHeight.relaxed` |
+| `--sg-leading-tight` | `1.1` | Dense display text; headings benefit from tighter leading | `type.display` (closest book line height: 1.05) |
+| `--sg-leading-snug` | `1.3` | Condensed body — audit rows, chip labels | `admin-layer decision` |
+| `--sg-leading-normal` | `1.5` | Default body line height for comfortable reading | `type.body` (closest book line height: 1.55) |
+| `--sg-leading-relaxed` | `1.6` | Prose paragraphs and instructional copy | `type.body` (closest book line height: 1.55) |
 | `--sg-tracking-tight` | `0` | No extra tracking; default for most body text | `admin-layer decision` |
 | `--sg-tracking-wide` | `0.04em` | Label and kicker text; slight spacing improves legibility at small sizes | `admin-layer decision` |
 | `--sg-tracking-wider` | `0.08em` | ALL-CAPS labels and overline elements | `admin-layer decision` |
@@ -135,11 +135,11 @@ Sizes follow a ~1.2 minor-third modular scale. The book allows weights 400, 600 
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
-| `--sg-radius-xs` | `0.375rem` | 6px — tight rounding for badges, inline chips, and code blocks | `radius.xs` |
-| `--sg-radius-sm` | `0.5rem` | 8px — standard button and input rounding | `radius.sm` |
-| `--sg-radius-md` | `0.75rem` | 12px — card and modal corner radius | `radius.md` |
+| `--sg-radius-xs` | `0.375rem` | 6px — tight rounding for badges, inline chips, and code blocks | `admin-layer decision` |
+| `--sg-radius-sm` | `0.5rem` | 8px — standard button and input rounding | `admin-layer decision` |
+| `--sg-radius-md` | `0.75rem` | 12px — card and modal corner radius | `admin-layer decision` |
 | `--sg-radius-lg` | `1rem` | 16px — large panel and drawer rounding | `admin-layer decision` |
-| `--sg-radius-full` | `999px` | Pill/tag shape; high value ensures a full capsule regardless of element height | `radius.full` |
+| `--sg-radius-full` | `999px` | Pill/tag shape; high value ensures a full capsule regardless of element height | `admin-layer decision` |
 
 ---
 
@@ -162,9 +162,9 @@ Light-mode values. Dark overrides simplify to outline-only rings to avoid halos 
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
-| `--sg-elev-inset` | `inset 0 0 0 1px var(--sg-color-line)` | 1px inset ring; separates content surfaces without adding depth | `shadow.inset` (partial — references `--sg-color-line` rather than a static value) |
-| `--sg-elev-1` | Three-layer box-shadow (0/1px/10px rings) | Floating card depth; three layered rings create natural depth without harsh edges | `shadow.panel` |
-| `--sg-elev-2` | Three-layer box-shadow (0/3px/18px rings) | Modal and popover depth; more pronounced lift for overlaying layers | `shadow.lift` |
+| `--sg-elev-inset` | `inset 0 0 0 1px var(--sg-color-line)` | 1px inset ring; separates content surfaces without adding depth | `admin-layer decision` |
+| `--sg-elev-1` | Three-layer box-shadow (0/1px/10px rings) | Floating card depth; three layered rings create natural depth without harsh edges | `admin-layer decision` |
+| `--sg-elev-2` | Three-layer box-shadow (0/3px/18px rings) | Modal and popover depth; more pronounced lift for overlaying layers | `admin-layer decision` |
 | `--sg-elev-3` | Three-layer box-shadow (0/12px/30px rings, dark: 1-ring + spread) | Highest depth tier for command palette and critical dialogs; dark override strips soft layers | `admin-layer decision` |
 
 ---
@@ -180,9 +180,9 @@ Seven duration tokens and four easing curves validated against emilkowal.ski's r
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
 | `--sg-motion-press` | `120ms` | Button press and tap feedback; emilkowal.ski cites 100–160ms as the "feels instantaneous" range for pointer-down responses — ALIGNED | `admin-layer decision` |
-| `--sg-motion-pop` | `180ms` | Tooltip and dropdown entrance; emilkowal.ski specifically cites 180ms as the sweet spot for dropdowns that feel snappy without jarring — ALIGNED | `motion.medium` (closest; tokens.json does not have a dedicated pop entry) |
-| `--sg-motion-fast` | `140ms` | Tone-swap and hover color transitions; emilkowal.ski places "micro-interactions" in the 100–200ms range — ALIGNED | `motion.fast` |
-| `--sg-motion-medium` | `220ms` | Panel slides and card expansions; emilkowal.ski's 150–250ms dropdown range includes 220ms — ALIGNED | `motion.medium` |
+| `--sg-motion-pop` | `180ms` | Tooltip and dropdown entrance; emilkowal.ski specifically cites 180ms as the sweet spot for dropdowns that feel snappy without jarring — ALIGNED | `admin-layer decision` |
+| `--sg-motion-fast` | `140ms` | Tone-swap and hover color transitions; emilkowal.ski places "micro-interactions" in the 100–200ms range — ALIGNED | `admin-layer decision` |
+| `--sg-motion-medium` | `220ms` | Panel slides and card expansions; emilkowal.ski's 150–250ms dropdown range includes 220ms — ALIGNED | `admin-layer decision` |
 | `--sg-motion-slow` | `300ms` | Full-overlay enter (command palette, modal); emilkowal.ski's "under 300ms" ceiling for user-perceived instant — ALIGNED/MARGINAL at ceiling; acceptable for full modal overlays; exit-asymmetry refinement deferred to Phase 187 per D-09 | `admin-layer decision` |
 | `--sg-motion-exit` | `160ms` | Phase 187 D-06 additive exit asymmetry; exits complete faster than medium enters while preserving all Phase 186 duration values | `admin-layer decision` |
 | `--sg-motion-tooltip` | `180ms` | Phase 187 D-06 tooltip-specific timing; keeps tooltip reveal timing explicit without retuning the Phase 186 `--sg-motion-pop` value | `admin-layer decision` |
@@ -191,8 +191,8 @@ Seven duration tokens and four easing curves validated against emilkowal.ski's r
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
-| `--sg-ease` | `cubic-bezier(0.2, 0, 0, 1)` | Default easing for hover/tone swaps; fast initial burst then gentle landing — appropriate for state changes where the end state is the goal | `motion.ease` |
-| `--sg-ease-out` | `cubic-bezier(0.23, 1, 0.32, 1)` | Enter animation easing; per emilkowal.ski, `ease-out` for enters ensures the content arrives quickly and settles — never use `ease-in` for enters | `motion.ease-out` |
+| `--sg-ease` | `cubic-bezier(0.2, 0, 0, 1)` | Default easing for hover/tone swaps; fast initial burst then gentle landing — appropriate for state changes where the end state is the goal | `admin-layer decision` |
+| `--sg-ease-out` | `cubic-bezier(0.23, 1, 0.32, 1)` | Enter animation easing; per emilkowal.ski, `ease-out` for enters ensures the content arrives quickly and settles — never use `ease-in` for enters | `admin-layer decision` |
 | `--sg-ease-in` | `cubic-bezier(0.4, 0, 1, 1)` | Exit animation easing only; elements accelerate out of the viewport — acceptable exit easing but never used for UI entry per emilkowal.ski guidance | `admin-layer decision` |
 | `--sg-ease-spring` | `cubic-bezier(0.34, 1.4, 0.64, 1)` | Pointer-gated micro-delight (e.g. logo bounce, icon pop); overshoots slightly then settles — pointer-only so reduced-motion browsers never see it | `admin-layer decision` |
 
@@ -212,7 +212,7 @@ Seven duration tokens and four easing curves validated against emilkowal.ski's r
 
 | Token | Value | Rationale | Brand Ref |
 |-------|-------|-----------|-----------|
-| `--sg-focus-ring` | `0 0 0 var(--sg-focus-ring-offset) var(--sg-color-subtle), 0 0 0 calc(var(--sg-focus-ring-offset) + 2px) var(--sg-color-brand-strong)` | Two layers: a page-ground gap of `--sg-focus-ring-offset`, then a 2px ring in `--sg-color-brand-strong` (Kiln Deep on light, Kiln Bright on dark; 6.61:1 and 7.50:1 on the page). The gap keeps the ring apart from a Kiln-filled button. The previous 35% halo was 1.67:1 on Paper and failed the book's 3:1 focus pair. It uses theme-variant tokens, so it is declared in all four token blocks | `brand.json` `contrastPairs[focus]` |
+| `--sg-focus-ring` | `0 0 0 var(--sg-focus-ring-offset) var(--sg-color-subtle), 0 0 0 calc(var(--sg-focus-ring-offset) + 2px) var(--sg-color-brand-strong)` | Two layers: a page-ground gap of `--sg-focus-ring-offset`, then a 2px ring in `--sg-color-brand-strong` (Kiln Deep on light, Kiln Bright on dark; 6.61:1 and 7.50:1 on the page). The gap keeps the ring apart from a Kiln-filled button. The previous 35% halo was 1.67:1 on Paper and failed the book's 3:1 focus pair. It uses theme-variant tokens, so it is declared in all four token blocks | `brand/brand.json`, contrastPairs row “focus” |
 | `--sg-focus-ring-offset` | `2px` | 2px clearance between the element border and the focus ring; ensures ring does not bleed into adjacent elements or get clipped by overflow:hidden parents | `admin-layer decision` |
 
 ---
