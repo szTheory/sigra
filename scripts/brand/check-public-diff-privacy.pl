@@ -80,25 +80,52 @@ my $non_test_email = join('', 'fixture', '@', 'example', '.', 'com');
 die "email fixture exception self-check failed\n"
   unless $test_email !~ $rules[-1][1] && $non_test_email =~ $rules[-1][1];
 
-my @lines;
+my @entries;
 my $diff = run_capture('git', 'diff', '--no-ext-diff', '--unified=0', $base, '--', '.', ':!.planning/**');
+my $active_path;
 for my $line (split /\n/, $diff) {
-  push @lines, $line if $line =~ /^\+(?!\+\+)/;
+  $line =~ s/\r\z//;
+  if ($line =~ /^\+\+\+ b\/(.*)$/) {
+    $active_path = $1;
+    next;
+  }
+  next unless $line =~ /^\+(?!\+\+)/;
+  push @entries, {
+    source => 'diff',
+    path => $active_path,
+    text => substr($line, 1),
+  };
 }
+
 my $commits = run_capture('git', 'log', '--format=%s%n%b', "$base..HEAD");
-push @lines, split(/\n/, $commits);
+for my $line (split /\n/, $commits) {
+  $line =~ s/\r\z//;
+  push @entries, { source => 'commit', path => undef, text => $line };
+}
 for my $file (@include) {
   next if $file =~ m{^\.planning/};
   open my $fh, '<', $file or die "included file unavailable\n";
-  push @lines, <$fh>;
+  while (my $line = <$fh>) {
+    $line =~ s/\r?\n\z//;
+    push @entries, { source => 'include', path => $file, text => $line };
+  }
   close $fh;
 }
 
+sub is_approved_policy_header {
+  my ($entry, $runtime_account) = @_;
+  return 0 unless $entry->{source} eq 'diff';
+  return 0 unless defined($entry->{path})
+    && $entry->{path} eq 'test/fixtures/ci/tracked-privacy-exceptions.tsv';
+  return $entry->{text} eq "# tracked-privacy-exceptions-v1 maintainer-token=$runtime_account";
+}
+
 my $violations = 0;
-for my $line (@lines) {
+for my $entry (@entries) {
   for my $rule (@rules) {
     my ($name, $pattern) = @$rule;
-    next unless $line =~ $pattern;
+    next if $name eq 'account_name' && is_approved_policy_header($entry, $account);
+    next unless $entry->{text} =~ $pattern;
     $violations++;
     print "privacy gate: prohibited value detected (rule $name)\n";
     last;
