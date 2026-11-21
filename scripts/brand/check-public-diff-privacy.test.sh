@@ -87,6 +87,17 @@ add_line 'test/fixtures/ci/tracked-privacy-exceptions.tsv' \
   "# tracked-privacy-exceptions-v1 maintainer-token=$ACCOUNT"
 expect_pass 'exact policy header when Git name equals runtime account'
 
+CASE_VARIANT="$(printf '%s' "$ACCOUNT" | tr '[:upper:]' '[:lower:]')"
+if [[ "$CASE_VARIANT" == "$ACCOUNT" ]]; then
+  CASE_VARIANT="$(printf '%s' "$ACCOUNT" | tr '[:lower:]' '[:upper:]')"
+fi
+if [[ "$CASE_VARIANT" != "$ACCOUNT" ]]; then
+  begin_case exact_header_case_variant_git_name "$CASE_VARIANT"
+  add_line 'test/fixtures/ci/tracked-privacy-exceptions.tsv' \
+    "# tracked-privacy-exceptions-v1 maintainer-token=$ACCOUNT"
+  expect_pass 'exact policy header when Git name differs only by case'
+fi
+
 begin_case same_fixture_extra_token
 add_line 'test/fixtures/ci/tracked-privacy-exceptions.tsv' \
   "# tracked-privacy-exceptions-v1 maintainer-token=$ACCOUNT"

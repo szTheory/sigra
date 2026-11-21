@@ -126,7 +126,8 @@ for my $entry (@entries) {
   for my $rule (@rules) {
     my ($name, $pattern) = @$rule;
     next if $approved_policy_header && $name eq 'account_name';
-    next if $approved_policy_header && $name eq 'git_user_name' && $git_name eq $account;
+    next if $approved_policy_header && $name eq 'git_user_name'
+      && lc($git_name) eq lc($account);
     next unless $entry->{text} =~ $pattern;
     $violations++;
     print "privacy gate: prohibited value detected (rule $name)\n";
