@@ -122,9 +122,11 @@ sub is_approved_policy_header {
 
 my $violations = 0;
 for my $entry (@entries) {
+  my $approved_policy_header = is_approved_policy_header($entry, $account);
   for my $rule (@rules) {
     my ($name, $pattern) = @$rule;
-    next if $name eq 'account_name' && is_approved_policy_header($entry, $account);
+    next if $approved_policy_header && $name eq 'account_name';
+    next if $approved_policy_header && $name eq 'git_user_name' && $git_name eq $account;
     next unless $entry->{text} =~ $pattern;
     $violations++;
     print "privacy gate: prohibited value detected (rule $name)\n";
