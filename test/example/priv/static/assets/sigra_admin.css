@@ -511,6 +511,9 @@
   .sg-status-mark[data-status="deleting"] {
     color: var(--sg-status-deleting);
   }
+  .sg-status-mark[data-status="deleted"] {
+    color: var(--sg-status-suspended);
+  }
   .sg-status-mark[data-status="suspended"] {
     color: var(--sg-status-suspended);
   }
@@ -534,6 +537,9 @@
     color: var(--sg-color-brand-strong);
     box-shadow: inset 0 0 0 1px
       color-mix(in oklab, var(--sg-color-brand) 22%, transparent);
+    max-inline-size: min(24rem, calc(100vw - var(--sg-space-4) - var(--sg-space-4)));
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .sg-scope-pill__tenant {
@@ -665,7 +671,9 @@
     font-weight: var(--sg-weight-bold);
     line-height: 1;
     text-transform: uppercase;
-    transition: var(--sg-transition-tone), var(--sg-transition-press);
+    /* Theme changes are immediate so text never passes through a low-contrast
+     * blend. Keep the short press motion without tweening the label or fill. */
+    transition: var(--sg-transition-press);
   }
 
   /* Active segment: a rail-accent fill with ink text in every theme. The fill
@@ -838,6 +846,9 @@
     background: var(--sg-color-brand);
     color: var(--sg-color-on-brand);
     box-shadow: 0 12px 24px -18px var(--sg-color-brand);
+    /* Keep on-brand text readable while theme tokens change; tweening the
+     * foreground and fill independently can pass through low-contrast colors. */
+    transition: box-shadow var(--sg-motion-fast) var(--sg-ease), var(--sg-transition-press);
   }
   .sg-btn--primary:hover {
     background: var(--sg-color-brand-fill-hover);
@@ -903,7 +914,7 @@
 
   @media (hover: hover) and (pointer: fine) {
     .sg-btn--secondary:hover {
-      box-shadow: var(--sg-elev-2);
+      box-shadow: inset 0 0 0 1px var(--sg-color-control-edge), var(--sg-elev-2);
       transform: translateY(-1px);
     }
   }
@@ -1083,16 +1094,14 @@
     }
     .sg-filter-chip:hover {
       background: var(--sg-color-brand-soft);
-      box-shadow: inset 0 0 0 1px
-        color-mix(in oklab, var(--sg-color-brand) 24%, transparent);
+      box-shadow: inset 0 0 0 1px var(--sg-color-control-edge), var(--sg-elev-1);
       transform: translateY(-1px);
     }
   }
   .sg-filter-chip:has(input:checked) {
     background: var(--sg-color-brand-soft);
     color: var(--sg-color-brand-strong);
-    box-shadow: inset 0 0 0 1px
-      color-mix(in oklab, var(--sg-color-brand) 32%, transparent);
+    box-shadow: inset 0 0 0 1px var(--sg-color-control-edge), var(--sg-elev-1);
   }
 
   .sg-list {
@@ -1945,6 +1954,7 @@
     display: grid;
     gap: var(--sg-space-1);
     min-width: 13rem;
+    max-inline-size: min(24rem, calc(100vw - var(--sg-space-4) - var(--sg-space-4)));
     padding: var(--sg-space-2);
     border-radius: var(--sg-radius-md);
     background: var(--sg-color-panel);
@@ -1956,6 +1966,7 @@
     align-items: center;
     gap: var(--sg-space-2);
     min-height: var(--sg-control-sm);
+    min-width: 0;
     padding-inline: var(--sg-space-3);
     border-radius: var(--sg-radius-sm);
     color: var(--sg-color-ink);
@@ -1963,13 +1974,19 @@
     font-weight: var(--sg-weight-medium);
     text-decoration: none;
     transition: var(--sg-transition-tone);
+    overflow-wrap: anywhere;
   }
 
-  .sg-scope-switch__item:hover,
+  .sg-scope-switch__item:hover {
+    background: var(--sg-color-brand-soft);
+    color: var(--sg-color-brand-strong);
+  }
+
   .sg-scope-switch__item:focus-visible {
     background: var(--sg-color-brand-soft);
     color: var(--sg-color-brand-strong);
     outline: none;
+    box-shadow: var(--sg-focus-ring);
   }
 
   .sg-scope-switch__item[aria-current="true"] {
@@ -1991,8 +2008,7 @@
     bottom: 0;
     display: flex;
     border-top: 1px solid var(--sg-color-line);
-    background: color-mix(in oklab, var(--sg-color-panel) 94%, transparent);
-    backdrop-filter: blur(16px);
+    background: var(--sg-color-panel);
     z-index: var(--sg-z-nav);
   }
 
@@ -2009,12 +2025,20 @@
     font-size: var(--sg-text-2xs);
     font-weight: var(--sg-weight-semibold);
     text-decoration: none;
-    transition: var(--sg-transition-tone);
+    /* Theme tokens can change abruptly while the panel ground changes with
+     * them. Keep the label color immediate so it never passes through a
+     * low-contrast combination on the dark surface. */
+  }
+
+  .sg-bottom-nav__item:focus-visible {
+    outline: none;
+    box-shadow: var(--sg-focus-ring);
   }
 
   .sg-bottom-nav__item.active,
   .sg-bottom-nav .active {
     color: var(--sg-color-brand-strong);
+    transition: none;
   }
 
   /* Owns its own responsive hide (later source order than .sg-show-mobile so
@@ -2243,7 +2267,7 @@
     block-size: var(--sg-control-sm);
     inline-size: 4rem;
     padding: 0;
-    border: 1px solid var(--sg-color-line-strong);
+    border: 1px solid var(--sg-color-control-edge);
     border-radius: var(--sg-radius-xs);
     background-color: var(--sg-color-panel);
     color: var(--sg-color-ink);
@@ -2335,11 +2359,16 @@
     transition: var(--sg-transition-tone);
   }
 
-  .sg-nav-link:hover,
+  .sg-nav-link:hover {
+    background: var(--sg-color-brand-soft);
+    color: var(--sg-color-brand-strong);
+  }
+
   .sg-nav-link:focus-visible {
     background: var(--sg-color-brand-soft);
     color: var(--sg-color-brand-strong);
     outline: none;
+    box-shadow: var(--sg-focus-ring);
   }
 
   .sg-nav-link.active,
@@ -2347,6 +2376,12 @@
     background: var(--sg-color-brand);
     color: var(--sg-color-on-brand);
     box-shadow: 0 10px 20px -16px var(--sg-color-brand);
+    transition: box-shadow var(--sg-motion-fast) var(--sg-ease);
+  }
+
+  .sg-nav-link.active:focus-visible,
+  .sg-nav-link[aria-current="page"]:focus-visible {
+    box-shadow: var(--sg-focus-ring);
   }
 
   .sg-tabs__tab {
@@ -2496,11 +2531,13 @@
     display: flex;
     align-items: center;
     gap: var(--sg-space-2);
+    min-width: 0;
     padding: var(--sg-space-2) var(--sg-space-3);
     border-radius: var(--sg-radius-sm);
     color: var(--sg-color-ink);
     font-size: var(--sg-text-sm);
     cursor: pointer;
+    overflow-wrap: anywhere;
   }
 
   .sg-cmdk__item.is-active,
@@ -2521,7 +2558,7 @@
     display: none;
     align-items: center;
     gap: var(--sg-pill-gap);
-    border: 1px solid var(--sg-color-line);
+    border: 1px solid var(--sg-color-control-edge);
     border-radius: var(--sg-radius-sm);
     background: transparent;
     color: var(--sg-color-muted);
@@ -2538,5 +2575,10 @@
   .sg-cmdk__trigger:hover {
     color: var(--sg-color-ink);
     background: var(--sg-color-panel-alt);
+  }
+
+  .sg-cmdk__trigger:focus-visible {
+    outline: none;
+    box-shadow: var(--sg-focus-ring);
   }
 }

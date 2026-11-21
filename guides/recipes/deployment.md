@@ -163,22 +163,22 @@ If you don't use Oban, Sigra's email delivery falls back to inline `Task` superv
 
 ## Rate limit tuning
 
-The default Hammer rate limits are conservative for small apps. Review them for your traffic:
+Generated magic-link and password-reset helpers can use the configured
+`Sigra.RateLimiter` implementation. Rate limiting is disabled by default; add a
+limiter and set the per-flow windows in the host app config:
 
-    config :my_app, MyApp.Auth.Config,
-      rate_limiting: [
-        login: [scale_ms: 60_000, limit: 10],            # 10 login attempts per minute per IP
-        register: [scale_ms: 3_600_000, limit: 5],       # 5 registrations per hour per IP
-        reset_password: [scale_ms: 60_000, limit: 3],    # 3 reset requests per minute per email
-        mfa_challenge: [scale_ms: 300_000, limit: 10],   # 10 attempts per 5 minutes per user
-        api_token_create: [scale_ms: 3_600_000, limit: 20]
-      ]
+    config :my_app, :sigra_config,
+      rate_limiting: [limiter: Sigra.RateLimiters.Hammer],
+      magic_link: [max_requests: 3, window_seconds: 900],
+      reset: [max_requests: 3, window_seconds: 60]
 
-Use an ETS backend in single-node deployments (the default). For multi-node, switch to the Redis backend:
+    config :sigra, :hammer_module, MyApp.RateLimit
 
-    config :my_app, MyApp.RateLimiter,
-      backend: Hammer.Backend.Redis,
-      redis_url: System.get_env("REDIS_URL")
+The provided adapter needs the optional `:hammer` dependency and a supervised
+Hammer module. A custom limiter can implement `Sigra.RateLimiter` instead. The
+email request limiter uses normalized email keys and checks them before account
+lookup. See [Password Reset](../flows/password-reset.html) for the response
+limits and the distinction between library results and the generated page.
 
 ## Health check endpoint
 

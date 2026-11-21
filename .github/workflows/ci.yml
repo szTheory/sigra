@@ -216,6 +216,18 @@ jobs:
           else
             echo "ref=HEAD~1" >> "$GITHUB_OUTPUT"
           fi
+      - name: Tracked privacy guard syntax
+        run: |
+          set -euo pipefail
+          perl -c scripts/ci/tracked-privacy-guard.pl
+          bash -n scripts/ci/tracked-privacy-guard.test.sh
+      - name: Tracked privacy guard self-test
+        run: bash scripts/ci/tracked-privacy-guard.test.sh
+      - name: Tracked privacy tree scan
+        run: >-
+          perl scripts/ci/tracked-privacy-guard.pl --root .
+          --base "${{ steps.base.outputs.ref }}"
+          --baseline test/fixtures/ci/tracked-privacy-exceptions.tsv
       - name: Milestone verification gate
         run: bash scripts/ci/milestone-verification-gate.sh
       - name: Detect installer-related changes (PRs only)
@@ -240,6 +252,12 @@ jobs:
         run: bash scripts/ci/getting-started-contract.sh
       - name: Phase 34 UAT contracts
         run: scripts/ci/phase34-uat-contracts.sh
+      # Guard scripts already run in mix ci; these hermetic tests verify the
+      # guards themselves early in the fast job, without affecting test-job order.
+      - name: Admin CSS conformance self-test
+        run: bash scripts/ci/admin-css-conformance.test.sh
+      - name: Admin token completeness self-test
+        run: bash scripts/ci/admin-token-completeness.test.sh
       - name: Snapshot drift guard (canary allowlist)
         run: bash scripts/ci/snapshot-canary-guard.sh --base "${{ steps.base.outputs.ref }}"
       - name: Snapshot drift guard — design lane
@@ -605,6 +623,9 @@ jobs:
         run: |
           mix local.hex --force
           mix local.rebar --force
+      - name: Verify documented Sigra pin resolves to a non-retired release
+        if: github.event_name == 'pull_request'
+        run: bash scripts/ci/verify-sigra-pin-resolution.sh
       # phx_new archive is required by test/sigra/install/golden_diff_test.exs
       # and idempotency_test.exs — both use InstallFixture.setup_tmp_app/1
       # which shells out to `mix phx.new` to scaffold a fresh Phoenix app.
@@ -614,10 +635,22 @@ jobs:
         run: mix deps.get
       - name: Run contributor CI gate
         env:
+          SIGRA_CI_REQUIRED: "1"
           PGUSER: postgres
           PGPASSWORD: postgres
           PGHOST: localhost
         run: MIX_ENV=test mix ci
+      # Phase 260 SC-1: publish the complete normalized before catalog for review.
+      # The catalog tests above verify its manifest and privacy contract; the committed
+      # fixture remains the durable baseline because this artifact expires after 7 days.
+      - name: Upload full HTML brand catalog
+        if: success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: brand-before-html-catalog
+          path: test/fixtures/brand/before/
+          retention-days: 7
+          if-no-files-found: error
 
   # TEST-01 (D-02/D-03): Thin name-preserving aggregator. Reuses job id `library_tests`
   # and name `Library tests` — byte-identical to ruleset 14941512 required check string

@@ -35,9 +35,8 @@ defmodule Sigra.MixProject do
       ],
       name: "Sigra",
       description:
-        "Authentication for Phoenix 1.8+ and Ecto. Mix generators emit host-owned auth " <>
-          "(sessions, Argon2id, TOTP, passkeys, encryption, audit). OAuth, mailers, Oban, and more " <>
-          "are optional host deps. Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html.",
+        "A library of hardened primitives plus generators that put ordinary authentication code " <>
+          "for Phoenix in your repo.",
       source_url: @source_url,
       homepage_url: @source_url,
       package: package(),
@@ -218,13 +217,17 @@ defmodule Sigra.MixProject do
       # Hex/ExDoc: before mix hex.publish, ensure git tag v#{@version} exists or "View source" on hexdocs returns 404.
       source_ref: "v#{@version}",
       source_url: @source_url,
-      favicon: "brandbook/favicon.svg",
+      favicon: "docs/assets/brand/favicon.svg",
       formatters: ["html", "markdown"],
-      assets: %{"guides/assets" => "assets"},
+      assets: %{
+        "docs/assets" => "assets",
+        "guides/assets" => "assets",
+        [{"docs_config.js", ""}] => "."
+      },
       before_closing_head_tag: &before_closing_head_tag/1,
       before_closing_body_tag: &before_closing_body_tag/1,
       extras: [
-        "README.md",
+        {"README.md", title: "Sigra"},
         "CONTRIBUTING.md",
         "SECURITY.md",
         "MAINTAINING.md",
@@ -350,6 +353,8 @@ defmodule Sigra.MixProject do
       integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E"
       src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js"
     ></script>
+    <link rel="stylesheet" href="assets/brand/sigra-exdoc.css" />
+    <link rel="stylesheet" href="assets/brand/sigra-exdoc-shell.css" />
     """
   end
 

@@ -34,6 +34,27 @@ defmodule Sigra.Install.GeneratedConfirmationCIContractTest do
     assert script =~ "--project=generated-host-chromium"
     assert script =~ "--output test-results/generated-confirmation"
     assert script =~ "tests/generated-confirmation.spec.ts"
+
+    install_smoke = read("scripts/ci/install-smoke.sh")
+    probe = read("scripts/ci/generated-confirmation-probe.exs")
+    recovery_probe = read("scripts/ci/generated-reset-password-probe.exs")
+
+    assert install_smoke =~ "generated-confirmation-probe.exs"
+    assert install_smoke =~ "test/generated_confirmation_probe_test.exs"
+    assert install_smoke =~ "generated-reset-password-probe.exs"
+    assert install_smoke =~ "test/generated_reset_password_probe_test.exs"
+    assert probe =~ "generated controller confirms links from anonymous and signed-in sessions"
+
+    assert probe =~
+             "generated controller code and resend actions safely reject anonymous visitors"
+
+    assert recovery_probe =~
+             "fresh generated host queues reset and magic requests without Oban or account-side effects"
+
+    assert recovery_probe =~ "assert reset_flash[\"info\"] == @reset_flash"
+    assert recovery_probe =~ "assert email_contains?(reset_email, user.email"
+    assert recovery_probe =~ "assert email_contains?(magic_email, user.email"
+    assert probe =~ "Repo.get!(User, owner.id).confirmed_at"
   end
 
   test "the confirmation project cannot drift into general example browser lanes" do

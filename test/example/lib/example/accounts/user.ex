@@ -49,17 +49,17 @@ defmodule Example.Accounts.User do
   def registration_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:email, :display_name, :password])
-    |> validate_email(opts)
+    |> validate_email(opts, false)
     |> validate_password(opts)
   end
 
-  defp validate_email(changeset, opts) do
+  defp validate_email(changeset, opts, check_uniqueness? \\ true) do
     changeset
     |> validate_required([:email])
     |> update_change(:email, &Sigra.Email.normalize/1)
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> validate_length(:email, max: 160)
-    |> maybe_validate_unique_email(opts)
+    |> maybe_validate_unique_email(opts, check_uniqueness?)
   end
 
   defp validate_password(changeset, opts) do
@@ -84,11 +84,16 @@ defmodule Example.Accounts.User do
     end
   end
 
-  defp maybe_validate_unique_email(changeset, opts) do
+  defp maybe_validate_unique_email(changeset, opts, check_uniqueness?) do
     if Keyword.get(opts, :validate_email, true) do
-      changeset
-      |> unsafe_validate_unique(:email, Example.Repo)
-      |> unique_constraint(:email)
+      changeset =
+        if check_uniqueness? do
+          unsafe_validate_unique(changeset, :email, Example.Repo)
+        else
+          changeset
+        end
+
+      unique_constraint(changeset, :email, name: :users_email_active_index)
     else
       changeset
     end

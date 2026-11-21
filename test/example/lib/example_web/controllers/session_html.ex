@@ -107,9 +107,7 @@ defmodule ExampleWeb.SessionHTML do
             method="post"
             class="vt-auth__method"
             data-options-path="/users/log_in/passkey/options"
-            data-email-input="#login_form input[name='user[email]']"
           >
-            <input type="hidden" name="user[email]" data-passkey-email-shadow />
             <input type="hidden" name="passkey[response]" id="passkey_login_response" />
 
             <p

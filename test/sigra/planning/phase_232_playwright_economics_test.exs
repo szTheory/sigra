@@ -22,7 +22,8 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
 
     assert setup =~ "platform-admin+dg-chromium-"
     assert setup =~ "getByRole('button', { name: /Create an account/ })"
-    assert setup =~ "getByRole('alert')"
+    assert setup =~ "assertGenericRegistrationResponse(page)"
+    assert setup =~ "signInManually(page, email, TEST_PASSWORD)"
     assert setup =~ "mkdir(dirname(statePath), { recursive: true })"
     assert setup =~ "storageState({ path: statePath })"
   end
@@ -62,7 +63,11 @@ defmodule Sigra.Planning.Phase232PlaywrightEconomicsTest do
 
     assert length(Regex.scan(~r/name: 'admin-design-setup-[^']+'/, config)) == 3
 
-    states = Regex.scan(~r/storageState: '([^']+)'/, config, capture: :all_but_first)
+    states =
+      Regex.scan(~r/storageState: '(test-results\/.auth\/admin-design-[^']+)'/, config,
+        capture: :all_but_first
+      )
+
     assert states |> List.flatten() |> Enum.uniq() |> length() == 3
 
     assert config =~ "use: { ...devices['iPhone 13'] }"

@@ -1,10 +1,20 @@
-# Sigra
+<picture role="heading" aria-level="1">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-dark.svg">
+  <img src="https://raw.githubusercontent.com/szTheory/sigra/8ab038970c64a11a0eec3cd688b791ac31695209/brand/assets/readme/sigra-header-light.svg" alt="Sigra" width="260">
+</picture>
+
+<p><b>Phoenix auth you own and can still update.</b></p>
+<p>Production-minded authentication for Phoenix 1.8+</p>
+
+**[Install Sigra](guides/introduction/installation.md)** — add `{:sigra, "~> 1.7.1"}` to `mix.exs`, then run `mix deps.get` and `mix sigra.install Accounts User users`.
 
 [![Hex version](https://img.shields.io/hexpm/v/sigra.svg)](https://hex.pm/packages/sigra)
 [![Docs](https://img.shields.io/badge/hexdocs-api%20%26%20guides-5865F2)](https://hexdocs.pm/sigra)
 [![CI](https://github.com/szTheory/sigra/actions/workflows/ci.yml/badge.svg)](https://github.com/szTheory/sigra/actions/workflows/ci.yml)
 
-**Production-minded authentication for Phoenix 1.8+** — sessions, passwords, email flows, OAuth, MFA, passkeys, optional organizations and admin tooling — without treating security-sensitive code as throwaway scaffolding.
+Sigra is an open-source authentication library for Phoenix 1.8 and later. A library holds the security-sensitive core, and generators write the screens, routes and emails into your own repository as normal code. Fixes arrive with `mix deps.update`; the rest is yours to edit.
+
+[Social card](docs/assets/brand/social-card-1280x640.png)
 
 **TL;DR**
 
@@ -18,7 +28,7 @@
 
 | You are… | Do this first |
 |----------|----------------|
-| **Evaluating** | Run `scripts/uat/up.sh` — one command boots the seeded Vaultr demo behind Traefik and auto-opens it (no second terminal). See the [Demo Showcase](guides/introduction/demo-showcase.md) for the guided walkthrough, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
+| **Evaluating** | Run `scripts/uat/up.sh` — one command boots the seeded Tasklane demo behind Traefik and auto-opens it (no second terminal). See the [Demo Showcase](guides/introduction/demo-showcase.md) for the guided walkthrough, then open [HexDocs](https://hexdocs.pm/sigra) for API depth. |
 | **Greenfield Phoenix app** | Read [Installation](guides/introduction/installation.md), then follow [Getting started](guides/introduction/getting-started.md) for first-run auth flows. |
 | **Existing Sigra app / upgrade** | Follow [Upgrading to v1.0](guides/introduction/upgrading-to-v1.0.md) for the operational preflight, generated-host review, and rollback path. |
 | **Migrating from another auth stack** | Use [Migrating from phx.gen.auth](guides/introduction/migrating-from-phx-gen-auth.md) and [Migrating from Pow, Guardian, and Ueberauth](guides/introduction/migrating-from-pow-guardian-ueberauth.md) to choose the right cutover lane. |
@@ -73,7 +83,7 @@ flowchart TD
 1. **Dependency** (`mix.exs`):
 
    ```elixir
-   {:sigra, "~> 1.5.0"}
+   {:sigra, "~> 1.7.1"}
    ```
 
    For version, stack, ownership, and non-goal boundaries, read the [Sigra 1.0 contract](guides/introduction/contract.md).
@@ -174,7 +184,7 @@ One clause each — depth lives in HexDocs and the guides linked in the next sec
 |-------|----------------|
 | **Passwords** | Argon2id via configured hasher; bcrypt verify-and-upgrade path when enabled. |
 | **Tokens** | HMAC-protected, time-bounded patterns for magic links, reset, confirmation — stored references, not “guessable IDs only”. |
-| **Enumeration** | Sign-in, magic-link and password-reset requests are tested, in Sigra's example application, to return the same status, redirect, flash message and page for an existing and an unknown address at a single attempt. Not covered: timing, repeated attempts (lockout and rate limits), registration, passkey sign-in, and the code generated into your own application (the example application is a hand-maintained copy, so check the same flows there). The registration, sign-in and password-reset guides on HexDocs each state their own scope. |
+| **Enumeration** | Password sign-in, magic-link and password-reset requests are tested, in Sigra's example application, to return the same status, redirect, flash message and page for an existing and an unknown address at a single attempt. A valid registration and duplicate-address submission are also compared for the same status, redirect, flash and page. Separate library-result probes compare repeated sign-ins through lockout and requests denied by a configured email limiter. Passkey-primary options are identifier-free and tested to return the same status and JSON shape with an empty credential allow-list. Separate generated-host install-smoke probes cover the reset request page, confirmation and duplicate-registration hashing; they do not extend the example-host response comparisons. Not covered: timing, confirmation-email delivery equivalence, allowed-request library results, passkey sign-in completion, or unprobed generated-host behavior. The registration, sign-in and password-reset guides on HexDocs each state their own scope. |
 | **Step-up** | Sudo / MFA challenge patterns integrate with Phoenix plugs and LiveView mounts as generated. |
 
 For threat-model detail and per-flow guarantees, use **HexDocs**, [SECURITY.md](SECURITY.md), and the [Sigra 1.0 contract](guides/introduction/contract.md) for the full invariants and non-goals — the README stays a map, not a spec.

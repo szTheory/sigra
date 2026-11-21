@@ -116,7 +116,7 @@ defmodule SigraInstallGoldenTmpWeb.Router do
     get "/log_in/:token", SessionController, :magic_link
 
 
-    live "/reset-password", ResetPasswordLive
+    live "/reset-password", ResetPasswordLive, :new
     live "/reset-password/:token", ResetPasswordLive, :edit
 
   end

@@ -36,12 +36,62 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGolden do
   @fixture_dir "test/fixtures/install_golden"
   @fixture_tree_dir Path.join(@fixture_dir, "tree")
   @fixture_stdout Path.join(@fixture_dir, "STDOUT.txt")
+  @usage """
+  Usage: MIX_ENV=test mix sigra.fixture.rebless_golden [--help | --check]
+
+  With no arguments, regenerate the golden fixture. Use --check to compare
+  a fresh fixture against the committed baseline without changing it.
+  """
 
   @impl Mix.Task
-  def run(argv) do
-    {opts, _, _} = OptionParser.parse(argv, strict: [check: :boolean])
-    check? = Keyword.get(opts, :check, false)
+  def run(argv), do: run_with_lifecycle(argv, &run_lifecycle/1)
 
+  @doc false
+  def run_with_lifecycle(argv, lifecycle) when is_list(argv) and is_function(lifecycle, 1) do
+    case parse_args(argv) do
+      {:help, _argv} ->
+        Mix.shell().info(@usage)
+        :ok
+
+      {:run, mode} ->
+        lifecycle.(mode)
+
+      {:error, message} ->
+        Mix.raise(message <> "\n\n" <> @usage)
+    end
+  end
+
+  defp parse_args(argv) do
+    {opts, args, invalid} =
+      OptionParser.parse(argv, strict: [check: :boolean, help: :boolean])
+
+    cond do
+      invalid != [] ->
+        flags = Enum.map_join(invalid, ", ", fn {flag, _value} -> flag end)
+        {:error, "Unknown option(s): #{flags}."}
+
+      args != [] ->
+        {:error, "Unexpected argument(s): #{Enum.join(args, ", ")}."}
+
+      Keyword.get(opts, :help, false) and argv == ["--help"] ->
+        {:help, argv}
+
+      Keyword.get(opts, :help, false) ->
+        {:error, "--help must be used by itself."}
+
+      opts == [] ->
+        {:run, :write}
+
+      opts == [check: true] ->
+        {:run, :check}
+
+      true ->
+        {:error, "Unsupported option combination."}
+    end
+  end
+
+  defp run_lifecycle(mode) do
+    check? = mode == :check
     Mix.env(:test)
     Mix.Task.run("loadpaths")
     Mix.Task.run("compile")
@@ -57,19 +107,23 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGolden do
     tree = InstallFixture.normalize_tree(tmp_dir, baseline)
     stdout = InstallFixture.normalize_stdout(raw, tmp_dir)
 
-    target_tree_dir = if check?, do: tmp_target_dir("tree"), else: @fixture_tree_dir
-    target_stdout = if check?, do: tmp_target_dir("STDOUT.txt"), else: @fixture_stdout
+    temp_check_dir = if check?, do: tmp_target_dir(), else: nil
+    target_tree_dir = if check?, do: Path.join(temp_check_dir, "tree"), else: @fixture_tree_dir
+    target_stdout = if check?, do: Path.join(temp_check_dir, "STDOUT.txt"), else: @fixture_stdout
 
-    write_tree!(target_tree_dir, tree)
-    File.mkdir_p!(Path.dirname(target_stdout))
-    File.write!(target_stdout, stdout)
+    try do
+      write_tree!(target_tree_dir, tree)
+      File.mkdir_p!(Path.dirname(target_stdout))
+      File.write!(target_stdout, stdout)
 
-    File.rm_rf!(Path.dirname(tmp_dir))
-
-    if check? do
-      run_check!(target_tree_dir, target_stdout)
-    else
-      report_delta!(@fixture_dir)
+      if check? do
+        run_check!(target_tree_dir, target_stdout)
+      else
+        report_delta!(@fixture_dir)
+      end
+    after
+      File.rm_rf!(Path.dirname(tmp_dir))
+      if temp_check_dir, do: File.rm_rf!(temp_check_dir)
     end
   end
 
@@ -102,14 +156,11 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGolden do
     end
   end
 
-  defp tmp_target_dir(suffix) do
-    base =
-      Path.join(
-        System.tmp_dir!(),
-        "sigra_rebless_check_#{:erlang.unique_integer([:positive])}"
-      )
-
-    Path.join(base, suffix)
+  defp tmp_target_dir do
+    Path.join(
+      System.tmp_dir!(),
+      "sigra_rebless_check_#{System.pid()}_#{:erlang.unique_integer([:positive])}"
+    )
   end
 
   defp run_check!(target_tree_dir, target_stdout) do
@@ -120,8 +171,6 @@ defmodule Mix.Tasks.Sigra.Fixture.ReblessGolden do
 
     stdout_equal? =
       File.read!(@fixture_stdout) == File.read!(target_stdout)
-
-    File.rm_rf!(Path.dirname(target_tree_dir))
 
     cond do
       tree_diff == "" and stdout_equal? ->

@@ -330,13 +330,15 @@ defmodule Sigra.Admin.Live.UserShowLive do
   # risky states (locked/deletion) as pills — "active" states are not noise.
   defp status_pills(detail) do
     identity = detail.identity
+    deletion_status = status_for_user(detail.user)
 
     confirmation =
       if identity.confirmed?, do: {"Confirmed", "ok"}, else: {"Unconfirmed", "warn"}
 
     [confirmation, security_pill(detail.security)]
     |> maybe_append(identity.locked?, {"Locked", "risk"})
-    |> maybe_append(identity.deleted?, {"Deletion scheduled", "warn"})
+    |> maybe_append(deletion_status == :deleting, {"Deletion scheduled", "warn"})
+    |> maybe_append(deletion_status == :deleted, {"Deleted", "risk"})
   end
 
   defp maybe_append(pills, true, pill), do: pills ++ [pill]

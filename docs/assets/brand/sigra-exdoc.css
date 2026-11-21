@@ -1,0 +1,130 @@
+@import url("../fonts/fonts.css");
+
+/* sigra code colors for ExDoc and HexDocs. Version 2.0. NOT verified inside a real ExDoc build: it was written from ExDoc's token class names.
+   Load it with the ExDoc :before_closing_head_tag option or as an extra stylesheet. GitHub colors the code in a README itself; this file does not change that.
+   No code color equals a status color. Inline code in a sentence is not colored by this file. */
+:root{--sigra-doc-bg:#EFE8DE;--sigra-doc-text:#1F1A17;--sigra-doc-comment:#6B6057;--sigra-doc-keyword:#9A3412;--sigra-doc-string:#2C5F9E;--sigra-doc-atom:#1F6A8A}
+@media (prefers-color-scheme:dark){:root{--sigra-doc-bg:#120E0C;--sigra-doc-text:#F3EEE8;--sigra-doc-comment:#A99C91;--sigra-doc-keyword:#F4A27C;--sigra-doc-string:#7FB0E8;--sigra-doc-atom:#6FC0E0}}
+body.dark{--sigra-doc-bg:#120E0C;--sigra-doc-text:#F3EEE8;--sigra-doc-comment:#A99C91;--sigra-doc-keyword:#F4A27C;--sigra-doc-string:#7FB0E8;--sigra-doc-atom:#6FC0E0}
+pre code.makeup{background:var(--sigra-doc-bg);color:var(--sigra-doc-text);font-variant-ligatures:none}
+.makeup .k,.makeup .kd,.makeup .kn,.makeup .kp,.makeup .kr,.makeup .kt,.makeup .ow{color:var(--sigra-doc-keyword)}
+.makeup .s,.makeup .s1,.makeup .s2,.makeup .sa,.makeup .sb,.makeup .sc,.makeup .sd,.makeup .se,.makeup .sh,.makeup .si,.makeup .sx,.makeup .sr,.makeup .sl{color:var(--sigra-doc-string)}
+.makeup .ss,.makeup .na,.makeup .no{color:var(--sigra-doc-atom)}
+.makeup .m,.makeup .mb,.makeup .mf,.makeup .mh,.makeup .mi,.makeup .mo,.makeup .il{color:var(--sigra-doc-atom)}
+.makeup .nf,.makeup .fm{color:var(--sigra-doc-text)}
+.makeup .nc,.makeup .nn{color:var(--sigra-doc-text)}
+.makeup .c,.makeup .c1,.makeup .cm,.makeup .cs,.makeup .ch,.makeup .cp,.makeup .cpf{color:var(--sigra-doc-comment)}
+
+:root {
+  --sigra-page-bg: #F7F3EE;
+  --sigra-page-text: #1F1A17;
+  --sigra-surface-bg: #FFFFFF;
+  --sigra-surface-text: #1F1A17;
+  --sigra-link: #9A3412;
+  --sigra-focus: #9A3412;
+}
+
+body {
+  background-color: var(--sigra-page-bg);
+  color: var(--sigra-page-text);
+  font-family: 'Instrument Sans', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.content .content-inner {
+  background-color: var(--sigra-surface-bg);
+  color: var(--sigra-surface-text);
+}
+
+body a {
+  color: var(--sigra-link);
+}
+
+.content-inner a {
+  color: var(--sigra-link);
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-family: 'Instrument Sans', system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+pre code.makeup {
+  font-family: 'Red Hat Mono', ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+:focus-visible {
+  outline: 2px solid var(--sigra-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sigra-page-bg: #17120F;
+    --sigra-page-text: #F3EEE8;
+    --sigra-surface-bg: #221B17;
+    --sigra-surface-text: #F3EEE8;
+    --sigra-link: #F08A55;
+    --sigra-focus: #F08A55;
+  }
+
+  body {
+    background-color: var(--sigra-page-bg);
+    color: var(--sigra-page-text);
+  }
+
+  .content .content-inner {
+    background-color: var(--sigra-surface-bg);
+    color: var(--sigra-surface-text);
+  }
+
+  body a {
+    color: var(--sigra-link);
+  }
+
+  .content-inner a {
+    color: var(--sigra-link);
+  }
+
+  :focus-visible {
+    outline-color: var(--sigra-focus);
+  }
+}
+
+body.dark {
+  --sigra-page-bg: #17120F;
+  --sigra-page-text: #F3EEE8;
+  --sigra-surface-bg: #221B17;
+  --sigra-surface-text: #F3EEE8;
+  --sigra-link: #F08A55;
+  --sigra-focus: #F08A55;
+}
+
+body.dark {
+  background-color: var(--sigra-page-bg);
+  color: var(--sigra-page-text);
+}
+
+body.dark .content .content-inner {
+  background-color: var(--sigra-surface-bg);
+  color: var(--sigra-surface-text);
+}
+
+body.dark a {
+  color: var(--sigra-link);
+}
+
+body.dark .content-inner a {
+  color: var(--sigra-link);
+}
+
+body.dark :focus-visible {
+  outline-color: var(--sigra-focus);
+}

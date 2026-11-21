@@ -7025,12 +7025,6 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
     return csrfMeta ? csrfMeta.getAttribute("content") || "" : "";
   }
   function safeLoginStatus(error) {
-    if (error === "email_required") {
-      return {
-        status: "email_required",
-        message: "Enter your email to continue with a passkey.",
-      };
-    }
     if (
       error &&
       (error.code === ERROR_PASSKEY_UNSUPPORTED ||
@@ -7086,19 +7080,6 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
     }
     statusElement.dataset.passkeyStatus = "";
     statusElement.textContent = "";
-  }
-  function findEmailInput(form, options) {
-    if (options.emailInput) {
-      return options.emailInput;
-    }
-    return (
-      (form.dataset.emailInput
-        ? document.querySelector(form.dataset.emailInput)
-        : null) ||
-      form.querySelector(
-        "input[name='user[email]']:not([data-passkey-email-shadow])",
-      )
-    );
   }
   function fetchJsonOptions(optionsUrl, body) {
     return fetch(optionsUrl, {
@@ -7365,6 +7346,9 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
   function submitPasskeyLogin(form, completeUrl, responseInput, response) {
     responseInput.value = JSON.stringify(response);
     form.action = completeUrl;
+    form.querySelectorAll("input[name='user[email]']").forEach(function (input) {
+      input.disabled = true;
+    });
     HTMLFormElement.prototype.submit.call(form);
   }
   function attachPasskeyLogin(options) {
@@ -7375,8 +7359,6 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
     if (!form || !button) {
       return { attached: false };
     }
-    var emailInput = findEmailInput(form, options);
-    var emailShadowInput = form.querySelector("[data-passkey-email-shadow]");
     var responseInput = form.querySelector("input[name='passkey[response]']");
     if (!responseInput) {
       return { attached: false };
@@ -7392,28 +7374,57 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
       "/users/log_in/passkey/options";
     var completeUrl =
       options.completeUrl || form.action || "/users/log_in/passkey";
+    var loginAttemptId = 0;
+    var activeController = null;
+    var authenticationOptionsPromise = null;
+    function fetchLoginOptions() {
+      if (!authenticationOptionsPromise) {
+        authenticationOptionsPromise = fetchJsonOptions(optionsUrl, {}).catch(
+          function (error) {
+            authenticationOptionsPromise = null;
+            throw error;
+          },
+        );
+      }
+      return authenticationOptionsPromise;
+    }
     function authenticateExplicit(event) {
       event.preventDefault();
-      var email = emailInput && emailInput.value ? emailInput.value.trim() : "";
-      if (!email) {
-        updateLoginStatus(form, "email_required");
-        return Promise.resolve();
+      var operationId = ++loginAttemptId;
+      if (activeController) {
+        activeController.abort();
       }
+      var controller = new AbortController();
+      activeController = controller;
       clearLoginStatus(form);
-      return fetchJsonOptions(optionsUrl, { user: { email: email } })
+      return fetchLoginOptions()
         .then(function (optionsJSON) {
+          if (operationId !== loginAttemptId) return null;
           return startAuthentication({
             optionsJSON: optionsJSON,
             useBrowserAutofill: false,
+            signal: controller.signal,
           });
         })
         .then(function (response) {
-          if (emailShadowInput) {
-            emailShadowInput.value = email;
+          if (
+            !response ||
+            operationId !== loginAttemptId ||
+            controller.signal.aborted
+          ) {
+            return;
+          }
+          if (activeController === controller) {
+            activeController = null;
           }
           submitPasskeyLogin(form, completeUrl, responseInput, response);
         })
         .catch(function (error) {
+          if (operationId !== loginAttemptId) return;
+          if (activeController === controller) {
+            activeController = null;
+          }
+          authenticationOptionsPromise = null;
           updateLoginStatus(form, error);
         });
     }
@@ -7421,37 +7432,69 @@ removing illegal node: "${(i.outerHTML || i.nodeValue).trim()}"
     form.addEventListener("submit", authenticateExplicit);
     var ready =
       options.enableConditionalUI === true
-        ? conditionalMediationAvailable()
-            .then(function (available) {
-              if (!available) {
-                throw new WebAuthnError(
-                  "unsupported",
-                  ERROR_PASSKEY_UNSUPPORTED,
-                );
-              }
-              return fetchJsonOptions(optionsUrl, { conditional: "true" })
-                .then(function (optionsJSON) {
+        ? (function () {
+            var operationId = loginAttemptId;
+            var controller = null;
+            return conditionalMediationAvailable()
+              .then(function (available) {
+                if (!available) {
+                  throw new WebAuthnError(
+                    "unsupported",
+                    ERROR_PASSKEY_UNSUPPORTED,
+                  );
+                }
+                if (operationId !== loginAttemptId) return null;
+                controller = new AbortController();
+                activeController = controller;
+                return fetchLoginOptions().then(function (optionsJSON) {
+                  if (
+                    operationId !== loginAttemptId ||
+                    controller.signal.aborted
+                  ) {
+                    return null;
+                  }
                   return startAuthentication({
                     optionsJSON: optionsJSON,
                     useBrowserAutofill: true,
+                    signal: controller.signal,
                   });
-                })
-                .then(function (response) {
-                  submitPasskeyLogin(
-                    form,
-                    completeUrl,
-                    responseInput,
-                    response,
-                  );
                 });
-            })
-            .catch(function (error) {
-              if (options.silentConditionalErrors === false) {
-                updateLoginStatus(form, error);
-              } else {
-                clearLoginStatus(form);
-              }
-            })
+              })
+              .then(function (response) {
+                if (
+                  !response ||
+                  operationId !== loginAttemptId ||
+                  (controller && controller.signal.aborted)
+                ) {
+                  return;
+                }
+                submitPasskeyLogin(
+                  form,
+                  completeUrl,
+                  responseInput,
+                  response,
+                );
+              })
+              .catch(function (error) {
+                if (
+                  operationId !== loginAttemptId ||
+                  (controller && controller.signal.aborted)
+                ) {
+                  return;
+                }
+                authenticationOptionsPromise = null;
+                if (options.silentConditionalErrors === false) {
+                  updateLoginStatus(form, error);
+                } else {
+                  clearLoginStatus(form);
+                }
+              })
+              .finally(function () {
+                if (activeController === controller) {
+                  activeController = null;
+                }
+              });
+          })()
         : Promise.resolve();
     return { attached: true, ready: ready };
   }

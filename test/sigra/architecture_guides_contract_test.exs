@@ -3,7 +3,7 @@ defmodule Sigra.ArchitectureGuidesContractTest do
 
   @architecture "guides/introduction/architecture.md"
   @walkthrough "guides/introduction/code-walkthrough.md"
-  @favicon "brandbook/favicon.svg"
+  @favicon "docs/assets/brand/favicon.svg"
 
   @forbidden_published_paths ~r{
     (?:lib/|priv/templates/|test/example/|test/sigra/)|
@@ -209,19 +209,18 @@ defmodule Sigra.ArchitectureGuidesContractTest do
            "Mermaid source must be hidden only after successful SVG rendering"
   end
 
-  test "ExDoc uses the existing theme-aware Rail Accent favicon" do
+  test "ExDoc uses the packaged theme-aware Sigra favicon" do
     assert File.regular?(@favicon), "missing #{@favicon}"
 
     mix = File.read!("mix.exs")
     svg = File.read!(@favicon)
 
-    assert mix =~ ~s(favicon: "brandbook/favicon.svg")
-    assert svg =~ "Sigra D4 Linked Rail favicon mark"
-    assert svg =~ "prefers-color-scheme: dark"
-    assert svg =~ "#c2410c"
-    assert svg =~ "#fdba74"
+    assert mix =~ ~s(favicon: "docs/assets/brand/favicon.svg")
+    assert svg =~ "<title>sigra</title>"
+    assert svg =~ "prefers-color-scheme:dark"
+    assert svg =~ "#C2410C"
+    assert svg =~ "#F08A55"
     assert svg =~ ~s(role="img")
-    assert svg =~ ~s(aria-labelledby="title desc")
   end
 
   test "walkthrough source anchors fail actionably when implementation drifts" do
@@ -272,18 +271,29 @@ defmodule Sigra.ArchitectureGuidesContractTest do
     end)
   end
 
-  test "lockout remains before password verification in source and walkthrough" do
+  test "locked sign-in uses dummy work before the generic failure in source and walkthrough" do
     source = File.read!("lib/sigra/auth.ex")
     [_before, config_path] = String.split(source, "defp authenticate_with_config", parts: 2)
     walkthrough = File.read!(@walkthrough)
 
-    assert byte_index!(config_path, "Sigra.Lockout.check(user, lockout_opts)") <
-             byte_index!(config_path, "Crypto.verify_with_upgrade(password, hashed_password)"),
-           "config authentication must check lockout before password verification"
+    for excerpt <- [config_path, walkthrough] do
+      lockout_check = byte_index!(excerpt, "Sigra.Lockout.check(user, lockout_opts)")
 
-    assert byte_index!(walkthrough, "Sigra.Lockout.check(user, lockout_opts)") <
-             byte_index!(walkthrough, "Crypto.verify_with_upgrade(password, hashed_password)"),
-           "walkthrough must preserve lockout-before-password ordering"
+      dummy_work =
+        byte_index!(excerpt, "Crypto.verify_with_upgrade(password, nil, password_opts)")
+
+      stored_hash_work =
+        byte_index!(
+          excerpt,
+          "Crypto.verify_with_upgrade(password, hashed_password, password_opts)"
+        )
+
+      assert lockout_check < dummy_work,
+             "locked sign-in must check lockout before dummy password work"
+
+      assert dummy_work < stored_hash_work,
+             "locked sign-in must run dummy work before the unlocked stored-hash branch"
+    end
   end
 
   test "documented double-session seam remains anchored to generated-host evidence" do

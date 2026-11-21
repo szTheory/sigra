@@ -89,7 +89,7 @@ defmodule SigraInstallGoldenTmpWeb.Auth.SessionLive do
       <div :if={length(@sessions) > 1} class="sigra-auth-disclosure">
         <.sigra_auth_button
           phx-click="revoke_all"
-          data-confirm="This will end all sessions including your current one. You will be logged out."
+          data-confirm="This ends all sessions, including your current session. You will need to sign in again."
           class="sigra-auth-action sigra-auth-action--danger"
         >
           Log out of all devices

@@ -23,8 +23,8 @@ Audit phases 186-192 fill in the **score** and **evidence** columns for each sur
 
 | dimension | description | pass criteria | score | evidence |
 |-----------|-------------|---------------|-------|----------|
-| D1 Brand color | Admin surfaces use the Rail Accent palette (`--sg-color-ember-*`, `--sg-color-neutral-*`) as defined in `brandbook/tokens.css` and propagated through `sigra_admin.css` | No raw hex values outside `sg-*` token vars; ember rail-block mark renders at correct hue in both light and dark | | |
-| D2 Brand type | Typography uses Space Grotesk via `--sg-font-sans`; weight scale (400/500/700) applied consistently per admin-design-contract.md | No system font fallback visible in screenshots; correct weight on headings and kickers | | |
+| D1 Brand color | Admin surfaces use the `--sg-*` color tokens; the Kiln accent is defined by `brand/tokens.json` and applied through `sigra_admin.css` | No raw hex values outside the token definitions; the Kiln mark and emphasis roles remain clear in light and dark | | |
+| D2 Brand type | Admin typography follows the host-provided `--sg-font-sans` contract; Sigra-owned type follows Instrument Sans and Red Hat Mono in `brand/BRAND.md`. Tasklane may retain Space Grotesk in host chrome | Clear hierarchy and consistent weights within each ownership boundary; no unintended face substitution | | |
 | D3 Spacing/radius/shadow | All spatial decisions use `sg-stack--N`, `sg-cluster`, `sg-grid`, `--sg-radius-*`, `--sg-shadow-*` tokens — no raw pixel values in inline styles or bespoke classes | Zero bespoke `style=` attributes with spacing values; board layouts reflow without gap collapse | | |
 | D4 Light/Dark/System | Surface renders correctly under all three `data-sg-admin-theme` values: `light`, `dark`, and system (inherits `prefers-color-scheme`) | Playwright `admin-design-dark` project screenshots pass; no color that reads incorrectly in dark mode | | |
 | D5 Contrast WCAG AA | All text/background pairs meet WCAG 2.1 AA contrast ratio (4.5:1 normal text, 3:1 large text and UI components) | axe-core `wcag2aa` scan exits 0 violations on the surface | | |

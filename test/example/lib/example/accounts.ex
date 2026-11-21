@@ -135,15 +135,164 @@ defmodule Example.Accounts do
   Requests a magic link for the given email.
 
   Returns `{:ok, {raw_token, url}}` for existing users, `{:ok, :sent}`
-  for non-existent emails (enumeration-safe), or `{:error, :rate_limited}`.
+  for non-existent emails, or `{:error, :rate_limited}`. The host-facing
+  controller must normalize these outcomes; the library return values differ
+  when the limiter allows the request.
   """
   def request_magic_link(email, url_fun) when is_binary(email) and is_function(url_fun, 1) do
+    config = sigra_config()
+
     SigraAuth.request_magic_link(Repo, email,
       user_schema: User,
       user_token_schema: UserToken,
-      url_fun: url_fun
+      url_fun: url_fun,
+      rate_limiter: Keyword.get(config.rate_limiting, :limiter),
+      max_requests: Keyword.get(config.magic_link, :max_requests, 3),
+      window_ms: Keyword.get(config.magic_link, :window_seconds, 900) * 1_000,
+      enterprise_auth_policy: Example.Organizations
     )
   end
+
+  @doc "Enqueues a generic recovery request through the configured durable dispatcher."
+  def enqueue_recovery_request(operation, email)
+      when operation in [:reset, :magic_link] and is_binary(email) do
+    if operation == :magic_link and not magic_link_recovery_available?() do
+      {:error, :recovery_unavailable}
+    else
+      config = sigra_config()
+      limits = if operation == :magic_link, do: config.magic_link, else: config.reset
+
+      Sigra.Recovery.enqueue(operation, email,
+        host_id: "example",
+        secret_key_base: recovery_secret_key_base(),
+        dispatcher: Sigra.Workers.RecoveryRequest,
+        rate_limiter: Keyword.get(config.rate_limiting, :limiter),
+        max_requests: Keyword.get(limits, :max_requests, 3),
+        window_ms: Keyword.get(limits, :window_seconds, 900) * 1_000,
+        dispatch_opts: [queue: :sigra_recovery]
+      )
+    end
+  end
+
+  @doc false
+  def recovery_secret_key_base, do: ExampleWeb.Endpoint.config(:secret_key_base)
+
+  @doc false
+  def recovery_repo, do: Repo
+
+  @doc false
+  def recovery_oban_prefix, do: "public"
+
+  @doc false
+  def prepare_recovery_request(operation, address) when operation in [:reset, :magic_link] do
+    auth_opts = [
+      user_schema: User,
+      user_token_schema: UserToken,
+      secret_key_base: recovery_secret_key_base(),
+      audit_schema: Example.Accounts.AuditEvent,
+      enterprise_auth_policy: Example.Organizations
+    ]
+
+    case SigraAuth.prepare_recovery(Repo, operation, address, auth_opts) do
+      {:ok, :no_delivery} ->
+        {:ok, %{descriptor: %{delivery: nil}, audit_changes: %{}}}
+
+      {:ok, {:policy_denied, user}} ->
+        policy = Example.Organizations.local_auth_policy_for(user)
+
+        {:ok,
+         %{
+           descriptor: %{delivery: enterprise_reset_guidance_descriptor(user, policy)},
+           audit_changes: %{}
+         }}
+
+      {:ok, %{user: user, token: token, token_hash: token_hash, changes: changes}} ->
+        {email_type, url} = recovery_email_url(operation, token)
+        email = apply(Emails, email_type, [user, url])
+
+        descriptor = %{
+          delivery: %{
+            email_type: email_type,
+            to: user.email,
+            user_id: user.id,
+            token_hash: token_hash,
+            context: if(operation == :magic_link, do: "magic_link", else: "reset_password"),
+            subject: email.subject,
+            body: %{html: email.html_body, text: email.text_body}
+          },
+          telemetry: if(operation == :reset, do: {:reset, user.id}, else: nil)
+        }
+
+        {:ok, %{descriptor: descriptor, audit_changes: changes}}
+
+      {:error, _reason} ->
+        {:error, :recovery_failed}
+    end
+  end
+
+  @doc false
+  def deliver_recovery_request(%{email_type: email_type} = descriptor) do
+    if recovery_delivery_current?(descriptor) do
+      mailer = Application.get_env(:example, :recovery_mailer, Example.Accounts.Mailer)
+      Sigra.Delivery.deliver_sync(email_type, descriptor, mailer: mailer)
+    else
+      {:ok, :suppressed}
+    end
+  end
+
+  defp recovery_email_url(:reset, token),
+    do: {:reset_password_email, ExampleWeb.Endpoint.url() <> "/users/reset-password/#{token}"}
+
+  defp recovery_email_url(:magic_link, token),
+    do: {:magic_link_email, ExampleWeb.Endpoint.url() <> "/users/log_in/#{token}"}
+
+  defp recovery_delivery_current?(%{
+         email_type: :reset_password_guidance,
+         user_id: user_id,
+         to: to,
+         organization_slug: organization_slug
+       }) do
+    case Repo.get(User, user_id) do
+      %User{} = user ->
+        policy = Example.Organizations.local_auth_policy_for(user)
+
+        user.email == to and is_nil(user.deleted_at) and
+          local_password_reset_denied?(policy) and
+          policy[:organization_slug] == organization_slug
+
+      _ ->
+        false
+    end
+  end
+
+  defp recovery_delivery_current?(%{
+         user_id: user_id,
+         to: to,
+         token_hash: token_hash,
+         context: context
+       }) do
+    token =
+      Repo.get_by(UserToken,
+        token: token_hash,
+        context: context,
+        user_id: user_id,
+        sent_to: to
+      )
+
+    user = Repo.get(User, user_id)
+    ttl = recovery_token_ttl(context)
+
+    not is_nil(token) and not is_nil(user) and user.email == to and is_nil(user.deleted_at) and
+      DateTime.diff(DateTime.utc_now(), token.inserted_at, :second) <= ttl
+  end
+
+  defp recovery_delivery_current?(_), do: false
+
+  defp recovery_token_ttl("magic_link"),
+    do: Keyword.get(sigra_config().magic_link, :ttl, 600)
+
+  defp recovery_token_ttl("reset_password"),
+    do: Keyword.get(sigra_config().token_ttl, :reset_password, 3_600)
 
   @doc """
   Verifies a magic link token.
@@ -152,11 +301,28 @@ defmodule Example.Accounts do
   Also confirms unconfirmed users.
   """
   def verify_magic_link(token) when is_binary(token) do
-    SigraAuth.verify_magic_link(Repo, token,
-      user_schema: User,
-      user_token_schema: UserToken,
-      magic_link_ttl: 600
-    )
+    if magic_link_recovery_available?() do
+      config = sigra_config()
+      auth_opts = [enterprise_auth_policy: Example.Organizations]
+
+      authorize_fun = fn user, _token_record ->
+        case Sigra.EnterpriseAuthPolicy.password_login_allowed?(auth_opts, user) do
+          :allow -> :ok
+          _ -> {:error, :invalid}
+        end
+      end
+
+      SigraAuth.verify_magic_link(Repo, token,
+        user_schema: User,
+        user_token_schema: UserToken,
+        magic_link_ttl: Keyword.get(config.magic_link, :ttl, 600),
+        audit_schema: Example.Accounts.AuditEvent,
+        authorize_fun: authorize_fun,
+        enterprise_auth_policy: Example.Organizations
+      )
+    else
+      {:error, :invalid}
+    end
   end
 
   ## Settings
@@ -451,20 +617,23 @@ defmodule Example.Accounts do
   @doc """
   Delivers the reset password email to the given email address.
 
-  Enumeration-safe: always returns `{:ok, :sent}` regardless of whether
-  the email exists. A dummy hash operation matches timing for non-existent
-  emails.
+  The generated request page normalizes the result into one response. The
+  library return values differ when the limiter allows the request. For an
+  unknown address, the library performs a dummy hash; this does not establish
+  timing equivalence.
   """
   def deliver_user_reset_password_instructions(email, reset_password_url_fun)
       when is_binary(email) and is_function(reset_password_url_fun, 1) do
-    user = get_user_by_email(email)
-    auth_policy = user && Example.Organizations.local_auth_policy_for(user)
+    config = sigra_config()
 
     case Sigra.Auth.request_password_reset(Repo, email,
            user_schema: User,
            user_token_schema: UserToken,
            secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
            url_fun: reset_password_url_fun,
+           rate_limiter: Keyword.get(config.rate_limiting, :limiter),
+           max_requests: Keyword.get(config.reset, :max_requests, 3),
+           window_ms: Keyword.get(config.reset, :window_seconds, 900) * 1_000,
            enterprise_auth_policy: Example.Organizations
          ) do
       {:ok, {signed_token, url}} ->
@@ -490,11 +659,15 @@ defmodule Example.Accounts do
         {:ok, :sent}
 
       {:ok, :sent} ->
-        if user && local_password_reset_denied?(auth_policy) do
-          maybe_deliver_enterprise_reset_guidance(user, auth_policy)
+        if user = get_user_by_email(email) do
+          auth_policy = Example.Organizations.local_auth_policy_for(user)
+
+          if local_password_reset_denied?(auth_policy) do
+            maybe_deliver_enterprise_reset_guidance(user, auth_policy)
+          end
         end
 
-        # Non-existent email -- enumeration safe
+        # Normalize the result returned to the generated request page.
         {:ok, :sent}
 
       {:error, :rate_limited} ->
@@ -518,10 +691,11 @@ defmodule Example.Accounts do
   """
   def get_user_by_reset_password_token(signed_token) do
     secret_key_base = ExampleWeb.Endpoint.config(:secret_key_base)
+    reset_ttl = Keyword.get(sigra_config().token_ttl, :reset_password, 3_600)
 
     with {:ok, signed} <- Base.url_decode64(signed_token, padding: false),
          {:ok, raw_token} <-
-           Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: 3600) do
+           Plug.Crypto.verify(secret_key_base, "sigra-reset-token", signed, max_age: reset_ttl) do
       hashed_token = Sigra.Token.hash_token(raw_token)
 
       Repo.one(
@@ -550,12 +724,14 @@ defmodule Example.Accounts do
 
   """
   def reset_user_password(signed_token, attrs) when is_binary(signed_token) do
+    reset_ttl = Keyword.get(sigra_config().token_ttl, :reset_password, 3_600)
+
     Sigra.Auth.reset_password(Repo, signed_token, attrs,
       secret_key_base: ExampleWeb.Endpoint.config(:secret_key_base),
       user_token_schema: UserToken,
       user_schema: User,
       changeset_fn: &User.password_changeset/2,
-      reset_ttl: 3600,
+      reset_ttl: reset_ttl,
       enterprise_auth_policy: Example.Organizations
     )
   end
@@ -588,6 +764,8 @@ defmodule Example.Accounts do
   configuration to Sigra library functions.
   """
   def sigra_config do
+    runtime_config = Application.get_env(:example, :sigra_config, [])
+
     Sigra.Config.new!(
       repo: Example.Repo,
       user_schema: User,
@@ -614,6 +792,11 @@ defmodule Example.Accounts do
         threshold: 5,
         duration: 900
       ],
+      mfa: [enabled: true],
+      token_ttl: Keyword.get(runtime_config, :token_ttl, []),
+      magic_link: Keyword.get(runtime_config, :magic_link, []),
+      reset: Keyword.get(runtime_config, :reset, []),
+      rate_limiting: Keyword.get(runtime_config, :rate_limiting, []),
       # Activate Sigra's built-in audit integration. Without this wiring,
       # Sigra.Audit.log_safe/2 is a silent no-op and no audit rows are
       # written for session.create, auth.login.*, etc. Keep this forwarder
@@ -716,23 +899,35 @@ defmodule Example.Accounts do
   defp local_password_reset_denied?(_policy), do: false
 
   defp maybe_deliver_enterprise_reset_guidance(user, auth_policy) do
-    if slug = auth_policy[:organization_slug] do
-      url = ExampleWeb.Endpoint.url() <> "/organizations/#{slug}/sso"
-
-      email =
-        Emails.enterprise_sso_reset_email(user, auth_policy[:organization_name] || slug, url)
-
+    if descriptor = enterprise_reset_guidance_descriptor(user, auth_policy) do
       Sigra.Delivery.deliver(
-        :reset_password_guidance,
+        descriptor.email_type,
+        Map.take(descriptor, [:user_id, :to, :subject, :body, :url]),
+        delivery_opts()
+      )
+    end
+  end
+
+  defp enterprise_reset_guidance_descriptor(user, auth_policy) do
+    case auth_policy do
+      %{password_reset: :deny, organization_slug: slug} when is_binary(slug) ->
+        url = ExampleWeb.Endpoint.url() <> "/organizations/#{slug}/sso"
+
+        email =
+          Emails.enterprise_sso_reset_email(user, auth_policy[:organization_name] || slug, url)
+
         %{
+          email_type: :reset_password_guidance,
           user_id: user.id,
           to: user.email,
           subject: email.subject,
           body: %{html: email.html_body, text: email.text_body},
-          url: url
-        },
-        delivery_opts()
-      )
+          url: url,
+          organization_slug: slug
+        }
+
+      _ ->
+        nil
     end
   end
 
@@ -865,7 +1060,7 @@ defmodule Example.Accounts do
 
   @doc "Check if a user has MFA enabled."
   def mfa_enabled?(user) do
-    Sigra.MFA.enabled?(sigra_config(), user)
+    Sigra.MFA.enabled?(sigra_config(), user, mfa_credential_schema: UserMFACredential)
   end
 
   @doc "Upgrade an MFA-pending Sigra session after second-factor verification."

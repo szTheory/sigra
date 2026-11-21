@@ -152,17 +152,19 @@ defmodule <%= web_module %>.ResetPasswordLive do
   end
 
   def handle_event("send_instructions", %{"user" => %{"email" => email}}, socket) do
-    if user = <%= context_module %>.get_user_by_email(email) do
-      <%= context_module %>.deliver_user_reset_password_instructions(
-        user,
-        &url(socket, ~p"/users/reset-password/#{&1}")
-      )
-    end
+    case <%= context_module %>.queue_recovery_request(:reset, email) do
+      {:ok, _} ->
+        {:noreply, recovery_request_ack(socket)}
 
-    {:noreply,
-     socket
-     |> put_flash(:info, dgettext("sigra", "If your email is in our system, you will receive reset instructions shortly."))
-     |> redirect(to: ~p"/users/log_in")}
+      {:error, reason} when reason in [:rate_limited, :invalid_request] ->
+        {:noreply, recovery_request_ack(socket)}
+
+      {:error, _reason} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, dgettext("sigra", "We couldn't send your request right now. Please try again later."))
+         |> redirect(to: ~p"/users/log_in")}
+    end
   end
 
   def handle_event("validate", %{"user" => user_params}, socket) do
@@ -195,6 +197,12 @@ defmodule <%= web_module %>.ResetPasswordLive do
       {:error, changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
     end
+  end
+
+  defp recovery_request_ack(socket) do
+    socket
+    |> put_flash(:info, dgettext("sigra", "If your email is in our system, you will receive reset instructions shortly."))
+    |> redirect(to: ~p"/users/log_in")
   end
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do

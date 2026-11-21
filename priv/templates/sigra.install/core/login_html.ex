@@ -33,7 +33,6 @@ defmodule <%= web_module %>.SessionHTML do
 <%= if passkeys? do %>
       <%%= if @passkey_primary_enabled do %>
         <.form
-          :let={f}
           for={@form}
           id="passkey_login_form"
           action={~p"/users/log_in/passkey"}
@@ -41,7 +40,6 @@ defmodule <%= web_module %>.SessionHTML do
           data-options-path={~p"/users/log_in/passkey/options"}
           class="sigra-auth-stack sigra-auth-stack--4"
         >
-          <.input id="passkey_login_email" field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username webauthn" required />
           <input type="hidden" name="passkey[response]" id="passkey_login_response" />
           <p
             data-passkey-login-status
@@ -108,7 +106,7 @@ defmodule <%= web_module %>.SessionHTML do
   defp password_form(assigns) do
     ~H"""
     <.form :let={f} for={@form} id="login_form" action={~p"/users/log_in"} method="post" class="sigra-auth-stack sigra-auth-stack--4">
-      <.input id="login_email" field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username" required />
+      <.input id="login_email" field={f[:email]} type="email" label={dgettext("sigra", "Email")} autocomplete="username webauthn" required />
       <.input field={f[:password]} type="password" label={dgettext("sigra", "Password")} autocomplete="current-password" required />
 
       <label class="sigra-auth-cluster">

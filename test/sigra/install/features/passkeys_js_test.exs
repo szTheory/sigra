@@ -303,7 +303,7 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       end
     end
 
-    test "controller login conditional UI fetches options without email and uses conditional mediation" do
+    test "controller login conditional UI fetches anonymous options and uses conditional mediation" do
       if node = System.find_executable("node") do
         stdout = run_browser_helper_node!(node, "conditional")
         result = Jason.decode!(stdout)
@@ -313,12 +313,15 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
         assert result["fetches"] == [
                  %{
                    "url" => "/users/log_in/passkey/options",
-                   "body" => %{"conditional" => "true"},
+                   "body" => %{},
                    "csrf" => "csrf-token"
                  }
                ]
 
-        assert result["credentialRequests"] == [%{"mediation" => "conditional"}]
+        assert result["credentialRequests"] == [
+                 %{"allowCredentials" => [], "mediation" => "conditional"}
+               ]
+
         assert result["submittedAction"] == "/users/log_in/passkey"
         assert result["responseValue"] =~ "credential-id"
         refute result["responseValue"] =~ "user@example.com"
@@ -327,7 +330,58 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       end
     end
 
-    test "controller login explicit click includes email and submits without conditional mediation" do
+    test "explicit login cancels conditional mediation and reuses its one challenge" do
+      if node = System.find_executable("node") do
+        result =
+          run_browser_helper_node!(node, "conditional_explicit")
+          |> Jason.decode!()
+
+        assert result["fetches"] == [
+                 %{
+                   "url" => "/users/log_in/passkey/options",
+                   "body" => %{},
+                   "csrf" => "csrf-token"
+                 }
+               ]
+
+        assert result["credentialRequests"] == [
+                 %{"allowCredentials" => [], "mediation" => "conditional"},
+                 %{"allowCredentials" => [], "mediation" => nil}
+               ]
+
+        assert result["submittedAction"] == "/users/log_in/passkey"
+      else
+        flunk("node executable is required for passkey browser helper coverage")
+      end
+    end
+
+    test "a newer explicit login cancels the previous browser ceremony" do
+      if node = System.find_executable("node") do
+        result =
+          run_browser_helper_node!(node, "explicit_double")
+          |> Jason.decode!()
+
+        assert result["fetches"] == [
+                 %{
+                   "url" => "/users/log_in/passkey/options",
+                   "body" => %{},
+                   "csrf" => "csrf-token"
+                 }
+               ]
+
+        assert result["credentialRequests"] == [
+                 %{"allowCredentials" => [], "mediation" => nil},
+                 %{"allowCredentials" => [], "mediation" => nil}
+               ]
+
+        assert result["explicitAbortObserved"] == true
+        assert result["submittedAction"] == "/users/log_in/passkey"
+      else
+        flunk("node executable is required for passkey browser helper coverage")
+      end
+    end
+
+    test "controller login explicit click fetches discoverable options without an identity" do
       if node = System.find_executable("node") do
         stdout = run_browser_helper_node!(node, "explicit")
         result = Jason.decode!(stdout)
@@ -335,14 +389,18 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
         assert result["fetches"] == [
                  %{
                    "url" => "/users/log_in/passkey/options",
-                   "body" => %{"user" => %{"email" => "user@example.com"}},
+                   "body" => %{},
                    "csrf" => "csrf-token"
                  }
                ]
 
-        assert result["credentialRequests"] == [%{"mediation" => nil}]
+        assert result["credentialRequests"] == [
+                 %{"allowCredentials" => [], "mediation" => nil}
+               ]
+
         assert result["submittedAction"] == "/users/log_in/passkey"
         assert result["responseValue"] =~ "credential-id"
+        assert result["emailDisabled"] == true
       else
         flunk("node executable is required for passkey browser helper coverage")
       end
@@ -462,8 +520,8 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       }
     }
 
-    export async function startAuthentication({ optionsJSON, useBrowserAutofill }) {
-      return globalThis.__browserStartAuthentication(optionsJSON, useBrowserAutofill)
+    export async function startAuthentication({ optionsJSON, useBrowserAutofill, signal }) {
+      return globalThis.__browserStartAuthentication(optionsJSON, useBrowserAutofill, signal)
     }
     """
   end
@@ -516,20 +574,57 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
     }
     form.querySelector = function(selector) {
       if (selector === "input[name='user[email]']") return emailInput
-      if (selector === "input[name='user[email]']:not([data-passkey-email-shadow])") return emailInput
       if (selector === "input[name='passkey[response]']") return responseInput
       if (selector === "[data-passkey-login-status]") return statusElement
       if (selector === "[data-passkey-fallback]") return fallbackElement
       return null
     }
+    form.querySelectorAll = function(selector) {
+      return selector === "input[name='user[email]']" ? [emailInput] : []
+    }
 
     const scenario = #{inspect(scenario)}
     const explicitScenario = scenario.startsWith("explicit_")
     const failureScenario = explicitScenario ? scenario.replace("explicit_", "") : scenario
+    let signalConditionalStarted
+    const conditionalStarted = new Promise(resolve => {
+      signalConditionalStarted = resolve
+    })
+    let signalExplicitStarted
+    const explicitStarted = new Promise(resolve => {
+      signalExplicitStarted = resolve
+    })
+    let explicitAbortObserved = false
 
     globalThis.__browserAutofillAvailable = failureScenario !== "unsupported"
-    globalThis.__browserStartAuthentication = async (_optionsJSON, useBrowserAutofill) => {
-      credentialRequests.push({ mediation: useBrowserAutofill ? "conditional" : null })
+    globalThis.__browserStartAuthentication = async (optionsJSON, useBrowserAutofill, signal) => {
+      credentialRequests.push({
+        allowCredentials: optionsJSON.allowCredentials || [],
+        mediation: useBrowserAutofill ? "conditional" : null
+      })
+
+      if (scenario === "conditional_explicit" && useBrowserAutofill) {
+        signalConditionalStarted()
+        return new Promise((_resolve, reject) => {
+          signal.addEventListener("abort", () => {
+            const error = new Error("conditional ceremony aborted")
+            error.name = "AbortError"
+            reject(error)
+          }, { once: true })
+        })
+      }
+
+      if (scenario === "explicit_double" && !useBrowserAutofill && credentialRequests.length === 1) {
+        signalExplicitStarted()
+        return new Promise((_resolve, reject) => {
+          signal.addEventListener("abort", () => {
+            explicitAbortObserved = true
+            const error = new Error("explicit ceremony superseded")
+            error.name = "AbortError"
+            reject(error)
+          }, { once: true })
+        })
+      }
 
       if (failureScenario === "abort") {
         const error = new Error("raw browser abort message")
@@ -578,7 +673,7 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
         json: async () => ({
           options: {
             challenge: "AQID",
-            allowCredentials: [{ id: "BAUG", type: "public-key" }]
+            allowCredentials: []
           }
         })
       }
@@ -586,7 +681,18 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
 
     const result = await attachPasskeyLogin({ enableConditionalUI: !(scenario === "explicit" || explicitScenario) })
 
-    if (scenario === "explicit" || explicitScenario) {
+    if (scenario === "conditional_explicit") {
+      await conditionalStarted
+      await button.click()
+    }
+
+    if (scenario === "explicit_double") {
+      button.click()
+      await explicitStarted
+      await button.click()
+    }
+
+    if (scenario === "explicit" || (explicitScenario && scenario !== "explicit_double")) {
       await button.click()
     }
 
@@ -599,6 +705,8 @@ defmodule Sigra.Install.Features.PasskeysJsTest do
       credentialRequests,
       submittedAction: form.submittedAction ?? null,
       responseValue: responseInput.value,
+      emailDisabled: emailInput.disabled === true,
+      explicitAbortObserved,
       status: statusElement.dataset.passkeyStatus ?? null,
       statusText: statusElement.textContent,
       fallbackVisible: fallbackElement.hidden === false

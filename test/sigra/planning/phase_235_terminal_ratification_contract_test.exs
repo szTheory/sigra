@@ -1798,7 +1798,7 @@ defmodule Sigra.Planning.Phase235TerminalRatificationContractTest do
 
     require_unique_statement!(
       overview,
-      "- **Library/scaffold/golden parity** — `MIX_ENV=test mix ci` remains the literal local parity command for the seven-leg library, scaffold, and golden gate. `library_tests_shard` is the direct executor; `library_tests / Library tests` is its byte-stable terminal aggregate and protected check, not a second executor.",
+      "- **Library/scaffold/golden parity** — `MIX_ENV=test mix ci` remains the literal local parity command for the nine-leg library, scaffold, and golden gate. `library_tests_shard` is the direct executor; `library_tests / Library tests` is its byte-stable terminal aggregate and protected check, not a second executor.",
       "library topology statement"
     )
 

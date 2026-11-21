@@ -3,7 +3,9 @@ defmodule Sigra.Brand.PolicyDocsTest do
 
   @adr ".planning/decisions/005-brand-adoption-compatibility-policy.md"
   @guide "guides/reference/brand-compatibility.md"
+  @upgrade_guide "guides/introduction/upgrading-to-v1.51.md"
   @contract "guides/introduction/contract.md"
+  @token_reference "guides/reference/admin-token-reference.md"
 
   @adr_headings [
     "Owner decision table",
@@ -37,6 +39,14 @@ defmodule Sigra.Brand.PolicyDocsTest do
     "Consumed brand subset",
     "SemVer and changelog treatment",
     "Upgrade notes"
+  ]
+
+  @upgrade_headings [
+    "Before you start",
+    "Ownership lanes",
+    "Generated auth message changes",
+    "Admin token value changes",
+    "Release notes"
   ]
 
   # Decision numbers recorded by Phase 259 (#10 and #13 belong to later phases).
@@ -75,6 +85,25 @@ defmodule Sigra.Brand.PolicyDocsTest do
   # Pure helper: trimmed cells of one markdown table line.
   defp cells(line) do
     line |> String.trim() |> String.trim("|") |> String.split("|") |> Enum.map(&String.trim/1)
+  end
+
+  # Pure helper: true when a dotted reference resolves in the vendored token JSON.
+  defp brand_token_path?(tokens, dotted_path) do
+    case Enum.reduce_while(String.split(dotted_path, "."), {:ok, tokens}, fn key, {:ok, node} ->
+           case node do
+             %{} ->
+               case Map.fetch(node, key) do
+                 {:ok, value} -> {:cont, {:ok, value}}
+                 :error -> {:halt, :error}
+               end
+
+             _ ->
+               {:halt, :error}
+           end
+         end) do
+      {:ok, _value} -> true
+      :error -> false
+    end
   end
 
   # Pure helper: byte offset of `needle` in `body`; fails the test by name when absent.
@@ -173,6 +202,34 @@ defmodule Sigra.Brand.PolicyDocsTest do
     end
   end
 
+  describe "admin token reference" do
+    test "every path-like Brand Ref points into the vendored token JSON" do
+      assert File.regular?(path(@token_reference)), "missing #{@token_reference}"
+
+      tokens = read!("brand/tokens.json") |> Jason.decode!()
+
+      references =
+        read!(@token_reference)
+        |> String.split("\n")
+        |> Enum.filter(fn line ->
+          String.starts_with?(line, "| ") and String.contains?(line, "--sg-")
+        end)
+        |> Enum.flat_map(fn line ->
+          [_, _, _, brand_ref] = cells(line)
+
+          Regex.scan(
+            ~r/\b(?:color|font|type|space|typography|radius|shadow|motion)\.[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*/,
+            brand_ref
+          )
+          |> Enum.map(&hd/1)
+        end)
+
+      invalid = Enum.reject(references, &brand_token_path?(tokens, &1))
+
+      assert invalid == [], "Brand Ref paths should all exist in brand/tokens.json"
+    end
+  end
+
   describe "brand-compatibility guide" do
     test "exists with the eight required H2 headings and a plain-text title" do
       assert File.regular?(path(@guide)), "missing #{@guide}"
@@ -224,6 +281,74 @@ defmodule Sigra.Brand.PolicyDocsTest do
       ]
 
       assert missing_terms(slice, expected) == []
+    end
+
+    test "records shipped v1.51 changes and links to the detailed migration tables" do
+      guide = read!(@guide)
+      slice = section_slice(guide, "### 5. Visual and copy changes")
+      rows = table_data_rows(slice)
+
+      assert guide =~ "The first shipped adoption under this policy is v1.51"
+      assert slice =~ "../introduction/upgrading-to-v1.51.html"
+
+      assert Enum.map(rows, &hd/1) == [
+               "Admin theme values and lockups",
+               "Authentication and email wording",
+               "README, HexDocs and package identity"
+             ]
+
+      assert Enum.map(rows, fn row -> Enum.at(row, 1) end) ==
+               ["Host-owned", "Generated", "Library-owned"]
+    end
+  end
+
+  describe "v1.51 upgrade guide" do
+    test "exists and presents the upgrade sections in order" do
+      assert File.regular?(path(@upgrade_guide)), "missing #{@upgrade_guide}"
+
+      guide = read!(@upgrade_guide)
+      positions = Enum.map(@upgrade_headings, &byte_index!(guide, h2(&1)))
+
+      assert String.starts_with?(guide, "# Upgrading to v1.51\n")
+      assert positions == Enum.sort(positions)
+    end
+
+    test "lists the three ownership lanes in their policy order" do
+      slice = read!(@upgrade_guide) |> section_slice("## Ownership lanes")
+      rows = table_data_rows(slice)
+
+      assert slice =~ "| Lane | What changes in v1.51 | How your app receives it | What you do |"
+      assert Enum.map(rows, &hd/1) == ["Library-owned", "Generated", "Host-owned"]
+      assert rows |> Enum.map(&Enum.count/1) |> Enum.uniq() == [4]
+    end
+
+    test "carries all generated msgid rows and representative old/new copy" do
+      slice = read!(@upgrade_guide) |> section_slice("## Generated auth message changes")
+      rows = table_data_rows(slice)
+
+      assert slice =~ "| Template | Surface | Old msgid | New msgid |"
+      assert length(rows) == 10
+
+      assert ["`core/registration_live.ex`", "Existing-account link", "`Log in`", "`Sign in`"] in rows
+
+      assert [
+               "`core/settings_live.ex`",
+               "Account deletion strategy notice",
+               "`Schedule account deletion according to your configured deletion strategy. After the grace period expires, Sigra finalizes the account lifecycle according to that strategy.`",
+               "`Schedule account deletion according to your configured deletion strategy. After the grace period expires, the selected strategy is applied to your account.`"
+             ] in rows
+    end
+
+    test "carries all token rows and representative light/dark values" do
+      slice = read!(@upgrade_guide) |> section_slice("## Admin token value changes")
+      rows = table_data_rows(slice)
+
+      assert slice =~ "| Token | Old light | New light | Old dark | New dark |"
+      assert length(rows) == 44
+
+      assert ["`--sg-color-ink`", "`#151515`", "`#1F1A17`", "`#f4f1eb`", "`#F3EEE8`"] in rows
+
+      assert ["`--sg-font-sans`", "none", "`inherit`", "none", "n/a"] in rows
     end
   end
 

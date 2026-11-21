@@ -7,7 +7,8 @@
 #
 # COVERAGE
 # Covered: dgettext("sigra", ...) msgids, literal put_flash messages, text nodes of ~H
-#   blocks, and multi-word literals in the email builders.
+#   blocks and standalone .heex files, plus multi-word literals in the installer and OAuth
+#   generator templates.
 # Not covered: browser-side copy in .js hooks (for example the passkey status messages),
 #   HEEx attribute values (aria-label, title, placeholder and similar), and raw string
 #   literals outside dgettext, put_flash, ~H text and the email builders (for example
@@ -55,6 +56,7 @@ core/api_token_created_email.ex	msgid	Scopes:
 core/api_token_created_email.ex	msgid	Token name:
 core/confirmation_controller.ex	msgid	A new confirmation email has been sent.
 core/confirmation_controller.ex	msgid	Invalid confirmation code. Please try again.
+core/confirmation_controller.ex	msgid	Please sign in to confirm your email.
 core/confirmation_controller.ex	msgid	This confirmation link is invalid or has expired.
 core/confirmation_controller.ex	msgid	Too many attempts. Please wait a few minutes before trying again.
 core/confirmation_controller.ex	msgid	Your email has been confirmed.
@@ -391,7 +393,7 @@ core/registration_live.ex	msgid	Create an account
 core/registration_live.ex	msgid	Creating account...
 core/registration_live.ex	msgid	Email
 core/registration_live.ex	msgid	Fair
-core/registration_live.ex	msgid	If this email is available, your account has been created. Please check your email.
+core/registration_live.ex	msgid	If an account can be created for this email, check for any confirmation instructions, then sign in.
 core/registration_live.ex	msgid	Password
 core/registration_live.ex	msgid	Register
 core/registration_live.ex	msgid	Sign in
@@ -400,6 +402,7 @@ core/registration_live.ex	msgid	We couldn't create your account. Check the highl
 core/registration_live.ex	msgid	Weak
 core/registration_live.ex	msgid	to your account now.
 core/reset_password_controller.ex	msgid	If your email is in our system, you will receive reset instructions shortly.
+core/reset_password_controller.ex	msgid	We couldn't send your request right now. Please try again later.
 core/reset_password_controller.ex	msgid	Your password has been reset.
 core/reset_password_html.ex	msgid	Back to sign in
 core/reset_password_html.ex	msgid	Confirm new password
@@ -433,6 +436,7 @@ core/reset_password_live.ex	msgid	Sending...
 core/reset_password_live.ex	msgid	Strong
 core/reset_password_live.ex	msgid	This password reset link has expired or was already used.
 core/reset_password_live.ex	msgid	We couldn't reset your password. Check the highlighted fields and try again.
+core/reset_password_live.ex	msgid	We couldn't send your request right now. Please try again later.
 core/reset_password_live.ex	msgid	Weak
 core/reset_password_live.ex	msgid	Your password has been reset.
 core/session_controller.ex	msgid	Account created successfully!
@@ -451,6 +455,7 @@ core/session_controller.ex	msgid	We couldn't determine your organization from th
 core/session_controller.ex	msgid	We couldn't find an enterprise sign-in route for that work email. Check your organization details and try again.
 core/session_controller.ex	msgid	We couldn't finish adding this passkey. Try again or use another way to continue.
 core/session_controller.ex	msgid	We couldn't finish passkey sign-in. Try again or use another way to continue.
+core/session_controller.ex	msgid	We couldn't send your request right now. Please try again later.
 core/session_controller.ex	msgid	Welcome back!
 core/session_controller.ex	msgid	Welcome!
 core/session_controller.ex	msgid	You can't change account security settings while impersonating.
@@ -672,3 +677,38 @@ organizations/organization_invitation_email.ex	msgid	You're invited to join %{or
 organizations/organization_invitation_email.ex	msgid	as
 organizations/organization_invitation_email.ex	msgid	invited you to join
 organizations/organization_invitation_email.ex	msgid	on
+priv/templates/sigra.gen.oauth/oauth_buttons.html.heex	heex_text	Continue with
+priv/templates/sigra.gen.oauth/oauth_buttons.html.heex	heex_text	or
+priv/templates/sigra.gen.oauth/oauth_controller.ex	flash	An account with this email exists. Sign in to link your #{provider} account.
+priv/templates/sigra.gen.oauth/oauth_controller.ex	flash	Could not connect to #{provider}. Please try again.
+priv/templates/sigra.gen.oauth/oauth_controller.ex	flash	Could not sign in with #{provider}. Please try again or use another method.
+priv/templates/sigra.gen.oauth/oauth_controller.ex	flash	Unknown provider.
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	&middot; Last used
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	Add a sign-in method
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	All available providers are connected.
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	Connected Accounts
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	Continue with
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	Link a sign-in provider for faster access.
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	Linked
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	Manage your linked sign-in providers.
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	No connected accounts
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	No password set.
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	Set a password
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	Unlink
+priv/templates/sigra.gen.oauth/oauth_settings.html.heex	heex_text	to enable email sign-in and as a backup.
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	flash	#{provider_name} has been removed from your account.
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	flash	Could not unlink provider. Please try again.
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	flash	Set a password first to keep access to your account.
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	&middot; Last used
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	Add a sign-in method
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	All available providers are connected.
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	Connected Accounts
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	Continue with
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	Link a sign-in provider for faster access.
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	Linked
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	Manage your linked sign-in providers.
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	No connected accounts
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	No password set.
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	Set a password
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	Unlink
+priv/templates/sigra.gen.oauth/oauth_settings_live.ex	heex_text	to enable email sign-in and as a backup.

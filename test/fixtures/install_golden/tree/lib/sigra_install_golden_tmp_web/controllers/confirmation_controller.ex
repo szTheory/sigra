@@ -23,28 +23,32 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationController do
   end
 
   def create(conn, %{"code" => code}) do
-    user = conn.assigns.current_scope.user
+    case current_scope_user(conn) do
+      nil ->
+        sign_in_to_confirm(conn)
 
-    case Auth.confirm_user_by_code(user, code) do
-      {:ok, _user} ->
-        conn
-        |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
-        |> redirect(to: ~p"/")
+      user ->
+        case Auth.confirm_user_by_code(user, code) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, dgettext("sigra", "Your email has been confirmed."))
+            |> redirect(to: ~p"/")
 
-      {:error, :invalid_code} ->
-        conn
-        |> put_flash(:error, dgettext("sigra", "Invalid confirmation code. Please try again."))
-        |> render(:new)
+          {:error, :invalid_code} ->
+            conn
+            |> put_flash(:error, dgettext("sigra", "Invalid confirmation code. Please try again."))
+            |> render(:new)
 
-      {:error, :rate_limited} ->
-        conn
-        |> put_flash(:error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))
-        |> render(:new)
+          {:error, :rate_limited} ->
+            conn
+            |> put_flash(:error, dgettext("sigra", "Too many attempts. Please wait a few minutes before trying again."))
+            |> render(:new)
 
-      {:error, :already_confirmed} ->
-        conn
-        |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
-        |> redirect(to: ~p"/")
+          {:error, :already_confirmed} ->
+            conn
+            |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
+            |> redirect(to: ~p"/")
+        end
     end
   end
 
@@ -92,19 +96,36 @@ defmodule SigraInstallGoldenTmpWeb.ConfirmationController do
   end
 
   def resend(conn, _params) do
-    user = conn.assigns.current_scope.user
+    case current_scope_user(conn) do
+      nil ->
+        sign_in_to_confirm(conn)
 
-    case Auth.deliver_user_confirmation_instructions(user, &url(conn, ~p"/users/confirm/#{&1}")) do
-      {:ok, _} ->
-        conn
-        |> put_flash(:info, dgettext("sigra", "A new confirmation email has been sent."))
-        |> redirect(to: ~p"/users/confirm")
+      user ->
+        case Auth.deliver_user_confirmation_instructions(user, &url(conn, ~p"/users/confirm/#{&1}")) do
+          {:ok, _} ->
+            conn
+            |> put_flash(:info, dgettext("sigra", "A new confirmation email has been sent."))
+            |> redirect(to: ~p"/users/confirm")
 
-      {:error, :already_confirmed} ->
-        conn
-        |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
-        |> redirect(to: ~p"/")
+          {:error, :already_confirmed} ->
+            conn
+            |> put_flash(:info, dgettext("sigra", "Your email is already confirmed."))
+            |> redirect(to: ~p"/")
+        end
     end
+  end
+
+  defp current_scope_user(conn) do
+    case conn.assigns[:current_scope] do
+      %{user: user} when not is_nil(user) -> user
+      _ -> nil
+    end
+  end
+
+  defp sign_in_to_confirm(conn) do
+    conn
+    |> put_flash(:error, dgettext("sigra", "Please sign in to confirm your email."))
+    |> redirect(to: ~p"/users/log_in")
   end
 
 

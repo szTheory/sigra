@@ -60,8 +60,8 @@
 
   .sigra-auth[data-theme="dark"],
   .sigra-auth-email-preview[data-theme="dark"] {
-    --sigra-auth-accent: var(--sigra-auth-dark-accent, #c2410c);
-    --sigra-auth-on-accent: var(--sigra-auth-dark-on-accent, #ffffff);
+    --sigra-auth-accent: var(--sigra-auth-dark-accent, #F08A55);
+    --sigra-auth-on-accent: var(--sigra-auth-dark-on-accent, #17120F);
     --sigra-auth-bg: var(--sigra-auth-dark-bg, #171614);
     --sigra-auth-surface: var(--sigra-auth-dark-surface, #211f1c);
     --sigra-auth-text: var(--sigra-auth-dark-text, #f4f1eb);
@@ -84,8 +84,8 @@
   @media (prefers-color-scheme: dark) {
     .sigra-auth[data-theme="system"],
     .sigra-auth-email-preview[data-theme="system"] {
-      --sigra-auth-accent: var(--sigra-auth-dark-accent, #c2410c);
-      --sigra-auth-on-accent: var(--sigra-auth-dark-on-accent, #ffffff);
+      --sigra-auth-accent: var(--sigra-auth-dark-accent, #F08A55);
+      --sigra-auth-on-accent: var(--sigra-auth-dark-on-accent, #17120F);
       --sigra-auth-bg: var(--sigra-auth-dark-bg, #171614);
       --sigra-auth-surface: var(--sigra-auth-dark-surface, #211f1c);
       --sigra-auth-text: var(--sigra-auth-dark-text, #f4f1eb);

@@ -2,21 +2,37 @@ defmodule Sigra.Brand.InstructionPointersTest do
   @moduledoc """
   Doc-contract test for the instruction-file pointer fix (BPOL-06).
 
-  Executors read the instruction files and the admin guides before touching
-  admin UI. Those files must point at the v1.51 brand book in `brand/`, never
-  at the retired `brandbook/` source, and must not claim that admin token
-  values already match the new book (they move in a later phase).
+  Executors and live design consumers must point at the v1.51 brand sources,
+  never at the retired `brandbook/` tree. Keep admin-token alignment claims
+  bounded by the current migration state.
   """
   use ExUnit.Case, async: true
 
-  # Files covered by the pointer fix: the two root instruction files and the
-  # two admin guides executors read before touching admin UI.
+  # Instruction files that guide admin UI work, including the example app.
   @instruction_files [
     "CLAUDE.md",
     "AGENTS.md",
     "guides/reference/admin-ui-principles.md",
-    "guides/reference/admin-design-contract.md"
+    "guides/reference/admin-design-contract.md",
+    "test/example/AGENTS.md"
   ]
+
+  # Live documentation and panel data that cite brand or token policy.
+  @identity_reference_files [
+    "guides/reference/admin-graphic-design-lens.md",
+    "guides/reference/admin-fractal-scorecard.md",
+    "guides/reference/admin-token-reference.md",
+    "scripts/panel/lenses.mjs"
+  ]
+
+  @consumer_files @instruction_files ++
+                    @identity_reference_files ++
+                    [
+                      "scripts/brand/axe-brandbook.mjs",
+                      "scripts/brand/outline-wordmark.mjs",
+                      "test/sigra/architecture_guides_contract_test.exs"
+                    ]
+  @pointer_files @instruction_files ++ @identity_reference_files
 
   @admin_guides [
     "guides/reference/admin-ui-principles.md",
@@ -26,14 +42,16 @@ defmodule Sigra.Brand.InstructionPointersTest do
   # Pure matchers, one per defect class. Each is applied line by line so a
   # failure names the offending line.
   #
-  # 1. "Rail Accent" followed on the same line by a backticked brandbook path.
-  # 2. The retired tokens path (the retired book directory, a slash, tokens).
-  # 3. A claim that admin token values already align with the new book.
-  @retired_pointer ~r/Rail Accent.*`[^`]*brandbook[^`]*`/
+  # 1. Retired Rail Accent wording.
+  # 2. Any direct path into the removed brandbook/ tree.
+  # 3. The retired tokens path (kept as a separate assertion for clarity).
+  # 4. A claim that admin token values already align with the new book.
+  @retired_pointer ~r/Rail Accent/i
+  @retired_source ~r{brandbook/}
   @retired_tokens ~r{brandbook/tokens}
   @alignment_claim ~r/already align|stay aligned with/i
 
-  @new_book_pointer ~r{`brand/[^`]*`}
+  @new_book_pointer ~r{`[^`]*brand/[^`]*`}
 
   defp root, do: Path.expand("../../..", __DIR__)
   defp read!(rel), do: root() |> Path.join(rel) |> File.read!()
@@ -46,6 +64,7 @@ defmodule Sigra.Brand.InstructionPointersTest do
     |> Enum.flat_map(fn line ->
       [
         {:retired_pointer, @retired_pointer},
+        {:retired_source, @retired_source},
         {:retired_tokens, @retired_tokens},
         {:alignment_claim, @alignment_claim}
       ]
@@ -63,19 +82,21 @@ defmodule Sigra.Brand.InstructionPointersTest do
 
   describe "instruction files point at the new brand book" do
     test "every covered file has content" do
-      for file <- @instruction_files do
+      for file <- @consumer_files do
         assert byte_size(read!(file)) > 0,
                "#{file} is empty, so the checks below would be vacuous"
       end
     end
 
     test "no file instructs the retired brandbook source or tokens path" do
-      for file <- @instruction_files do
+      for file <- @consumer_files do
         retired =
           file
           |> read!()
           |> violations()
-          |> Enum.filter(fn {reason, _line} -> reason in [:retired_pointer, :retired_tokens] end)
+          |> Enum.filter(fn {reason, _line} ->
+            reason in [:retired_pointer, :retired_source, :retired_tokens]
+          end)
 
         assert retired == [],
                "#{file} still points at the retired brandbook source: #{inspect(retired)}"
@@ -83,14 +104,14 @@ defmodule Sigra.Brand.InstructionPointersTest do
     end
 
     test "each file contains a backticked brand/ pointer" do
-      for file <- @instruction_files do
+      for file <- @pointer_files do
         assert Regex.match?(@new_book_pointer, read!(file)),
                "#{file} has no backticked `brand/` pointer to the v1.51 brand book"
       end
     end
 
     test "no file claims admin token values already align with the book" do
-      for file <- @instruction_files do
+      for file <- @consumer_files do
         claims =
           file
           |> read!()
@@ -138,6 +159,27 @@ defmodule Sigra.Brand.InstructionPointersTest do
       assert contract =~ "never use a placeholder tile or a black wordmark on dark surfaces"
     end
 
+    test "example agent instructions point at the identity and token sources" do
+      content = read!("test/example/AGENTS.md")
+
+      assert content =~ "`../../brand/BRAND.md`"
+      assert content =~ "`../../brand/tokens.json`"
+      assert content =~ "`--sg-*` token names"
+      assert content =~ "planned migration"
+    end
+
+    test "the axe checker serves the active identity page" do
+      content = read!("scripts/brand/axe-brandbook.mjs")
+
+      assert content =~ "../../brand/assets"
+      assert content =~ "brand/assets/index.html"
+      assert content =~ "withTags(['wcag2a', 'wcag2aa'])"
+      assert content =~ "finally"
+      assert content =~ "server.kill()"
+      refute content =~ "../../brandbook"
+      assert File.regular?(Path.join(root(), "brand/assets/index.html"))
+    end
+
     test "AGENTS.md keeps the sg-* design system and theme bullets next to the pointer" do
       content = read!("AGENTS.md")
 
@@ -148,15 +190,17 @@ defmodule Sigra.Brand.InstructionPointersTest do
   end
 
   describe "violations/1 positive control" do
-    test "flags a planted retired Rail Accent pointer" do
+    test "flags planted Rail Accent wording and a retired source path" do
       planted = "- Use the Rail Accent brand assets from `brandbook/`."
 
-      assert [{:retired_pointer, ^planted}] = violations(planted)
+      assert {:retired_pointer, planted} in violations(planted)
+      assert {:retired_source, planted} in violations(planted)
     end
 
     test "flags a planted retired tokens path" do
       planted = "Use brand tokens from `brandbook/tokens.*` as the value reference."
 
+      assert {:retired_source, planted} in violations(planted)
       assert {:retired_tokens, planted} in violations(planted)
     end
 

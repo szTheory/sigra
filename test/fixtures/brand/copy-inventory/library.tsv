@@ -48,6 +48,7 @@ lib/sigra/admin/components.ex	literal	#{div(diff, 60)}m ago
 lib/sigra/admin/components.ex	literal	#{div(diff, 86400)}d ago
 lib/sigra/admin/components.ex	literal	1 #{label}
 lib/sigra/admin/components.ex	literal	Active
+lib/sigra/admin/components.ex	literal	Deleted
 lib/sigra/admin/components.ex	literal	Deletion scheduled
 lib/sigra/admin/components.ex	literal	Locked
 lib/sigra/admin/components.ex	literal	Not available
@@ -250,6 +251,7 @@ lib/sigra/admin/live/user_show_live.ex	heex_text	User detail
 lib/sigra/admin/live/user_show_live.ex	heex_text	View all organizations
 lib/sigra/admin/live/user_show_live.ex	heex_text	View full audit
 lib/sigra/admin/live/user_show_live.ex	literal	Confirmed
+lib/sigra/admin/live/user_show_live.ex	literal	Deleted
 lib/sigra/admin/live/user_show_live.ex	literal	Deletion scheduled
 lib/sigra/admin/live/user_show_live.ex	literal	Email unconfirmed — the user cannot complete sign-in.
 lib/sigra/admin/live/user_show_live.ex	literal	Enabled

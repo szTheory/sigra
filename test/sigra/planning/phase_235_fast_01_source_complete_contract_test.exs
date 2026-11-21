@@ -285,7 +285,7 @@ defmodule Sigra.Planning.Phase235Fast01SourceCompleteContractTest do
         "65ca537f6ed8a47fd0e560c421baa1f6c1efb8b25fc200d8c5c02c0e92eb2b9c",
       "scripts/ci/verify-terminal-ratification-attestation-offline.sh" =>
         "6c0805e0386186f017215ea7bf10bf450c9aafb68ef6742afa2f9e75b0463367",
-      "CONTRIBUTING.md" => "33d045c1fe8940a050db76d087ab1e8b45020b404d2f122032c50c170d11760b"
+      "CONTRIBUTING.md" => "3af3fc5a3d1511a251c895f85612a1ad622feb6ea866ac1556d6df3d759f951f"
     }
 
     for {path, expected} <- pins do

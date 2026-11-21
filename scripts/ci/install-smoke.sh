@@ -20,6 +20,72 @@ source "${_ci_here}/lib/mix-deps-get-retry.sh"
 SIGRA_REPO="${GITHUB_WORKSPACE:-$(pwd)}"
 TMP_APP_DIR="${TMP_APP_DIR:-/tmp/tmp_app}"
 
+# mix phx.new infers the OTP app name from the path basename. Reject invalid
+# names and unsafe cleanup targets before the script removes an old temp app.
+case "${TMP_APP_DIR}" in
+  /tmp/*|/private/tmp/*) ;;
+  *)
+    echo "FAIL: TMP_APP_DIR must be an absolute path under /tmp"
+    exit 1
+    ;;
+esac
+
+if [[ "${TMP_APP_DIR}" == *"/../"* || "${TMP_APP_DIR}" == */.. ]]; then
+  echo "FAIL: TMP_APP_DIR must not contain parent-directory traversal"
+  exit 1
+fi
+
+TMP_APP_NAME="$(basename "${TMP_APP_DIR}")"
+if [[ ! "${TMP_APP_NAME}" =~ ^[a-z][a-z0-9_]*$ ]]; then
+  echo "FAIL: TMP_APP_DIR basename must be a valid Phoenix app name (lowercase letters, numbers, and underscores)"
+  exit 1
+fi
+
+TMP_APP_PARENT="$(dirname "${TMP_APP_DIR}")"
+SIGRA_REPO="$(cd "${SIGRA_REPO}" && pwd -P)"
+TMP_PARENT_PROBE="${TMP_APP_PARENT}"
+while [[ ! -d "${TMP_PARENT_PROBE}" ]]; do
+  if [[ -L "${TMP_PARENT_PROBE}" ]]; then
+    echo "FAIL: TMP_APP_DIR parent contains an unresolved symlink"
+    exit 1
+  fi
+
+  TMP_PARENT_PROBE="$(dirname "${TMP_PARENT_PROBE}")"
+done
+
+TMP_EXISTING_PARENT="$(cd "${TMP_PARENT_PROBE}" && pwd -P)"
+case "${TMP_EXISTING_PARENT}" in
+  "${SIGRA_REPO}"|"${SIGRA_REPO}"/*)
+    echo "FAIL: TMP_APP_DIR parent resolves inside the Sigra checkout"
+    exit 1
+    ;;
+esac
+
+case "${TMP_EXISTING_PARENT}" in
+  /tmp|/tmp/*|/private/tmp|/private/tmp/*) ;;
+  *)
+    echo "FAIL: TMP_APP_DIR parent resolves outside the system temp directory"
+    exit 1
+    ;;
+esac
+
+mkdir -p "${TMP_APP_PARENT}"
+TMP_APP_PARENT="$(cd "${TMP_APP_PARENT}" && pwd -P)"
+TMP_APP_DIR="${TMP_APP_PARENT}/${TMP_APP_NAME}"
+
+case "${TMP_APP_PARENT}" in
+  /tmp|/tmp/*|/private/tmp|/private/tmp/*) ;;
+  *)
+    echo "FAIL: TMP_APP_DIR resolves outside the system temp directory"
+    exit 1
+    ;;
+esac
+
+if [[ "${TMP_APP_DIR}" == "${SIGRA_REPO}" || "${TMP_APP_DIR}" == "${SIGRA_REPO}/"* ]]; then
+  echo "FAIL: TMP_APP_DIR must not be inside the Sigra checkout"
+  exit 1
+fi
+
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
 export PGHOST="${PGHOST:-localhost}"
@@ -52,12 +118,11 @@ echo "==> install-smoke: phx.new version OK (${PHX_NEW_RESOLVED})"
 echo "==> install-smoke: generating fresh Phoenix app at ${TMP_APP_DIR}"
 
 rm -rf "${TMP_APP_DIR}"
-mkdir -p "$(dirname "${TMP_APP_DIR}")"
 cd "$(dirname "${TMP_APP_DIR}")"
 
 # mix archive.install phx_new MUST already be in place (installed by the CI
 # step before this script runs).
-mix phx.new "$(basename "${TMP_APP_DIR}")" \
+mix phx.new "${TMP_APP_NAME}" \
   --no-install \
   --no-dashboard \
   --database postgres
@@ -244,6 +309,13 @@ elixir -e '
   rendered = EEx.eval_string(source, app_module: app_module)
   File.write!("test/generated_confirmation_probe_test.exs", rendered)
 ' "${SIGRA_REPO}/scripts/ci/generated-confirmation-probe.exs" "${APP}"
-MIX_ENV=test mix test test/generated_capability_gate_probe_test.exs test/generated_confirmation_probe_test.exs
+elixir -e '
+  [probe_path, app_name] = System.argv()
+  app_module = Macro.camelize(app_name)
+  source = File.read!(probe_path)
+  rendered = EEx.eval_string(source, app_module: app_module)
+  File.write!("test/generated_reset_password_probe_test.exs", rendered)
+' "${SIGRA_REPO}/scripts/ci/generated-reset-password-probe.exs" "${APP}"
+MIX_ENV=test mix test test/generated_capability_gate_probe_test.exs test/generated_confirmation_probe_test.exs test/generated_reset_password_probe_test.exs
 
 echo "==> install-smoke: done; tmp_app generated + sigra-installed + compiled clean"

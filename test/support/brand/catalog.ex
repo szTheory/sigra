@@ -642,7 +642,11 @@ defmodule Sigra.Test.Brand.Catalog do
   end
 
   defp user_show_detail(:scheduled_deletion) do
-    detail(user(:scheduled_deletion, deleted_at: @deleted_at),
+    detail(
+      user(:scheduled_deletion,
+        deleted_at: @deleted_at,
+        scheduled_deletion_at: @deleted_at
+      ),
       sessions: [session(:standard, "203.0.113.31", @older_active_at, <<9, 8, 7, 6>>)]
     )
   end

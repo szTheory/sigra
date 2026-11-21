@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { extractConfirmationLink } from "../fixtures/mailbox";
+import { assertGenericRegistrationResponse } from "../helpers/registration";
 
 async function waitForLiveViewReady(page: Parameters<typeof test>[0]["page"]) {
   await page.waitForSelector("[data-phx-session].phx-connected", {
@@ -19,7 +20,7 @@ async function registerUserForPasskeyBootstrap(
   await page.fill('input[name="user[password]"]', password);
   await page.check('input[name="user[enroll_passkey]"]');
   await page.click('button:has-text("Create an account")');
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
 }
 
 async function confirmSignupForPasskeyBootstrap(
@@ -257,6 +258,15 @@ test.describe("passkey-primary login fallback smoke", () => {
       await enrollPasskeyFromSettings(page, password);
 
       await page.context().clearCookies();
+      const loginOptionsRequests: string[] = [];
+      page.on("request", (request) => {
+        if (
+          request.url().includes("/users/log_in/passkey/options") &&
+          request.method() === "POST"
+        ) {
+          loginOptionsRequests.push(request.postData() || "");
+        }
+      });
       await page.goto("/users/log_in");
 
       const runtimeState = await page.evaluate(() => {
@@ -294,20 +304,32 @@ test.describe("passkey-primary login fallback smoke", () => {
         hasAuthenticateHook: true,
       });
 
-      await page.locator('input[autocomplete="username webauthn"]').fill(email);
-
-      const [optionsResponse] = await Promise.all([
+      // The controller tests own the allowCredentials payload contract. Keep
+      // this browser check on the real request/response flow: Chromium can
+      // release a fetch response body through CDP during the completion redirect.
+      const [optionsResponse, completionResponse] = await Promise.all([
         page.waitForResponse(
           (response) =>
             response.url().includes("/users/log_in/passkey/options") &&
-            response.request().method() === "POST" &&
-            response.request().postData()?.includes(email) === true,
+            response.request().method() === "POST",
+        ),
+        page.waitForResponse(
+          (response) =>
+            response.url().includes("/users/log_in/passkey") &&
+            !response.url().includes("/options") &&
+            response.request().method() === "POST",
         ),
         page.locator("#passkey_login_button").click(),
       ]);
 
       expect(optionsResponse.status()).toBe(200);
-      expect(optionsResponse.request().postData()).toContain(email);
+      expect(optionsResponse.request().postData()).not.toContain(email);
+      expect(loginOptionsRequests).toHaveLength(1);
+      expect(completionResponse.status()).toBe(302);
+      expect(completionResponse.headers()["location"] || "").not.toContain(
+        "/users/log_in",
+      );
+      await expect(page).toHaveURL(/\/app$/);
 
       await expect(page.getByText(/AbortError|NotAllowedError/)).toHaveCount(0);
     } finally {

@@ -46,10 +46,7 @@
 * injecting config/test.exs
 * injecting test/support/conn_case.ex
 * injecting lib/sigra_install_golden_tmp/application.ex
-* detected Oban config in config/config.exs
-  Add the sigra_mailer queue to your Oban config:
-    config :sigra_install_golden_tmp, Oban, queues: [sigra_mailer: 10]
-
+* already configured Oban sigra_recovery queue
 * injecting Swoosh dev config into config/dev.exs
 
 Sigra authentication has been installed!
@@ -76,6 +73,16 @@ Next steps:
          defmodule MyApp.RateLimit do
            use Hammer, backend: :ets
          end
+
+  5. Configure durable public recovery delivery:
+
+         # Add this queue to your existing Oban configuration:
+         config :sigra_install_golden_tmp, Oban, queues: [sigra_recovery: 10]
+
+     Public reset and magic-link requests are queued before account lookup. You can instead set
+     :dispatcher in :sigra_recovery to a host module implementing Sigra.Recovery. Without a
+     durable dispatcher these endpoints return a service error and never deliver synchronously.
+     Ordinary confirmation and notification email delivery uses the separate :sigra_mailer queue.
 
   LiveView pages were generated for login, registration, and session management.
   Passkeys: enabled (default)

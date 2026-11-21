@@ -1,6 +1,6 @@
 {
   "schema_version": "sigra.brand-public-surfaces/v1",
-  "note": "Registry of pre-auth surfaces for the enumeration-boundary parity harness (test/example/test/example_web/enumeration_parity_test.exs). A row with state parity proves ONLY the listed compare dimensions, for ONE request issued for an existing identity and for an unknown identity, and nothing else (not timing, not repeat attempts, not locked or unconfirmed accounts). The harness runs in the example host, a hand-maintained copy of the generated host that already drifts from the generated templates; only install_smoke proves a generated host. States: parity (must compare same), known_divergence (must still differ; fixing the product forces this row to be removed or changed), by_design (documented behaviour is asserted), not_proven (no assertion; blocker cites the file:line that prevents a deterministic probe). The compare lists of the five named rows are pinned in the parity test to the dimensions the published docs rely on (the account-existence rows keep status, redirect, flash and body): a row may list more, never fewer.",
+  "note": "Registry of pre-auth surfaces for the enumeration-boundary parity harness (test/example/test/example_web/enumeration_parity_test.exs). A row with state parity proves ONLY the listed dimensions for the exact request sequence described in that row; most rows cover one request, while repeat-attempt and rate-limit rows specify their sequence. Nothing here proves timing equivalence or behavior for account states not named in the row. The harness runs in the example host, a hand-maintained copy of the generated host that already drifts from the generated templates; only install_smoke proves a generated host. States: parity (must compare same), known_divergence (must still differ; fixing the product forces this row to be removed or changed), by_design (documented behaviour is asserted), not_proven (no assertion; blocker cites the file:line that prevents a deterministic probe). The compare lists of the six named rows are pinned in the parity test to the dimensions the published docs rely on (the account-existence rows keep status, redirect, flash and body): a row may list more, never fewer.",
   "surfaces": [
     {
       "id": "password-signin",
@@ -28,7 +28,7 @@
         "body"
       ],
       "state": "parity",
-      "note": "Identity = whether the submitted email belongs to an account. One magic-link request for an existing email versus an unknown email, fresh state. Compares the POST status, redirect location, server-side flash map and the followed login page body after normalizing only CSRF tokens, request ids and the echoed email. Email delivery (presence and subject), timing and the library rate limit are NOT compared; see magic-link-rate-limit.",
+      "note": "Identity = whether the submitted email belongs to an account. One magic-link request for an existing email versus an unknown email, fresh state. Compares the POST status, redirect location, server-side flash map and the followed login page body after normalizing only CSRF tokens, request ids and the echoed email. A separate request-path check proves each accepted submission creates one queue job containing an encrypted envelope, with no email-keyed user query, token, audit event or mail before the worker runs. Worker delivery is tested separately. Timing and the library rate limit are NOT compared; see magic-link-rate-limit.",
       "todo": null,
       "blocker": null
     },
@@ -43,8 +43,8 @@
         "body"
       ],
       "state": "parity",
-      "note": "Identity = whether the submitted email belongs to an account. One reset request submitted through the LiveView form for an existing email versus an unknown email, fresh state. Compares the reported redirect outcome (302), the redirect location, the flash read from the redirect and the followed login page body after normalizing only CSRF tokens, request ids and the echoed email. NOT compared: response timing (an unknown address costs one dummy hash, an existing one writes a token and delivers an email), email delivery, the rate limit (see password-reset-rate-limit), locked, unconfirmed and enterprise-policy accounts, and the generated host (the example host is a hand-maintained copy; the generated reset page is not compared). The generated host's reset request page is not compared and its defects are tracked by the linked todo.",
-      "todo": ".planning/todos/pending/2026-11-14-generated-reset-request-page-mount-and-user-struct-call.md",
+      "note": "Identity = whether the submitted email belongs to an account. One reset request submitted through the LiveView form for an existing email versus an unknown email, fresh state. Compares the reported redirect outcome (302), the redirect location, the flash read from the redirect and the followed login page body after normalizing only CSRF tokens, request ids and the echoed email. A separate request-path check proves each accepted submission creates one queue job containing an encrypted envelope, with no email-keyed user query, reset token, audit event or mail before the worker runs. Worker delivery and reset completion are tested separately. NOT compared: response timing, the rate limit (see password-reset-rate-limit), locked, unconfirmed and enterprise-policy accounts, and the generated-host UI (the example host is hand-maintained; install smoke supplies generated-host evidence). No timing equivalence or constant-time claim is made.",
+      "todo": null,
       "blocker": null
     },
     {
@@ -59,8 +59,8 @@
         "result"
       ],
       "state": "parity",
-      "note": "Identity = the email an anonymous visitor puts in the resend event payload: an existing, still-unconfirmed account versus an address never stored. The resend handler takes its target from the session user and ignores the payload, so this row proves a visitor-supplied identity is ignored, not that an email-keyed resend form exists: no email-keyed resend form exists in the example or in the generated page, and nothing here covers one. One anonymous resend event with the email in its payload, fresh state. Compares the reported redirect outcome (302), the redirect location, the flash read from the redirect (an error asking the visitor to log in), the followed login page body after normalizing only CSRF tokens, request ids and the echoed email, and the number of confirmation tokens created for that email (zero for both). NOT compared: a signed-in visitor's own resend (the session owner's account, not an enumeration channel), response timing, rate limits, the code-entry path, and the generated host (its LiveView confirm flow was repaired in Phase 246 and renders a sign-in-required state in place for an anonymous visitor, which differs from this example's flash-and-redirect; nothing about the generated host is claimed). This row proves a payload email is ignored and is counted separately from the account-existence surfaces (password-signin, magic-link-request, password-reset-request) by the named-surface rule in the parity test; it can never satisfy or substitute for them.",
-      "todo": ".planning/todos/pending/2026-09-15-generated-confirm-routes-unreachable-both-session-states.md",
+      "note": "Identity = the email an anonymous visitor puts in the resend event payload: an existing, still-unconfirmed account versus an address never stored. The resend handler takes its target from the session user and ignores the payload, so this row proves a visitor-supplied identity is ignored, not that an email-keyed resend form exists: no email-keyed resend form exists in the example or in the generated page, and nothing here covers one. One anonymous resend event with the email in its payload, fresh state. Compares the reported redirect outcome (302), the redirect location, the flash read from the redirect (an error asking the visitor to log in), the followed login page body after normalizing only CSRF tokens, request ids and the echoed email, and the number of confirmation tokens created for that email (zero for both). NOT compared: a signed-in visitor's own resend (the session owner's account, not an enumeration channel), response timing, rate limits, or the code-entry path. This row is example-host evidence only; a separate generated-host install-smoke probe covers LiveView confirmation plus the generated controller actions, and a generator contract test checks the --no-live routes stay outside the authenticated-user redirect pipeline. This row proves a payload email is ignored and is counted separately from the account-existence surfaces (password-signin, magic-link-request, password-reset-request) by the named-surface rule in the parity test; it can never satisfy or substitute for them.",
+      "todo": null,
       "blocker": null
     },
     {
@@ -84,9 +84,9 @@
       "compare": [
         "result"
       ],
-      "state": "known_divergence",
-      "note": "Identity = whether the submitted email belongs to an account, over repeated attempts. Known divergence, asserted at library level: after the configured lockout threshold of wrong passwords an existing account returns the account_locked error with its own safe message, while an unknown email returns the invalid_credentials error on every attempt because Sigra.Lockout.check/2 returns :ok for a nil user. The example sign-in controller maps every error to one flash, so its HTTP response is the same after the threshold (asserted separately); a host that renders the library safe message would expose the difference. Fixing the library behaviour must change or remove this row.",
-      "todo": ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
+      "state": "parity",
+      "note": "Identity = whether the submitted email belongs to an account, over repeated attempts. After the configured lockout threshold, the library returns the same invalid_credentials result and safe message for a locked existing account and an unknown email; lockout details remain in audit and telemetry. The example sign-in controller also returns the same response. A separate auth unit test proves both config-based paths invoke the configured no-user verifier once; this probe compares only the library result after the configured number of wrong-password attempts. End-to-end timing and other account states are not compared.",
+      "todo": null,
       "blocker": null
     },
     {
@@ -99,9 +99,9 @@
         "flash",
         "body"
       ],
-      "state": "known_divergence",
-      "note": "Identity = whether the submitted email belongs to an account (existing = duplicate registration, unknown = new registration). Known divergence, asserted: a new email sets the auto-sign-in trigger (phx-trigger-action on the form, no flash) while a duplicate email re-renders with only an info flash. The difference is inherent to signing a new account in. The duplicate path also returns faster than a new registration (timing oracle, tracked by the linked todo and not compared here). Fixing either must change or remove this row.",
-      "todo": ".planning/todos/pending/2026-11-13-duplicate-registration-timing-oracle.md",
+      "state": "parity",
+      "note": "Identity = whether the submitted email belongs to an account (existing = duplicate registration, unknown = new registration). For one valid registration submission, both cases re-render in place with the same info flash and page in the example host; status, redirect, flash and body are compared. Successful account creation still sends confirmation instructions, but email-delivery side effects and timing are not compared. Both paths hash the password before the database accepts or rejects the insert. The generated host is not covered by this example-host response probe; see the registration guide for the boundary.",
+      "todo": null,
       "blocker": null
     },
     {
@@ -127,9 +127,9 @@
         "status",
         "json_keys"
       ],
-      "state": "known_divergence",
-      "note": "Identity = whether the submitted email belongs to an account. Known divergence, asserted: an unknown email returns an object with the key error while an existing email returns an object with the key options, a real account-existence oracle present in the generated template and in the example host. Fixing it needs a template change and a golden rebless, which is out of scope here. The email-less conditional flow involves no identity and is asserted identical across two anonymous calls. This row is not parity and must not be cited as proof of enumeration safety.",
-      "todo": ".planning/todos/pending/2026-11-13-passkey-options-email-existence-oracle.md",
+      "state": "parity",
+      "note": "Passkey-primary options are discoverable and do not accept an account identifier. Existing and unknown email payloads return the same status and top-level JSON keys; both expose an empty allowCredentials list, asserted by the passkey controller test. Per-request challenges differ and are not compared.",
+      "todo": null,
       "blocker": null
     },
     {
@@ -150,31 +150,25 @@
       "id": "magic-link-rate-limit",
       "route": "Sigra.Auth.request_magic_link/3",
       "kind": "library",
-      "compare": [],
-      "state": "not_proven",
-      "note": "Identity = whether the submitted email belongs to an account, under repeated requests. Not proven: the library applies its optional rate limiter only to existing users (an unknown email returns before the limiter runs) and the generated controller swallows the rate_limited result. The example host passes no rate limiter, so the throttle cannot be driven and nothing is compared.",
-      "todo": ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
-      "blocker": "test/example/lib/example/accounts.ex:141 calls Sigra.Auth.request_magic_link/3 without :rate_limiter, so the example host has no throttle to drive; the existing-user-only limiter branch is lib/sigra/auth.ex:643"
+      "compare": [
+        "result"
+      ],
+      "state": "parity",
+      "note": "Identity = whether the submitted email belongs to an account when a configured limiter denies the request. The parity probe submits a real existing account and an unknown address through Sigra.Auth.request_magic_link/3 with the same denying limiter; both return the rate-limited result before account lookup. The result is the only compared dimension. Unthrottled token return values, timing and the production limiter policy are not compared.",
+      "todo": null,
+      "blocker": null
     },
     {
       "id": "password-reset-rate-limit",
       "route": "Sigra.Auth.request_password_reset/3",
       "kind": "library",
-      "compare": [],
-      "state": "not_proven",
-      "note": "Identity = whether the submitted email belongs to an account, under repeated requests. Not proven: the library applies its optional rate limiter only to existing users (the unknown-email branch runs first and returns early) and the controller ignores the rate_limited result. The example host passes no rate limiter, so the throttle cannot be driven and nothing is compared.",
-      "todo": ".planning/todos/pending/2026-11-13-lockout-and-rate-limit-enumeration-channels.md",
-      "blocker": "test/example/lib/example/accounts.ex:463 calls Sigra.Auth.request_password_reset/3 without :rate_limiter, so the example host has no throttle to drive; the existing-user-only limiter branch is lib/sigra/auth.ex:1131"
-    },
-    {
-      "id": "lib-moduledoc-claims",
-      "route": "lib/sigra/lockout.ex, lib/sigra/error.ex and lib/sigra/auth.ex documentation",
-      "kind": "library",
-      "compare": [],
-      "state": "not_proven",
-      "note": "Prose claims, not a request surface: no probe exists. Library moduledocs and docs state enumeration safety more broadly than the parity rows prove. Other over-claim sites: lib/sigra/error.ex:7 and :138-141, lib/sigra/auth.ex:16, :132, :613 and :1097. They cannot be edited in this phase (zero lib bytes), so they are tracked by the linked todo and bounded by the claims register.",
-      "todo": ".planning/todos/pending/2026-11-13-lib-moduledoc-enumeration-overclaims.md",
-      "blocker": "lib/sigra/lockout.ex:13 states that messages are enumeration-safe; a prose claim in a moduledoc is not a request surface, so no deterministic probe exists"
+      "compare": [
+        "result"
+      ],
+      "state": "parity",
+      "note": "Identity = whether the submitted email belongs to an account when a configured limiter denies the request. The parity probe submits a real existing account and an unknown address through Sigra.Auth.request_password_reset/3 with the same denying limiter; both return the rate-limited result before account lookup. The result is the only compared dimension. Unthrottled token return values, timing and the production limiter policy are not compared.",
+      "todo": null,
+      "blocker": null
     }
   ]
 }

@@ -75,6 +75,29 @@ defmodule Sigra.ConfigTest do
       assert config.rate_limiting[:ip_limit] == 10
       assert config.rate_limiting[:ip_window_ms] == 60_000
       assert config.rate_limiting[:account_limit] == 5
+      assert config.magic_link[:max_requests] == 3
+      assert config.magic_link[:window_seconds] == 900
+      assert config.reset[:max_requests] == 3
+      assert config.reset[:window_seconds] == 900
+    end
+
+    test "accepts email-flow request limits independently" do
+      config =
+        Config.new!(
+          repo: MyApp.Repo,
+          user_schema: MyApp.User,
+          rate_limiting: [limiter: MyApp.RateLimiter],
+          token_ttl: [reset_password: 1_800],
+          magic_link: [max_requests: 2, window_seconds: 60],
+          reset: [max_requests: 4, window_seconds: 120]
+        )
+
+      assert config.rate_limiting[:limiter] == MyApp.RateLimiter
+      assert config.token_ttl[:reset_password] == 1_800
+      assert config.magic_link[:max_requests] == 2
+      assert config.magic_link[:window_seconds] == 60
+      assert config.reset[:max_requests] == 4
+      assert config.reset[:window_seconds] == 120
     end
 
     test "accepts optional otp_app" do

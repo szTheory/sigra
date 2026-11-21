@@ -34,7 +34,7 @@ would run both roles in one Phoenix host, see the
 ```elixir
 defp deps do
   [
-    {:sigra, "~> 1.5.0"},
+    {:sigra, "~> 1.7.1"},
     {:lockspire, "~> 1.2"},
     # ... your other deps
   ]

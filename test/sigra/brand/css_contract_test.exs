@@ -224,6 +224,68 @@ defmodule Sigra.Brand.CssContractTest do
     end
   end
 
+  describe "focus visibility and hover edges" do
+    test "navigation controls expose the shared focus ring", %{css: css} do
+      for selector <- [".sg-scope-switch__item:focus-visible", ".sg-nav-link:focus-visible"] do
+        assert rule_bodies(css, selector) != []
+        assert declares?(css, selector, "box-shadow", "var(--sg-focus-ring)")
+      end
+
+      app_css = File.read!(Path.join(@root, @example_app_css))
+
+      assert declares?(
+               app_css,
+               ".sg-scope-switch__item:focus-visible",
+               "box-shadow",
+               "var(--sg-focus-ring)"
+             )
+
+      assert declares?(
+               app_css,
+               ".sg-nav-link:focus-visible",
+               "box-shadow",
+               "var(--sg-focus-ring)"
+             )
+    end
+
+    test "control inputs use the control edge, not a divider line", %{css: css} do
+      app_css = File.read!(Path.join(@root, @example_app_css))
+
+      for selector <- [".sg-color-field__input", ".sg-cmdk__trigger"] do
+        assert declares?(css, selector, "border", "1px solid var(--sg-color-control-edge)")
+        assert declares?(app_css, selector, "border", "1px solid var(--sg-color-control-edge)")
+        refute declares?(css, selector, "border", "1px solid var(--sg-color-line)")
+      end
+    end
+
+    test "hover and selected states keep the 3:1 control edge while adding elevation", %{css: css} do
+      for selector <- [
+            ".sg-btn--secondary:hover",
+            ".sg-filter-chip:hover",
+            ".sg-filter-chip:has(input:checked)"
+          ] do
+        assert has_control_edge_layer?(css, selector)
+        assert has_elevation_layer?(css, selector)
+      end
+    end
+
+    test "the edge check rejects hover shadows that replace the control ring" do
+      planted = ".sg-btn--secondary:hover { box-shadow: var(--sg-elev-2); }"
+      refute has_control_edge_layer?(planted, ".sg-btn--secondary:hover")
+    end
+  end
+
+  describe "mobile navigation contrast" do
+    test "the bottom navigation uses a solid panel above scrolling content", %{css: css} do
+      assert declares?(css, ".sg-bottom-nav", "background", "var(--sg-color-panel)")
+
+      translucent =
+        ".sg-bottom-nav { background: color-mix(in oklab, var(--sg-color-panel) 94%, transparent); }"
+
+      refute declares?(translucent, ".sg-bottom-nav", "background", "var(--sg-color-panel)")
+    end
+  end
+
   describe "selected and current states (Phase 262)" do
     test "selected command rows use the selected surface and 2px edge tokens", %{css: css} do
       selector = ".sg-cmdk__item[aria-selected=\"true\"]"
@@ -371,6 +433,26 @@ defmodule Sigra.Brand.CssContractTest do
     end
   end
 
+  defp has_control_edge_layer?(css, selector) do
+    rule_bodies(css, selector)
+    |> Enum.any?(fn body ->
+      Enum.any?(declarations(body), fn
+        {"box-shadow", value} -> String.contains?(value, @control_edge_shadow)
+        _ -> false
+      end)
+    end)
+  end
+
+  defp has_elevation_layer?(css, selector) do
+    rule_bodies(css, selector)
+    |> Enum.any?(fn body ->
+      Enum.any?(declarations(body), fn
+        {"box-shadow", value} -> String.contains?(value, "var(--sg-elev-")
+        _ -> false
+      end)
+    end)
+  end
+
   # An opaque colour is a six-digit hex: no alpha channel, no var(), no function.
   defp opaque_hex?(value), do: Regex.match?(~r/\A#[0-9A-Fa-f]{6}\z/, value)
 
@@ -432,6 +514,15 @@ defmodule Sigra.Brand.CssContractTest do
     for %{selectors: listed, body: body} <- rules(css),
         Enum.all?(List.wrap(selectors), &(&1 in listed)),
         do: body
+  end
+
+  describe "theme switch contrast" do
+    test "theme buttons do not tween text or fill colors while the palette changes", %{css: css} do
+      selector = ".sg-theme-switch__button"
+
+      assert declares?(css, selector, "transition", "var(--sg-transition-press)")
+      refute declares?(css, selector, "transition", "var(--sg-transition-tone)")
+    end
   end
 
   # True when some rule listing every selector declares `property: value`.

@@ -1,8 +1,127 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Locator, type Page, type TestInfo } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
+import { writeFile } from 'node:fs/promises';
 import { contrastRatio } from '../helpers/brandContrast';
 import { assertBrandFontsLoaded } from '../helpers/brandFonts';
 import { hexToRgbString } from '../helpers/brandSource';
+
+type AxeDiagnosticCheck = {
+  group: 'any' | 'all' | 'none';
+  id: string;
+  message: string | null;
+  data?: unknown;
+  detail?: string;
+};
+
+type AxeIncompleteDiagnostic = {
+  rule: string;
+  target: AxeSelector;
+  reason: {
+    category: 'axe_could_not_determine';
+    checks: AxeDiagnosticCheck[];
+  };
+};
+
+type AxeSelector = string | string[];
+
+type AxeIncompleteInput = {
+  id: string;
+  nodes: Array<{
+    target: AxeSelector[];
+    any?: Array<{ id: string; message?: string; data?: unknown }>;
+    all?: Array<{ id: string; message?: string; data?: unknown }>;
+    none?: Array<{ id: string; message?: string; data?: unknown }>;
+  }>;
+};
+
+function mapAxeIncompleteNodes(rules: AxeIncompleteInput[]): AxeIncompleteDiagnostic[] {
+  return rules.flatMap((rule) => rule.nodes.flatMap((node) => {
+    const checks: AxeDiagnosticCheck[] = (['any', 'all', 'none'] as const).flatMap((group) =>
+      (node[group] ?? []).map((check) => {
+        let data: unknown;
+        if (check.data !== undefined) {
+          try {
+            data = JSON.parse(JSON.stringify(check.data));
+          } catch {
+            data = undefined;
+          }
+        }
+        const message = check.message ?? null;
+        return {
+          group,
+          id: check.id,
+          message,
+          ...(data === undefined ? {} : { data }),
+          ...(message === null && data === undefined
+            ? { detail: 'axe supplied no check detail' }
+            : {}),
+        };
+      }),
+    );
+
+    return node.target.map((target) => ({
+      rule: rule.id,
+      target,
+      reason: { category: 'axe_could_not_determine', checks },
+    }));
+  }));
+}
+
+test('Phase 264 axe incomplete mapper contract', () => {
+  const records = mapAxeIncompleteNodes([{
+    id: 'color-contrast',
+    nodes: [{
+      target: ['#branding-link', '.active-branding'],
+      any: [
+        { id: 'foreground', message: 'Text contrast could not be determined', data: { fgColor: '#777777' } },
+        { id: 'background', data: { bgColor: '#ffffff' } },
+      ],
+      all: [{ id: 'visible-text', message: 'Text was not visible' }],
+      none: [{ id: 'non-text-contrast' }],
+    }],
+  }]);
+
+  expect(records).toEqual([
+    {
+      rule: 'color-contrast',
+      target: '#branding-link',
+      reason: {
+        category: 'axe_could_not_determine',
+        checks: [
+          { group: 'any', id: 'foreground', message: 'Text contrast could not be determined', data: { fgColor: '#777777' } },
+          { group: 'any', id: 'background', message: null, data: { bgColor: '#ffffff' } },
+          { group: 'all', id: 'visible-text', message: 'Text was not visible' },
+          { group: 'none', id: 'non-text-contrast', message: null, detail: 'axe supplied no check detail' },
+        ],
+      },
+    },
+    {
+      rule: 'color-contrast',
+      target: '.active-branding',
+      reason: {
+        category: 'axe_could_not_determine',
+        checks: [
+          { group: 'any', id: 'foreground', message: 'Text contrast could not be determined', data: { fgColor: '#777777' } },
+          { group: 'any', id: 'background', message: null, data: { bgColor: '#ffffff' } },
+          { group: 'all', id: 'visible-text', message: 'Text was not visible' },
+          { group: 'none', id: 'non-text-contrast', message: null, detail: 'axe supplied no check detail' },
+        ],
+      },
+    },
+  ]);
+
+  const nestedTargetRecords = mapAxeIncompleteNodes([{
+    id: 'aria-prohibited-attr',
+    nodes: [{ target: [['iframe#admin-preview', 'body', '.nested-branding']] }],
+  }]);
+
+  expect(nestedTargetRecords).toEqual([{
+    rule: 'aria-prohibited-attr',
+    target: ['iframe#admin-preview', 'body', '.nested-branding'],
+    reason: { category: 'axe_could_not_determine', checks: [] },
+  }]);
+});
 
 // Phase 185 (AUDIT-INFRA): admin-design board-snapshot spec.
 //
@@ -39,6 +158,98 @@ async function waitForLiveViewReady(page: Page) {
   await assertBrandFontsLoaded(page);
 }
 
+async function createOrganization(page: Page, longLabel: boolean) {
+  const id = randomUUID().slice(0, 8);
+  const slug = `phase-264-${id}`;
+  const prefix = `Phase 264 ${id} `;
+  const name = longLabel
+    ? prefix + '🚀'.repeat(255 - Array.from(prefix).length)
+    : prefix.trimEnd();
+  if (longLabel) expect(Array.from(name).length).toBe(255);
+
+  await page.goto('/organizations');
+  await waitForLiveViewReady(page);
+  const nameInput = page.locator('input[name="organization[name]"]');
+  if ((await nameInput.count()) === 0) {
+    const newOrganization = page.getByRole('link', { name: 'New organization' });
+    if ((await newOrganization.count()) === 1) {
+      await newOrganization.click();
+      await waitForLiveViewReady(page);
+    } else {
+      const createDisclosure = page.getByText('Or create your own organization →', { exact: true });
+      await createDisclosure.click();
+    }
+  }
+  await expect(nameInput).toHaveCount(1);
+  await nameInput.fill(name);
+  await expect(page.locator('#slug-preview')).toHaveText(slug);
+  await page.getByRole('button', { name: 'Create organization' }).click();
+  await expect(page).toHaveURL(new RegExp(`/organizations/${slug}/members$`));
+  await waitForLiveViewReady(page);
+  await page.goto(`/admin/organizations/${slug}`);
+  await waitForLiveViewReady(page);
+  return { id, slug, name };
+}
+
+async function createLongOrganization(page: Page) {
+  return createOrganization(page, true);
+}
+
+async function measureAdminGeometry(page: Page) {
+  return page.evaluate(() => {
+    const read = (node: Element | null) => {
+      if (!node) return null;
+      const rect = node.getBoundingClientRect();
+      return {
+        clientWidth: node.clientWidth,
+        scrollWidth: node.scrollWidth,
+        rectWidth: Math.round(rect.width),
+      };
+    };
+    const shell = document.querySelector('.sg-admin-shell');
+    const nav = document.querySelector('.sg-admin-sidebar')?.clientWidth
+      ? document.querySelector('.sg-admin-sidebar')
+      : document.querySelector('.sg-bottom-nav');
+    const dialog = document.querySelector('.sg-cmdk__dialog');
+    const list = document.querySelector('.sg-cmdk__list');
+    return {
+      document: { clientWidth: document.documentElement.clientWidth, scrollWidth: document.documentElement.scrollWidth },
+      shell: read(shell),
+      navigation: read(nav),
+      scopeSwitch: read(document.querySelector('.sg-scope-switch')),
+      dialog: read(dialog),
+      list: read(list),
+    };
+  });
+}
+
+async function attachStateCoverage(
+  testInfo: TestInfo,
+  id: string,
+  observation: Record<string, unknown>,
+) {
+  const evidence = {
+    id,
+    test_ref: `test/example/priv/playwright/tests/admin-design.spec.ts#${testInfo.title}`,
+    project: testInfo.project.name,
+    viewport: testInfo.project.name === 'admin-design-mobile' ? 'mobile' : 'desktop',
+    ...observation,
+  };
+  await testInfo.attach(`phase264-coverage-${id}.json`, {
+    body: JSON.stringify(evidence, null, 2),
+    contentType: 'application/json',
+  });
+}
+
+function assertNoHorizontalOverflow(geometry: Awaited<ReturnType<typeof measureAdminGeometry>>) {
+  for (const [surface, measurement] of Object.entries(geometry)) {
+    if (!measurement) continue;
+    expect(measurement.scrollWidth, `${surface} horizontal overflow`).toBeLessThanOrEqual(
+      measurement.clientWidth + 1,
+    );
+  }
+}
+
 /**
  * Phase 35: axe a11y gate.
  * Phase 230 (FAST-02 / D-01): called once per design project from the
@@ -47,7 +258,7 @@ async function waitForLiveViewReady(page: Page) {
  * reached it in the same page state (beforeEach -> `/admin/_design` ->
  * nothing else), so the ~84 calls carried the rule coverage of one.
  */
-async function assertNoAxeViolations(page: Page, label: string) {
+async function assertNoAxeViolations(page: Page, label: string, testInfo?: TestInfo) {
   // Scope to the full WCAG 2.1/2.2 AA tag set (EN 301 549 legal floor) so the
   // gate is literally defensible against modern accessibility standards (D-07).
   // This is a full-document scan: `new AxeBuilder({ page })` below carries no
@@ -67,10 +278,42 @@ async function assertNoAxeViolations(page: Page, label: string) {
   // from the violations or read as a pass.
   // test.info() is the running test's TestInfo, so the call site and the declaration line
   // of the axe test (which contract tests pin verbatim) stay unchanged.
+  const incompleteDiagnostics = mapAxeIncompleteNodes(incomplete);
   test.info().annotations.push({
     type: 'axe-incomplete',
-    description: `${incomplete.length}: ${[...new Set(incomplete.map((rule) => rule.id))].sort().join(', ')}`,
+    description: JSON.stringify(incompleteDiagnostics),
   });
+  if (testInfo) {
+    const project = testInfo.project.name;
+    const theme = project.includes('dark') ? 'Dark' : project.includes('mobile') ? 'System' : 'Light';
+    const diagnosticEvidence = {
+      evidence: 'axe-incomplete-current-state-diagnostics; not a pass',
+      project,
+      theme,
+      surface: label,
+      state: 'rendered',
+      diagnostics: incompleteDiagnostics.map((diagnostic) => ({
+        project,
+        theme,
+        surface: label,
+        control: diagnostic.target,
+        state: 'rendered',
+        axe: diagnostic,
+      })),
+    };
+    const diagnosticsPath = testInfo.outputPath(`phase264-${project}-${theme.toLowerCase()}-admin-design-gallery-rendered-axe-incomplete.json`);
+    await writeFile(diagnosticsPath, JSON.stringify(diagnosticEvidence, null, 2));
+    await testInfo.attach('phase264-axe-incomplete-diagnostics.json', {
+      path: diagnosticsPath,
+      contentType: 'application/json',
+    });
+    const screenshotPath = testInfo.outputPath(`phase264-${project}-${theme.toLowerCase()}-admin-design-gallery-rendered.png`);
+    await page.screenshot({ path: screenshotPath });
+    await testInfo.attach('phase264-admin-design-gallery-current-state.png', {
+      path: screenshotPath,
+      contentType: 'image/png',
+    });
+  }
   const detail =
     violations.length === 0 ? '' : JSON.stringify(violations).slice(0, 2000);
   expect(violations, `${label}: axe violations\n${detail}`).toHaveLength(0);
@@ -264,6 +507,190 @@ test.describe('Design gallery board snapshots', () => {
     await waitForLiveViewReady(page);
   });
 
+  test('Phase 264 UI state coverage: route loading and error stay shell-owned', async ({ page }, testInfo) => {
+    await createLongOrganization(page);
+    const mobile = testInfo.project.name === 'admin-design-mobile';
+    const navigation = page.getByRole('navigation', {
+      name: mobile ? 'Admin bottom nav' : 'Admin navigation',
+    });
+    const navigationLink = navigation.getByRole('link').first();
+    const scopeSummary = page.locator('.sg-scope-switch > summary');
+    const shell = page.locator('.sg-admin-shell');
+
+    await page.evaluate(() => window.dispatchEvent(
+      new CustomEvent('phx:page-loading-start', { detail: { kind: 'redirect' } }),
+    ));
+    await expect.poll(() => shell.getAttribute('aria-busy')).toBe('true');
+    await expect.poll(() => page.locator('html').getAttribute('data-sg-admin-page-loading'))
+      .toBe('true');
+    await expect(navigationLink).toBeVisible();
+    await expect(scopeSummary).toBeVisible();
+    expect(await navigationLink.getAttribute('aria-busy')).toBeNull();
+    expect(await scopeSummary.evaluate((node) => node.tagName.toLowerCase())).toBe('summary');
+    await attachStateCoverage(testInfo, 'UI-01', {
+      state: 'route-loading',
+      shell_busy: await shell.getAttribute('aria-busy'),
+      loading_root: await page.locator('html').getAttribute('data-sg-admin-page-loading'),
+      loading_rail_count: await page.locator('[data-sg-admin-loading-bar]').count(),
+      navigation_control: await navigationLink.innerText(),
+    });
+    await attachStateCoverage(testInfo, 'UI-05', {
+      state: 'route-loading',
+      shell_busy: await shell.getAttribute('aria-busy'),
+      scope_control: await scopeSummary.innerText(),
+      scope_control_role: 'summary',
+    });
+
+    await page.evaluate(() => window.dispatchEvent(
+      new CustomEvent('phx:page-loading-stop', { detail: { kind: 'patch' } }),
+    ));
+    await expect.poll(() => shell.getAttribute('aria-busy')).toBeNull();
+    await page.evaluate(() => window.dispatchEvent(
+      new CustomEvent('phx:page-loading-start', { detail: { kind: 'patch' } }),
+    ));
+    await expect.poll(() => shell.getAttribute('aria-busy')).toBe('true');
+    await page.evaluate(() => window.dispatchEvent(
+      new CustomEvent('phx:page-loading-stop', { detail: { kind: 'error' } }),
+    ));
+    await expect.poll(() => shell.getAttribute('aria-busy')).toBeNull();
+    await expect.poll(() => page.locator('html').getAttribute('data-sg-admin-page-loading'))
+      .toBeNull();
+    await expect(navigationLink).toBeVisible();
+    await expect(scopeSummary).toBeVisible();
+    expect(await navigationLink.isEnabled()).toBe(true);
+    expect(await scopeSummary.evaluate((node) => node.tagName.toLowerCase())).toBe('summary');
+    const scopeMenu = page.locator('.sg-scope-switch__menu');
+    await expect(scopeMenu).toBeHidden();
+    await attachStateCoverage(testInfo, 'UI-02', {
+      state: 'route-error-reset',
+      shell_busy: await shell.getAttribute('aria-busy'),
+      loading_root: await page.locator('html').getAttribute('data-sg-admin-page-loading'),
+      navigation_control: await navigationLink.innerText(),
+      navigation_enabled: await navigationLink.isEnabled(),
+    });
+    await attachStateCoverage(testInfo, 'UI-06', {
+      state: 'route-error-reset',
+      shell_busy: await shell.getAttribute('aria-busy'),
+      scope_control: await scopeSummary.innerText(),
+      scope_control_role: 'summary',
+      scope_menu_hidden: await scopeMenu.isHidden(),
+    });
+  });
+
+  test('Phase 264 UI state coverage: long organization labels fit navigation and scope', async ({ page }, testInfo) => {
+    const { name } = await createLongOrganization(page);
+    const geometry = await measureAdminGeometry(page);
+    assertNoHorizontalOverflow(geometry);
+    const scopeSummary = page.locator('.sg-scope-switch > summary');
+    await expect(scopeSummary).toContainText(name);
+    const accessibleName = await scopeSummary.getAttribute('aria-label');
+    const summaryText = (await scopeSummary.innerText()).replace(/^⌂\s*/, '').trim();
+    expect(accessibleName ?? summaryText).toContain(name);
+    await attachStateCoverage(testInfo, 'UI-03', {
+      state: 'long-organization-navigation-geometry',
+      organization_name_length: Array.from(name).length,
+      geometry,
+    });
+    await attachStateCoverage(testInfo, 'UI-04', {
+      state: 'long-organization-accessible-context',
+      accessible_name: accessibleName ?? summaryText,
+      complete_name_preserved: (accessibleName ?? summaryText).includes(name),
+      geometry,
+    });
+
+    if (testInfo.project.name === 'admin-design-mobile') {
+      await scopeSummary.focus();
+      await page.keyboard.press('Enter');
+    } else {
+      await scopeSummary.click();
+    }
+    const scopeMenu = page.locator('.sg-scope-switch__menu');
+    await expect(scopeMenu).toBeVisible();
+    const currentTarget = scopeMenu.getByRole('link', { name: new RegExp(name) });
+    await expect(currentTarget).toBeVisible();
+    await expect(currentTarget).toContainText(name);
+    const scopeGeometry = await measureAdminGeometry(page);
+    assertNoHorizontalOverflow(scopeGeometry);
+    await attachStateCoverage(testInfo, 'UI-07', {
+      state: 'long-organization-scope-switch',
+      accessible_name: await currentTarget.innerText(),
+      complete_name_preserved: (await currentTarget.innerText()).includes(name),
+      geometry: scopeGeometry,
+      keyboard_outcome: testInfo.project.name === 'admin-design-mobile' ? 'Enter opened scope menu' : 'mouse opened scope menu',
+    });
+  });
+
+  test('Phase 264 UI state coverage: command palette cardinality and long-label keyboard selection', async ({ page }, testInfo) => {
+    const { name, slug } = await createLongOrganization(page);
+    const paletteTrigger = page.getByRole('button', { name: 'Open command palette' });
+    if (testInfo.project.name === 'admin-design-mobile') {
+      await paletteTrigger.focus();
+      await page.keyboard.press('Enter');
+    } else {
+      await paletteTrigger.click();
+    }
+    const dialog = page.getByRole('dialog', { name: 'Command palette' });
+    const input = dialog.getByRole('textbox', { name: 'Find a user or jump to a page' });
+    const options = dialog.getByRole('option');
+    await expect(options).toHaveCount(3);
+    await expect(dialog.locator('[role="option"][aria-selected="true"]')).toHaveCount(1);
+    const threeResultLabels = await options.allInnerTexts();
+    await attachStateCoverage(testInfo, 'UI-16', {
+      state: 'command-palette-populated',
+      option_count: await options.count(),
+      selected_count: await dialog.locator('[role="option"][aria-selected="true"]').count(),
+    });
+
+    await input.fill('Investigate audit');
+    await expect(options).toHaveCount(1);
+    await expect(dialog.locator('[role="option"][aria-selected="true"]')).toHaveCount(1);
+    const oneMatch = await options.first().innerText();
+    await input.fill('no-such-phase264-command');
+    await expect(options).toHaveCount(0);
+    const emptyRow = dialog.locator('.sg-cmdk__empty');
+    await expect(emptyRow).toHaveText('Press Enter to find users matching "no-such-phase264-command"');
+    await attachStateCoverage(testInfo, 'UI-13', {
+      state: 'command-palette-zero-results',
+      option_count: await options.count(),
+      empty_row: await emptyRow.innerText(),
+    });
+
+    await input.fill('Review');
+    await expect(options).toHaveCount(1);
+    await expect(dialog.locator('[role="option"][aria-selected="true"]')).toHaveCount(1);
+    await attachStateCoverage(testInfo, 'UI-19', {
+      state: 'command-palette-zero-one-three',
+      counts: { zero: 0, one: 1, three: 3 },
+      one_match: oneMatch,
+      three_result_labels: threeResultLabels,
+    });
+
+    const commandLabel = `Review ${name} overview`;
+    await input.fill(commandLabel);
+    await expect(options).toHaveCount(1);
+    const overviewOption = dialog.getByRole('option', { name: commandLabel, exact: true });
+    await expect(overviewOption).toBeVisible();
+    await expect(overviewOption).toHaveText(commandLabel);
+    const geometry = await measureAdminGeometry(page);
+    assertNoHorizontalOverflow(geometry);
+    await attachStateCoverage(testInfo, 'UI-18', {
+      state: 'long-command-label-geometry',
+      accessible_name: await overviewOption.innerText(),
+      geometry,
+    });
+    await input.focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(new RegExp(`/admin/organizations/${slug}$`));
+    await waitForLiveViewReady(page);
+    await attachStateCoverage(testInfo, 'UI-20', {
+      state: 'long-command-keyboard-selection',
+      accessible_name: commandLabel,
+      complete_name_preserved: commandLabel.includes(name),
+      keyboard_outcome: 'Enter navigated to organization overview',
+      geometry,
+    });
+  });
+
   test('selected command rows and current tabs use the brand tokens in every theme', async ({
     page,
   }, testInfo) => {
@@ -283,6 +710,12 @@ test.describe('Design gallery board snapshots', () => {
       const themeRadio = page.getByRole('radio', { name: theme, exact: true });
       await themeRadio.click();
       await expect(themeRadio).toHaveAttribute('aria-checked', 'true');
+      const themeSwitchTransition = await themeRadio.evaluate(
+        (node) => getComputedStyle(node).transitionProperty,
+      );
+      expect(themeSwitchTransition, `${theme} theme switch keeps label contrast during palette changes`)
+        .not.toContain('color');
+      expect(themeSwitchTransition).not.toContain('background-color');
 
       const currentTab = page.locator('.sg-tabs__tab[aria-current="page"]');
       await expect(currentTab).toBeVisible();
@@ -302,6 +735,18 @@ test.describe('Design gallery board snapshots', () => {
         exact: true,
       });
       await expect(brandingLink).toHaveAttribute('aria-current', 'page');
+
+      if (mobile) {
+        // Inactive bottom-nav labels use the muted token too. They must switch
+        // immediately with the panel ground; animating their color can expose
+        // a dark-on-dark frame while changing themes.
+        const bottomNavItems = brandingNavigation.locator('.sg-bottom-nav__item');
+        await expect(bottomNavItems).toHaveCount(4);
+        for (const item of await bottomNavItems.all()) {
+          expect(await item.evaluate((node) => getComputedStyle(node).transitionProperty))
+            .not.toContain('color');
+        }
+      }
 
       // Phase 262 follow-up: keep the real admin controls readable in every
       // resolved theme. The earlier exploratory 2.83:1 result sampled the
@@ -330,6 +775,18 @@ test.describe('Design gallery board snapshots', () => {
       ).toBeGreaterThanOrEqual(4.5);
 
       const saveButton = page.getByRole('button', { name: 'Save profile' });
+      const brandingTransitions = await brandingLink.evaluate(
+        (node) => getComputedStyle(node).transitionProperty,
+      );
+      const saveButtonTransitions = await saveButton.evaluate(
+        (node) => getComputedStyle(node).transitionProperty,
+      );
+      expect(brandingTransitions, `${theme} active Branding link keeps contrast during theme changes`)
+        .not.toContain('color');
+      expect(brandingTransitions).not.toContain('background-color');
+      expect(saveButtonTransitions, `${theme} Save profile keeps contrast during theme changes`)
+        .not.toContain('color');
+      expect(saveButtonTransitions).not.toContain('background-color');
       const expectedButtonForeground = await tokenColor(saveButton, '--sg-color-on-brand');
       const expectedButtonBackground = await tokenColor(saveButton, '--sg-color-brand');
       await expect.poll(() => saveButton.evaluate((node) => getComputedStyle(node).color))
@@ -344,6 +801,7 @@ test.describe('Design gallery board snapshots', () => {
         contrastRatio(saveButtonColors.foreground, saveButtonColors.background),
         `${theme} Save profile button contrast`,
       ).toBeGreaterThanOrEqual(4.5);
+      await assertNoAxeViolations(page, `${theme} auth branding editor`);
       await page.goto('/admin/_design');
       await waitForLiveViewReady(page);
       await page.getByRole('button', { name: 'Open command palette' }).click();
@@ -387,8 +845,182 @@ test.describe('Design gallery board snapshots', () => {
   // so it runs on every lane, including PR. What is lost: per-board axe
   // failure attribution in the test name — a violation still names the
   // offending DOM selector, so the board is identifiable from axe's output.
-  test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }) => {
-    await assertNoAxeViolations(page, 'design-gallery');
+  test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }, testInfo) => {
+    await assertNoAxeViolations(page, 'design-gallery', testInfo);
+  });
+
+  test('Phase 264 mobile bottom navigation is Tab reachable', async ({ page }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== 'admin-design-chromium',
+      'Exercise the mobile layout in Chromium, where browser Tab traversal is available.',
+    );
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    const firstBottomNavLink = page.locator('.sg-bottom-nav__item').first();
+    await expect(firstBottomNavLink).toBeVisible();
+    const handle = await firstBottomNavLink.elementHandle();
+    expect(handle, 'first mobile navigation item exists').not.toBeNull();
+
+    for (let i = 0; i < 120; i += 1) {
+      await page.keyboard.press('Tab');
+      if (await handle!.evaluate((node) => document.activeElement === node)) {
+        expect(await handle!.evaluate((node) => node.matches(':focus-visible'))).toBe(true);
+        return;
+      }
+    }
+
+    throw new Error('Tab traversal did not reach the first mobile bottom-navigation link');
+  });
+
+  test('Phase 264 audited control affordances', async ({ page }, testInfo) => {
+    const measurements: Array<Record<string, string | boolean>> = [];
+    const settle = (target: Locator) =>
+      target.evaluate((node) => Promise.all(node.getAnimations().map((animation) => animation.finished.catch(() => null))));
+    const focusByKeyboard = async (target: Locator) => {
+      const handle = await target.elementHandle();
+      expect(handle, 'audited control exists before keyboard focus').not.toBeNull();
+      if (testInfo.project.name.includes('mobile')) {
+        // The iPhone WebKit preset excludes links from default Tab traversal
+        // unless the OS-level Full Keyboard Access setting is enabled. Enter
+        // keyboard modality, then focus the mobile link directly so this lane
+        // still verifies its :focus-visible ring without claiming to test the
+        // platform's keyboard traversal setting.
+        await page.keyboard.press('Tab');
+        await target.focus();
+        return;
+      }
+      for (let attempt = 0; attempt < 120; attempt += 1) {
+        await page.keyboard.press('Tab');
+        if (await handle!.evaluate((node) => node === document.activeElement)) return;
+      }
+      throw new Error('Keyboard traversal did not reach the audited control');
+    };
+    const tokenColor = (token: string) =>
+      page.locator('.sg-admin-shell').evaluate((shell, name) => {
+        const probe = document.createElement('span');
+        probe.style.color = `var(${name})`;
+        shell.appendChild(probe);
+        const value = getComputedStyle(probe).color;
+        probe.remove();
+        return value;
+      }, token);
+    const expectedRing = () =>
+      page.locator('.sg-admin-shell').evaluate((shell) => {
+        const probe = document.createElement('span');
+        probe.style.boxShadow = 'var(--sg-focus-ring)';
+        shell.appendChild(probe);
+        const value = getComputedStyle(probe).boxShadow;
+        probe.remove();
+        return value;
+      });
+    const assertFocusRing = async (target: Locator, theme: string, control: string) => {
+      await focusByKeyboard(target);
+      await settle(target);
+      await expect(target, `${theme} ${control} receives keyboard focus`).toBeFocused();
+      expect(await target.evaluate((node) => node.matches(':focus-visible'))).toBe(true);
+      const style = await target.evaluate((node) => {
+        const computed = getComputedStyle(node);
+        return { boxShadow: computed.boxShadow, outlineStyle: computed.outlineStyle };
+      });
+      expect(style.boxShadow, `${theme} ${control} uses the shared focus ring`).toBe(await expectedRing());
+      expect(style.outlineStyle, `${theme} ${control} avoids a conflicting native outline`).toBe('none');
+      measurements.push({
+        surface: 'admin-shell',
+        control,
+        state: 'focus-visible',
+        theme,
+        ring: style.boxShadow,
+        outline: style.outlineStyle,
+        focused: true,
+      });
+    };
+
+    // The example DB can already give this user an organization. Reuse the
+    // shared setup helper so the audit works from the picker, invitation, and
+    // first-organization branches instead of assuming an empty account.
+    const { slug: organizationSlug } = await createOrganization(page, false);
+
+    for (const theme of ['Light', 'Dark', 'System'] as const) {
+      await page.goto(`/admin/organizations/${organizationSlug}`);
+      await waitForLiveViewReady(page);
+      const themeRadio = page.getByRole('radio', { name: theme, exact: true });
+      await themeRadio.click();
+      await expect(themeRadio).toHaveAttribute('aria-checked', 'true');
+
+      const mobileProject = testInfo.project.name.includes('mobile');
+      const navigationSelector = mobileProject
+        ? '.sg-bottom-nav__item:visible'
+        : '.sg-nav-link:visible';
+      const navLink = page.locator(navigationSelector).first();
+      const navigationControl = mobileProject
+        ? 'mobile-admin-navigation-link'
+        : 'admin-navigation-link';
+      await assertFocusRing(navLink, theme, navigationControl);
+
+      const scopeSummary = page.locator('.sg-scope-switch > summary:visible');
+      await expect(scopeSummary, `${theme} scope switch is available`).toBeVisible();
+      if (mobileProject) {
+        await focusByKeyboard(scopeSummary);
+        await page.keyboard.press('Enter');
+      } else {
+        await scopeSummary.click();
+      }
+      const scopeItem = page.locator('.sg-scope-switch__item:visible').first();
+      await expect(scopeItem, `${theme} scope switch has an option`).toBeVisible();
+      await assertFocusRing(scopeItem, theme, 'admin-scope-switch-item');
+
+      await page.goto('/admin/auth-branding?panel=dark');
+      await waitForLiveViewReady(page);
+      const brandingThemeRadio = page.getByRole('radio', { name: theme, exact: true });
+      await brandingThemeRadio.click();
+      await expect(brandingThemeRadio).toHaveAttribute('aria-checked', 'true');
+
+      const colorInput = page.locator('.sg-color-field__input:visible').first();
+      await expect(colorInput, `${theme} branding color field is visible`).toBeVisible();
+      const colorEdge = await colorInput.evaluate((node) => getComputedStyle(node).borderTopColor);
+      expect(colorEdge, `${theme} branding color field uses the control edge`).toBe(
+        await tokenColor('--sg-color-control-edge'),
+      );
+      measurements.push({
+        surface: 'auth-branding',
+        control: 'branding-color-field',
+        state: 'resting-edge',
+        theme,
+        edge: colorEdge,
+      });
+      await assertFocusRing(colorInput, theme, 'branding-color-field');
+
+      const paletteTrigger = page.getByRole('button', { name: 'Open command palette' });
+      await expect(paletteTrigger, `${theme} command palette trigger is visible`).toBeVisible();
+      const paletteEdge = await paletteTrigger.evaluate((node) => getComputedStyle(node).borderTopColor);
+      expect(paletteEdge, `${theme} command palette uses the control edge`).toBe(
+        await tokenColor('--sg-color-control-edge'),
+      );
+      measurements.push({
+        surface: 'admin-shell',
+        control: 'command-palette-trigger',
+        state: 'resting-edge',
+        theme,
+        edge: paletteEdge,
+      });
+      await assertFocusRing(paletteTrigger, theme, 'command-palette-trigger');
+
+      const image = await page.screenshot();
+      const imagePath = testInfo.outputPath(`phase264-${theme.toLowerCase()}-admin-controls.png`);
+      await writeFile(imagePath, image);
+      await testInfo.attach(`phase264-${theme.toLowerCase()}-admin-controls.png`, {
+        path: imagePath,
+        contentType: 'image/png',
+      });
+    }
+
+    const measurementsPath = testInfo.outputPath('phase264-admin-control-measurements.json');
+    const evidence = JSON.stringify({ evidence: 'current-state-capture; no pixel parity claim', measurements }, null, 2);
+    await writeFile(measurementsPath, evidence);
+    await testInfo.attach('phase264-admin-control-measurements.json', {
+      path: measurementsPath,
+      contentType: 'application/json',
+    });
   });
 
   // BTOK-03 (Phase 261): the non-text 3:1 contrast checks axe cannot make. axe

@@ -42,10 +42,12 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   // Wait for the server-rendered strength label so the phx-change validation has landed before submit.
   await expect(page.getByRole('status')).toBeVisible();
   await page.click('button:has-text("Create an account")');
-  // After successful register, the form trigger_submit reposts to
-  // /users/log_in?_action=registered which logs the user in. Expect to land
-  // somewhere non-register.
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  // Registration leaves the visitor signed out and shows the same response
+  // used for duplicate addresses. Confirmation is still delivered for new users.
+  await expect(
+    page.getByText(/If an account can be created for this email/),
+  ).toBeVisible();
+  await expect(page).toHaveURL(/\/users\/register/);
 
   // --- 2. Confirm via dev mailbox ---
   const confirmHref = await extractConfirmationLink(page, email);
@@ -57,16 +59,12 @@ test('full user lifecycle: register → confirm → login → sessions → sudo 
   // on `/` (PageController, not a LiveView).
   await expect(page).not.toHaveURL(/\/users\/confirm\//);
 
-  // --- 3. Login (if not already authed) ---
+  // --- 3. Sign in manually after registration and confirmation ---
   await page.goto('/users/log_in');
-  // The login page is a plain controller (post plan 04). If we are already
-  // logged in, the :redirect_if_user_is_authenticated scope redirects away.
-  if (page.url().includes('/users/log_in')) {
-    await page.fill('#login_form input[name="user[email]"]', email);
-    await page.fill('#login_form input[name="user[password]"]', password);
-    await loginSubmit(page).click();
-    await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
-  }
+  await page.fill('#login_form input[name="user[email]"]', email);
+  await page.fill('#login_form input[name="user[password]"]', password);
+  await loginSubmit(page).click();
+  await expect(page).not.toHaveURL(/\/users\/log_in(\?|$)/);
 
   // --- 4. Sessions list (proves B6 unification: login wrote to user_sessions) ---
   // Auth.SessionLive :index — LiveView.

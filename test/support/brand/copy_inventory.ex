@@ -8,9 +8,10 @@ defmodule Sigra.Test.Brand.CopyInventory do
 
     * `:host` - `Sigra.Branding.Profile` default strings, plus one row stating
       that host-owned CSS and logos carry no Sigra copy.
-    * `:generated` - copy in the installer templates under
-      `priv/templates/sigra.install/`: `dgettext("sigra", ...)` msgids, literal
-      `put_flash` messages, HEEx text nodes inside `~H` blocks, and literal
+    * `:generated` - copy in installer templates under
+      `priv/templates/sigra.install/` and OAuth generator templates under
+      `priv/templates/sigra.gen.oauth/`: `dgettext("sigra", ...)` msgids, literal
+      `put_flash` messages, HEEx text nodes inside `~H` blocks and `.heex` files, and literal
       multi-word text in the email builders. Browser-side copy in the `.js`
       hooks, HEEx attribute values, and raw string literals outside those forms
       (error response bodies, keyword values) are not extracted. The header of
@@ -55,6 +56,7 @@ defmodule Sigra.Test.Brand.CopyInventory do
   @lanes [:host, :generated, :raw_auth, :library]
 
   @templates_dir "priv/templates/sigra.install"
+  @oauth_templates_dir "priv/templates/sigra.gen.oauth"
   @raw_auth_dirs ["core", "organizations", "passkeys"]
   @raw_auth_extensions [".ex", ".exs", ".js"]
   @raw_auth_literal ~r/"((?:[^"\\]|\\.)*)"/s
@@ -89,6 +91,7 @@ defmodule Sigra.Test.Brand.CopyInventory do
   # and are read with regexes only. Every other file type must be classified here:
   # an unknown type raises rather than being silently skipped.
   @elixir_template_exts [".ex", ".exs"]
+  @heex_template_exts [".heex"]
   @unextracted_template_exts [".css", ".svg", ".json", ".js"]
 
   # A double-quoted literal body: anything but an unescaped quote.
@@ -151,13 +154,16 @@ defmodule Sigra.Test.Brand.CopyInventory do
   end
 
   def extract(:generated) do
-    templates = Path.join(@root, @templates_dir)
+    [@templates_dir, @oauth_templates_dir]
+    |> Enum.flat_map(fn template_dir ->
+      templates = Path.join(@root, template_dir)
 
-    templates
-    |> Path.join("**/*")
-    |> Path.wildcard()
-    |> Enum.filter(&File.regular?/1)
-    |> Enum.flat_map(&template_rows(&1, Path.relative_to(&1, templates)))
+      templates
+      |> Path.join("**/*")
+      |> Path.wildcard()
+      |> Enum.filter(&File.regular?/1)
+      |> Enum.flat_map(&template_rows(&1, inventory_template_path(&1, template_dir, templates)))
+    end)
     |> normalize()
   end
 
@@ -281,7 +287,8 @@ defmodule Sigra.Test.Brand.CopyInventory do
   defp coverage_lines(:generated) do
     [
       "# Covered: dgettext(\"sigra\", ...) msgids, literal put_flash messages, text nodes of ~H",
-      "#   blocks, and multi-word literals in the email builders.",
+      "#   blocks and standalone .heex files, plus multi-word literals in the installer and OAuth",
+      "#   generator templates.",
       "# Not covered: browser-side copy in .js hooks (for example the passkey status messages),",
       "#   HEEx attribute values (aria-label, title, placeholder and similar), and raw string",
       "#   literals outside dgettext, put_flash, ~H text and the email builders (for example",
@@ -380,6 +387,13 @@ defmodule Sigra.Test.Brand.CopyInventory do
   end
 
   defp normalize(rows), do: rows |> Enum.uniq() |> Enum.sort()
+
+  # Keep the installer's existing short paths stable. New template families use
+  # repo-relative paths so their rows remain unambiguous and traceable.
+  defp inventory_template_path(path, @templates_dir, templates),
+    do: Path.relative_to(path, templates)
+
+  defp inventory_template_path(path, _template_dir, _templates), do: Path.relative_to(path, @root)
 
   defp remove(text, regex), do: Regex.replace(regex, text, "")
 
@@ -501,6 +515,14 @@ defmodule Sigra.Test.Brand.CopyInventory do
         flashes = for [_, text] <- Regex.scan(@flash_regex, code), do: {rel, "flash", text}
 
         msgids ++ flashes ++ heex_rows(rel, code) ++ email_rows(rel, code)
+
+      ext when ext in @heex_template_exts ->
+        path
+        |> File.read!()
+        |> remove(~r/<%%=.*%>/)
+        |> remove(@eex_tag)
+        |> heex_text_lines()
+        |> Enum.map(&{rel, "heex_text", &1})
 
       ext when ext in @unextracted_template_exts ->
         []

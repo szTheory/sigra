@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { loginSubmit } from "../helpers/loginSubmit";
+import { assertGenericRegistrationResponse } from "../helpers/registration";
 
 async function waitForLiveViewReady(page: Parameters<typeof test>[0]["page"]) {
   await page.waitForSelector("[data-phx-session].phx-connected", {
@@ -17,7 +18,7 @@ async function registerAndAuthenticateUser(
   await page.fill('input[name="user[email]"]', email);
   await page.fill('input[name="user[password]"]', password);
   await page.click('button:has-text("Create an account")');
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
 
   await page.goto("/users/log_in");
 
@@ -72,12 +73,16 @@ test("enrollment requests real passkey options from the served MFA settings page
     await expect(page).toHaveURL(/\/users\/settings\/mfa/);
     await waitForLiveViewReady(page);
 
-    const [optionsResponse, completionResponse] = await Promise.all([
-      page.waitForResponse(
+    const optionsResponsePromise = page
+      .waitForResponse(
         (response) =>
           response.url().includes("/users/settings/mfa/passkeys/options") &&
           response.request().method() === "POST",
-      ),
+      )
+      .then(async (response) => ({ response, payload: await response.json() }));
+
+    const [optionsResult, completionResponse] = await Promise.all([
+      optionsResponsePromise,
       page.waitForResponse(
         (response) =>
           response.url().includes("/users/settings/mfa/passkeys") &&
@@ -87,7 +92,11 @@ test("enrollment requests real passkey options from the served MFA settings page
       page.locator("#add-passkey-button").click(),
     ]);
 
+    const { response: optionsResponse, payload: optionsPayload } = optionsResult;
     expect(optionsResponse.status()).toBe(200);
+    expect(optionsPayload.options.authenticatorSelection.residentKey).toBe(
+      "required",
+    );
     expect(completionResponse.status()).toBe(302);
     expect(optionsResponse.request().method()).toBe("POST");
     expect(optionsResponse.headers()["content-type"] || "").toContain(

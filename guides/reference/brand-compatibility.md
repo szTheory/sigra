@@ -6,7 +6,7 @@ This guide states what the v1.51 brand identity adoption may and may not change 
 
 Sigra reaches an application through three channels: library code that updates with `mix deps.update`, templates generated into the host once at install, and host-owned files (stylesheets and logos) that are copied once and never refreshed. A visual or wording change travels differently through each channel, so the promise below is stated per lane.
 
-This guide covers the compatibility promise: which names and defaults are frozen, which surfaces may only grow, who decides the identity of each surface, how releases are numbered, and how an existing host upgrades. It does not describe a shipped visual change. No visual or copy change has shipped under this policy yet; the "Visual and copy changes" table in the upgrade notes fills in as each one lands. Token names are frozen; token values are a visual matter and follow the release treatment described below.
+This guide covers the compatibility promise: which names and defaults are frozen, which surfaces may only grow, who decides the identity of each surface, how releases are numbered, and how an existing host upgrades. The first shipped adoption under this policy is v1.51; the table below summarizes its changes, and the [v1.51 upgrade guide](../introduction/upgrading-to-v1.51.html) records the file-level message and token migrations. Token names are frozen; token values are a visual matter and follow the release treatment described below.
 
 The visual source is brand book v2.0 (2026-11-13), kept read-only in `brand/` in the Sigra repository.
 
@@ -87,12 +87,12 @@ Visual and copy changes ship in a minor release.
 - The release notes group these changes under a "Visual and copy changes" section.
 - Nothing is hand-added under CHANGELOG "Unreleased". The release tooling owns that block, and a hand-written note there ships inside the released package.
 
-Install-pin facts, verified on 2026-11-13 against live Hex:
+Install-pin facts, checked on 2026-11-17 against Hex:
 
-- Documented dependency snippets use a three-segment requirement, such as `~> 1.7.0`.
-- A two-segment requirement such as `~> 1.7` still resolves to the retired stray 1.20.0 release, because Hex retirement is advisory and 1.20.0 remains the latest stable version.
-- A three-segment requirement of `~> 1.7.0` resolved 1.7.1.
-- The value bump for the documented snippets belongs to Phase 263; until then a test enforces only the three-segment shape and that every snippet is identical.
+- Hex lists 1.7.1 as the newest non-retired Sigra release; 1.7.2 is not published, and the stray 1.20.0 release is retired.
+- A two-segment requirement such as `~> 1.7` can still select 1.20.0 because Hex retirement is advisory.
+- The documented snippets use `~> 1.7.1`, which bounds resolution to `>= 1.7.1 and < 1.8.0`. Pull-request CI checks that this requirement selects a non-retired release in an isolated scratch project.
+- The install-snippet contract enforces a three-segment shape and equality across every occurrence; it also keeps planted controls to prove the checks can fail.
 
 ## Upgrade notes
 
@@ -121,7 +121,7 @@ Generated files are never rewritten automatically. For a customized app, compare
 3. Adopt changes file by file, keeping host-specific product decisions.
 4. Exercise Light, Dark and System, keyboard focus and a narrow viewport before merging.
 
-The generated files that can change are the stylesheets, the logo files, the auth and email templates, and locale msgids. Which of them changed in a given release is filled in by the phase that changes it, in the table at the end of this section.
+The generated files that can change are the stylesheets, the logo files, the auth and email templates, and locale msgids. The table at the end of this section records the changes in v1.51; later releases add their own rows.
 
 ### 4. Host-owned files
 
@@ -129,7 +129,10 @@ Stylesheets and logos copied into the host at install are yours. Nothing refresh
 
 ### 5. Visual and copy changes
 
-No visual or copy change has shipped under this policy yet. Each release that changes one adds a row here.
+The v1.51 adoption changes the library's documentation identity, the default admin assets, and generated authentication wording. Existing host files are not overwritten. The [v1.51 upgrade guide](../introduction/upgrading-to-v1.51.html) contains the complete message-ID and token-value tables.
 
 | Change | Lane | Files | Action |
 |--------|------|-------|--------|
+| Admin theme values and lockups | Host-owned | `priv/static/assets/sigra_admin.css`; `priv/static/images/sigra-logo-primary.svg` and `sigra-logo-primary-dark.svg` | Compare the new generated assets with local edits, then selectively copy them. The installer does not refresh host-owned files; font tokens continue to inherit the host typeface. |
+| Authentication and email wording | Generated | `priv/templates/sigra.install/core/` | New installs receive the updated templates. Existing apps should compare a fresh install and adopt changes file by file; see the upgrade guide's message-ID table. |
+| README, HexDocs and package identity | Library-owned | `README.md`, `docs/assets/`, `mix.exs` | Update the dependency and review the release notes; no host files need to be copied. |

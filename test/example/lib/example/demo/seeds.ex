@@ -226,29 +226,35 @@ defmodule Example.Demo.Seeds do
           required(:password) => String.t()
         }) :: Ecto.Schema.t()
   defp upsert_user(persona) do
-    case Accounts.register_user(%{
-           email: persona.email,
-           display_name: persona.display_name,
-           password: persona.password
-         }) do
-      {:ok, user} ->
+    case Accounts.get_user_by_email(persona.email) do
+      %User{} = user ->
         user
 
-      {:error, :email_taken} ->
-        Accounts.get_user_by_email(persona.email)
+      nil ->
+        case Accounts.register_user(%{
+               email: persona.email,
+               display_name: persona.display_name,
+               password: persona.password
+             }) do
+          {:ok, user} ->
+            user
 
-      {:error, %Ecto.Changeset{} = cs} ->
-        # Check if this is an email-taken changeset (re-run scenario).
-        email_errors = Keyword.get(cs.errors, :email, [])
+          {:error, :email_taken} ->
+            Accounts.get_user_by_email(persona.email)
 
-        if Enum.any?(List.wrap(email_errors), fn
-             {msg, _} -> String.contains?(msg, "taken")
-             msg when is_binary(msg) -> String.contains?(msg, "taken")
-             _ -> false
-           end) do
-          Accounts.get_user_by_email(persona.email)
-        else
-          raise "Failed to register #{persona.email}: #{inspect(cs.errors)}"
+          {:error, %Ecto.Changeset{} = cs} ->
+            # Check if this is an email-taken changeset (re-run scenario).
+            email_errors = Keyword.get(cs.errors, :email, [])
+
+            if Enum.any?(List.wrap(email_errors), fn
+                 {msg, _} -> String.contains?(msg, "taken")
+                 msg when is_binary(msg) -> String.contains?(msg, "taken")
+                 _ -> false
+               end) do
+              Accounts.get_user_by_email(persona.email)
+            else
+              raise "Failed to register #{persona.email}: #{inspect(cs.errors)}"
+            end
         end
     end
   end

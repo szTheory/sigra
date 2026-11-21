@@ -38,10 +38,10 @@ floor.
 | Pillar | Definition | Source citation |
 |--------|------------|-----------------|
 | hierarchy/salience | Primary actions and key status signals must dominate attention; secondary elements recede | `admin-ui-principles.md` §Information Architecture — "make the next action obvious" |
-| restraint | Accent color and visual weight are spent only where they carry meaning | `admin-ui-principles.md` §Brand Application — "Ember accent is for … ownership-boundary emphasis. Do not use it for every heading or icon" |
-| ember-as-boundary | Ember (`#c2410c` light / `#fdba74` dark) marks Sigra identity, primary actions, selected states, and ownership-boundary highlights — it is a semantic signal, not decoration | `brandbook/brand-book.md` §Color — "Ember is for Sigra identity, primary CTAs, selected states, and ownership-boundary highlights" |
+| restraint | Accent color and visual weight are spent only where they carry meaning | `brand/BRAND.md` §Color — the Kiln square marks identity and meaningful actions; `admin-ui-principles.md` §Brand Application |
+| ember-as-boundary | The Kiln accent (`#C2410C` light / `#F08A55` dark) marks Sigra identity, primary actions, selected states, and ownership-boundary highlights — it is a semantic signal, not decoration | `brand/BRAND.md` §Color: light and dark accents; `brand/tokens.json` `color.light.kiln` / `color.dark.kiln-bright` |
 | consistency | Same job → same component; identical patterns across sibling surfaces | `admin-ui-principles.md` §Design System — "Same job means same component" |
-| typographic coherence | Type hierarchy is legible, unambiguous, and consistent with Space Grotesk weight conventions | `brandbook/brand-book.md` §Logo System — "wordmark is outlined from Space Grotesk v2.0 … wght=700" |
+| typographic coherence | Type hierarchy is legible, unambiguous, and follows the owner of each surface: Sigra uses Instrument Sans and Red Hat Mono; host chrome may retain its own face | `brand/BRAND.md` §Type and §Type: the hierarchy; the Tasklane host keeps Space Grotesk in host chrome |
 | dark/light emphasis parity | Emphasis signals (weight, color contrast, size) land with equal clarity in both light and dark themes; no emphasis that only works in one theme | `admin-ui-principles.md` §Theme And Motion — "Admin supports Light, Dark, and System" |
 | composition/balance | Gestalt grouping, whitespace rhythm, and visual weight are distributed so the layout reads as an intentional whole | `admin-ui-principles.md` §Design System — "8px visual rhythm derived from the 4px token scale" |
 
@@ -53,9 +53,9 @@ Identical to the persona rubric's 3-point scale.
 
 | Verdict | Anchor | Worked example |
 |---------|--------|----------------|
-| `keep` | Element earns its place visually; no change warranted | Ember border on a selected nav item is semantically correct ember-as-boundary; hierarchy/salience pillar is satisfied |
-| `tighten` | Visual problem exists but element has a purpose; edit, do not remove | An ember background chip on a secondary label — ember is present but the element is not a CTA or selection boundary; restraint pillar violated but the chip itself is useful |
-| `kill` | Visual element actively harms perception; remove or replace | A full-bleed ember header on a list page where no ownership boundary exists; ember-as-boundary and restraint pillars both violated; the signal is noise |
+| `keep` | Element earns its place visually; no change warranted | Kiln border on a selected nav item is semantically correct for the accent-boundary pillar; hierarchy/salience is satisfied |
+| `tighten` | Visual problem exists but the element has a purpose; edit, do not remove | A Kiln background chip on a secondary label — the accent is present but the element is not a CTA or selection boundary; restraint is violated but the chip itself is useful |
+| `kill` | Visual element actively harms perception; remove or replace | A full-bleed Kiln header on a list page where no ownership boundary exists; accent-boundary and restraint are both violated; the signal is noise |
 
 **Disposition rollup rule (worst-verdict across ALL 4 lenses):** A `kill` from any lens — the
 three persona lenses OR this graphic-design lens — is a `kill` for the element. A `tighten` and
@@ -97,66 +97,65 @@ action or the key status signal. If none, say so explicitly, including what you 
   mass (size, contrast, saturation) on the rendered output
 - A secondary navigation element or sibling surface link rendered at equivalent or greater
   weight than the primary content area
-- A status indicator, badge, or chip that radiates more visual energy (ember use, high contrast)
+- A status indicator, badge, or chip that radiates more visual energy (accent use, high contrast)
   than the key decision-bearing element, inverting the salience hierarchy
 
 **NONE path:** `NONE — searched for: <description of what was reviewed, e.g. "decorative
 elements competing with the primary CTA" or "secondary status chips dominating the KPI strip">`
 
 **Citation:** `admin-ui-principles.md` §Information Architecture — "make the next action
-obvious; Overview pages explain where to go next"; `brandbook/brand-book.md` §Design Principles
-— "Proof over mood: every visual claim should point back to a real capability"
+obvious; Overview pages explain where to go next"; `brand/BRAND.md` §Voice — plain and specific,
+and say what Sigra does not do
 
 ---
 
-### Q2: `emphasis_ember` — Is emphasis (especially ember) earning its meaning, or decorating?
+### Q2: `emphasis_ember` — Is the Kiln accent earning its meaning, or decorating?
 
 **`class = graphic_design:emphasis_ember`**
 
 **Named pillars:** restraint + ember-as-boundary
 
-**Target failure mode:** Semantic drift of the ember accent — used decoratively where no
+The stored `emphasis_ember` and `ember-as-boundary` keys are retained for panel compatibility; the current brand accent they evaluate is Kiln.
+
+**Target failure mode:** Semantic drift of the Kiln accent — used decoratively where no
 ownership boundary, primary action, or selection state exists; OR under-emphasis of
-meaning-bearing elements that should carry ember or strong weight and do not.
+meaning-bearing elements that should carry the accent or stronger weight and do not.
 
-**Brand-v2 ember values (cite these; ignore pre-v2 brand info):**
-- Light theme: `#c2410c` (CSS token `--sigra-accent`)
-- Dark theme: `#fdba74` (CSS token `--sigra-accent-strong` in dark mode)
-- Space Grotesk weight conventions apply to wordmarks and display headings (wght=700)
-- Core Rails visual identity: the rail-block mark + linked g-tail lockup
+**Current identity values:**
+- Light theme: Kiln `#C2410C` (`brand/tokens.json` `color.light.kiln`)
+- Dark theme: Kiln Bright `#F08A55` (`brand/tokens.json` `color.dark.kiln-bright`)
+- Sigra-owned type uses Instrument Sans and Red Hat Mono; Tasklane host chrome may retain Space Grotesk
+- The current mark is the `sigra` word with one plain square above the i, with no shape behind it or tagline inside it
 
-**Deferred to probe #4:** The structural allowlist of ember-bearing elements (which
-`data-testid` / `sg-*` selectors are permitted to carry ember) is owned by probe #4's ember
-structural allowlist. This question owns the perceptual half: whether a visible ember
+**Deferred to probe #4:** The structural allowlist of accent-bearing elements (which
+`data-testid` / `sg-*` selectors are permitted to carry the accent) is owned by probe #4's
+structural allowlist. This question owns the perceptual half: whether a visible Kiln accent
 application _reads_ as semantically meaningful on the rendered PNG (does it mark a boundary or
 a primary action?), and whether meaning-bearing elements that should be emphasized are
 visually undersold.
 
-**Refutation probe:** Name one place in this PNG where ember is applied decoratively (not at an
+**Refutation probe:** Name one place in this PNG where Kiln is applied decoratively (not at an
 ownership boundary, CTA, or selection state), OR name one meaning-bearing element that is
-under-emphasized (should carry ember or heavier weight and does not). If neither, say so
+under-emphasized (should carry the accent or stronger weight and does not). If neither, say so
 explicitly, including what you searched for.
 
 **What counts as an answer:**
 
-- Ember background or border applied to a display heading, illustrative element, or ambient
+- Kiln background or border applied to a display heading, illustrative element, or ambient
   section divider that does not mark a selection, action, or ownership boundary
-- Multiple unrelated elements in ember simultaneously, diluting the signal (restraint pillar
+- Multiple unrelated elements in Kiln simultaneously, diluting the signal (restraint pillar
   violated)
 - A primary CTA, selected nav item, or ownership-boundary component rendered in a neutral
-  color when ember would clarify the semantic role
-- Dark-theme rendering where `#fdba74` appears on a surface where it reads as decorative
-  warmth rather than semantic ownership signal (light/dark parity failure)
+  color when Kiln would clarify the semantic role
+- Dark-theme rendering where Kiln Bright is used decoratively instead of marking identity, a
+  primary action, selection, or ownership boundary (light/dark parity failure)
 
-**NONE path:** `NONE — searched for: <description, e.g. "decorative ember on section headings"
+**NONE path:** `NONE — searched for: <description, e.g. "decorative Kiln accents on section headings"
 or "under-emphasized primary CTA on the dark-theme screenshot">`
 
-**Citation:** `brandbook/brand-book.md` §Color — "Ember is for Sigra identity, primary CTAs,
-selected states, and ownership-boundary highlights. Do not use accent color for every icon or
-heading. Dark mode must use the lightened accent-strong token (#fdba74) for text on dark
-ember-soft surfaces"; `admin-ui-principles.md` §Brand Application — "Ember accent is for Sigra
-identity, primary actions, selected states, and ownership-boundary emphasis. Do not use it for
-every heading or icon"
+**Citation:** `brand/BRAND.md` §Color: Kiln on light and Kiln Bright on dark; `brand/tokens.json`
+`color.light.kiln` / `color.dark.kiln-bright`; `admin-ui-principles.md` §Brand Application for
+the admin accent's semantic use
 
 ---
 
@@ -200,16 +199,14 @@ each theme, including what you searched for.
 - Groupings that do not cohere (two related elements separated by unrelated elements; unrelated
   elements sharing a card boundary)
 - Body text weight or size that reads as a heading, or a heading rendered at body weight,
-  breaking the Space Grotesk typographic convention (typographic coherence pillar)
+  breaking the type hierarchy appropriate to that surface's owner (typographic coherence pillar)
 
 **NONE path:** `NONE — searched for: <description, e.g. "type-hierarchy inversion on the dark
 screenshot" or "gestalt grouping failures between the stat strip and the task cards">`
 
 **Citation:** `admin-ui-principles.md` §Design System — "8px visual rhythm derived from the
 4px token scale; same job means same component"; §Theme And Motion — "Admin supports Light,
-Dark, and System"; `brandbook/brand-book.md` §Layout — "8px visual rhythm; prefer full-width
-bands and constrained inner content; docs and README surfaces should prioritize scanning over
-drama"
+Dark, and System"; `brand/BRAND.md` §Type: the hierarchy for Sigra-owned type
 
 ---
 
@@ -303,7 +300,7 @@ findings:
 The document body contains one section per question, in order:
 
 1. `## Q1: Salience`
-2. `## Q2: Emphasis Ember`
+2. `## Q2: Kiln Accent`
 3. `## Q3: Composition`
 
 Each section contains the refutation prose + finding or NONE token. The forced-finding floor
@@ -420,12 +417,12 @@ bundle directory.
   cells are complete, anchors resolve, and NONE tokens are non-empty
 - `scripts/ci/evidence-anchor-check.mjs` — the `isStructuralAnchor` check used to validate
   every cited anchor before hashing the `finding_id`
-- `brandbook/brand-book.md` + `brandbook/tokens.css` — brand-v2 token source of truth (ember
-  `#c2410c` light / `#fdba74` dark; Space Grotesk; Core Rails)
+- `brand/BRAND.md` + `brand/tokens.json` — current identity, Kiln colors, Instrument Sans and
+  Red Hat Mono; host-owned chrome may keep its own typeface
 - `guides/reference/admin-ui-principles.md` — the admin-specific application rules this lens
   enforces perceptually
 
 ---
 
 Cross-reference: `admin-persona-jtbd-rubric.md`, `admin-fractal-scorecard.md`,
-`admin-quality-ledger.md`, `brandbook/brand-book.md`
+`admin-quality-ledger.md`, `brand/BRAND.md`

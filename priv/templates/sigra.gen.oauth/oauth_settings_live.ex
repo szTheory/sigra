@@ -83,7 +83,7 @@ defmodule <%= web_module %>.OAuthSettingsLive do
                   <button
                     phx-click="unlink"
                     phx-value-id={identity.id}
-                    data-confirm={"Unlink #{oauth_provider_name(safe_provider_atom(identity.provider))}? You'll still be able to log in with: #{@remaining_methods_text}."}
+                    data-confirm={"Unlink #{oauth_provider_name(safe_provider_atom(identity.provider))}? You'll still be able to sign in with: #{@remaining_methods_text}."}
                     class="text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-md px-3 py-1.5"
                   >
                     Unlink
@@ -106,7 +106,7 @@ defmodule <%= web_module %>.OAuthSettingsLive do
           <p class="text-sm text-gray-500 mt-4">
             No password set.
             <.link navigate={~p"<%= password_path %>"} class="text-brand hover:underline">Set a password</.link>
-            to enable email login and as a backup.
+            to enable email sign-in and as a backup.
           </p>
         <% end %>
 

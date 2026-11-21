@@ -7,19 +7,19 @@
         "rule": "overused-font",
         "value": "space grotesk",
         "createdAt": "2026-11-16T16:07:15.842Z",
-        "reason": "project decision: Phase 261-07 kept Space Grotesk for Tasklane host chrome because default.css inherits the app.css --font-sans override; see 261-07-SUMMARY.md"
+        "reason": "Owner-authorized exception: the Sigra host chrome intentionally uses Space Grotesk, and the Playwright font guard pins that face."
       },
       {
         "rule": "overused-font",
         "value": "fraunces",
         "createdAt": "2026-11-16T16:07:15.903Z",
-        "reason": "project decision: the Vaultr mini-brand intentionally uses Fraunces for display, distinct from Sigra; see 261-UI-SPEC.md Typography and app.css mini-brand comments"
+        "reason": "Owner-authorized exception: the separate Vaultr demo intentionally uses Fraunces for display, documented in its CSS tokens."
       },
       {
         "rule": "overused-font",
         "value": "inter",
         "createdAt": "2026-11-16T16:07:15.963Z",
-        "reason": "project decision: the Vaultr mini-brand intentionally uses Inter for body text, distinct from Sigra; see 261-UI-SPEC.md Typography and app.css mini-brand comments"
+        "reason": "Owner-authorized exception: the separate Vaultr demo intentionally uses Inter for body text, documented in its CSS tokens."
       },
       {
         "rule": "side-tab",

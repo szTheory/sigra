@@ -97,7 +97,7 @@ defmodule Sigra.Planning.Phase230DesignGallerySplitTest do
     spec = File.read!(@spec_path)
 
     assert spec =~
-             "test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }) => {",
+             "test('axe: full-page WCAG 2.1/2.2 AA on the design gallery', async ({ page }",
            "the dedicated full-page axe test must exist with this exact title so " <>
              "FAST-02's before/after CI proof can find it executing"
 

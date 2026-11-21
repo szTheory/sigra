@@ -2,6 +2,10 @@ import { readFile } from 'node:fs/promises';
 import { test, expect, type Download, type Page } from '@playwright/test';
 import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 import { TEST_PASSWORD } from '../helpers/fixtures';
+import {
+  assertGenericRegistrationResponse,
+  signInManually,
+} from '../helpers/registration';
 
 // Phase 31 Plan 2: canonical admin audit browser contract.
 //
@@ -35,7 +39,8 @@ async function registerUser(page: Page, email: string, password: string) {
   await page.locator('form:has(input[name="user[password]"])').first().evaluate((form) => {
     (form as HTMLFormElement).requestSubmit();
   });
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
+  await signInManually(page, email, password);
 }
 
 async function clearBrowserSession(page: Page) {

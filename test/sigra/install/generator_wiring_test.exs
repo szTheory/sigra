@@ -21,6 +21,10 @@ defmodule Sigra.Install.GeneratorWiringTest do
     passkeys?: true
   ]
 
+  defmodule RecoveryUrlEndpoint do
+    def url, do: "https://app.example.test"
+  end
+
   describe "generator file list includes Phase 3 templates" do
     test "emails.ex template exists" do
       assert File.exists?(Path.join(@template_dir, "emails.ex"))
@@ -56,6 +60,26 @@ defmodule Sigra.Install.GeneratorWiringTest do
   end
 
   describe "auth.ex template wiring" do
+    test "email request helpers receive configured limiter and per-flow windows" do
+      content = render_template("auth.ex")
+
+      assert content =~ "rate_limiter: Keyword.get(config.rate_limiting, :limiter)"
+      assert content =~ "max_requests: Keyword.get(config.magic_link, :max_requests, 3)"
+      assert content =~ "window_ms: Keyword.get(config.magic_link, :window_seconds, 900) * 1_000"
+      assert content =~ "max_requests: Keyword.get(config.reset, :max_requests, 3)"
+      assert content =~ "window_ms: Keyword.get(config.reset, :window_seconds, 900) * 1_000"
+      assert content =~ "magic_link_ttl: Keyword.get(config.magic_link, :ttl, 600)"
+
+      assert content =~
+               "reset_ttl = Keyword.get(sigra_config().token_ttl, :reset_password, 3_600)"
+
+      assert content =~ "reset_ttl: reset_ttl"
+      assert content =~ "rate_limiting: Keyword.get(runtime_config, :rate_limiting"
+      assert content =~ "token_ttl: Keyword.get(runtime_config, :token_ttl"
+      assert content =~ "magic_link: Keyword.get(runtime_config, :magic_link"
+      assert content =~ "reset: Keyword.get(runtime_config, :reset"
+    end
+
     test "contains Sigra.Auth.generate_confirmation_token call" do
       content = render_template("auth.ex")
       assert content =~ "Sigra.Auth.generate_confirmation_token(Repo, user,"
@@ -84,6 +108,40 @@ defmodule Sigra.Install.GeneratorWiringTest do
     test "contains Sigra.Auth.request_password_reset call" do
       content = render_template("auth.ex")
       assert content =~ "Sigra.Auth.request_password_reset(Repo, email,"
+    end
+
+    test "durable recovery helper uses the trusted configured dispatcher" do
+      content = render_template("auth.ex")
+
+      assert content =~ "def queue_recovery_request(operation, email)"
+      assert content =~ "Application.get_env(:my_app, :sigra_recovery, [])"
+      assert content =~ "dispatcher: dispatcher"
+      assert content =~ "Sigra.Recovery.enqueue(operation, email"
+      assert content =~ "def prepare_recovery_request(operation, address)"
+      assert content =~ "def deliver_recovery_request(%{email_type: email_type} = descriptor)"
+      assert content =~ "Sigra.Delivery.deliver_sync(email_type, descriptor"
+      assert content =~ "def recovery_secret_key_base"
+    end
+
+    test "recovery URLs map both operations to their email functions and existing paths" do
+      auth = render_template("auth.ex")
+      probe = compile_recovery_url_probe!(auth)
+
+      assert apply(probe, :url_for, [:reset, "token-123"]) ==
+               {:reset_password_email, "https://app.example.test/users/reset-password/token-123"}
+
+      assert apply(probe, :url_for, [:magic_link, "token-456"]) ==
+               {:magic_link_email, "https://app.example.test/users/log_in/token-456"}
+    end
+
+    test "magic-link verification rechecks current policy and MFA schema" do
+      content = render_template("auth.ex")
+
+      assert content =~ "authorize_fun: authorize_fun"
+      assert content =~ "password_login_allowed?"
+
+      assert content =~
+               "Sigra.MFA.enabled?(sigra_config(), user, mfa_credential_schema: UserMFACredential)"
     end
 
     test "register_user triggers confirmation email" do
@@ -120,6 +178,90 @@ defmodule Sigra.Install.GeneratorWiringTest do
     test "reset_user_password delegates to Sigra.Auth.reset_password" do
       content = render_template("auth.ex")
       assert content =~ "Sigra.Auth.reset_password(Repo, signed_token, attrs,"
+    end
+  end
+
+  describe "password reset request wiring" do
+    test "live and controller templates use queue-only admission and preserve the public response" do
+      live = render_template("reset_password_live.ex")
+      controller = render_template("reset_password_controller.ex")
+
+      assert live =~ "queue_recovery_request(:reset, email)"
+      assert controller =~ "queue_recovery_request(:reset, email)"
+      assert live =~ "invalid_request"
+      assert controller =~ "invalid_request"
+      assert live =~ "We couldn't send your request right now. Please try again later."
+      assert controller =~ "We couldn't send your request right now. Please try again later."
+      refute live =~ "deliver_user_reset_password_instructions("
+      refute controller =~ "deliver_user_reset_password_instructions("
+      refute live =~ "get_user_by_email(email)"
+      refute controller =~ "get_user_by_email(email)"
+    end
+  end
+
+  describe "generated recovery dispatcher contract" do
+    test "generated host variants parse with and without optional modules" do
+      templates = [
+        "auth.ex",
+        "session_controller.ex",
+        "reset_password_controller.ex",
+        "reset_password_live.ex"
+      ]
+
+      for options <- [
+            [organizations?: true, passkeys?: true],
+            [organizations?: false, passkeys?: false]
+          ],
+          name <- templates do
+        content = render_template(name, options)
+        assert {:ok, _ast} = Code.string_to_quoted(content), name
+
+        if options[:organizations?] and name in ["auth.ex", "session_controller.ex"] do
+          assert content =~ "MyApp.Organizations", name
+        else
+          refute content =~ "MyApp.Organizations", name
+        end
+      end
+    end
+
+    test "config and public magic-link route call durable dispatch and keep failure generic" do
+      auth = render_template("auth.ex")
+      session = render_template("session_controller.ex")
+
+      features_core =
+        File.read!(Path.join([File.cwd!(), "lib", "sigra", "install", "features", "core.ex"]))
+
+      assert session =~ "Auth.queue_recovery_request(:magic_link, email)"
+      assert session =~ "invalid_request"
+      assert session =~ "We couldn't send your request right now. Please try again later."
+      refute session =~ "Auth.request_magic_link(email, url_fun)"
+      assert auth =~ "def queue_recovery_request(operation, email)"
+      assert features_core =~ ":sigra_recovery"
+      assert features_core =~ ":recovery_hosts"
+      assert features_core =~ "Sigra.Recovery"
+      assert features_core =~ "sigra_recovery: 10"
+    end
+  end
+
+  describe "controller confirmation request wiring" do
+    test "code and resend actions handle anonymous visitors without dereferencing a missing scope" do
+      content = render_template("confirmation_controller.ex")
+
+      assert content =~ "case conn.assigns[:current_scope] do"
+      assert content =~ "Please sign in to confirm your email."
+      refute content =~ "conn.assigns.current_scope.user"
+    end
+  end
+
+  describe "registration changeset timing" do
+    test "registration hashes before the database uniqueness constraint" do
+      content = render_template("user.ex")
+      registration = content |> String.split("def registration_changeset", parts: 2) |> Enum.at(1)
+      registration = registration |> String.split("defp validate_email", parts: 2) |> hd()
+
+      assert registration =~ "validate_email(opts, false)"
+      assert content =~ "unique_constraint(changeset, :email, name: :users_email_active_index)"
+      assert content =~ "unsafe_validate_unique(changeset, :email, MyApp.Repo)"
     end
   end
 
@@ -187,7 +329,7 @@ defmodule Sigra.Install.GeneratorWiringTest do
 
     test "LiveView routes include reset password paths" do
       source = File.read!(@features_core_path)
-      assert source =~ ~s(live "/reset-password", ResetPasswordLive)
+      assert source =~ ~s(live "/reset-password", ResetPasswordLive, :new)
       assert source =~ ~s(live "/reset-password/:token", ResetPasswordLive, :edit)
     end
   end
@@ -230,8 +372,37 @@ defmodule Sigra.Install.GeneratorWiringTest do
 
   # -- Helpers --
 
-  defp render_template(name) do
+  defp render_template(name, overrides \\ []) do
     path = Path.join(@template_dir, name)
-    EEx.eval_file(path, @base_binding)
+    EEx.eval_file(path, Keyword.merge(@base_binding, overrides))
+  end
+
+  defp compile_recovery_url_probe!(source) do
+    definitions =
+      Regex.scan(~r/^  defp recovery_email_url\([^\n]+\),\n    do: [^\n]+/m, source)
+      |> Enum.map(&List.first/1)
+      |> Enum.map(fn definition ->
+        String.replace(
+          definition,
+          "MyAppWeb.Endpoint",
+          "Elixir.Sigra.Install.GeneratorWiringTest.RecoveryUrlEndpoint"
+        )
+      end)
+
+    if length(definitions) != 2 do
+      raise "expected both generated recovery_email_url/2 clauses"
+    end
+
+    probe = Module.concat(__MODULE__, "RecoveryUrlProbe#{System.unique_integer([:positive])}")
+
+    Code.compile_string("""
+    defmodule #{inspect(probe)} do
+      #{Enum.join(definitions, "\n")}
+
+      def url_for(operation, token), do: recovery_email_url(operation, token)
+    end
+    """)
+
+    probe
   end
 end

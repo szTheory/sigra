@@ -6,7 +6,7 @@ Sigra ships a complete registration flow: a LiveView form, a context function, A
 
 - **`MyAppWeb.UserRegistrationLive`** — generated LiveView that renders the form and submits to `Accounts.register_user/2`. You own it; edit the template freely.
 - **`MyApp.Accounts.register_user/2`** — the context function that calls `Sigra.Auth.register/3` with the generated changeset. This is where you add custom side effects (welcome email, analytics, billing signup).
-- **`MyApp.Accounts.User.registration_changeset/2`** — the Ecto changeset. Validates email format, password length, password complexity, and email uniqueness. Hashes the password via `Sigra.Crypto.hash_password/1` on `prepare_changes`.
+- **`MyApp.Accounts.User.registration_changeset/2`** — the Ecto changeset. Validates email format, password length, and password complexity, and hashes the password via `Sigra.Crypto.hash_password/1` before the database applies the active-email unique constraint.
 - **`MyApp.Accounts.deliver_user_confirmation_instructions/2`** — sends a signed, 24-hour TTL confirmation token to the user's email via the configured mailer.
 - **`Sigra.Auth.register/3`** — the library-level primitive. Handles audit logging, telemetry spans, and the `{:error, :email_taken}` return shape for a duplicate address.
 
@@ -21,28 +21,7 @@ The generator produces this in `lib/my_app/accounts.ex`:
       )
     end
 
-And this in `lib/my_app_web/live/user_registration_live.ex`:
-
-    def handle_event("save", %{"user" => user_params}, socket) do
-      case Accounts.register_user(user_params) do
-        {:ok, user} ->
-          {:ok, _} =
-            Accounts.deliver_user_confirmation_instructions(
-              user,
-              &url(~p"/users/confirm/#{&1}")
-            )
-
-          {:noreply,
-           socket
-           |> put_flash(:info, "Check your email to confirm your account.")
-           |> push_navigate(to: ~p"/users/log-in")}
-
-        {:error, %Ecto.Changeset{} = changeset} ->
-          {:noreply, assign(socket, form: to_form(changeset))}
-      end
-    end
-
-That's the whole flow. Hashing, validation, and audit logging are handled for you; what a visitor is shown for a duplicate address is your decision (see below).
+The generated LiveView sends confirmation instructions after a successful insert, then renders the same generic response used for a duplicate address. It does not sign the visitor in automatically; they sign in manually after registration, and confirm their email first when confirmation is required.
 
 ## Handling a duplicate email
 
@@ -52,9 +31,9 @@ That's the whole flow. Hashing, validation, and audit logging are handled for yo
 - `{:error, %Ecto.Changeset{}}` — validation error (format, length, confirmation mismatch)
 - `{:error, :email_taken}` — the email is already registered
 
-**Your choice:** if an attacker can see the response, a duplicate address that gets its own message tells them the address is registered. One pattern is to show the same message for `:email_taken` as for "email was sent", for example "If an account exists, we sent a confirmation email" on both branches. The other is to accept the tradeoff and show "Email is already taken", and add rate limiting to the registration route yourself.
+The generated LiveView handles `{:ok, user}` and `{:error, :email_taken}` with the same visible flash and page: "If an account can be created for this email, check for any confirmation instructions, then sign in." Successful registration still sends confirmation instructions, but the message does not claim delivery for a duplicate address. The visitor signs in manually after either response.
 
-**Scope of this claim:** `register/3` keeps the uniqueness error out of the changeset for a duplicate address, and nothing more. A successful registration signs the new user in, while a duplicate address shows only a flash on the form, so the two outcomes differ in what the visitor sees whichever message you pick. Response timing is not covered, and a duplicate address can answer faster than a new registration, which also hashes a password. How the duplicate case is presented, and whether to throttle it, is a decision for your application.
+**Scope of this claim:** a valid new registration and a valid duplicate-address attempt are compared in the example application for the same status, redirect, flash and page. Both paths compute the Argon2id password hash before the database accepts or rejects the insert. The comparison does not establish timing equivalence, confirmation-email delivery equivalence, behavior for invalid submissions, or response parity in an adopter's generated host.
 
 ## Requiring confirmation before login
 

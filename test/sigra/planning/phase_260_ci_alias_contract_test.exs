@@ -8,6 +8,7 @@ defmodule Sigra.Planning.Phase260CiAliasContractTest do
   # the entries and their position, as string assertions over the raw mix.exs text
   # (no Code.eval of mix.exs, following the phase_230 string-contract idiom).
   @mix_path "mix.exs"
+  @ci_path Path.expand("../../../.github/workflows/ci.yml", __DIR__)
 
   @conformance "cmd bash scripts/ci/admin-css-conformance.sh"
   @completeness "cmd bash scripts/ci/admin-token-completeness.sh"
@@ -102,6 +103,36 @@ defmodule Sigra.Planning.Phase260CiAliasContractTest do
 
     assert alias_entries(source, "ci.install_golden") != []
     assert @conformance not in alias_entries(source, "ci.install_golden")
+  end
+
+  test "the required library shard uploads the verified full brand catalog" do
+    workflow = File.read!(@ci_path)
+
+    [_, library_job] =
+      Regex.run(~r/^  library_tests_shard:\n(.*?)(?=^  [a-z_]+:|\z)/ms, workflow)
+
+    gate_at = :binary.match(library_job, "run: MIX_ENV=test mix ci")
+    upload_at = :binary.match(library_job, "- name: Upload full HTML brand catalog")
+
+    assert gate_at != :nomatch
+    assert upload_at != :nomatch
+
+    assert elem(gate_at, 0) < elem(upload_at, 0),
+           "the artifact should be uploaded only after the manifest/privacy tests pass"
+
+    [upload_step] =
+      Regex.run(
+        ~r/      - name: Upload full HTML brand catalog\n(.*?)(?=^      - name:|\z)/ms,
+        library_job,
+        capture: :all_but_first
+      )
+
+    assert upload_step =~
+             "uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
+
+    assert upload_step =~ "path: test/fixtures/brand/before/"
+    assert upload_step =~ "retention-days: 7"
+    assert upload_step =~ "if-no-files-found: error"
   end
 
   describe "planted controls (the assertion helper must be able to fail)" do

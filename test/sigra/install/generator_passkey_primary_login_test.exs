@@ -35,14 +35,12 @@ defmodule Sigra.Install.GeneratorPasskeyPrimaryLoginTest do
       end
     end
 
-    test "renders identifier-first passkey login without LiveView submission" do
+    test "renders discoverable passkey login without an email field or LiveView submission" do
       content = read_core_template("login_html.ex")
 
       for expected <- [
             "@passkey_primary_enabled",
-            ~s(autocomplete="username webauthn"),
             ~s(id="passkey_login_form"),
-            ~s(id="passkey_login_email"),
             ~s(id="magic_link_email"),
             ~s(id="login_email"),
             ~s(id="enterprise_login_email"),
@@ -58,6 +56,8 @@ defmodule Sigra.Install.GeneratorPasskeyPrimaryLoginTest do
           ] do
         assert content =~ expected
       end
+
+      refute content =~ "passkey_login_email"
 
       refute content =~ "window.SigraPasskeys"
       refute content =~ "phx-submit"
@@ -89,9 +89,17 @@ defmodule Sigra.Install.GeneratorPasskeyPrimaryLoginTest do
     test "session controller refuses unconfirmed passkey-primary login before authentication" do
       content = read_core_template("session_controller.ex")
 
+      passkey_completion =
+        content
+        |> String.split("def complete_passkey(conn, %", parts: 2)
+        |> Enum.at(1)
+        |> String.split("def complete_mfa_passkey", parts: 2)
+        |> hd()
+
       assert content =~ "Auth.ensure_passkey_primary_user_eligible(user)"
       assert content =~ "{:error, :email_not_confirmed}"
-      assert content =~ "String.slice(to_string(email), 0, 160)"
+      refute passkey_completion =~ "get_in(params, [\"user\", \"email\"])"
+      refute content =~ "maybe_put_passkey_email"
 
       assert content =~
                "We couldn't finish passkey sign-in. Try again or use another way to continue."

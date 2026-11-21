@@ -74,7 +74,7 @@ defmodule Sigra.Install.Features.CorePostInstructionsTest do
 
       assert out =~ "detected Oban config"
       assert out =~ "config/config.exs"
-      assert out =~ "sigra_mailer: 10"
+      assert out =~ "sigra_recovery: 10"
       refute out =~ "Oban not detected"
     end
 
@@ -95,21 +95,21 @@ defmodule Sigra.Install.Features.CorePostInstructionsTest do
       assert out =~ "config/runtime.exs"
     end
 
-    test "Oban already configured with sigra_mailer queue emits already-configured line" do
+    test "Oban already configured with sigra_recovery queue emits already-configured line" do
       File.write!(
         "config/config.exs",
         """
         import Config
         config :my_app, Oban,
           repo: MyApp.Repo,
-          queues: [default: 10, sigra_mailer: 10]
+          queues: [default: 10, sigra_recovery: 10]
         """
       )
 
       out = @binding |> Core.post_instructions(Report.new()) |> render()
 
       assert out =~ "already configured"
-      assert out =~ "Oban sigra_mailer queue"
+      assert out =~ "Oban sigra_recovery queue"
       refute out =~ "detected Oban config"
     end
 
@@ -119,8 +119,8 @@ defmodule Sigra.Install.Features.CorePostInstructionsTest do
       out = @binding |> Core.post_instructions(Report.new()) |> render()
 
       assert out =~ "Oban not detected"
-      assert out =~ "synchronous mode"
-      assert out =~ "To enable async delivery"
+      assert out =~ "Ordinary email delivery will use synchronous mode"
+      assert out =~ "Public reset and magic-link requests fail closed"
     end
 
     test "neither config/config.exs nor config/runtime.exs present still emits Oban-absent warning" do

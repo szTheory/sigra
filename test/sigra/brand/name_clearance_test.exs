@@ -16,7 +16,8 @@ defmodule Sigra.Brand.NameClearanceTest do
       `parity` may never read as proven or bounded);
     * the example-host limitation, the two decisions and their
       `confirmed as recommended` status are present;
-    * every file path the record cites exists.
+    * every product file path the record cites exists (planning-only paths are
+      checked by GSD locally and are excluded from the strict code-only PR).
 
   Pure filesystem; no database is touched. The repo root is resolved from
   `__DIR__`, never from the working directory.
@@ -24,8 +25,10 @@ defmodule Sigra.Brand.NameClearanceTest do
   use ExUnit.Case, async: true
 
   @record ".planning/decisions/006-name-clearance-search-log-and-claims-register.md"
+  @announcement "docs/launch/v1.51/announcement.md"
   @registry "test/fixtures/brand/public-surfaces.json"
   @mix_exs "mix.exs"
+  @closed_library_claim_id "lib-moduledoc-claims"
 
   @title_phrase "search log, not clearance"
 
@@ -120,8 +123,18 @@ defmodule Sigra.Brand.NameClearanceTest do
     |> Enum.reject(fn [first | _] -> first == "Claim" or String.starts_with?(first, "---") end)
   end
 
-  # Pure helper: the status kind a status cell opens with, or nil.
-  defp status_kind(cell), do: Enum.find(@status_kinds, &String.starts_with?(cell, &1))
+  # Pure helper: the exact status label, optionally followed by a supported
+  # parenthetical or punctuation-delimited explanation, or nil.
+  @status_kind_pattern Regex.compile!(
+                         "\\A(?<kind>#{Enum.join(@status_kinds, "|")})(?:\\z|\\s+\\([^)]*\\)|\\s+(?:—|–|:|-)\\s+\\S.*)\\z"
+                       )
+
+  defp status_kind(cell) do
+    case Regex.named_captures(@status_kind_pattern, cell) do
+      %{"kind" => kind} -> kind
+      nil -> nil
+    end
+  end
 
   # Pure helper: for each registry id, what is wrong with its claims-register
   # row. `rows` are `[claim, where, evidence, status]` cell lists and `states`
@@ -258,6 +271,14 @@ defmodule Sigra.Brand.NameClearanceTest do
   end
 
   describe "claims register covers the surface registry" do
+    test "the prose-only library claim is no longer an open registry surface" do
+      # Arrange
+      ids = Enum.map(surfaces(), & &1["id"])
+
+      # Assert
+      refute @closed_library_claim_id in ids
+    end
+
     test "every non-parity registry id appears in backticks in the record" do
       # Arrange
       ids = non_parity_ids()
@@ -302,12 +323,22 @@ defmodule Sigra.Brand.NameClearanceTest do
       # Act
       rows = table_rows(register)
       bad_width = Enum.reject(rows, &(length(&1) == 4))
-      bad_status = Enum.reject(rows, fn row -> status_kind(List.last(row)) != nil end)
+      bad_status = Enum.filter(rows, fn row -> status_kind(List.last(row)) == nil end)
 
       # Assert
       assert length(rows) >= 20
       assert bad_width == []
       assert bad_status == []
+    end
+
+    test "status labels reject word-prefix collisions and allow documented explanations" do
+      assert status_kind("bounded") == "bounded"
+      assert status_kind("not proven (divergence asserted)") == "not proven"
+      assert status_kind("bounded — single request") == "bounded"
+
+      for invalid <- ["provenance pending", "boundedness", "not provenance", "proven pending"] do
+        assert status_kind(invalid) == nil
+      end
     end
 
     test "the register's status agrees with each registry state" do
@@ -398,10 +429,13 @@ defmodule Sigra.Brand.NameClearanceTest do
 
     test "every file path the record cites exists in the repository" do
       # Arrange
-      paths = cited_paths(record())
+      paths = cited_paths(record()) |> Enum.reject(&String.starts_with?(&1, ".planning/"))
 
       # Act
-      missing = Enum.reject(paths, &File.exists?(Path.join(root(), &1)))
+      missing =
+        Enum.reject(paths, fn path ->
+          File.exists?(Path.join(root(), path))
+        end)
 
       # Assert
       assert length(paths) >= 10
@@ -417,6 +451,16 @@ defmodule Sigra.Brand.NameClearanceTest do
 
       # Assert
       assert paths == ["a/b_test.exs", "x.json"]
+    end
+  end
+
+  describe "local release announcement" do
+    test "the announcement is marked as a draft and makes no name-clearance claim" do
+      content = read!(@announcement)
+
+      assert content =~ "LOCAL DRAFT"
+      assert forbidden_wording(content) == []
+      refute mentions?(content, source_owner())
     end
   end
 end

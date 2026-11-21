@@ -2,13 +2,14 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @moduledoc """
   BCOPY-07 honest-claims contract for published enumeration statements.
 
-  The published docs may claim only what the enumeration parity harness proves:
+  The published docs and the library's public docstrings may claim only what
+  the enumeration parity harness proves:
   an existing and an unknown address get the same status, redirect, flash and
   page for ONE attempt on the sign-in, magic-link and password reset request
-  screens, in Sigra's example application. Timing, repeated attempts (lockout
-  and rate-limit state), registration success versus a duplicate, passkey
-  sign-in and the code generated into an adopter's own application are not
-  covered, and the docs must say so instead of promising safety.
+  screens, plus one valid registration versus a duplicate, in Sigra's example
+  application. Timing, repeated attempts (lockout and rate-limit state),
+  confirmation-email delivery equivalence, passkey sign-in and the code generated
+  into an adopter's own application are not covered, and the docs must say so.
 
   This module holds five kinds of checks, each with a planted control so it can
   go red:
@@ -35,6 +36,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @root Path.expand("../../..", __DIR__)
 
   @readme "README.md"
+  @announcement "docs/launch/v1.51/announcement.md"
   @registration "guides/flows/registration.md"
   @password_reset "guides/flows/password-reset.md"
   @login_logout "guides/flows/login-and-logout.md"
@@ -43,6 +45,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @walkthrough "guides/introduction/code-walkthrough.md"
   @demo_showcase "guides/introduction/demo-showcase.md"
   @example_readme "test/example/README.md"
+  @library_docs ["lib/sigra/auth.ex", "lib/sigra/error.ex", "lib/sigra/lockout.ex"]
 
   @scope_opener "**Scope of this claim:**"
 
@@ -63,6 +66,28 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   @intro_guides [@getting_started, @architecture, @walkthrough]
   @demo_files [@demo_showcase, @example_readme]
   @files [@readme | @flow_guides] ++ @intro_guides ++ @demo_files
+
+  # Published source docstrings whose broader account-discovery wording was
+  # retired. The module/function documentation is extracted before checking it;
+  # implementation comments and code are not part of the public-doc claim scan.
+  @retired_library_claims %{
+    "lib/sigra/auth.ex" => [
+      "User enumeration prevention",
+      "constant-time operations",
+      "(enumeration-safe -- callers should show a generic message)",
+      "to prevent email enumeration",
+      "Enumeration-safe: always returns"
+    ],
+    "lib/sigra/error.ex" => [
+      "enumeration-safe user-facing strings",
+      "ensures that user-facing messages never",
+      "prevent user enumeration attacks"
+    ],
+    "lib/sigra/lockout.ex" => [
+      "Messages are enumeration-safe",
+      "enumeration-safe flows where a dummy hash is performed regardless"
+    ]
+  }
 
   # Sweep allow-list: `{file, normalized substring}` pairs naming a paragraph
   # that may stay unqualified. It starts empty and every hit is fixed by
@@ -136,24 +161,32 @@ defmodule Sigra.Brand.ClaimsDocsTest do
   # The unbounded claim families. Regexes live in functions, not module
   # attributes, so they are not escaped into function bodies at compile time.
   #
-  # Family A: a safety, resistance, prevention or protection label on
-  # enumeration, or a verb that promises to stop it.
+  # Family A: a safety, resistance, proof, prevention or protection label on
+  # enumeration, or a verb that promises to block or stop it.
   defp family_a_regexes do
     [
-      ~r/\benumeration[\s-]+(?:safe\w*|safety|resistan\w*|prevent\w*|protect\w*)/i,
-      ~r/\b(?:prevent(?:s|ing)?|protects?\s+against|safe\s+(?:from|against))\s+(?:(?:user|account|email)\s+)?enumeration/i
+      ~r/\benumeration[\s-]+(?:safe\w*|safety|resistan\w*|proof\w*|prevent\w*|protect\w*)/i,
+      ~r/\b(?:block\w*|stop\w*|prevent\w*|protect\w*\s+against|safe\s+(?:from|against))\s+(?:(?:user|account|email|username)\s+)?enumeration\b/i
     ]
   end
 
-  # Family B: the non-existence promise ("does not reveal whether ...").
+  # Family B: the non-existence promise ("does not reveal whether/which ...").
   defp family_b_regex do
-    ~r/\b(?:does\s+not|doesn['’]t|never|without)\s+(?:reveal|disclos|leak|expos|indicat|confirm)\w*\s+(?:whether|if)\b/iu
+    ~r/\b(?:does\s+not|doesn['’]t|never|without)\s+(?:reveal|disclos|leak|expos|indicat|confirm)\w*\s+(?:whether|if|which)\b/iu
   end
 
   # Family C: the same promise made without a verb ("indistinguishable",
-  # "regardless of whether the account exists").
+  # "regardless of whether the account exists", or equivalent outcomes for
+  # registered and unknown addresses).
   defp family_c_regexes do
-    [~r/\bindistinguishable\b/i, ~r/\bregardless\s+of\s+whether\b/i]
+    [
+      ~r/\bindistinguishable\b/i,
+      ~r/\bregardless\s+of\s+whether\b/i,
+      ~r/\b(?:responses?|results?|outcomes?|messages?|pages?)\s+(?:(?:are|is|were|was|remain|remains|stay|stays)\s+)?(?:the\s+)?(?:same|identical)\s+(?:for|between|across)\s+(?:registered|existing|known)\s+(?:and|vs\.?|versus)\s+(?:unregistered|unknown|nonexistent)\b/i,
+      ~r/\b(?:the\s+)?(?:same|identical)\s+(?:responses?|results?|outcomes?|messages?|pages?)\s+(?:for|between|across)\s+(?:registered|existing|known)\s+(?:and|vs\.?|versus)\s+(?:unregistered|unknown|nonexistent)\b/i,
+      ~r/\b(?:registered|existing|known)\s+and\s+(?:unregistered|unknown|nonexistent)\s+(?:accounts?|users?|(?:email\s+)?addresses?|emails?)\s+(?:receive|received|get|gets|see|sees|have|has|show|shows|return|returns|produce|produces|yield|yields)\s+(?:the\s+)?(?:same|identical)\s+(?:responses?|results?|outcomes?|messages?|pages?)\b/i,
+      ~r/\b(?:unregistered|unknown|nonexistent)\s+and\s+(?:registered|existing|known)\s+(?:accounts?|users?|(?:email\s+)?addresses?|emails?)\s+(?:receive|received|get|gets|see|sees|have|has|show|shows|return|returns|produce|produces|yield|yields)\s+(?:the\s+)?(?:same|identical)\s+(?:responses?|results?|outcomes?|messages?|pages?)\b/i
+    ]
   end
 
   # True when `text` makes an unbounded enumeration claim, whatever else the
@@ -221,6 +254,47 @@ defmodule Sigra.Brand.ClaimsDocsTest do
         do: collapse(unit)
   end
 
+  # Public literal `@moduledoc` and `@doc` strings from an Elixir module.
+  # Parsing the source keeps comments and executable strings out of the
+  # published-doc scan and includes both one-line strings and heredocs.
+  defp library_docs!(file) do
+    file
+    |> read!()
+    |> library_docs_from_source()
+  end
+
+  defp library_docs_from_source(source) do
+    source
+    |> Code.string_to_quoted!()
+    |> Macro.prewalk([], fn
+      {:@, _meta, [{attribute, _attribute_meta, [doc]}]} = node, docs
+      when attribute in [:doc, :moduledoc] ->
+        case literal_doc_text(doc) do
+          {:ok, text} -> {node, [text | docs]}
+          :error -> {node, docs}
+        end
+
+      node, docs ->
+        {node, docs}
+    end)
+    |> elem(1)
+    |> Enum.reverse()
+    |> Enum.join("\n\n")
+  end
+
+  defp literal_doc_text(text) when is_binary(text), do: {:ok, text}
+
+  defp literal_doc_text({:<>, _meta, [left, right]}) do
+    with {:ok, left_text} <- literal_doc_text(left),
+         {:ok, right_text} <- literal_doc_text(right) do
+      {:ok, left_text <> right_text}
+    else
+      _ -> :error
+    end
+  end
+
+  defp literal_doc_text(_other), do: :error
+
   # Drops the paragraphs a `{file, substring}` allow-list entry for `file`
   # covers (substring compared after whitespace is collapsed).
   defp apply_sweep_allow_list(file, paragraphs, allow_list) do
@@ -253,7 +327,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       |> Path.wildcard()
       |> Enum.map(&Path.relative_to(&1, @root))
 
-    [@readme, @example_readme | guides]
+    [@readme, @announcement, @example_readme | guides]
     |> Enum.filter(&File.regular?(Path.join(@root, &1)))
     |> Enum.uniq()
     |> Enum.sort()
@@ -385,7 +459,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       assert row =~ "Not covered"
     end
 
-    test "the README row names password-reset requests as tested, not under Not covered" do
+    test "the README row names registration and password-reset parity as tested" do
       row =
         @readme
         |> read!()
@@ -396,15 +470,17 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       not_covered = not_covered_list(after_marker)
 
       assert tested =~ "password-reset requests"
+      assert tested =~ "valid registration"
       assert tested =~ "example application"
       # What is claimed is what the harness compares, not that a message is visible.
       assert tested =~ "the same status, redirect, flash message and page"
       refute not_covered =~ ~r/password[\s-]reset/i
+      refute not_covered =~ ~r/registration response parity/i
 
       # The row still lists what is not compared.
       assert not_covered =~ "timing"
-      assert not_covered =~ "passkey sign-in"
-      assert not_covered =~ "generated into your own application"
+      assert not_covered =~ "passkey sign-in completion"
+      assert not_covered =~ "generated-host behavior"
     end
 
     test "positive control: the Not covered split reports a reset request left in the list" do
@@ -424,6 +500,70 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
       refute not_covered_list(after_marker) =~ ~r/password[\s-]reset/i
       assert not_covered_list(after_marker) =~ "timing"
+    end
+
+    test "the cited library documentation no longer carries retired claims" do
+      offenders =
+        for {file, phrases} <- @retired_library_claims,
+            phrase <- retired_present(library_docs!(file), phrases),
+            do: "#{file}: #{inspect(phrase)}"
+
+      assert offenders == [],
+             "Retired library doc claims are back:\n#{Enum.join(offenders, "\n")}"
+    end
+
+    test "lockout documentation bounds dummy-work evidence without promising equal timing" do
+      docs = "lib/sigra/lockout.ex" |> library_docs!() |> collapse()
+
+      assert docs =~ "same configured dummy-password work"
+      assert docs =~ "does not establish equal end-to-end response timing"
+      refute docs =~ ~r/constant[- ]time|equal response time/i
+    end
+
+    test "positive control: every retired library claim is detected in planted docstrings" do
+      for {file, phrases} <- @retired_library_claims do
+        planted = "@moduledoc \"\"\"\n" <> Enum.join(phrases, " and ") <> "\n\"\"\""
+
+        assert retired_present(library_docs_from_source(planted), phrases) == phrases,
+               "#{file}: a planted retired claim went unreported"
+      end
+    end
+  end
+
+  describe "library moduledoc and function-doc claim units" do
+    test "all listed modules have public docs and no unqualified enumeration claim" do
+      for file <- @library_docs do
+        docs = library_docs!(file)
+
+        assert docs != "", "#{file} has no extracted public docstrings"
+
+        assert unbounded_units(docs, @qualifiers) == [],
+               "#{file} contains an unqualified claim unit: #{inspect(unbounded_units(docs, @qualifiers))}"
+      end
+    end
+
+    test "a planted library moduledoc claim is caught by the shared claim-unit scanner" do
+      planted = "@moduledoc \"\"\"\nMessages are enumeration-safe.\n\"\"\""
+      claims = library_docs_from_source(planted)
+
+      assert unbounded_units(claims, @qualifiers) == ["Messages are enumeration-safe."]
+    end
+
+    test "planted single-line and concatenated public doc claims are caught by the shared scanner" do
+      planted = ~S|defmodule Planted do
+  @doc "It prevents user enumeration."
+  def action, do: :ok
+
+  @doc "It prevents account " <> "enumeration."
+  def another_action, do: :ok
+end|
+
+      claims = library_docs_from_source(planted)
+
+      assert unbounded_units(claims, @qualifiers) == [
+               "It prevents user enumeration.",
+               "It prevents account enumeration."
+             ]
     end
   end
 
@@ -445,31 +585,35 @@ defmodule Sigra.Brand.ClaimsDocsTest do
         [paragraph] = scope_paragraphs(read!(file))
 
         assert paragraph =~ ~r/timing/i, "#{file}: scope paragraph does not mention timing"
-        assert paragraph =~ ~r/not covered/i, "#{file}: scope paragraph has no 'not covered'"
+
+        assert paragraph =~
+                 ~r/(?:not|don't|do not).{0,50}(?:timing|response time|wall-clock)|(?:timing|response time|wall-clock).{0,50}(?:not|don't|do not)/i,
+               "#{file}: scope paragraph must say timing equivalence is not established"
       end
     end
 
-    test "the registration scope says a duplicate differs from a successful sign-in" do
+    test "the registration scope bounds its parity claim and excludes timing" do
       [paragraph] = scope_paragraphs(read!(@registration))
 
       assert paragraph =~ ~r/duplicate/i
-      assert paragraph =~ ~r/signs? the (new )?user in/i
-      assert paragraph =~ ~r/flash/i
+      assert paragraph =~ "same status, redirect, flash and page"
+      assert paragraph =~ "does not establish timing equivalence"
+      assert paragraph =~ "confirmation-email delivery equivalence"
     end
 
     test "the password reset scope bounds the claim to one attempt and names rate limits" do
       [paragraph] = scope_paragraphs(read!(@password_reset))
 
-      assert paragraph =~ "single attempt"
-      assert paragraph =~ ~r/rate limit/i
+      assert paragraph =~ ~r/(?:single|one) request/i
+      assert paragraph =~ ~r/(?:rate limit|email limiter)/i
     end
 
     test "the password reset scope bounds the comparison to the example application" do
       [paragraph] = scope_paragraphs(read!(@password_reset))
 
-      assert paragraph =~ "example application"
-      assert paragraph =~ "single attempt"
-      assert paragraph =~ "generated into your app"
+      assert paragraph =~ ~r/example (?:application|app)/i
+      assert paragraph =~ ~r/(?:single|one) request/i
+      assert paragraph =~ ~r/generated[- ]host/i
       refute paragraph =~ @retired_false_clause
     end
 
@@ -484,8 +628,11 @@ defmodule Sigra.Brand.ClaimsDocsTest do
     test "the sign-in scope bounds the claim to one attempt and names lockout" do
       [paragraph] = scope_paragraphs(read!(@login_logout))
 
-      assert paragraph =~ "single attempt"
+      assert paragraph =~ ~r/(?:single|one) failed attempt/i
       assert paragraph =~ ~r/lockout/i
+      assert paragraph =~ "configured dummy-password verifier once"
+      assert paragraph =~ "does not prove equal end-to-end timing"
+      refute paragraph =~ ~r/constant[- ]time|equal response time/i
     end
 
     test "positive control: a planted file without the opener has no scope paragraph" do
@@ -571,10 +718,20 @@ defmodule Sigra.Brand.ClaimsDocsTest do
       for text <- [
             "The two responses are indistinguishable.",
             "It answers the same regardless of whether the account exists.",
-            "Regardless of\nwhether the address is registered, the page is the same."
+            "Regardless of\nwhether the address is registered, the page is the same.",
+            "The response is the same for registered and unregistered email addresses.",
+            "The results are identical across existing and unknown accounts.",
+            "Same result for known and unknown users.",
+            "Registered and unknown accounts receive identical responses.",
+            "Unknown and registered email addresses get the same response."
           ] do
         assert unbounded?(text), "should have been flagged: #{inspect(text)}"
       end
+
+      qualified =
+        "The response is the same for registered and unregistered email addresses for a single attempt."
+
+      assert unbounded_units(qualified, @qualifiers) == []
     end
 
     test "does not flag threat descriptions or neutral wording" do
@@ -582,6 +739,7 @@ defmodule Sigra.Brand.ClaimsDocsTest do
             "Reset requests are a common enumeration vector.",
             "The enumeration boundary needs a generic message.",
             "The page reveals whether the address exists.",
+            "The responses differ for registered and unregistered addresses.",
             "A claim about safety with no enumeration mention."
           ] do
         refute unbounded?(text), "should not have been flagged: #{inspect(text)}"
@@ -591,11 +749,12 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
   # --- the repo-wide sweep -----------------------------------------------
 
-  describe "unbounded-claim sweep over README.md, guides/**/*.md and test/example/README.md" do
+  describe "unbounded-claim sweep over README.md, guides/**/*.md, the announcement and test/example/README.md" do
     test "the sweep cannot pass vacuously" do
       files = sweep_files()
 
       assert @readme in files
+      assert @announcement in files
       assert @example_readme in files
       assert Enum.any?(files, &String.starts_with?(&1, "guides/flows/"))
       assert Enum.any?(files, &String.starts_with?(&1, "guides/introduction/"))
@@ -655,6 +814,21 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
       assert unbounded_units(bare, @qualifiers) == [bare]
       assert unbounded_units(qualified, @qualifiers) == []
+    end
+
+    test "common block, username, proof and registered-email promises are flagged" do
+      for claim <- [
+            "Sigra blocks enumeration of accounts.",
+            "It prevents username enumeration.",
+            "The flow is enumeration-proof.",
+            "The response does not reveal which emails are registered."
+          ] do
+        assert unbounded_units(claim, @qualifiers) == [claim],
+               "expected the unqualified claim to be flagged: #{claim}"
+      end
+
+      neutral_threat = "Attackers can attempt account enumeration against public routes."
+      assert unbounded_units(neutral_threat, @qualifiers) == []
     end
 
     test "each qualifier phrase bounds a planted claim, whatever its case" do
@@ -810,6 +984,51 @@ defmodule Sigra.Brand.ClaimsDocsTest do
 
   # --- the reset call shape in published code samples ---------------------
 
+  describe "durable recovery guidance" do
+    test "adopter setup matches the generated queue, adapter and retry contracts" do
+      reset = read!(@password_reset)
+      login = read!(@login_logout)
+      getting_started = read!(@getting_started)
+      auth_template = read!("priv/templates/sigra.install/core/auth.ex")
+      worker = read!("lib/sigra/workers/recovery_request.ex")
+      recovery = read!("lib/sigra/recovery.ex")
+
+      assert reset =~ "queue_recovery_request(:reset, email)"
+      assert reset =~ "config :my_app, :sigra_recovery"
+      assert reset =~ "{:oban, \"~> 2.17\"}"
+      assert reset =~ "Oban.Migration.up()"
+      assert reset =~ "Oban.Migration.down()"
+      assert reset =~ "{Oban, Application.fetch_env!(:my_app, Oban)}"
+      assert reset =~ "sigra_recovery: 10"
+      assert reset =~ "Oban.check_queue(queue: :sigra_recovery)"
+      assert reset =~ "Oban.whereis(Oban)"
+      assert reset =~ "It does not prove that every node in a cluster has the queue"
+      assert reset =~ "handle the installed version's result or exception"
+
+      assert reset =~
+               "the `enqueue/3` and `checkpoint_once/4` callbacks declared by `Sigra.Recovery`"
+
+      assert reset =~ "24 hours"
+      assert reset =~ "Drain the recovery queue before rotating `secret_key_base`"
+      assert reset =~ "the same prepared link"
+      assert reset =~ "the fixed `:recovery_failed` category"
+      assert reset =~ "before queue admission"
+      assert reset =~ "do not establish timing equivalence"
+      assert reset =~ "signs the raw token with HMAC"
+      assert reset =~ "stores the token hash"
+
+      assert login =~ "queue_recovery_request(:magic_link, email)"
+      assert login =~ "MFA-pending session"
+      assert getting_started =~ "Oban.whereis(Oban)"
+      assert getting_started =~ "Oban.check_queue(queue: :sigra_recovery)"
+      assert getting_started =~ "queue_recovery_request(:reset, email)"
+
+      assert auth_template =~ "dispatcher: dispatcher"
+      assert worker =~ "queue: :sigra_recovery, max_attempts: 3"
+      assert recovery =~ "@max_age 86_400"
+    end
+  end
+
   describe "reset instructions call shape" do
     test "no published guide passes a user struct to deliver_user_reset_password_instructions" do
       offenders =
@@ -828,10 +1047,10 @@ defmodule Sigra.Brand.ClaimsDocsTest do
              """
     end
 
-    test "the check sees the samples: the password reset guide passes the email in both of its calls" do
+    test "the check sees the sample: the password reset guide passes an email address" do
       args = reset_call_args(read!(@password_reset))
 
-      assert args == ["email", "user.email"]
+      assert args == ["user.email"]
       refute Enum.any?(args, &user_struct_arg?/1)
     end
 

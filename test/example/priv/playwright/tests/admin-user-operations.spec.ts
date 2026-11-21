@@ -1,6 +1,10 @@
 import { test, expect, type Page } from '@playwright/test';
 import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 import { TEST_PASSWORD } from '../helpers/fixtures';
+import {
+  assertGenericRegistrationResponse,
+  signInManually,
+} from '../helpers/registration';
 
 // Phase 31 Plan 2: canonical admin user-operations browser contract.
 //
@@ -43,7 +47,8 @@ async function registerUser(page: Page, email: string, password: string) {
   await page.locator('form:has(input[name="user[password]"])').first().evaluate((form) => {
     (form as HTMLFormElement).requestSubmit();
   });
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
+  await signInManually(page, email, password);
 }
 
 async function createOrganization(page: Page, name: string, slug: string) {

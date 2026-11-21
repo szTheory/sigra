@@ -798,7 +798,7 @@ defmodule Sigra.Brand.CatalogTest do
     # produces only for that state, so a state cannot silently render as another.
     @state_markers [
       {{UsersIndexLive, :populated}, "Open user"},
-      {{UsersIndexLive, :empty}, "No users match this view"},
+      {{UsersIndexLive, :empty}, "No users yet"},
       {{UsersIndexLive, :filtered_empty}, "No users match the active filters"},
       {{UserShowLive, :active}, "MFA + passkeys"},
       {{UserShowLive, :unconfirmed}, "Email unconfirmed"},
@@ -817,6 +817,14 @@ defmodule Sigra.Brand.CatalogTest do
       {{BrandingLive, :default_profile}, "Config defaults"},
       {{BrandingLive, :explicit_profile}, "Admin profile"}
     ]
+
+    test "unfiltered empty users state is framed as a first-use state" do
+      html = Catalog.tier1_html({UsersIndexLive, :empty})
+
+      assert html =~ "No users yet"
+      assert html =~ "Users appear here as people register and sign in."
+      refute html =~ "No users match this view"
+    end
 
     test "tier1_states/0 is a sorted, unique list that covers the planned matrix" do
       states = Catalog.tier1_states()

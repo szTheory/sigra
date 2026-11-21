@@ -30,11 +30,10 @@ defmodule Sigra.Planning.Phase148EvaluatorFunnelAndFirstRunDxTest do
     assert readme =~ "Troubleshooting install"
 
     assert mix_exs =~ ~s(main: "demo-showcase")
-    assert mix_exs =~ "Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html."
 
     assert llms =~ "- [Demo Showcase — Tasklane Example App](demo-showcase.md)"
+    assert llms =~ "- [Sigra](readme.md)"
     assert llms =~ "- [Troubleshooting install](troubleshooting-install.md)"
-    assert llms =~ "Evaluating first? Start with https://hexdocs.pm/sigra/demo-showcase.html."
   end
 
   test "148-02: demo showcase locks runnable command, personas, screenshot proof, and boundary language" do

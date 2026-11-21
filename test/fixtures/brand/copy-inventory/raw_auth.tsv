@@ -99,7 +99,6 @@ core/auth.ex	source_token	\n  Confirms a user by 6-digit code entry.\n\n  Rate-l
 core/auth.ex	source_token	\n  Confirms a user by HMAC-signed link token.\n\n  Verifies the HMAC signature, looks up the token in the database,\n  sets `confirmed_at`, and deletes all confirm/confirm_code tokens.\n  
 core/auth.ex	source_token	\n  Deletes the session identified by the given raw token from\n  Sigra's canonical `user_sessions` store. Idempotent — missing\n  tokens are no-ops.\n  
 core/auth.ex	source_token	\n  Delivers the confirmation email to the given user.\n\n  Generates both a link token (HMAC-signed) and a 6-digit code.\n  Delivers via Oban (async) or inline (sync) based on config.\n\n  Returns `{:ok, :sent}` on success, `{:error, :already_confirmed}` if\n  already confirmed.\n  
-core/auth.ex	source_token	\n  Delivers the reset password email to the given email address.\n\n  Enumeration-safe: always returns `{:ok, :sent}` regardless of whether\n  the email exists. A dummy hash operation matches timing for non-existent\n  emails.\n  
 core/auth.ex	source_token	\n  Export Sigra-owned auth and account data for a user.\n\n  Caller opts may provide optional generated schemas such as OAuth\n  identities, passkeys, or organization memberships.\n  
 core/auth.ex	source_token	\n  Generates a session token by writing a row to Sigra's canonical\n  `user_sessions` store via `Sigra.Auth.create_session/4`.\n\n  Returns the raw (Base64url-encoded) token to put in the session cookie.\n  The SHA-256 hash of the decoded raw bytes is what's persisted — never\n  the raw token itself.\n\n  ## Options\n\n    * `:ip` - client IP address captured at login (string)\n    * `:user_agent` - client user agent header at login (string)\n    * `:type` - session type atom (default `:standard`)\n  
 core/auth.ex	source_token	\n  Get deletion status: `{:scheduled, days_remaining}` | `:not_scheduled` | `:deleted`.\n  
@@ -112,7 +111,6 @@ core/auth.ex	source_token	\n  Looks up both the user and the session record by r
 core/auth.ex	source_token	\n  Regenerates backup codes after verifying a TOTP code.\n\n  Requires `{:totp, code}` — backup codes **cannot** authorize rotation.\n  
 core/auth.ex	source_token	\n  Registers a user.\n\n  ## Examples\n\n      iex> register_user(%{field: value})\n      {:ok, %<%= schema_alias %>{}}\n\n      iex> register_user(%{field: bad_value})\n      {:error, %Ecto.Changeset{}}\n\n  
 core/auth.ex	source_token	\n  Request an email change. Sends confirmation to the new address and\n  notification to the old address.\n\n  Returns `{:ok, user, encoded_token}` or `{:error, changeset}`.\n  
-core/auth.ex	source_token	\n  Requests a magic link for the given email.\n\n  Returns `{:ok, {raw_token, url}}` for existing users, `{:ok, :sent}`\n  for non-existent emails (enumeration-safe), or `{:error, :rate_limited}`.\n  
 core/auth.ex	source_token	\n  Resets the user password.\n\n  Uses `Sigra.Auth.reset_password/4` which verifies the HMAC-signed token,\n  updates the password, and invalidates all tokens (including sessions)\n  in a single transaction. The caller creates a new session after reset.\n\n  ## Examples\n\n      iex> reset_user_password(signed_token, %{password: 
 core/auth.ex	source_token	\n  Returns an `%Ecto.Changeset{}` for changing the user email.\n\n  ## Examples\n\n      iex> change_user_email(user)\n      %Ecto.Changeset{data: %<%= schema_alias %>{}}\n\n  
 core/auth.ex	source_token	\n  Returns an `%Ecto.Changeset{}` for changing the user password.\n\n  ## Examples\n\n      iex> change_user_password(user)\n      %Ecto.Changeset{data: %<%= schema_alias %>{}}\n\n  
@@ -127,8 +125,8 @@ core/auth.ex	source_token	\n  Verifies a magic link token.\n\n  Returns `{:ok, u
 core/auth.ex	source_token	      %#{schema_alias}{} ->\\n        {:error, reason}
 core/auth.ex	source_token	      %#{schema_alias}{} = user ->\\n        {:error, reason, #{app_module}.Organizations.local_auth_policy_for(user)}
 core/auth.ex	source_token	      organizations_module: #{app_module}.Organizations,
-core/auth.ex	source_token	    auth_policy = nil
-core/auth.ex	source_token	    auth_policy = user && #{app_module}.Organizations.local_auth_policy_for(user)
+core/auth.ex	source_token	#{app_module}.Organizations.local_auth_policy_for(user)
+core/auth.ex	source_token	%{}
 core/auth.ex	source_token	)\n      %<%= schema_alias %>{}\n\n      iex> get_user_by_email(
 core/auth.ex	source_token	)\n      %<%= schema_alias %>{}\n\n      iex> get_user_by_email_and_password(
 core/auth.ex	source_token	)\n      %<%= schema_alias %>{}\n\n      iex> get_user_by_reset_password_token(
@@ -140,8 +138,11 @@ core/auth.ex	source_token	, password_confirmation:
 core/auth.ex	source_token	,\\n           enterprise_auth_policy: #{app_module}.Organizations
 core/auth.ex	source_token	,\\n      enterprise_auth_policy: #{app_module}.Organizations
 core/auth.ex	source_token	/organizations/#{slug}/sso
+core/auth.ex	source_token	/users/log_in/#{token}
+core/auth.ex	source_token	/users/reset-password/#{token}
 core/auth.ex	source_token	<%= app_name %>
 core/auth.ex	source_token	<%= from_email %>
+core/auth.ex	source_token	<%= otp_app %>
 core/auth.ex	source_token	Authenticate a discoverable passkey without a typed email address.
 core/auth.ex	source_token	Authenticate a passkey for a known user.
 core/auth.ex	source_token	Authenticates a user and preserves typed denial results for controller handling.
@@ -155,12 +156,15 @@ core/auth.ex	source_token	Count passkeys for a user.
 core/auth.ex	source_token	Delete a passkey.
 core/auth.ex	source_token	Delivers a passkey registration notification email.
 core/auth.ex	source_token	Disable MFA for a user. Requires valid TOTP or backup code.
+core/auth.ex	source_token	Enqueues a lookup-free reset or magic-link request through the configured durable dispatcher.
 core/auth.ex	source_token	Get MFA status for a user (enrollment state, backup code count, etc.).
 core/auth.ex	source_token	Get lock status for a user.
 core/auth.ex	source_token	List all active sessions for a user.
 core/auth.ex	source_token	List passkeys for a user.
 core/auth.ex	source_token	Register a new passkey for a user.
 core/auth.ex	source_token	Rename a passkey.
+core/auth.ex	source_token	Requests a magic link. Normalize the result before displaying it because library outcomes differ for existing and unknown addresses.
+core/auth.ex	source_token	Requests reset instructions. The generated page normalizes the result; unknown-address requests perform a dummy hash without guaranteeing timing equivalence.
 core/auth.ex	source_token	Return the user-facing label for a passkey.
 core/auth.ex	source_token	Returns true when a user may use passkey-primary login.
 core/auth.ex	source_token	Returns true when passkey-primary login is enabled.
@@ -189,6 +193,7 @@ core/auth.ex	source_token	device_hint
 core/auth.ex	source_token	email
 core/auth.ex	source_token	failure
 core/auth.ex	source_token	id
+core/auth.ex	source_token	magic_link
 core/auth.ex	source_token	mfa.disable
 core/auth.ex	source_token	mfa.regenerate_backup_codes
 core/auth.ex	source_token	nickname
@@ -196,6 +201,7 @@ core/auth.ex	source_token	passkey.delete
 core/auth.ex	source_token	passkey.register
 core/auth.ex	source_token	passkey.rename
 core/auth.ex	source_token	password
+core/auth.ex	source_token	public
 core/auth.ex	source_token	rawId
 core/auth.ex	source_token	reset_password
 core/auth.ex	source_token	response
@@ -298,10 +304,12 @@ core/confirmation_controller.ex	source_token	)}
 core/confirmation_controller.ex	source_token	/
 core/confirmation_controller.ex	source_token	/users/confirm
 core/confirmation_controller.ex	source_token	/users/confirm/#{&1}
+core/confirmation_controller.ex	source_token	/users/log_in
 core/confirmation_controller.ex	source_token	/users/sudo?return_to=#{URI.encode_www_form(
 core/confirmation_controller.ex	source_token	1
 core/confirmation_controller.ex	source_token	A new confirmation email has been sent.
 core/confirmation_controller.ex	source_token	Invalid confirmation code. Please try again.
+core/confirmation_controller.ex	source_token	Please sign in to confirm your email.
 core/confirmation_controller.ex	source_token	This confirmation link is invalid or has expired.
 core/confirmation_controller.ex	source_token	Too many attempts. Please wait a few minutes before trying again.
 core/confirmation_controller.ex	source_token	Your email has been confirmed.
@@ -599,7 +607,7 @@ core/login_html.ex	source_token	\n          >\n            {dgettext(
 core/login_html.ex	source_token	\n          >\n          </p>\n\n          <button\n            type=
 core/login_html.ex	source_token	\n          action={~p
 core/login_html.ex	source_token	\n          data-options-path={~p
-core/login_html.ex	source_token	\n        >\n          <.input id=
+core/login_html.ex	source_token	\n        >\n          <input type=
 core/login_html.ex	source_token	\n    <.form :let={f} for={@form} id=
 core/login_html.ex	source_token	\n    <.sigra_auth_page>\n      <div class=
 core/login_html.ex	source_token	\n    <section :if={@enterprise_sign_in_enabled} class=
@@ -620,13 +628,12 @@ core/login_html.ex	source_token	 name={f[:remember_me].name} value=
 core/login_html.ex	source_token	 required />\n\n          <.sigra_auth_button class=
 core/login_html.ex	source_token	 required />\n\n      <label class=
 core/login_html.ex	source_token	 required />\n              <.sigra_auth_button class=
-core/login_html.ex	source_token	 required />\n          <input type=
 core/login_html.ex	source_token	 required />\n        <.sigra_auth_button class=
 core/login_html.ex	source_token	 required />\n      <.input field={f[:password]} type=
 core/login_html.ex	source_token	 value=
 core/login_html.ex	source_token	)}\n              </.sigra_auth_button>\n            </.form>\n\n            <div class=
 core/login_html.ex	source_token	)}\n            <.link navigate={~p
-core/login_html.ex	source_token	)}\n            </.link>\n          </:subtitle>\n        </.header>\n\n<%= if passkeys? do %>\n      <%%= if @passkey_primary_enabled do %>\n        <.form\n          :let={f}\n          for={@form}\n          id=
+core/login_html.ex	source_token	)}\n            </.link>\n          </:subtitle>\n        </.header>\n\n<%= if passkeys? do %>\n      <%%= if @passkey_primary_enabled do %>\n        <.form\n          for={@form}\n          id=
 core/login_html.ex	source_token	)}\n          </button>\n        </.form>\n\n        <details class=
 core/login_html.ex	source_token	)}\n          <:subtitle>\n            {dgettext(
 core/login_html.ex	source_token	)}\n        </.sigra_auth_button>\n      </.form>\n    </section>\n    
@@ -1351,7 +1358,7 @@ core/registration_live.ex	source_token	>\n          {dgettext(
 core/registration_live.ex	source_token	>\n        <.header>\n          {dgettext(
 core/registration_live.ex	source_token	>&rarr;</span>\n        </.sigra_auth_button>\n        </.form>\n      </div>\n    </.sigra_auth_page>\n    
 core/registration_live.ex	source_token	Fair
-core/registration_live.ex	source_token	If this email is available, your account has been created. Please check your email.
+core/registration_live.ex	source_token	If an account can be created for this email, check for any confirmation instructions, then sign in.
 core/registration_live.ex	source_token	Strong
 core/registration_live.ex	source_token	Weak
 core/registration_live.ex	source_token	enroll_passkey
@@ -1380,8 +1387,8 @@ core/reset_password_controller.ex	source_token	\n  Renders the
 core/reset_password_controller.ex	source_token	\n  Renders the new password form for a valid reset token.\n  Shows the expired page if the token is invalid or expired.\n  
 core/reset_password_controller.ex	source_token	 form where the user enters their email.\n  
 core/reset_password_controller.ex	source_token	/users/log_in
-core/reset_password_controller.ex	source_token	/users/reset-password/#{&1}
 core/reset_password_controller.ex	source_token	If your email is in our system, you will receive reset instructions shortly.
+core/reset_password_controller.ex	source_token	We couldn't send your request right now. Please try again later.
 core/reset_password_controller.ex	source_token	Your password has been reset.
 core/reset_password_controller.ex	source_token	email
 core/reset_password_controller.ex	source_token	sigra
@@ -1445,7 +1452,6 @@ core/reset_password_live.ex	source_token	)} class=
 core/reset_password_live.ex	source_token	,\n                  password_strength_color(@password_strength)\n                ]}\n                style={
 core/reset_password_live.ex	source_token	, 
 core/reset_password_live.ex	source_token	/users/log_in
-core/reset_password_live.ex	source_token	/users/reset-password/#{&1}
 core/reset_password_live.ex	source_token	>\n              <div\n                class={[\n                  
 core/reset_password_live.ex	source_token	>\n            <div class=
 core/reset_password_live.ex	source_token	>\n            <li :for={suggestion <- @password_suggestions}>{suggestion}</li>\n          </ul>\n        </div>\n\n        <.input field={f[:password_confirmation]} type=
@@ -1460,6 +1466,7 @@ core/reset_password_live.ex	source_token	>&rarr;</span>\n        </.sigra_auth_b
 core/reset_password_live.ex	source_token	Fair
 core/reset_password_live.ex	source_token	If your email is in our system, you will receive reset instructions shortly.
 core/reset_password_live.ex	source_token	Strong
+core/reset_password_live.ex	source_token	We couldn't send your request right now. Please try again later.
 core/reset_password_live.ex	source_token	Weak
 core/reset_password_live.ex	source_token	Your password has been reset.
 core/reset_password_live.ex	source_token	email
@@ -1490,7 +1497,6 @@ core/session_controller.ex	source_token
 core/session_controller.ex	source_token	/
 core/session_controller.ex	source_token	/organizations/#{slug}/sso?#{%{routing_source: 
 core/session_controller.ex	source_token	/users/log_in
-core/session_controller.ex	source_token	/users/log_in/#{token}
 core/session_controller.ex	source_token	/users/mfa
 core/session_controller.ex	source_token	/users/settings/mfa#passkeys
 core/session_controller.ex	source_token	Account created successfully!
@@ -1513,6 +1519,7 @@ core/session_controller.ex	source_token	We couldn't determine your organization 
 core/session_controller.ex	source_token	We couldn't find an enterprise sign-in route for that work email. Check your organization details and try again.
 core/session_controller.ex	source_token	We couldn't finish adding this passkey. Try again or use another way to continue.
 core/session_controller.ex	source_token	We couldn't finish passkey sign-in. Try again or use another way to continue.
+core/session_controller.ex	source_token	We couldn't send your request right now. Please try again later.
 core/session_controller.ex	source_token	Welcome back!
 core/session_controller.ex	source_token	Welcome!
 core/session_controller.ex	source_token	You can't change account security settings while impersonating.
@@ -1530,6 +1537,7 @@ core/session_controller.ex	source_token	passkey
 core/session_controller.ex	source_token	password
 core/session_controller.ex	source_token	public-key
 core/session_controller.ex	source_token	registered
+core/session_controller.ex	source_token	required
 core/session_controller.ex	source_token	response
 core/session_controller.ex	source_token	sigra
 core/session_controller.ex	source_token	token
@@ -2671,7 +2679,6 @@ passkeys/passkey_browser.js	source_token	AbortError
 passkeys/passkey_browser.js	source_token	ERROR_CEREMONY_ABORTED
 passkeys/passkey_browser.js	source_token	ERROR_CEREMONY_TIMEOUT
 passkeys/passkey_browser.js	source_token	ERROR_PASSKEY_UNSUPPORTED
-passkeys/passkey_browser.js	source_token	Enter your email to continue with a passkey.
 passkeys/passkey_browser.js	source_token	NotAllowedError
 passkeys/passkey_browser.js	source_token	NotSupportedError
 passkeys/passkey_browser.js	source_token	POST
@@ -2681,23 +2688,20 @@ passkeys/passkey_browser.js	source_token	That passkey request timed out.
 passkeys/passkey_browser.js	source_token	TimeoutError
 passkeys/passkey_browser.js	source_token	We couldn't finish passkey sign-in. Try again or use another way to continue.
 passkeys/passkey_browser.js	source_token	WebAuthnError
-passkeys/passkey_browser.js	source_token	[data-passkey-email-shadow]
 passkeys/passkey_browser.js	source_token	[data-passkey-login-status]
 passkeys/passkey_browser.js	source_token	aborted
 passkeys/passkey_browser.js	source_token	application/json
 passkeys/passkey_browser.js	source_token	canceled
 passkeys/passkey_browser.js	source_token	click
 passkeys/passkey_browser.js	source_token	content-type
-passkeys/passkey_browser.js	source_token	email_required
 passkeys/passkey_browser.js	source_token	error
 passkeys/passkey_browser.js	source_token	input[name='passkey[response]']
-passkeys/passkey_browser.js	source_token	input[name='user[email]']:not([data-passkey-email-shadow])
+passkeys/passkey_browser.js	source_token	input[name='user[email]']
 passkeys/passkey_browser.js	source_token	meta[name='csrf-token']
 passkeys/passkey_browser.js	source_token	passkey_options_failed
 passkeys/passkey_browser.js	source_token	string
 passkeys/passkey_browser.js	source_token	submit
 passkeys/passkey_browser.js	source_token	timeout
-passkeys/passkey_browser.js	source_token	true
 passkeys/passkey_browser.js	source_token	unsupported
 passkeys/passkey_browser.js	source_token	x-csrf-token
 passkeys/passkey_hooks.js	source_token	

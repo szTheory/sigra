@@ -20,7 +20,7 @@ defmodule Sigra.Planning.Phase242ShiftLeftContractTest do
     Enum.each(@public_install_files, fn relative_path ->
       content = root() |> Path.join(relative_path) |> File.read!()
 
-      assert content =~ "{:sigra, \"~> 1.5.0\"}", "#{relative_path} lacks the supported tuple"
+      assert content =~ "{:sigra, \"~> 1.7.1\"}", "#{relative_path} lacks the supported tuple"
       refute content =~ "{:sigra, \"~> 1.4.0\"}", "#{relative_path} retains the stale tuple"
     end)
   end

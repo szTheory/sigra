@@ -13,10 +13,12 @@ defmodule Sigra.Brand.CopyContractTest do
     * `admin` - the nine admin chrome files the glossary guard watches plus the
       shipped admin templates. Banned terms (the glossary terms, the book's
       phrase-level avoid-words, "admin (operator)") and the lexicon.
-    * `generated` - `priv/templates/sigra.install/**`. "log in", "log out",
+    * `generated` - `priv/templates/sigra.install/**` and
+      `priv/templates/sigra.gen.oauth/**`. "log in", "log out",
       "login", "logout", "signin" and "admin (operator)" are banned as COPY
-      (string literals, HEEx text, the `aria-label`, `title`, `placeholder`,
-      `label`, `alt` and `action` attribute values), never as identifiers, route
+      (string literals, HEEx text and user-visible attribute values such as
+      `aria-label`, `aria-description`, `title`, `placeholder`, `label`, `alt`,
+      `action`, `data-confirm` and `phx-disable-with`), never as identifiers, route
       paths or telemetry atoms. The lexicon applies to the same copy segments.
 
   A hit's `kind` is `lexicon` for a Do-not-say word in any scope and
@@ -267,6 +269,15 @@ defmodule Sigra.Brand.CopyContractTest do
       assert line == "You must log in to access this page."
     end
 
+    test "joins adjacent string literals before checking copy on one line and across lines" do
+      for lines <- [
+            [~s'copy = "Please log " <> "in to continue"'],
+            [~s'copy = "Please log " <>', ~s'  "in to continue"']
+          ] do
+        assert [%{kind: "banned_term", line: "Please log in to continue"}] = generated(lines)
+      end
+    end
+
     test "flags every banned spelling when it is copy" do
       for phrase <- ["Log in", "log out", "Login", "logout", "signin", "admin (operator)"] do
         assert [%{kind: "banned_term"}] =
@@ -289,7 +300,17 @@ defmodule Sigra.Brand.CopyContractTest do
     end
 
     test "flags the copy attributes and nothing else on a tag" do
-      for attr <- ["aria-label", "title", "placeholder", "label", "alt", "action"] do
+      for attr <- [
+            "aria-label",
+            "aria-description",
+            "title",
+            "placeholder",
+            "label",
+            "alt",
+            "action",
+            "data-confirm",
+            "phx-disable-with"
+          ] do
         assert [%{line: "Log in here"}] =
                  generated([~s'~H"""', ~s'<input #{attr}="Log in here" />', ~s'"""']),
                "expected #{attr} to be scanned"
@@ -620,7 +641,17 @@ defmodule Sigra.Brand.CopyContractTest do
     end
 
     test "a single-quoted copy attribute value is copy, any other single-quoted value is not" do
-      for attr <- ["aria-label", "title", "placeholder", "label", "alt", "action"] do
+      for attr <- [
+            "aria-label",
+            "aria-description",
+            "title",
+            "placeholder",
+            "label",
+            "alt",
+            "action",
+            "data-confirm",
+            "phx-disable-with"
+          ] do
         assert [%{line: "Log in here"}] =
                  generated([~s'~H"""', ~s'<a #{attr}=\'Log in here\'>x</a>', ~s'"""']),
                "expected single-quoted #{attr} to be scanned"
@@ -737,6 +768,7 @@ defmodule Sigra.Brand.CopyContractTest do
                  "Email confirmed",
                  "Your email has been confirmed.",
                  "Email address",
+                 "Are you sure?",
                  "Locked",
                  "Active"
                ]
@@ -806,8 +838,31 @@ defmodule Sigra.Brand.CopyContractTest do
       assert length(files) >= 50
       assert "priv/templates/sigra.install/core/emails.ex" in files
       assert "priv/templates/sigra.install/core/user_auth.ex" in files
-      assert Enum.all?(files, &String.starts_with?(&1, "priv/templates/sigra.install/"))
+      assert "priv/templates/sigra.gen.oauth/oauth_controller.ex" in files
+
+      assert Enum.all?(files, fn file ->
+               String.starts_with?(file, "priv/templates/sigra.install/") or
+                 String.starts_with?(file, "priv/templates/sigra.gen.oauth/")
+             end)
+
       assert Enum.all?(files, &(Path.extname(&1) in [".ex", ".eex", ".heex"]))
+    end
+
+    test "upgrade templates are deliberately outside the generated-copy scope" do
+      files = CopyScan.files_for(:generated)
+
+      upgrade_files =
+        Path.wildcard("priv/templates/sigra.upgrade/**/*") |> Enum.filter(&File.regular?/1)
+
+      assert upgrade_files != []
+      refute Enum.any?(files, &String.starts_with?(&1, "priv/templates/sigra.upgrade/"))
+
+      for path <- upgrade_files do
+        source = File.read!(path)
+
+        refute source =~ ~r/~H\b|dgettext\(|put_flash\(/,
+               "#{path} must remain migration code without user-facing copy forms"
+      end
     end
 
     test "the code scopes extract real copy from real files" do
@@ -847,6 +902,14 @@ defmodule Sigra.Brand.CopyContractTest do
       assert "README.md" in files
       assert "guides/introduction/contract.md" in files
       assert Enum.any?(files, &String.starts_with?(&1, "guides/flows/"))
+
+      for file <- [
+            "guides/introduction/first-hour.md",
+            "guides/introduction/getting-started.md",
+            "guides/introduction/installation.md"
+          ] do
+        assert file in files, "primary guide missing from the lexicon source list: #{file}"
+      end
 
       %{entries: entries} = CopyScan.load_baseline()
       assert Enum.count(entries, &(&1.scope == "lexicon")) >= 1

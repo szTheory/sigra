@@ -297,7 +297,10 @@ defmodule Sigra.Admin.Live.UsersIndexLive do
         </article>
       </div>
 
-      <.empty_state :if={@rows == []} title="No users match this view">
+      <.empty_state
+        :if={@rows == []}
+        title={if any_filter_active?(@current_params), do: "No users match this view", else: "No users yet"}
+      >
         <%= if any_filter_active?(@current_params) do %>
           <p class="sg-muted sg-text-sm">No users match the active filters. Clear them to widen the result set.</p>
           <div class="sg-cluster sg-cluster--center">

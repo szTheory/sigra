@@ -303,18 +303,12 @@ if [[ "${TEST_TARGET}" == "catalog" ]]; then
   # renders only, no redirects followed: a page must answer exactly its expected
   # status, so a redirect or any other status fails loudly.
   #
-  # One documented known defect is pinned as 500: the generated `--live` router
-  # emits `live "/reset-password", ResetPasswordLive` with no live action, so the
-  # request page raises CaseClauseError at mount for every adopter (todo
-  # 2026-11-14-generated-reset-request-page-mount-and-user-struct-call). A 500 is
-  # accepted ONLY when the dev error page carries that exact signature; the error
-  # page itself (local paths, stack) is never kept, a one-line marker is written
-  # instead. When the template is fixed this status turns 200 and the script fails
-  # until the entry below is changed to 200: the baseline never goes stale.
+  # These generated-host auth routes must render successfully. In particular,
+  # the reset request page exercises the generated LiveView route action.
   CATALOG_PAGES=(
     "log-in|/users/log_in|200"
     "register|/users/register|200"
-    "reset-password|/users/reset-password|500"
+    "reset-password|/users/reset-password|200"
     "reset-password-invalid-token|/users/reset-password/catalog-invalid-token|200"
     "confirm|/users/confirm|200"
   )
@@ -332,13 +326,6 @@ if [[ "${TEST_TARGET}" == "catalog" ]]; then
       CATALOG_FAIL=1
     elif [[ "${expected}" == "200" ]]; then
       echo "OK:   catalog page ${slug} (${page_path}) -> ${code}"
-    elif grep -q "CaseClauseError at GET ${page_path}" "${page_file}" \
-      && grep -q "ResetPasswordLive.mount/3" "${page_file}"; then
-      printf '%s\n' "<!-- catalog: GET ${page_path} answered HTTP ${code} on the generated host (known defect: the request page raises CaseClauseError at mount because the generated route has no live action); the error page is not captured -->" > "${page_file}"
-      echo "KNOWN: catalog page ${slug} (${page_path}) -> ${code}, documented defect confirmed, marker written"
-    else
-      echo "FAIL: catalog page ${slug} (${page_path}) returned ${code} without the documented defect signature"
-      CATALOG_FAIL=1
     fi
   done
   if [[ "${CATALOG_FAIL}" -eq 1 ]]; then

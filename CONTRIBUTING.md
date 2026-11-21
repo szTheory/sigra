@@ -10,15 +10,17 @@
 
 ## Reproducing the PR gate locally (mix ci)
 
-Run `mix ci` to reproduce the locally-faithful library gate without leaving your terminal. It chains exactly seven legs in the same order as CI:
+Run `mix ci` to reproduce the locally-faithful library gate without leaving your terminal. It chains exactly nine legs in the same order as CI:
 
 1. `format --check-formatted` — committed Elixir sources are formatted.
 2. `deps.get --check-locked` — `mix.lock` matches the declared dependencies.
 3. `deps.unlock --check-unused` — the lock contains no unused dependency entries.
 4. `compile --warnings-as-errors` — library compiles with zero warnings.
-5. `test --exclude scaffold` — the ordinary library suite; scaffold-tagged modules are deliberately excluded so no receiver runs twice.
-6. `ci.install_golden` — the one explicit `mix test` receiver for all six scaffold modules: upgrade, generator passkeys opt-out, passkeys JS, golden diff, idempotency, and vault promotion. This leg owns those modules exactly once, including golden diff and idempotency.
-7. `sigra.dep_off` — dep-off guard: unlocks `:threadline`, re-compiles without it (`--warnings-as-errors`), then runs the tagged `--only threadline_guard` subset.
+5. `cmd bash scripts/ci/admin-css-conformance.sh` — shipped admin CSS values follow the token and interaction constraints.
+6. `cmd bash scripts/ci/admin-token-completeness.sh` — every shipped admin token is documented.
+7. `test --exclude scaffold` — the ordinary library suite; scaffold-tagged modules are deliberately excluded so no receiver runs twice.
+8. `ci.install_golden` — the one explicit `mix test` receiver for all six scaffold modules: upgrade, generator passkeys opt-out, passkeys JS, golden diff, idempotency, and vault promotion. This leg owns those modules exactly once, including golden diff and idempotency.
+9. `sigra.dep_off` — dep-off guard: unlocks `:threadline`, re-compiles without it (`--warnings-as-errors`), then runs the tagged `--only threadline_guard` subset.
 
 CI's `library_tests_shard` job is the sole library-suite owner and calls the same command directly with `MIX_ENV=test mix ci`. The byte-stable `Library tests` job remains the protected aggregation of that owner. Local parity is retry-free: retries are not part of `mix ci`.
 
@@ -71,7 +73,7 @@ The following failures appear on a stock v1.40 checkout and are **not regression
 
 ## CI overview
 
-- **Library/scaffold/golden parity** — `MIX_ENV=test mix ci` remains the literal local parity command for the seven-leg library, scaffold, and golden gate. `library_tests_shard` is the direct executor; `library_tests / Library tests` is its byte-stable terminal aggregate and protected check, not a second executor.
+- **Library/scaffold/golden parity** — `MIX_ENV=test mix ci` remains the literal local parity command for the nine-leg library, scaffold, and golden gate. `library_tests_shard` is the direct executor; `library_tests / Library tests` is its byte-stable terminal aggregate and protected check, not a second executor.
 - **Example + install matrix** — compiles the example app and runs installer smoke paths.
 - **Milestone verification gate** — `scripts/ci/milestone-verification-gate.sh` ensures completed milestone phases keep a verification report on disk.
 - **Installer milestone audit** — `scripts/ci/installer-milestone-audit.sh` (paths-filtered on pull requests) encodes critical installer integration checks (INT-01..INT-03).

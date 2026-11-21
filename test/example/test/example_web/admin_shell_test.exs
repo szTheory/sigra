@@ -174,6 +174,32 @@ defmodule ExampleWeb.AdminShellTest do
       refute_live_nav_link(html, "/admin")
     end
 
+    test "preserves a maximum-length organization name in shell labels" do
+      org_admin =
+        AccountsFixtures.user_fixture(%{
+          email: "platform-admin+long-shell-#{System.unique_integer([:positive])}@example.com"
+        })
+
+      prefix = "Phase 264 #{System.unique_integer([:positive])} "
+      name = prefix <> String.duplicate("🧪", 255 - String.length(prefix))
+      assert String.length(name) == 255
+
+      organization =
+        AccountsFixtures.create_organization(%{name: name, slug: "phase264-long-shell"})
+
+      AccountsFixtures.create_membership(org_admin, organization, :admin)
+
+      html =
+        build_conn()
+        |> log_in_user(org_admin)
+        |> get(~p"/admin/organizations/#{organization.slug}")
+        |> html_response(200)
+
+      assert html =~ name
+      assert html =~ "Org · #{name}"
+      assert html =~ "data-overview-label=\"#{name}\""
+    end
+
     test "renders Overview parent breadcrumb for organization workspace pages" do
       org_admin =
         AccountsFixtures.user_fixture(%{

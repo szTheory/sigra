@@ -103,7 +103,7 @@ const vbH = fontSize * 1.3;
 const fontName = font.getEnglishName('fullName') || font.getEnglishName('postScriptName') || fontPath;
 const provenance = `Font: ${fontName} wght=${wght}. OFL licensed. Outlined with opentype.js 2.0.0. Generated ${new Date().toISOString().slice(0, 10)}.`;
 
-// Build SVG with accessibility shell pattern from brandbook/logo-primary.svg.
+// Build SVG with an accessible title/description shell around the outlined glyphs.
 // Use fill="currentColor" on the glyph group so dark-mode SVGs inherit correctly via CSS.
 const svg = `<svg xmlns="http://www.w3.org/2000/svg"
   viewBox="${vbX.toFixed(0)} 0 ${vbW.toFixed(0)} ${vbH.toFixed(0)}"

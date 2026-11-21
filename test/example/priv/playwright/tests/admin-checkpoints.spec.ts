@@ -4,6 +4,10 @@ import { test, expect, type Page, type TestInfo } from '@playwright/test';
 import { captureAdminCheckpoint } from '../helpers/adminArtifacts';
 import { adminUsersEmailLocator } from '../helpers/adminUsersIndex';
 import { TEST_PASSWORD } from '../helpers/fixtures';
+import {
+  assertGenericRegistrationResponse,
+  signInManually,
+} from '../helpers/registration';
 
 // Phase 31 Plan 2: curated admin checkpoint spec.
 //
@@ -54,7 +58,8 @@ async function registerUser(page: Page, email: string, password: string) {
   await page.locator('form:has(input[name="user[password]"])').first().evaluate((form) => {
     (form as HTMLFormElement).requestSubmit();
   });
-  await expect(page).not.toHaveURL(/\/users\/register/);
+  await assertGenericRegistrationResponse(page);
+  await signInManually(page, email, password);
 }
 
 async function clearBrowserSession(page: Page) {

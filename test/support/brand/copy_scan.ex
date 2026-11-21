@@ -36,14 +36,18 @@ defmodule Sigra.Test.Brand.CopyScan do
       shipped admin templates. The glossary terms, the brand book's phrase-level
       avoid-words and the phrase "admin (operator)" are banned, and so is the
       lexicon.
-    * `:generated` - `priv/templates/sigra.install/**` (`.ex`, `.eex`, `.heex`).
+    * `:generated` - `priv/templates/sigra.install/**` and
+      `priv/templates/sigra.gen.oauth/**` (`.ex`, `.eex`, `.heex`). Upgrade
+      migrations are outside the lane: they contain migration code, not screens,
+      messages or other user-facing copy.
       "log in", "log out", "login", "logout", "signin" and "admin (operator)"
       are banned as *copy*, and so is the lexicon.
 
   For the two code scopes the text is reduced to *copy segments* before any
   matching: string literals, HEEx text nodes (including the string literals
-  inside `{...}` expressions) and the values of the `aria-label`, `title`,
-  `placeholder`, `label`, `alt` and `action` attributes. Identifiers, function
+  inside `{...}` expressions) and user-visible attribute values, including
+  `aria-label`, `aria-description`, `title`, `placeholder`, `label`, `alt`,
+  `action`, `data-confirm` and `phx-disable-with`. Identifiers, function
   names, route paths (`/users/log_in`, `~p"..."`), atoms (telemetry names such as
   `[:sigra, :auth, :logout, :stop]`), comments, `@doc`/`@moduledoc` text and
   every other attribute are never matched. The admin scope keeps the glossary
@@ -81,10 +85,13 @@ defmodule Sigra.Test.Brand.CopyScan do
     "lib/sigra/admin/components.ex"
   ]
   @templates_dir "priv/templates/sigra.install"
+  @oauth_templates_dir "priv/templates/sigra.gen.oauth"
   @code_exts "{ex,eex,heex}"
 
   # Attribute values that are visible copy. Every other attribute is markup.
-  @copy_attrs ~w(aria-label title placeholder label alt action)
+  @copy_attrs ~w(
+    aria-label aria-description title placeholder label alt action data-confirm phx-disable-with
+  )
 
   # The admin chrome shows a replica of the host's sign-in screen. Its copy is
   # the host's, so the glossary guard exempts it and so does this scanner.
@@ -206,7 +213,10 @@ defmodule Sigra.Test.Brand.CopyScan do
   `:lexicon` is `README.md`, `guides/introduction/*.md` and `guides/flows/*.md`.
   `:admin` is the nine admin chrome files plus the shipped admin templates under
   `priv/templates/sigra.install/admin/`. `:generated` is every `.ex`, `.eex` and
-  `.heex` file under `priv/templates/sigra.install/`.
+  `.heex` file under `priv/templates/sigra.install/` and
+  `priv/templates/sigra.gen.oauth/`. Upgrade migrations are excluded because
+  their generated files are database migration code and contain no user-facing
+  screens, messages or other copy.
 
   CSS, SVG and JSON files carry no copy. JS files do (the passkey browser hook
   ships user-visible status messages) but the scanner does not read them, so
@@ -223,7 +233,9 @@ defmodule Sigra.Test.Brand.CopyScan do
   end
 
   def files_for(:generated) do
-    "#{@templates_dir}/**/*.#{@code_exts}" |> wildcard() |> Enum.sort()
+    [@templates_dir, @oauth_templates_dir]
+    |> Enum.flat_map(&wildcard("#{&1}/**/*.#{@code_exts}"))
+    |> Enum.sort()
   end
 
   @doc """
@@ -745,6 +757,7 @@ defmodule Sigra.Test.Brand.CopyScan do
 
   defp code(<<"\"", rest::binary>>, ctx, acc) do
     {raw, rest} = take_string(rest)
+    {raw, rest} = take_concat_literals(raw, rest)
     code(rest, ctx, literal(raw, ctx, acc))
   end
 
@@ -758,6 +771,34 @@ defmodule Sigra.Test.Brand.CopyScan do
     text = unescape(text)
 
     if copy_literal?(text), do: [normalize(text) | acc], else: acc
+  end
+
+  # Adjacent literal fragments joined with `<>` are one rendered string. Keep
+  # this deliberately narrow: only a literal immediately followed by another
+  # literal is coalesced; expressions and other operators remain separate.
+  defp take_concat_literals(raw, rest) do
+    trimmed = String.trim_leading(rest)
+    whitespace_size = byte_size(rest) - byte_size(trimmed)
+
+    case trimmed do
+      <<"<>", after_operator::binary>> ->
+        after_operator = String.trim_leading(after_operator)
+
+        case after_operator do
+          <<"\"", tail::binary>> ->
+            {next, tail} = take_string(tail)
+            take_concat_literals(raw <> next, tail)
+
+          _ ->
+            {raw, rest}
+        end
+
+      _ when whitespace_size > 0 ->
+        {raw, rest}
+
+      _ ->
+        {raw, rest}
+    end
   end
 
   # Prose has a letter, is not a route or URL, and either has a space or is a

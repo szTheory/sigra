@@ -63,6 +63,25 @@ defmodule Sigra.AuthTest do
     end
   end
 
+  defmodule TimingHasher do
+    @behaviour Sigra.Hasher
+
+    @impl true
+    def hash_password(_password), do: "test-hash"
+
+    @impl true
+    def verify_password(_password, hashed_password) do
+      send(self(), {:stored_hash_checked, hashed_password})
+      false
+    end
+
+    @impl true
+    def no_user_verify do
+      send(self(), :dummy_password_work)
+      :ok
+    end
+  end
+
   describe "register/3" do
     test "with valid attrs returns {:ok, user}" do
       user = %TestUser{id: 1, email: "user@example.com", hashed_password: "$argon2id$..."}
@@ -562,12 +581,26 @@ defmodule Sigra.AuthTest do
       assert {:ok, :sent} = result
     end
 
+    test "rate limits unknown addresses before checking whether they exist" do
+      Sigra.MockRateLimiter
+      |> expect(:check_rate, fn "magic_link:nobody@example.test", 3, 900_000 ->
+        {:deny, 60_000}
+      end)
+
+      result =
+        Auth.request_magic_link(
+          Sigra.MockRepo,
+          "nobody@example.test",
+          user_schema: TestUser,
+          user_token_schema: TestUserToken,
+          url_fun: fn _t -> "" end,
+          rate_limiter: Sigra.MockRateLimiter
+        )
+
+      assert {:error, :rate_limited} = result
+    end
+
     test "when rate limited returns {:error, :rate_limited}" do
-      user = %TestUser{id: 1, email: "user@example.com"}
-
-      Sigra.MockRepo
-      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
-
       Sigra.MockRateLimiter
       |> expect(:check_rate, fn "magic_link:user@example.com", 3, 900_000 -> {:deny, 60_000} end)
 
@@ -587,24 +620,12 @@ defmodule Sigra.AuthTest do
 
   describe "verify_magic_link/3" do
     test "valid token returns {:ok, user} and deletes token" do
-      {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+      {raw_token, _hashed_token} = Sigra.Token.generate_hashed_token()
       user = %TestUser{id: 1, email: "user@example.com", confirmed_at: ~U[2024-01-01 00:00:00Z]}
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-      token_struct = %TestUserToken{
-        token: hashed_token,
-        context: "magic_link",
-        sent_to: "user@example.com",
-        user_id: 1,
-        inserted_at: now
-      }
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
-        token_struct
-      end)
-      |> expect(:get!, fn TestUser, 1 -> user end)
-      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        assert [:magic_link_user] == Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
         {:ok, %{magic_link_user: user}}
       end)
 
@@ -621,22 +642,13 @@ defmodule Sigra.AuthTest do
     end
 
     test "expired token returns {:error, :expired}" do
-      {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+      {raw_token, _hashed_token} = Sigra.Token.generate_hashed_token()
       # Token inserted 20 minutes ago (past 10-minute TTL)
-      inserted_at =
-        DateTime.utc_now() |> DateTime.add(-1200, :second) |> DateTime.truncate(:second)
-
-      token_struct = %TestUserToken{
-        token: hashed_token,
-        context: "magic_link",
-        sent_to: "user@example.com",
-        user_id: 1,
-        inserted_at: inserted_at
-      }
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
-        token_struct
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        assert [:magic_link_user] == Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
+        {:error, :magic_link_user, :expired, %{}}
       end)
 
       result =
@@ -652,11 +664,12 @@ defmodule Sigra.AuthTest do
     end
 
     test "already-used token returns {:error, :invalid}" do
-      {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+      {raw_token, _hashed_token} = Sigra.Token.generate_hashed_token()
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
-        nil
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        assert [:magic_link_user] == Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
+        {:error, :magic_link_user, :invalid, %{}}
       end)
 
       result =
@@ -672,27 +685,15 @@ defmodule Sigra.AuthTest do
     end
 
     test "confirms unconfirmed user" do
-      {raw_token, hashed_token} = Sigra.Token.generate_hashed_token()
+      {raw_token, _hashed_token} = Sigra.Token.generate_hashed_token()
       user = %TestUser{id: 1, email: "user@example.com", confirmed_at: nil}
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-      token_struct = %TestUserToken{
-        token: hashed_token,
-        context: "magic_link",
-        sent_to: "user@example.com",
-        user_id: 1,
-        inserted_at: now
-      }
 
       confirmed_at = DateTime.utc_now() |> DateTime.truncate(:second)
       confirmed_user = Map.put(user, :confirmed_at, confirmed_at)
 
       Sigra.MockRepo
-      |> expect(:get_by, fn TestUserToken, [token: ^hashed_token, context: "magic_link"] ->
-        token_struct
-      end)
-      |> expect(:get!, fn TestUser, 1 -> user end)
-      |> expect(:transact, fn %Ecto.Multi{} = _multi ->
+      |> expect(:transact, fn %Ecto.Multi{} = multi ->
+        assert [:magic_link_user] == Enum.map(Ecto.Multi.to_list(multi), &elem(&1, 0))
         {:ok, %{magic_link_user: confirmed_user}}
       end)
 
@@ -1045,12 +1046,25 @@ defmodule Sigra.AuthTest do
       assert {:ok, :sent} = result
     end
 
+    test "rate limits unknown addresses before checking whether they exist" do
+      Sigra.MockRateLimiter
+      |> expect(:check_rate, fn "sigra:reset:nobody@example.test", 3, 900_000 ->
+        {:deny, 60_000}
+      end)
+
+      result =
+        Auth.request_password_reset(Sigra.MockRepo, "nobody@example.test",
+          user_schema: TestUser,
+          user_token_schema: TestUserToken,
+          secret_key_base: @secret_key_base,
+          url_fun: fn _t -> "" end,
+          rate_limiter: Sigra.MockRateLimiter
+        )
+
+      assert {:error, :rate_limited} = result
+    end
+
     test "with rate limiting returns {:error, :rate_limited}" do
-      user = %TestUser{id: 1, email: "user@example.com"}
-
-      Sigra.MockRepo
-      |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
-
       Sigra.MockRateLimiter
       |> expect(:check_rate, fn "sigra:reset:" <> _, 3, 900_000 -> {:deny, 60_000} end)
 
@@ -1424,7 +1438,7 @@ defmodule Sigra.AuthTest do
   }
 
   describe "authenticate/2 (config-based)" do
-    test "returns {:error, :account_locked} when user is locked (before hash check)" do
+    test "returns generic credentials failure after dummy hash work for a locked user" do
       locked_at = DateTime.utc_now() |> DateTime.add(-100, :second)
 
       user = %TestUser{
@@ -1439,15 +1453,109 @@ defmodule Sigra.AuthTest do
       Sigra.MockRepo
       |> expect(:get_by, fn TestUser, [email: "user@example.com"] -> user end)
 
-      # No password verification should happen -- Mox will fail if Crypto is called
+      config = %{@auth_config | password: [hasher: TimingHasher]}
 
       result =
-        Auth.authenticate(@auth_config, %{
+        Auth.authenticate(config, %{
           "email" => "user@example.com",
           "password" => "any_password"
         })
 
-      assert {:error, :account_locked} = result
+      assert {:error, :invalid_credentials} = result
+      assert_received :dummy_password_work
+      refute_received {:stored_hash_checked, _}
+    end
+
+    test "locked and unknown accounts use the same dummy password work and return the same failure" do
+      locked_at = DateTime.utc_now() |> DateTime.add(-100, :second)
+
+      locked_user = %TestUser{
+        id: 1,
+        email: "locked@example.test",
+        hashed_password: "should_not_be_checked",
+        confirmed_at: ~U[2024-01-01 00:00:00Z],
+        failed_login_attempts: 5,
+        locked_at: locked_at
+      }
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "locked@example.test"] -> locked_user end)
+      |> expect(:get_by, fn TestUser, [email: "unknown@example.test"] -> nil end)
+
+      config = %{@auth_config | password: [hasher: TimingHasher]}
+
+      locked_result =
+        Auth.authenticate(config, %{
+          "email" => "locked@example.test",
+          "password" => "any_password"
+        })
+
+      unknown_result =
+        Auth.authenticate(config, %{
+          "email" => "unknown@example.test",
+          "password" => "any_password"
+        })
+
+      assert locked_result == unknown_result
+      assert {:error, :invalid_credentials} = locked_result
+      assert_received :dummy_password_work
+      assert_received :dummy_password_work
+      refute_received {:stored_hash_checked, _}
+    end
+
+    test "locked sign-in keeps the same dummy work across stored hashes and lockout durations" do
+      locked_at = DateTime.utc_now() |> DateTime.add(-100, :second)
+
+      locked_users = [
+        %TestUser{
+          id: 1,
+          email: "locked@example.test",
+          hashed_password: "first-stored-hash",
+          confirmed_at: ~U[2024-01-01 00:00:00Z],
+          failed_login_attempts: 5,
+          locked_at: locked_at
+        },
+        %TestUser{
+          id: 2,
+          email: "locked@example.test",
+          hashed_password: "different-stored-hash",
+          confirmed_at: ~U[2024-01-01 00:00:00Z],
+          failed_login_attempts: 5,
+          locked_at: locked_at
+        }
+      ]
+
+      Sigra.MockRepo
+      |> expect(:get_by, fn TestUser, [email: "locked@example.test"] -> hd(locked_users) end)
+      |> expect(:get_by, fn TestUser, [email: "locked@example.test"] ->
+        List.last(locked_users)
+      end)
+
+      configs = [
+        %{
+          @auth_config
+          | password: [hasher: TimingHasher],
+            lockout: [threshold: 5, duration: 900, notify: true]
+        },
+        %{
+          @auth_config
+          | password: [hasher: TimingHasher],
+            lockout: [threshold: 5, duration: 3_600, notify: true]
+        }
+      ]
+
+      results =
+        Enum.map(configs, fn config ->
+          Auth.authenticate(config, %{
+            "email" => "locked@example.test",
+            "password" => "same-password"
+          })
+        end)
+
+      assert results == [{:error, :invalid_credentials}, {:error, :invalid_credentials}]
+      assert_received :dummy_password_work
+      assert_received :dummy_password_work
+      refute_received {:stored_hash_checked, _}
     end
 
     test "increments failed_login_attempts on wrong password" do
@@ -1517,7 +1625,7 @@ defmodule Sigra.AuthTest do
           "password" => "wrong_password"
         })
 
-      assert {:error, :account_locked} = result
+      assert {:error, :invalid_credentials} = result
     end
 
     test "emits [:sigra, :security, :lockout] telemetry when lockout triggered" do
